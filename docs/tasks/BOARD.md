@@ -18,7 +18,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
-| KLD-010 | **PWA:** Klunki branding in `manifest.json`/`index.html`, custom offline service worker (Flutter's generated one unregisters itself), local serve + offline check | – | `klunki/web/**`, `docs/tasks/KLD-010*` | – |
+| KLD-010 ✅ | **PWA:** Klunki branding in `manifest.json`/`index.html`, custom offline service worker (Flutter's generated one unregisters itself), local serve + offline check | – | `klunki/web/**`, `docs/tasks/KLD-010*` | – |
 | KLD-011 | **Android:** debug build + run on the one Android phone (no emulator); app label "Klunki"; `INTERNET` permission in the main manifest | Android Studio install (approved) + 🧑 setup wizard, licenses, USB debugging | `klunki/android/**` | 🧑 |
 | KLD-012 | **iOS (priority):** build + run on simulator (KLD-012a), then iPhone + iPad; signing team | 🧑 `xcode-select --switch`, Apple ID, Developer Mode | `klunki/ios/**` | 🧑 |
 
@@ -27,7 +27,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
 | KLD-020 ✅ | Typed `GameTransport` (matches `docs/ARCHITECTURE.md`) + `HotSeatTransport` that applies moves through the engine + `GameController` (ChangeNotifier) + game registry (id → factory, title) | – | `klunki/lib/transport/**`, `klunki/lib/game/**`, `klunki/test/game/**` | – |
-| KLD-021 | Shared UI shell: `GameScreen` frame (status line, result dialog, move history sheet, new game), `HandoverCover` ("pass the phone to O"), menu → game routing with one placeholder screen per game | 020 | `klunki/lib/ui/shell/**`, `klunki/lib/ui/menu_screen.dart`, `klunki/lib/ui/games/*_screen.dart` (placeholders), `klunki/test/ui/shell/**` | – |
+| KLD-021 ✅ | Shared UI shell: `GameScreen` frame (status line, result dialog, move history sheet, new game), `HandoverCover` ("pass the phone to O"), menu → game routing with one placeholder screen per game | 020 | `klunki/lib/ui/shell/**`, `klunki/lib/ui/menu_screen.dart`, `klunki/lib/ui/games/*_screen.dart` (placeholders), `klunki/test/ui/shell/**` | – |
 | KLD-022 | Connect Four screen (tap a column, drop animation, winning line highlight) | 021 | `klunki/lib/ui/games/connect4_screen.dart`, `klunki/test/ui/games/connect4*` | – |
 | KLD-023 | Mühle screen (board painter, tap to place/move/remove, mill highlight, phase hints) | 021 | `klunki/lib/ui/games/muehle_screen.dart`, `klunki/test/ui/games/muehle*` | – |
 | KLD-024 | Quartett Trumpf screen (top card with stats, tap a stat, trick reveal, pot) + handover | 021 | `klunki/lib/ui/games/quartett_trumpf_screen.dart`, `klunki/lib/ui/games/quartett_card.dart`, `klunki/test/ui/games/quartett_trumpf*` | – |
@@ -38,7 +38,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
-| KLD-030 | `packages/klunki_net` (pure Dart): NDJSON protocol (`hello`, `move`, `accepted`, `rejected`, `snapshot`, `ping`, `bye`), host-authoritative TCP session, replay from seed + move list, loopback tests | – | `packages/klunki_net/**` | – |
+| KLD-030 ✅ | `packages/klunki_net` (pure Dart): NDJSON protocol (`hello`, `move`, `accepted`, `rejected`, `snapshot`, `ping`, `bye`), host-authoritative TCP session, replay from seed + move list, loopback tests | – | `packages/klunki_net/**` | – |
 | KLD-031 | Terminal networking: `klunki host <game>` / `klunki join <ip>` — two terminals play each other through the `DebugConsole` | 030 | `packages/klunki_net/bin/**`, `packages/klunki_net/test/cli*` | – |
 | KLD-032 | `NetworkTransport` in the app on top of `klunki_net` (same interface as `HotSeatTransport`) | 020, 030 | `klunki/lib/transport/network_transport.dart`, `klunki/test/transport/network*` | – |
 | KLD-033 | Discovery service: advertise/browse `_klunki._tcp` via mDNS (`bonsoir`), manual IP:port fallback, QR payload | 030, 🧑 OK for the `bonsoir` + QR packages | `klunki/lib/net/**`, `klunki/pubspec.yaml`, `klunki/test/net/**` | 🧑 |

@@ -1,17 +1,18 @@
 // Basic Klunki smoke test: build the root widget and assert the menu
-// lists all three games.
+// lists every game.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:klunki/app/klunki_app.dart';
+import 'package:klunki_engine/klunki_engine.dart' show gameSpecs;
 
 void main() {
   testWidgets('Klunki app shows its menu', (WidgetTester tester) async {
     await tester.pumpWidget(const KlunkiApp());
 
-    expect(find.text('4 Gewinnt'), findsOneWidget);
-    expect(find.text('Mühle'), findsOneWidget);
-    expect(find.text('Quartett'), findsOneWidget);
+    for (final spec in gameSpecs) {
+      expect(find.text(spec.title), findsOneWidget);
+    }
   });
 
   testWidgets('debug console plays a Connect Four move', (WidgetTester tester) async {
