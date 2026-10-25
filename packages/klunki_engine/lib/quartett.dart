@@ -163,6 +163,8 @@ class QuartettGame implements Game {
   Player? _winner;
   bool _draw = false;
   String _reason = '';
+  GameEndReason? _code;
+  Map<String, int> _params = const {};
   final List<Map<String, dynamic>> _history = [];
 
   // trumpf: stacks, front = top.
@@ -206,7 +208,12 @@ class QuartettGame implements Game {
 
   @override
   GameResult get result =>
-      GameResult(winner: _winner, draw: _draw, reason: _reason);
+      GameResult(
+          winner: _winner,
+          draw: _draw,
+          reason: _reason,
+          code: _code,
+          params: _params);
 
   @override
   bool get isOver => _winner != null || _draw;
@@ -311,17 +318,23 @@ class QuartettGame implements Game {
     if (ea && eb) {
       _draw = true;
       _reason = 'both stacks empty';
+      _code = GameEndReason.quartettBothStacksEmpty;
     } else if (ea || eb) {
       _winner = ea ? Player.b : Player.a;
       _reason = 'opponent has no cards left';
+      _code = GameEndReason.quartettAllCards;
     } else if (_tricks >= maxTricks) {
       final na = stackSize(Player.a), nb = stackSize(Player.b);
       if (na == nb) {
         _draw = true;
         _reason = 'trick limit reached with equal stacks ($na:$nb)';
+        _code = GameEndReason.quartettTrickLimitEqual;
+        _params = {'a': na, 'b': nb};
       } else {
         _winner = na > nb ? Player.a : Player.b;
         _reason = 'trick limit reached, more cards ($na:$nb)';
+        _code = GameEndReason.quartettTrickLimitMoreCards;
+        _params = {'a': na, 'b': nb};
       }
     }
   }
@@ -400,9 +413,13 @@ class QuartettGame implements Game {
     if (qa == qb) {
       _draw = true;
       _reason = 'all quartets laid down, $qa:$qb';
+      _code = GameEndReason.quartettAllQuartetsEqual;
+      _params = {'a': qa, 'b': qb};
     } else {
       _winner = qa > qb ? Player.a : Player.b;
       _reason = 'more quartets ($qa:$qb)';
+      _code = GameEndReason.quartettMostQuartets;
+      _params = {'a': qa, 'b': qb};
     }
   }
 }

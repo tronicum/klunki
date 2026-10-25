@@ -670,4 +670,120 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?';
+
+  @override
+  String get engineReasonConnect4FourInARow => 'Vier in einer Reihe';
+
+  @override
+  String get engineReasonConnect4BoardFull => 'Brett voll';
+
+  @override
+  String get engineReasonMuehleFewerThanThree =>
+      'Gegner hat weniger als 3 Steine';
+
+  @override
+  String get engineReasonMuehleBlocked => 'Gegner kann nicht mehr ziehen';
+
+  @override
+  String engineReasonMuehleNoRemovalLimit(int moves) {
+    return '$moves Züge ohne Schlagen';
+  }
+
+  @override
+  String get engineReasonQuartettBothStacksEmpty => 'Beide Stapel leer';
+
+  @override
+  String get engineReasonQuartettAllCards => 'Gegner hat keine Karten mehr';
+
+  @override
+  String engineReasonQuartettTrickLimitEqual(int a, int b) {
+    return 'Stichlimit erreicht, gleich viele Karten ($a:$b)';
+  }
+
+  @override
+  String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
+    return 'Stichlimit erreicht, mehr Karten ($a:$b)';
+  }
+
+  @override
+  String engineReasonQuartettAllQuartetsEqual(int a, int b) {
+    return 'Alle Quartette abgelegt, $a:$b';
+  }
+
+  @override
+  String engineReasonQuartettMostQuartets(int a, int b) {
+    return 'Mehr Quartette ($a:$b)';
+  }
+
+  @override
+  String get engineReasonSchiffeAllSunk => 'Alle Schiffe versenkt';
+
+  @override
+  String get engineSetA => 'Supersportwagen';
+
+  @override
+  String get engineSetB => 'Hypercars';
+
+  @override
+  String get engineSetC => 'Klassiker';
+
+  @override
+  String get engineSetD => 'Muscle Cars';
+
+  @override
+  String get engineSetE => 'Rallye-Legenden';
+
+  @override
+  String get engineSetF => 'Gran Turismo';
+
+  @override
+  String get engineSetG => 'Elektro';
+
+  @override
+  String get engineSetH => 'Kleine Flitzer';
+
+  @override
+  String get engineStatPs => 'Leistung';
+
+  @override
+  String get engineStatKmh => 'Höchstgeschwindigkeit';
+
+  @override
+  String get engineStatCcm => 'Hubraum';
+
+  @override
+  String get engineStatKg => 'Gewicht';
+
+  @override
+  String get engineStatSec0to100 => '0–100 km/h';
+
+  @override
+  String get engineUnitPs => 'PS';
+
+  @override
+  String get engineUnitKmh => 'km/h';
+
+  @override
+  String get engineUnitCcm => 'cm³';
+
+  @override
+  String get engineUnitKg => 'kg';
+
+  @override
+  String get engineUnitSec => 's';
+
+  @override
+  String get engineShip5 => 'Schlachtschiff';
+
+  @override
+  String get engineShip4 => 'Kreuzer';
+
+  @override
+  String get engineShip3 => 'Zerstörer';
+
+  @override
+  String get engineShip2 => 'U-Boot';
+
+  @override
+  String get engineShipOther => 'Schiff';
 }

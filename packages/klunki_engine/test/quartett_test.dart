@@ -200,6 +200,7 @@ void main() {
       expect(g.topCard(Player.b), isNull);
       expect(g.stackSize(Player.a), 32);
       expect(g.result.reason, contains('no cards'));
+      expect(g.result.code, GameEndReason.quartettAllCards);
       expect(g.legalMoves, isEmpty);
     });
 
@@ -211,6 +212,8 @@ void main() {
       expect(g.tricks, QuartettGame.maxTricks);
       expect(g.result.draw, isTrue);
       expect(g.result.reason, contains('trick limit'));
+      expect(g.result.code, GameEndReason.quartettTrickLimitEqual);
+expect(g.result.params, {'a': 16, 'b': 16});
     });
 
     test('trick limit: seed 8 always "ps" -> A wins on cards', () {
@@ -221,6 +224,9 @@ void main() {
       expect(g.tricks, QuartettGame.maxTricks);
       expect(g.result.winner, Player.a);
       expect(g.stackSize(Player.a), greaterThan(g.stackSize(Player.b)));
+      expect(g.result.code, GameEndReason.quartettTrickLimitMoreCards);
+      expect(g.result.params,
+          {'a': g.stackSize(Player.a), 'b': g.stackSize(Player.b)});
     });
 
     test('illegal picks -> null, no change', () {
@@ -385,6 +391,7 @@ void main() {
       }
       expect(g.result.isOver, isTrue);
       expect(g.result.reason, isNotEmpty);
+      expect(g.result.code, isNotNull);
       expect(g.legalMoves, isEmpty);
       final snap = snapshot(g);
       expect(

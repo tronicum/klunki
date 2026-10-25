@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../shell/shell_test_utils.dart';
+import '../../l10n/l10n_test_utils.dart';
 
 const feedback = Key('qs-feedback');
 const feedbackText = Key('qs-feedback-text');
@@ -104,7 +106,7 @@ void main() {
     final set = card[0];
     await ask(tester, card);
 
-    final name = QuartettGame.setNames[set]!;
+    final name = localizedSetName(deL10n, set);
     expect(find.text('Quartett! $name abgelegt'), findsOneWidget);
     expect((c.game as QuartettGame).quartetsOf(Player.a), contains(set));
     expect(find.descendant(of: find.byKey(const Key('qs-quartets-a')), matching: find.text('$set $name')),
@@ -208,6 +210,6 @@ void main() {
     expect(asks, c.moves.length);
     final g = c.game as QuartettGame;
     expect(g.quartetsOf(Player.a).length + g.quartetsOf(Player.b).length, 8);
-    expect(find.text(c.game.result.reason), findsOneWidget);
+    expect(find.text(localizedResultReason(deL10n, c.game.result)), findsOneWidget);
   });
 }

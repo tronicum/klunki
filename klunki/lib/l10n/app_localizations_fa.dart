@@ -669,4 +669,120 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'Reconnecting failed. Is the host still in the game?';
+
+  @override
+  String get engineReasonConnect4FourInARow => 'Four in a row';
+
+  @override
+  String get engineReasonConnect4BoardFull => 'Board full';
+
+  @override
+  String get engineReasonMuehleFewerThanThree =>
+      'Opponent has fewer than 3 pieces';
+
+  @override
+  String get engineReasonMuehleBlocked => 'Opponent cannot move';
+
+  @override
+  String engineReasonMuehleNoRemovalLimit(int moves) {
+    return '$moves moves without a capture';
+  }
+
+  @override
+  String get engineReasonQuartettBothStacksEmpty => 'Both stacks empty';
+
+  @override
+  String get engineReasonQuartettAllCards => 'Opponent has no cards left';
+
+  @override
+  String engineReasonQuartettTrickLimitEqual(int a, int b) {
+    return 'Trick limit reached, equal stacks ($a:$b)';
+  }
+
+  @override
+  String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
+    return 'Trick limit reached, more cards ($a:$b)';
+  }
+
+  @override
+  String engineReasonQuartettAllQuartetsEqual(int a, int b) {
+    return 'All quartets laid down, $a:$b';
+  }
+
+  @override
+  String engineReasonQuartettMostQuartets(int a, int b) {
+    return 'More quartets ($a:$b)';
+  }
+
+  @override
+  String get engineReasonSchiffeAllSunk => 'All ships sunk';
+
+  @override
+  String get engineSetA => 'Supercars';
+
+  @override
+  String get engineSetB => 'Hypercars';
+
+  @override
+  String get engineSetC => 'Classics';
+
+  @override
+  String get engineSetD => 'Muscle Cars';
+
+  @override
+  String get engineSetE => 'Rally Legends';
+
+  @override
+  String get engineSetF => 'Grand Tourers';
+
+  @override
+  String get engineSetG => 'Electric';
+
+  @override
+  String get engineSetH => 'Pocket Rockets';
+
+  @override
+  String get engineStatPs => 'Power';
+
+  @override
+  String get engineStatKmh => 'Top speed';
+
+  @override
+  String get engineStatCcm => 'Displacement';
+
+  @override
+  String get engineStatKg => 'Weight';
+
+  @override
+  String get engineStatSec0to100 => '0–100 km/h';
+
+  @override
+  String get engineUnitPs => 'hp';
+
+  @override
+  String get engineUnitKmh => 'km/h';
+
+  @override
+  String get engineUnitCcm => 'cc';
+
+  @override
+  String get engineUnitKg => 'kg';
+
+  @override
+  String get engineUnitSec => 's';
+
+  @override
+  String get engineShip5 => 'Battleship';
+
+  @override
+  String get engineShip4 => 'Cruiser';
+
+  @override
+  String get engineShip3 => 'Destroyer';
+
+  @override
+  String get engineShip2 => 'Submarine';
+
+  @override
+  String get engineShipOther => 'Ship';
 }

@@ -236,6 +236,7 @@ void main() {
       expect(g.isOver, isTrue);
       expect(g.result.winner, Player.a);
       expect(g.result.reason, 'all ships sunk');
+      expect(g.result.code, GameEndReason.schiffeAllSunk);
       expect(g.shipsRemaining(Player.b), 0);
       expect(g.legalMoves, isEmpty);
       expectIllegal(g, fire(0, 0));

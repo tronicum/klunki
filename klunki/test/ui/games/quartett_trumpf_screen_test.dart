@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -175,7 +176,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.game.isOver, isTrue);
     expect(find.byKey(resultDialog), findsOneWidget);
-    expect(find.text(c.game.result.reason), findsOneWidget);
+    expect(find.text(localizedResultReason(deL10n, c.game.result)), findsOneWidget);
   });
 
   testWidgets('phone width: card, stack and reveal lay out without overflow', (tester) async {

@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettGame, QuartettStat;
 
+import '../engine_l10n.dart';
+
 /// Shared Quartett card widgets (Trumpf screen KLD-024, Sets screen KLD-025).
 ///
 /// The engine's `Card` clashes with Flutter's `Card`, so this file imports the
@@ -22,14 +24,15 @@ Color quartettSetColor(String set) => switch (set) {
       _ => const Color(0xFF616161),
     };
 
-/// Display name of a set letter (e.g. `B` → "Hypercars").
-String quartettSetName(String set) => qe.QuartettGame.setNames[set] ?? set;
+/// Localized display name of a set letter (e.g. `B` → "Hypercars").
+String quartettSetName(AppLocalizations l10n, String set) => localizedSetName(l10n, set);
 
 /// A stat value with unit and the decimal separator of [locale] (default
-/// German, decimal comma): `2,7 s`, `650 PS`. The unit comes from the engine.
-String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de'}) {
+/// German, decimal comma): `2,7 s`, `650 PS`. [unit] defaults to the engine's
+/// unit; pass `localizedStatUnit(l10n, stat.id)` for the current language.
+String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de', String? unit}) {
   final v = value is double ? NumberFormat('0.0', locale).format(value) : '$value';
-  return '$v ${stat.unit}';
+  return '$v ${unit ?? stat.unit}';
 }
 
 /// How a highlighted stat row came out in a trick.
@@ -141,7 +144,7 @@ class QuartettCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        quartettSetName(c.set),
+                        quartettSetName(AppLocalizations.of(context), c.set),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.labelMedium?.copyWith(color: onColor.withValues(alpha: 0.85)),
@@ -167,6 +170,7 @@ class QuartettCard extends StatelessWidget {
 
   Widget _statRow(BuildContext context, qe.Card c, qe.QuartettStat s, Color setColor) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final text = dense ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium;
     final highlighted = highlightStat == s.id;
     final o = outcome;
@@ -187,7 +191,7 @@ class QuartettCard extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              s.label,
+              localizedStatLabel(l10n, s.id),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: text?.copyWith(fontWeight: highlighted ? FontWeight.bold : null),
@@ -195,12 +199,13 @@ class QuartettCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            value == null ? '–' : formatQuartettValue(s, value, locale: Localizations.localeOf(context).languageCode),
+            value == null ? '–' : formatQuartettValue(s, value,
+                    locale: Localizations.localeOf(context).languageCode, unit: localizedStatUnit(l10n, s.id)),
             style: text?.copyWith(fontWeight: FontWeight.bold, color: tint),
           ),
           const SizedBox(width: 4),
           Tooltip(
-            message: s.higherWins ? AppLocalizations.of(context).quartettHigherWins : AppLocalizations.of(context).quartettLowerWins,
+            message: s.higherWins ? l10n.quartettHigherWins : l10n.quartettLowerWins,
             child: Icon(
               s.higherWins ? Icons.arrow_upward : Icons.arrow_downward,
               size: dense ? 14 : 18,

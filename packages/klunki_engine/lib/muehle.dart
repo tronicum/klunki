@@ -110,6 +110,8 @@ class MuehleGame extends Game {
   Player? _winner;
   bool _draw = false;
   String _reason = '';
+  GameEndReason? _code;
+  Map<String, int> _params = const {};
 
   /// Read-only view of the 24 points; `null` = empty.
   List<Player?> get board => List.unmodifiable(_board);
@@ -125,7 +127,12 @@ class MuehleGame extends Game {
 
   @override
   GameResult get result =>
-      GameResult(winner: _winner, draw: _draw, reason: _reason);
+      GameResult(
+          winner: _winner,
+          draw: _draw,
+          reason: _reason,
+          code: _code,
+          params: _params);
 
   @override
   bool get isOver => _winner != null || _draw;
@@ -272,23 +279,29 @@ class MuehleGame extends Game {
   GameEvent _endTurn(Player player, Object? payload) {
     final opp = _other(player);
     if (_inHand[opp] == 0 && piecesOnBoard(opp) < 3) {
-      return _finish(player, 'opponent has fewer than 3 pieces', payload);
+      return _finish(player, 'opponent has fewer than 3 pieces',
+          GameEndReason.muehleFewerThanThree, payload);
     }
     if (_movesSinceRemoval >= drawMoveLimit) {
       _draw = true;
       _reason = '$drawMoveLimit moves without a removal';
+      _code = GameEndReason.muehleNoRemovalLimit;
+      _params = {'moves': drawMoveLimit};
       return GameEvent(draw: true, payload: payload);
     }
     _current = opp;
     if (_placeOrMoveOptions(opp).isEmpty) {
-      return _finish(player, 'opponent has no legal move', payload);
+      return _finish(player, 'opponent has no legal move',
+          GameEndReason.muehleBlocked, payload);
     }
     return GameEvent(payload: payload);
   }
 
-  GameEvent _finish(Player winner, String reason, Object? payload) {
+  GameEvent _finish(
+      Player winner, String reason, GameEndReason code, Object? payload) {
     _winner = winner;
     _reason = reason;
+    _code = code;
     return GameEvent(winner: winner, payload: payload);
   }
 }

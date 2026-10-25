@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
@@ -38,8 +39,7 @@ class QuartettTrumpfScreen extends StatelessWidget {
   /// History text for a pick: "wählt Leistung" (the shell prefixes the
   /// player). No card names, so the history never leaks a card.
   static String describeMove(AppLocalizations l10n, AcceptedMove m) {
-    final stat = QuartettGame.statById('${m.move['stat']}');
-    return l10n.quartettTrumpfMovePick(stat?.label ?? '${m.move['stat']}');
+    return l10n.quartettTrumpfMovePick(localizedStatLabel(l10n, '${m.move['stat']}'));
   }
 
   @override
@@ -362,7 +362,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(l10n.quartettTrumpfPicked(playerMark(t.picker), t.stat.label), style: theme.textTheme.bodyMedium),
+                    Text(l10n.quartettTrumpfPicked(playerMark(t.picker), localizedStatLabel(l10n, t.stat.id)), style: theme.textTheme.bodyMedium),
                     Text(
                       headline,
                       key: const Key('qt-reveal-text'),

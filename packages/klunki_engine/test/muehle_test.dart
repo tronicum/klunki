@@ -250,6 +250,7 @@ void main() {
       expect(g.isOver, isTrue);
       expect(g.result.winner, Player.b);
       expect(g.result.reason, contains('fewer than 3'));
+      expect(g.result.code, GameEndReason.muehleFewerThanThree);
       expect(g.legalMoves, isEmpty);
       expect(g.applyMove(mv('m0-1')), isNull); // game over
     });
@@ -266,6 +267,7 @@ void main() {
       expect(e!.winner, Player.b);
       expect(g.result.winner, Player.b);
       expect(g.result.reason, contains('no legal move'));
+      expect(g.result.code, GameEndReason.muehleBlocked);
       expect(g.piecesOnBoard(Player.a), 9);
       expect(g.applyMove(mv('m0-1')), isNull);
     });
@@ -288,6 +290,8 @@ void main() {
       expect(e.winner, isNull);
       expect(g.result.draw, isTrue);
       expect(g.result.reason, contains('50'));
+      expect(g.result.code, GameEndReason.muehleNoRemovalLimit);
+expect(g.result.params, {'moves': 50});
       expect(g.applyMove(mv('m17-16')), isNull);
     });
 

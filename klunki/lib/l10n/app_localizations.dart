@@ -1097,6 +1097,216 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?'**
   String get pairingReconnectFailed;
+
+  /// Result reason (4 Gewinnt): four markers lined up.
+  ///
+  /// In de, this message translates to:
+  /// **'Vier in einer Reihe'**
+  String get engineReasonConnect4FourInARow;
+
+  /// Result reason (4 Gewinnt): draw, no column left.
+  ///
+  /// In de, this message translates to:
+  /// **'Brett voll'**
+  String get engineReasonConnect4BoardFull;
+
+  /// Result reason (Mühle): the loser is down to two pieces.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner hat weniger als 3 Steine'**
+  String get engineReasonMuehleFewerThanThree;
+
+  /// Result reason (Mühle): the loser has no legal move.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner kann nicht mehr ziehen'**
+  String get engineReasonMuehleBlocked;
+
+  /// Result reason (Mühle): draw after the move limit without a removal.
+  ///
+  /// In de, this message translates to:
+  /// **'{moves} Züge ohne Schlagen'**
+  String engineReasonMuehleNoRemovalLimit(int moves);
+
+  /// Result reason (Quartett Trumpf): draw, the last cards went into the pot.
+  ///
+  /// In de, this message translates to:
+  /// **'Beide Stapel leer'**
+  String get engineReasonQuartettBothStacksEmpty;
+
+  /// Result reason (Quartett Trumpf): the winner holds all cards.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner hat keine Karten mehr'**
+  String get engineReasonQuartettAllCards;
+
+  /// Result reason (Quartett Trumpf): draw at the trick limit. a/b = stack sizes of X/O.
+  ///
+  /// In de, this message translates to:
+  /// **'Stichlimit erreicht, gleich viele Karten ({a}:{b})'**
+  String engineReasonQuartettTrickLimitEqual(int a, int b);
+
+  /// Result reason (Quartett Trumpf): the larger stack wins at the trick limit. a/b = stack sizes of X/O.
+  ///
+  /// In de, this message translates to:
+  /// **'Stichlimit erreicht, mehr Karten ({a}:{b})'**
+  String engineReasonQuartettTrickLimitMoreCards(int a, int b);
+
+  /// Result reason (Quartett Sets): draw with equal quartet counts. a/b = quartets of X/O.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Quartette abgelegt, {a}:{b}'**
+  String engineReasonQuartettAllQuartetsEqual(int a, int b);
+
+  /// Result reason (Quartett Sets): more quartets win. a/b = quartets of X/O.
+  ///
+  /// In de, this message translates to:
+  /// **'Mehr Quartette ({a}:{b})'**
+  String engineReasonQuartettMostQuartets(int a, int b);
+
+  /// Result reason (Schiffe versenken): the whole fleet is sunk.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Schiffe versenkt'**
+  String get engineReasonSchiffeAllSunk;
+
+  /// Quartett set name, set A.
+  ///
+  /// In de, this message translates to:
+  /// **'Supersportwagen'**
+  String get engineSetA;
+
+  /// Quartett set name, set B.
+  ///
+  /// In de, this message translates to:
+  /// **'Hypercars'**
+  String get engineSetB;
+
+  /// Quartett set name, set C.
+  ///
+  /// In de, this message translates to:
+  /// **'Klassiker'**
+  String get engineSetC;
+
+  /// Quartett set name, set D.
+  ///
+  /// In de, this message translates to:
+  /// **'Muscle Cars'**
+  String get engineSetD;
+
+  /// Quartett set name, set E.
+  ///
+  /// In de, this message translates to:
+  /// **'Rallye-Legenden'**
+  String get engineSetE;
+
+  /// Quartett set name, set F.
+  ///
+  /// In de, this message translates to:
+  /// **'Gran Turismo'**
+  String get engineSetF;
+
+  /// Quartett set name, set G.
+  ///
+  /// In de, this message translates to:
+  /// **'Elektro'**
+  String get engineSetG;
+
+  /// Quartett set name, set H (small, quick cars).
+  ///
+  /// In de, this message translates to:
+  /// **'Kleine Flitzer'**
+  String get engineSetH;
+
+  /// Quartett stat label: engine power.
+  ///
+  /// In de, this message translates to:
+  /// **'Leistung'**
+  String get engineStatPs;
+
+  /// Quartett stat label: top speed.
+  ///
+  /// In de, this message translates to:
+  /// **'Höchstgeschwindigkeit'**
+  String get engineStatKmh;
+
+  /// Quartett stat label: engine displacement.
+  ///
+  /// In de, this message translates to:
+  /// **'Hubraum'**
+  String get engineStatCcm;
+
+  /// Quartett stat label: weight.
+  ///
+  /// In de, this message translates to:
+  /// **'Gewicht'**
+  String get engineStatKg;
+
+  /// Quartett stat label: acceleration time from 0 to 100 km/h.
+  ///
+  /// In de, this message translates to:
+  /// **'0–100 km/h'**
+  String get engineStatSec0to100;
+
+  /// Unit of engine power (metric horsepower).
+  ///
+  /// In de, this message translates to:
+  /// **'PS'**
+  String get engineUnitPs;
+
+  /// Unit of top speed.
+  ///
+  /// In de, this message translates to:
+  /// **'km/h'**
+  String get engineUnitKmh;
+
+  /// Unit of displacement.
+  ///
+  /// In de, this message translates to:
+  /// **'cm³'**
+  String get engineUnitCcm;
+
+  /// Unit of weight.
+  ///
+  /// In de, this message translates to:
+  /// **'kg'**
+  String get engineUnitKg;
+
+  /// Unit of the acceleration time (seconds).
+  ///
+  /// In de, this message translates to:
+  /// **'s'**
+  String get engineUnitSec;
+
+  /// Schiffe versenken: name of the 5-cell ship.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlachtschiff'**
+  String get engineShip5;
+
+  /// Schiffe versenken: name of the 4-cell ship.
+  ///
+  /// In de, this message translates to:
+  /// **'Kreuzer'**
+  String get engineShip4;
+
+  /// Schiffe versenken: name of the 3-cell ships.
+  ///
+  /// In de, this message translates to:
+  /// **'Zerstörer'**
+  String get engineShip3;
+
+  /// Schiffe versenken: name of the 2-cell ships.
+  ///
+  /// In de, this message translates to:
+  /// **'U-Boot'**
+  String get engineShip2;
+
+  /// Schiffe versenken: name of a ship with a length outside the default fleet.
+  ///
+  /// In de, this message translates to:
+  /// **'Schiff'**
+  String get engineShipOther;
 }
 
 class _AppLocalizationsDelegate

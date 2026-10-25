@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
@@ -151,13 +152,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final r = controller.game.result;
     final l10n = AppLocalizations.of(context);
     final headline = r.draw || r.winner == null ? l10n.shellDraw : l10n.shellWins(playerMark(r.winner!));
+    final reason = localizedResultReason(l10n, r);
     final again = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         key: const Key('result-dialog'),
         title: Text(headline),
-        content: r.reason.isEmpty ? null : Text(r.reason),
+        content: reason.isEmpty ? null : Text(reason, key: const Key('result-reason')),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
           if (_canRestart)

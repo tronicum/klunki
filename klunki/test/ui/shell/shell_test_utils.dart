@@ -10,11 +10,11 @@ import '../../l10n/l10n_test_utils.dart';
 const resultDialog = Key('result-dialog');
 const handoverContinue = Key('handover-continue');
 
-/// Pumps the registered screen for a fresh hot-seat game of [id].
-Future<GameController> pumpGame(WidgetTester tester, String id, {int seed = 1}) async {
+/// Pumps the registered screen for a fresh hot-seat game of [id] in [locale].
+Future<GameController> pumpGame(WidgetTester tester, String id, {int seed = 1, Locale locale = testLocale}) async {
   final controller = GameController.hotSeat(GameConfig(id, seed: seed));
   addTearDown(controller.dispose);
-  await tester.pumpWidget(localizedApp(buildGameScreen(controller)));
+  await tester.pumpWidget(localizedApp(buildGameScreen(controller), locale: locale));
   await tester.pump();
   return controller;
 }

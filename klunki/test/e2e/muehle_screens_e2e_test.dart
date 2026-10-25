@@ -143,7 +143,7 @@ void main() {
     for (final key in [_iosKey, _androidKey]) {
       expect(_on(key, find.byKey(const Key('result-dialog'))), findsOneWidget, reason: '$key');
       expect(_on(key, find.text('O gewinnt!')), findsOneWidget, reason: '$key');
-      expect(_on(key, find.text(muehleScriptReason)), findsOneWidget, reason: '$key');
+      expect(_on(key, find.text('Gegner hat weniger als 3 Steine')), findsOneWidget, reason: '$key');
     }
     for (final s in [d.ios, d.android]) {
       expect(s.game.result.winner, muehleScriptWinner);

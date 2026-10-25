@@ -113,7 +113,10 @@ class SchiffeGame extends Game {
 
   @override
   GameResult get result =>
-      GameResult(winner: _winner, reason: _winner != null ? 'all ships sunk' : '');
+      GameResult(
+          winner: _winner,
+          reason: _winner != null ? 'all ships sunk' : '',
+          code: _winner != null ? GameEndReason.schiffeAllSunk : null);
 
   @override
   bool get isOver => _winner != null;

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
@@ -214,7 +215,7 @@ class _Setup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          next == null ? l10n.schiffeFleetComplete : l10n.schiffeShipWithLength(SchiffeGame.shipName(len), len),
+          next == null ? l10n.schiffeFleetComplete : l10n.schiffeShipWithLength(localizedShipName(l10n, len), len),
           key: const Key('sv-next-ship'),
           style: theme.textTheme.titleLarge,
         ),
@@ -249,8 +250,8 @@ class _Setup extends StatelessWidget {
             color: placed ? Colors.green.shade700 : null,
           ),
           label: Text(placed
-              ? l10n.schiffeShipPlaced(SchiffeGame.shipName(l), l)
-              : l10n.schiffeShipWithLength(SchiffeGame.shipName(l), l)),
+              ? l10n.schiffeShipPlaced(localizedShipName(l10n, l), l)
+              : l10n.schiffeShipWithLength(localizedShipName(l10n, l), l)),
         ),
       );
     }
@@ -377,7 +378,7 @@ class _Battle extends StatelessWidget {
             ),
             child: Text(
               extraPayload?['result'] == 'sunk'
-                  ? l10n.schiffeExtraShotSunk(SchiffeGame.shipName(extraPayload!['ship'] as int))
+                  ? l10n.schiffeExtraShotSunk(localizedShipName(l10n, extraPayload!['ship'] as int))
                   : l10n.schiffeExtraShot,
               style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onTertiaryContainer),
             ),

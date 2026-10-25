@@ -20,6 +20,7 @@ void main() {
       expect(g.result.winner, Player.a);
       expect(g.result.draw, isFalse);
       expect(g.result.reason, 'four in a row');
+      expect(g.result.code, GameEndReason.connect4FourInARow);
     });
 
     test('vertical win', () {
@@ -127,6 +128,7 @@ void main() {
       expect(g.result.draw, isTrue);
       expect(g.result.winner, isNull);
       expect(g.result.reason, 'board full');
+      expect(g.result.code, GameEndReason.connect4BoardFull);
       expect(g.history.length, 42);
       expect(g.legalMoves, isEmpty);
     });

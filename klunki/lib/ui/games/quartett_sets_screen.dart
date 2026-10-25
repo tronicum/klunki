@@ -50,7 +50,7 @@ class QuartettSetsScreen extends StatelessWidget {
     final quartet = p is Map ? p['quartet'] : null;
     final result = hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss;
     return quartet is String
-        ? l10n.quartettSetsMoveAskQuartet('$card', result, quartettSetName(quartet))
+        ? l10n.quartettSetsMoveAskQuartet('$card', result, quartettSetName(l10n, quartet))
         : l10n.quartettSetsMoveAsk('$card', result);
   }
 
@@ -330,7 +330,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
       child: Text(
-        '$set ${quartettSetName(set)}',
+        '$set ${quartettSetName(AppLocalizations.of(context), set)}',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
       ),
     );
@@ -383,7 +383,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          l10n.quartettSetsQuartetLaid(quartettSetName(q)),
+                          l10n.quartettSetsQuartetLaid(quartettSetName(l10n, q)),
                           key: const Key('qs-quartet-text'),
                           style: theme.textTheme.titleSmall
                               ?.copyWith(color: quartettSetColor(q), fontWeight: FontWeight.bold),
@@ -455,7 +455,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  '$set ${quartettSetName(set)}',
+                  '$set ${quartettSetName(AppLocalizations.of(context), set)}',
                   style: theme.textTheme.titleSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
                 ),
               ),

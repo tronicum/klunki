@@ -1,5 +1,5 @@
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:klunki/ui/engine_l10n.dart';
 
 import '../../../transport/game_transport.dart';
 import 'schiffe_grid.dart';
@@ -21,7 +21,7 @@ String describeSchiffeMove(AppLocalizations l10n, AcceptedMove m) {
       final result = switch (payload['result']) {
         'miss' => l10n.schiffeLookWater,
         'hit' => l10n.schiffeLookHit,
-        _ => l10n.schiffeShipSunk(len is int ? SchiffeGame.shipName(len) : l10n.schiffeLookShip),
+        _ => l10n.schiffeShipSunk(len is int ? localizedShipName(l10n, len) : l10n.schiffeLookShip),
       };
       return l10n.schiffeMoveFire(at, result);
   }

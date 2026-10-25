@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -48,6 +49,30 @@ void main() {
     });
   });
 
+  group('localized result reason (I18N-05)', () {
+    for (final (locale, fourInARow, boardFull) in [
+      (const Locale('de'), 'Vier in einer Reihe', 'Brett voll'),
+      (const Locale('en'), 'Four in a row', 'Board full'),
+    ]) {
+      testWidgets('Connect Four result dialog in ${locale.languageCode}', (tester) async {
+        final c = await pumpGame(tester, 'connect4', locale: locale);
+        await playToEnd(tester);
+        final r = c.game.result;
+        final expected = r.code == GameEndReason.connect4FourInARow ? fourInARow : boardFull;
+        expect(find.descendant(of: find.byKey(resultDialog), matching: find.text(expected)), findsOneWidget);
+        expect(find.text(r.reason), findsNothing, reason: 'not the engine text');
+      });
+    }
+
+    testWidgets('Mühle result dialog with a parameter in en', (tester) async {
+      final c = await pumpGame(tester, 'muehle', locale: const Locale('en'));
+      await playToEnd(tester);
+      final text = localizedResultReason(enL10n, c.game.result);
+      expect(find.byKey(const Key('result-reason')), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const Key('result-reason'))).data, text);
+    });
+  });
+
   group('full games driven through the controller', () {
     testWidgets('Connect Four ends with the result dialog; "Nochmal" restarts', (tester) async {
       final c = await pumpGame(tester, 'connect4');
@@ -56,7 +81,7 @@ void main() {
       final r = c.game.result;
       final headline = r.winner == null ? 'Unentschieden' : '${playerMark(r.winner!)} gewinnt!';
       expect(find.text(headline), findsOneWidget);
-      expect(find.text(r.reason), findsOneWidget);
+      expect(find.text(localizedResultReason(deL10n, r)), findsOneWidget);
 
       final oldSeed = c.config.seed;
       await tester.tap(find.text('Nochmal'));
@@ -76,7 +101,7 @@ void main() {
         expect(c.game.isOver, isTrue);
         expect(find.text('Nochmal'), findsOneWidget);
         expect(find.text('Menü'), findsOneWidget);
-        expect(find.text(c.game.result.reason), findsOneWidget);
+        expect(find.text(localizedResultReason(deL10n, c.game.result)), findsOneWidget);
       });
     }
   });

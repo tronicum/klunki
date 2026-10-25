@@ -26,8 +26,13 @@ class Connect4Game implements Game {
   @override
   Player get currentPlayer => _current;
 
-  GameResult get result => GameResult(winner: _winner, draw: _draw,
-      reason: _winner != null ? 'four in a row' : (_draw ? 'board full' : ''));
+  GameResult get result => GameResult(
+      winner: _winner,
+      draw: _draw,
+      reason: _winner != null ? 'four in a row' : (_draw ? 'board full' : ''),
+      code: _winner != null
+          ? GameEndReason.connect4FourInARow
+          : (_draw ? GameEndReason.connect4BoardFull : null));
 
   @override
   bool get isOver => _winner != null || _draw;

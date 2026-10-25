@@ -1038,5 +1038,182 @@
   "pairingReconnectFailed": "Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?",
   "@pairingReconnectFailed": {
     "description": "Error below the connection banner when reconnecting failed."
+  },
+  "engineReasonConnect4FourInARow": "Vier in einer Reihe",
+  "@engineReasonConnect4FourInARow": {
+    "description": "Result reason (4 Gewinnt): four markers lined up."
+  },
+  "engineReasonConnect4BoardFull": "Brett voll",
+  "@engineReasonConnect4BoardFull": {
+    "description": "Result reason (4 Gewinnt): draw, no column left."
+  },
+  "engineReasonMuehleFewerThanThree": "Gegner hat weniger als 3 Steine",
+  "@engineReasonMuehleFewerThanThree": {
+    "description": "Result reason (Mühle): the loser is down to two pieces."
+  },
+  "engineReasonMuehleBlocked": "Gegner kann nicht mehr ziehen",
+  "@engineReasonMuehleBlocked": {
+    "description": "Result reason (Mühle): the loser has no legal move."
+  },
+  "engineReasonMuehleNoRemovalLimit": "{moves} Züge ohne Schlagen",
+  "@engineReasonMuehleNoRemovalLimit": {
+    "description": "Result reason (Mühle): draw after the move limit without a removal.",
+    "placeholders": {
+      "moves": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonQuartettBothStacksEmpty": "Beide Stapel leer",
+  "@engineReasonQuartettBothStacksEmpty": {
+    "description": "Result reason (Quartett Trumpf): draw, the last cards went into the pot."
+  },
+  "engineReasonQuartettAllCards": "Gegner hat keine Karten mehr",
+  "@engineReasonQuartettAllCards": {
+    "description": "Result reason (Quartett Trumpf): the winner holds all cards."
+  },
+  "engineReasonQuartettTrickLimitEqual": "Stichlimit erreicht, gleich viele Karten ({a}:{b})",
+  "@engineReasonQuartettTrickLimitEqual": {
+    "description": "Result reason (Quartett Trumpf): draw at the trick limit. a/b = stack sizes of X/O.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonQuartettTrickLimitMoreCards": "Stichlimit erreicht, mehr Karten ({a}:{b})",
+  "@engineReasonQuartettTrickLimitMoreCards": {
+    "description": "Result reason (Quartett Trumpf): the larger stack wins at the trick limit. a/b = stack sizes of X/O.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonQuartettAllQuartetsEqual": "Alle Quartette abgelegt, {a}:{b}",
+  "@engineReasonQuartettAllQuartetsEqual": {
+    "description": "Result reason (Quartett Sets): draw with equal quartet counts. a/b = quartets of X/O.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonQuartettMostQuartets": "Mehr Quartette ({a}:{b})",
+  "@engineReasonQuartettMostQuartets": {
+    "description": "Result reason (Quartett Sets): more quartets win. a/b = quartets of X/O.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonSchiffeAllSunk": "Alle Schiffe versenkt",
+  "@engineReasonSchiffeAllSunk": {
+    "description": "Result reason (Schiffe versenken): the whole fleet is sunk."
+  },
+  "engineSetA": "Supersportwagen",
+  "@engineSetA": {
+    "description": "Quartett set name, set A."
+  },
+  "engineSetB": "Hypercars",
+  "@engineSetB": {
+    "description": "Quartett set name, set B."
+  },
+  "engineSetC": "Klassiker",
+  "@engineSetC": {
+    "description": "Quartett set name, set C."
+  },
+  "engineSetD": "Muscle Cars",
+  "@engineSetD": {
+    "description": "Quartett set name, set D."
+  },
+  "engineSetE": "Rallye-Legenden",
+  "@engineSetE": {
+    "description": "Quartett set name, set E."
+  },
+  "engineSetF": "Gran Turismo",
+  "@engineSetF": {
+    "description": "Quartett set name, set F."
+  },
+  "engineSetG": "Elektro",
+  "@engineSetG": {
+    "description": "Quartett set name, set G."
+  },
+  "engineSetH": "Kleine Flitzer",
+  "@engineSetH": {
+    "description": "Quartett set name, set H (small, quick cars)."
+  },
+  "engineStatPs": "Leistung",
+  "@engineStatPs": {
+    "description": "Quartett stat label: engine power."
+  },
+  "engineStatKmh": "Höchstgeschwindigkeit",
+  "@engineStatKmh": {
+    "description": "Quartett stat label: top speed."
+  },
+  "engineStatCcm": "Hubraum",
+  "@engineStatCcm": {
+    "description": "Quartett stat label: engine displacement."
+  },
+  "engineStatKg": "Gewicht",
+  "@engineStatKg": {
+    "description": "Quartett stat label: weight."
+  },
+  "engineStatSec0to100": "0–100 km/h",
+  "@engineStatSec0to100": {
+    "description": "Quartett stat label: acceleration time from 0 to 100 km/h."
+  },
+  "engineUnitPs": "PS",
+  "@engineUnitPs": {
+    "description": "Unit of engine power (metric horsepower)."
+  },
+  "engineUnitKmh": "km/h",
+  "@engineUnitKmh": {
+    "description": "Unit of top speed."
+  },
+  "engineUnitCcm": "cm³",
+  "@engineUnitCcm": {
+    "description": "Unit of displacement."
+  },
+  "engineUnitKg": "kg",
+  "@engineUnitKg": {
+    "description": "Unit of weight."
+  },
+  "engineUnitSec": "s",
+  "@engineUnitSec": {
+    "description": "Unit of the acceleration time (seconds)."
+  },
+  "engineShip5": "Schlachtschiff",
+  "@engineShip5": {
+    "description": "Schiffe versenken: name of the 5-cell ship."
+  },
+  "engineShip4": "Kreuzer",
+  "@engineShip4": {
+    "description": "Schiffe versenken: name of the 4-cell ship."
+  },
+  "engineShip3": "Zerstörer",
+  "@engineShip3": {
+    "description": "Schiffe versenken: name of the 3-cell ships."
+  },
+  "engineShip2": "U-Boot",
+  "@engineShip2": {
+    "description": "Schiffe versenken: name of the 2-cell ships."
+  },
+  "engineShipOther": "Schiff",
+  "@engineShipOther": {
+    "description": "Schiffe versenken: name of a ship with a length outside the default fleet."
   }
 }
