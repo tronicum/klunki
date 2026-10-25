@@ -1,0 +1,57 @@
+# Klunki
+
+Cross-platform casual game app (**iOS, Android, PWA**) for classic brain-teaser
+games:
+
+- **4 Gewinnt** (Connect Four)
+- **Mühle** (Nine Men's Morris)
+- **Quartett** (collect-the-four / superlative card game)
+
+Built with **Flutter** — one codebase compiles to Android, iOS and the web
+(PWA). No Node.js.
+
+## Play modes (roadmap)
+
+1. **Hot-seat** (1 device, hand the phone to the opponent) — first PoC.
+2. **Local network** (2 phones on the same Wi-Fi, over IP) — second PoC.
+3. **Bluetooth** — later.
+
+## Layout
+
+```
+klunki/
+├── packages/
+│   └── klunki_engine/   # pure-Dart game logic, NO Flutter dep. Fully unit-tested.
+│       └── lib/
+│           ├── game.dart          # shared types (Player, Move, GameResult, ...)
+│           ├── connect4.dart      # 4 Gewinnt engine
+│           ├── muehle.dart        # Mühle engine
+│           └── quartett.dart      # Quartett engine
+│       └── test/                # dart test for the engine (runs without Android SDK)
+├── klunki/                    # the Flutter app (UI + transport layer on top of engine)
+│   └── lib/
+│       ├── main.dart
+│       ├── app/               # routing, theme
+│       ├── ui/                # game screens (board, cards)
+│       └── transport/         # hot-seat vs network abstraction (same engine)
+└── docs/
+    ├── ARCHITECTURE.md        # how the pieces fit
+    ├── ROADMAP.md             # milestones
+    └── tasks/                 # agent-ready task cards (pick one up, run it)
+```
+
+## Quick start
+
+```bash
+# engine tests (no Android SDK required — pure Dart)
+cd packages/klunki_engine
+dart pub get
+dart test
+
+# run the app (needs the Android SDK / Xcode / Chrome — see flutter doctor)
+cd klunki
+flutter pub get
+flutter run
+```
+
+See `docs/ROADMAP.md` for milestones and `docs/tasks/` for agent-executable cards.

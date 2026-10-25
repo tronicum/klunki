@@ -1,0 +1,22 @@
+# Flutter / Dart build artifacts
+**/dart_tool/
+**/.pub-cache/
+**/.pub/
+**/build/
+*.class
+*.log
+
+# Flutter IDE / Android
+**/android/.gradle/
+**/android/local.properties
+**/ios/Pods/
+**/ios/.symlinks/
+
+# Flutter build output
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# OS / editor
+.DS_Store
+.idea/
+*.iml
