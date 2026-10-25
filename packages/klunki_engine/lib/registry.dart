@@ -1,0 +1,73 @@
+import 'connect4.dart';
+import 'game.dart';
+import 'muehle.dart';
+import 'quartett.dart';
+import 'schiffe.dart';
+
+/// Everything needed to (re)create the same game on every device: a game id
+/// plus the seed for games with shuffled or random setup. Together with the
+/// accepted move list this is a full replay, which is what network sync and
+/// reconnect rely on.
+class GameConfig {
+  final String gameId;
+  final int seed;
+  const GameConfig(this.gameId, {this.seed = 0});
+
+  Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed};
+
+  factory GameConfig.fromJson(Map<String, dynamic> json) =>
+      GameConfig(json['game'] as String, seed: json['seed'] as int? ?? 0);
+
+  @override
+  bool operator ==(Object other) => other is GameConfig && other.gameId == gameId && other.seed == seed;
+
+  @override
+  int get hashCode => Object.hash(gameId, seed);
+
+  @override
+  String toString() => 'GameConfig($gameId, seed: $seed)';
+}
+
+/// One playable game: stable [id] (shared with the debug console and the
+/// network protocol), display [title], whether players hold secrets
+/// (needs a handover cover in hot-seat) and a factory.
+class GameSpec {
+  final String id;
+  final String title;
+  final bool hiddenInformation;
+  final Game Function(int seed) _create;
+  const GameSpec(this.id, this.title, this._create, {this.hiddenInformation = false});
+
+  Game create([int seed = 0]) => _create(seed);
+}
+
+/// All games, in menu order.
+final List<GameSpec> gameSpecs = [
+  GameSpec('connect4', '4 Gewinnt', (_) => Connect4Game()),
+  GameSpec('muehle', 'Mühle', (_) => MuehleGame()),
+  GameSpec('quartett-trumpf', 'Quartett (Trumpf)', (s) => QuartettGame(QuartettMode.trumpf, seed: s),
+      hiddenInformation: true),
+  // 8 cards each plus a draw pile: with all 32 dealt every ask would hit.
+  GameSpec('quartett-sets', 'Quartett (Sets)', (s) => QuartettGame(QuartettMode.sets, seed: s, handSize: 8),
+      hiddenInformation: true),
+  GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(), hiddenInformation: true),
+];
+
+GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
+
+/// Creates the game for [config]; throws [ArgumentError] for an unknown id.
+Game createGame(GameConfig config) {
+  final spec = specById(config.gameId);
+  if (spec == null) throw ArgumentError.value(config.gameId, 'gameId', 'unknown game');
+  return spec.create(config.seed);
+}
+
+/// Rebuilds a game by replaying [moves] on a fresh instance. Returns null if
+/// any move is rejected (the logs disagree).
+Game? replay(GameConfig config, Iterable<Map<String, dynamic>> moves) {
+  final game = createGame(config);
+  for (final m in moves) {
+    if (game.applyMove(m) == null) return null;
+  }
+  return game;
+}
