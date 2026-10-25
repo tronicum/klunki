@@ -1,12 +1,17 @@
 {
-    "name": "klunki",
-    "short_name": "klunki",
-    "start_url": ".",
+    "id": "./",
+    "name": "Klunki",
+    "short_name": "Klunki",
+    "description": "Klunki – klassische Spiele für zwei: 4 Gewinnt, Mühle, Quartett und Schiffe versenken. Classic two-player games: Connect Four, Nine Men's Morris, Top Trumps and Battleship.",
+    "lang": "de",
+    "dir": "ltr",
+    "start_url": "./",
+    "scope": "./",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
+    "background_color": "#4F46E5",
+    "theme_color": "#4F46E5",
+    "categories": ["games", "entertainment"],
     "prefer_related_applications": false,
     "icons": [
         {

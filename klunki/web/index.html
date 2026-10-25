@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,29 +18,65 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Klunki – klassische Spiele für zwei: 4 Gewinnt, Mühle, Quartett und Schiffe versenken. Classic two-player games: Connect Four, Nine Men's Morris, Top Trumps and Battleship.">
+  <meta name="theme-color" content="#4F46E5">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="klunki">
+  <meta name="apple-mobile-web-app-title" content="Klunki">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>klunki</title>
+  <title>Klunki</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { background: #4F46E5; }
+  </style>
 </head>
 <body>
   <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
-
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
+    Custom web/flutter_bootstrap.js (KLD-010): loads the app WITHOUT Flutter's
+    deprecated service worker settings and with same-origin CanvasKit.
+    For details: https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <script src="flutter_bootstrap.js" async></script>
+
+  <!--
+    Klunki's own offline service worker (KLD-010). Registered under a different
+    script URL than Flutter's cleanup worker (flutter_service_worker.js), which
+    is never registered by this page.
+  -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      // Hands the URLs this page actually loaded (main.dart.js, the CanvasKit
+      // variant chosen for this browser, fonts, ...) to the worker, because on
+      // the very first visit those requests happen before it controls the page.
+      const warmCache = async () => {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          const urls = [location.href].concat(
+            performance.getEntriesByType('resource').map((e) => e.name));
+          if (reg.active) reg.active.postMessage({ type: 'klunki-warm-cache', urls: urls });
+        } catch (e) {
+          console.warn('Klunki: cache warm-up failed', e);
+        }
+      };
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('klunki_sw.js', { scope: './' })
+          .then((reg) => console.debug('Klunki SW registered, scope:', reg.scope))
+          .catch((e) => console.warn('Klunki SW registration failed:', e));
+        // Warm up after Flutter rendered (fonts/CanvasKit are loaded by then),
+        // with a timeout fallback in case the event never fires.
+        let warmed = false;
+        const once = () => { if (!warmed) { warmed = true; setTimeout(warmCache, 500); } };
+        window.addEventListener('flutter-first-frame', once);
+        setTimeout(once, 8000);
+      });
+    }
+  </script>
 </body>
 </html>
