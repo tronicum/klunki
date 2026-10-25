@@ -19,14 +19,14 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
 | KLD-010 | **PWA:** Klunki branding in `manifest.json`/`index.html`, custom offline service worker (Flutter's generated one unregisters itself), local serve + offline check | – | `klunki/web/**`, `docs/tasks/KLD-010*` | – |
-| KLD-011 | **Android:** debug build + run on emulator and a phone; app label "Klunki"; `INTERNET` permission in the main manifest | Android audit, 🧑 OK for SDK/emulator installs | `klunki/android/**` | 🧑 |
-| KLD-012 | **iOS:** build + run on simulator and an iPhone; display name "Klunki"; signing team | iOS audit, 🧑 Xcode/signing | `klunki/ios/**` | 🧑 |
+| KLD-011 | **Android:** debug build + run on the one Android phone (no emulator); app label "Klunki"; `INTERNET` permission in the main manifest | Android Studio install (approved) + 🧑 setup wizard, licenses, USB debugging | `klunki/android/**` | 🧑 |
+| KLD-012 | **iOS (priority):** build + run on simulator (KLD-012a), then iPhone + iPad; signing team | 🧑 `xcode-select --switch`, Apple ID, Developer Mode | `klunki/ios/**` | 🧑 |
 
 ## P2 — Hot-seat on one device
 
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
-| KLD-020 | Typed `GameTransport` (matches `docs/ARCHITECTURE.md`) + `HotSeatTransport` that applies moves through the engine + `GameController` (ChangeNotifier) + game registry (id → factory, title) | – | `klunki/lib/transport/**`, `klunki/lib/game/**`, `klunki/test/game/**` | – |
+| KLD-020 ✅ | Typed `GameTransport` (matches `docs/ARCHITECTURE.md`) + `HotSeatTransport` that applies moves through the engine + `GameController` (ChangeNotifier) + game registry (id → factory, title) | – | `klunki/lib/transport/**`, `klunki/lib/game/**`, `klunki/test/game/**` | – |
 | KLD-021 | Shared UI shell: `GameScreen` frame (status line, result dialog, move history sheet, new game), `HandoverCover` ("pass the phone to O"), menu → game routing with one placeholder screen per game | 020 | `klunki/lib/ui/shell/**`, `klunki/lib/ui/menu_screen.dart`, `klunki/lib/ui/games/*_screen.dart` (placeholders), `klunki/test/ui/shell/**` | – |
 | KLD-022 | Connect Four screen (tap a column, drop animation, winning line highlight) | 021 | `klunki/lib/ui/games/connect4_screen.dart`, `klunki/test/ui/games/connect4*` | – |
 | KLD-023 | Mühle screen (board painter, tap to place/move/remove, mill highlight, phase hints) | 021 | `klunki/lib/ui/games/muehle_screen.dart`, `klunki/test/ui/games/muehle*` | – |
@@ -34,7 +34,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-025 | Quartett Sets screen (hand grouped by set, ask for a card, quartets laid down) + handover | 021, 024 (`quartett_card.dart`) | `klunki/lib/ui/games/quartett_sets_screen.dart`, `klunki/test/ui/games/quartett_sets*` | – |
 | KLD-026 | Schiffe versenken screen (fleet placement with rotate + random, own grid + target grid, tap to fire) + handover | 021 | `klunki/lib/ui/games/schiffe_screen.dart`, `klunki/test/ui/games/schiffe*` | – |
 
-## P3 — Android ↔ Android over Wi-Fi
+## P3 — iPhone ↔ iPad over Wi-Fi
 
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
@@ -43,7 +43,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-032 | `NetworkTransport` in the app on top of `klunki_net` (same interface as `HotSeatTransport`) | 020, 030 | `klunki/lib/transport/network_transport.dart`, `klunki/test/transport/network*` | – |
 | KLD-033 | Discovery service: advertise/browse `_klunki._tcp` via mDNS (`bonsoir`), manual IP:port fallback, QR payload | 030, 🧑 OK for the `bonsoir` + QR packages | `klunki/lib/net/**`, `klunki/pubspec.yaml`, `klunki/test/net/**` | 🧑 |
 | KLD-034 | Pairing screen: host (shows name, IP, QR) / join (list + manual entry), then start the chosen game over `NetworkTransport` | 021, 032, 033 | `klunki/lib/ui/pairing/**`, `klunki/test/ui/pairing/**` | – |
-| KLD-035 | Android networking: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
+| KLD-035 | Android networking for Android ↔ iOS: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
 | KLD-036 | Disconnect / reconnect UX ("opponent left", resume from snapshot) | 034 | `klunki/lib/ui/pairing/reconnect*`, `klunki/lib/transport/network_transport.dart` | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
@@ -65,4 +65,4 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 1. **Now:** KLD-010, KLD-020, KLD-030, KLD-041 (+ audits for 011/012)
 2. After 020: KLD-021 · after 030: KLD-031 · after 020+030: KLD-032
 3. After 021: KLD-022, 023, 024, 026 in parallel (025 after 024)
-4. After 🧑 OKs: KLD-011, 012, 033 → 034, 035 → 036, 040
+4. After 🧑 steps: KLD-012 → 040 (iPhone ↔ iPad) first, then KLD-011 → 035 (Android ↔ iOS); 033 → 034 → 036

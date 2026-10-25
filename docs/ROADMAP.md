@@ -1,8 +1,10 @@
 # Klunki — Roadmap
 
-The PoC proves one engine runs everywhere: in a terminal, on one phone, and
-between two phones (Android ↔ Android, then Android ↔ iOS). Each stage ends
-with a demo you can watch.
+The PoC proves one engine runs everywhere: in a terminal, on one device, and
+between two devices (iPhone ↔ iPad, then Android ↔ iOS). Each stage ends with
+a demo you can watch.
+
+**Test devices:** one Android phone, one iPhone, one iPad (no Android emulator).
 
 PoC games: **4 Gewinnt**, **Mühle**, **Quartett** (two modes: *Trumpf* and
 *Sets*) and **Schiffe versenken**.
@@ -64,8 +66,9 @@ Goal: all four games playable with real game screens by two people on one device
 - **Exit / demo:** each game played to the end hot-seat on an Android emulator,
   an iOS simulator and Chrome.
 
-## P3 — Android ↔ Android on the same Wi-Fi (was M3)
-Goal: two Android phones play every game against each other.
+## P3 — Two devices on the same Wi-Fi: iPhone ↔ iPad (was M3)
+Goal: iPhone and iPad play every game against each other. iOS first because the
+toolchain is ready (Xcode 27.1 installed); there is only one Android phone.
 - [ ] **`packages/klunki_net`** (pure Dart, `dart:io`): newline-delimited JSON over TCP.
   - Messages: `hello {protocol, game, mode, seed}`, `move`, `accepted`,
     `rejected`, `snapshot {moves}`, `ping`, `bye`.
@@ -82,21 +85,20 @@ Goal: two Android phones play every game against each other.
   - The host advertises `_klunki._tcp` via mDNS (Flutter plugin `bonsoir`) and
     the guest picks it from a list.
   - Fallback: the host shows its IP:port and a QR code, and the guest types or scans it.
-- [ ] Android: `INTERNET` permission in the main manifest (today only the debug
-      manifest has it); multicast lock for discovery.
+- [ ] iOS: `NSLocalNetworkUsageDescription` + `NSBonjourServices` (`_klunki._tcp`) in
+      `Info.plist`, local-network permission prompt.
 - [ ] Disconnect UX: "opponent left / reconnecting…", resume on reconnect.
 - **PoC shortcut (accepted):** Quartett replays from the shared seed, so a modified
   client could see the opponent's hand. The UI never shows it. Proper per-player
   views are post-PoC.
-- **Exit / demo:** two physical Android phones each play all four games to the
-  end, with each phone acting as host at least once.
+- **Exit / demo:** iPhone and iPad play every game to the end, each acting as
+  host at least once.
 
 ## P4 — Android ↔ iOS (end of PoC)
-Goal: the same as P3, across platforms.
-- [ ] iOS toolchain on a physical iPhone: Xcode, signing team (a free Apple ID
-      works for 7-day dev builds).
-- [ ] `Info.plist`: `NSLocalNetworkUsageDescription` and `NSBonjourServices`
-      (`_klunki._tcp`); test the local-network permission prompt flow.
+Goal: the same as P3, across platforms: the Android phone against iPhone or iPad.
+- [ ] Android toolchain: Android Studio (approved), one physical phone, no emulator.
+- [ ] Android: `INTERNET` permission in the main manifest (today only the debug
+      manifest has it); multicast lock + Wi-Fi permissions for discovery.
 - [ ] Cross-platform checks: discovery both ways, iOS backgrounding/locking
       mid-game → reconnect.
 - **Exit / end of PoC:** every game (Connect Four, Mühle, Quartett Trumpf,
@@ -104,8 +106,8 @@ Goal: the same as P3, across platforms.
   at least once.
 
 ### Prerequisites for P3/P4
-2 Android phones (USB debugging on), 1 iPhone plus a Mac with Xcode, and a Wi-Fi
-network without client isolation (guest networks often block phone-to-phone
+iPhone + iPad (Developer Mode, Apple ID in Xcode), 1 Android phone (USB
+debugging on), the Mac with Xcode, and a Wi-Fi network without client isolation (guest networks often block phone-to-phone
 traffic; a phone hotspot works as a fallback).
 
 ## After the PoC
