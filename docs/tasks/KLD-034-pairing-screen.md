@@ -3,7 +3,7 @@
 - **ID:** `KLD-034`
 - **Title:** Pairing screen: host (shows name, IP, QR) / join (list + manual entry), then start the chosen game over `NetworkTransport`
 - **Milestone:** P3 — two devices on the same Wi-Fi (first real devices: iPhone ↔ iPad)
-- **Status:** TODO
+- **Status:** DONE
 - **Depends on:** KLD-021 (shell, game routes), KLD-032 (`NetworkTransport`), KLD-033 (`DiscoveryService`, `join_payload`, `local_ip`)
 - **Touched paths:**
   - `klunki/lib/ui/pairing/**`
@@ -78,3 +78,15 @@ flutter test
 flutter build web
 ```
 All green; card status set to DONE.
+
+## Result
+
+- **Entry:** the menu card "Über WLAN spielen" (`menu-network`) is reached through `lib/ui/pairing/pairing_entry.dart`. That file uses a conditional import, so `klunki_net`/`dart:io` never reach the web build: on web the builder is null and the entry is hidden. `flutter build web` still compiles.
+- **`lib/ui/pairing/pairing_screen.dart`:** `PairingScreen({PairingDeps? deps})`. It has an editable device name (default from `Platform.localHostname` without `.local`, see `device_name.dart`) and a "Hosten" / "Beitreten" switch.
+  - **Hosten:** pick a game from `gameSpecs` and tap "Spiel hosten". The host picks the seed (`newGameSeed`). It starts `NetworkTransport.host` on 4747; if that fails it retries on port 0. Then it advertises `KlunkiHostInfo(name, port, protocol, gameId)` and shows "<Name> hostet <Spiel>", the `JoinQrCode` and every `localIPv4Addresses()` entry as `IP:<real port>`, best first (tapping one puts it in the QR). The status reads "Warte auf Mitspieler…" with "Abbrechen". When the transport reports `connected`, advertising stops and the route is replaced by the game.
+  - **Beitreten:** a live `browse()` list (name, game title, IP:port; another protocol version is shown disabled), tap to join. A manual field accepts IP / IP:port / `klunki://join?...` via `JoinPayload.tryParse`; invalid input shows "Ungültige Adresse…". While connecting, a spinner shows "Verbinde mit …" with "Abbrechen". Each join has a 12 s upper bound on top of the transport's own 10 s handshake timeout. Errors appear in German with hints (same Wi-Fi, guest Wi-Fi, iOS local network permission).
+  - **Injection (`PairingDeps`):** discovery factory, host/join transport factories, local addresses, device name, seed, preferred port, join timeout.
+- **`lib/ui/pairing/network_game_session.dart`:** owns `GameController(networkTransport)` and shows `buildGameScreen` (the shell registry), plus a bottom bar: "Du bist X · Gegner: <Name> (O)". On `peerMissing` or `reconnecting` a banner appears: "Gegner hat das Spiel verlassen" (after `bye`) or "Verbindung zum Gegner unterbrochen". The guest also gets "Neu verbinden", which calls `transport.reconnect()`; the full UX is KLD-036. Leaving the route disposes the controller and with it the transport (`bye`).
+- **Shell change (minimal):** `game_screen.dart` shows the restart button and the result dialog's "Nochmal" only for `HotSeatTransport`, the same rule undo already used. `NetworkTransport` does not support restart (the host owns the session), so "Nochmal" would have broken a network game. Hot-seat behaviour is unchanged.
+- **Hidden info:** one local player per device means `needsHandover` stays false. `pairing_flow_test` plays Quartett (Trumpf) over loopback and checks that no `handover-cover` appears on either device.
+- **Tests:** `test/ui/pairing/` (11 tests): host shows IP, port and QR and advertises; port fallback; leaving and "Abbrechen" stop advertising and close the transport; join lists fake hosts and stops browsing on leave; manual entry valid/invalid plus German error hints; join timeout; device name; menu entry. Full flow: host and guest over real loopback sockets reach Connect Four, moves cross in both directions, and when the guest leaves the host sees the banner.

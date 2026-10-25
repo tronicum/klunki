@@ -156,7 +156,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         content: r.reason.isEmpty ? null : Text(r.reason),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Menü')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Nochmal')),
+          if (_canRestart)
+            FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Nochmal')),
         ],
       ),
     );
@@ -186,6 +187,11 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     }
     controller.restart(seed: newGameSeed());
   }
+
+  /// Restart (and "Nochmal") only where the device owns the game: hot-seat.
+  /// Over the network the host owns the session (`NetworkTransport` does not
+  /// support restart).
+  bool get _canRestart => controller.transport is HotSeatTransport;
 
   String _describe(AcceptedMove m) => widget.describeMove?.call(m) ?? m.move.toString();
 
@@ -253,12 +259,13 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 icon: const Icon(Icons.undo),
                 onPressed: controller.canUndo ? controller.undo : null,
               ),
-            IconButton(
-              key: const Key('shell-restart'),
-              tooltip: 'Neues Spiel',
-              icon: const Icon(Icons.refresh),
-              onPressed: _restart,
-            ),
+            if (_canRestart)
+              IconButton(
+                key: const Key('shell-restart'),
+                tooltip: 'Neues Spiel',
+                icon: const Icon(Icons.refresh),
+                onPressed: _restart,
+              ),
             IconButton(
               key: const Key('shell-history'),
               tooltip: 'Züge',

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/language_picker.dart';
+import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -33,6 +34,17 @@ class MenuScreen extends StatelessWidget {
                       subtitle: spec.hiddenInformation ? const Text('Gerät weitergeben') : null,
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => openGame(context, spec.id),
+                    ),
+                  ),
+                // Network play needs sockets: hidden on web (KLD-034).
+                if (pairingScreenBuilder case final pairing?)
+                  Card(
+                    key: const Key('menu-network'),
+                    child: ListTile(
+                      leading: const Icon(Icons.wifi),
+                      title: const Text('Über WLAN spielen'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: pairing)),
                     ),
                   ),
                 // Text frontend for engine testing; hidden in release builds.
