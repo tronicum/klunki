@@ -5,6 +5,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
+import '../../ltr.dart';
 
 /// Duration of the drop animation of the last piece.
 const connect4DropDuration = Duration(milliseconds: 250);
@@ -258,7 +259,9 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
     final winning = game.isOver ? connect4WinningCells(game) : const <Connect4Pos>{};
     const cols = Connect4Game.cols, rows = Connect4Game.rows;
 
-    return LayoutBuilder(builder: (context, cons) {
+    // LtrBoard: column 0 is always on the left (RTL locales too), so the Row
+    // of columns and the Positioned(left:) drop animation match engine indices.
+    return LtrBoard(child: LayoutBuilder(builder: (context, cons) {
       const outer = 12.0;
       const frame = 0.3; // frame padding (both sides) in cells
       final cell = math.max(
@@ -323,7 +326,7 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
           ),
         ),
       );
-    });
+    }));
   }
 
   double _fallTop(double pad, double cell, int row) {

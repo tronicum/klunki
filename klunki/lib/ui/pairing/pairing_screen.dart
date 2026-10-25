@@ -12,6 +12,7 @@ import '../../net/join_qr.dart';
 import '../../net/local_ip.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
+import '../ltr.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
@@ -388,7 +389,7 @@ class _HostPanelState extends State<_HostPanel> {
             key: Key('pair-address-$i'),
             dense: true,
             leading: Icon(i == _qrIndex ? Icons.qr_code : Icons.lan_outlined),
-            title: Text('${_addresses[i]}:$port'),
+            title: LtrText('${_addresses[i]}:$port', key: Key('pair-address-text-$i')),
             subtitle: i == 0 ? Text(l10n.pairingProbablyWifi) : null,
             onTap: () => setState(() => _qrIndex = i),
           ),
@@ -553,6 +554,7 @@ class _JoinPanelState extends State<_JoinPanel> {
           controller: _manual,
           enabled: !busy,
           keyboardType: TextInputType.url,
+          textDirection: TextDirection.ltr,
           autocorrect: false,
           decoration: InputDecoration(
             labelText: l10n.pairingManualLabel,
@@ -575,7 +577,7 @@ class _JoinPanelState extends State<_JoinPanel> {
             children: [
               const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
               const SizedBox(width: 12),
-              Expanded(child: Text(l10n.pairingConnecting(_connecting!))),
+              Expanded(child: Text(l10n.pairingConnecting(bidiLtr(context, _connecting!)))),
               TextButton(onPressed: _cancelConnect, child: Text(l10n.pairingCancel)),
             ],
           ),
@@ -599,7 +601,7 @@ class _JoinPanelState extends State<_JoinPanel> {
         title: Text(h.name),
         subtitle: Text([
           ?game,
-          '${h.host}:${h.port}',
+          bidiLtr(context, '${h.host}:${h.port}'),
           if (!compatible) l10n.pairingOtherVersion,
         ].join(' · ')),
         trailing: const Icon(Icons.chevron_right),

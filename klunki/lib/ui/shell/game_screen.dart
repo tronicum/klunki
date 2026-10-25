@@ -229,7 +229,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                     final m = moves[i];
                     return ListTile(
                       dense: true,
-                      leading: Text('${m.index + 1}.'),
+                      // LTR: "12." must not become ".12" in RTL locales.
+                      leading: Text('${m.index + 1}.', textDirection: TextDirection.ltr),
                       title: Text(l10n.shellHistoryEntry(playerMark(m.player), _describe(l10n, m))),
                     );
                   },

@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../ltr.dart';
+
 /// Row letters of the 10×10 grid (row 0 = A).
 const svRows = 'ABCDEFGHIJ';
 
@@ -137,7 +139,9 @@ class SchiffeGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return LayoutBuilder(
+    // LtrBoard: columns 1–10 run left to right and rows A–J sit on the left in
+    // every locale, so taps, drag mapping and outlines match engine (row, col).
+    return LtrBoard(child: LayoutBuilder(
       builder: (context, box) {
         final side = min(box.maxWidth, box.maxHeight);
         final unit = max(1.0, (side / 11).floorToDouble());
@@ -210,7 +214,7 @@ class SchiffeGrid extends StatelessWidget {
           ),
         );
       },
-    );
+    ));
   }
 }
 
