@@ -1,0 +1,255 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+/// Row letters of the 10×10 grid (row 0 = A).
+const svRows = 'ABCDEFGHIJ';
+
+/// Human coordinate of a cell: row 4, col 4 → "E5".
+String svCellName(int row, int col) => '${svRows[row]}${col + 1}';
+
+/// Key of the body widget drawn for an own ship cell. Never appears on the
+/// target grid (tests scan for it).
+const svShipMarkerKey = ValueKey('sv-ship');
+
+/// What a single cell shows.
+enum SvLook {
+  /// Plain water (own empty cell or unknown target cell).
+  water,
+
+  /// Own ship, not hit.
+  ship,
+
+  /// Shot into water: dot.
+  miss,
+
+  /// Own ship cell that was hit: ship body plus cross.
+  shipHit,
+
+  /// Hit on the target grid: cross only (the ship itself stays unknown).
+  hit,
+
+  /// Cell of a sunk ship: filled plus cross.
+  sunk,
+}
+
+/// Placement preview tint.
+enum SvPreview { valid, invalid }
+
+/// One grid cell. Tests read [look] and [preview] through its key
+/// (`sv-own-<r>-<c>` / `sv-target-<r>-<c>`).
+class SchiffeCellView extends StatelessWidget {
+  final SvLook look;
+  final SvPreview? preview;
+  final VoidCallback? onTap;
+  final String semanticLabel;
+
+  const SchiffeCellView({super.key, required this.look, required this.semanticLabel, this.preview, this.onTap});
+
+  static const previewValid = Color(0x9943A047);
+  static const previewInvalid = Color(0x99E53935);
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
+    var bg = s.primaryContainer.withValues(alpha: 0.45);
+    Widget? marker;
+    Widget cross(Color c) => FractionallySizedBox(
+      widthFactor: 0.8,
+      heightFactor: 0.8,
+      child: FittedBox(child: Icon(Icons.close, color: c)),
+    );
+    Widget shipBody() => Container(
+      key: svShipMarkerKey,
+      margin: const EdgeInsets.all(2),
+      decoration: BoxDecoration(color: s.outline, borderRadius: BorderRadius.circular(3)),
+    );
+    switch (look) {
+      case SvLook.water:
+        break;
+      case SvLook.ship:
+        marker = shipBody();
+      case SvLook.miss:
+        marker = FractionallySizedBox(
+          widthFactor: 0.28,
+          heightFactor: 0.28,
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: s.onSurfaceVariant, shape: BoxShape.circle),
+          ),
+        );
+      case SvLook.shipHit:
+        marker = Stack(
+          fit: StackFit.expand,
+          children: [
+            shipBody(),
+            Center(child: cross(s.error)),
+          ],
+        );
+      case SvLook.hit:
+        bg = s.errorContainer;
+        marker = cross(s.error);
+      case SvLook.sunk:
+        bg = s.error;
+        marker = cross(s.onError);
+    }
+    Widget cell = Container(
+      margin: const EdgeInsets.all(0.5),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(2)),
+      foregroundDecoration: preview == null
+          ? null
+          : BoxDecoration(
+              color: preview == SvPreview.valid ? previewValid : previewInvalid,
+              borderRadius: BorderRadius.circular(2),
+            ),
+      alignment: Alignment.center,
+      child: marker,
+    );
+    if (onTap != null) {
+      cell = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: cell);
+    }
+    return Semantics(label: semanticLabel, button: onTap != null, child: cell);
+  }
+}
+
+/// A labelled 10×10 grid (columns 1–10 on top, rows A–J on the left) that
+/// takes the largest square fitting its constraints.
+class SchiffeGrid extends StatelessWidget {
+  /// Widget of cell (r, c); normally a keyed [SchiffeCellView].
+  final Widget Function(int row, int col) cellBuilder;
+
+  /// Ships to outline (e.g. sunk ships).
+  final List<ShipPlacement> outlines;
+  final Color? outlineColor;
+
+  /// Wraps the 10×10 cell area (not the labels); gets the cell size so
+  /// pointer positions can be mapped to cells.
+  final Widget Function(Widget cells, double unit)? wrapCells;
+
+  const SchiffeGrid({
+    super.key,
+    required this.cellBuilder,
+    this.outlines = const [],
+    this.outlineColor,
+    this.wrapCells,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, box) {
+        final side = min(box.maxWidth, box.maxHeight);
+        final unit = max(1.0, (side / 11).floorToDouble());
+        final n = SchiffeGame.size;
+        final labelStyle = theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+        Widget label(String t) => SizedBox(
+          width: unit,
+          height: unit,
+          child: Padding(
+            padding: EdgeInsets.all(unit * 0.22),
+            child: FittedBox(child: Text(t, style: labelStyle)),
+          ),
+        );
+        final outlineWidth = max(2.0, unit * 0.09);
+        Widget cells = SizedBox(
+          width: unit * n,
+          height: unit * n,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  for (var r = 0; r < n; r++)
+                    Row(
+                      children: [
+                        for (var c = 0; c < n; c++) SizedBox(width: unit, height: unit, child: cellBuilder(r, c)),
+                      ],
+                    ),
+                ],
+              ),
+              for (final o in outlines)
+                Positioned(
+                  left: o.col * unit,
+                  top: o.row * unit,
+                  width: (o.horizontal ? o.length : 1) * unit,
+                  height: (o.horizontal ? 1 : o.length) * unit,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: outlineColor ?? theme.colorScheme.onSurface, width: outlineWidth),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+        if (wrapCells != null) cells = wrapCells!(cells, unit);
+        return Center(
+          child: SizedBox(
+            width: unit * (n + 1),
+            height: unit * (n + 1),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    SizedBox(width: unit, height: unit),
+                    for (var c = 0; c < n; c++) label('${c + 1}'),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(children: [for (var r = 0; r < n; r++) label(svRows[r])]),
+                    cells,
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Sunk ships visible on a target grid: connected groups of sunk cells
+/// (ships never touch, so each group is one ship).
+List<ShipPlacement> sunkShips(List<List<ShotMark>> grid) {
+  final n = grid.length;
+  final seen = List.generate(n, (_) => List.filled(n, false));
+  final out = <ShipPlacement>[];
+  for (var r = 0; r < n; r++) {
+    for (var c = 0; c < n; c++) {
+      if (seen[r][c] || grid[r][c] != ShotMark.sunk) continue;
+      final stack = [(r, c)];
+      seen[r][c] = true;
+      var minR = r, maxR = r, minC = c, maxC = c;
+      while (stack.isNotEmpty) {
+        final (cr, cc) = stack.removeLast();
+        minR = min(minR, cr);
+        maxR = max(maxR, cr);
+        minC = min(minC, cc);
+        maxC = max(maxC, cc);
+        for (final (dr, dc) in const [(0, 1), (0, -1), (1, 0), (-1, 0)]) {
+          final nr = cr + dr, nc = cc + dc;
+          if (nr < 0 || nr >= n || nc < 0 || nc >= n) continue;
+          if (seen[nr][nc] || grid[nr][nc] != ShotMark.sunk) continue;
+          seen[nr][nc] = true;
+          stack.add((nr, nc));
+        }
+      }
+      final horizontal = maxC > minC;
+      out.add(
+        ShipPlacement(
+          length: horizontal ? maxC - minC + 1 : maxR - minR + 1,
+          row: minR,
+          col: minC,
+          horizontal: horizontal,
+        ),
+      );
+    }
+  }
+  return out;
+}
