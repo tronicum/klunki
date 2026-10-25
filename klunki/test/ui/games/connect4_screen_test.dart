@@ -5,6 +5,7 @@ import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import '../../l10n/l10n_test_utils.dart';
 
 /// Hot-seat transport where only X plays on this device (O is "remote").
 class _OnlyXTransport extends HotSeatTransport {
@@ -22,7 +23,7 @@ Future<GameController> _pump(WidgetTester tester, {GameController? controller, S
   }
   final c = controller ?? GameController.hotSeat(const GameConfig('connect4'));
   addTearDown(c.dispose);
-  await tester.pumpWidget(MaterialApp(home: Connect4Screen(controller: c)));
+  await tester.pumpWidget(localizedApp(Connect4Screen(controller: c)));
   await tester.pump();
   return c;
 }

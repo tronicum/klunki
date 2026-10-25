@@ -23,6 +23,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import 'e2e_support.dart';
 import 'muehle_script.dart';
+import '../l10n/l10n_test_utils.dart';
 
 const _timeout = Timeout(Duration(seconds: 30));
 const _iosKey = Key('device-ios');
@@ -60,7 +61,7 @@ Future<_Devices> _pumpBoth(WidgetTester tester) async {
   Widget phone(Key key, AppStack s) => Expanded(
         child: KeyedSubtree(
           key: key,
-          child: MaterialApp(debugShowCheckedModeBanner: false, home: MuehleScreen(controller: s.controller)),
+          child: localizedApp(MuehleScreen(controller: s.controller), debugShowCheckedModeBanner: false),
         ),
       );
   await tester.pumpWidget(Directionality(

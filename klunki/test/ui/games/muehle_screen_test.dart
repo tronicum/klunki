@@ -5,6 +5,7 @@ import 'package:klunki/ui/games/muehle_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import '../../l10n/l10n_test_utils.dart';
 
 Key point(int p) => Key('muehle-point-$p');
 Finder stone(int p, String mark) => find.byKey(Key('muehle-stone-$p-$mark'));
@@ -16,7 +17,7 @@ Future<GameController> pumpMuehle(WidgetTester tester, {Size size = const Size(8
   addTearDown(tester.view.reset);
   final c = GameController.hotSeat(const GameConfig('muehle'));
   addTearDown(c.dispose);
-  await tester.pumpWidget(MaterialApp(home: MuehleScreen(controller: c)));
+  await tester.pumpWidget(localizedApp(MuehleScreen(controller: c)));
   await tester.pump();
   await tester.pump();
   return c;
@@ -96,7 +97,7 @@ void main() {
     expect(find.text('O ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-removable-10')), findsNothing);
     expect(find.text('Geschlagen: 1'), findsOneWidget);
-    expect(describeMuehleMove(c.moves, c.moves.last), 'entfernt Stein auf 9');
+    expect(describeMuehleMove(deL10n, c.moves, c.moves.last), 'entfernt Stein auf 9');
     await tester.pumpAndSettle(); // mill flash finishes
   });
 
@@ -137,7 +138,7 @@ void main() {
     expect(stone(10, 'X'), findsNothing);
     expect(find.text('O ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-selected-10')), findsNothing);
-    expect(describeMuehleMove(c.moves, c.moves.last), 'zieht 10→11');
+    expect(describeMuehleMove(deL10n, c.moves, c.moves.last), 'zieht 10→11');
   });
 
   testWidgets('full demo script through taps ends with "O gewinnt!"', (tester) async {
@@ -162,7 +163,7 @@ void main() {
     expect(find.text('O gewinnt!'), findsOneWidget);
     expect(c.canAct, isFalse);
 
-    final texts = [for (final m in c.moves) '${playerMark(m.player)}: ${describeMuehleMove(c.moves, m)}'];
+    final texts = [for (final m in c.moves) '${playerMark(m.player)}: ${describeMuehleMove(deL10n, c.moves, m)}'];
     expect(texts.first, 'X: setzt auf 21');
     expect(texts, contains('O: entfernt Stein auf 8'));
     expect(texts, contains('O: zieht 15→16'));

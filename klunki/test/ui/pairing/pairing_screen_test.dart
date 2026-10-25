@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
@@ -13,6 +12,7 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 
+import '../../l10n/l10n_test_utils.dart';
 import 'pairing_test_utils.dart';
 
 const _timeout = Timeout(Duration(seconds: 30));
@@ -106,7 +106,7 @@ void main() {
       await _startHosting(tester);
       expect(discovery.advertised, isNotNull);
 
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip
       await tester.pumpAndSettle();
 
       expect(find.byType(PairingScreen), findsNothing);
@@ -156,7 +156,7 @@ void main() {
       expect(find.text('Altes Handy'), findsNothing);
 
       // Leaving stops browsing.
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip
       await tester.pumpAndSettle();
       expect(discovery.isBrowsing, isFalse);
     });
@@ -240,8 +240,9 @@ void main() {
   });
 
   testWidgets('menu has "Über WLAN spielen" (not web)', (tester) async {
-    // The full app: the menu's LanguageButton needs the localization delegates.
-    await tester.pumpWidget(const KlunkiApp());
+    // The full app (pinned to German): the menu's LanguageButton needs the
+    // localization delegates.
+    await tester.pumpWidget(klunkiApp());
     expect(find.byKey(const Key('menu-network')), findsOneWidget);
     expect(find.text('Über WLAN spielen'), findsOneWidget);
   });

@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki_engine/klunki_engine.dart' show gameSpecs;
+import 'l10n/l10n_test_utils.dart';
 
 void main() {
   testWidgets('Klunki app shows its menu', (WidgetTester tester) async {
-    await tester.pumpWidget(const KlunkiApp());
+    await tester.pumpWidget(klunkiApp());
 
     for (final spec in gameSpecs) {
       expect(find.text(spec.title), findsOneWidget);
@@ -16,7 +16,7 @@ void main() {
   });
 
   testWidgets('debug console plays a Connect Four move', (WidgetTester tester) async {
-    await tester.pumpWidget(const KlunkiApp());
+    await tester.pumpWidget(klunkiApp());
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();
 
@@ -31,7 +31,7 @@ void main() {
   });
 
   testWidgets('debug console menu runs the narrated demo', (WidgetTester tester) async {
-    await tester.pumpWidget(const KlunkiApp());
+    await tester.pumpWidget(klunkiApp());
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();
 

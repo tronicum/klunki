@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
@@ -21,23 +22,23 @@ class MuehleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GameScreen(
       controller: controller,
-      describeMove: (m) => describeMuehleMove(controller.moves, m),
+      describeMove: (l10n, m) => describeMuehleMove(l10n, controller.moves, m),
       boardBuilder: (context, controller) => MuehleBoard(controller: controller),
     );
   }
 }
 
-/// German text for [m] without the player, which the shell's history sheet
-/// prefixes ("setzt auf 5", "zieht 15→16", "springt 20→9",
+/// Text for [m] in the language of [l10n], without the player, which the
+/// shell's history sheet prefixes ("setzt auf 5", "zieht 15→16", "springt 20→9",
 /// "entfernt Stein auf 8"). [log] is the move log [m] belongs to; it is
 /// used to tell flying from moving (the mover had exactly 3 stones left).
-String describeMuehleMove(List<AcceptedMove> log, AcceptedMove m) {
+String describeMuehleMove(AppLocalizations l10n, List<AcceptedMove> log, AcceptedMove m) {
   final move = m.move;
   switch (move['action']) {
     case 'place':
-      return 'setzt auf ${move['to']}';
+      return l10n.muehleMovePlace(move['to'] as int);
     case 'remove':
-      return 'entfernt Stein auf ${move['at']}';
+      return l10n.muehleMoveRemove(move['at'] as int);
     default:
       // All stones are placed when moving, so stones left = 9 - stones lost.
       var lost = 0;
@@ -46,6 +47,7 @@ String describeMuehleMove(List<AcceptedMove> log, AcceptedMove m) {
         if (e.player != m.player && e.move['action'] == 'remove') lost++;
       }
       final flying = MuehleGame.piecesPerPlayer - lost == 3;
-      return '${flying ? 'springt' : 'zieht'} ${move['from']}→${move['to']}';
+      final from = move['from'] as int, to = move['to'] as int;
+      return flying ? l10n.muehleMoveFly(from, to) : l10n.muehleMoveMove(from, to);
   }
 }

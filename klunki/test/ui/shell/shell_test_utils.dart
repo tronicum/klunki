@@ -5,6 +5,7 @@ import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import '../../l10n/l10n_test_utils.dart';
 
 const resultDialog = Key('result-dialog');
 const handoverContinue = Key('handover-continue');
@@ -13,7 +14,7 @@ const handoverContinue = Key('handover-continue');
 Future<GameController> pumpGame(WidgetTester tester, String id, {int seed = 1}) async {
   final controller = GameController.hotSeat(GameConfig(id, seed: seed));
   addTearDown(controller.dispose);
-  await tester.pumpWidget(MaterialApp(home: buildGameScreen(controller)));
+  await tester.pumpWidget(localizedApp(buildGameScreen(controller)));
   await tester.pump();
   return controller;
 }

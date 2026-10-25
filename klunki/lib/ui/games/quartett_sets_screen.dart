@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
@@ -42,13 +43,15 @@ class QuartettSetsScreen extends StatelessWidget {
 
   /// History text for an ask: "fragt nach B3: Treffer" (the shell prefixes the
   /// player). Never names a drawn card.
-  static String describeMove(AcceptedMove m) {
+  static String describeMove(AppLocalizations l10n, AcceptedMove m) {
     final p = m.event.payload;
     final card = m.move['card'];
     final hit = p is Map && p['hit'] == true;
     final quartet = p is Map ? p['quartet'] : null;
-    final q = quartet is String ? ' – Quartett ${quartettSetName(quartet)}' : '';
-    return 'fragt nach $card: ${hit ? 'Treffer' : 'Fehlanzeige'}$q';
+    final result = hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss;
+    return quartet is String
+        ? l10n.quartettSetsMoveAskQuartet('$card', result, quartettSetName(quartet))
+        : l10n.quartettSetsMoveAsk('$card', result);
   }
 
   @override
@@ -223,7 +226,8 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   @override
   Widget build(BuildContext context) {
     final game = _game;
-    if (game == null) return const Center(child: Text('Kein Quartett-Spiel'));
+    final l10n = AppLocalizations.of(context);
+    if (game == null) return Center(child: Text(l10n.quartettNoGame));
     final shell = GameScreen.of(context);
     if (c.needsHandover) {
       // Covered: keep the tree free of any card.
@@ -235,9 +239,9 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final hint = game.isOver
         ? null
         : f?.pending != null
-            ? 'Tippe auf „Weiter“ und gib das Gerät an ${playerMark(_other(viewer))} weiter'
+            ? l10n.quartettSetsHintContinue(playerMark(_other(viewer)))
             : _canAsk
-                ? 'Tippe auf eine fehlende Karte, um danach zu fragen'
+                ? l10n.quartettSetsHintAsk
                 : null;
     shell.setHint(hint);
 
@@ -261,11 +265,10 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
 
   static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
 
-  static String _cards(int n) => n == 1 ? '1 Karte' : '$n Karten';
-
   /// Opponent's hand count, stock, score and both players' quartets.
   Widget _publicInfo(BuildContext context, QuartettGame game, Player viewer) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final opp = _other(viewer);
     final qa = game.quartetsOf(Player.a), qb = game.quartetsOf(Player.b);
     Widget chip(String key, IconData icon, String text) => Chip(
@@ -291,7 +294,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                 child: sets.isEmpty
                     ? Padding(
                         padding: const EdgeInsets.only(top: 4),
-                        child: Text('noch kein Quartett', style: theme.textTheme.bodySmall),
+                        child: Text(l10n.quartettSetsNoQuartet, style: theme.textTheme.bodySmall),
                       )
                     : Wrap(
                         spacing: 4,
@@ -310,9 +313,9 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
           runSpacing: 4,
           alignment: WrapAlignment.center,
           children: [
-            chip('qs-opponent-count', Icons.back_hand_outlined, '${playerMark(opp)}: ${_cards(game.handOf(opp).length)}'),
-            chip('qs-stock', Icons.layers_outlined, 'Stapel: ${_cards(game.stockSize)}'),
-            chip('qs-score', Icons.emoji_events_outlined, 'Quartette X ${qa.length} : ${qb.length} O'),
+            chip('qs-opponent-count', Icons.back_hand_outlined, l10n.quartettPlayerCards(playerMark(opp), game.handOf(opp).length)),
+            chip('qs-stock', Icons.layers_outlined, l10n.quartettSetsStock(game.stockSize)),
+            chip('qs-score', Icons.emoji_events_outlined, l10n.quartettSetsScore(qa.length, qb.length)),
           ],
         ),
         quartets(Player.a, qa),
@@ -335,22 +338,23 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
 
   Widget _feedbackView(BuildContext context, _Feedback f, Player viewer) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final opp = playerMark(_other(f.asker));
     final String headline;
     if (!f.own) {
-      headline = '${playerMark(f.asker)} fragt nach ${f.card}: ${f.hit ? 'Treffer' : 'Fehlanzeige'}';
+      headline = l10n.quartettSetsOtherAsked(playerMark(f.asker), f.card, f.hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss);
     } else if (f.hit) {
-      headline = 'Treffer! $opp gibt dir ${f.card}';
+      headline = l10n.quartettSetsHitGives(opp, f.card);
     } else if (f.drew != null) {
-      headline = 'Fehlanzeige – du ziehst eine Karte';
+      headline = l10n.quartettSetsMissDraw;
     } else {
-      headline = 'Fehlanzeige – der Stapel ist leer';
+      headline = l10n.quartettSetsMissEmpty;
     }
     final color = quartettOutcomeColor(f.hit ? QuartettOutcome.win : QuartettOutcome.lose);
     final q = f.quartet;
     final sub = <String>[
-      if (f.own && f.hit && !c.game.isOver) 'Du darfst noch einmal fragen.',
-      if (f.own && !f.hit) '$opp hat ${f.card} nicht.',
+      if (f.own && f.hit && !c.game.isOver) l10n.quartettSetsAskAgain,
+      if (f.own && !f.hit) l10n.quartettSetsNotHeld(opp, f.card),
     ];
     return Container(
       key: const Key('qs-feedback'),
@@ -379,7 +383,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          'Quartett! ${quartettSetName(q)} abgelegt',
+                          l10n.quartettSetsQuartetLaid(quartettSetName(q)),
                           key: const Key('qs-quartet-text'),
                           style: theme.textTheme.titleSmall
                               ?.copyWith(color: quartettSetColor(q), fontWeight: FontWeight.bold),
@@ -393,14 +397,14 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                 FilledButton(
                   key: const Key('qs-continue'),
                   onPressed: _continue,
-                  child: const Text('Weiter'),
+                  child: Text(l10n.quartettContinue),
                 ),
               ],
             ],
           ),
           if (f.drew != null) ...[
             const SizedBox(height: 12),
-            Text('Gezogen:', style: theme.textTheme.labelLarge),
+            Text(l10n.quartettSetsDrawn, style: theme.textTheme.labelLarge),
             const SizedBox(height: 4),
             Center(
               child: ConstrainedBox(
@@ -418,6 +422,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   Widget _hand(BuildContext context, QuartettGame game, Player viewer) {
     final theme = Theme.of(context);
     final hand = game.handOf(viewer);
+    final l10n = AppLocalizations.of(context);
     final held = {for (final card in hand) card.id};
     final sets = [for (final s in QuartettGame.setNames.keys) if (hand.any((card) => card.set == s)) s];
     final askable = _canAsk && viewer == game.currentPlayer
@@ -426,7 +431,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Deine Karten (${playerMark(viewer)}): ${_cards(hand.length)}', style: theme.textTheme.titleSmall),
+        Text(l10n.quartettSetsYourCards(playerMark(viewer), hand.length), style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         for (final s in sets) _setGroup(context, s, held, askable),
       ],
@@ -454,7 +459,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                   style: theme.textTheme.titleSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
                 ),
               ),
-              Text('$have/4 – fehlt: ${4 - have}', style: theme.textTheme.bodySmall),
+              Text(AppLocalizations.of(context).quartettSetsProgress(have, 4 - have), style: theme.textTheme.bodySmall),
             ],
           ),
           const SizedBox(height: 4),
@@ -577,7 +582,7 @@ class _MissingSlot extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  enabled ? 'fragen' : 'fehlt',
+                  enabled ? AppLocalizations.of(context).quartettSetsAskSlot : AppLocalizations.of(context).quartettSetsMissingSlot,
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ),

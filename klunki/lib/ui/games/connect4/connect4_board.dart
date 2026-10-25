@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
@@ -372,7 +373,7 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
         child: Semantics(
           button: true,
           enabled: enabled && legalIndex >= 0,
-          label: 'Spalte ${c + 1}',
+          label: AppLocalizations.of(context).connect4Column(c + 1),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
             decoration: BoxDecoration(

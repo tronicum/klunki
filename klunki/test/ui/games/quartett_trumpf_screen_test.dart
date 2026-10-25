@@ -6,6 +6,7 @@ import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../shell/shell_test_utils.dart';
+import '../../l10n/l10n_test_utils.dart';
 
 const reveal = Key('qt-reveal');
 const cont = Key('qt-continue');
@@ -192,6 +193,6 @@ void main() {
     final c = GameController.hotSeat(const GameConfig('quartett-trumpf', seed: 1));
     addTearDown(c.dispose);
     await c.submit({'action': 'pick', 'stat': 'kmh'});
-    expect(QuartettTrumpfScreen.describeMove(c.moves.single), 'wählt Höchstgeschwindigkeit');
+    expect(QuartettTrumpfScreen.describeMove(deL10n, c.moves.single), 'wählt Höchstgeschwindigkeit');
   });
 }

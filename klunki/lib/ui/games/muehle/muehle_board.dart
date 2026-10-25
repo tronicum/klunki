@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
@@ -8,11 +9,11 @@ import '../../shell/game_screen.dart';
 import 'muehle_geometry.dart';
 import 'muehle_painter.dart';
 
-/// German phase names.
-String muehlePhaseName(MuehlePhase p) => switch (p) {
-      MuehlePhase.placing => 'Setzen',
-      MuehlePhase.moving => 'Ziehen',
-      MuehlePhase.flying => 'Springen',
+/// Localized phase names.
+String muehlePhaseName(AppLocalizations l10n, MuehlePhase p) => switch (p) {
+      MuehlePhase.placing => l10n.muehlePhasePlacing,
+      MuehlePhase.moving => l10n.muehlePhaseMoving,
+      MuehlePhase.flying => l10n.muehlePhaseFlying,
     };
 
 /// The interactive Mühle board plus the two player panels.
@@ -127,17 +128,17 @@ class _MuehleBoardState extends State<MuehleBoard> with SingleTickerProviderStat
           if (m['action'] == 'move') m['from'] as int,
       };
 
-  String? _hint() {
+  String? _hint(AppLocalizations l10n) {
     final g = _game;
     if (g.isOver || !_c.canAct) return null;
     final me = g.currentPlayer;
     if (g.pendingRemoval) {
-      return 'Mühle! Entferne einen Stein von ${playerMark(me == Player.a ? Player.b : Player.a)}';
+      return l10n.muehleHintRemove(playerMark(me == Player.a ? Player.b : Player.a));
     }
     final phase = g.phaseOf(me);
-    if (phase == MuehlePhase.placing) return 'Setze einen Stein';
-    if (_selected != null) return 'Wähle ein Ziel (oder tippe den Stein erneut zum Abwählen)';
-    return phase == MuehlePhase.flying ? 'Wähle einen Stein zum Springen' : 'Wähle einen Stein zum Ziehen';
+    if (phase == MuehlePhase.placing) return l10n.muehleHintPlace;
+    if (_selected != null) return l10n.muehleHintTarget;
+    return phase == MuehlePhase.flying ? l10n.muehleHintSelectFly : l10n.muehleHintSelectMove;
   }
 
   // --- interaction ---------------------------------------------------------
@@ -171,7 +172,7 @@ class _MuehleBoardState extends State<MuehleBoard> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    GameScreen.of(context).setHint(_hint());
+    GameScreen.of(context).setHint(_hint(AppLocalizations.of(context)));
     final g = _game;
     final enabled = _c.canAct;
 
@@ -326,7 +327,8 @@ class _Point extends StatelessWidget {
         ),
       );
     }
-    final label = o == null ? 'Punkt $point, leer' : 'Punkt $point, ${playerMark(o)}';
+    final l10n = AppLocalizations.of(context);
+    final label = o == null ? l10n.muehlePointEmpty(point) : l10n.muehlePointOwned(point, playerMark(o));
     return Semantics(
       button: true,
       label: label,
@@ -356,6 +358,7 @@ class _PlayerPanel extends StatelessWidget {
     final captured = MuehleGame.piecesPerPlayer - game.piecesInHand(opp) - game.piecesOnBoard(opp);
     final light = player == Player.a;
     final small = theme.textTheme.bodySmall;
+    final l10n = AppLocalizations.of(context);
     return Card(
       key: Key('muehle-panel-$mark'),
       elevation: active ? 3 : 0,
@@ -387,7 +390,7 @@ class _PlayerPanel extends StatelessWidget {
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
-                  muehlePhaseName(game.phaseOf(player)),
+                  muehlePhaseName(l10n, game.phaseOf(player)),
                   key: Key('muehle-phase-$mark'),
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
@@ -395,8 +398,8 @@ class _PlayerPanel extends StatelessWidget {
               ),
             ]),
             const SizedBox(height: 4),
-            Text('Hand: $hand · Brett: $onBoard', key: Key('muehle-counts-$mark'), style: small),
-            Text('Geschlagen: $captured', key: Key('muehle-captured-$mark'), style: small),
+            Text(l10n.muehleCounts(hand, onBoard), key: Key('muehle-counts-$mark'), style: small),
+            Text(l10n.muehleCaptured(captured), key: Key('muehle-captured-$mark'), style: small),
           ],
         ),
       ),

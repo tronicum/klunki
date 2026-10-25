@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/debug.dart';
 
 /// Text-based debug frontend: the same [DebugConsole] as the terminal CLI,
@@ -39,22 +40,23 @@ class _DebugConsoleScreenState extends State<DebugConsoleScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     const mono = TextStyle(fontFamily: 'monospace', fontFamilyFallback: ['Menlo', 'Courier'], fontSize: 14);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Debug-Konsole'),
+        title: Text(l10n.debugConsoleTitle),
         actions: [
-          IconButton(tooltip: 'undo', icon: const Icon(Icons.undo), onPressed: () => _submit('undo')),
+          IconButton(tooltip: l10n.debugUndo, icon: const Icon(Icons.undo), onPressed: () => _submit('undo')),
           PopupMenuButton<String>(
             key: const Key('debug-menu'),
-            tooltip: 'Spiel / Demo',
+            tooltip: l10n.debugMenu,
             onSelected: _submit,
             itemBuilder: (_) => [
-              for (final id in DebugConsole.games.keys) PopupMenuItem(value: 'new $id', child: Text('Neu: $id')),
+              for (final id in DebugConsole.games.keys) PopupMenuItem(value: 'new $id', child: Text(l10n.debugNewGame(id))),
               const PopupMenuDivider(),
-              const PopupMenuItem(value: 'moves', child: Text('Legale Züge')),
-              const PopupMenuItem(value: 'auto', child: Text('Zu Ende spielen (zufällig)')),
-              const PopupMenuItem(value: 'demo', child: Text('Demo: alle Spiele')),
+              PopupMenuItem(value: 'moves', child: Text(l10n.debugLegalMoves)),
+              PopupMenuItem(value: 'auto', child: Text(l10n.debugAutoPlay)),
+              PopupMenuItem(value: 'demo', child: Text(l10n.debugDemo)),
             ],
           ),
         ],

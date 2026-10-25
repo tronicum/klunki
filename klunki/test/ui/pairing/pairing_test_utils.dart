@@ -15,6 +15,8 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../l10n/l10n_test_utils.dart';
+
 const pingInterval = Duration(milliseconds: 100);
 const netTimeout = Duration(seconds: 2);
 
@@ -74,9 +76,10 @@ PairingDeps testDeps({
 
 /// A launcher page with an "open" button that pushes the pairing screen, so
 /// leaving the game / pairing screen has somewhere to go back to.
-Widget launcherApp(PairingDeps deps) => MaterialApp(
+/// Pinned to German (see `l10n_test_utils.dart`).
+Widget launcherApp(PairingDeps deps) => localizedApp(
       debugShowCheckedModeBanner: false,
-      home: Builder(
+      Builder(
         builder: (context) => Scaffold(
           body: Center(
             child: ElevatedButton(
