@@ -239,7 +239,7 @@ class _Setup extends StatelessWidget {
       final l = g.fleet[i];
       return Padding(
         key: Key('sv-fleet-$i'),
-        padding: dense ? const EdgeInsets.only(right: 6) : const EdgeInsets.symmetric(vertical: 2),
+        padding: dense ? const EdgeInsetsDirectional.only(end: 6) : const EdgeInsets.symmetric(vertical: 2),
         child: Chip(
           visualDensity: VisualDensity.compact,
           backgroundColor: current ? theme.colorScheme.primaryContainer : null,

@@ -5,6 +5,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
+import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import 'muehle_geometry.dart';
 import 'muehle_painter.dart';
@@ -181,7 +182,7 @@ class _MuehleBoardState extends State<MuehleBoard> with SingleTickerProviderStat
       final board = Center(
         child: Padding(
           padding: const EdgeInsets.all(12),
-          child: AspectRatio(aspectRatio: 1, child: _board(g, enabled)),
+          child: AspectRatio(aspectRatio: 1, child: LtrBoard(child: _board(g, enabled))),
         ),
       );
       final a = _PlayerPanel(game: g, player: Player.a, active: !g.isOver && g.currentPlayer == Player.a);

@@ -27,8 +27,14 @@ String quartettSetName(String set) => qe.QuartettGame.setNames[set] ?? set;
 
 /// A stat value with unit and the decimal separator of [locale] (default
 /// German, decimal comma): `2,7 s`, `650 PS`. The unit comes from the engine.
+///
+/// Digits are always Western (0–9), like every other number in the app
+/// (I18N-04): a locale whose default digits are not Western (fa: `۲٫۷`) falls
+/// back to English formatting, so ints and decimals on one card match.
 String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de'}) {
-  final v = value is double ? NumberFormat('0.0', locale).format(value) : '$value';
+  var f = NumberFormat('0.0', locale);
+  if (f.symbols.ZERO_DIGIT != '0') f = NumberFormat('0.0', 'en');
+  final v = value is double ? f.format(value) : '$value';
   return '$v ${stat.unit}';
 }
 
@@ -178,9 +184,9 @@ class QuartettCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: dense ? 8 : 12, vertical: 4),
       decoration: BoxDecoration(
         color: tint?.withValues(alpha: 0.18),
-        border: Border(
+        border: BorderDirectional(
           top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.4)),
-          left: BorderSide(color: tint ?? Colors.transparent, width: 4),
+          start: BorderSide(color: tint ?? Colors.transparent, width: 4),
         ),
       ),
       child: Row(

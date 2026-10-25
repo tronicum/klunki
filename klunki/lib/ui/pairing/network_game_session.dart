@@ -105,7 +105,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       children: [
                         if (reconnecting)
                           const Padding(
-                            padding: EdgeInsets.only(right: 8),
+                            padding: EdgeInsetsDirectional.only(end: 8),
                             child: SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                           ),
                         Expanded(
