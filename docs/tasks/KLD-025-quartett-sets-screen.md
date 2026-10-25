@@ -3,7 +3,7 @@
 - **ID:** `KLD-025`
 - **Title:** Quartett Sets screen: hand grouped by set, ask for a card, quartets laid down, handover
 - **Milestone:** P2 — Hot-seat on one device
-- **Status:** TODO
+- **Status:** DONE
 - **Depends on:** KLD-021 (shell, `HandoverCover`, placeholder `QuartettSetsScreen`), KLD-024 (`klunki/lib/ui/games/quartett_card.dart` → `QuartettCardView`)
 - **Touched paths:**
   - `klunki/lib/ui/games/quartett_sets_screen.dart`
@@ -83,3 +83,22 @@ flutter test test/ui/games/
 flutter test
 ```
 All green; manual hot-seat game to the end; card status set to DONE.
+
+## Result
+- `klunki/lib/ui/games/quartett_sets_screen.dart`: real board replaces the placeholder (contract kept). Hand grouped by
+  set (header with set colour, name, "n/4 – fehlt: m"); each set shows its four slots: own cards face-up (compact local
+  `_OwnCard`, tap opens the full `QuartettCard`), missing cards as "fragen" slots (enabled only for `legalMoves` while
+  `canAct`). Tap a slot → the ask is computed on a replayed engine copy: a hit (or game-ending ask) is submitted at once
+  ("Treffer! O gibt dir B3", "Quartett! Klassiker abgelegt"); a miss is held back and shows "Fehlanzeige – du ziehst
+  eine Karte" with the drawn card (`QuartettCard`, dense) to the asker only; "Weiter" submits it and the shell's
+  `HandoverCover` appears. While the cover is up the board renders nothing (no card ids/names, even offstage).
+  Public info row: opponent hand count, stock, score "Quartette X n : m O", both players' quartets as set badges.
+  `describeMove`: "fragt nach B3: Treffer[ – Quartett Klassiker]" (never the drawn card). Moves arriving from elsewhere
+  (network) are announced publicly ("O fragt nach B3: Fehlanzeige").
+- Gap: `QuartettCard` (KLD-024) has no compact hand mode (the card text's `QuartettCardView(compact:)` doesn't exist),
+  so the hand uses a local compact wrapper; the full `QuartettCard` is reused for the drawn card and the detail dialog.
+- Tests: `klunki/test/ui/games/quartett_sets_screen_test.dart` (6 tests: own hand only + public info, hit keeps
+  player, quartet announcement, miss → drawn card → Weiter → cover with no cards in tree → O's hand, history text,
+  full game through the UI to the result dialog). `klunki/test/ui/shell/game_screen_test.dart`: history-fallback test
+  now uses a test-only screen without `describeMove`; hint test checks the real hint text.
+- `flutter analyze` clean, `flutter test` 82/82 green.

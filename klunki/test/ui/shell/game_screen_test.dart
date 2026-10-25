@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/klunki_app.dart';
+import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -177,16 +178,14 @@ void main() {
     });
 
     testWidgets('history falls back to the move map', (tester) async {
-      // quartett-sets is the last placeholder screen without describeMove.
-      await pumpGame(tester, 'quartett-sets');
+      // A test-only board without describeMove.
+      final c = GameController.hotSeat(const GameConfig('connect4', seed: 1));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(MaterialApp(home: _BareScreen(controller: c)));
       await playMove(tester);
-      if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
-        await tester.tap(find.byKey(handoverContinue));
-        await tester.pump();
-      }
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
-      expect(find.textContaining('X: {action: '), findsOneWidget);
+      expect(find.textContaining('X: {col: '), findsOneWidget);
     });
   });
 
@@ -194,6 +193,16 @@ void main() {
     await pumpGame(tester, 'quartett-sets');
     await tester.pump();
     expect(find.byKey(const Key('shell-hint')), findsOneWidget);
-    expect(find.text('Platzhalter: wähle einen legalen Zug.'), findsOneWidget);
+    expect(find.text('Tippe auf eine fehlende Karte, um danach zu fragen'), findsOneWidget);
   });
+}
+
+/// Minimal screen with no describeMove, for the history fallback test.
+class _BareScreen extends StatelessWidget {
+  final GameController controller;
+  const _BareScreen({required this.controller});
+
+  @override
+  Widget build(BuildContext context) =>
+      GameScreen(controller: controller, boardBuilder: (_, _) => const SizedBox.shrink());
 }
