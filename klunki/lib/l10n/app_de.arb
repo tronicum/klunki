@@ -1,0 +1,11 @@
+{
+  "@@locale": "de",
+  "appTitle": "Klunki",
+  "@appTitle": {"description": "App name; a brand, not translated."},
+  "menuLanguage": "Sprache",
+  "@menuLanguage": {"description": "Tooltip of the language icon in the menu's app bar."},
+  "languagePickerTitle": "Sprache wählen",
+  "@languagePickerTitle": {"description": "Title of the language picker dialog."},
+  "languageSystem": "System",
+  "@languageSystem": {"description": "Picker entry: follow the device language."}
+}

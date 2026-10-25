@@ -42,6 +42,12 @@ dependencies:
   # Host-authoritative network play (pure Dart, TCP).
   klunki_net:
     path: ../packages/klunki_net
+  # i18n (I18N-01): gen-l10n + the version of intl that flutter_localizations pins.
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.3
+  # Persists the chosen app language.
+  shared_preferences: ^2.5.6
 
   # mDNS/DNS-SD advertise + browse of `_klunki._tcp` (KLD-033). Pinned: 7.1.6
   # was published 2026-10-25, too fresh; 7.1.5 (2026-08-11) links via SwiftPM.
@@ -66,6 +72,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

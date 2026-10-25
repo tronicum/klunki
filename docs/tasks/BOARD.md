@@ -63,6 +63,16 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-038a | Simulator e2e: iOS Simulator app hosts, Android emulator app joins via `10.0.2.2`; both play the Mühle demo script automatically (`integration_test` + `--dart-define` test mode with a fixed port) and compare final states; `tool/e2e_android_vs_ios.sh` prints PASS/FAIL. Existing AVD: `Medium_Phone_API_37.0` | 032, 037b, 🧑 Android cmdline-tools + licenses | `klunki/integration_test/**`, `tool/e2e_*`, `klunki/pubspec.yaml` (`integration_test` SDK dev dep only), small test-mode hook (path decided in the card) | 🧑 |
 | KLD-038b | The same on real devices: iPhone/iPad ↔ Android phone over Wi-Fi | 038a, 011, 012, 040, 035 | `tool/e2e_*` (device variant) | 🧑 |
 
+## i18n
+
+| ID | Task | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|
+| I18N-01 ✅ | gen-l10n setup (`l10n.yaml`, ARB files for de/en/fr/es/zh/ar/fa), persisted `LocaleController` (`shared_preferences`, system default), language picker in the menu AppBar | – | `klunki/l10n.yaml`, `klunki/lib/l10n/**`, `klunki/lib/ui/language_picker.dart`, `klunki/lib/app/klunki_app.dart`, `klunki/lib/main.dart`, `klunki/pubspec.yaml`, `klunki/test/l10n/**` | – |
+| I18N-02 | Extract all UI strings into ARB; `de` is the template, `en` complete | 01 | `klunki/lib/l10n/*.arb`, `klunki/lib/ui/**` | – |
+| I18N-03 | fr/es/zh-Hans/ar/fa machine translations, flagged for native review | 02 | `klunki/lib/l10n/*.arb` | 🧑 native review |
+| I18N-04 | RTL polish for ar/fa (game boards stay LTR) + CJK/Arabic fonts bundled for the offline PWA | 02 | `klunki/lib/ui/**`, `klunki/pubspec.yaml` (fonts), `klunki/web/**` | – |
+| I18N-05 | Localize engine result reasons + Quartett set names (covers KLD-028) | 02 | `packages/klunki_engine/**` (reason codes), `klunki/lib/ui/**`, `klunki/lib/l10n/*.arb` | – |
+
 ## Backlog
 
 | ID | Task | Notes |
@@ -70,7 +80,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-050 | Lobby / game code over local Wi-Fi (code in mDNS TXT record) | after 033 |
 | KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable) | hosting + privacy review 🧑 |
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
-| KLD-028 | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | after 022–026 |
+| KLD-028 | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | after 022–026; covered by I18N-05 |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
 | KLD-052 | QR *scanning* to join (camera plugin + camera permissions on Android and iOS) | after 033/034; 🧑 OK for plugin + permissions |
 | KLD-053 | Android release signing (keystore) instead of the debug keys | 🧑 chooses passwords, keeps the keystore |

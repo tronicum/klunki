@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
+import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -13,7 +14,7 @@ class MenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Klunki')),
+      appBar: AppBar(title: const Text('Klunki'), actions: const [LanguageButton()]),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
