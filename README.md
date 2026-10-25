@@ -58,6 +58,9 @@ cd klunki
 flutter pub get
 flutter run
 
+# app-level e2e: two app stacks play Mühle over loopback TCP (from klunki/)
+flutter test test/e2e
+
 # PWA build (from klunki/): fills the offline service worker's build hash
 # and precache list — serve build/web/ afterwards
 flutter build web --release && python3 build/web/pwa_finalize.py
