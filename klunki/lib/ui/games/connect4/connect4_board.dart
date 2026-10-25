@@ -181,9 +181,7 @@ class Connect4Piece extends StatelessWidget {
 /// The interactive 7×6 board. Tap anywhere in a column to drop a piece.
 ///
 /// Keys: `c4-column-<c>` per column, `c4-cell-<r>-<c>` per hole (engine
-/// coordinates, row 0 = bottom). Each *legal* column additionally carries
-/// `legal-move-<i>` (i = index in `legalMoves`), the key contract of the
-/// shell's `LegalMoveBoard`, so the generic shell tests keep driving the game.
+/// coordinates, row 0 = bottom).
 class Connect4Board extends StatefulWidget {
   final GameController controller;
 
@@ -386,7 +384,6 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
         ),
       ),
     );
-    // Outermost, so a tap anywhere in the column (also between holes) hits it.
-    return legalIndex >= 0 ? KeyedSubtree(key: Key('legal-move-$legalIndex'), child: column) : column;
+    return column;
   }
 }

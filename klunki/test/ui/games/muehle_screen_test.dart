@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/games/muehle_screen.dart';
+import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -95,7 +96,7 @@ void main() {
     expect(find.text('O ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-removable-10')), findsNothing);
     expect(find.text('Geschlagen: 1'), findsOneWidget);
-    expect(describeMuehleMove(c.moves, c.moves.last), 'X entfernt Stein auf 9');
+    expect(describeMuehleMove(c.moves, c.moves.last), 'entfernt Stein auf 9');
     await tester.pumpAndSettle(); // mill flash finishes
   });
 
@@ -136,7 +137,7 @@ void main() {
     expect(stone(10, 'X'), findsNothing);
     expect(find.text('O ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-selected-10')), findsNothing);
-    expect(describeMuehleMove(c.moves, c.moves.last), 'X zieht 10→11');
+    expect(describeMuehleMove(c.moves, c.moves.last), 'zieht 10→11');
   });
 
   testWidgets('full demo script through taps ends with "O gewinnt!"', (tester) async {
@@ -161,11 +162,11 @@ void main() {
     expect(find.text('O gewinnt!'), findsOneWidget);
     expect(c.canAct, isFalse);
 
-    final texts = [for (final m in c.moves) describeMuehleMove(c.moves, m)];
-    expect(texts.first, 'X setzt auf 21');
-    expect(texts, contains('O entfernt Stein auf 8'));
-    expect(texts, contains('O zieht 15→16'));
-    expect(texts, contains('X springt 20→9'));
+    final texts = [for (final m in c.moves) '${playerMark(m.player)}: ${describeMuehleMove(c.moves, m)}'];
+    expect(texts.first, 'X: setzt auf 21');
+    expect(texts, contains('O: entfernt Stein auf 8'));
+    expect(texts, contains('O: zieht 15→16'));
+    expect(texts, contains('X: springt 20→9'));
   });
 
   testWidgets('board ignores taps when the controller cannot act', (tester) async {

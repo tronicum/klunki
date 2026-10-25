@@ -32,11 +32,10 @@ both players watch.
 - Moves that arrive from somewhere else (later: network) are revealed from
   their event payload; "Weiter" then only closes the reveal.
 - Undo or restart while a reveal is open closes it.
-- History: `describeMove` → "X wählt Leistung" (no card names).
+- History: `describeMove` → "wählt Leistung" (no card names, no player; the shell prefixes "X: ").
 - Stat taps are disabled when `!controller.canAct`.
-- Compatibility: the primary action (active card / "Weiter") is also wrapped in
-  `Key('legal-move-0')` so the shell's generic play-through tests
-  (`playToEnd`, `playUntilHandover`, menu test) keep working.
+- The temporary `Key('legal-move-0')` alias was removed in the integration commit; the
+  shell tests now drive games through the controller.
 
 ## `quartett_card.dart` API (for KLD-025)
 - `QuartettCard({required Card card, onStatTap, enabled = true, statKeyPrefix, highlightStat, outcome, dense = false})`

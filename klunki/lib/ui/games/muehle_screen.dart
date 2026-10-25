@@ -27,17 +27,17 @@ class MuehleScreen extends StatelessWidget {
   }
 }
 
-/// German text for [m] ("X setzt auf 5", "O zieht 15→16", "X springt 20→9",
-/// "O entfernt Stein auf 8"). [log] is the move log [m] belongs to; it is
+/// German text for [m] without the player, which the shell's history sheet
+/// prefixes ("setzt auf 5", "zieht 15→16", "springt 20→9",
+/// "entfernt Stein auf 8"). [log] is the move log [m] belongs to; it is
 /// used to tell flying from moving (the mover had exactly 3 stones left).
 String describeMuehleMove(List<AcceptedMove> log, AcceptedMove m) {
-  final me = playerMark(m.player);
   final move = m.move;
   switch (move['action']) {
     case 'place':
-      return '$me setzt auf ${move['to']}';
+      return 'setzt auf ${move['to']}';
     case 'remove':
-      return '$me entfernt Stein auf ${move['at']}';
+      return 'entfernt Stein auf ${move['at']}';
     default:
       // All stones are placed when moving, so stones left = 9 - stones lost.
       var lost = 0;
@@ -46,6 +46,6 @@ String describeMuehleMove(List<AcceptedMove> log, AcceptedMove m) {
         if (e.player != m.player && e.move['action'] == 'remove') lost++;
       }
       final flying = MuehleGame.piecesPerPlayer - lost == 3;
-      return '$me ${flying ? 'springt' : 'zieht'} ${move['from']}→${move['to']}';
+      return '${flying ? 'springt' : 'zieht'} ${move['from']}→${move['to']}';
   }
 }

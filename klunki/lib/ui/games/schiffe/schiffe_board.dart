@@ -9,12 +9,6 @@ import '../../../transport/game_transport.dart';
 import '../../shell/game_screen.dart';
 import 'schiffe_grid.dart';
 
-/// Compatibility alias used by the shell tests (`test/ui/shell/**`), which
-/// drive every game through `legal-move-0`: it marks the cell whose tap
-/// performs the first legal move (setup: anchor of the first valid placement
-/// in the current orientation; battle: the first unknown target cell).
-const _firstMoveKey = Key('legal-move-0');
-
 /// Width from which setup and battle are laid out side by side.
 const _wideBreakpoint = 600.0;
 
@@ -159,12 +153,10 @@ class _Setup extends StatelessWidget {
     // Valid anchors of the next ship in the current orientation, straight
     // from the engine's legal moves.
     final anchors = <int>{};
-    int? firstAnchor;
     for (final m in g.legalMoves) {
       if (m['action'] != 'place' || m['dir'] != dir) continue;
       final a = (m['row'] as int) * SchiffeGame.size + (m['col'] as int);
       anchors.add(a);
-      firstAnchor ??= a;
     }
 
     final previewCells = <int>{};
@@ -185,13 +177,12 @@ class _Setup extends StatelessWidget {
       cellBuilder: (r, c) {
         final look = _ownLook(own[r][c]);
         final i = r * SchiffeGame.size + c;
-        final cell = SchiffeCellView(
+        return SchiffeCellView(
           key: Key('sv-own-$r-$c'),
           look: look,
           preview: previewCells.contains(i) ? previewLook : null,
           semanticLabel: '${svCellName(r, c)} ${_lookLabel(look)}',
         );
-        return canAct && i == firstAnchor ? KeyedSubtree(key: _firstMoveKey, child: cell) : cell;
       },
       wrapCells: canAct
           ? (cells, unit) => Listener(
@@ -331,10 +322,6 @@ class _Battle extends StatelessWidget {
     final theme = Theme.of(context);
 
     final target = g.targetGrid(me);
-    int? firstUnknown;
-    for (var i = 0; i < SchiffeGame.size * SchiffeGame.size && firstUnknown == null; i++) {
-      if (target[i ~/ SchiffeGame.size][i % SchiffeGame.size] == ShotMark.unknown) firstUnknown = i;
-    }
     final targetGrid = SchiffeGrid(
       outlines: sunkShips(target),
       outlineColor: theme.colorScheme.onSurface,
@@ -342,15 +329,12 @@ class _Battle extends StatelessWidget {
         final mark = target[r][c];
         final look = _targetLook(mark);
         final tappable = canAct && mark == ShotMark.unknown;
-        final cell = SchiffeCellView(
+        return SchiffeCellView(
           key: Key('sv-target-$r-$c'),
           look: look,
           semanticLabel: '${svCellName(r, c)} ${mark == ShotMark.unknown ? 'unbekannt' : _lookLabel(look)}',
           onTap: tappable ? () => state._fire(r, c) : null,
         );
-        return tappable && r * SchiffeGame.size + c == firstUnknown
-            ? KeyedSubtree(key: _firstMoveKey, child: cell)
-            : cell;
       },
     );
 

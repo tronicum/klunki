@@ -31,8 +31,8 @@ that plugs into the shell (`GameScreen`) and keeps the public contract
 - [x] Layout: width ≥ 600 → grids side by side (iPad/web); narrower (phone portrait) →
       target grid on top with flex 3, own grid below with flex 2. No vertical scrolling.
 - [x] **Secrecy:** only `ownGrid(currentPlayer)` / `targetGrid(currentPlayer)` are rendered.
-- [x] `describeMove`: "X schießt auf E5: Treffer" / "Wasser" / "<Schiff> versenkt";
-      placements "X platziert ein Schiff", "X platziert 9 Schiffe zufällig" (no coordinates).
+- [x] `describeMove`: "schießt auf E5: Treffer" / "Wasser" / "<Schiff> versenkt";
+      placements "platziert ein Schiff", "platziert 9 Schiffe zufällig" (no coordinates; the shell prefixes "X: ").
 - [x] Hint line per phase; all input disabled when `!controller.canAct`.
 - [x] Stable keys: `sv-own-<r>-<c>`, `sv-target-<r>-<c>` (on `SchiffeCellView`, which exposes
       `look`/`preview`/`onTap`), `sv-rotate`, `sv-random`; extra: `sv-next-ship`, `sv-fleet-<i>`,
@@ -43,10 +43,7 @@ that plugs into the shell (`GameScreen`) and keeps the public contract
 - [x] `flutter analyze` + `flutter test` green.
 
 ## Notes
-- The shell tests (`test/ui/shell/**`, not touched here) drive every game via `legal-move-0`.
-  To keep them green the board puts that key (as a `KeyedSubtree`) on the cell whose tap
-  performs the first legal move: setup = anchor of the first valid placement in the current
-  orientation, battle = the first unknown target cell. Can be dropped once the shell tests use
-  per-game drivers.
-- The shell's history sheet prefixes each line with the mark, so a line reads
-  "X: X schießt auf E5: Treffer" (the describeMove text follows the spec literally).
+- The temporary `legal-move-0` alias was removed in the integration commit; the shell
+  tests now drive games through the controller.
+- The shell's history sheet prefixes each line with the mark, so `describeMove` returns the
+  text without the player and a line reads "X: schießt auf E5: Treffer".

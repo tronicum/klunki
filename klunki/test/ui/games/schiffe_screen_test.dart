@@ -118,7 +118,7 @@ void main() {
       final p = gameOf(c).placements(Player.a);
       expect(p, hasLength(2));
       expect(p[1].horizontal, isFalse);
-      expect(describeSchiffeMove(c.moves[0]), 'X platziert ein Schiff');
+      expect(describeSchiffeMove(c.moves[0]), 'platziert ein Schiff');
     });
 
     testWidgets('dragging moves the preview; lifting places at the last cell', (tester) async {
@@ -144,7 +144,7 @@ void main() {
       await tapKey(tester, 'sv-random');
       expect(gameOf(c).nextShipIndex(Player.a), isNull);
       expect(gameOf(c).placements(Player.a), hasLength(10));
-      expect(describeSchiffeMove(c.moves.last), 'X platziert 9 Schiffe zufällig');
+      expect(describeSchiffeMove(c.moves.last), 'platziert 9 Schiffe zufällig');
 
       // Handover to O: X's fleet is hidden behind the cover.
       expect(c.needsHandover, isTrue);
@@ -193,7 +193,7 @@ void main() {
       expect(cellOf(tester, target(hitCell ~/ 10, hitCell % 10)).look, anyOf(SvLook.hit, SvLook.sunk));
       expect(
         describeSchiffeMove(c.moves.last),
-        startsWith('X schießt auf ${svCellName(hitCell ~/ 10, hitCell % 10)}: '),
+        startsWith('schießt auf ${svCellName(hitCell ~/ 10, hitCell % 10)}: '),
       );
 
       // Firing at a known cell does nothing.
@@ -205,7 +205,7 @@ void main() {
       await tester.pump();
       expect(g.currentPlayer, Player.b);
       expect(c.needsHandover, isTrue);
-      expect(describeSchiffeMove(c.moves.last), 'X schießt auf ${svCellName(missCell ~/ 10, missCell % 10)}: Wasser');
+      expect(describeSchiffeMove(c.moves.last), 'schießt auf ${svCellName(missCell ~/ 10, missCell % 10)}: Wasser');
       await acknowledge(tester);
 
       // O's view: X's shots show up on O's own grid; O's target grid is unknown.
@@ -331,13 +331,13 @@ void main() {
       move: const {'action': 'place', 'ship': 0, 'row': 3, 'col': 4, 'dir': 'h'},
       event: const GameEvent(payload: {'placed': 0, 'length': 5}),
     );
-    expect(describeSchiffeMove(place), 'O platziert ein Schiff');
+    expect(describeSchiffeMove(place), 'platziert ein Schiff');
     final fire = AcceptedMove(
       index: 1,
       player: Player.a,
       move: const {'action': 'fire', 'row': 4, 'col': 4},
       event: const GameEvent(payload: {'row': 4, 'col': 4, 'result': 'hit', 'ship': 4}),
     );
-    expect(describeSchiffeMove(fire), 'X schießt auf E5: Treffer');
+    expect(describeSchiffeMove(fire), 'schießt auf E5: Treffer');
   });
 }

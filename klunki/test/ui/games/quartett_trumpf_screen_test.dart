@@ -109,7 +109,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('shell-history')));
     await tester.pumpAndSettle();
-    expect(find.text('X: X wählt ${stat.label}'), findsOneWidget);
+    expect(find.text('X: wählt ${stat.label}'), findsOneWidget);
     expect(find.textContaining(a.name), findsNothing);
   });
 
@@ -192,6 +192,6 @@ void main() {
     final c = GameController.hotSeat(const GameConfig('quartett-trumpf', seed: 1));
     addTearDown(c.dispose);
     await c.submit({'action': 'pick', 'stat': 'kmh'});
-    expect(QuartettTrumpfScreen.describeMove(c.moves.single), 'X wählt Höchstgeschwindigkeit');
+    expect(QuartettTrumpfScreen.describeMove(c.moves.single), 'wählt Höchstgeschwindigkeit');
   });
 }

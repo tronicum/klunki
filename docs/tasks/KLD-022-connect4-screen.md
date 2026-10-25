@@ -29,6 +29,6 @@ Replace the KLD-021 placeholder with a real 4 Gewinnt board inside the shared
 - [x] Widget tests in `klunki/test/ui/games/connect4_screen_test.dart`. `flutter analyze` and `flutter test` are green.
 
 ## Notes
-- Shell compatibility: each *legal* column also carries `legal-move-<i>` (i = index in `legalMoves`). That is the `LegalMoveBoard` key contract, which the generic shell tests (`test/ui/shell/*`, `firstMove`) still use to drive Connect Four. Remove it only together with those tests.
+- Shell compatibility: the temporary `legal-move-<i>` column keys were removed in the integration commit; the shell tests now drive games through the controller.
 - Each hole is a public `Connect4Cell` widget (`owner`, `winning`, `lastMove`, `pending`, `faded`), so tests read state without goldens.
 - The drop animation runs only when exactly one move was added. Undo and restart jump straight to the new position.

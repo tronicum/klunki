@@ -22,7 +22,7 @@ fully by tapping, in hot-seat, inside the shared `GameScreen`.
 - [x] The newly formed mill line(s) flash (amber, ~1.4 s).
 - [x] Player panels show stones in hand / on board / captured ("Geschlagen") and the phase (Setzen / Ziehen / Springen). They sit above the board in portrait and on either side of it in landscape.
 - [x] Hints via `setHint`: "Setze einen Stein", "Wähle einen Stein zum Ziehen" / "… zum Springen", "Wähle ein Ziel …", "Mühle! Entferne einen Stein von O"; no hint when the player can't act.
-- [x] `describeMove`: "X setzt auf 5", "O zieht 15→16", "X springt 20→9", "O entfernt Stein auf 8".
+- [x] `describeMove`: "setzt auf 5", "zieht 15→16", "springt 20→9", "entfernt Stein auf 8" (no player; the shell prefixes "X: ").
 - [x] Board ignores input when `!controller.canAct`.
 - [x] Widget tests: alternate placing, occupied no-op, mill → removal, select/deselect/move, full console `demoScript` by taps → "O gewinnt!".
 - [x] Whole `flutter test` green (shell tests fixed in the integration commit; they now drive games via the controller). Previously blocked: two tests in `test/ui/shell/game_screen_test.dart` (outside this card's paths) rely on the placeholder:

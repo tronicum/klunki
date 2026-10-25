@@ -28,19 +28,17 @@ import 'quartett_card.dart';
 /// payload; "Weiter" then only dismisses the reveal.
 ///
 /// Keys: `qt-stat-<statId>` (stat rows of the active card), `qt-reveal`,
-/// `qt-continue`. The primary action (the active card / "Weiter") is also
-/// wrapped in `legal-move-0` so the shell's generic play-through tests keep
-/// working.
+/// `qt-continue`.
 class QuartettTrumpfScreen extends StatelessWidget {
   final GameController controller;
 
   const QuartettTrumpfScreen({super.key, required this.controller});
 
-  /// History text for a pick: "X wählt Leistung". No card names, so the
-  /// history never leaks a card.
+  /// History text for a pick: "wählt Leistung" (the shell prefixes the
+  /// player). No card names, so the history never leaks a card.
   static String describeMove(AcceptedMove m) {
     final stat = QuartettGame.statById('${m.move['stat']}');
-    return '${playerMark(m.player)} wählt ${stat?.label ?? m.move['stat']}';
+    return 'wählt ${stat?.label ?? m.move['stat']}';
   }
 
   @override
@@ -52,9 +50,6 @@ class QuartettTrumpfScreen extends StatelessWidget {
     );
   }
 }
-
-/// Primary-action alias used by the shell tests (see class doc above).
-const _primaryKey = Key('legal-move-0');
 
 /// One trick as shown in the reveal.
 class _Trick {
@@ -252,15 +247,12 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
     final opp = me == Player.a ? Player.b : Player.a;
     final top = game.topCard(me);
     if (top == null) return const SizedBox.shrink();
-    final own = KeyedSubtree(
-      key: _primaryKey,
-      child: QuartettCard(
-        key: const Key('qt-own-card'),
-        card: top,
-        statKeyPrefix: 'qt-stat-',
-        onStatTap: _pick,
-        enabled: c.canAct,
-      ),
+    final own = QuartettCard(
+      key: const Key('qt-own-card'),
+      card: top,
+      statKeyPrefix: 'qt-stat-',
+      onStatTap: _pick,
+      enabled: c.canAct,
     );
     final theme = Theme.of(context);
     Widget caption(String s) => Padding(
@@ -380,13 +372,10 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
                 ),
               ),
               const SizedBox(width: 12),
-              KeyedSubtree(
-                key: _primaryKey,
-                child: FilledButton(
-                  key: const Key('qt-continue'),
-                  onPressed: _continue,
-                  child: const Text('Weiter'),
-                ),
+              FilledButton(
+                key: const Key('qt-continue'),
+                onPressed: _continue,
+                child: const Text('Weiter'),
               ),
             ],
           ),

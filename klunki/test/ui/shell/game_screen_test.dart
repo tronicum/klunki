@@ -26,7 +26,7 @@ void main() {
         expect(find.byType(GameScreen), findsOneWidget);
         expect(find.descendant(of: find.byType(AppBar), matching: find.text(spec.title)), findsOneWidget);
         expect(find.text('X ist am Zug'), findsOneWidget);
-        expect(find.byKey(firstMove), findsOneWidget);
+        expect(controllerOf(tester).config.gameId, spec.id);
 
         await tester.pageBack();
         await tester.pumpAndSettle();
@@ -47,7 +47,7 @@ void main() {
     });
   });
 
-  group('full games through the placeholder buttons', () {
+  group('full games driven through the controller', () {
     testWidgets('Connect Four ends with the result dialog; "Nochmal" restarts', (tester) async {
       final c = await pumpGame(tester, 'connect4');
       await playToEnd(tester);
@@ -91,11 +91,11 @@ void main() {
         expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
         expect(find.text('Ich bin O – weiter'), findsOneWidget);
 
-        // Board stays mounted but is neither visible nor hit-testable.
-        expect(find.byKey(firstMove), findsNothing);
-        expect(find.byKey(firstMove, skipOffstage: false), findsOneWidget);
-        expect(find.byKey(firstMove, skipOffstage: false).hitTestable(), findsNothing);
-        expect(find.byKey(const Key('shell-status')), findsNothing);
+        // Board area stays mounted but is neither visible nor hit-testable.
+        const status = Key('shell-status');
+        expect(find.byKey(status), findsNothing);
+        expect(find.byKey(status, skipOffstage: false), findsOneWidget);
+        expect(find.byKey(status, skipOffstage: false).hitTestable(), findsNothing);
 
         // Tapping anywhere on the board area hits the cover, not the board.
         final moves = c.moves.length;
@@ -109,15 +109,14 @@ void main() {
         await tester.pump();
         expect(c.needsHandover, isFalse);
         expect(find.byKey(handoverContinue), findsNothing);
-        expect(find.byKey(firstMove), findsOneWidget);
+        expect(find.byKey(status).hitTestable(), findsOneWidget);
         expect(find.text('O ist am Zug'), findsOneWidget);
       });
     }
 
     testWidgets('no cover for open-information games', (tester) async {
       final c = await pumpGame(tester, 'connect4');
-      await tester.tap(find.byKey(firstMove));
-      await tester.pump();
+      await playMove(tester);
       expect(c.game.currentPlayer, Player.b);
       expect(find.byKey(handoverContinue), findsNothing);
       expect(find.text('O ist am Zug'), findsOneWidget);
@@ -130,8 +129,7 @@ void main() {
       final undo = find.byKey(const Key('shell-undo'));
       expect(tester.widget<IconButton>(undo).onPressed, isNull);
 
-      await tester.tap(find.byKey(firstMove));
-      await tester.pump();
+      await playMove(tester);
       expect(c.moves, hasLength(1));
       expect(tester.widget<IconButton>(undo).onPressed, isNotNull);
 
@@ -144,8 +142,7 @@ void main() {
 
     testWidgets('restart asks while a game is running, then starts fresh', (tester) async {
       final c = await pumpGame(tester, 'connect4');
-      await tester.tap(find.byKey(firstMove));
-      await tester.pump();
+      await playMove(tester);
 
       await tester.tap(find.byKey(const Key('shell-restart')));
       await tester.pumpAndSettle();
@@ -169,10 +166,8 @@ void main() {
       await tester.tapAt(const Offset(10, 10)); // dismiss
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byKey(firstMove)); // X: column 1
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('legal-move-3'))); // O: column 4
-      await tester.pump();
+      await playMove(tester); // X: column 1
+      await playMove(tester, index: 3); // O: column 4
 
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
@@ -182,21 +177,21 @@ void main() {
     });
 
     testWidgets('history falls back to the move map', (tester) async {
-      await pumpGame(tester, 'quartett-trumpf');
-      await tester.tap(find.byKey(firstMove));
-      await tester.pump();
+      // quartett-sets is the last placeholder screen without describeMove.
+      await pumpGame(tester, 'quartett-sets');
+      await playMove(tester);
       if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
         await tester.tap(find.byKey(handoverContinue));
         await tester.pump();
       }
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
-      expect(find.textContaining('X: {action: pick'), findsOneWidget);
+      expect(find.textContaining('X: {action: '), findsOneWidget);
     });
   });
 
   testWidgets('boards can set the hint line', (tester) async {
-    await pumpGame(tester, 'muehle');
+    await pumpGame(tester, 'quartett-sets');
     await tester.pump();
     expect(find.byKey(const Key('shell-hint')), findsOneWidget);
     expect(find.text('Platzhalter: wähle einen legalen Zug.'), findsOneWidget);
