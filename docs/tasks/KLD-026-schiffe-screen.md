@@ -18,7 +18,7 @@ that plugs into the shell (`GameScreen`) and keeps the public contract
 
 ## Acceptance criteria
 - [x] **Setup** per player: labelled 10×10 grid (rows A–J, columns 1–10), next ship
-      ("Kreuzer (4)", "Schiff 2 von 10"), rotate toggle (`sv-rotate`, Horizontal/Vertikal),
+      ("Kreuzer (4)", "Schiff 2 von 6"), rotate toggle (`sv-rotate`, Horizontal/Vertikal),
       preview under the finger/mouse — green if the anchor is in `legalMoves` of the next
       ship for the current orientation, red otherwise (overlap, touching, out of bounds);
       lifting the finger (tap or drag-and-release) places. "Zufällig" (`sv-random`) =
@@ -32,7 +32,7 @@ that plugs into the shell (`GameScreen`) and keeps the public contract
       target grid on top with flex 3, own grid below with flex 2. No vertical scrolling.
 - [x] **Secrecy:** only `ownGrid(currentPlayer)` / `targetGrid(currentPlayer)` are rendered.
 - [x] `describeMove`: "schießt auf E5: Treffer" / "Wasser" / "<Schiff> versenkt";
-      placements "platziert ein Schiff", "platziert 9 Schiffe zufällig" (no coordinates; the shell prefixes "X: ").
+      placements "platziert ein Schiff", "platziert 5 Schiffe zufällig" (no coordinates; the shell prefixes "X: ").
 - [x] Hint line per phase; all input disabled when `!controller.canAct`.
 - [x] Stable keys: `sv-own-<r>-<c>`, `sv-target-<r>-<c>` (on `SchiffeCellView`, which exposes
       `look`/`preview`/`onTap`), `sv-rotate`, `sv-random`; extra: `sv-next-ship`, `sv-fleet-<i>`,

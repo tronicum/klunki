@@ -5,7 +5,7 @@ import 'game.dart';
 /// Quartett for two players, in two flavours sharing one 32-card deck
 /// (8 sets A–H × 4 cards, ids like `B3`):
 ///
-/// * [QuartettMode.trumpf] — Auto-Quartett / Supertrumpf: compare a stat of
+/// * [QuartettMode.trumpf] — Quartett (Trumpf), Trumpf mode: compare a stat of
 ///   the two top cards, the better value takes the trick.
 /// * [QuartettMode.sets] — classic Quartett: ask the opponent for cards and
 ///   collect complete sets ("quartets").

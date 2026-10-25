@@ -24,7 +24,7 @@ Goal: every game playable to the end as text, in the terminal and in the app's D
   - Built-in demo deck: 32 cards = 8 sets × 4 (A1…H4), each card with 5 numeric
     stats and a per-stat "higher wins / lower wins" rule.
   - Seeded shuffle (`QuartettGame(mode, seed:)`) so a deal can be reproduced and replayed.
-  - **Trumpf** (Auto-Quartett / Supertrumpf): both top cards meet, the active
+  - **Trumpf** (Trumpf mode, compare stats): both top cards meet, the active
     player picks a stat, the better value takes both cards. Tie → cards go to a
     pot, the same player picks again. Whoever wins the trick picks next. Lose
     when out of cards; after 200 tricks the player with more cards wins (or a draw).
@@ -40,7 +40,7 @@ Goal: every game playable to the end as text, in the terminal and in the app's D
 - [x] Text adapters `quartett-trumpf` and `quartett-sets` (Sets: 8 cards each plus a draw pile;
       with all 32 dealt every ask would hit and player B could never win). The console shows only
       the active player's hand and the opponent's card count.
-- [x] **Schiffe versenken engine** (KLD-005): 10×10, fleet 5/4/4/3/3/3/2/2/2/2,
+- [x] **Schiffe versenken engine** (KLD-005): 10×10, fleet 5/4/3/3/2/2 (6 ships, 19 cells),
       ships may not touch, a hit earns another shot; setup phase with manual or
       seeded auto placement; `ownGrid` / `targetGrid` views hide the enemy fleet.
 - [x] Console: plain-language commentary on every move, `legalMoves` on every

@@ -65,7 +65,7 @@ class _Side {
   int get remaining => ships.where((s) => !s.sunk).length;
 }
 
-/// Schiffe versenken (Battleship), classic German rules.
+/// Schiffe versenken, classic German rules.
 ///
 /// * 10×10 grid per player, rows/cols 0–9.
 /// * Ships are straight, fully on the board, must not overlap and must not
@@ -77,8 +77,8 @@ class _Side {
 class SchiffeGame extends Game {
   static const int size = 10;
 
-  /// 1×5, 2×4, 3×3, 4×2 = 10 ships.
-  static const List<int> defaultFleet = [5, 4, 4, 3, 3, 3, 2, 2, 2, 2];
+  /// 1×5, 1×4, 2×3, 2×2 = 6 ships, 19 cells.
+  static const List<int> defaultFleet = [5, 4, 3, 3, 2, 2];
 
   /// German ship names by length.
   static const Map<int, String> shipNames = {

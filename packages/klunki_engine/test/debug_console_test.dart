@@ -168,7 +168,7 @@ void main() {
         final target = row.substring(row.lastIndexOf(RegExp(r'[A-J] ')) + 1);
         expect(target, isNot(contains('#')));
       }
-      expect(screen, contains('ships left: X 10, O 10'));
+      expect(screen, contains('ships left: X 6, O 6'));
     });
 
     test('auto play hunts down a whole fleet', () {

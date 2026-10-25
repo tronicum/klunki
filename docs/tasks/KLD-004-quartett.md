@@ -7,7 +7,7 @@
 
 ## Goal
 One Quartett engine with two modes over a shared deck:
-- **Trumpf** (Auto-Quartett / Supertrumpf): compare one stat of the two top cards; the better value takes both.
+- **Trumpf** (Trumpf mode, compare stats): compare one stat of the two top cards; the better value takes both.
 - **Sets** (classic Quartett): ask the opponent for specific cards to complete sets of 4.
 
 ## Acceptance criteria

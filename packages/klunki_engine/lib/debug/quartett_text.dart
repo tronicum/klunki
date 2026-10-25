@@ -8,7 +8,7 @@ String _player(String key) => key == 'a' ? 'X' : 'O';
 
 String _value(QuartettStat s, num v) => '${v is double ? v.toStringAsFixed(1) : v} ${s.unit}';
 
-/// Auto-Quartett / Supertrumpf. Shows only the top card of the player to move.
+/// Quartett (Trumpf): the Trumpf mode that compares stats. Shows only the top card of the player to move.
 class QuartettTrumpfText extends TextGame {
   QuartettTrumpfText([this.seed = 0]) : game = QuartettGame(QuartettMode.trumpf, seed: seed);
 

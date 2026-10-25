@@ -59,16 +59,17 @@ void main() {
       expect(find.text('A'), findsOneWidget);
       expect(find.text('J'), findsOneWidget);
       expect(find.text('10'), findsOneWidget);
-      for (var i = 0; i < 10; i++) {
+      for (var i = 0; i < 6; i++) {
         expect(find.byKey(Key('sv-fleet-$i'), skipOffstage: false), findsOneWidget);
       }
+      expect(find.byKey(const Key('sv-fleet-6'), skipOffstage: false), findsNothing);
       expect(find.byKey(const Key('shell-hint')), findsOneWidget);
     });
 
     testWidgets('manual placement: invalid preview is red, valid is green, tap places', (tester) async {
       final c = await pumpGame(tester, 'schiffe');
 
-      // Horizontal battleship at J8 would leave the board: red, not placed.
+      // Horizontal Schlachtschiff at J8 would leave the board: red, not placed.
       var g = await tester.startGesture(tester.getCenter(own(9, 7)));
       await tester.pump();
       expect(cellOf(tester, own(9, 7)).preview, SvPreview.invalid);
@@ -97,7 +98,7 @@ void main() {
       }
       expect(find.text('Kreuzer (4)'), findsWidgets);
 
-      // Next ship (Kreuzer) touching the battleship at B2: invalid.
+      // Next ship (Kreuzer) touching the Schlachtschiff at B2: invalid.
       g = await tester.startGesture(tester.getCenter(own(1, 1)));
       await tester.pump();
       expect(cellOf(tester, own(1, 1)).preview, SvPreview.invalid);
@@ -143,8 +144,8 @@ void main() {
       await tester.pump();
       await tapKey(tester, 'sv-random');
       expect(gameOf(c).nextShipIndex(Player.a), isNull);
-      expect(gameOf(c).placements(Player.a), hasLength(10));
-      expect(describeSchiffeMove(c.moves.last), 'platziert 9 Schiffe zufällig');
+      expect(gameOf(c).placements(Player.a), hasLength(6));
+      expect(describeSchiffeMove(c.moves.last), 'platziert 5 Schiffe zufällig');
 
       // Handover to O: X's fleet is hidden behind the cover.
       expect(c.needsHandover, isTrue);
@@ -157,7 +158,7 @@ void main() {
       expect(find.byKey(svShipMarkerKey), findsNothing);
       expect(find.text('Schlachtschiff (5)'), findsWidgets);
       await tapKey(tester, 'sv-random');
-      expect(gameOf(c).placements(Player.b), hasLength(10));
+      expect(gameOf(c).placements(Player.b), hasLength(6));
       expect(c.needsHandover, isTrue);
       await acknowledge(tester);
 
@@ -165,8 +166,8 @@ void main() {
       expect(find.text('X ist am Zug'), findsOneWidget);
       expect(find.text('Gegner'), findsOneWidget);
       expect(find.text('Dein Meer'), findsOneWidget);
-      // X's own fleet is visible again: 30 ship cells.
-      expect(find.byKey(svShipMarkerKey), findsNWidgets(30));
+      // X's own fleet is visible again: 19 ship cells.
+      expect(find.byKey(svShipMarkerKey), findsNWidgets(19));
     });
   });
 
@@ -231,7 +232,7 @@ void main() {
       }
       expect(sunkShips(g.targetGrid(Player.a)).single.cells, sub.cells);
       expect(find.textContaining('U-Boot versenkt – Treffer! Nochmal'), findsOneWidget);
-      expect(find.text('Deine Flotte: 10 · Gegner (O): 9 Schiffe übrig'), findsOneWidget);
+      expect(find.text('Deine Flotte: 6 · Gegner (O): 5 Schiffe übrig'), findsOneWidget);
       expect(describeSchiffeMove(c.moves.last), endsWith(': U-Boot versenkt'));
     });
 

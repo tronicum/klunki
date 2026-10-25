@@ -64,7 +64,7 @@ SchiffeGame smallGame({bool extraShotOnHit = true}) {
 void main() {
   group('Schiffe versenken — setup', () {
     test('default fleet and names', () {
-      expect(SchiffeGame.defaultFleet, [5, 4, 4, 3, 3, 3, 2, 2, 2, 2]);
+      expect(SchiffeGame.defaultFleet, [5, 4, 3, 3, 2, 2]);
       expect(SchiffeGame.shipName(5), 'Schlachtschiff');
       expect(SchiffeGame.shipName(2), 'U-Boot');
       final g = SchiffeGame();
@@ -170,15 +170,15 @@ void main() {
       g.applyMove(place(1, 9, 6, 'h'));
       final e = g.applyMove({'action': 'autoplace', 'seed': 7});
       expect(e, isNotNull);
-      expect(e!.payload['autoplaced'], [2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(e!.payload['autoplaced'], [2, 3, 4, 5]);
       final ps = g.placements(Player.a);
       expect(ps[0].row, 0);
       expect(ps[1].row, 9);
       expectValidLayout(ps, SchiffeGame.defaultFleet);
       g.applyMove({'action': 'autoplace', 'seed': 8});
       expect(g.phase, SchiffePhase.battle);
-      expect(g.shipsRemaining(Player.a), 10);
-      expect(g.shipsRemaining(Player.b), 10);
+      expect(g.shipsRemaining(Player.a), 6);
+      expect(g.shipsRemaining(Player.b), 6);
     });
   });
 

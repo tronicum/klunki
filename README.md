@@ -6,7 +6,7 @@ games:
 - **4 Gewinnt** (Connect Four)
 - **Mühle** (Nine Men's Morris)
 - **Quartett** (collect-the-four / superlative card game)
-- **Schiffe versenken** (Battleship)
+- **Schiffe versenken** (sink-the-fleet guessing game)
 
 Built with **Flutter** — one codebase compiles to Android, iOS and the web
 (PWA). No Node.js.

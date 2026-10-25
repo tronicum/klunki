@@ -113,7 +113,7 @@ Move syntax per game:
   ("X drops into column 3 …"), the board again at highlights, and a result line, e.g.
   `Result: X wins (four in a row) after 11 moves.`
 - The current seeds give: 4 Gewinnt X wins in 11, Mühle O wins in 33, Quartett Trumpf X wins in 62, Quartett Sets O wins 6:2 in 31,
-  Schiffe O wins in 96. (Deterministic, so the outcome is the same every run unless the engine changes.)
+  Schiffe O wins in 98 (default fleet of 6 ships: 5, 4, 3, 3, 2, 2). (Deterministic, so the outcome is the same every run unless the engine changes.)
 - Quartett/Schiffe show only the player on turn's hand or fleet, plus the opponent's count. Hidden information works even in text.
 
 ### In-app Debug-Konsole (any platform that runs the app; debug/profile builds only)

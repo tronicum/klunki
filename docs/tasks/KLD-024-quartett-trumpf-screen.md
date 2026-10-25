@@ -1,7 +1,7 @@
 # KLD-024 — Quartett Trumpf screen
 
 - **ID:** `KLD-024`
-- **Title:** Auto-Quartett (Supertrumpf) screen: top card with stats, tap a stat, trick reveal, pot, handover
+- **Title:** Quartett (Trumpf) screen: top card with stats, tap a stat, trick reveal, pot, handover
 - **Milestone:** P2
 - **Status:** DONE
 - **Depends on:** KLD-021 (shell)

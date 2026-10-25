@@ -1,4 +1,4 @@
-# KLD-005 — Schiffe versenken (Battleship) engine
+# KLD-005 — Schiffe versenken engine
 
 - **Milestone:** P1
 - **Status:** DONE
@@ -7,7 +7,7 @@
 
 ## Goal
 Classic German Schiffe versenken for 2 players: each player has a 10×10 grid
-and a fleet (default 1×5 Schlachtschiff, 2×4 Kreuzer, 3×3 Zerstörer, 4×2 U-Boot).
+and a fleet (default 1×5 Schlachtschiff, 1×4 Kreuzer, 2×3 Zerstörer, 2×2 U-Boot = 6 ships, 19 cells; `fleet` stays configurable).
 Ships are straight, on the board, no overlap, and must not touch (not even
 diagonally). Setup (A then B), then battle (A first); hit/sunk grants another
 shot (configurable), miss passes the turn. Sinking all opposing ships wins.
