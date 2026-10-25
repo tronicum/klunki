@@ -1,11 +1,839 @@
 {
   "@@locale": "de",
   "appTitle": "Klunki",
-  "@appTitle": {"description": "App name; a brand, not translated."},
+  "@appTitle": {
+    "description": "App name; a brand, not translated."
+  },
   "menuLanguage": "Sprache",
-  "@menuLanguage": {"description": "Tooltip of the language icon in the menu's app bar."},
+  "@menuLanguage": {
+    "description": "Tooltip of the language icon in the menu's app bar."
+  },
   "languagePickerTitle": "Sprache wählen",
-  "@languagePickerTitle": {"description": "Title of the language picker dialog."},
+  "@languagePickerTitle": {
+    "description": "Title of the language picker dialog."
+  },
   "languageSystem": "System",
-  "@languageSystem": {"description": "Picker entry: follow the device language."}
+  "@languageSystem": {
+    "description": "Picker entry: follow the device language."
+  },
+  "menuChooseGame": "Wähle ein Spiel",
+  "@menuChooseGame": {
+    "description": "Headline above the game list in the menu."
+  },
+  "menuPassDevice": "Gerät weitergeben",
+  "@menuPassDevice": {
+    "description": "Menu subtitle of hidden-information games: players hand the device over between turns."
+  },
+  "menuDebugConsole": "Debug-Konsole",
+  "@menuDebugConsole": {
+    "description": "Menu button that opens the text debug console (debug builds only)."
+  },
+  "menuGameConnect4": "4 Gewinnt",
+  "@menuGameConnect4": {
+    "description": "Game title: connect four in a row (generic name, no brand)."
+  },
+  "menuGameMuehle": "Mühle",
+  "@menuGameMuehle": {
+    "description": "Game title: Nine Men's Morris (generic name)."
+  },
+  "menuGameQuartettTrumpf": "Quartett (Trumpf)",
+  "@menuGameQuartettTrumpf": {
+    "description": "Game title: car quartet, compare stats (trumps) variant."
+  },
+  "menuGameQuartettSets": "Quartett (Sets)",
+  "@menuGameQuartettSets": {
+    "description": "Game title: car quartet, collect complete sets of four by asking for cards."
+  },
+  "menuGameSchiffe": "Schiffe versenken",
+  "@menuGameSchiffe": {
+    "description": "Game title: battleship-style game (generic name, no brand)."
+  },
+  "shellToMove": "{player} ist am Zug",
+  "@shellToMove": {
+    "description": "Status line: whose turn it is. player = mark X or O.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "shellHasWon": "{player} hat gewonnen",
+  "@shellHasWon": {
+    "description": "Status line after the game ended with a winner.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "shellDraw": "Unentschieden",
+  "@shellDraw": {
+    "description": "Status line / result dialog title for a draw."
+  },
+  "shellWins": "{player} gewinnt!",
+  "@shellWins": {
+    "description": "Result dialog title.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "shellMenu": "Menü",
+  "@shellMenu": {
+    "description": "Result dialog button: back to the menu."
+  },
+  "shellPlayAgain": "Nochmal",
+  "@shellPlayAgain": {
+    "description": "Result dialog button: start a new game of the same kind."
+  },
+  "shellUndo": "Zug zurück",
+  "@shellUndo": {
+    "description": "App bar tooltip: take back the last move (hot-seat)."
+  },
+  "shellNewGame": "Neues Spiel",
+  "@shellNewGame": {
+    "description": "App bar tooltip: restart the game."
+  },
+  "shellNewGameTitle": "Neues Spiel?",
+  "@shellNewGameTitle": {
+    "description": "Title of the confirm dialog before restarting a running game."
+  },
+  "shellNewGameBody": "Das laufende Spiel wird abgebrochen.",
+  "@shellNewGameBody": {
+    "description": "Body of the restart confirm dialog."
+  },
+  "shellCancel": "Abbrechen",
+  "@shellCancel": {
+    "description": "Dialog button: cancel."
+  },
+  "shellRestart": "Neu starten",
+  "@shellRestart": {
+    "description": "Restart confirm dialog button."
+  },
+  "shellMoves": "Züge",
+  "@shellMoves": {
+    "description": "Title of the move history sheet and tooltip of its app bar button."
+  },
+  "shellNoMoves": "Noch keine Züge.",
+  "@shellNoMoves": {
+    "description": "Move history sheet when empty."
+  },
+  "shellHistoryEntry": "{player}: {move}",
+  "@shellHistoryEntry": {
+    "description": "One line in the move history: player mark, then the move text.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "move": {
+        "type": "String"
+      }
+    }
+  },
+  "shellHandoverPass": "Gib das Gerät an {player} weiter",
+  "@shellHandoverPass": {
+    "description": "Handover cover headline (hot-seat, hidden-information games).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "shellHandoverContinue": "Ich bin {player} – weiter",
+  "@shellHandoverContinue": {
+    "description": "Handover cover button, pressed by the next player.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "connect4Column": "Spalte {column}",
+  "@connect4Column": {
+    "description": "Move history text and accessibility label of a column (1-based).",
+    "placeholders": {
+      "column": {
+        "type": "int"
+      }
+    }
+  },
+  "connect4HintTapColumn": "Tippe auf eine Spalte",
+  "@connect4HintTapColumn": {
+    "description": "Hint line while the player can drop a piece."
+  },
+  "muehlePhasePlacing": "Setzen",
+  "@muehlePhasePlacing": {
+    "description": "Mill phase: placing stones."
+  },
+  "muehlePhaseMoving": "Ziehen",
+  "@muehlePhaseMoving": {
+    "description": "Mill phase: moving stones to adjacent points."
+  },
+  "muehlePhaseFlying": "Springen",
+  "@muehlePhaseFlying": {
+    "description": "Mill phase: three stones left, may jump anywhere."
+  },
+  "muehleMovePlace": "setzt auf {point}",
+  "@muehleMovePlace": {
+    "description": "History text (after the player mark): placed a stone.",
+    "placeholders": {
+      "point": {
+        "type": "int"
+      }
+    }
+  },
+  "muehleMoveRemove": "entfernt Stein auf {point}",
+  "@muehleMoveRemove": {
+    "description": "History text: removed an opponent stone after a mill.",
+    "placeholders": {
+      "point": {
+        "type": "int"
+      }
+    }
+  },
+  "muehleMoveMove": "zieht {from}→{to}",
+  "@muehleMoveMove": {
+    "description": "History text: moved a stone.",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "muehleMoveFly": "springt {from}→{to}",
+  "@muehleMoveFly": {
+    "description": "History text: jumped a stone (three left).",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "muehleHintRemove": "Mühle! Entferne einen Stein von {player}",
+  "@muehleHintRemove": {
+    "description": "Hint after closing a mill. player = opponent mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "muehleHintPlace": "Setze einen Stein",
+  "@muehleHintPlace": {
+    "description": "Hint in the placing phase."
+  },
+  "muehleHintTarget": "Wähle ein Ziel (oder tippe den Stein erneut zum Abwählen)",
+  "@muehleHintTarget": {
+    "description": "Hint after selecting a stone."
+  },
+  "muehleHintSelectFly": "Wähle einen Stein zum Springen",
+  "@muehleHintSelectFly": {
+    "description": "Hint in the flying phase."
+  },
+  "muehleHintSelectMove": "Wähle einen Stein zum Ziehen",
+  "@muehleHintSelectMove": {
+    "description": "Hint in the moving phase."
+  },
+  "muehlePointEmpty": "Punkt {point}, leer",
+  "@muehlePointEmpty": {
+    "description": "Accessibility label of an empty board point.",
+    "placeholders": {
+      "point": {
+        "type": "int"
+      }
+    }
+  },
+  "muehlePointOwned": "Punkt {point}, {player}",
+  "@muehlePointOwned": {
+    "description": "Accessibility label of an occupied board point.",
+    "placeholders": {
+      "point": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "muehleCounts": "Hand: {hand} · Brett: {board}",
+  "@muehleCounts": {
+    "description": "Player panel: stones still in hand and on the board.",
+    "placeholders": {
+      "hand": {
+        "type": "int"
+      },
+      "board": {
+        "type": "int"
+      }
+    }
+  },
+  "muehleCaptured": "Geschlagen: {count}",
+  "@muehleCaptured": {
+    "description": "Player panel: opponent stones this player has taken.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettNoGame": "Kein Quartett-Spiel",
+  "@quartettNoGame": {
+    "description": "Fallback text if the controller holds a different game (should not happen)."
+  },
+  "quartettContinue": "Weiter",
+  "@quartettContinue": {
+    "description": "Button that closes a reveal / feedback panel."
+  },
+  "quartettHigherWins": "höher gewinnt",
+  "@quartettHigherWins": {
+    "description": "Tooltip on a stat: the higher value wins."
+  },
+  "quartettLowerWins": "niedriger gewinnt",
+  "@quartettLowerWins": {
+    "description": "Tooltip on a stat: the lower value wins."
+  },
+  "quartettCardBack": "QUARTETT",
+  "@quartettCardBack": {
+    "description": "Label printed on the back of a card."
+  },
+  "quartettCards": "{count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@quartettCards": {
+    "description": "Number of cards.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettPlayerCards": "{player}: {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@quartettPlayerCards": {
+    "description": "Chip: how many cards a player holds.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettTrumpfMovePick": "wählt {stat}",
+  "@quartettTrumpfMovePick": {
+    "description": "History text: the stat a player picked (stat label comes from the engine).",
+    "placeholders": {
+      "stat": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfHintPick": "Wähle eine Eigenschaft deiner Karte",
+  "@quartettTrumpfHintPick": {
+    "description": "Hint while the player chooses a stat."
+  },
+  "quartettTrumpfPot": "Topf: {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@quartettTrumpfPot": {
+    "description": "Chip: cards in the pot after ties.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettTrumpfOpponentStack": "Stapel von {player}",
+  "@quartettTrumpfOpponentStack": {
+    "description": "Caption above the opponent's face-down stack.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfYourCard": "Deine Karte ({player})",
+  "@quartettTrumpfYourCard": {
+    "description": "Caption above the player's own top card.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfTie": "Gleichstand – Karten in den Topf",
+  "@quartettTrumpfTie": {
+    "description": "Reveal headline for a tie."
+  },
+  "quartettTrumpfWinsTrick": "{player} gewinnt den Stich",
+  "@quartettTrumpfWinsTrick": {
+    "description": "Reveal headline for a won trick.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfOutcomeWin": "gewinnt",
+  "@quartettTrumpfOutcomeWin": {
+    "description": "Reveal: outcome word above a card."
+  },
+  "quartettTrumpfOutcomeLose": "verliert",
+  "@quartettTrumpfOutcomeLose": {
+    "description": "Reveal: outcome word above a card."
+  },
+  "quartettTrumpfOutcomeTie": "Gleichstand",
+  "@quartettTrumpfOutcomeTie": {
+    "description": "Reveal: outcome word above a card."
+  },
+  "quartettTrumpfSideOutcome": "{player} – {outcome}",
+  "@quartettTrumpfSideOutcome": {
+    "description": "Reveal: player mark plus outcome word above a card.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "outcome": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfPicked": "{player} wählt {stat}",
+  "@quartettTrumpfPicked": {
+    "description": "Reveal: which stat was picked by whom.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "stat": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfPotAgain": "Im Topf: {count, plural, =1{1 Karte} other{{count} Karten}} – {player} wählt noch einmal",
+  "@quartettTrumpfPotAgain": {
+    "description": "Reveal after a tie: pot size and who picks next.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsHit": "Treffer",
+  "@quartettSetsHit": {
+    "description": "Ask result: the opponent had the card."
+  },
+  "quartettSetsMiss": "Fehlanzeige",
+  "@quartettSetsMiss": {
+    "description": "Ask result: the opponent did not have the card."
+  },
+  "quartettSetsMoveAsk": "fragt nach {card}: {result}",
+  "@quartettSetsMoveAsk": {
+    "description": "History text of an ask. card = card id like B3, result = hit/miss word.",
+    "placeholders": {
+      "card": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsMoveAskQuartet": "fragt nach {card}: {result} – Quartett {set}",
+  "@quartettSetsMoveAskQuartet": {
+    "description": "History text of an ask that completed a set. set = set name from the engine.",
+    "placeholders": {
+      "card": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      },
+      "set": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsHintContinue": "Tippe auf „Weiter“ und gib das Gerät an {player} weiter",
+  "@quartettSetsHintContinue": {
+    "description": "Hint after a miss, before the handover.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsHintAsk": "Tippe auf eine fehlende Karte, um danach zu fragen",
+  "@quartettSetsHintAsk": {
+    "description": "Hint while the player can ask."
+  },
+  "quartettSetsNoQuartet": "noch kein Quartett",
+  "@quartettSetsNoQuartet": {
+    "description": "Shown next to a player without laid-down quartets."
+  },
+  "quartettSetsStock": "Stapel: {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@quartettSetsStock": {
+    "description": "Chip: cards left in the draw stock.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettSetsScore": "Quartette X {a} : {b} O",
+  "@quartettSetsScore": {
+    "description": "Chip: quartets laid down by X and O.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettSetsOtherAsked": "{player} fragt nach {card}: {result}",
+  "@quartettSetsOtherAsked": {
+    "description": "Feedback for a move that arrived from the other device.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "card": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsHitGives": "Treffer! {player} gibt dir {card}",
+  "@quartettSetsHitGives": {
+    "description": "Feedback after a hit.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsMissDraw": "Fehlanzeige – du ziehst eine Karte",
+  "@quartettSetsMissDraw": {
+    "description": "Feedback after a miss with cards left in the stock."
+  },
+  "quartettSetsMissEmpty": "Fehlanzeige – der Stapel ist leer",
+  "@quartettSetsMissEmpty": {
+    "description": "Feedback after a miss with an empty stock."
+  },
+  "quartettSetsAskAgain": "Du darfst noch einmal fragen.",
+  "@quartettSetsAskAgain": {
+    "description": "Feedback after a hit."
+  },
+  "quartettSetsNotHeld": "{player} hat {card} nicht.",
+  "@quartettSetsNotHeld": {
+    "description": "Feedback after a miss.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsQuartetLaid": "Quartett! {set} abgelegt",
+  "@quartettSetsQuartetLaid": {
+    "description": "Announcement of a completed set. set = set name from the engine.",
+    "placeholders": {
+      "set": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettSetsDrawn": "Gezogen:",
+  "@quartettSetsDrawn": {
+    "description": "Label above the card drawn after a miss."
+  },
+  "quartettSetsYourCards": "Deine Karten ({player}): {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@quartettSetsYourCards": {
+    "description": "Heading above the player's hand.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettSetsProgress": "{have}/4 – fehlt: {missing}",
+  "@quartettSetsProgress": {
+    "description": "Per set: cards held out of four and how many are missing.",
+    "placeholders": {
+      "have": {
+        "type": "int"
+      },
+      "missing": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettSetsAskSlot": "fragen",
+  "@quartettSetsAskSlot": {
+    "description": "Missing card slot that can be tapped to ask for it."
+  },
+  "quartettSetsMissingSlot": "fehlt",
+  "@quartettSetsMissingSlot": {
+    "description": "Missing card slot that cannot be asked for right now."
+  },
+  "schiffeHintSetup": "Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. Schiffe dürfen sich nicht berühren.",
+  "@schiffeHintSetup": {
+    "description": "Hint during fleet placement."
+  },
+  "schiffeHintAllSunk": "Alle Schiffe versenkt.",
+  "@schiffeHintAllSunk": {
+    "description": "Hint when the game is over."
+  },
+  "schiffeHintWaiting": "Warte auf {player} …",
+  "@schiffeHintWaiting": {
+    "description": "Hint while the other player is to move.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeHintExtraShot": "Treffer! Nochmal – tippe auf ein Feld im Gegner-Meer.",
+  "@schiffeHintExtraShot": {
+    "description": "Hint after a hit (extra shot)."
+  },
+  "schiffeHintFire": "Tippe auf ein unbekanntes Feld im Gegner-Meer, um zu schießen.",
+  "@schiffeHintFire": {
+    "description": "Hint during the battle."
+  },
+  "schiffeLookWater": "Wasser",
+  "@schiffeLookWater": {
+    "description": "Cell state / shot result: water (miss)."
+  },
+  "schiffeLookShip": "Schiff",
+  "@schiffeLookShip": {
+    "description": "Cell state: own ship."
+  },
+  "schiffeLookMiss": "Fehlschuss",
+  "@schiffeLookMiss": {
+    "description": "Cell state: shot into water."
+  },
+  "schiffeLookShipHit": "Schiff getroffen",
+  "@schiffeLookShipHit": {
+    "description": "Cell state: own ship cell that was hit."
+  },
+  "schiffeLookHit": "Treffer",
+  "@schiffeLookHit": {
+    "description": "Cell state / shot result: hit."
+  },
+  "schiffeLookSunk": "versenkt",
+  "@schiffeLookSunk": {
+    "description": "Cell state / shot result: sunk."
+  },
+  "schiffeLookUnknown": "unbekannt",
+  "@schiffeLookUnknown": {
+    "description": "Cell state: target cell not shot at yet."
+  },
+  "schiffeCellLabel": "{cell} {state}",
+  "@schiffeCellLabel": {
+    "description": "Accessibility label of a grid cell: coordinate like E5, then its state.",
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeFleetComplete": "Flotte komplett",
+  "@schiffeFleetComplete": {
+    "description": "Setup title once all ships are placed."
+  },
+  "schiffeShipWithLength": "{ship} ({length})",
+  "@schiffeShipWithLength": {
+    "description": "Ship name (from the engine) with its length.",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      },
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "schiffeShipPlaced": "{ship} ({length}) · gesetzt",
+  "@schiffeShipPlaced": {
+    "description": "Fleet list entry of a placed ship.",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      },
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "schiffeSetupProgress": "Schiff {index} von {total} · {player} stellt auf",
+  "@schiffeSetupProgress": {
+    "description": "Setup subtitle.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeHorizontal": "Horizontal",
+  "@schiffeHorizontal": {
+    "description": "Rotate button: current orientation."
+  },
+  "schiffeVertical": "Vertikal",
+  "@schiffeVertical": {
+    "description": "Rotate button: current orientation."
+  },
+  "schiffeRandom": "Zufällig",
+  "@schiffeRandom": {
+    "description": "Button: place the remaining ships randomly."
+  },
+  "schiffeFleet": "Flotte",
+  "@schiffeFleet": {
+    "description": "Heading of the fleet list during setup."
+  },
+  "schiffeExtraShotSunk": "{ship} versenkt – Treffer! Nochmal",
+  "@schiffeExtraShotSunk": {
+    "description": "Banner after sinking a ship (extra shot).",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeExtraShot": "Treffer! Nochmal",
+  "@schiffeExtraShot": {
+    "description": "Banner after a hit (extra shot)."
+  },
+  "schiffeRemaining": "Deine Flotte: {own} · Gegner ({player}): {opponent} Schiffe übrig",
+  "@schiffeRemaining": {
+    "description": "Battle info: ships left on both sides.",
+    "placeholders": {
+      "own": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      },
+      "opponent": {
+        "type": "int"
+      }
+    }
+  },
+  "schiffeIncoming": "{player} schoss zuletzt auf {cell}: {result}",
+  "@schiffeIncoming": {
+    "description": "Battle info: the opponent's last shot.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "cell": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeTargetSection": "Gegner",
+  "@schiffeTargetSection": {
+    "description": "Title above the target grid."
+  },
+  "schiffeOwnSection": "Dein Meer",
+  "@schiffeOwnSection": {
+    "description": "Title above the own grid."
+  },
+  "schiffeMovePlace": "platziert ein Schiff",
+  "@schiffeMovePlace": {
+    "description": "History text: placed one ship (never reveals coordinates)."
+  },
+  "schiffeMoveAutoplace": "{count, plural, =1{platziert ein Schiff zufällig} other{platziert {count} Schiffe zufällig}}",
+  "@schiffeMoveAutoplace": {
+    "description": "History text: random placement.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "schiffeMoveFire": "schießt auf {cell}: {result}",
+  "@schiffeMoveFire": {
+    "description": "History text of a shot.",
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeShipSunk": "{ship} versenkt",
+  "@schiffeShipSunk": {
+    "description": "Shot result: which ship was sunk (name from the engine).",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      }
+    }
+  },
+  "debugConsoleTitle": "Debug-Konsole",
+  "@debugConsoleTitle": {
+    "description": "App bar title of the debug console."
+  },
+  "debugUndo": "undo",
+  "@debugUndo": {
+    "description": "Tooltip of the undo button; it sends the console command \"undo\"."
+  },
+  "debugMenu": "Spiel / Demo",
+  "@debugMenu": {
+    "description": "Tooltip of the debug console menu."
+  },
+  "debugNewGame": "Neu: {game}",
+  "@debugNewGame": {
+    "description": "Debug menu entry: start a game (game = engine id).",
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "debugLegalMoves": "Legale Züge",
+  "@debugLegalMoves": {
+    "description": "Debug menu entry."
+  },
+  "debugAutoPlay": "Zu Ende spielen (zufällig)",
+  "@debugAutoPlay": {
+    "description": "Debug menu entry."
+  },
+  "debugDemo": "Demo: alle Spiele",
+  "@debugDemo": {
+    "description": "Debug menu entry: narrated demo of all games."
+  }
 }

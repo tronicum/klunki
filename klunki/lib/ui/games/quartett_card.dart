@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettGame, QuartettStat;
 
 /// Shared Quartett card widgets (Trumpf screen KLD-024, Sets screen KLD-025).
@@ -23,9 +25,10 @@ Color quartettSetColor(String set) => switch (set) {
 /// Display name of a set letter (e.g. `B` → "Hypercars").
 String quartettSetName(String set) => qe.QuartettGame.setNames[set] ?? set;
 
-/// A stat value with unit, German decimal comma: `2,7 s`, `650 PS`.
-String formatQuartettValue(qe.QuartettStat stat, num value) {
-  final v = value is double ? value.toStringAsFixed(1).replaceAll('.', ',') : '$value';
+/// A stat value with unit and the decimal separator of [locale] (default
+/// German, decimal comma): `2,7 s`, `650 PS`. The unit comes from the engine.
+String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de'}) {
+  final v = value is double ? NumberFormat('0.0', locale).format(value) : '$value';
   return '$v ${stat.unit}';
 }
 
@@ -192,12 +195,12 @@ class QuartettCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            value == null ? '–' : formatQuartettValue(s, value),
+            value == null ? '–' : formatQuartettValue(s, value, locale: Localizations.localeOf(context).languageCode),
             style: text?.copyWith(fontWeight: FontWeight.bold, color: tint),
           ),
           const SizedBox(width: 4),
           Tooltip(
-            message: s.higherWins ? 'höher gewinnt' : 'niedriger gewinnt',
+            message: s.higherWins ? AppLocalizations.of(context).quartettHigherWins : AppLocalizations.of(context).quartettLowerWins,
             child: Icon(
               s.higherWins ? Icons.arrow_upward : Icons.arrow_downward,
               size: dense ? 14 : 18,
@@ -215,6 +218,7 @@ class QuartettCard extends StatelessWidget {
   Widget _buildBack(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final l10n = AppLocalizations.of(context);
     return AspectRatio(
       aspectRatio: 0.7,
       child: Material(
@@ -247,12 +251,12 @@ class QuartettCard extends StatelessWidget {
                     if (label != null)
                       Text(label!, style: theme.textTheme.headlineSmall?.copyWith(color: scheme.onPrimary)),
                     Icon(Icons.directions_car, size: dense ? 28 : 40, color: scheme.onPrimary),
-                    Text('QUARTETT',
+                    Text(l10n.quartettCardBack,
                         style: theme.textTheme.labelSmall?.copyWith(color: scheme.onPrimary, letterSpacing: 2)),
                     if (count != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        count == 1 ? '1 Karte' : '$count Karten',
+                        l10n.quartettCards(count!),
                         style: theme.textTheme.titleSmall?.copyWith(color: scheme.onPrimary),
                       ),
                     ],

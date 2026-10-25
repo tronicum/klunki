@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
@@ -39,26 +40,26 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
   Widget build(BuildContext context) {
     final g = game;
     final shell = GameScreen.of(context);
+    final l10n = AppLocalizations.of(context);
     if (g.phase == SchiffePhase.setup) {
       final next = g.nextShipIndex(g.currentPlayer);
       shell.setHint(
         !controller.canAct || next == null
             ? null
-            : 'Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. '
-                  'Schiffe dürfen sich nicht berühren.',
+            : l10n.schiffeHintSetup,
       );
       return _Setup(state: this);
     }
     _preview = null;
-    shell.setHint(_battleHint(g));
+    shell.setHint(_battleHint(l10n, g));
     return _Battle(state: this);
   }
 
-  String? _battleHint(SchiffeGame g) {
-    if (g.isOver) return 'Alle Schiffe versenkt.';
-    if (!controller.canAct) return 'Warte auf ${playerMark(g.currentPlayer)} …';
-    if (_extraShot(g) != null) return 'Treffer! Nochmal – tippe auf ein Feld im Gegner-Meer.';
-    return 'Tippe auf ein unbekanntes Feld im Gegner-Meer, um zu schießen.';
+  String? _battleHint(AppLocalizations l10n, SchiffeGame g) {
+    if (g.isOver) return l10n.schiffeHintAllSunk;
+    if (!controller.canAct) return l10n.schiffeHintWaiting(playerMark(g.currentPlayer));
+    if (_extraShot(g) != null) return l10n.schiffeHintExtraShot;
+    return l10n.schiffeHintFire;
   }
 
   /// The last shot of the player to move if it grants another shot.
@@ -115,13 +116,13 @@ SvLook _targetLook(ShotMark m) => switch (m) {
   ShotMark.sunk => SvLook.sunk,
 };
 
-String _lookLabel(SvLook l) => switch (l) {
-  SvLook.water => 'Wasser',
-  SvLook.ship => 'Schiff',
-  SvLook.miss => 'Fehlschuss',
-  SvLook.shipHit => 'Schiff getroffen',
-  SvLook.hit => 'Treffer',
-  SvLook.sunk => 'versenkt',
+String _lookLabel(AppLocalizations l10n, SvLook l) => switch (l) {
+  SvLook.water => l10n.schiffeLookWater,
+  SvLook.ship => l10n.schiffeLookShip,
+  SvLook.miss => l10n.schiffeLookMiss,
+  SvLook.shipHit => l10n.schiffeLookShipHit,
+  SvLook.hit => l10n.schiffeLookHit,
+  SvLook.sunk => l10n.schiffeLookSunk,
 };
 
 Widget _section(BuildContext context, String title, Widget grid, {Key? key}) {
@@ -144,6 +145,7 @@ class _Setup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final g = state.game;
+    final l10n = AppLocalizations.of(context);
     final me = g.currentPlayer;
     final next = g.nextShipIndex(me);
     final canAct = state.controller.canAct && next != null;
@@ -181,7 +183,7 @@ class _Setup extends StatelessWidget {
           key: Key('sv-own-$r-$c'),
           look: look,
           preview: previewCells.contains(i) ? previewLook : null,
-          semanticLabel: '${svCellName(r, c)} ${_lookLabel(look)}',
+          semanticLabel: l10n.schiffeCellLabel(svCellName(r, c), _lookLabel(l10n, look)),
         );
       },
       wrapCells: canAct
@@ -212,24 +214,24 @@ class _Setup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          next == null ? 'Flotte komplett' : '${SchiffeGame.shipName(len)} ($len)',
+          next == null ? l10n.schiffeFleetComplete : l10n.schiffeShipWithLength(SchiffeGame.shipName(len), len),
           key: const Key('sv-next-ship'),
           style: theme.textTheme.titleLarge,
         ),
-        if (next != null) Text('Schiff ${next + 1} von ${g.fleet.length} · ${playerMark(me)} stellt auf'),
+        if (next != null) Text(l10n.schiffeSetupProgress(next + 1, g.fleet.length, playerMark(me))),
       ],
     );
     final rotate = OutlinedButton.icon(
       key: const Key('sv-rotate'),
       onPressed: canAct ? state._toggleRotation : null,
       icon: Icon(state._horizontal ? Icons.swap_horiz : Icons.swap_vert),
-      label: Text(state._horizontal ? 'Horizontal' : 'Vertikal'),
+      label: Text(state._horizontal ? l10n.schiffeHorizontal : l10n.schiffeVertical),
     );
     final random = FilledButton.tonalIcon(
       key: const Key('sv-random'),
       onPressed: canAct ? state._autoplace : null,
       icon: const Icon(Icons.casino_outlined),
-      label: const Text('Zufällig'),
+      label: Text(l10n.schiffeRandom),
     );
     Widget fleetItem(int i, {required bool dense}) {
       final placed = next == null || i < next;
@@ -246,7 +248,9 @@ class _Setup extends StatelessWidget {
             size: 18,
             color: placed ? Colors.green.shade700 : null,
           ),
-          label: Text('${SchiffeGame.shipName(l)} ($l)${placed ? ' · gesetzt' : ''}'),
+          label: Text(placed
+              ? l10n.schiffeShipPlaced(SchiffeGame.shipName(l), l)
+              : l10n.schiffeShipWithLength(SchiffeGame.shipName(l), l)),
         ),
       );
     }
@@ -271,7 +275,7 @@ class _Setup extends StatelessWidget {
                         const SizedBox(height: 12),
                         Wrap(spacing: 8, runSpacing: 8, children: [rotate, random]),
                         const SizedBox(height: 16),
-                        Text('Flotte', style: theme.textTheme.titleSmall),
+                        Text(l10n.schiffeFleet, style: theme.textTheme.titleSmall),
                         for (var i = 0; i < g.fleet.length; i++) fleetItem(i, dense: false),
                       ],
                     ),
@@ -320,6 +324,7 @@ class _Battle extends StatelessWidget {
     final opp = me == Player.a ? Player.b : Player.a;
     final canAct = state.controller.canAct;
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     final target = g.targetGrid(me);
     final targetGrid = SchiffeGrid(
@@ -332,7 +337,10 @@ class _Battle extends StatelessWidget {
         return SchiffeCellView(
           key: Key('sv-target-$r-$c'),
           look: look,
-          semanticLabel: '${svCellName(r, c)} ${mark == ShotMark.unknown ? 'unbekannt' : _lookLabel(look)}',
+          semanticLabel: l10n.schiffeCellLabel(
+            svCellName(r, c),
+            mark == ShotMark.unknown ? l10n.schiffeLookUnknown : _lookLabel(l10n, look),
+          ),
           onTap: tappable ? () => state._fire(r, c) : null,
         );
       },
@@ -351,7 +359,7 @@ class _Battle extends StatelessWidget {
         return SchiffeCellView(
           key: Key('sv-own-$r-$c'),
           look: look,
-          semanticLabel: '${svCellName(r, c)} ${_lookLabel(look)}',
+          semanticLabel: l10n.schiffeCellLabel(svCellName(r, c), _lookLabel(l10n, look)),
         );
       },
     );
@@ -369,13 +377,13 @@ class _Battle extends StatelessWidget {
             ),
             child: Text(
               extraPayload?['result'] == 'sunk'
-                  ? '${SchiffeGame.shipName(extraPayload!['ship'] as int)} versenkt – Treffer! Nochmal'
-                  : 'Treffer! Nochmal',
+                  ? l10n.schiffeExtraShotSunk(SchiffeGame.shipName(extraPayload!['ship'] as int))
+                  : l10n.schiffeExtraShot,
               style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onTertiaryContainer),
             ),
           );
     final remaining = Text(
-      'Deine Flotte: ${g.shipsRemaining(me)} · Gegner (${playerMark(opp)}): ${g.shipsRemaining(opp)} Schiffe übrig',
+      l10n.schiffeRemaining(g.shipsRemaining(me), playerMark(opp), g.shipsRemaining(opp)),
       key: const Key('sv-remaining'),
       style: theme.textTheme.bodyMedium,
     );
@@ -383,13 +391,15 @@ class _Battle extends StatelessWidget {
     final incomingText = incoming == null
         ? null
         : Text(
-            '${playerMark(opp)} schoss zuletzt auf '
-            '${svCellName(incoming.move['row'] as int, incoming.move['col'] as int)}: '
-            '${switch ((incoming.event.payload as Map)['result']) {
-              'miss' => 'Wasser',
-              'hit' => 'Treffer',
-              _ => 'versenkt',
-            }}',
+            l10n.schiffeIncoming(
+              playerMark(opp),
+              svCellName(incoming.move['row'] as int, incoming.move['col'] as int),
+              switch ((incoming.event.payload as Map)['result']) {
+                'miss' => l10n.schiffeLookWater,
+                'hit' => l10n.schiffeLookHit,
+                _ => l10n.schiffeLookSunk,
+              },
+            ),
             key: const Key('sv-incoming'),
             style: theme.textTheme.bodySmall,
           );
@@ -414,9 +424,9 @@ class _Battle extends StatelessWidget {
                 Expanded(
                   child: Row(
                     children: [
-                      Expanded(child: _section(context, 'Gegner', targetGrid, key: const Key('sv-target-section'))),
+                      Expanded(child: _section(context, l10n.schiffeTargetSection, targetGrid, key: const Key('sv-target-section'))),
                       const SizedBox(width: 16),
-                      Expanded(child: _section(context, 'Dein Meer', ownGrid, key: const Key('sv-own-section'))),
+                      Expanded(child: _section(context, l10n.schiffeOwnSection, ownGrid, key: const Key('sv-own-section'))),
                     ],
                   ),
                 ),
@@ -429,9 +439,9 @@ class _Battle extends StatelessWidget {
             children: [
               info,
               const SizedBox(height: 6),
-              Expanded(flex: 3, child: _section(context, 'Gegner', targetGrid, key: const Key('sv-target-section'))),
+              Expanded(flex: 3, child: _section(context, l10n.schiffeTargetSection, targetGrid, key: const Key('sv-target-section'))),
               const SizedBox(height: 8),
-              Expanded(flex: 2, child: _section(context, 'Dein Meer', ownGrid, key: const Key('sv-own-section'))),
+              Expanded(flex: 2, child: _section(context, l10n.schiffeOwnSection, ownGrid, key: const Key('sv-own-section'))),
             ],
           );
         },

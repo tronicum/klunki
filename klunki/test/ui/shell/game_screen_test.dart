@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -8,6 +7,7 @@ import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import 'shell_test_utils.dart';
+import '../../l10n/l10n_test_utils.dart';
 
 void main() {
   test('every game in gameSpecs has a screen', () {
@@ -16,7 +16,7 @@ void main() {
 
   group('menu', () {
     testWidgets('lists all games in registry order and opens each', (tester) async {
-      await tester.pumpWidget(const KlunkiApp());
+      await tester.pumpWidget(klunkiApp());
       final tops = [for (final s in gameSpecs) tester.getTopLeft(find.text(s.title)).dy];
       expect(tops, [...tops]..sort());
       expect(find.text('Debug-Konsole'), findsOneWidget);
@@ -29,7 +29,7 @@ void main() {
         expect(find.text('X ist am Zug'), findsOneWidget);
         expect(controllerOf(tester).config.gameId, spec.id);
 
-        await tester.pageBack();
+        await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip
         await tester.pumpAndSettle();
         expect(find.byType(GameScreen), findsNothing);
         expect(find.byType(MenuScreen), findsOneWidget);
@@ -37,7 +37,7 @@ void main() {
     });
 
     testWidgets('"Menü" in the result dialog returns to the menu', (tester) async {
-      await tester.pumpWidget(const KlunkiApp());
+      await tester.pumpWidget(klunkiApp());
       await tester.tap(find.text('4 Gewinnt'));
       await tester.pumpAndSettle();
       await playToEnd(tester);
@@ -181,7 +181,7 @@ void main() {
       // A test-only board without describeMove.
       final c = GameController.hotSeat(const GameConfig('connect4', seed: 1));
       addTearDown(c.dispose);
-      await tester.pumpWidget(MaterialApp(home: _BareScreen(controller: c)));
+      await tester.pumpWidget(localizedApp(_BareScreen(controller: c)));
       await playMove(tester);
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();

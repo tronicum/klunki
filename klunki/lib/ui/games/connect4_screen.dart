@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../game/game_controller.dart';
 import '../shell/game_screen.dart';
@@ -21,9 +22,9 @@ class Connect4Screen extends StatelessWidget {
     return GameScreen(
       controller: controller,
       // The shell prefixes the player mark: "X: Spalte 4".
-      describeMove: (m) => 'Spalte ${(m.move['col'] as int) + 1}',
+      describeMove: (l10n, m) => l10n.connect4Column((m.move['col'] as int) + 1),
       boardBuilder: (context, controller) {
-        GameScreen.of(context).setHint(controller.canAct ? 'Tippe auf eine Spalte' : null);
+        GameScreen.of(context).setHint(controller.canAct ? AppLocalizations.of(context).connect4HintTapColumn : null);
         return Connect4Board(controller: controller);
       },
     );

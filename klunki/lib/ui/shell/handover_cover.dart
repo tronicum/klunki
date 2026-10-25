@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../game/game_controller.dart';
 import 'game_screen.dart';
@@ -45,6 +46,7 @@ class _Cover extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final mark = playerMark(controller.game.currentPlayer);
+    final l10n = AppLocalizations.of(context);
     return Material(
       key: const Key('handover-cover'),
       color: theme.colorScheme.surfaceContainerHighest,
@@ -57,7 +59,7 @@ class _Cover extends StatelessWidget {
               Icon(Icons.phonelink_lock, size: 72, color: theme.colorScheme.primary),
               const SizedBox(height: 24),
               Text(
-                'Gib das Gerät an $mark weiter',
+                l10n.shellHandoverPass(mark),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineSmall,
               ),
@@ -69,7 +71,7 @@ class _Cover extends StatelessWidget {
                   textStyle: theme.textTheme.titleLarge,
                 ),
                 onPressed: controller.acknowledgeHandover,
-                child: Text('Ich bin $mark – weiter'),
+                child: Text(l10n.shellHandoverContinue(mark)),
               ),
             ],
           ),

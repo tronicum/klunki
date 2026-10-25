@@ -8,6 +8,7 @@ import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../shell/shell_test_utils.dart';
+import '../../l10n/l10n_test_utils.dart';
 
 Finder own(int r, int c) => find.byKey(Key('sv-own-$r-$c'));
 Finder target(int r, int c) => find.byKey(Key('sv-target-$r-$c'));
@@ -119,7 +120,7 @@ void main() {
       final p = gameOf(c).placements(Player.a);
       expect(p, hasLength(2));
       expect(p[1].horizontal, isFalse);
-      expect(describeSchiffeMove(c.moves[0]), 'platziert ein Schiff');
+      expect(describeSchiffeMove(deL10n, c.moves[0]), 'platziert ein Schiff');
     });
 
     testWidgets('dragging moves the preview; lifting places at the last cell', (tester) async {
@@ -145,7 +146,7 @@ void main() {
       await tapKey(tester, 'sv-random');
       expect(gameOf(c).nextShipIndex(Player.a), isNull);
       expect(gameOf(c).placements(Player.a), hasLength(6));
-      expect(describeSchiffeMove(c.moves.last), 'platziert 5 Schiffe zufällig');
+      expect(describeSchiffeMove(deL10n, c.moves.last), 'platziert 5 Schiffe zufällig');
 
       // Handover to O: X's fleet is hidden behind the cover.
       expect(c.needsHandover, isTrue);
@@ -193,7 +194,7 @@ void main() {
       expect(find.byKey(const Key('sv-extra-shot')), findsOneWidget);
       expect(cellOf(tester, target(hitCell ~/ 10, hitCell % 10)).look, anyOf(SvLook.hit, SvLook.sunk));
       expect(
-        describeSchiffeMove(c.moves.last),
+        describeSchiffeMove(deL10n, c.moves.last),
         startsWith('schießt auf ${svCellName(hitCell ~/ 10, hitCell % 10)}: '),
       );
 
@@ -206,7 +207,7 @@ void main() {
       await tester.pump();
       expect(g.currentPlayer, Player.b);
       expect(c.needsHandover, isTrue);
-      expect(describeSchiffeMove(c.moves.last), 'schießt auf ${svCellName(missCell ~/ 10, missCell % 10)}: Wasser');
+      expect(describeSchiffeMove(deL10n, c.moves.last), 'schießt auf ${svCellName(missCell ~/ 10, missCell % 10)}: Wasser');
       await acknowledge(tester);
 
       // O's view: X's shots show up on O's own grid; O's target grid is unknown.
@@ -233,7 +234,7 @@ void main() {
       expect(sunkShips(g.targetGrid(Player.a)).single.cells, sub.cells);
       expect(find.textContaining('U-Boot versenkt – Treffer! Nochmal'), findsOneWidget);
       expect(find.text('Deine Flotte: 6 · Gegner (O): 5 Schiffe übrig'), findsOneWidget);
-      expect(describeSchiffeMove(c.moves.last), endsWith(': U-Boot versenkt'));
+      expect(describeSchiffeMove(deL10n, c.moves.last), endsWith(': U-Boot versenkt'));
     });
 
     testWidgets('the target grid never shows unhit enemy ships', (tester) async {
@@ -332,13 +333,13 @@ void main() {
       move: const {'action': 'place', 'ship': 0, 'row': 3, 'col': 4, 'dir': 'h'},
       event: const GameEvent(payload: {'placed': 0, 'length': 5}),
     );
-    expect(describeSchiffeMove(place), 'platziert ein Schiff');
+    expect(describeSchiffeMove(deL10n, place), 'platziert ein Schiff');
     final fire = AcceptedMove(
       index: 1,
       player: Player.a,
       move: const {'action': 'fire', 'row': 4, 'col': 4},
       event: const GameEvent(payload: {'row': 4, 'col': 4, 'result': 'hit', 'ship': 4}),
     );
-    expect(describeSchiffeMove(fire), 'schießt auf E5: Treffer');
+    expect(describeSchiffeMove(deL10n, fire), 'schießt auf E5: Treffer');
   });
 }

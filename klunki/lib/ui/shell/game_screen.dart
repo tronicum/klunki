@@ -2,18 +2,21 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/hot_seat_transport.dart';
+import '../game_titles.dart';
 import 'handover_cover.dart';
 
 /// Builds the game-specific board inside a [GameScreen].
 typedef BoardBuilder = Widget Function(BuildContext context, GameController controller);
 
-/// Turns an accepted move into readable (German) text for the move history.
-typedef MoveDescriber = String Function(AcceptedMove move);
+/// Turns an accepted move into readable text for the move history, in the
+/// language of [l10n].
+typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move);
 
 /// Player marks used everywhere in the UI, consistent with the text console:
 /// player A is "X", player B is "O".
@@ -146,7 +149,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
 
   Future<void> _showResult() async {
     final r = controller.game.result;
-    final headline = r.draw || r.winner == null ? 'Unentschieden' : '${playerMark(r.winner!)} gewinnt!';
+    final l10n = AppLocalizations.of(context);
+    final headline = r.draw || r.winner == null ? l10n.shellDraw : l10n.shellWins(playerMark(r.winner!));
     final again = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -155,8 +159,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         title: Text(headline),
         content: r.reason.isEmpty ? null : Text(r.reason),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Menü')),
-          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Nochmal')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
+          FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellPlayAgain)),
         ],
       ),
     );
@@ -171,14 +175,15 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   Future<void> _restart() async {
     final inProgress = controller.moves.isNotEmpty && !controller.game.isOver;
     if (inProgress) {
+      final l10n = AppLocalizations.of(context);
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Neues Spiel?'),
-          content: const Text('Das laufende Spiel wird abgebrochen.'),
+          title: Text(l10n.shellNewGameTitle),
+          content: Text(l10n.shellNewGameBody),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Abbrechen')),
-            FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Neu starten')),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellCancel)),
+            FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellRestart)),
           ],
         ),
       );
@@ -187,10 +192,11 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     controller.restart(seed: newGameSeed());
   }
 
-  String _describe(AcceptedMove m) => widget.describeMove?.call(m) ?? m.move.toString();
+  String _describe(AppLocalizations l10n, AcceptedMove m) => widget.describeMove?.call(l10n, m) ?? m.move.toString();
 
   void _showHistory() {
     final moves = controller.moves;
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -202,10 +208,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Züge', style: Theme.of(ctx).textTheme.titleLarge),
+              child: Text(l10n.shellMoves, style: Theme.of(ctx).textTheme.titleLarge),
             ),
             if (moves.isEmpty)
-              const Padding(padding: EdgeInsets.all(16), child: Text('Noch keine Züge.'))
+              Padding(padding: const EdgeInsets.all(16), child: Text(l10n.shellNoMoves))
             else
               Flexible(
                 child: ListView.builder(
@@ -216,7 +222,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                     return ListTile(
                       dense: true,
                       leading: Text('${m.index + 1}.'),
-                      title: Text('${playerMark(m.player)}: ${_describe(m)}'),
+                      title: Text(l10n.shellHistoryEntry(playerMark(m.player), _describe(l10n, m))),
                     );
                   },
                 ),
@@ -227,41 +233,42 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     );
   }
 
-  String get _status {
+  String _status(AppLocalizations l10n) {
     final game = controller.game;
     final r = game.result;
     if (r.isOver) {
-      return r.winner == null ? 'Unentschieden' : '${playerMark(r.winner!)} hat gewonnen';
+      return r.winner == null ? l10n.shellDraw : l10n.shellHasWon(playerMark(r.winner!));
     }
-    return '${playerMark(game.currentPlayer)} ist am Zug';
+    return l10n.shellToMove(playerMark(game.currentPlayer));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return _GameShellScope(
       shell: this,
       hint: _hint,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title ?? controller.spec.title),
+          title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
           actions: [
             if (controller.transport is HotSeatTransport)
               IconButton(
                 key: const Key('shell-undo'),
-                tooltip: 'Zug zurück',
+                tooltip: l10n.shellUndo,
                 icon: const Icon(Icons.undo),
                 onPressed: controller.canUndo ? controller.undo : null,
               ),
             IconButton(
               key: const Key('shell-restart'),
-              tooltip: 'Neues Spiel',
+              tooltip: l10n.shellNewGame,
               icon: const Icon(Icons.refresh),
               onPressed: _restart,
             ),
             IconButton(
               key: const Key('shell-history'),
-              tooltip: 'Züge',
+              tooltip: l10n.shellMoves,
               icon: const Icon(Icons.history),
               onPressed: _showHistory,
             ),
@@ -275,7 +282,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Text(_status, key: const Key('shell-status'), style: theme.textTheme.titleMedium),
+                  child: Text(_status(l10n), key: const Key('shell-status'), style: theme.textTheme.titleMedium),
                 ),
                 if (_hint != null)
                   Padding(

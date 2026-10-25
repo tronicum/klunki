@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
@@ -36,9 +37,9 @@ class QuartettTrumpfScreen extends StatelessWidget {
 
   /// History text for a pick: "wählt Leistung" (the shell prefixes the
   /// player). No card names, so the history never leaks a card.
-  static String describeMove(AcceptedMove m) {
+  static String describeMove(AppLocalizations l10n, AcceptedMove m) {
     final stat = QuartettGame.statById('${m.move['stat']}');
-    return 'wählt ${stat?.label ?? m.move['stat']}';
+    return l10n.quartettTrumpfMovePick(stat?.label ?? '${m.move['stat']}');
   }
 
   @override
@@ -197,11 +198,12 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
   @override
   Widget build(BuildContext context) {
     final game = _game;
-    if (game == null) return const Center(child: Text('Kein Quartett-Spiel'));
+    final l10n = AppLocalizations.of(context);
+    if (game == null) return Center(child: Text(l10n.quartettNoGame));
     final shell = GameScreen.of(context);
     final reveal = _reveal;
     final choosing = reveal == null && c.canAct && game.topCard(game.currentPlayer) != null;
-    shell.setHint(choosing ? 'Wähle eine Eigenschaft deiner Karte' : null);
+    shell.setHint(choosing ? l10n.quartettTrumpfHintPick : null);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
@@ -228,15 +230,15 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
           label: Text(text),
           visualDensity: VisualDensity.compact,
         );
-    String cards(int n) => n == 1 ? '1 Karte' : '$n Karten';
+    final l10n = AppLocalizations.of(context);
     return Wrap(
       spacing: 8,
       runSpacing: 4,
       alignment: WrapAlignment.center,
       children: [
-        chip('qt-count-a', Icons.person, 'X: ${cards(game.stackSize(Player.a))}'),
-        chip('qt-count-b', Icons.person_outline, 'O: ${cards(game.stackSize(Player.b))}'),
-        if (game.potSize > 0) chip('qt-pot', Icons.savings_outlined, 'Topf: ${cards(game.potSize)}'),
+        chip('qt-count-a', Icons.person, l10n.quartettPlayerCards(playerMark(Player.a), game.stackSize(Player.a))),
+        chip('qt-count-b', Icons.person_outline, l10n.quartettPlayerCards(playerMark(Player.b), game.stackSize(Player.b))),
+        if (game.potSize > 0) chip('qt-pot', Icons.savings_outlined, l10n.quartettTrumpfPot(game.potSize)),
       ],
     );
   }
@@ -255,6 +257,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
       enabled: c.canAct,
     );
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     Widget caption(String s) => Padding(
           padding: const EdgeInsets.only(bottom: 4),
           child: Text(s, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),
@@ -264,7 +267,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          caption('Stapel von ${playerMark(opp)}'),
+          caption(l10n.quartettTrumpfOpponentStack(playerMark(opp))),
           QuartettCard.back(
             key: const Key('qt-opponent-stack'),
             label: playerMark(opp),
@@ -277,7 +280,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
     final ownColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      children: [caption('Deine Karte (${playerMark(me)})'), own],
+      children: [caption(l10n.quartettTrumpfYourCard(playerMark(me))), own],
     );
     return LayoutBuilder(builder: (context, box) {
       if (box.maxWidth >= 520) {
@@ -300,9 +303,9 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
 
   Widget _revealView(BuildContext context, _Trick t) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final w = t.winner;
-    final headline =
-        w == null ? 'Gleichstand – Karten in den Topf' : '${playerMark(w)} gewinnt den Stich';
+    final headline = w == null ? l10n.quartettTrumpfTie : l10n.quartettTrumpfWinsTrick(playerMark(w));
     final color = w == null ? quartettOutcomeColor(QuartettOutcome.tie) : quartettOutcomeColor(QuartettOutcome.win);
     QuartettOutcome outcomeOf(Player p) =>
         w == null ? QuartettOutcome.tie : (w == p ? QuartettOutcome.win : QuartettOutcome.lose);
@@ -310,9 +313,9 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
     Widget side(Player p, qe.Card card) {
       final o = outcomeOf(p);
       final word = switch (o) {
-        QuartettOutcome.win => 'gewinnt',
-        QuartettOutcome.lose => 'verliert',
-        QuartettOutcome.tie => 'Gleichstand',
+        QuartettOutcome.win => l10n.quartettTrumpfOutcomeWin,
+        QuartettOutcome.lose => l10n.quartettTrumpfOutcomeLose,
+        QuartettOutcome.tie => l10n.quartettTrumpfOutcomeTie,
       };
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -320,7 +323,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
-              '${playerMark(p)} – $word',
+              l10n.quartettTrumpfSideOutcome(playerMark(p), word),
               key: Key('qt-reveal-${p.name}-outcome'),
               textAlign: TextAlign.center,
               style: theme.textTheme.labelLarge?.copyWith(color: quartettOutcomeColor(o), fontWeight: FontWeight.bold),
@@ -359,14 +362,14 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${playerMark(t.picker)} wählt ${t.stat.label}', style: theme.textTheme.bodyMedium),
+                    Text(l10n.quartettTrumpfPicked(playerMark(t.picker), t.stat.label), style: theme.textTheme.bodyMedium),
                     Text(
                       headline,
                       key: const Key('qt-reveal-text'),
                       style: theme.textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
                     ),
                     if (w == null && t.pot > 0)
-                      Text('Im Topf: ${t.pot} Karten – ${playerMark(t.picker)} wählt noch einmal',
+                      Text(l10n.quartettTrumpfPotAgain(t.pot, playerMark(t.picker)),
                           style: theme.textTheme.bodySmall),
                   ],
                 ),
@@ -375,7 +378,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
               FilledButton(
                 key: const Key('qt-continue'),
                 onPressed: _continue,
-                child: const Text('Weiter'),
+                child: Text(l10n.quartettContinue),
               ),
             ],
           ),
