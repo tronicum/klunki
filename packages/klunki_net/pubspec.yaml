@@ -10,5 +10,8 @@ dependencies:
   klunki_engine:
     path: ../klunki_engine
 
+executables:
+  klunki:
+
 dev_dependencies:
   test: ^1.25.0

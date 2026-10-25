@@ -3,8 +3,11 @@ import '../muehle.dart';
 import 'text_game.dart';
 
 class MuehleText extends TextGame {
+  /// [game] wraps an existing engine instance (e.g. a network session's).
+  MuehleText({MuehleGame? game}) : game = game ?? MuehleGame();
+
   @override
-  final MuehleGame game = MuehleGame();
+  final MuehleGame game;
 
   @override
   String get id => 'muehle';

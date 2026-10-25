@@ -7,8 +7,11 @@ import 'text_game.dart';
 /// Shows only what the player to move may see (hot-seat view): their own
 /// fleet with incoming shots, and their shots at the opponent.
 class SchiffeText extends TextGame {
+  /// [game] wraps an existing engine instance (e.g. a network session's).
+  SchiffeText({SchiffeGame? game}) : game = game ?? SchiffeGame();
+
   @override
-  final SchiffeGame game = SchiffeGame();
+  final SchiffeGame game;
 
   @override
   String get id => 'schiffe';

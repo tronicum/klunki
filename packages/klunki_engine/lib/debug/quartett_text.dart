@@ -12,6 +12,9 @@ String _value(QuartettStat s, num v) => '${v is double ? v.toStringAsFixed(1) : 
 class QuartettTrumpfText extends TextGame {
   QuartettTrumpfText([this.seed = 0]) : game = QuartettGame(QuartettMode.trumpf, seed: seed);
 
+  /// Wraps an existing engine instance (e.g. one built from a network `GameConfig`).
+  QuartettTrumpfText.forGame(this.game) : seed = game.seed;
+
   final int seed;
   @override
   final QuartettGame game;
@@ -104,6 +107,11 @@ class QuartettTrumpfText extends TextGame {
 class QuartettSetsText extends TextGame {
   QuartettSetsText([this.seed = 0, this.handSize = 8])
       : game = QuartettGame(QuartettMode.sets, seed: seed, handSize: handSize);
+
+  /// Wraps an existing engine instance (e.g. one built from a network `GameConfig`).
+  QuartettSetsText.forGame(this.game)
+      : seed = game.seed,
+        handSize = game.handSize;
 
   final int seed;
   final int handSize;

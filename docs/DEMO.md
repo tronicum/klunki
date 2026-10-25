@@ -121,6 +121,20 @@ Move syntax per game:
 - Or type the same commands as in the terminal into the input field.
 - It's hidden in **release** builds (`kReleaseMode`). For a phone demo of the console use `flutter run` (debug) or `--profile`.
 
+### Two terminals over the network (KLD-031)
+Same Mac or two Macs on one Wi-Fi; the host plays X and moves first.
+```bash
+# terminal 1 (prints its IP addresses, the port and the game config)
+cd packages/klunki_net && dart run klunki_net:klunki host connect4 --port 4747 --name Ada
+# terminal 2 (use 127.0.0.1 on the same Mac, otherwise an IP printed by the host)
+cd packages/klunki_net && dart run klunki_net:klunki join 127.0.0.1 4747 --name Bea
+```
+- Any game id works; seeded games take `--seed`, e.g. `host quartett-trumpf --seed 42` (the guest gets the seed from the host).
+- Each terminal shows only its own player's view (Quartett hand, Schiffe fleet) and only on its turn; every move is narrated on both.
+- In the game: a move on your turn, `board`, `moves`, `help`, `quit`. Out-of-turn input is refused.
+- A dropped connection shows a message on both; the guest asks `Reconnect? [Y/n]` and resumes. `quit` ends it for both.
+- 🧑 macOS may ask "Allow incoming connections?" for `dart` when hosting for another Mac.
+
 ### Troubleshooting
 - `Could not find package "test"` / pub errors → `dart pub get` in `packages/klunki_engine` (needs network once).
 - Output scrolls too fast → run single games or pipe to `less`.

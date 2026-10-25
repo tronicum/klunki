@@ -1,0 +1,482 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:klunki_engine/debug.dart';
+import 'package:klunki_engine/klunki_engine.dart';
+
+import '../events.dart';
+import '../guest.dart';
+import '../host.dart';
+
+/// Port `host` listens on unless `--port` is given.
+const int defaultPort = 4747;
+
+/// Exit code for bad arguments (`EX_USAGE`).
+const int usageExit = 64;
+
+String get usage => '''
+Klunki over the network: two terminals play each other.
+
+Usage:
+  dart run klunki_net:klunki host <game> [--port N] [--seed S] [--name NAME]
+  dart run klunki_net:klunki join <ip>[:port] [port] [--name NAME]
+
+Games: ${gameSpecs.map((s) => s.id).join(', ')}
+Default port: $defaultPort (host --port 0 picks a free one). The host plays X and moves first.
+In the game: type a move on your turn; "board", "moves", "help", "quit".''';
+
+/// Runs the `klunki` network CLI. Returns the exit code.
+///
+/// [input] is the user's typed lines (default: stdin), [out] receives
+/// everything the user sees (default: stdout), [err] the usage text on bad
+/// arguments (default: stderr). [bindAddress] restricts where `host` listens
+/// (default: all IPv4 interfaces).
+Future<int> runCli(
+  List<String> args, {
+  Stream<String>? input,
+  StringSink? out,
+  StringSink? err,
+  Object? bindAddress,
+  Duration pingInterval = const Duration(seconds: 2),
+  Duration timeout = const Duration(seconds: 10),
+}) async {
+  out ??= stdout;
+  err ??= stderr;
+  final parsed = _parse(args);
+  if (parsed == null) {
+    err.writeln(usage);
+    return usageExit;
+  }
+  input ??= stdin.transform(utf8.decoder).transform(const LineSplitter());
+
+  if (parsed.command == 'host') {
+    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
+    final KlunkiHost host;
+    try {
+      host = await KlunkiHost.start(config,
+          port: parsed.port ?? defaultPort,
+          name: parsed.name ?? 'Host',
+          address: bindAddress,
+          pingInterval: pingInterval,
+          timeout: timeout);
+    } on SocketException catch (e) {
+      out.writeln('Cannot listen on port ${parsed.port ?? defaultPort}: ${e.message}');
+      return 1;
+    }
+    final title = specById(config.gameId)!.title;
+    final ips = await _addresses(bindAddress);
+    out
+      ..writeln('Hosting $title on ${ips.map((ip) => '$ip:${host.port}').join(', ')} — waiting for a guest…')
+      ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
+      ..writeln('Join from another terminal with:');
+    for (final ip in ips) {
+      out.writeln('  dart run klunki_net:klunki join $ip ${host.port}'
+          '${ip == InternetAddress.loopbackIPv4.address ? '   (same machine)' : ''}');
+    }
+    return _Play.host(host, input, out).run();
+  }
+
+  final KlunkiGuest guest;
+  try {
+    guest = await KlunkiGuest.connect(parsed.target, parsed.port ?? defaultPort,
+        name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
+  } on NetException catch (e) {
+    out.writeln('Could not join ${parsed.target}:${parsed.port ?? defaultPort}: ${e.message}');
+    return 1;
+  }
+  final title = specById(guest.config.gameId)?.title ?? guest.config.gameId;
+  out
+    ..writeln("Joined ${guest.hostName ?? 'the host'}'s game: $title on ${parsed.target}:${parsed.port ?? defaultPort}")
+    ..writeln('Game config: ${jsonEncode(guest.config.toJson())} (you play ${guest.me == Player.a ? 'X' : 'O'})');
+  return _Play.guest(guest, input, out).run();
+}
+
+class _Args {
+  final String command, target;
+  final int? port, seed;
+  final String? name;
+  _Args(this.command, this.target, this.port, this.seed, this.name);
+}
+
+_Args? _parse(List<String> args) {
+  if (args.isEmpty || (args.first != 'host' && args.first != 'join')) return null;
+  final command = args.first;
+  final positional = <String>[];
+  int? port, seed;
+  String? name;
+  for (var i = 1; i < args.length; i++) {
+    final a = args[i];
+    if (a == '--port' || a == '--seed' || a == '--name') {
+      if (i + 1 >= args.length) return null;
+      final v = args[++i];
+      switch (a) {
+        case '--port':
+          port = int.tryParse(v);
+          if (port == null || port < 0 || port > 65535) return null;
+        case '--seed':
+          seed = int.tryParse(v);
+          if (seed == null || command != 'host') return null;
+        default:
+          name = v;
+      }
+    } else if (a.startsWith('--')) {
+      return null;
+    } else {
+      positional.add(a);
+    }
+  }
+  if (command == 'host') {
+    if (positional.length != 1 || specById(positional.first) == null) return null;
+    return _Args(command, positional.first, port, seed, name);
+  }
+  if (positional.isEmpty || positional.length > 2) return null;
+  var target = positional.first;
+  // `ip:port` (IPv4 or a host name; a bare IPv6 address has several colons).
+  if (':'.allMatches(target).length == 1) {
+    final p = int.tryParse(target.split(':').last);
+    if (p == null || port != null || positional.length > 1) return null;
+    port = p;
+    target = target.split(':').first;
+  }
+  if (positional.length == 2) {
+    final p = int.tryParse(positional[1]);
+    if (p == null || port != null) return null;
+    port = p;
+  }
+  if (port != null && (port < 1 || port > 65535)) return null;
+  return _Args(command, target, port, null, name);
+}
+
+/// Addresses a guest can use to reach this host: every non-loopback IPv4
+/// address, then loopback (same machine).
+Future<List<String>> _addresses(Object? bindAddress) async {
+  final loopback = InternetAddress.loopbackIPv4.address;
+  if (bindAddress != null) {
+    final a = bindAddress is InternetAddress ? bindAddress.address : '$bindAddress';
+    if (a != InternetAddress.anyIPv4.address) return [a];
+  }
+  final ips = <String>[];
+  try {
+    for (final nic in await NetworkInterface.list(type: InternetAddressType.IPv4)) {
+      for (final a in nic.addresses) {
+        if (!a.isLoopback) ips.add(a.address);
+      }
+    }
+  } on SocketException {
+    // no interface list: loopback only
+  }
+  return [...ips, loopback];
+}
+
+/// The interactive game loop shared by host and guest.
+///
+/// It keeps its own copy of the game (built from the session's [GameConfig],
+/// so seeded deals match) and applies every accepted move to it; that gives
+/// the [GameEvent] the text adapter needs for the narration.
+class _Play {
+  final KlunkiHost? _host;
+  final KlunkiGuest? _guest;
+  final Stream<String> _input;
+  final StringSink _out;
+  final _done = Completer<int>();
+  StreamSubscription<NetEvent>? _eventSub;
+  StreamSubscription<String>? _inputSub;
+
+  late final GameConfig _config;
+  late final Player _me;
+  late TextGame _view;
+  int _applied = 0;
+  bool _opponentHere;
+  bool _askingReconnect = false;
+  bool _reconnecting = false;
+  bool _submitting = false;
+  bool _finishing = false;
+
+  _Play.host(KlunkiHost host, this._input, this._out)
+      : _host = host,
+        _guest = null,
+        _opponentHere = false {
+    _config = host.config;
+    _me = host.me;
+    _rebuild(host.moves);
+  }
+
+  _Play.guest(KlunkiGuest guest, this._input, this._out)
+      : _host = null,
+        _guest = guest,
+        _opponentHere = true {
+    _config = guest.config;
+    _me = guest.me;
+    _rebuild(guest.moves);
+  }
+
+  Stream<NetEvent> get _events => _host?.events ?? _guest!.events;
+  List<Map<String, dynamic>> get _sessionMoves => _host?.moves ?? _guest!.moves;
+  Player get _opponent => otherPlayer(_me);
+  String get _meMark => _view.mark(_me);
+  String get _oppMark => _view.mark(_opponent);
+  bool get _hidden => specById(_config.gameId)!.hiddenInformation;
+  String get _leftReason => _host != null ? 'host left' : 'guest left';
+  bool get _myTurn => !_view.game.isOver && _view.game.currentPlayer == _me;
+
+  Future<int> run() {
+    _eventSub = _events.listen(_onEvent);
+    _inputSub = _input.listen(_onLine, onDone: () => _quit(_leftReason));
+    if (_guest != null) _showTurn();
+    return _done.future;
+  }
+
+  void _rebuild(List<Map<String, dynamic>> moves) {
+    final game = replay(_config, [for (final m in moves) _copy(m)]) ?? createGame(_config);
+    _view = DebugConsole.forGame(_config.gameId, game);
+    _applied = moves.length;
+  }
+
+  static Map<String, dynamic> _copy(Map<String, dynamic> m) => jsonDecode(jsonEncode(m)) as Map<String, dynamic>;
+
+  // ---------------------------------------------------------------- network
+
+  void _onEvent(NetEvent e) {
+    if (_finishing) return;
+    switch (e) {
+      case PeerConnected(:final name, :final reconnect):
+        _opponentHere = true;
+        _out.writeln(reconnect ? '$name rejoined.' : '$name joined: you are $_meMark, $name is $_oppMark.');
+        _showTurn();
+      case MoveAccepted():
+        _onAccepted(e);
+      case PeerDisconnected(:final reason):
+        _onDisconnected(reason);
+      case Resynced(:final moves):
+        if (_applied != moves) _rebuild(_sessionMoves);
+        _out.writeln('Reconnected ($moves moves so far).');
+        _showTurn();
+      case NetError(:final message):
+        _out.writeln('Network error: $message');
+      case MoveRejected():
+        break; // the guest's submit() reports it; the host has nothing to show
+    }
+  }
+
+  void _onAccepted(MoveAccepted e) {
+    if (e.index < _applied) return;
+    if (e.index > _applied) _rebuild(_sessionMoves.take(e.index).toList());
+    final mover = _view.game.currentPlayer;
+    final event = _view.game.applyMove(_copy(e.move));
+    if (event == null) {
+      // Cannot happen while both run the same engine; resync from the log.
+      _rebuild(_sessionMoves);
+      _out.writeln('(resynced the local board from the move log)');
+    } else {
+      _applied++;
+      _out.writeln(_narrate(mover, e.move, event));
+    }
+    if (_view.game.isOver) {
+      if (!_hidden) {
+        _out
+          ..writeln()
+          ..writeln(_view.render());
+      }
+      _out
+        ..writeln(_result())
+        ..writeln('Game over.');
+      _finish(0, 'game over');
+    } else if (_reconnecting) {
+      // replaying missed moves; Resynced shows the turn
+    } else {
+      _showTurn();
+    }
+  }
+
+  String _result() {
+    final r = _view.game.result;
+    final you = r.winner == null ? '' : (r.winner == _me ? ' — you win!' : ' — you lose.');
+    return '${_view.status()}$you';
+  }
+
+  /// Narration without the opponent's secrets: in Schiffe the opponent's ship
+  /// placements are not shown.
+  String _narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
+    final game = _view.game;
+    if (mover != _me && game is SchiffeGame && move['action'] != 'fire') {
+      final m = _view.mark(mover);
+      var s = move['action'] == 'place' ? '$m places a ship.' : '$m places the rest of their fleet.';
+      if (game.nextShipIndex(mover) == null) {
+        s += game.phase == SchiffePhase.battle
+            ? ' Both fleets are ready: the battle begins, X fires first.'
+            : " $m's fleet is ready.";
+      }
+      return s;
+    }
+    return _view.narrate(mover, move, event);
+  }
+
+  void _onDisconnected(String reason) {
+    final left = reason.startsWith('peer left');
+    if (_host != null) {
+      _opponentHere = false;
+      if (left) {
+        _out.writeln('Opponent left (${_reasonText(reason)}).');
+        _finish(0, 'opponent left');
+      } else {
+        _out.writeln('Lost the connection to ${_host.guestName ?? 'the guest'} (${_reasonText(reason)}). '
+            'Waiting for them to rejoin… (type "quit" to end)');
+      }
+      return;
+    }
+    if (left) {
+      _out.writeln('Opponent left (${_reasonText(reason)}).');
+      _finish(0, 'opponent left');
+      return;
+    }
+    _out.writeln('Connection to the host lost (${_reasonText(reason)}).');
+    _askReconnect();
+  }
+
+  static String _reasonText(String reason) =>
+      reason.startsWith('peer left: ') ? reason.substring('peer left: '.length) : reason;
+
+  void _askReconnect() {
+    _askingReconnect = true;
+    _out.write('Reconnect? [Y/n] ');
+  }
+
+  Future<void> _reconnect() async {
+    final guest = _guest!;
+    _askingReconnect = false;
+    _reconnecting = true;
+    _out.writeln('Reconnecting to ${guest.host}:${guest.port}…');
+    try {
+      await guest.reconnect();
+      _reconnecting = false; // Resynced (emitted during reconnect) shows the turn
+    } on NetException catch (e) {
+      _reconnecting = false;
+      if (_finishing) return;
+      _out.writeln('Reconnect failed: ${e.message}');
+      _askReconnect();
+    }
+  }
+
+  // ------------------------------------------------------------------ input
+
+  Future<void> _onLine(String raw) async {
+    if (_finishing) return;
+    final line = raw.trim();
+    if (_askingReconnect) {
+      if (line.toLowerCase() case 'n' || 'no' || 'quit' || 'exit') return _quit(_leftReason);
+      return _reconnect();
+    }
+    if (_reconnecting) return _out.writeln('Still reconnecting…');
+    switch (line.toLowerCase()) {
+      case 'quit' || 'exit':
+        return _quit(_leftReason);
+      case 'help' || '?':
+        _out.writeln(_help());
+        return _prompt();
+      case 'moves':
+        if (!_myTurn) return _notYourTurn();
+        final legal = _view.legalMoves.map(_view.format).toList();
+        final shown = legal.length > 60 ? [...legal.take(60), '… (${legal.length} total)'] : legal;
+        _out.writeln('Your legal moves: ${shown.join(' ')}');
+        return _prompt();
+      case '' || 'board':
+        return _showTurn();
+    }
+    final move = _view.parse(line);
+    if (move == null) {
+      _out.writeln('Unknown command "$line". Type "help".');
+      return _prompt();
+    }
+    if (!_opponentHere) {
+      _out.writeln(_host!.guestName == null
+          ? 'No opponent yet — waiting for a guest to join.'
+          : 'Your opponent is disconnected — waiting for them to rejoin.');
+      return;
+    }
+    if (!_myTurn) return _notYourTurn();
+    if (_submitting) return _out.writeln('Your last move is still on its way…');
+    final String? reason;
+    if (_host != null) {
+      reason = _host.submitLocal(move);
+    } else {
+      _submitting = true;
+      reason = await _guest!.submit(move);
+      _submitting = false;
+    }
+    if (reason != null && !_finishing && reason != 'disconnected') {
+      _out.writeln('Illegal move "$line" ($reason).');
+      _prompt();
+    }
+  }
+
+  void _notYourTurn() {
+    if (_view.game.isOver) {
+      _out.writeln('The game is over.');
+    } else {
+      _out.writeln('Not your turn — waiting for $_oppMark.');
+    }
+  }
+
+  void _prompt() {
+    if (_myTurn && _opponentHere) _out.write('> ');
+  }
+
+  /// On your turn: board (your private view) + status + prompt. Otherwise a
+  /// waiting line, plus the board for games without hidden information.
+  void _showTurn() {
+    if (_view.game.isOver) {
+      _out.writeln(_result());
+      return;
+    }
+    if (!_opponentHere) {
+      _out.writeln(_host?.guestName == null ? 'Waiting for a guest to join…' : 'Waiting for the guest to rejoin…');
+      return;
+    }
+    if (_myTurn) {
+      _out
+        ..writeln()
+        ..writeln(_view.render())
+        ..writeln('Your turn ($_meMark). ${_view.status()}')
+        ..write('> ');
+    } else {
+      if (!_hidden) {
+        _out
+          ..writeln()
+          ..writeln(_view.render());
+      }
+      _out.writeln('Waiting for $_oppMark…');
+    }
+  }
+
+  String _help() => '''
+${_view.title} — you are $_meMark.
+Moves: ${_view.moveHelp}
+Commands:
+  board   show the board (your own view)
+  moves   list your legal moves (on your turn)
+  help    this text
+  quit    leave the game''';
+
+  // ------------------------------------------------------------------- exit
+
+  void _quit(String reason) {
+    if (_finishing) return;
+    _out.writeln('Bye.');
+    _finish(0, reason);
+  }
+
+  /// Says `bye` (with [reason]), closes the session, then completes [run].
+  Future<void> _finish(int code, String reason) async {
+    if (_finishing) return;
+    _finishing = true;
+    unawaited(_eventSub?.cancel());
+    unawaited(_inputSub?.cancel());
+    try {
+      await (_host?.close(reason: reason) ?? _guest!.close(reason: reason));
+    } finally {
+      _done.complete(code);
+    }
+  }
+}

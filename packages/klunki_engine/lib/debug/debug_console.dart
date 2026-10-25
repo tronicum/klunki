@@ -1,5 +1,11 @@
 import 'dart:math';
 
+import '../connect4.dart';
+import '../game.dart';
+import '../muehle.dart';
+import '../quartett.dart';
+import '../schiffe.dart';
+
 import 'connect4_text.dart';
 import 'muehle_text.dart';
 import 'quartett_text.dart';
@@ -18,6 +24,18 @@ class DebugConsole {
     'quartett-sets': QuartettSetsText.new,
     'schiffe': SchiffeText.new,
   };
+
+  /// A text adapter around an existing [game] (e.g. `createGame(GameConfig(id, seed: s))`
+  /// from a network session), so seeded games render the deal actually played.
+  /// Throws [ArgumentError] for an unknown id or a game of the wrong type.
+  static TextGame forGame(String gameId, Game game) => switch ((gameId, game)) {
+        ('connect4', Connect4Game g) => Connect4Text(game: g),
+        ('muehle', MuehleGame g) => MuehleText(game: g),
+        ('quartett-trumpf', QuartettGame g) when g.mode == QuartettMode.trumpf => QuartettTrumpfText.forGame(g),
+        ('quartett-sets', QuartettGame g) when g.mode == QuartettMode.sets => QuartettSetsText.forGame(g),
+        ('schiffe', SchiffeGame g) => SchiffeText(game: g),
+        _ => throw ArgumentError.value(gameId, 'gameId', 'no text adapter for ${game.runtimeType}'),
+      };
 
   /// Safety cap for `auto` / `demo` on games without a natural end.
   static const int autoMoveLimit = 2000;

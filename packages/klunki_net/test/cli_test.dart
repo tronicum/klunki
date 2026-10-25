@@ -1,0 +1,238 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:klunki_engine/debug.dart';
+import 'package:klunki_net/src/cli/cli.dart';
+import 'package:test/test.dart';
+
+/// One terminal: typed lines in, everything printed collected.
+class Terminal implements StringSink {
+  final String label;
+  final _input = StreamController<String>();
+  final _text = StringBuffer();
+  int _cursor = 0;
+  late final Future<int> exitCode;
+
+  Terminal(this.label, List<String> args) {
+    exitCode = runCli(args,
+        input: _input.stream,
+        out: this,
+        err: this,
+        bindAddress: InternetAddress.loopbackIPv4,
+        pingInterval: const Duration(milliseconds: 100),
+        timeout: const Duration(seconds: 3));
+  }
+
+  String get text => _text.toString();
+
+  /// Waits until [pattern] shows up after everything already waited for.
+  Future<Match> waitFor(Pattern pattern, {Duration limit = const Duration(seconds: 5)}) async {
+    final sw = Stopwatch()..start();
+    while (true) {
+      final m = pattern.allMatches(text, _cursor).firstOrNull;
+      if (m != null) {
+        _cursor = m.end;
+        return m;
+      }
+      if (sw.elapsed > limit) {
+        fail('$label: "$pattern" not seen in time. Output after cursor:\n${text.substring(_cursor)}');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+  }
+
+  void type(String line) {
+    _text.writeln(line); // echo, like a terminal
+    _input.add(line);
+  }
+
+  @override
+  void write(Object? object) => _text.write(object);
+  @override
+  void writeln([Object? object = '']) => _text.writeln(object);
+  @override
+  void writeAll(Iterable<Object?> objects, [String separator = '']) => _text.writeAll(objects, separator);
+  @override
+  void writeCharCode(int charCode) => _text.writeCharCode(charCode);
+}
+
+/// A loopback TCP relay whose connections can be cut without a `bye`.
+class Proxy {
+  final ServerSocket _server;
+  final List<Socket> _sockets = [];
+  Proxy._(this._server);
+
+  static Future<Proxy> start(int targetPort) async {
+    final proxy = Proxy._(await ServerSocket.bind(InternetAddress.loopbackIPv4, 0));
+    proxy._server.listen((client) async {
+      final upstream = await Socket.connect(InternetAddress.loopbackIPv4, targetPort);
+      proxy._sockets.addAll([client, upstream]);
+      for (final (from, to) in [(client, upstream), (upstream, client)]) {
+        from.listen(to.add, onError: (_) {}, onDone: () => to.destroy());
+        to.done.catchError((_) {});
+      }
+    });
+    return proxy;
+  }
+
+  int get port => _server.port;
+
+  void drop() {
+    for (final s in _sockets) {
+      s.destroy();
+    }
+    _sockets.clear();
+  }
+
+  Future<void> close() async {
+    drop();
+    await _server.close();
+  }
+}
+
+Future<(Terminal, Terminal)> hostAndJoin(List<String> hostArgs) async {
+  final host = Terminal('host', ['host', ...hostArgs, '--port', '0', '--name', 'Ada']);
+  final port = (await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting for a guest')))[1]!;
+  final guest = Terminal('guest', ['join', '127.0.0.1', port, '--name', 'Bea']);
+  await host.waitFor('Bea joined: you are X, Bea is O.');
+  await guest.waitFor("Joined Ada's game");
+  return (host, guest);
+}
+
+void main() {
+  test('two terminals play Connect Four to the end over loopback', () async {
+    final (host, guest) = await hostAndJoin(['connect4']);
+    await host.waitFor('Your turn (X). X to move\n> ');
+    await guest.waitFor('Waiting for X…');
+
+    // Out of turn: refused locally, nothing is sent.
+    guest.type('1');
+    await guest.waitFor('Not your turn — waiting for X.');
+    // An illegal move on the host's own turn.
+    host.type('9');
+    await host.waitFor('Illegal move "9" (illegal move).');
+
+    for (var i = 0; i < 3; i++) {
+      host.type('0');
+      await host.waitFor('X drops into column 0');
+      await guest.waitFor('X drops into column 0');
+      await guest.waitFor('Your turn (O).');
+      if (i == 0) {
+        // Rejected by the host over the wire (column 9 does not exist).
+        guest.type('9');
+        await guest.waitFor('Illegal move "9" (illegal move).');
+      }
+      guest.type('1');
+      await guest.waitFor('O drops into column 1');
+      await host.waitFor('O drops into column 1');
+      await host.waitFor('Your turn (X).');
+    }
+    host.type('moves');
+    await host.waitFor('Your legal moves: 0 1 2 3 4 5 6');
+    host.type('0');
+
+    for (final t in [host, guest]) {
+      await t.waitFor('Four in a row: X wins!');
+      await t.waitFor('X wins (four in a row)');
+      await t.waitFor('Game over.');
+    }
+    expect(host.text, contains('you win!'));
+    expect(guest.text, contains('you lose.'));
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
+  test('quit ends the game for both sides', () async {
+    final (host, guest) = await hostAndJoin(['muehle']);
+    guest.type('help');
+    await guest.waitFor('Mühle — you are O.');
+    guest.type('quit');
+    await guest.waitFor('Bye.');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await guest.exitCode, 0);
+    expect(await host.exitCode, 0);
+  });
+
+  test('networked Quartett renders the seeded deal and only your own cards', () async {
+    final (host, guest) = await hostAndJoin(['quartett-trumpf', '--seed', '42']);
+    await host.waitFor(QuartettTrumpfText(42).render());
+    await host.waitFor('> ');
+    await guest.waitFor('Waiting for X…');
+    expect(guest.text, isNot(contains("X's top card")));
+    host.type('quit');
+    await guest.waitFor('Opponent left (host left).');
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
+  test('Schiffe: the opponent\'s ship placements are not narrated', () async {
+    final (host, guest) = await hostAndJoin(['schiffe']);
+    await host.waitFor('> ');
+    host.type('A1h');
+    await host.waitFor('X places a Schlachtschiff (5) at A1 horizontally.');
+    await guest.waitFor('X places a ship.');
+    host.type('fleet 3');
+    await host.waitFor('fleet at random (seed 3).');
+    await guest.waitFor("X places the rest of their fleet. X's fleet is ready.");
+    await guest.waitFor('Your turn (O).');
+    expect(guest.text, isNot(contains('at A1')));
+    expect(guest.text, isNot(contains('seed 3')));
+    guest.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await host.exitCode, 0);
+  });
+
+  test('a dropped connection is reported and the guest reconnects', () async {
+    final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
+    final port = int.parse((await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting')))[1]!);
+    final proxy = await Proxy.start(port);
+    final guest = Terminal('guest', ['join', '127.0.0.1:${proxy.port}', '--name', 'Bea']);
+    await host.waitFor('Bea joined');
+    await host.waitFor('> ');
+    host.type('3');
+    await guest.waitFor('Your turn (O).');
+
+    proxy.drop(); // like Wi-Fi going away: no bye
+    await guest.waitFor('Connection to the host lost');
+    await guest.waitFor('Reconnect? [Y/n] ');
+    await host.waitFor('Lost the connection to Bea');
+    host.type('4');
+    await host.waitFor('Your opponent is disconnected');
+
+    guest.type('y');
+    await guest.waitFor('Reconnected (1 moves so far).');
+    await guest.waitFor('Your turn (O).');
+    await host.waitFor('Bea rejoined.');
+    guest.type('4');
+    await host.waitFor('O drops into column 4');
+    await host.waitFor('Your turn (X).');
+
+    guest.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await guest.exitCode, 0);
+    expect(await host.exitCode, 0);
+    await proxy.close();
+  });
+
+  test('bad arguments print the usage text and exit 64', () async {
+    for (final args in [
+      <String>[],
+      ['host'],
+      ['host', 'chess'],
+      ['host', 'connect4', '--port', 'x'],
+      ['join'],
+      ['join', '1.2.3.4', 'notaport'],
+      ['frobnicate'],
+    ]) {
+      final err = StringBuffer();
+      expect(await runCli(args, err: err, out: err, input: const Stream.empty()), usageExit, reason: '$args');
+      expect(err.toString(), contains('Usage:'));
+    }
+  });
+
+  test('bin/klunki.dart runs as a process (usage, exit 64)', () async {
+    final p = await Process.run(Platform.resolvedExecutable, ['run', 'bin/klunki.dart']);
+    expect(p.exitCode, usageExit);
+    expect(p.stderr, contains('dart run klunki_net:klunki host <game>'));
+  }, timeout: const Timeout(Duration(minutes: 2)));
+}

@@ -199,4 +199,26 @@ void main() {
       expect(QuartettSetsText().parse('Z9'), isNull);
     });
   });
+
+  group('DebugConsole.forGame (seed hook for network play)', () {
+    test('wraps the given instance for every game id', () {
+      for (final spec in gameSpecs) {
+        final game = createGame(GameConfig(spec.id, seed: 42));
+        final text = DebugConsole.forGame(spec.id, game);
+        expect(text.id, spec.id);
+        expect(identical(text.game, game), isTrue, reason: spec.id);
+      }
+    });
+
+    test('a seeded Quartett renders the same deal as the seeded adapter', () {
+      final game = createGame(const GameConfig('quartett-trumpf', seed: 42));
+      expect(DebugConsole.forGame('quartett-trumpf', game).render(), QuartettTrumpfText(42).render());
+      final sets = createGame(const GameConfig('quartett-sets', seed: 42));
+      expect(DebugConsole.forGame('quartett-sets', sets).render(), QuartettSetsText(42).render());
+    });
+
+    test('rejects a game of the wrong type', () {
+      expect(() => DebugConsole.forGame('muehle', createGame(const GameConfig('connect4'))), throwsArgumentError);
+    });
+  });
 }

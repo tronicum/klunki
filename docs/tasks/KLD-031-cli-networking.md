@@ -3,7 +3,7 @@
 - **ID:** `KLD-031`
 - **Title:** `klunki host <game>` / `klunki join <ip>`: two terminals play each other through the debug console's text adapters
 - **Milestone:** P3 — two devices on the same Wi-Fi (first real devices: iPhone ↔ iPad)
-- **Status:** TODO
+- **Status:** DONE
 - **Depends on:** KLD-030 (`packages/klunki_net`: NDJSON protocol, host-authoritative TCP session, replay)
 - **Touched paths:**
   - `packages/klunki_net/bin/**`
@@ -77,3 +77,29 @@ dart analyze
 dart test
 ```
 Both green; a manual two-terminal game to the end works; card status set to DONE.
+
+## Result
+Two-terminal demo (same Mac; on two Macs use an IP the host prints instead of `127.0.0.1`):
+```bash
+# terminal 1
+cd packages/klunki_net && dart run klunki_net:klunki host connect4 --port 4747 --name Ada
+# terminal 2
+cd packages/klunki_net && dart run klunki_net:klunki join 127.0.0.1 4747 --name Bea
+```
+- Usage: `host <game> [--port N] [--seed S] [--name NAME]` (default port 4747, `--port 0` = free port, random seed unless given);
+  `join <ip>[:port] [port] [--name NAME]`. Bad args → usage on stderr, exit 64. The host plays X (`Player.a`) and prints
+  `Hosting <title> on <ip>:<port>, … — waiting for a guest…`, the game config JSON and ready-to-paste join commands.
+- Files: `packages/klunki_net/bin/klunki.dart` (entry point), `packages/klunki_net/lib/src/cli/cli.dart` (`runCli` with
+  injectable input/output, used by the tests), `packages/klunki_net/test/cli_test.dart`, `executables: {klunki:}` in
+  `packages/klunki_net/pubspec.yaml`.
+- Seed hook (engine, debug only): `DebugConsole.forGame(id, game)` wraps an existing `Game` (adapters got an optional
+  `game:` parameter / `.forGame` constructor). The CLI keeps its own engine copy from `createGame(config)` and applies every
+  accepted move to it, which gives the `GameEvent` for the narration and the exact seeded deal.
+- Hidden information: the board is printed only on your own turn (public games also while waiting); `moves` only on your
+  turn; the opponent's Schiffe placements are narrated as "X places a ship." without coordinates or the autoplace seed.
+- Disconnect: `quit`/EOF → `bye`, the other side prints "Opponent left (…)" and exits 0. A dropped connection: the host
+  waits for the guest to rejoin (moves refused meanwhile), the guest prints "Connection to the host lost (…)" and asks
+  `Reconnect? [Y/n]`, then resumes via `KlunkiGuest.reconnect()`.
+- Tests (in-process host + guest over loopback, plus one `Process.run` of the bin): Connect Four to an X win on both sides,
+  out-of-turn refusal, host- and wire-rejected illegal moves, quit, seeded Quartett view, Schiffe redaction, reconnect through a
+  TCP proxy that drops the connection, usage/exit 64.

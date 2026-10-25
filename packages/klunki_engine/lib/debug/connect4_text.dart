@@ -3,8 +3,11 @@ import '../game.dart';
 import 'text_game.dart';
 
 class Connect4Text extends TextGame {
+  /// [game] wraps an existing engine instance (e.g. a network session's).
+  Connect4Text({Connect4Game? game}) : game = game ?? Connect4Game();
+
   @override
-  final Connect4Game game = Connect4Game();
+  final Connect4Game game;
 
   @override
   String get id => 'connect4';
