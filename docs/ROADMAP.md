@@ -4,7 +4,8 @@ The PoC proves one engine runs everywhere: in a terminal, on one device, and
 between two devices (iPhone ↔ iPad, then Android ↔ iOS). Each stage ends with
 a demo you can watch.
 
-**Test devices:** one Android phone, one iPhone, one iPad (no Android emulator).
+**Test devices:** one Android phone, one iPhone, one iPad. The Android emulator
+(AVD `Medium_Phone_API_37.0`) is used only for the automated simulator e2e (KLD-038a).
 
 PoC games: **4 Gewinnt**, **Mühle**, **Quartett** (two modes: *Trumpf* and
 *Sets*) and **Schiffe versenken**.
@@ -52,42 +53,53 @@ Goal: every game playable to the end as text, in the terminal and in the app's D
 
 ## P2 — Hot-seat on one device (was M1)
 Goal: all four games playable with real game screens by two people on one device.
-- [ ] Typed transport matching `docs/ARCHITECTURE.md` (`Player` / move map /
-      `GameEvent`); `HotSeatTransport` applies moves through the engine.
-- [ ] A `GameController` (ChangeNotifier) that the screens and the transports share.
-- [ ] Screens: Connect Four (tap a column), Mühle (tap to place/move/remove, mill
+- [x] Typed transport matching `docs/ARCHITECTURE.md` (`Player` / move map /
+      `GameEvent`); `HotSeatTransport` applies moves through the engine (KLD-020).
+- [x] A `GameController` (ChangeNotifier) that the screens and the transports share (KLD-020).
+- [x] Shared UI shell: `GameScreen` frame, menu → game routing, placeholder screens that make every
+      game playable through legal-move buttons (KLD-021).
+- [ ] Screens (KLD-022…026, in progress; Sets after Trumpf): Connect Four (tap a column), Mühle (tap to place/move/remove, mill
       highlight), Quartett Trumpf (card with stats, tap a stat), Quartett Sets
       (hand, pick a card to ask for), Schiffe versenken (fleet placement, own
       grid + target grid, tap to fire).
-- [ ] Quartett and Schiffe versenken hide information: a "pass the phone to …"
-      cover screen between turns.
-- [ ] Shared result dialog (win/draw + reason), move history, "new game".
+- [x] Quartett and Schiffe versenken hide information: a "pass the phone to …"
+      cover screen between turns — shell part done (`HandoverCover`, KLD-021); per-screen use comes with 024–026.
+- [x] Shared result dialog (win/draw + reason), move history, undo, "new game" — shell part done (KLD-021).
+      German reason texts: backlog KLD-028.
 - [ ] Widget tests: one full scripted game per screen.
-- **Exit / demo:** each game played to the end hot-seat on an Android emulator,
-  an iOS simulator and Chrome.
+- **Exit / demo:** each game played to the end hot-seat on an iOS simulator, Chrome,
+  and the Android emulator/phone once KLD-011 is unblocked.
 
 ## P3 — Two devices on the same Wi-Fi: iPhone ↔ iPad (was M3)
 Goal: iPhone and iPad play every game against each other. iOS first because the
 toolchain is ready (Xcode 27.1 installed); there is only one Android phone.
-- [ ] **`packages/klunki_net`** (pure Dart, `dart:io`): newline-delimited JSON over TCP.
-  - Messages: `hello {protocol, game, mode, seed}`, `move`, `accepted`,
-    `rejected`, `snapshot {moves}`, `ping`, `bye`.
+- [x] **`packages/klunki_net`** (pure Dart, `dart:io`, KLD-030): newline-delimited JSON over TCP
+      (`KlunkiHost` / `KlunkiGuest`, loopback tests).
+  - Messages as built: `hello {role, name, protocol}`, `welcome {config, you, moves, token}`, `move`,
+    `accepted`, `rejected`, `ping`/`pong`, `bye`. (The planned separate `snapshot` message became the
+    move log inside `welcome`.)
   - **The host is authoritative:** the guest sends a move, the host validates it
     with the engine, then broadcasts `accepted`. Both sides apply accepted moves,
     so their states can't diverge.
-  - Reconnect: the guest rejoins and gets a `snapshot` (seed + move list) and
-    replays it, using the same replay idea as the console's `undo`.
-- [ ] `NetworkTransport` on top of `klunki_net`, with the same interface as `HotSeatTransport`.
+  - Reconnect: the guest rejoins with its `token` and gets `welcome` with the config (seed) + move list,
+    and replays it, using the same replay idea as the console's `undo`.
+- [ ] `NetworkTransport` on top of `klunki_net`, with the same interface as `HotSeatTransport` (KLD-032, in progress).
 - [ ] CLI networking: `klunki host <game>` / `klunki join <ip>`, so two terminals
       can play over the network here before any phone is involved. Plus a
       loopback test with two transports in one `dart test`.
 - [ ] Pairing screen:
   - The host advertises `_klunki._tcp` via mDNS (Flutter plugin `bonsoir`) and
     the guest picks it from a list.
-  - Fallback: the host shows its IP:port and a QR code, and the guest types or scans it.
+  - Fallback: the host shows its IP:port and a QR code, and the guest types it in (KLD-033/034).
+    Scanning the QR is backlog KLD-052 (camera permissions, needs the user's OK).
 - [ ] iOS: `NSLocalNetworkUsageDescription` + `NSBonjourServices` (`_klunki._tcp`) in
       `Info.plist`, local-network permission prompt.
 - [ ] Disconnect UX: "opponent left / reconnecting…", resume on reconnect.
+- [x] Side quests done: PWA hello world, installable + offline (KLD-010); iOS Simulator hello world (KLD-012a).
+- **E2E tests:**
+  - [ ] KLD-037a: protocol-level Mühle e2e in `packages/klunki_net/test/e2e_*` — "iOS" host vs "Android" guest over TCP,
+        incl. reconnect and swapped roles (in progress).
+  - [ ] KLD-037b: app-level e2e in `klunki/test/e2e/**` — two `GameController`s over `NetworkTransport` on loopback play Mühle (after 032).
 - **PoC shortcut (accepted):** Quartett replays from the shared seed, so a modified
   client could see the opponent's hand. The UI never shows it. Proper per-player
   views are post-PoC.
@@ -101,6 +113,11 @@ Goal: the same as P3, across platforms: the Android phone against iPhone or iPad
       manifest has it); multicast lock + Wi-Fi permissions for discovery.
 - [ ] Cross-platform checks: discovery both ways, iOS backgrounding/locking
       mid-game → reconnect.
+- **E2E tests:**
+  - [ ] KLD-038a: simulator e2e — iOS Simulator app hosts, Android emulator (`Medium_Phone_API_37.0`) joins via `10.0.2.2`,
+        both play the Mühle script (`integration_test` + `--dart-define` test mode), `tool/e2e_android_vs_ios.sh` prints PASS/FAIL
+        (after 032, 037b and the user's Android cmdline-tools + licenses).
+  - [ ] KLD-038b: the same on real devices, iPhone/iPad ↔ Android phone over Wi-Fi, each platform hosting once (after 038a, 011, 012, 040, 035).
 - **Exit / end of PoC:** every game (Connect Four, Mühle, Quartett Trumpf,
   Quartett Sets, Schiffe versenken) played to the end Android ↔ iPhone, with each platform hosting
   at least once.
@@ -112,8 +129,9 @@ traffic; a phone hotspot works as a fallback).
 
 ## After the PoC
 - Polish: theming, onboarding, settings, simple AI opponent.
-- PWA build (`flutter build web`, offline service worker). The web build stays
-  hot-seat only, since browsers can't open TCP sockets.
+- PWA: hello world done (KLD-010: installable, own offline service worker). The web build stays
+  hot-seat only, since browsers can't open TCP sockets (until the relay, KLD-051).
+- Android release signing with the user's own keystore (KLD-053).
 - Bluetooth transport (stretch).
 
 ## Feature backlog (TODO)
