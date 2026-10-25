@@ -533,4 +533,140 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get debugDemo => 'Demo: all games';
+
+  @override
+  String get pairingTitle => 'Play over Wi-Fi';
+
+  @override
+  String get pairingWebUnavailable =>
+      'Network play is not available in the browser';
+
+  @override
+  String get pairingDeviceName => 'Device name';
+
+  @override
+  String get pairingDeviceNameHelper => 'This is how the other player sees you';
+
+  @override
+  String get pairingModeHost => 'Host';
+
+  @override
+  String get pairingModeJoin => 'Join';
+
+  @override
+  String get pairingChooseGame => 'Choose a game';
+
+  @override
+  String get pairingHostGame => 'Host game';
+
+  @override
+  String pairingHostStartFailed(String error) {
+    return 'Could not start the game: $error';
+  }
+
+  @override
+  String get pairingNotAdvertised =>
+      'Not automatically visible – the other player enters the address.';
+
+  @override
+  String get pairingNoDiscoveryHost =>
+      'No automatic search on this device – the other player enters the address.';
+
+  @override
+  String pairingHosting(String name, String game) {
+    return '$name is hosting $game';
+  }
+
+  @override
+  String pairingNoAddress(int port) {
+    return 'No Wi-Fi address found. Is the device connected to Wi-Fi? Port: $port';
+  }
+
+  @override
+  String get pairingAddresses => 'Addresses (to type in):';
+
+  @override
+  String get pairingProbablyWifi => 'probably Wi-Fi';
+
+  @override
+  String get pairingWaitingForGuest => 'Waiting for the other player…';
+
+  @override
+  String get pairingCancel => 'Cancel';
+
+  @override
+  String get pairingGamesOnNetwork => 'Games on the network';
+
+  @override
+  String get pairingNoDiscoveryJoin =>
+      'Automatic search is not available on this device. Enter the address below.';
+
+  @override
+  String get pairingBrowseFailed =>
+      'Cannot search the network. Enter the address below.';
+
+  @override
+  String get pairingSearching => 'Searching for games…';
+
+  @override
+  String get pairingOtherVersion => 'different Klunki version';
+
+  @override
+  String get pairingOrEnterAddress => 'Or enter an address';
+
+  @override
+  String get pairingManualLabel => 'IP, IP:port or klunki:// link';
+
+  @override
+  String get pairingInvalidAddress =>
+      'Invalid address. Example: 192.168.1.20 or 192.168.1.20:4747';
+
+  @override
+  String get pairingConnect => 'Connect';
+
+  @override
+  String pairingConnecting(String host) {
+    return 'Connecting to $host…';
+  }
+
+  @override
+  String get pairingTimeout => 'Timed out';
+
+  @override
+  String pairingJoinFailed(String host, String error) {
+    return 'Connecting to $host failed ($error).';
+  }
+
+  @override
+  String get pairingJoinHints =>
+      'Tips: Are both devices on the same Wi-Fi? Guest networks often block connections between devices. iOS: Is “Local Network” allowed for Klunki (Settings › Privacy)?';
+
+  @override
+  String pairingStatus(String me, String peer, String peerMark) {
+    return 'You are $me · Opponent: $peer ($peerMark)';
+  }
+
+  @override
+  String get pairingOpponent => 'Opponent';
+
+  @override
+  String get pairingPeerLeft => 'Opponent left the game';
+
+  @override
+  String get pairingPeerLost => 'Connection to the opponent lost';
+
+  @override
+  String pairingWaitForRejoin(String reason) {
+    return '$reason. Waiting for them to rejoin…';
+  }
+
+  @override
+  String get pairingReconnecting => 'Reconnecting…';
+
+  @override
+  String get pairingReconnect => 'Reconnect';
+
+  @override
+  String get pairingReconnectFailed =>
+      'Reconnecting failed. Is the host still in the game?';
 }

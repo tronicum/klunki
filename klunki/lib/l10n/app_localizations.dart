@@ -869,6 +869,234 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Demo: alle Spiele'**
   String get debugDemo;
+
+  /// App bar title of the pairing screen (host or join a game on the local Wi-Fi).
+  ///
+  /// In de, this message translates to:
+  /// **'Über WLAN spielen'**
+  String get pairingTitle;
+
+  /// Pairing screen body on web, where there are no sockets.
+  ///
+  /// In de, this message translates to:
+  /// **'Netzwerkspiel ist im Browser nicht verfügbar'**
+  String get pairingWebUnavailable;
+
+  /// Label of the editable device name field.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerätename'**
+  String get pairingDeviceName;
+
+  /// Helper text below the device name field.
+  ///
+  /// In de, this message translates to:
+  /// **'So sieht dich dein Mitspieler'**
+  String get pairingDeviceNameHelper;
+
+  /// Segmented button: host a game on this device.
+  ///
+  /// In de, this message translates to:
+  /// **'Hosten'**
+  String get pairingModeHost;
+
+  /// Segmented button: join a game hosted on another device.
+  ///
+  /// In de, this message translates to:
+  /// **'Beitreten'**
+  String get pairingModeJoin;
+
+  /// Heading above the game list when hosting.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel wählen'**
+  String get pairingChooseGame;
+
+  /// Button: start hosting the chosen game.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel hosten'**
+  String get pairingHostGame;
+
+  /// Error when the host session could not be started; error = technical message.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel konnte nicht gestartet werden: {error}'**
+  String pairingHostStartFailed(String error);
+
+  /// Host: advertising via mDNS failed; the guest has to type the address.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht automatisch sichtbar – Mitspieler gibt die Adresse ein.'**
+  String get pairingNotAdvertised;
+
+  /// Host: this device has no mDNS discovery; the guest has to type the address.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine automatische Suche auf diesem Gerät – Mitspieler gibt die Adresse ein.'**
+  String get pairingNoDiscoveryHost;
+
+  /// Host waiting screen headline; name = device name, game = game title.
+  ///
+  /// In de, this message translates to:
+  /// **'{name} hostet {game}'**
+  String pairingHosting(String name, String game);
+
+  /// Host: no LAN address found, so no QR code; port = TCP port.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine WLAN-Adresse gefunden. Ist das Gerät mit dem WLAN verbunden? Port: {port}'**
+  String pairingNoAddress(int port);
+
+  /// Host: heading above the list of IP:port addresses.
+  ///
+  /// In de, this message translates to:
+  /// **'Adressen (zum Eintippen):'**
+  String get pairingAddresses;
+
+  /// Subtitle of the first (best guess) address.
+  ///
+  /// In de, this message translates to:
+  /// **'wahrscheinlich WLAN'**
+  String get pairingProbablyWifi;
+
+  /// Host status while no guest has joined yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Warte auf Mitspieler…'**
+  String get pairingWaitingForGuest;
+
+  /// Button: stop hosting / stop connecting.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get pairingCancel;
+
+  /// Join: heading above the discovered hosts.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiele im Netzwerk'**
+  String get pairingGamesOnNetwork;
+
+  /// Join: this device has no mDNS discovery.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatische Suche ist auf diesem Gerät nicht verfügbar. Adresse unten eingeben.'**
+  String get pairingNoDiscoveryJoin;
+
+  /// Join: mDNS browsing failed.
+  ///
+  /// In de, this message translates to:
+  /// **'Suche im Netzwerk nicht möglich. Adresse unten eingeben.'**
+  String get pairingBrowseFailed;
+
+  /// Join: no host found yet, still searching.
+  ///
+  /// In de, this message translates to:
+  /// **'Suche nach Spielen…'**
+  String get pairingSearching;
+
+  /// Join: a discovered host speaks another protocol version and cannot be joined.
+  ///
+  /// In de, this message translates to:
+  /// **'andere Klunki-Version'**
+  String get pairingOtherVersion;
+
+  /// Join: heading above the manual address field.
+  ///
+  /// In de, this message translates to:
+  /// **'Oder Adresse eingeben'**
+  String get pairingOrEnterAddress;
+
+  /// Label of the manual address field.
+  ///
+  /// In de, this message translates to:
+  /// **'IP, IP:Port oder klunki://-Link'**
+  String get pairingManualLabel;
+
+  /// Error below the manual address field.
+  ///
+  /// In de, this message translates to:
+  /// **'Ungültige Adresse. Beispiel: 192.168.1.20 oder 192.168.1.20:4747'**
+  String get pairingInvalidAddress;
+
+  /// Button: connect to the typed address.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbinden'**
+  String get pairingConnect;
+
+  /// Join in progress; host = host name or address.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbinde mit {host}…'**
+  String pairingConnecting(String host);
+
+  /// Join failure reason: no answer within the time limit.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeitüberschreitung'**
+  String get pairingTimeout;
+
+  /// Join failed; host = host name or address, error = reason. Followed by pairingJoinHints.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbindung zu {host} fehlgeschlagen ({error}).'**
+  String pairingJoinFailed(String host, String error);
+
+  /// Troubleshooting hints shown with every failed join.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipps: Sind beide Geräte im selben WLAN? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. iOS: Ist „Lokales Netzwerk“ für Klunki erlaubt (Einstellungen › Datenschutz)?'**
+  String get pairingJoinHints;
+
+  /// Network game connection bar; me / peerMark = player marks (X, O), peer = the other device's name.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist {me} · Gegner: {peer} ({peerMark})'**
+  String pairingStatus(String me, String peer, String peerMark);
+
+  /// Connection bar: fallback name of the other device.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner'**
+  String get pairingOpponent;
+
+  /// Connection banner: the other side left.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner hat das Spiel verlassen'**
+  String get pairingPeerLeft;
+
+  /// Connection banner: the connection dropped.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbindung zum Gegner unterbrochen'**
+  String get pairingPeerLost;
+
+  /// Host's connection banner; reason = pairingPeerLeft or pairingPeerLost.
+  ///
+  /// In de, this message translates to:
+  /// **'{reason}. Warte, bis er wieder beitritt…'**
+  String pairingWaitForRejoin(String reason);
+
+  /// Connection banner while the guest reconnects.
+  ///
+  /// In de, this message translates to:
+  /// **'Verbinde neu…'**
+  String get pairingReconnecting;
+
+  /// Guest's button in the connection banner.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu verbinden'**
+  String get pairingReconnect;
+
+  /// Error below the connection banner when reconnecting failed.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?'**
+  String get pairingReconnectFailed;
 }
 
 class _AppLocalizationsDelegate

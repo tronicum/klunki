@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
@@ -65,24 +66,25 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
     try {
       await t.reconnect();
     } catch (e) {
-      if (mounted) setState(() => _reconnectError = 'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?');
+      if (mounted) setState(() => _reconnectError = AppLocalizations.of(context).pairingReconnectFailed);
     }
   }
 
-  String _missingText() {
+  String _missingText(AppLocalizations l10n) {
     final reason = t.lastDisconnectReason ?? '';
-    if (reason.startsWith('peer left')) return 'Gegner hat das Spiel verlassen';
-    return 'Verbindung zum Gegner unterbrochen';
+    if (reason.startsWith('peer left')) return l10n.pairingPeerLeft;
+    return l10n.pairingPeerLost;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return ValueListenableBuilder<NetConnectionState>(
       valueListenable: t.connection,
       builder: (context, state, _) {
         final me = t.me;
-        final peer = t.peerName ?? 'Gegner';
+        final peer = t.peerName ?? l10n.pairingOpponent;
         final missing = state == NetConnectionState.peerMissing;
         final reconnecting = state == NetConnectionState.reconnecting;
         return Material(
@@ -109,10 +111,10 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                         Expanded(
                           child: Text(
                             reconnecting
-                                ? 'Verbinde neu…'
+                                ? l10n.pairingReconnecting
                                 : t.role == NetRole.host
-                                    ? '${_missingText()}. Warte, bis er wieder beitritt…'
-                                    : _missingText(),
+                                    ? l10n.pairingWaitForRejoin(_missingText(l10n))
+                                    : _missingText(l10n),
                             style: TextStyle(color: theme.colorScheme.onErrorContainer),
                           ),
                         ),
@@ -120,7 +122,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                           TextButton(
                             key: const Key('net-reconnect'),
                             onPressed: _reconnect,
-                            child: const Text('Neu verbinden'),
+                            child: Text(l10n.pairingReconnect),
                           ),
                       ],
                     ),
@@ -142,7 +144,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Du bist ${playerMark(me)} · Gegner: $peer (${playerMark(me == Player.a ? Player.b : Player.a)})',
+                          l10n.pairingStatus(playerMark(me), peer, playerMark(me == Player.a ? Player.b : Player.a)),
                           key: const Key('net-status'),
                           overflow: TextOverflow.ellipsis,
                         ),

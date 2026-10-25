@@ -239,6 +239,26 @@ void main() {
     expect(deviceNameFromHostname('pixel-7', TargetPlatform.android), 'pixel 7');
   });
 
+  testWidgets('pairing screen in English (I18N-02b)', (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final created = CreatedTransports();
+    await tester.pumpWidget(localizedApp(
+      PairingScreen(deps: testDeps(discovery: FakeDiscovery(), created: created)),
+      locale: const Locale('en'),
+    ));
+    expect(find.text('Play over Wi-Fi'), findsOneWidget);
+    expect(find.text('Device name'), findsOneWidget);
+    expect(find.text('Host game'), findsOneWidget);
+    expect(find.text('Four in a Row'), findsOneWidget);
+    await tester.tap(find.text('Join'));
+    await tester.pump();
+    expect(find.text('Searching for games…'), findsOneWidget);
+    expect(find.text('Or enter an address'), findsOneWidget);
+    await unmountAndSettleSockets(tester, created);
+  });
+
   testWidgets('menu has "Über WLAN spielen" (not web)', (tester) async {
     // The full app (pinned to German): the menu's LanguageButton needs the
     // localization delegates.

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../net/discovery.dart';
@@ -10,6 +11,7 @@ import '../../net/join_payload.dart';
 import '../../net/join_qr.dart';
 import '../../net/local_ip.dart';
 import '../../transport/network_transport.dart';
+import '../game_titles.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
@@ -109,14 +111,15 @@ class _PairingScreenState extends State<PairingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (kIsWeb) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Über WLAN spielen')),
-        body: const Center(child: Text('Netzwerkspiel ist im Browser nicht verfügbar')),
+        appBar: AppBar(title: Text(l10n.pairingTitle)),
+        body: Center(child: Text(l10n.pairingWebUnavailable)),
       );
     }
     return Scaffold(
-      appBar: AppBar(title: const Text('Über WLAN spielen')),
+      appBar: AppBar(title: Text(l10n.pairingTitle)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -127,18 +130,19 @@ class _PairingScreenState extends State<PairingScreen> {
                 TextField(
                   key: const Key('pair-name'),
                   controller: _name,
-                  decoration: const InputDecoration(
-                    labelText: 'Gerätename',
-                    helperText: 'So sieht dich dein Mitspieler',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.pairingDeviceName,
+                    helperText: l10n.pairingDeviceNameHelper,
+                    border: const OutlineInputBorder(),
                   ),
                   textInputAction: TextInputAction.done,
                 ),
                 const SizedBox(height: 16),
                 SegmentedButton<_Mode>(
-                  segments: const [
-                    ButtonSegment(value: _Mode.host, label: Text('Hosten'), icon: Icon(Icons.wifi_tethering)),
-                    ButtonSegment(value: _Mode.join, label: Text('Beitreten'), icon: Icon(Icons.login)),
+                  segments: [
+                    ButtonSegment(
+                        value: _Mode.host, label: Text(l10n.pairingModeHost), icon: const Icon(Icons.wifi_tethering)),
+                    ButtonSegment(value: _Mode.join, label: Text(l10n.pairingModeJoin), icon: const Icon(Icons.login)),
                   ],
                   selected: {_mode},
                   onSelectionChanged: (s) => setState(() => _mode = s.first),
@@ -243,7 +247,7 @@ class _HostPanelState extends State<_HostPanel> {
       if (mounted) {
         setState(() {
           _starting = false;
-          _error = 'Spiel konnte nicht gestartet werden: $e';
+          _error = AppLocalizations.of(context).pairingHostStartFailed('$e');
         });
       }
       return;
@@ -279,10 +283,10 @@ class _HostPanelState extends State<_HostPanel> {
         ));
       } catch (e) {
         _advertised = false;
-        if (mounted) setState(() => _advertiseError = 'Nicht automatisch sichtbar – Mitspieler gibt die Adresse ein.');
+        if (mounted) setState(() => _advertiseError = AppLocalizations.of(context).pairingNotAdvertised);
       }
     } else if (mounted) {
-      setState(() => _advertiseError = 'Keine automatische Suche auf diesem Gerät – Mitspieler gibt die Adresse ein.');
+      setState(() => _advertiseError = AppLocalizations.of(context).pairingNoDiscoveryHost);
     }
     _onConnection(); // the guest may already be there
   }
@@ -312,10 +316,11 @@ class _HostPanelState extends State<_HostPanel> {
 
   Widget _setup(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Spiel wählen', style: theme.textTheme.titleMedium),
+        Text(l10n.pairingChooseGame, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         RadioGroup<String>(
           groupValue: _gameId,
@@ -328,7 +333,7 @@ class _HostPanelState extends State<_HostPanel> {
                 RadioListTile<String>(
                   key: Key('pair-game-${spec.id}'),
                   value: spec.id,
-                  title: Text(spec.title),
+                  title: Text(localizedGameTitle(l10n, spec.id, fallback: spec.title)),
                 ),
             ],
           ),
@@ -340,7 +345,7 @@ class _HostPanelState extends State<_HostPanel> {
           icon: _starting
               ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
               : const Icon(Icons.wifi_tethering),
-          label: const Text('Spiel hosten'),
+          label: Text(l10n.pairingHostGame),
         ),
         if (_error != null) ...[
           const SizedBox(height: 8),
@@ -352,14 +357,15 @@ class _HostPanelState extends State<_HostPanel> {
 
   Widget _waiting(BuildContext context, NetworkTransport t) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final port = t.port!;
-    final title = specById(_gameId)?.title ?? _gameId;
+    final title = localizedGameTitle(l10n, _gameId, fallback: specById(_gameId)?.title ?? _gameId);
     final qrHost = _addresses.isEmpty ? null : _addresses[_qrIndex.clamp(0, _addresses.length - 1)];
     return Column(
       key: const Key('pair-host-waiting'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('$_name hostet $title', style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+        Text(l10n.pairingHosting(_name, title), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
         const SizedBox(height: 12),
         if (qrHost != null)
           Center(
@@ -371,19 +377,19 @@ class _HostPanelState extends State<_HostPanel> {
           )
         else
           Text(
-            'Keine WLAN-Adresse gefunden. Ist das Gerät mit dem WLAN verbunden? Port: $port',
+            l10n.pairingNoAddress(port),
             key: const Key('pair-no-address'),
             textAlign: TextAlign.center,
           ),
         const SizedBox(height: 12),
-        if (_addresses.isNotEmpty) Text('Adressen (zum Eintippen):', style: theme.textTheme.labelLarge),
+        if (_addresses.isNotEmpty) Text(l10n.pairingAddresses, style: theme.textTheme.labelLarge),
         for (var i = 0; i < _addresses.length; i++)
           ListTile(
             key: Key('pair-address-$i'),
             dense: true,
             leading: Icon(i == _qrIndex ? Icons.qr_code : Icons.lan_outlined),
             title: Text('${_addresses[i]}:$port'),
-            subtitle: i == 0 ? const Text('wahrscheinlich WLAN') : null,
+            subtitle: i == 0 ? Text(l10n.pairingProbablyWifi) : null,
             onTap: () => setState(() => _qrIndex = i),
           ),
         if (_advertiseError != null)
@@ -392,16 +398,16 @@ class _HostPanelState extends State<_HostPanel> {
             child: Text(_advertiseError!, style: theme.textTheme.bodySmall),
           ),
         const SizedBox(height: 16),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-            SizedBox(width: 12),
-            Text('Warte auf Mitspieler…', key: Key('pair-host-status')),
+            const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            const SizedBox(width: 12),
+            Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status')),
           ],
         ),
         const SizedBox(height: 16),
-        OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: const Text('Abbrechen')),
+        OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
       ],
     );
   }
@@ -409,10 +415,6 @@ class _HostPanelState extends State<_HostPanel> {
 
 // ---------------------------------------------------------------------------
 // Join
-
-/// Hints shown with every failed join.
-const String joinHints = 'Tipps: Sind beide Geräte im selben WLAN? Gäste-WLANs blockieren oft Verbindungen '
-    'zwischen Geräten. iOS: Ist „Lokales Netzwerk“ für Klunki erlaubt (Einstellungen › Datenschutz)?';
 
 class _JoinPanel extends StatefulWidget {
   final PairingDeps deps;
@@ -454,7 +456,7 @@ class _JoinPanelState extends State<_JoinPanel> {
           if (mounted) setState(() => _hosts = hosts);
         },
         onError: (Object e) {
-          if (mounted) setState(() => _browseError = 'Suche im Netzwerk nicht möglich. Adresse unten eingeben.');
+          if (mounted) setState(() => _browseError = AppLocalizations.of(context).pairingBrowseFailed);
         },
       );
     }
@@ -472,7 +474,7 @@ class _JoinPanelState extends State<_JoinPanel> {
   void _connectManual() {
     final payload = JoinPayload.tryParse(_manual.text);
     if (payload == null) {
-      setState(() => _manualError = 'Ungültige Adresse. Beispiel: 192.168.1.20 oder 192.168.1.20:4747');
+      setState(() => _manualError = AppLocalizations.of(context).pairingInvalidAddress);
       return;
     }
     setState(() => _manualError = null);
@@ -481,6 +483,7 @@ class _JoinPanelState extends State<_JoinPanel> {
 
   Future<void> _connect(String host, int port, String label) async {
     if (_connecting != null) return;
+    final l10n = AppLocalizations.of(context);
     final attempt = ++_attempt;
     setState(() {
       _connecting = label;
@@ -492,7 +495,7 @@ class _JoinPanelState extends State<_JoinPanel> {
     try {
       transport = await pending.timeout(widget.deps.joinTimeout);
     } on TimeoutException {
-      failure = 'Zeitüberschreitung';
+      failure = l10n.pairingTimeout;
       // A late success must not leak a session.
       pending.then((t) => t.close(), onError: (Object _) {});
     } catch (e) {
@@ -505,7 +508,8 @@ class _JoinPanelState extends State<_JoinPanel> {
     if (transport == null) {
       setState(() {
         _connecting = null;
-        _error = 'Verbindung zu $label fehlgeschlagen ($failure).\n$joinHints';
+        // The hints go with every failed join.
+        _error = '${l10n.pairingJoinFailed(label, '$failure')}\n${l10n.pairingJoinHints}';
       });
       return;
     }
@@ -523,25 +527,26 @@ class _JoinPanelState extends State<_JoinPanel> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final busy = _connecting != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Spiele im Netzwerk', style: theme.textTheme.titleMedium),
+        Text(l10n.pairingGamesOnNetwork, style: theme.textTheme.titleMedium),
         const SizedBox(height: 4),
         if (widget.discovery == null)
-          const Text('Automatische Suche ist auf diesem Gerät nicht verfügbar. Adresse unten eingeben.')
+          Text(l10n.pairingNoDiscoveryJoin)
         else if (_browseError != null)
           Text(_browseError!)
         else if (_hosts.isEmpty)
-          const ListTile(
-            key: Key('pair-browse-empty'),
-            leading: SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-            title: Text('Suche nach Spielen…'),
+          ListTile(
+            key: const Key('pair-browse-empty'),
+            leading: const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            title: Text(l10n.pairingSearching),
           ),
-        for (final h in _hosts) _hostTile(h, busy),
+        for (final h in _hosts) _hostTile(l10n, h, busy),
         const SizedBox(height: 16),
-        Text('Oder Adresse eingeben', style: theme.textTheme.titleMedium),
+        Text(l10n.pairingOrEnterAddress, style: theme.textTheme.titleMedium),
         const SizedBox(height: 8),
         TextField(
           key: const Key('pair-manual'),
@@ -550,7 +555,7 @@ class _JoinPanelState extends State<_JoinPanel> {
           keyboardType: TextInputType.url,
           autocorrect: false,
           decoration: InputDecoration(
-            labelText: 'IP, IP:Port oder klunki://-Link',
+            labelText: l10n.pairingManualLabel,
             hintText: '192.168.1.20:4747',
             errorText: _manualError,
             border: const OutlineInputBorder(),
@@ -561,7 +566,7 @@ class _JoinPanelState extends State<_JoinPanel> {
         FilledButton(
           key: const Key('pair-manual-connect'),
           onPressed: busy ? null : _connectManual,
-          child: const Text('Verbinden'),
+          child: Text(l10n.pairingConnect),
         ),
         if (busy) ...[
           const SizedBox(height: 16),
@@ -570,8 +575,8 @@ class _JoinPanelState extends State<_JoinPanel> {
             children: [
               const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
               const SizedBox(width: 12),
-              Expanded(child: Text('Verbinde mit $_connecting…')),
-              TextButton(onPressed: _cancelConnect, child: const Text('Abbrechen')),
+              Expanded(child: Text(l10n.pairingConnecting(_connecting!))),
+              TextButton(onPressed: _cancelConnect, child: Text(l10n.pairingCancel)),
             ],
           ),
         ],
@@ -583,9 +588,10 @@ class _JoinPanelState extends State<_JoinPanel> {
     );
   }
 
-  Widget _hostTile(KlunkiHostInfo h, bool busy) {
+  Widget _hostTile(AppLocalizations l10n, KlunkiHostInfo h, bool busy) {
     final compatible = h.protocol == klunkiProtocolVersion;
-    final game = h.gameId == null ? null : (specById(h.gameId!)?.title ?? h.gameId);
+    final id = h.gameId;
+    final game = id == null ? null : localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id);
     return Card(
       key: Key('pair-host-${h.host}:${h.port}'),
       child: ListTile(
@@ -594,7 +600,7 @@ class _JoinPanelState extends State<_JoinPanel> {
         subtitle: Text([
           ?game,
           '${h.host}:${h.port}',
-          if (!compatible) 'andere Klunki-Version',
+          if (!compatible) l10n.pairingOtherVersion,
         ].join(' · ')),
         trailing: const Icon(Icons.chevron_right),
         enabled: compatible && !busy,

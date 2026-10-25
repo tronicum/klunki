@@ -47,7 +47,7 @@ void main() {
     final files = Directory('lib/ui')
         .listSync(recursive: true)
         .whereType<File>()
-        .where((f) => f.path.endsWith('.dart') && !f.path.contains('/pairing/'));
+        .where((f) => f.path.endsWith('.dart'));
     for (final f in files) {
       final lines = f.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
