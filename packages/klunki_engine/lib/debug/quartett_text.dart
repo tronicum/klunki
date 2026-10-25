@@ -1,0 +1,194 @@
+import 'dart:math';
+
+import '../game.dart';
+import '../quartett.dart';
+import 'text_game.dart';
+
+String _player(String key) => key == 'a' ? 'X' : 'O';
+
+String _value(QuartettStat s, num v) => '${v is double ? v.toStringAsFixed(1) : v} ${s.unit}';
+
+/// Auto-Quartett / Supertrumpf. Shows only the top card of the player to move.
+class QuartettTrumpfText extends TextGame {
+  QuartettTrumpfText([this.seed = 0]) : game = QuartettGame(QuartettMode.trumpf, seed: seed);
+
+  final int seed;
+  @override
+  final QuartettGame game;
+
+  @override
+  String get id => 'quartett-trumpf';
+  @override
+  String get title => 'Quartett (Trumpf)';
+  @override
+  String get moveHelp => '<stat>   pick a stat of your top card: '
+      '${[for (final (i, s) in QuartettGame.stats.indexed) '${i + 1}/${s.id}'].join(', ')}';
+
+  @override
+  QuartettTrumpfText restart() => QuartettTrumpfText(seed);
+
+  @override
+  String render() {
+    final me = game.currentPlayer;
+    final opp = me == Player.a ? Player.b : Player.a;
+    final card = game.topCard(me);
+    final b = StringBuffer('Cards: ${mark(me)} ${game.stackSize(me)}, ${mark(opp)} ${game.stackSize(opp)}'
+        '${game.potSize > 0 ? ', pot ${game.potSize}' : ''}   (trick ${game.tricks})');
+    if (card != null && !game.isOver) {
+      b
+        ..writeln()
+        ..writeln("${mark(me)}'s top card: ${card.id} ${card.name} (${QuartettGame.setNames[card.set]})");
+      for (final (i, s) in QuartettGame.stats.indexed) {
+        b.writeln('  ${i + 1} ${s.id.padRight(9)} ${s.label.padRight(22)} '
+            '${_value(s, card.stats[s.id]!).padLeft(10)}  ${s.higherWins ? 'higher wins' : 'lower wins'}');
+      }
+    }
+    return b.toString().trimRight();
+  }
+
+  @override
+  Map<String, dynamic>? parse(String input) {
+    final s = input.trim().toLowerCase();
+    final n = int.tryParse(s);
+    final stat = n != null && n >= 1 && n <= QuartettGame.stats.length
+        ? QuartettGame.stats[n - 1].id
+        : QuartettGame.stats.map((x) => x.id).where((id) => id == s).firstOrNull;
+    return stat == null ? null : {'action': 'pick', 'stat': stat};
+  }
+
+  @override
+  List<Map<String, dynamic>> get legalMoves => game.legalMoves;
+
+  @override
+  String format(Map<String, dynamic> move) => '${move['stat']}';
+
+  @override
+  String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
+    final p = event.payload as Map;
+    final stat = QuartettGame.statById(p['stat'] as String)!;
+    final cards = p['cards'] as Map, values = p['values'] as Map;
+    String side(String k) =>
+        "${_player(k)}'s ${QuartettGame.cardById(cards[k] as String)!.name} (${_value(stat, values[k] as num)})";
+    final me = mark(mover);
+    final first = mover == Player.a ? 'a' : 'b', second = first == 'a' ? 'b' : 'a';
+    var s = '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
+    final winner = p['trickWinner'] as String?;
+    s += winner == null
+        ? ' – tie! Both cards go to the pot (${p['pot']}), $me picks again.'
+        : ' → ${_player(winner)} takes the trick (X ${game.stackSize(Player.a)}, O ${game.stackSize(Player.b)} cards).';
+    if (event.winner != null) s += ' ${mark(event.winner)} wins: ${game.result.reason}.';
+    if (event.draw) s += ' Draw: ${game.result.reason}.';
+    return s;
+  }
+
+  /// Picks the stat in which the top card ranks best within the deck.
+  @override
+  Map<String, dynamic> autoMove(Random rng) {
+    final card = game.topCard(game.currentPlayer)!;
+    double rank(QuartettStat s) {
+      final v = card.stats[s.id]!;
+      return QuartettGame.deck.where((c) => s.beats(v, c.stats[s.id]!)).length / QuartettGame.deck.length;
+    }
+
+    final best = QuartettGame.stats.reduce((a, b) => rank(a) >= rank(b) ? a : b);
+    return {'action': 'pick', 'stat': best.id};
+  }
+
+  @override
+  List<String>? get demoScript => null;
+}
+
+/// Classic Quartett. Hands of [handSize] with a draw pile: with the full deck
+/// dealt and two players every ask would hit (see quartett.dart), so the
+/// Go-Fish pile is what makes misses, and therefore a contest, possible.
+class QuartettSetsText extends TextGame {
+  QuartettSetsText([this.seed = 0, this.handSize = 8])
+      : game = QuartettGame(QuartettMode.sets, seed: seed, handSize: handSize);
+
+  final int seed;
+  final int handSize;
+  @override
+  final QuartettGame game;
+
+  @override
+  String get id => 'quartett-sets';
+  @override
+  String get title => 'Quartett (Sets)';
+  @override
+  String get moveHelp => '<card id>   ask your opponent for a card, e.g. "B3" '
+      '(you must hold a card of that set but not the card itself)';
+
+  @override
+  QuartettSetsText restart() => QuartettSetsText(seed, handSize);
+
+  @override
+  String render() {
+    final me = game.currentPlayer;
+    final opp = me == Player.a ? Player.b : Player.a;
+    String quartets(Player p) {
+      final q = game.quartetsOf(p);
+      return '${q.length}${q.isEmpty ? '' : ' (${q.join(' ')})'}';
+    }
+
+    final b = StringBuffer()
+      ..writeln('Quartets: ${mark(Player.a)} ${quartets(Player.a)}, ${mark(Player.b)} ${quartets(Player.b)}'
+          '   |   ${mark(opp)} holds ${game.handOf(opp).length} cards, pile ${game.stockSize}');
+    if (!game.isOver) {
+      b.writeln("${mark(me)}'s hand:");
+      final bySet = <String, List<Card>>{};
+      for (final c in game.handOf(me)) {
+        (bySet[c.set] ??= []).add(c);
+      }
+      for (final MapEntry(key: set, value: cards) in bySet.entries) {
+        b.writeln('  $set ${QuartettGame.setNames[set]!.padRight(16)} ${cards.map((c) => '${c.id} ${c.name}').join(', ')}');
+      }
+    }
+    return b.toString().trimRight();
+  }
+
+  @override
+  Map<String, dynamic>? parse(String input) {
+    final id = input.trim().toUpperCase();
+    return QuartettGame.cardById(id) == null ? null : {'action': 'ask', 'card': id};
+  }
+
+  @override
+  List<Map<String, dynamic>> get legalMoves => game.legalMoves;
+
+  @override
+  String format(Map<String, dynamic> move) => '${move['card']}';
+
+  @override
+  String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
+    final p = event.payload as Map;
+    final me = mark(mover), opp = _player(p['from'] as String);
+    final card = QuartettGame.cardById(p['card'] as String)!;
+    var s = '$me asks $opp for ${card.id} (${card.name}): ';
+    if (p['hit'] == true) {
+      s += '$opp has it and hands it over.';
+    } else {
+      s += "$opp doesn't have it.${p['drew'] != null ? ' $me draws a card from the pile.' : ''}";
+    }
+    if (p['quartet'] case final String set) {
+      s += ' $me completes quartet $set (${QuartettGame.setNames[set]})!';
+    }
+    if (event.winner != null) return '$s ${mark(event.winner)} wins: ${game.result.reason}.';
+    if (event.draw) return '$s Draw: ${game.result.reason}.';
+    return '$s ${game.currentPlayer == mover ? '$me asks again.' : 'Now it is ${mark(game.currentPlayer)}\'s turn.'}';
+  }
+
+  /// Asks for a missing card of the set it holds most of.
+  @override
+  Map<String, dynamic> autoMove(Random rng) {
+    final hand = game.handOf(game.currentPlayer);
+    int held(String set) => hand.where((c) => c.set == set).length;
+    final legal = legalMoves;
+    final most = legal.map((m) => held((m['card'] as String)[0])).reduce(max);
+    final best = legal.where((m) => held((m['card'] as String)[0]) == most).toList();
+    return best[rng.nextInt(best.length)];
+  }
+
+  @override
+  bool isHighlight(GameEvent event) =>
+      super.isHighlight(event) || event.payload is Map && (event.payload as Map)['quartet'] != null;
+}

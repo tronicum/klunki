@@ -1,7 +1,7 @@
 # KLD-001 — `klunki_engine` package scaffold
 
 - **Milestone:** M0
-- **Status:** TODO
+- **Status:** DONE
 - **Depends on:** none
 - **Touched paths:** `packages/klunki_engine/`
 

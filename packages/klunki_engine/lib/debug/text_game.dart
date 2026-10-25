@@ -1,0 +1,63 @@
+import 'dart:math';
+
+import '../game.dart';
+
+/// Text adapter for one game: renders the state as plain text, parses typed
+/// commands into engine moves and narrates what a move did. Used by the debug
+/// console in both the terminal CLI and the Flutter debug screen.
+abstract class TextGame {
+  /// Short id used on the command line, e.g. `connect4`.
+  String get id;
+  String get title;
+
+  /// One-line command syntax shown by `help`.
+  String get moveHelp;
+
+  Game get game;
+
+  /// Fresh game, same adapter.
+  TextGame restart();
+
+  String render();
+
+  /// Parses [input] into a move map, or null if it is not a move command.
+  /// Legality is decided by the engine, not here.
+  Map<String, dynamic>? parse(String input);
+
+  /// Legal moves for the current player, as engine move maps.
+  List<Map<String, dynamic>> get legalMoves;
+
+  /// Inverse of [parse]: the command a player would type for [move].
+  String format(Map<String, dynamic> move);
+
+  /// One plain-language sentence about what [mover]'s [move] did. Called
+  /// after the engine applied it, so the game already shows the new state.
+  String narrate(Player mover, Map<String, dynamic> move, GameEvent event);
+
+  /// Whether the board is worth showing after this event in a demo.
+  bool isHighlight(GameEvent event) => event.winner != null || event.draw;
+
+  /// Move picked by `auto` and unscripted demos. Random legal by default;
+  /// games may play smarter so demos read like real games.
+  Map<String, dynamic> autoMove(Random rng) {
+    final legal = legalMoves;
+    return legal[rng.nextInt(legal.length)];
+  }
+
+  /// A scripted game for `demo`, or null to auto-play with [autoMove].
+  List<String>? get demoScript => null;
+
+  /// Label for [p] on the board, e.g. `X` / `O`.
+  String mark(Player? p) => switch (p) {
+        Player.a => 'X',
+        Player.b => 'O',
+        null => '.',
+      };
+
+  String status() {
+    final r = game.result;
+    if (r.draw) return 'Draw (${r.reason})';
+    if (r.winner != null) return '${mark(r.winner)} wins (${r.reason})';
+    return '${mark(game.currentPlayer)} to move';
+  }
+}

@@ -6,6 +6,7 @@ games:
 - **4 Gewinnt** (Connect Four)
 - **Mühle** (Nine Men's Morris)
 - **Quartett** (collect-the-four / superlative card game)
+- **Schiffe versenken** (Battleship)
 
 Built with **Flutter** — one codebase compiles to Android, iOS and the web
 (PWA). No Node.js.
@@ -48,6 +49,10 @@ cd packages/klunki_engine
 dart pub get
 dart test
 
+# text debug frontend (same console as the in-app "Debug-Konsole")
+dart run bin/klunki.dart                    # interactive
+dart run bin/klunki.dart connect4 3 3 4 4   # scripted: play moves, print boards
+
 # run the app (needs the Android SDK / Xcode / Chrome — see flutter doctor)
 cd klunki
 flutter pub get
@@ -55,3 +60,8 @@ flutter run
 ```
 
 See `docs/ROADMAP.md` for milestones and `docs/tasks/` for agent-executable cards.
+
+## License
+
+Klunki is licensed under the **GNU Affero General Public License v3.0**
+(AGPL-3.0-only). See [`LICENSE`](LICENSE).

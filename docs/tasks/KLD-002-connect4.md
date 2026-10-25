@@ -1,7 +1,7 @@
 # KLD-002 — Connect Four engine
 
 - **Milestone:** M0
-- **Status:** TODO
+- **Status:** DONE
 - **Depends on:** KLD-001
 - **Touched paths:** `packages/klunki_engine/lib/connect4.dart`, `packages/klunki_engine/test/connect4_test.dart`
 

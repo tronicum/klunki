@@ -35,6 +35,11 @@ class Connect4Game implements Game {
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
 
+  /// Columns that still accept a piece; empty once the game is over.
+  List<int> get legalMoves => isOver
+      ? const []
+      : [for (var c = 0; c < cols; c++) if (_board[c][rows - 1] == null) c];
+
   /// Lowest empty row in [col] (the bottom of the stack), or null if full.
   int? _dropRow(int col) {
     for (var r = 0; r < rows; r++) {
@@ -71,35 +76,33 @@ class Connect4Game implements Game {
 
   bool _isFull() {
     for (var c = 0; c < cols; c++) {
-      if (_board[c][0] == null) return false;
+      if (_board[c][rows - 1] == null) return false;
     }
     return true;
   }
 
+  /// True if the piece just placed at ([col], [row]) completes four or more
+  /// in a row for [player] in any direction (gaps filled count too).
   bool _checkWin(Player player, int col, int row) {
     const dirs = <List<int>>[
       [1, 0], [0, 1], [1, 1], [1, -1],
     ];
-    for (var d = 0; d < dirs.length; d++) {
-      var count = 1;
-      for (var s = 1; s < 4; s++) {
-        if (_lineOf(col + dirs[d][0] * s, row + dirs[d][1] * s) == player) {
-          count++;
-        } else {
-          break;
-        }
-        if (s == 3 && count >= 4) return true;
-      }
-      for (var s = 1; s < 4; s++) {
-        if (_lineOf(col - dirs[d][0] * s, row - dirs[d][1] * s) == player) {
-          count++;
-        } else {
-          break;
-        }
-        if (s == 3 && count >= 4) return true;
-      }
+    for (final d in dirs) {
+      final fwd = _run(player, col, row, d[0], d[1]);
+      final back = _run(player, col, row, -d[0], -d[1]);
+      if (1 + fwd + back >= 4) return true;
     }
     return false;
+  }
+
+  /// Consecutive [player] pieces from ([col], [row]) stepping by ([dc], [dr]),
+  /// excluding the start cell.
+  int _run(Player player, int col, int row, int dc, int dr) {
+    var n = 0;
+    while (_lineOf(col + dc * (n + 1), row + dr * (n + 1)) == player) {
+      n++;
+    }
+    return n;
   }
 
   Player? _lineOf(int col, int row) {

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:klunki/ui/debug_console_screen.dart';
 
 /// The game-selection menu.
 ///
@@ -22,6 +24,18 @@ class MenuScreen extends StatelessWidget {
             _item(context, '4 Gewinnt', 'connect4'),
             _item(context, 'Mühle', 'muehle'),
             _item(context, 'Quartett', 'quartett'),
+            // Text frontend for engine testing; hidden in release builds.
+            if (!kReleaseMode)
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.terminal),
+                  label: const Text('Debug-Konsole'),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const DebugConsoleScreen()),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

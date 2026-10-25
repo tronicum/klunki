@@ -1,5 +1,5 @@
 # Flutter / Dart build artifacts
-**/dart_tool/
+**/.dart_tool/
 **/.pub-cache/
 **/.pub/
 **/build/
@@ -20,3 +20,7 @@
 .DS_Store
 .idea/
 *.iml
+
+# Claude Code local state
+.claude/settings.local.json
+.claude/worktrees/
