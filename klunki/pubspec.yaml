@@ -39,6 +39,10 @@ dependencies:
   klunki_engine:
     path: ../packages/klunki_engine
 
+  # Host-authoritative network play (pure Dart, TCP).
+  klunki_net:
+    path: ../packages/klunki_net
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
