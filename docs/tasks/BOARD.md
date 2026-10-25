@@ -71,7 +71,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | I18N-02 ✅ | Extract all UI strings into ARB; `de` is the template, `en` complete (incl. pairing strings) | 01 | `klunki/lib/l10n/*.arb`, `klunki/lib/ui/**` | – |
 | I18N-03 | fr/es/zh-Hans/ar/fa machine translations, flagged for native review | 02 | `klunki/lib/l10n/*.arb` | 🧑 native review |
 | I18N-04 | RTL polish for ar/fa (game boards stay LTR) + CJK/Arabic fonts bundled for the offline PWA | 02 | `klunki/lib/ui/**`, `klunki/pubspec.yaml` (fonts), `klunki/web/**` | – |
-| I18N-05 | Localize engine result reasons + Quartett set names, card names, stat labels/units + Schiffe ship names (covers KLD-028; leftovers from I18N-02) | 02 | `packages/klunki_engine/**` (reason codes), `klunki/lib/ui/**`, `klunki/lib/l10n/*.arb` | – |
+| I18N-05 ✅ | Localize engine result reasons + Quartett set names, card names, stat labels/units + Schiffe ship names (covers KLD-028; leftovers from I18N-02) | 02 | `packages/klunki_engine/**` (reason codes), `klunki/lib/ui/**`, `klunki/lib/l10n/*.arb` | – |
 
 ## Backlog
 
@@ -80,7 +80,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-050 | Lobby / game code over local Wi-Fi (code in mDNS TXT record) | after 033 |
 | KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable) | hosting + privacy review 🧑 |
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
-| KLD-028 | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | after 022–026; covered by I18N-05 |
+| ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
 | KLD-052 | QR *scanning* to join (camera plugin + camera permissions on Android and iOS) | after 033/034; 🧑 OK for plugin + permissions |
 | KLD-053 | Android release signing (keystore) instead of the debug keys | 🧑 chooses passwords, keeps the keystore |
