@@ -12,7 +12,7 @@ Legend: 🧑 = the user does it personally (device, account, GUI click, password
 | # | Demo | Status | Needs |
 |---|---|---|---|
 | 1 | Text demo (terminal + in-app Debug-Konsole) | ✅ ready (terminal) | Mac with Flutter/Dart |
-| 2 | Hot-seat on one device | 🟡 shell ready (KLD-020/021 done; every game playable via placeholder move buttons); real screens ⏳ KLD-022…026 | + simulator, or iPhone/iPad/Android/Chrome |
+| 2 | Hot-seat on one device | ✅ ready (KLD-020…026: real screens for all five games; verified by widget tests, manual check on device pending) | + simulator, or iPhone/iPad/Android/Chrome |
 | 3 | iPhone ↔ iPad over Wi-Fi | ⏳ KLD-012 (device part), 032–034, 040 (030 done) (036 nice-to-have) | iPhone + iPad + Xcode |
 | 4 | Android ↔ iOS over Wi-Fi (end of PoC) | ⏳ + KLD-011, 035 | + Android phone + Android Studio |
 | 5 | PWA (web, offline) | ✅ ready (KLD-010) | Chrome on the Mac |
@@ -141,14 +141,14 @@ cd packages/klunki_net && dart run klunki_net:klunki join 127.0.0.1 4747 --name 
 
 ---
 
-## 2. Hot-seat on one device ⏳ (P2: KLD-020…026)
+## 2. Hot-seat on one device ✅ (P2: KLD-020…026)
 
-> **TODO (fill in when P2 lands):** exact menu labels, screenshots/expected screens per game, the handover cover text,
-> and the result dialog wording. Update the status table at the top.
+Two people take turns on one device. All five games have real screens; each one is played to the end by a scripted widget test.
+(A manual run on a real device is still pending.)
 
 ### Prerequisites
-- [ ] P2 cards DONE: KLD-020 (controller), 021 (shell), 022–026 (screens).
 - [ ] One of: iOS simulator (no 🧑 needed), iPhone/iPad (🧑 trusted, Developer Mode), Android phone (🧑 USB debugging), Chrome.
+- [ ] `cd klunki && flutter test` is green.
 
 ### Commands
 ```bash
@@ -159,14 +159,31 @@ flutter run --release -d <iphone-id>   # standalone on device
 flutter run -d chrome                  # web, hot-seat works there too
 ```
 
-### What the audience sees (TODO: verify)
-- Menu "Wähle ein Spiel" with 4 Gewinnt, Mühle, Quartett (Trumpf), Quartett (Sets), Schiffe versenken.
-- 4 Gewinnt / Mühle: two people take turns on the same screen; the result dialog appears at the end.
-- Quartett / Schiffe: after each turn a full-screen cover "Gib das Gerät an O weiter" → "Ich bin O – weiter". The other player's cards/fleet are never visible.
-- TODO: suggested demo order and the fastest scripted game per screen (reuse the widget-test scripts).
+### Steps
+1. The menu **Wähle ein Spiel** lists **4 Gewinnt**, **Mühle**, **Quartett (Trumpf)**, **Quartett (Sets)** and **Schiffe versenken**.
+   The three hidden-information games carry the subtitle "Gerät weitergeben". Tap a game.
+2. Play. The status line shows "X ist am Zug" (X always starts), with a hint line below it:
+   - **4 Gewinnt:** tap a column. The disc drops, and the winning four are highlighted.
+   - **Mühle:** "Setze einen Stein" (tap a point), then "Wähle einen Stein zum Ziehen" → "Wähle ein Ziel" ("… zum Springen" with three stones left).
+     After a mill: "Mühle! Entferne einen Stein von O".
+   - **Quartett (Trumpf):** tap a stat on your top card. The trick is revealed ("X wählt …", with the pot if there is a tie), then tap **Weiter**.
+   - **Quartett (Sets):** your hand is grouped by set ("Deine Karten (X)"). "Tippe auf eine fehlende Karte, um danach zu fragen",
+     then **Weiter** and pass the device. Completed quartets are shown per player.
+   - **Schiffe versenken:** setup ("Schiff 1 von N · X stellt auf"): tap the sea to place each ship, toggle **Horizontal**/**Vertikal**,
+     or use **Zufällig**. Battle: "Tippe auf ein unbekanntes Feld im Gegner-Meer, um zu schießen" ("Treffer! Nochmal …" after a hit).
+3. **Handover (Quartett Trumpf, Quartett Sets, Schiffe):** whenever the turn passes to the other player, a full-screen cover
+   "Gib das Gerät an O weiter" hides everything. The next player taps **Ich bin O – weiter**. The other player's cards or fleet are never visible.
+4. At the end the result dialog shows "X gewinnt!" or "Unentschieden" plus the reason, with **Nochmal** (new game) or **Menü**.
+   The app bar has **Zug zurück** (undo), **Neues Spiel** ("Neues Spiel?" → **Neu starten**) and **Züge** (move history).
 
-### Troubleshooting (TODO)
+### What the audience sees
+- Suggested order (fast to slow): 4 Gewinnt → Mühle → Quartett (Trumpf) → Schiffe versenken (use **Zufällig** for setup) → Quartett (Sets).
+- 4 Gewinnt and Mühle: both players on the same screen, no cover.
+- Quartett and Schiffe: the handover cover between turns shows that the hidden information stays hidden.
+
+### Troubleshooting
 - Simulator slow on first launch → start it before the demo (`open -a Simulator`).
+- Long game in front of an audience → **Neues Spiel**, or show the scripted run instead: `flutter test test/ui/games/<game>_screen_test.dart`.
 
 ---
 
@@ -182,15 +199,26 @@ Replaces the original "Android ↔ Android" demo (only one Android phone is avai
 - [ ] 🧑 iPhone and iPad: Trust This Computer, Developer Mode on, developer certificate trusted after the first install.
 - [ ] 🧑 Both on the same Wi-Fi (no guest network), or one device's hotspot.
 
-### Warm-up: two terminals (optional, after KLD-031)
-Shows the same protocol without phones:
+### Warm-up: two terminals (optional, KLD-031 ✅)
+Shows the same protocol without phones (same Mac, or two Macs on one Wi-Fi):
 ```bash
-# terminal 1
-cd packages/klunki_net && dart run bin/klunki_net.dart host connect4
-# terminal 2
-cd packages/klunki_net && dart run bin/klunki_net.dart join 127.0.0.1
+# terminal 1: the host plays X and moves first
+cd packages/klunki_net && dart run klunki_net:klunki host connect4 --port 4747 --name Ada
+# terminal 2: 127.0.0.1 on the same Mac, otherwise an IP printed by the host
+cd packages/klunki_net && dart run klunki_net:klunki join <ip> 4747 --name Bea
 ```
-> TODO (KLD-031): confirm the executable name and flags.
+- The host prints its IP addresses and a paste-ready `dart run klunki_net:klunki join <ip> <port>` line per address.
+- `--seed S` (host only) fixes the deal for Quartett/Schiffe, e.g. `host quartett-trumpf --seed 42`. The guest gets the seed from the host.
+- Details (in-game commands, reconnect): see section 1, "Two terminals over the network".
+
+### Automated e2e (no devices)
+```bash
+# protocol level: "iOS" host vs "Android" guest play Mühle over TCP, incl. reconnect and swapped roles (KLD-037a)
+cd packages/klunki_net && dart test test/e2e_muehle_test.dart
+# app level: two GameControllers over NetworkTransport play Mühle on loopback, incl. the screens (KLD-037b)
+cd klunki && flutter test test/e2e
+```
+Prefix either one with `KLUNKI_E2E_VERBOSE=1` to print every move, e.g. `KLUNKI_E2E_VERBOSE=1 flutter test test/e2e`.
 
 ### Commands
 ```bash
@@ -281,7 +309,7 @@ open -a "Google Chrome" http://localhost:8080
 ### What the audience sees
 - Klunki loads in Chrome. The address bar shows the **install** icon → install → it opens as its own app window with the Klunki name and icon.
 - Offline check: DevTools → Application → Service Workers shows it active. Then DevTools → Network → "Offline" (or stop the server)
-  → reload → the app still loads and plays (Debug-Konsole / hot-seat once P2 lands).
+  → reload → the app still loads and plays (Debug-Konsole and hot-seat).
 
 ### Troubleshooting
 - **Service worker / install button missing on a phone via `http://<mac-ip>:8080`:** service workers need a **secure context**

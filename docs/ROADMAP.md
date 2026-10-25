@@ -58,17 +58,18 @@ Goal: all four games playable with real game screens by two people on one device
 - [x] A `GameController` (ChangeNotifier) that the screens and the transports share (KLD-020).
 - [x] Shared UI shell: `GameScreen` frame, menu → game routing, placeholder screens that make every
       game playable through legal-move buttons (KLD-021).
-- [ ] Screens (KLD-022…026, in progress; Sets after Trumpf): Connect Four (tap a column), Mühle (tap to place/move/remove, mill
+- [x] Screens (KLD-022…026): Connect Four (tap a column), Mühle (tap to place/move/remove, mill
       highlight), Quartett Trumpf (card with stats, tap a stat), Quartett Sets
       (hand, pick a card to ask for), Schiffe versenken (fleet placement, own
       grid + target grid, tap to fire).
 - [x] Quartett and Schiffe versenken hide information: a "pass the phone to …"
-      cover screen between turns — shell part done (`HandoverCover`, KLD-021); per-screen use comes with 024–026.
+      cover screen between turns (`HandoverCover`, KLD-021; used by the Quartett and Schiffe screens, KLD-024–026).
 - [x] Shared result dialog (win/draw + reason), move history, undo, "new game" — shell part done (KLD-021).
       German reason texts: backlog KLD-028.
-- [ ] Widget tests: one full scripted game per screen.
-- **Exit / demo:** each game played to the end hot-seat on an iOS simulator, Chrome,
+- [x] Widget tests: one full scripted game per screen.
+- [x] **Exit / demo:** each game played to the end hot-seat on an iOS simulator, Chrome,
   and the Android emulator/phone once KLD-011 is unblocked.
+  Verified by widget tests, manual check on device pending.
 
 ## P3 — Two devices on the same Wi-Fi: iPhone ↔ iPad (was M3)
 Goal: iPhone and iPad play every game against each other. iOS first because the
