@@ -1,6 +1,25 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Local-network play (klunki_net TCP + mDNS discovery of _klunki._tcp).
+         These live in the MAIN manifest because release builds merge only this one.
+         - INTERNET: TCP sockets (host/join). Raw TCP isn't affected by the
+           cleartext-HTTP policy, so no networkSecurityConfig is needed.
+         - CHANGE_WIFI_MULTICAST_STATE: bonsoir_android 7.1.3 declares INTERNET and this
+           one in its own library manifest (android/src/main/AndroidManifest.xml) and
+           acquires a reference-counted WifiManager.MulticastLock on broadcast/discovery
+           start, releasing it when the broadcast/discovery is disposed on stop
+           (MethodCallHandler.kt). We declare it here too so the requirement is explicit
+           and survives a plugin change.
+         - ACCESS_NETWORK_STATE / ACCESS_WIFI_STATE: read connectivity and the Wi-Fi IP
+           for the host screen / manual IP:port.
+         The bonsoir docs (bonsoir.skyost.eu/docs#installation) list no other Android
+         permissions. NSD-based mDNS doesn't need NEARBY_WIFI_DEVICES or location, so
+         neither is requested. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
     <application
-        android:label="klunki"
+        android:label="Klunki"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

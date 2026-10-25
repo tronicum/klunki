@@ -3,7 +3,7 @@
 - **ID:** `KLD-035`
 - **Title:** Android networking: multicast lock + Wi-Fi permissions for discovery, release-build networking check (Android phone ↔ iPhone/iPad)
 - **Milestone:** P4 — Android ↔ iOS (end of PoC). There is only **one** Android phone, so there's no Android ↔ Android demo.
-- **Status:** TODO
+- **Status:** PARTIAL: manifest part **DONE** (2026-10-25, unbuilt); release build + device check **open/BLOCKED** on 🧑 cmdline-tools + licenses (KLD-011)
 - **Depends on:** KLD-011 (Android toolchain, phone runs the app, `INTERNET` in main manifest), KLD-033 (`bonsoir` discovery); for the
   end-to-end check also KLD-034 (pairing) and KLD-040 (iOS side). 🧑 phone, and optionally release-keystore passwords.
 - **Touched paths:**
@@ -23,10 +23,10 @@ mDNS advertise and browse work in both directions, and TCP connects in both dire
 - `gradlew`, the wrapper jar and `local.properties` are gitignored (generated).
 
 ## Acceptance criteria
-- [ ] `src/main/AndroidManifest.xml` declares: `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_MULTICAST_STATE`.
+- [x] `src/main/AndroidManifest.xml` declares (done 2026-10-25, see Progress): `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_MULTICAST_STATE`.
       **Verify against the `bonsoir` README** (the version pinned in `klunki/pubspec.yaml` by KLD-033) and add whatever else it lists for the
       targetSdk 36 case. Quote the README lines in your report. Don't add location or `NEARBY_WIFI_DEVICES` unless the README requires them for mDNS.
-- [ ] Multicast lock: if `bonsoir` acquires a `WifiManager.MulticastLock` itself (check its source/README), document that in your report and add
+- [x] Multicast lock (bonsoir handles it, see Progress): if `bonsoir` acquires a `WifiManager.MulticastLock` itself (check its source/README), document that in your report and add
       nothing. Otherwise acquire it in `MainActivity.kt` (`klunki/android/app/src/main/kotlin/...`) while the app is in the foreground, and release it on pause/destroy.
 - [ ] `cd klunki && flutter build apk --release` succeeds.
 - [ ] 🧑 Release check on the phone: `flutter run --release -d <android-id>` (or `adb install build/app/outputs/flutter-apk/app-release.apk`), plus
@@ -36,6 +36,20 @@ mDNS advertise and browse work in both directions, and TCP connects in both dire
   - manual `IP:port` join works both ways (fallback path).
   Record the results (device models, OS versions, Wi-Fi name type: home/hotspot) in the card's Hints section or your report.
 - [ ] `cd klunki && flutter analyze && flutter test` green.
+
+## Progress (2026-10-25, manifest part)
+- `klunki/android/app/src/main/AndroidManifest.xml`: `INTERNET`, `ACCESS_NETWORK_STATE`, `ACCESS_WIFI_STATE` and `CHANGE_WIFI_MULTICAST_STATE`
+  added to the **main** manifest, with a comment citing the bonsoir sources. App label `klunki` → `Klunki`. No `NEARBY_WIFI_DEVICES`, no location.
+- bonsoir check: the bonsoir docs (bonsoir.skyost.eu/docs#installation) list no Android permissions, only API ≥ 21 (we have minSdk 24).
+  The plugin's own library manifest (`packages/bonsoir_android/android/src/main/AndroidManifest.xml` on GitHub, main branch) declares
+  `INTERNET` and `CHANGE_WIFI_MULTICAST_STATE`, and these merge in anyway.
+  Re-check this against the version KLD-033 pins in `klunki/pubspec.yaml`. It wasn't pinned at the time of writing, so `main` was checked; latest on pub.dev was 7.1.6.
+- **Multicast lock: handled by bonsoir, so no `MainActivity.kt` code.** `bonsoir_android`'s `MethodCallHandler.kt` gets a `WifiManager.MulticastLock`,
+  calls `multicastLock.acquire()` on `broadcast.start` / `discovery.start`, and `release()` when a broadcast/discovery stops.
+  If device tests show discovery failing anyway, the fallback is a Dart-side platform channel owned by the discovery layer (KLD-033, `klunki/lib/net/**`)
+  or a foreground-scoped lock in `MainActivity.kt`. Neither is needed today.
+- Verified: `xmllint --noout` OK. **Android build unverified**: the SDK cmdline-tools + licenses are missing (🧑, KLD-011), so `flutter build apk --release` wasn't run.
+- **Still open:** `flutter build apk --release` (after 🧑 toolchain), release check on the phone ↔ iPhone/iPad (🧑).
 
 ## Optional (only with 🧑 OK): release signing
 Not required for the demo. If the user wants a properly signed release:

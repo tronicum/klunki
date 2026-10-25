@@ -42,16 +42,16 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-030 ✅ | `packages/klunki_net` (pure Dart): NDJSON protocol (`hello`, `welcome` {config, moves, token}, `move`, `accepted`, `rejected`, `ping`/`pong`, `bye`; no separate `snapshot`), host-authoritative TCP session, replay from seed + move list, loopback tests | – | `packages/klunki_net/**` | – |
 | KLD-031 ✅ | Terminal networking: `klunki host <game>` / `klunki join <ip>` — two terminals play each other through the `DebugConsole` (networked Quartett needs a seed hook, see card) | 030 | `packages/klunki_net/bin/**`, `packages/klunki_net/test/cli*` | – |
 | KLD-032 ✅ | `NetworkTransport` in the app on top of `klunki_net` (same interface as `HotSeatTransport`) | 020, 030 | `klunki/lib/transport/network_transport.dart`, `klunki/test/transport/network*`, `klunki/pubspec.yaml` (only the `klunki_net` path dependency; KLD-033 adds bonsoir/QR there later — sequential, no conflict) | – |
-| KLD-033 | Discovery service: advertise/browse `_klunki._tcp` via mDNS (`bonsoir`), manual IP:port fallback, QR payload; the host only **shows** the QR (scanning = backlog KLD-052) | 030, 🧑 OK for the `bonsoir` + QR packages | `klunki/lib/net/**`, `klunki/pubspec.yaml`, `klunki/test/net/**` | 🧑 |
+| KLD-033 ✅ | Discovery service: advertise/browse `_klunki._tcp` via mDNS (`bonsoir`), manual IP:port fallback, QR payload; the host only **shows** the QR (scanning = backlog KLD-052) | 030, 🧑 OK for the `bonsoir` + QR packages | `klunki/lib/net/**`, `klunki/pubspec.yaml`, `klunki/test/net/**` | 🧑 |
 | KLD-034 | Pairing screen: host (shows name, IP, QR) / join (list + manual entry), then start the chosen game over `NetworkTransport` | 021, 032, 033 | `klunki/lib/ui/pairing/**`, `klunki/test/ui/pairing/**`, `klunki/lib/ui/menu_screen.dart` | – |
-| KLD-035 | Android networking for Android ↔ iOS: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
+| KLD-035 (partial: manifest permissions + app label done; release build and device test pending) | Android networking for Android ↔ iOS: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
 | KLD-036 | Disconnect / reconnect UX ("opponent left", resume from snapshot) | 034 | `klunki/lib/ui/pairing/reconnect*`, `klunki/lib/transport/network_transport.dart`, `klunki/test/ui/pairing/reconnect*` | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
 
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
-| KLD-040 | iOS local network: `NSLocalNetworkUsageDescription`, `NSBonjourServices` (`_klunki._tcp`), permission prompt flow, backgrounding → reconnect | 012, 033 | `klunki/ios/**` | 🧑 |
+| KLD-040 (partial: Info.plist keys done; permission prompt and backgrounding device test pending) | iOS local network: `NSLocalNetworkUsageDescription`, `NSBonjourServices` (`_klunki._tcp`), permission prompt flow, backgrounding → reconnect | 012, 033 | `klunki/ios/**` | 🧑 |
 | KLD-041 | Demo runbook `docs/DEMO.md`: exact steps for the final demos (text, hot-seat, Android↔Android, Android↔iOS, PWA), device checklist, Wi-Fi pitfalls | – (update as tasks land) | `docs/DEMO.md` | – |
 
 ## E2E tests
