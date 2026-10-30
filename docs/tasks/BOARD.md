@@ -69,7 +69,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 |---|---|---|---|---|
 | I18N-01 ✅ | gen-l10n setup (`l10n.yaml`, ARB files for de/en/fr/es/zh/ar/fa), persisted `LocaleController` (`shared_preferences`, system default), language picker in the menu AppBar | – | `klunki/l10n.yaml`, `klunki/lib/l10n/**`, `klunki/lib/ui/language_picker.dart`, `klunki/lib/app/klunki_app.dart`, `klunki/lib/main.dart`, `klunki/pubspec.yaml`, `klunki/test/l10n/**` | – |
 | I18N-02 ✅ | Extract all UI strings into ARB; `de` is the template, `en` complete (incl. pairing strings) | 01 | `klunki/lib/l10n/*.arb`, `klunki/lib/ui/**` | – |
-| I18N-03 | fr/es/zh-Hans/ar/fa machine translations, flagged for native review | 02 | `klunki/lib/l10n/*.arb` | 🧑 native review |
+| I18N-03 ✅ (machine translation, native review pending) | fr/es/zh-Hans/ar/fa machine translations, flagged for native review | 02 | `klunki/lib/l10n/*.arb` | 🧑 native review |
 | I18N-04 ✅ RTL; fonts proposed (awaiting user OK) | RTL polish for ar/fa (game boards stay LTR) + CJK/Arabic fonts bundled for the offline PWA | 02 | `klunki/lib/ui/**`, `klunki/pubspec.yaml` (fonts), `klunki/web/**` | – |
 | I18N-05 ✅ | Localize engine result reasons + Quartett set names, card names, stat labels/units + Schiffe ship names (covers KLD-028; leftovers from I18N-02) | 02 | `packages/klunki_engine/**` (reason codes), `klunki/lib/ui/**`, `klunki/lib/l10n/*.arb` | – |
 
