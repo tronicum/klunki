@@ -2,7 +2,7 @@
 
 - **ID:** `I18N-04`
 - **Title:** RTL layout for ar/fa (boards stay LTR, addresses stay LTR) + font plan for offline web
-- **Status:** RTL DONE, fonts PROPOSED (waiting for the user's OK before anything is downloaded)
+- **Status:** RTL DONE, Arabic fonts DONE (I18N-04b), Chinese fonts PROPOSED
 - **Depends on:** I18N-01, I18N-02, KLD-034
 - **Touched paths:**
   - `klunki/lib/ui/ltr.dart` (new: `LtrBoard`, `LtrText`, `ltrIsolate`, `bidiLtr`)
@@ -12,6 +12,10 @@
   - `klunki/lib/ui/pairing/pairing_screen.dart`, `klunki/lib/ui/pairing/network_game_session.dart`
   - `klunki/lib/ui/shell/game_screen.dart`
   - `klunki/test/l10n/rtl_test.dart` (new)
+  - I18N-04b: `klunki/assets/fonts/NotoSansArabic/` (new: Regular + Bold TTF, `OFL.txt`),
+    `klunki/pubspec.yaml`, `klunki/lib/app/fonts.dart` (new), `klunki/lib/app/klunki_app.dart`,
+    `klunki/lib/ui/language_picker.dart`, `klunki/lib/main.dart`, `klunki/test/l10n/fonts_test.dart` (new),
+    `klunki/tool/update_web_fonts.py` (new, manual)
 
 ## Goal
 Under `Locale('ar')` and `Locale('fa')` the app chrome mirrors (Flutter's `Directionality`),
@@ -56,7 +60,58 @@ the same engine indices as in LTR locales.
       three board tests fail.
 - [x] No new ARB keys, nothing in `packages/**`.
 
-## Fonts: proposal (NOT implemented, needs the user's approval)
+## Fonts: Arabic DONE (I18N-04b)
+
+The user approved downloading Noto Sans Arabic (Arabic only; Chinese is still PROPOSED below).
+
+**Approach taken: option 2 (asset font + `fontFamilyFallback`), not option 1.** Redirecting
+`fontFallbackBaseUrl` turned out impractical with Flutter 3.47.8:
+- The same base URL is used for **Roboto**, which CanvasKit downloads at every startup
+  (`canvaskit/fonts.dart`: `${fontFallbackBaseUrl}roboto/v32/KFOm….woff2`). With `fonts/`,
+  Roboto would also have to be mirrored, which is an extra download that was not approved.
+- **Every other fallback font** would then be fetched from `fonts/` and 404: the Noto Sans SC slices
+  for "简体中文" in the language picker (shown in every locale), Noto Sans Symbols, emoji in
+  player/device names. They are marked "permanently unavailable" and render as tofu even
+  online. That is a regression for zh, and for everyone on the picker.
+
+What was done:
+- `klunki/assets/fonts/NotoSansArabic/NotoSansArabic-{Regular,Bold}.ttf`: the unhinted static TTFs
+  from the official notofonts release `NotoSansArabic-v2.013`
+  (github.com/notofonts/arabic/releases), with `OFL.txt` from the same zip. Declared in
+  `pubspec.yaml` as family `NotoSansArabic` (Bold = weight 700; w500 resolves to Regular,
+  w600+ to Bold).
+- `lib/app/fonts.dart`: `themeForLocale` adds `fontFamilyFallback: ['NotoSansArabic']` to
+  `textTheme`/`primaryTextTheme` for ar and fa only (`MaterialApp.builder` in `klunki_app.dart`
+  uses the resolved locale, so "System" = ar also works). The language picker's endonyms carry
+  the same fallback in every locale ("العربية", "فارسی"). The engine only asks the fallback
+  service for code points that the style's families cannot resolve, so Arabic text never
+  reaches fonts.gstatic.com. The font is used on Android/iOS too (consistent look, same code path).
+- License: `registerFontLicenses()` (called in `main()`) adds the OFL text from the bundled
+  `OFL.txt` to `LicenseRegistry` (package name "Noto Sans Arabic").
+- Precache: no change to `web/pwa_finalize.py` needed. It precaches every build file, so
+  `assets/assets/fonts/NotoSansArabic/*` is in the list automatically (21 files instead of 18).
+- `tool/update_web_fonts.py` (manual, never run by a build): `list` shows the bundled files
+  (size, sha256, validity) and the URLs that this Flutter version's fallback would download
+  (`--family "Noto Sans SC"` for the zh work); `fetch --version vX.YYY` refetches the font from
+  the notofonts release into a fresh temp dir, validates it, and replaces the files.
+
+Measured (`flutter build web --release` + `pwa_finalize.py`, compared with a build of the
+previous commit): precache **2,717,437 → 3,013,420 bytes (+295,983 B ≈ +289 KB)**, of which
+Regular 142,140 B, Bold 141,852 B, OFL.txt 4,382 B, manifests +943 B, main.dart.js +6,666 B.
+CanvasKit is not part of the precache, as before. The asset fonts are loaded at every web startup
+(all locales), from the same origin and the precache.
+
+Verified headless (Firefox WebDriver BiDi, service worker off so every request is visible, app
+served on 127.0.0.1:8765, locale stored in localStorage, language picker opened):
+- Before (previous commit, ar): `fonts.gstatic.com/s/notosansarabic/v28/….woff2` is requested.
+- After (ar and fa): no notosansarabic request. The Arabic text loads
+  `assets/assets/fonts/NotoSansArabic/*.ttf` and renders correctly (picker title, "النظام",
+  endonyms). The remaining gstatic requests are Roboto (startup, as before, cached by the
+  warm-cache message) and three Noto Sans SC slices for "简体中文" (zh, still open).
+Manual check: DevTools → Network "Offline" after one online visit, switch to العربية: the
+picker and Arabic strings render without tofu.
+
+## Fonts: proposal (Arabic part DONE above; Chinese still PROPOSED)
 
 ### Problem
 Mobile is fine: Android ships Noto Sans CJK and Noto Naskh/Sans Arabic as system fonts, iOS has
@@ -118,3 +173,4 @@ names in Chinese must render offline.
 
 ## Definition of done
 `flutter analyze` clean, `flutter test` green (193 tests, 17 of them in `rtl_test.dart`).
+I18N-04b: `flutter analyze` clean, `flutter test` green (210 tests, 8 of them in `fonts_test.dart`).

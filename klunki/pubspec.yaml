@@ -79,6 +79,19 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Noto Sans Arabic (SIL OFL 1.1, notofonts/arabic release, see
+  # tool/update_web_fonts.py and docs/tasks/I18N-04-rtl.md). Used as the
+  # fontFamilyFallback for ar/fa so Arabic-script text renders offline in the
+  # PWA (CanvasKit has no system fonts). OFL.txt is read for LicenseRegistry.
+  assets:
+    - assets/fonts/NotoSansArabic/OFL.txt
+  fonts:
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf
+        - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf
+          weight: 700
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:klunki/app/fonts.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 
@@ -41,7 +42,9 @@ class LanguagePicker extends StatelessWidget {
       final selected = current == locale;
       return ListTile(
         key: Key('language-$key'),
-        title: Text(label),
+        // Endonyms include Arabic script in every app language.
+        title: Text(label,
+            style: const TextStyle(fontFamilyFallback: arabicFontFallback)),
         trailing: selected ? const Icon(Icons.check) : null,
         selected: selected,
         onTap: () {

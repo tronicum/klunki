@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/ui/menu_screen.dart';
+import 'fonts.dart';
 import 'theme.dart';
 
 /// The Klunki root widget. Pure UI + routing; all game logic lives in
@@ -42,6 +43,16 @@ class _KlunkiAppState extends State<KlunkiApp> {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
+          // Arabic-script locales get the bundled Noto Sans Arabic as text
+          // fallback (offline web, I18N-04b).
+          builder: (context, child) {
+            final theme = Theme.of(context);
+            final localized =
+                themeForLocale(theme, Localizations.localeOf(context));
+            return identical(localized, theme)
+                ? child!
+                : Theme(data: localized, child: child!);
+          },
           home: const MenuScreen(),
         ),
       ),
