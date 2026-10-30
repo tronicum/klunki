@@ -22,79 +22,79 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageSystem => 'Sistema';
 
   @override
-  String get menuChooseGame => 'Choose a game';
+  String get menuChooseGame => 'Elige un juego';
 
   @override
-  String get menuPassDevice => 'Pass the device';
+  String get menuPassDevice => 'Pasa el dispositivo';
 
   @override
-  String get menuDebugConsole => 'Debug console';
+  String get menuDebugConsole => 'Consola de depuración';
 
   @override
-  String get menuPlayOverWifi => 'Play over Wi-Fi';
+  String get menuPlayOverWifi => 'Jugar por wifi';
 
   @override
-  String get menuGameConnect4 => 'Four in a Row';
+  String get menuGameConnect4 => 'Cuatro en raya';
 
   @override
-  String get menuGameMuehle => 'Mill';
+  String get menuGameMuehle => 'Juego del molino';
 
   @override
-  String get menuGameQuartettTrumpf => 'Quartett (Trumps)';
+  String get menuGameQuartettTrumpf => 'Quartett (Triunfos)';
 
   @override
-  String get menuGameQuartettSets => 'Quartett (Sets)';
+  String get menuGameQuartettSets => 'Quartett (Familias)';
 
   @override
-  String get menuGameSchiffe => 'Sink the Fleet';
+  String get menuGameSchiffe => 'Hundir la flota';
 
   @override
   String shellToMove(String player) {
-    return '$player\'s turn';
+    return 'Turno de $player';
   }
 
   @override
   String shellHasWon(String player) {
-    return '$player has won';
+    return '$player ha ganado';
   }
 
   @override
-  String get shellDraw => 'Draw';
+  String get shellDraw => 'Empate';
 
   @override
   String shellWins(String player) {
-    return '$player wins!';
+    return '¡$player gana!';
   }
 
   @override
-  String get shellMenu => 'Menu';
+  String get shellMenu => 'Menú';
 
   @override
-  String get shellPlayAgain => 'Play again';
+  String get shellPlayAgain => 'Otra vez';
 
   @override
-  String get shellUndo => 'Undo move';
+  String get shellUndo => 'Deshacer jugada';
 
   @override
-  String get shellNewGame => 'New game';
+  String get shellNewGame => 'Nueva partida';
 
   @override
-  String get shellNewGameTitle => 'New game?';
+  String get shellNewGameTitle => '¿Nueva partida?';
 
   @override
-  String get shellNewGameBody => 'The current game will be abandoned.';
+  String get shellNewGameBody => 'La partida en curso se abandonará.';
 
   @override
-  String get shellCancel => 'Cancel';
+  String get shellCancel => 'Cancelar';
 
   @override
-  String get shellRestart => 'Restart';
+  String get shellRestart => 'Reiniciar';
 
   @override
-  String get shellMoves => 'Moves';
+  String get shellMoves => 'Jugadas';
 
   @override
-  String get shellNoMoves => 'No moves yet.';
+  String get shellNoMoves => 'Aún no hay jugadas.';
 
   @override
   String shellHistoryEntry(String player, String move) {
@@ -103,100 +103,100 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String shellHandoverPass(String player) {
-    return 'Pass the device to $player';
+    return 'Pasa el dispositivo a $player';
   }
 
   @override
   String shellHandoverContinue(String player) {
-    return 'I\'m $player – continue';
+    return 'Soy $player – seguir';
   }
 
   @override
   String connect4Column(int column) {
-    return 'Column $column';
+    return 'Columna $column';
   }
 
   @override
-  String get connect4HintTapColumn => 'Tap a column';
+  String get connect4HintTapColumn => 'Toca una columna';
 
   @override
-  String get muehlePhasePlacing => 'Placing';
+  String get muehlePhasePlacing => 'Colocar';
 
   @override
-  String get muehlePhaseMoving => 'Moving';
+  String get muehlePhaseMoving => 'Mover';
 
   @override
-  String get muehlePhaseFlying => 'Flying';
+  String get muehlePhaseFlying => 'Saltar';
 
   @override
   String muehleMovePlace(int point) {
-    return 'places on $point';
+    return 'coloca en $point';
   }
 
   @override
   String muehleMoveRemove(int point) {
-    return 'removes stone on $point';
+    return 'quita la ficha de $point';
   }
 
   @override
   String muehleMoveMove(int from, int to) {
-    return 'moves $from→$to';
+    return 'mueve $from→$to';
   }
 
   @override
   String muehleMoveFly(int from, int to) {
-    return 'flies $from→$to';
+    return 'salta $from→$to';
   }
 
   @override
   String muehleHintRemove(String player) {
-    return 'Mill! Remove a stone of $player';
+    return '¡Molino! Quita una ficha de $player';
   }
 
   @override
-  String get muehleHintPlace => 'Place a stone';
+  String get muehleHintPlace => 'Coloca una ficha';
 
   @override
   String get muehleHintTarget =>
-      'Choose a target (or tap the stone again to deselect)';
+      'Elige un destino (o toca la ficha otra vez para soltarla)';
 
   @override
-  String get muehleHintSelectFly => 'Choose a stone to fly';
+  String get muehleHintSelectFly => 'Elige una ficha para saltar';
 
   @override
-  String get muehleHintSelectMove => 'Choose a stone to move';
+  String get muehleHintSelectMove => 'Elige una ficha para mover';
 
   @override
   String muehlePointEmpty(int point) {
-    return 'Point $point, empty';
+    return 'Punto $point, vacío';
   }
 
   @override
   String muehlePointOwned(int point, String player) {
-    return 'Point $point, $player';
+    return 'Punto $point, $player';
   }
 
   @override
   String muehleCounts(int hand, int board) {
-    return 'Hand: $hand · Board: $board';
+    return 'Mano: $hand · Tablero: $board';
   }
 
   @override
   String muehleCaptured(int count) {
-    return 'Captured: $count';
+    return 'Capturadas: $count';
   }
 
   @override
-  String get quartettNoGame => 'Not a Quartett game';
+  String get quartettNoGame => 'No es una partida de Quartett';
 
   @override
-  String get quartettContinue => 'Continue';
+  String get quartettContinue => 'Seguir';
 
   @override
-  String get quartettHigherWins => 'higher wins';
+  String get quartettHigherWins => 'gana el mayor';
 
   @override
-  String get quartettLowerWins => 'lower wins';
+  String get quartettLowerWins => 'gana el menor';
 
   @override
   String get quartettCardBack => 'QUARTETT';
@@ -206,8 +206,9 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
     return '$_temp0';
   }
@@ -217,57 +218,59 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
     return '$player: $_temp0';
   }
 
   @override
   String quartettTrumpfMovePick(String stat) {
-    return 'picks $stat';
+    return 'elige $stat';
   }
 
   @override
-  String get quartettTrumpfHintPick => 'Pick a stat of your card';
+  String get quartettTrumpfHintPick => 'Elige un dato de tu carta';
 
   @override
   String quartettTrumpfPot(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
-    return 'Pot: $_temp0';
+    return 'Bote: $_temp0';
   }
 
   @override
   String quartettTrumpfOpponentStack(String player) {
-    return '$player\'s stack';
+    return 'Mazo de $player';
   }
 
   @override
   String quartettTrumpfYourCard(String player) {
-    return 'Your card ($player)';
+    return 'Tu carta ($player)';
   }
 
   @override
-  String get quartettTrumpfTie => 'Tie – cards go to the pot';
+  String get quartettTrumpfTie => 'Empate – las cartas van al bote';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player wins the trick';
+    return '$player gana la baza';
   }
 
   @override
-  String get quartettTrumpfOutcomeWin => 'wins';
+  String get quartettTrumpfOutcomeWin => 'gana';
 
   @override
-  String get quartettTrumpfOutcomeLose => 'loses';
+  String get quartettTrumpfOutcomeLose => 'pierde';
 
   @override
-  String get quartettTrumpfOutcomeTie => 'tie';
+  String get quartettTrumpfOutcomeTie => 'empate';
 
   @override
   String quartettTrumpfSideOutcome(String player, String outcome) {
@@ -276,7 +279,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String quartettTrumpfPicked(String player, String stat) {
-    return '$player picks $stat';
+    return '$player elige $stat';
   }
 
   @override
@@ -284,149 +287,152 @@ class AppLocalizationsEs extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
-    return 'In the pot: $_temp0 – $player picks again';
+    return 'En el bote: $_temp0 – $player vuelve a elegir';
   }
 
   @override
-  String get quartettSetsHit => 'Hit';
+  String get quartettSetsHit => 'Acierto';
 
   @override
-  String get quartettSetsMiss => 'Go fish';
+  String get quartettSetsMiss => 'Nada';
 
   @override
   String quartettSetsMoveAsk(String card, String result) {
-    return 'asks for $card: $result';
+    return 'pide $card: $result';
   }
 
   @override
   String quartettSetsMoveAskQuartet(String card, String result, String set) {
-    return 'asks for $card: $result – quartet $set';
+    return 'pide $card: $result – familia $set';
   }
 
   @override
   String quartettSetsHintContinue(String player) {
-    return 'Tap “Continue” and pass the device to $player';
+    return 'Toca «Seguir» y pasa el dispositivo a $player';
   }
 
   @override
-  String get quartettSetsHintAsk => 'Tap a missing card to ask for it';
+  String get quartettSetsHintAsk => 'Toca una carta que falte para pedirla';
 
   @override
-  String get quartettSetsNoQuartet => 'no quartet yet';
+  String get quartettSetsNoQuartet => 'aún sin familia';
 
   @override
   String quartettSetsStock(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
-    return 'Stock: $_temp0';
+    return 'Mazo: $_temp0';
   }
 
   @override
   String quartettSetsScore(int a, int b) {
-    return 'Quartets X $a : $b O';
+    return 'Familias X $a : $b O';
   }
 
   @override
   String quartettSetsOtherAsked(String player, String card, String result) {
-    return '$player asks for $card: $result';
+    return '$player pide $card: $result';
   }
 
   @override
   String quartettSetsHitGives(String player, String card) {
-    return 'Hit! $player gives you $card';
+    return '¡Acierto! $player te da $card';
   }
 
   @override
-  String get quartettSetsMissDraw => 'Go fish – you draw a card';
+  String get quartettSetsMissDraw => 'Nada – robas una carta';
 
   @override
-  String get quartettSetsMissEmpty => 'Go fish – the stock is empty';
+  String get quartettSetsMissEmpty => 'Nada – el mazo está vacío';
 
   @override
-  String get quartettSetsAskAgain => 'You may ask again.';
+  String get quartettSetsAskAgain => 'Puedes volver a pedir.';
 
   @override
   String quartettSetsNotHeld(String player, String card) {
-    return '$player doesn\'t have $card.';
+    return '$player no tiene $card.';
   }
 
   @override
   String quartettSetsQuartetLaid(String set) {
-    return 'Quartet! $set laid down';
+    return '¡Familia completa! $set bajada';
   }
 
   @override
-  String get quartettSetsDrawn => 'Drawn:';
+  String get quartettSetsDrawn => 'Robada:';
 
   @override
   String quartettSetsYourCards(String player, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count cartas',
+      many: '$count de cartas',
+      one: '$count carta',
     );
-    return 'Your cards ($player): $_temp0';
+    return 'Tus cartas ($player): $_temp0';
   }
 
   @override
   String quartettSetsProgress(int have, int missing) {
-    return '$have/4 – missing: $missing';
+    return '$have/4 – faltan: $missing';
   }
 
   @override
-  String get quartettSetsAskSlot => 'ask';
+  String get quartettSetsAskSlot => 'pedir';
 
   @override
-  String get quartettSetsMissingSlot => 'missing';
+  String get quartettSetsMissingSlot => 'falta';
 
   @override
   String get schiffeHintSetup =>
-      'Setup: tap the sea (or drag and release) to place the ship. Ships must not touch.';
+      'Colocación: toca el mar (o arrastra y suelta) para colocar el barco. Los barcos no pueden tocarse.';
 
   @override
-  String get schiffeHintAllSunk => 'All ships sunk.';
+  String get schiffeHintAllSunk => 'Todos los barcos hundidos.';
 
   @override
   String schiffeHintWaiting(String player) {
-    return 'Waiting for $player …';
+    return 'Esperando a $player…';
   }
 
   @override
   String get schiffeHintExtraShot =>
-      'Hit! Again – tap a cell in the opponent\'s sea.';
+      '¡Tocado! Otra vez – toca una casilla del mar rival.';
 
   @override
   String get schiffeHintFire =>
-      'Tap an unknown cell in the opponent\'s sea to fire.';
+      'Toca una casilla desconocida del mar rival para disparar.';
 
   @override
-  String get schiffeLookWater => 'water';
+  String get schiffeLookWater => 'agua';
 
   @override
-  String get schiffeLookShip => 'ship';
+  String get schiffeLookShip => 'barco';
 
   @override
-  String get schiffeLookMiss => 'miss';
+  String get schiffeLookMiss => 'fallo';
 
   @override
-  String get schiffeLookShipHit => 'ship hit';
+  String get schiffeLookShipHit => 'barco tocado';
 
   @override
-  String get schiffeLookHit => 'hit';
+  String get schiffeLookHit => 'tocado';
 
   @override
-  String get schiffeLookSunk => 'sunk';
+  String get schiffeLookSunk => 'hundido';
 
   @override
-  String get schiffeLookUnknown => 'unknown';
+  String get schiffeLookUnknown => 'desconocido';
 
   @override
   String schiffeCellLabel(String cell, String state) {
@@ -434,7 +440,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get schiffeFleetComplete => 'Fleet complete';
+  String get schiffeFleetComplete => 'Flota completa';
 
   @override
   String schiffeShipWithLength(String ship, int length) {
@@ -443,12 +449,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String schiffeShipPlaced(String ship, int length) {
-    return '$ship ($length) · placed';
+    return '$ship ($length) · colocado';
   }
 
   @override
   String schiffeSetupProgress(int index, int total, String player) {
-    return 'Ship $index of $total · $player is placing';
+    return 'Barco $index de $total · coloca $player';
   }
 
   @override
@@ -458,312 +464,313 @@ class AppLocalizationsEs extends AppLocalizations {
   String get schiffeVertical => 'Vertical';
 
   @override
-  String get schiffeRandom => 'Random';
+  String get schiffeRandom => 'Al azar';
 
   @override
-  String get schiffeFleet => 'Fleet';
+  String get schiffeFleet => 'Flota';
 
   @override
   String schiffeExtraShotSunk(String ship) {
-    return '$ship sunk – hit! Again';
+    return '$ship hundido – ¡tocado! Otra vez';
   }
 
   @override
-  String get schiffeExtraShot => 'Hit! Again';
+  String get schiffeExtraShot => '¡Tocado! Otra vez';
 
   @override
   String schiffeRemaining(int own, String player, int opponent) {
-    return 'Your fleet: $own · Opponent ($player): $opponent ships left';
+    return 'Tu flota: $own · Rival ($player): quedan $opponent barcos';
   }
 
   @override
   String schiffeIncoming(String player, String cell, String result) {
-    return '$player last fired at $cell: $result';
+    return 'Último disparo de $player en $cell: $result';
   }
 
   @override
-  String get schiffeTargetSection => 'Opponent';
+  String get schiffeTargetSection => 'Rival';
 
   @override
-  String get schiffeOwnSection => 'Your sea';
+  String get schiffeOwnSection => 'Tu mar';
 
   @override
-  String get schiffeMovePlace => 'places a ship';
+  String get schiffeMovePlace => 'coloca un barco';
 
   @override
   String schiffeMoveAutoplace(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'places $count ships at random',
-      one: 'places a ship at random',
+      other: 'coloca $count barcos al azar',
+      many: 'coloca $count de barcos al azar',
+      one: 'coloca $count barco al azar',
     );
     return '$_temp0';
   }
 
   @override
   String schiffeMoveFire(String cell, String result) {
-    return 'fires at $cell: $result';
+    return 'dispara a $cell: $result';
   }
 
   @override
   String schiffeShipSunk(String ship) {
-    return '$ship sunk';
+    return '$ship hundido';
   }
 
   @override
-  String get debugConsoleTitle => 'Debug console';
+  String get debugConsoleTitle => 'Consola de depuración';
 
   @override
   String get debugUndo => 'undo';
 
   @override
-  String get debugMenu => 'Game / demo';
+  String get debugMenu => 'Juego / demo';
 
   @override
   String debugNewGame(String game) {
-    return 'New: $game';
+    return 'Nuevo: $game';
   }
 
   @override
-  String get debugLegalMoves => 'Legal moves';
+  String get debugLegalMoves => 'Jugadas legales';
 
   @override
-  String get debugAutoPlay => 'Play to the end (random)';
+  String get debugAutoPlay => 'Jugar hasta el final (al azar)';
 
   @override
-  String get debugDemo => 'Demo: all games';
+  String get debugDemo => 'Demo: todos los juegos';
 
   @override
-  String get pairingTitle => 'Play over Wi-Fi';
+  String get pairingTitle => 'Jugar por wifi';
 
   @override
   String get pairingWebUnavailable =>
-      'Network play is not available in the browser';
+      'El juego en red no está disponible en el navegador';
 
   @override
-  String get pairingDeviceName => 'Device name';
+  String get pairingDeviceName => 'Nombre del dispositivo';
 
   @override
-  String get pairingDeviceNameHelper => 'This is how the other player sees you';
+  String get pairingDeviceNameHelper => 'Así te ve el otro jugador';
 
   @override
-  String get pairingModeHost => 'Host';
+  String get pairingModeHost => 'Crear';
 
   @override
-  String get pairingModeJoin => 'Join';
+  String get pairingModeJoin => 'Unirse';
 
   @override
-  String get pairingChooseGame => 'Choose a game';
+  String get pairingChooseGame => 'Elige un juego';
 
   @override
-  String get pairingHostGame => 'Host game';
+  String get pairingHostGame => 'Crear partida';
 
   @override
   String pairingHostStartFailed(String error) {
-    return 'Could not start the game: $error';
+    return 'No se pudo iniciar la partida: $error';
   }
 
   @override
   String get pairingNotAdvertised =>
-      'Not automatically visible – the other player enters the address.';
+      'No visible automáticamente – el otro jugador introduce la dirección.';
 
   @override
   String get pairingNoDiscoveryHost =>
-      'No automatic search on this device – the other player enters the address.';
+      'Sin búsqueda automática en este dispositivo – el otro jugador introduce la dirección.';
 
   @override
   String pairingHosting(String name, String game) {
-    return '$name is hosting $game';
+    return '$name ofrece $game';
   }
 
   @override
   String pairingNoAddress(int port) {
-    return 'No Wi-Fi address found. Is the device connected to Wi-Fi? Port: $port';
+    return 'No se encontró ninguna dirección wifi. ¿Está el dispositivo conectado al wifi? Puerto: $port';
   }
 
   @override
-  String get pairingAddresses => 'Addresses (to type in):';
+  String get pairingAddresses => 'Direcciones (para escribir):';
 
   @override
-  String get pairingProbablyWifi => 'probably Wi-Fi';
+  String get pairingProbablyWifi => 'probablemente wifi';
 
   @override
-  String get pairingWaitingForGuest => 'Waiting for the other player…';
+  String get pairingWaitingForGuest => 'Esperando al otro jugador…';
 
   @override
-  String get pairingCancel => 'Cancel';
+  String get pairingCancel => 'Cancelar';
 
   @override
-  String get pairingGamesOnNetwork => 'Games on the network';
+  String get pairingGamesOnNetwork => 'Partidas en la red';
 
   @override
   String get pairingNoDiscoveryJoin =>
-      'Automatic search is not available on this device. Enter the address below.';
+      'La búsqueda automática no está disponible en este dispositivo. Introduce la dirección abajo.';
 
   @override
   String get pairingBrowseFailed =>
-      'Cannot search the network. Enter the address below.';
+      'No se puede buscar en la red. Introduce la dirección abajo.';
 
   @override
-  String get pairingSearching => 'Searching for games…';
+  String get pairingSearching => 'Buscando partidas…';
 
   @override
-  String get pairingOtherVersion => 'different Klunki version';
+  String get pairingOtherVersion => 'otra versión de Klunki';
 
   @override
-  String get pairingOrEnterAddress => 'Or enter an address';
+  String get pairingOrEnterAddress => 'O introduce una dirección';
 
   @override
-  String get pairingManualLabel => 'IP, IP:port or klunki:// link';
+  String get pairingManualLabel => 'IP, IP:puerto o enlace klunki://';
 
   @override
   String get pairingInvalidAddress =>
-      'Invalid address. Example: 192.168.1.20 or 192.168.1.20:4747';
+      'Dirección no válida. Ejemplo: 192.168.1.20 o 192.168.1.20:4747';
 
   @override
-  String get pairingConnect => 'Connect';
+  String get pairingConnect => 'Conectar';
 
   @override
   String pairingConnecting(String host) {
-    return 'Connecting to $host…';
+    return 'Conectando con $host…';
   }
 
   @override
-  String get pairingTimeout => 'Timed out';
+  String get pairingTimeout => 'Tiempo agotado';
 
   @override
   String pairingJoinFailed(String host, String error) {
-    return 'Connecting to $host failed ($error).';
+    return 'Error al conectar con $host ($error).';
   }
 
   @override
   String get pairingJoinHints =>
-      'Tips: Are both devices on the same Wi-Fi? Guest networks often block connections between devices. iOS: Is “Local Network” allowed for Klunki (Settings › Privacy)?';
+      'Consejos: ¿están ambos dispositivos en el mismo wifi? Las redes de invitados suelen bloquear las conexiones entre dispositivos. iOS: ¿está permitida la «Red local» para Klunki (Ajustes › Privacidad)?';
 
   @override
   String pairingStatus(String me, String peer, String peerMark) {
-    return 'You are $me · Opponent: $peer ($peerMark)';
+    return 'Eres $me · Rival: $peer ($peerMark)';
   }
 
   @override
-  String get pairingOpponent => 'Opponent';
+  String get pairingOpponent => 'Rival';
 
   @override
-  String get pairingPeerLeft => 'Opponent left the game';
+  String get pairingPeerLeft => 'El rival ha salido de la partida';
 
   @override
-  String get pairingPeerLost => 'Connection to the opponent lost';
+  String get pairingPeerLost => 'Se perdió la conexión con el rival';
 
   @override
   String pairingWaitForRejoin(String reason) {
-    return '$reason. Waiting for them to rejoin…';
+    return '$reason. Esperando a que vuelva…';
   }
 
   @override
-  String get pairingReconnecting => 'Reconnecting…';
+  String get pairingReconnecting => 'Reconectando…';
 
   @override
-  String get pairingReconnect => 'Reconnect';
+  String get pairingReconnect => 'Reconectar';
 
   @override
   String get pairingReconnectFailed =>
-      'Reconnecting failed. Is the host still in the game?';
+      'Error al reconectar. ¿Sigue el anfitrión en la partida?';
 
   @override
-  String get engineReasonConnect4FourInARow => 'Four in a row';
+  String get engineReasonConnect4FourInARow => 'Cuatro en raya';
 
   @override
-  String get engineReasonConnect4BoardFull => 'Board full';
+  String get engineReasonConnect4BoardFull => 'Tablero lleno';
 
   @override
   String get engineReasonMuehleFewerThanThree =>
-      'Opponent has fewer than 3 pieces';
+      'El rival tiene menos de 3 fichas';
 
   @override
-  String get engineReasonMuehleBlocked => 'Opponent cannot move';
+  String get engineReasonMuehleBlocked => 'El rival no puede mover';
 
   @override
   String engineReasonMuehleNoRemovalLimit(int moves) {
-    return '$moves moves without a capture';
+    return '$moves jugadas sin captura';
   }
 
   @override
-  String get engineReasonQuartettBothStacksEmpty => 'Both stacks empty';
+  String get engineReasonQuartettBothStacksEmpty => 'Ambos mazos vacíos';
 
   @override
-  String get engineReasonQuartettAllCards => 'Opponent has no cards left';
+  String get engineReasonQuartettAllCards => 'Al rival no le quedan cartas';
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'Trick limit reached, equal stacks ($a:$b)';
+    return 'Límite de bazas, mismas cartas ($a:$b)';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'Trick limit reached, more cards ($a:$b)';
+    return 'Límite de bazas, más cartas ($a:$b)';
   }
 
   @override
   String engineReasonQuartettAllQuartetsEqual(int a, int b) {
-    return 'All quartets laid down, $a:$b';
+    return 'Todas las familias bajadas, $a:$b';
   }
 
   @override
   String engineReasonQuartettMostQuartets(int a, int b) {
-    return 'More quartets ($a:$b)';
+    return 'Más familias ($a:$b)';
   }
 
   @override
-  String get engineReasonSchiffeAllSunk => 'All ships sunk';
+  String get engineReasonSchiffeAllSunk => 'Todos los barcos hundidos';
 
   @override
-  String get engineSetA => 'Supercars';
+  String get engineSetA => 'Superdeportivos';
 
   @override
-  String get engineSetB => 'Hypercars';
+  String get engineSetB => 'Hiperdeportivos';
 
   @override
-  String get engineSetC => 'Classics';
+  String get engineSetC => 'Clásicos';
 
   @override
-  String get engineSetD => 'Muscle Cars';
+  String get engineSetD => 'Muscle cars';
 
   @override
-  String get engineSetE => 'Rally Legends';
+  String get engineSetE => 'Leyendas del rally';
 
   @override
-  String get engineSetF => 'Grand Tourers';
+  String get engineSetF => 'Gran turismo';
 
   @override
-  String get engineSetG => 'Electric';
+  String get engineSetG => 'Eléctricos';
 
   @override
-  String get engineSetH => 'Pocket Rockets';
+  String get engineSetH => 'Pequeños bólidos';
 
   @override
-  String get engineStatPs => 'Power';
+  String get engineStatPs => 'Potencia';
 
   @override
-  String get engineStatKmh => 'Top speed';
+  String get engineStatKmh => 'Velocidad máx.';
 
   @override
-  String get engineStatCcm => 'Displacement';
+  String get engineStatCcm => 'Cilindrada';
 
   @override
-  String get engineStatKg => 'Weight';
+  String get engineStatKg => 'Peso';
 
   @override
   String get engineStatSec0to100 => '0–100 km/h';
 
   @override
-  String get engineUnitPs => 'hp';
+  String get engineUnitPs => 'CV';
 
   @override
   String get engineUnitKmh => 'km/h';
 
   @override
-  String get engineUnitCcm => 'cc';
+  String get engineUnitCcm => 'cm³';
 
   @override
   String get engineUnitKg => 'kg';
@@ -772,17 +779,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get engineUnitSec => 's';
 
   @override
-  String get engineShip5 => 'Battleship';
+  String get engineShip5 => 'Acorazado';
 
   @override
-  String get engineShip4 => 'Cruiser';
+  String get engineShip4 => 'Crucero';
 
   @override
-  String get engineShip3 => 'Destroyer';
+  String get engineShip3 => 'Destructor';
 
   @override
-  String get engineShip2 => 'Submarine';
+  String get engineShip2 => 'Submarino';
 
   @override
-  String get engineShipOther => 'Ship';
+  String get engineShipOther => 'Barco';
 }
