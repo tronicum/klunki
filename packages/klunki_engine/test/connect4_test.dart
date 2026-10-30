@@ -13,7 +13,7 @@ Connect4Game play(List<int> cols) {
 }
 
 void main() {
-  group('Connect Four wins', () {
+  group('Four in a Row wins', () {
     test('horizontal win', () {
       final g = play([0, 0, 1, 1, 2, 2, 3]);
       expect(g.isOver, isTrue);
@@ -73,7 +73,7 @@ void main() {
     });
   });
 
-  group('Connect Four invalid moves', () {
+  group('Four in a Row invalid moves', () {
     test('full column returns null', () {
       final g = play([0, 0, 0, 0, 0, 0]);
       expect(g.applyMove({'col': 0}), isNull);
@@ -101,7 +101,7 @@ void main() {
     });
   });
 
-  group('Connect Four draw', () {
+  group('Four in a Row draw', () {
     // Fixed 42-move game that fills the board without any four-in-a-row.
     const drawGame = [
       6, 2, 3, 1, 2, 5, 0, 4, 0, 1, 5, 1, 1, 3, 6, 0, 6, 3, 2, 2, 4, //
@@ -134,7 +134,7 @@ void main() {
     });
   });
 
-  group('Connect Four state', () {
+  group('Four in a Row state', () {
     test('currentPlayer alternates', () {
       final g = Connect4Game();
       expect(g.currentPlayer, Player.a);

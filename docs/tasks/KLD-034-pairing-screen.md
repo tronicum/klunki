@@ -52,7 +52,7 @@ game's screen (KLD-022…026) with a `GameController` on a `NetworkTransport`.
       disconnect/reconnect UX is KLD-036.
 - [ ] Web: `PairingScreen` shows "Netzwerkspiel ist im Browser nicht verfügbar" (`createDiscovery()` == null / `kIsWeb`) and imports nothing from `dart:io`.
 - [ ] Widget tests `klunki/test/ui/pairing/`: with the fake discovery and an injected session factory (or real loopback sockets via `tester.runAsync`):
-      the host shows IP + QR widget; join lists a fake host; tapping it navigates to the Connect Four screen on both sides; invalid manual input
+      the host shows IP + QR widget; join lists a fake host; tapping it navigates to the Four in a Row screen on both sides; invalid manual input
       shows an error; a timeout shows the hint text.
 - [ ] `cd klunki && flutter analyze && flutter test` green; `flutter build web` still compiles.
 
@@ -89,4 +89,4 @@ All green; card status set to DONE.
 - **`lib/ui/pairing/network_game_session.dart`:** owns `GameController(networkTransport)` and shows `buildGameScreen` (the shell registry), plus a bottom bar: "Du bist X · Gegner: <Name> (O)". On `peerMissing` or `reconnecting` a banner appears: "Gegner hat das Spiel verlassen" (after `bye`) or "Verbindung zum Gegner unterbrochen". The guest also gets "Neu verbinden", which calls `transport.reconnect()`; the full UX is KLD-036. Leaving the route disposes the controller and with it the transport (`bye`).
 - **Shell change (minimal):** `game_screen.dart` shows the restart button and the result dialog's "Nochmal" only for `HotSeatTransport`, the same rule undo already used. `NetworkTransport` does not support restart (the host owns the session), so "Nochmal" would have broken a network game. Hot-seat behaviour is unchanged.
 - **Hidden info:** one local player per device means `needsHandover` stays false. `pairing_flow_test` plays Quartett (Trumpf) over loopback and checks that no `handover-cover` appears on either device.
-- **Tests:** `test/ui/pairing/` (11 tests): host shows IP, port and QR and advertises; port fallback; leaving and "Abbrechen" stop advertising and close the transport; join lists fake hosts and stops browsing on leave; manual entry valid/invalid plus German error hints; join timeout; device name; menu entry. Full flow: host and guest over real loopback sockets reach Connect Four, moves cross in both directions, and when the guest leaves the host sees the banner.
+- **Tests:** `test/ui/pairing/` (11 tests): host shows IP, port and QR and advertises; port fallback; leaving and "Abbrechen" stop advertising and close the transport; join lists fake hosts and stops browsing on leave; manual entry valid/invalid plus German error hints; join timeout; device name; menu entry. Full flow: host and guest over real loopback sockets reach Four in a Row, moves cross in both directions, and when the guest leaves the host sees the banner.

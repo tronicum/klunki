@@ -15,7 +15,7 @@ void main() {
     }
   });
 
-  testWidgets('debug console plays a Connect Four move', (WidgetTester tester) async {
+  testWidgets('debug console plays a Four in a Row move', (WidgetTester tester) async {
     await tester.pumpWidget(klunkiApp());
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();

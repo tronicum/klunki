@@ -3,7 +3,7 @@
 Cross-platform casual game app (**iOS, Android, PWA**) for classic brain-teaser
 games:
 
-- **4 Gewinnt** (Connect Four)
+- **4 Gewinnt** (Four in a Row)
 - **Mühle** (Nine Men's Morris)
 - **Quartett** (collect-the-four / superlative card game)
 - **Schiffe versenken** (sink-the-fleet guessing game)

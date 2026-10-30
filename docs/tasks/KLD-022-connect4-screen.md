@@ -1,4 +1,4 @@
-# KLD-022 — Connect Four screen
+# KLD-022 — Four in a Row screen
 
 - **ID:** `KLD-022`
 - **Title:** 4 Gewinnt screen: tap a column, drop animation, winning line highlight

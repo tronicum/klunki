@@ -12,7 +12,7 @@ PoC games: **4 Gewinnt**, **Mühle**, **Quartett** (two modes: *Trumpf* and
 
 ## Done — engine foundation
 - [x] Monorepo scaffold: `packages/klunki_engine`, `klunki/` app, `docs/`.
-- [x] Connect Four engine + tests (incl. gap-fill win and bottom-row-draw regressions).
+- [x] Four in a Row engine + tests (incl. gap-fill win and bottom-row-draw regressions).
 - [x] Mühle engine + tests (24 points, 16 mills, placing → moving → flying, removal step, 50-move draw).
 - [x] Shared `Game` contract test (`test/game_contract_test.dart`).
 - [x] Text debug frontend: `DebugConsole` (pure Dart) used by the CLI
@@ -48,7 +48,7 @@ Goal: every game playable to the end as text, in the terminal and in the app's D
       (narrated full game per game). Also in the in-app Debug-Konsole menu.
 - [x] Remove the Quartett stub and its analyzer warnings.
 - **Exit / demo:** `dart run bin/klunki.dart demo` prints a narrated full game of
-  each game (Connect Four, Mühle, Quartett Trumpf, Quartett Sets, Schiffe versenken). The same
+  each game (Four in a Row, Mühle, Quartett Trumpf, Quartett Sets, Schiffe versenken). The same
   works in the app's Debug-Konsole on Android, iOS and web.
 
 ## P2 — Hot-seat on one device (was M1)
@@ -58,7 +58,7 @@ Goal: all four games playable with real game screens by two people on one device
 - [x] A `GameController` (ChangeNotifier) that the screens and the transports share (KLD-020).
 - [x] Shared UI shell: `GameScreen` frame, menu → game routing, placeholder screens that make every
       game playable through legal-move buttons (KLD-021).
-- [x] Screens (KLD-022…026): Connect Four (tap a column), Mühle (tap to place/move/remove, mill
+- [x] Screens (KLD-022…026): Four in a Row (tap a column), Mühle (tap to place/move/remove, mill
       highlight), Quartett Trumpf (card with stats, tap a stat), Quartett Sets
       (hand, pick a card to ask for), Schiffe versenken (fleet placement, own
       grid + target grid, tap to fire).
@@ -119,7 +119,7 @@ Goal: the same as P3, across platforms: the Android phone against iPhone or iPad
         both play the Mühle script (`integration_test` + `--dart-define` test mode), `tool/e2e_android_vs_ios.sh` prints PASS/FAIL
         (after 032, 037b and the user's Android cmdline-tools + licenses).
   - [ ] KLD-038b: the same on real devices, iPhone/iPad ↔ Android phone over Wi-Fi, each platform hosting once (after 038a, 011, 012, 040, 035).
-- **Exit / end of PoC:** every game (Connect Four, Mühle, Quartett Trumpf,
+- **Exit / end of PoC:** every game (Four in a Row, Mühle, Quartett Trumpf,
   Quartett Sets, Schiffe versenken) played to the end Android ↔ iPhone, with each platform hosting
   at least once.
 

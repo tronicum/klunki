@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 
 void main() {
-  group('Connect Four board rendering', () {
+  group('Four in a Row board rendering', () {
     test('render rows are 6 rows x 7 cols', () {
       final g = Connect4Game();
       final rows = g.toRenderRows();

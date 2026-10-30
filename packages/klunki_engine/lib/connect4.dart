@@ -1,6 +1,6 @@
 import 'game.dart';
 
-/// 4 Gewinnt (Connect Four): 7 columns × 6 rows. Players drop markers into a
+/// 4 Gewinnt (Four in a Row): 7 columns × 6 rows. Players drop markers into a
 /// column; the marker falls to the lowest empty row. First to line up four of
 /// the same colour (row, column, or diagonal) wins.
 ///

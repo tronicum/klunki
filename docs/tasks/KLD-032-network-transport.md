@@ -80,7 +80,7 @@ class NetworkTransport implements GameTransport {
 - [x] Rejection mapping; connection state as `ValueListenable` + `Stream`; peer name.
 - [x] Guest `reconnect()`; after `Resynced` the new game instance; missed moves emitted once, in order.
 - [x] `dispose` sends `bye`.
-- [x] Loopback tests: full Connect Four + Mühle via two `GameController`s (identical end
+- [x] Loopback tests: full Four in a Row + Mühle via two `GameController`s (identical end
       states), `canAct` per device, `needsHandover` never set (incl. Quartett), rejections,
       disconnect + reconnect resume, reconnect failure.
 

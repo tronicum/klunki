@@ -40,7 +40,7 @@ device locked mid-game) is documented, and the gaps on the Dart side are reporte
       (Simulator debug build ✅ 2026-10-25; the `--no-codesign` device build wasn't run yet.)
 - [ ] 🧑 Device protocol on **iPhone + iPad** (fresh install on both, so the prompt appears):
   1. First host or browse → the iOS prompt "„Klunki“ möchte Geräte in deinem lokalen Netzwerk finden …" appears with the text above → **Allow**.
-  2. iPhone hosts, iPad joins via the list → Connect Four to the end. Then iPad hosts, iPhone joins.
+  2. iPhone hosts, iPad joins via the list → Four in a Row to the end. Then iPad hosts, iPhone joins.
   3. Manual `IP:port` join works.
   4. **Denied path:** on one device, Settings → Klunki → Lokales Netzwerk → off. Record what the app shows (expected today: an empty list
      and a connect timeout). The app should hint "Einstellungen → Klunki → Lokales Netzwerk". If it doesn't, report it as a Dart follow-up (KLD-034).

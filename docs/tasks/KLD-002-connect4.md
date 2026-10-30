@@ -1,4 +1,4 @@
-# KLD-002 — Connect Four engine
+# KLD-002 — Four in a Row engine
 
 - **Milestone:** M0
 - **Status:** DONE

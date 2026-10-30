@@ -28,7 +28,7 @@ the same engine indices as in LTR locales.
       (higher/lower wins) are not directional. `EdgeInsets.fromLTRB` uses are symmetric, the
       `Alignment.topLeft` gradient on the card back is decorative: left as is.
 - [x] Boards LTR via `LtrBoard` (= `Directionality(ltr)`):
-  - Connect Four: the whole board (Row of columns 0–6 + `Positioned(left:)` drop animation).
+  - Four in a Row: the whole board (Row of columns 0–6 + `Positioned(left:)` drop animation).
     Without it, column 0 was on the right but the falling piece animated on the left.
   - Mühle: board painter + point `Stack` (absolute `Positioned(left:)` coordinates were
     already direction-independent; wrapped for robustness). Player panels mirror.
@@ -49,7 +49,7 @@ the same engine indices as in LTR locales.
       are LTR (would render `.12` in RTL).
 - [x] Tests: `klunki/test/l10n/rtl_test.dart` (17 tests): menu RTL + chevron on the left;
       5 games × ar/fa played to the result dialog + history sheet, status/dialog/sheet RTL;
-      Connect Four ar: column 0 is leftmost and tapping the left edge drops into engine column 0;
+      Four in a Row ar: column 0 is leftmost and tapping the left edge drops into engine column 0;
       Mühle fa: point 0 left of point 2; Schiffe fa: target grid not mirrored, row labels left,
       coordinate tap at C7 fires row 2/col 6; Quartett digits; pairing host ar: IP text LTR;
       pairing join fa: host:port isolated, manual field LTR. Disabling `LtrBoard` makes the

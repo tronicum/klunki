@@ -54,7 +54,7 @@ void main() {
       (const Locale('de'), 'Vier in einer Reihe', 'Brett voll'),
       (const Locale('en'), 'Four in a row', 'Board full'),
     ]) {
-      testWidgets('Connect Four result dialog in ${locale.languageCode}', (tester) async {
+      testWidgets('Four in a Row result dialog in ${locale.languageCode}', (tester) async {
         final c = await pumpGame(tester, 'connect4', locale: locale);
         await playToEnd(tester);
         final r = c.game.result;
@@ -74,7 +74,7 @@ void main() {
   });
 
   group('full games driven through the controller', () {
-    testWidgets('Connect Four ends with the result dialog; "Nochmal" restarts', (tester) async {
+    testWidgets('Four in a Row ends with the result dialog; "Nochmal" restarts', (tester) async {
       final c = await pumpGame(tester, 'connect4');
       await playToEnd(tester);
       expect(c.game.isOver, isTrue);

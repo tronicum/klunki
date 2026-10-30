@@ -46,7 +46,7 @@ each other over TCP using `klunki_net`. One runs `host`, the other `join`, and b
       may only print the board **while it's that terminal's own turn**, or else a public view. Never print the opponent's hand or fleet.
 - [ ] Commands `help`, `moves`, `quit` (sends `bye`; the other side prints "Opponent left" and exits 0).
 - [ ] Test `packages/klunki_net/test/cli_test.dart`: starts host and join as `Process`es (or calls the CLI's `main`-level functions
-      with injected stdin/stdout streams) on `localhost` with port 0 or a free port. It plays a short scripted Connect Four game to a win
+      with injected stdin/stdout streams) on `localhost` with port 0 or a free port. It plays a short scripted Four in a Row game to a win
       (host X: 0 0 0 0, guest O: 1 1 1). Both outputs contain "X wins". It also covers a rejected illegal move.
 - [ ] `cd packages/klunki_net && dart analyze && dart test` are green.
 
@@ -100,6 +100,6 @@ cd packages/klunki_net && dart run klunki_net:klunki join 127.0.0.1 4747 --name 
 - Disconnect: `quit`/EOF → `bye`, the other side prints "Opponent left (…)" and exits 0. A dropped connection: the host
   waits for the guest to rejoin (moves refused meanwhile), the guest prints "Connection to the host lost (…)" and asks
   `Reconnect? [Y/n]`, then resumes via `KlunkiGuest.reconnect()`.
-- Tests (in-process host + guest over loopback, plus one `Process.run` of the bin): Connect Four to an X win on both sides,
+- Tests (in-process host + guest over loopback, plus one `Process.run` of the bin): Four in a Row to an X win on both sides,
   out-of-turn refusal, host- and wire-rejected illegal moves, quit, seeded Quartett view, Schiffe redaction, reconnect through a
   TCP proxy that drops the connection, usage/exit 64.

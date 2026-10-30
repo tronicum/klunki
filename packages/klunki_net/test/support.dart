@@ -27,7 +27,7 @@ Future<void> until(bool Function() condition, {Duration limit = const Duration(s
   }
 }
 
-/// The legal moves of [game] as move maps (Connect Four lists column ints;
+/// The legal moves of [game] as move maps (Four in a Row lists column ints;
 /// a Schiffe setup without room for the next ship falls back to autoplace).
 List<Map<String, dynamic>> legalMoves(Game game, Random rng) {
   if (game is Connect4Game) return [for (final c in game.legalMoves) {'col': c}];

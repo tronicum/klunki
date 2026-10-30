@@ -54,7 +54,7 @@ from seed + accepted moves). If the opponent leaves on purpose (`bye`), both sid
 - [ ] Tests in `klunki/test/ui/pairing/reconnect_test.dart`. The board lists no test path for this card. This file mirrors the
       `reconnect*` pattern and doesn't collide with anything running in parallel (KLD-034 is done by then). Mention it in your report.
       Cover:
-      loopback host + guest, play 3 Connect Four moves, kill the guest socket, the guest reconnects and continues to a win, both sides agree;
+      loopback host + guest, play 3 Four in a Row moves, kill the guest socket, the guest reconnects and continues to a win, both sides agree;
       `bye` shows the dialog; a replay mismatch shows the error.
 - [ ] `cd klunki && flutter analyze && flutter test` green.
 

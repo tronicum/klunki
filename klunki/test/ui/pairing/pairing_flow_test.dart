@@ -83,7 +83,7 @@ GameController _controller(WidgetTester tester, Key device) =>
     tester.widget<GameScreen>(_on(device, find.byType(GameScreen))).controller;
 
 void main() {
-  testWidgets('host + guest over loopback reach Connect Four; moves cross over; leaving tells the other side',
+  testWidgets('host + guest over loopback reach Four in a Row; moves cross over; leaving tells the other side',
       (tester) async {
     final pair = await _connect(tester, 'connect4', Connect4Screen);
 

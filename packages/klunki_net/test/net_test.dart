@@ -68,7 +68,7 @@ void main() {
   });
 
   group('moves', () {
-    test('Connect Four: host and guest moves are accepted in order on both sides', () async {
+    test('Four in a Row: host and guest moves are accepted in order on both sides', () async {
       final host = await startHost(const GameConfig('connect4'));
       final guest = await joinHost(host.port);
       final hostSeen = <MoveAccepted>[], guestSeen = <MoveAccepted>[];

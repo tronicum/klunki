@@ -28,7 +28,7 @@ an app `RelayTransport`, the PWA joining over WebSocket, and deployment.
 - [ ] `packages/klunki_relay/bin/server.dart`: a `dart:io` `HttpServer` with WebSocket upgrade on `localhost` and a configurable port. `create` returns a code;
       `join <code>` pairs; after pairing, every text frame is forwarded to the peer; it closes on `bye`/disconnect; it expires idle sessions.
 - [ ] `packages/klunki_relay/lib/relay_client.dart`: a minimal client usable from tests and later from the app.
-- [ ] Tests: two clients play a Connect Four game through a local relay using real `klunki_net` messages. A wrong code is rejected. Expiry and
+- [ ] Tests: two clients play a Four in a Row game through a local relay using real `klunki_net` messages. A wrong code is rejected. Expiry and
       size-limit behaviour are covered.
 - [ ] `cd packages/klunki_relay && dart analyze && dart test` green.
 

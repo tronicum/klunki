@@ -25,7 +25,7 @@ move log; the **guest** runs the same engine (from `GameConfig` via
 | `bye` | both | `reason` | polite end of the connection |
 | `error` | both | `message` | protocol error; the sender closes the connection |
 
-Example session (Connect Four, host = A):
+Example session (Four in a Row, host = A):
 
 ```
 G→H {"type":"hello","v":1,"role":"guest","name":"Bea","protocol":1}

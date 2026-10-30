@@ -69,7 +69,7 @@ Shows that all five games are fully playable as text: one engine, no UI needed.
 ```bash
 cd packages/klunki_engine
 
-# narrated full game of every game (Connect Four, Mühle, Quartett Trumpf, Quartett Sets, Schiffe versenken)
+# narrated full game of every game (Four in a Row, Mühle, Quartett Trumpf, Quartett Sets, Schiffe versenken)
 dart run bin/klunki.dart demo
 
 # one game at a time (better pacing for an audience)

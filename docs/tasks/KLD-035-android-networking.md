@@ -31,7 +31,7 @@ mDNS advertise and browse work in both directions, and TCP connects in both dire
 - [ ] `cd klunki && flutter build apk --release` succeeds.
 - [ ] 🧑 Release check on the phone: `flutter run --release -d <android-id>` (or `adb install build/app/outputs/flutter-apk/app-release.apk`), plus
       an iPhone/iPad running the KLD-040 build on the same Wi-Fi:
-  - Android hosts → iOS sees it in the list, joins, and one Connect Four game is played to the end;
+  - Android hosts → iOS sees it in the list, joins, and one Four in a Row game is played to the end;
   - iOS hosts → Android sees it, joins, and plays;
   - manual `IP:port` join works both ways (fallback path).
   Record the results (device models, OS versions, Wi-Fi name type: home/hotspot) in the card's Hints section or your report.

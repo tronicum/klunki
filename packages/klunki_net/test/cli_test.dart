@@ -100,7 +100,7 @@ Future<(Terminal, Terminal)> hostAndJoin(List<String> hostArgs) async {
 }
 
 void main() {
-  test('two terminals play Connect Four to the end over loopback', () async {
+  test('two terminals play Four in a Row to the end over loopback', () async {
     final (host, guest) = await hostAndJoin(['connect4']);
     await host.waitFor('Your turn (X). X to move\n> ');
     await guest.waitFor('Waiting for X…');

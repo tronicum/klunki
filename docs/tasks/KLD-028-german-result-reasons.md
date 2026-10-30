@@ -18,7 +18,7 @@ reasons (the console and tests depend on them); the translation lives only in th
 ## Repo context
 - The dialog: `klunki/lib/ui/shell/game_screen.dart` → `_showResult()` shows `Text(r.reason)`.
 - All engine reasons today (`grep -rn "_reason = \|reason:" packages/klunki_engine/lib`):
-  - Connect Four (`connect4.dart`): `four in a row`, `board full`
+  - Four in a Row (`connect4.dart`): `four in a row`, `board full`
   - Mühle (`muehle.dart`): `opponent has fewer than 3 pieces`, `opponent has no legal move`, `<n> moves without a removal` (n = `drawMoveLimit`)
   - Quartett (`quartett.dart`): `both stacks empty`, `opponent has no cards left`, `trick limit reached with equal stacks (a:b)`,
     `trick limit reached, more cards (a:b)`, `all quartets laid down, a:b`, `more quartets (a:b)`

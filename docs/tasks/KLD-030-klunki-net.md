@@ -55,7 +55,7 @@ Full reference: `packages/klunki_net/PROTOCOL.md`. Summary:
 - [x] `packages/klunki_net` with `pubspec.yaml` (path dep on `klunki_engine`, dev dep `test` only), `lib/klunki_net.dart`, `PROTOCOL.md`.
 - [x] `KlunkiHost.start(config, {port: 0, name, hostPlayer, address, moves, pingInterval, timeout})` → `port`, `events`, `accepted`, `game`, `moves`, `submitLocal(move)`, `close()`.
 - [x] `KlunkiGuest.connect(host, port, {name, token, pingInterval, timeout})` → `config`, `me`, `game`, `moves`, `events`, `accepted`, `submit(move)`, `reconnect()`, `close()`.
-- [x] Loopback tests (127.0.0.1, ephemeral ports): handshake; host + guest moves in order (Connect Four, Schiffe versenken); out-of-turn / illegal rejected without state change; duplicate and stale index; a full random game per `gameSpecs` entry ends identically on both sides; guest disconnect + reconnect resumes from the snapshot; malformed line → `error` + close; ping timeout with a short timeout; second guest refused.
+- [x] Loopback tests (127.0.0.1, ephemeral ports): handshake; host + guest moves in order (Four in a Row, Schiffe versenken); out-of-turn / illegal rejected without state change; duplicate and stale index; a full random game per `gameSpecs` entry ends identically on both sides; guest disconnect + reconnect resumes from the snapshot; malformed line → `error` + close; ping timeout with a short timeout; second guest refused.
 - [x] `dart analyze` and `dart test` green in `packages/klunki_net`; engine tests still green.
 
 ## Constraints
