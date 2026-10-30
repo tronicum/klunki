@@ -22,192 +22,190 @@ class AppLocalizationsZh extends AppLocalizations {
   String get languageSystem => '跟随系统';
 
   @override
-  String get menuChooseGame => 'Choose a game';
+  String get menuChooseGame => '选择游戏';
 
   @override
-  String get menuPassDevice => 'Pass the device';
+  String get menuPassDevice => '轮流传递设备';
 
   @override
-  String get menuDebugConsole => 'Debug console';
+  String get menuDebugConsole => '调试控制台';
 
   @override
-  String get menuPlayOverWifi => 'Play over Wi-Fi';
+  String get menuPlayOverWifi => '通过 Wi-Fi 对战';
 
   @override
-  String get menuGameConnect4 => 'Four in a Row';
+  String get menuGameConnect4 => '四子棋';
 
   @override
-  String get menuGameMuehle => 'Mill';
+  String get menuGameMuehle => '九子棋';
 
   @override
-  String get menuGameQuartettTrumpf => 'Quartett (Trumps)';
+  String get menuGameQuartettTrumpf => '四张卡（比大小）';
 
   @override
-  String get menuGameQuartettSets => 'Quartett (Sets)';
+  String get menuGameQuartettSets => '四张卡（集套）';
 
   @override
-  String get menuGameSchiffe => 'Sink the Fleet';
+  String get menuGameSchiffe => '海战棋';
 
   @override
   String shellToMove(String player) {
-    return '$player\'s turn';
+    return '轮到 $player';
   }
 
   @override
   String shellHasWon(String player) {
-    return '$player has won';
+    return '$player 获胜';
   }
 
   @override
-  String get shellDraw => 'Draw';
+  String get shellDraw => '平局';
 
   @override
   String shellWins(String player) {
-    return '$player wins!';
+    return '$player 赢了！';
   }
 
   @override
-  String get shellMenu => 'Menu';
+  String get shellMenu => '菜单';
 
   @override
-  String get shellPlayAgain => 'Play again';
+  String get shellPlayAgain => '再来一局';
 
   @override
-  String get shellUndo => 'Undo move';
+  String get shellUndo => '悔棋';
 
   @override
-  String get shellNewGame => 'New game';
+  String get shellNewGame => '新游戏';
 
   @override
-  String get shellNewGameTitle => 'New game?';
+  String get shellNewGameTitle => '开始新游戏？';
 
   @override
-  String get shellNewGameBody => 'The current game will be abandoned.';
+  String get shellNewGameBody => '当前对局将被放弃。';
 
   @override
-  String get shellCancel => 'Cancel';
+  String get shellCancel => '取消';
 
   @override
-  String get shellRestart => 'Restart';
+  String get shellRestart => '重新开始';
 
   @override
-  String get shellMoves => 'Moves';
+  String get shellMoves => '走法记录';
 
   @override
-  String get shellNoMoves => 'No moves yet.';
+  String get shellNoMoves => '还没有走法。';
 
   @override
   String shellHistoryEntry(String player, String move) {
-    return '$player: $move';
+    return '$player：$move';
   }
 
   @override
   String shellHandoverPass(String player) {
-    return 'Pass the device to $player';
+    return '请把设备交给 $player';
   }
 
   @override
   String shellHandoverContinue(String player) {
-    return 'I\'m $player – continue';
+    return '我是 $player – 继续';
   }
 
   @override
   String connect4Column(int column) {
-    return 'Column $column';
+    return '第 $column 列';
   }
 
   @override
-  String get connect4HintTapColumn => 'Tap a column';
+  String get connect4HintTapColumn => '点击一列';
 
   @override
-  String get muehlePhasePlacing => 'Placing';
+  String get muehlePhasePlacing => '布子';
 
   @override
-  String get muehlePhaseMoving => 'Moving';
+  String get muehlePhaseMoving => '走子';
 
   @override
-  String get muehlePhaseFlying => 'Flying';
+  String get muehlePhaseFlying => '飞子';
 
   @override
   String muehleMovePlace(int point) {
-    return 'places on $point';
+    return '落子于 $point';
   }
 
   @override
   String muehleMoveRemove(int point) {
-    return 'removes stone on $point';
+    return '吃掉 $point 的棋子';
   }
 
   @override
   String muehleMoveMove(int from, int to) {
-    return 'moves $from→$to';
+    return '走子 $from→$to';
   }
 
   @override
   String muehleMoveFly(int from, int to) {
-    return 'flies $from→$to';
+    return '飞子 $from→$to';
   }
 
   @override
   String muehleHintRemove(String player) {
-    return 'Mill! Remove a stone of $player';
+    return '成三！吃掉 $player 的一枚棋子';
   }
 
   @override
-  String get muehleHintPlace => 'Place a stone';
+  String get muehleHintPlace => '放一枚棋子';
 
   @override
-  String get muehleHintTarget =>
-      'Choose a target (or tap the stone again to deselect)';
+  String get muehleHintTarget => '选择目标（或再次点击棋子取消选择）';
 
   @override
-  String get muehleHintSelectFly => 'Choose a stone to fly';
+  String get muehleHintSelectFly => '选择要飞的棋子';
 
   @override
-  String get muehleHintSelectMove => 'Choose a stone to move';
+  String get muehleHintSelectMove => '选择要走的棋子';
 
   @override
   String muehlePointEmpty(int point) {
-    return 'Point $point, empty';
+    return '点 $point，空';
   }
 
   @override
   String muehlePointOwned(int point, String player) {
-    return 'Point $point, $player';
+    return '点 $point，$player';
   }
 
   @override
   String muehleCounts(int hand, int board) {
-    return 'Hand: $hand · Board: $board';
+    return '手中：$hand · 盘上：$board';
   }
 
   @override
   String muehleCaptured(int count) {
-    return 'Captured: $count';
+    return '吃子：$count';
   }
 
   @override
-  String get quartettNoGame => 'Not a Quartett game';
+  String get quartettNoGame => '不是四张卡游戏';
 
   @override
-  String get quartettContinue => 'Continue';
+  String get quartettContinue => '继续';
 
   @override
-  String get quartettHigherWins => 'higher wins';
+  String get quartettHigherWins => '大者胜';
 
   @override
-  String get quartettLowerWins => 'lower wins';
+  String get quartettLowerWins => '小者胜';
 
   @override
-  String get quartettCardBack => 'QUARTETT';
+  String get quartettCardBack => '四张卡';
 
   @override
   String quartettCards(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
     return '$_temp0';
   }
@@ -217,57 +215,55 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
-    return '$player: $_temp0';
+    return '$player：$_temp0';
   }
 
   @override
   String quartettTrumpfMovePick(String stat) {
-    return 'picks $stat';
+    return '选择 $stat';
   }
 
   @override
-  String get quartettTrumpfHintPick => 'Pick a stat of your card';
+  String get quartettTrumpfHintPick => '选择你这张牌的一项属性';
 
   @override
   String quartettTrumpfPot(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
-    return 'Pot: $_temp0';
+    return '奖池：$_temp0';
   }
 
   @override
   String quartettTrumpfOpponentStack(String player) {
-    return '$player\'s stack';
+    return '$player 的牌堆';
   }
 
   @override
   String quartettTrumpfYourCard(String player) {
-    return 'Your card ($player)';
+    return '你的牌（$player）';
   }
 
   @override
-  String get quartettTrumpfTie => 'Tie – cards go to the pot';
+  String get quartettTrumpfTie => '平手 – 牌进入奖池';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player wins the trick';
+    return '$player 赢得这一轮';
   }
 
   @override
-  String get quartettTrumpfOutcomeWin => 'wins';
+  String get quartettTrumpfOutcomeWin => '胜';
 
   @override
-  String get quartettTrumpfOutcomeLose => 'loses';
+  String get quartettTrumpfOutcomeLose => '负';
 
   @override
-  String get quartettTrumpfOutcomeTie => 'tie';
+  String get quartettTrumpfOutcomeTie => '平';
 
   @override
   String quartettTrumpfSideOutcome(String player, String outcome) {
@@ -276,7 +272,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String quartettTrumpfPicked(String player, String stat) {
-    return '$player picks $stat';
+    return '$player 选择 $stat';
   }
 
   @override
@@ -284,149 +280,143 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
-    return 'In the pot: $_temp0 – $player picks again';
+    return '奖池中：$_temp0 – $player 再选一次';
   }
 
   @override
-  String get quartettSetsHit => 'Hit';
+  String get quartettSetsHit => '有';
 
   @override
-  String get quartettSetsMiss => 'Go fish';
+  String get quartettSetsMiss => '没有';
 
   @override
   String quartettSetsMoveAsk(String card, String result) {
-    return 'asks for $card: $result';
+    return '要 $card：$result';
   }
 
   @override
   String quartettSetsMoveAskQuartet(String card, String result, String set) {
-    return 'asks for $card: $result – quartet $set';
+    return '要 $card：$result – 集齐 $set';
   }
 
   @override
   String quartettSetsHintContinue(String player) {
-    return 'Tap “Continue” and pass the device to $player';
+    return '点击“继续”，然后把设备交给 $player';
   }
 
   @override
-  String get quartettSetsHintAsk => 'Tap a missing card to ask for it';
+  String get quartettSetsHintAsk => '点击缺少的牌来索要';
 
   @override
-  String get quartettSetsNoQuartet => 'no quartet yet';
+  String get quartettSetsNoQuartet => '还没有集齐一套';
 
   @override
   String quartettSetsStock(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
-    return 'Stock: $_temp0';
+    return '牌堆：$_temp0';
   }
 
   @override
   String quartettSetsScore(int a, int b) {
-    return 'Quartets X $a : $b O';
+    return '套数 X $a : $b O';
   }
 
   @override
   String quartettSetsOtherAsked(String player, String card, String result) {
-    return '$player asks for $card: $result';
+    return '$player 要 $card：$result';
   }
 
   @override
   String quartettSetsHitGives(String player, String card) {
-    return 'Hit! $player gives you $card';
+    return '有！$player 给你 $card';
   }
 
   @override
-  String get quartettSetsMissDraw => 'Go fish – you draw a card';
+  String get quartettSetsMissDraw => '没有 – 你摸一张牌';
 
   @override
-  String get quartettSetsMissEmpty => 'Go fish – the stock is empty';
+  String get quartettSetsMissEmpty => '没有 – 牌堆已空';
 
   @override
-  String get quartettSetsAskAgain => 'You may ask again.';
+  String get quartettSetsAskAgain => '你可以再要一次。';
 
   @override
   String quartettSetsNotHeld(String player, String card) {
-    return '$player doesn\'t have $card.';
+    return '$player 没有 $card。';
   }
 
   @override
   String quartettSetsQuartetLaid(String set) {
-    return 'Quartet! $set laid down';
+    return '集齐一套！已放下 $set';
   }
 
   @override
-  String get quartettSetsDrawn => 'Drawn:';
+  String get quartettSetsDrawn => '摸到：';
 
   @override
   String quartettSetsYourCards(String player, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count cards',
-      one: '1 card',
+      other: '$count 张牌',
     );
-    return 'Your cards ($player): $_temp0';
+    return '你的牌（$player）：$_temp0';
   }
 
   @override
   String quartettSetsProgress(int have, int missing) {
-    return '$have/4 – missing: $missing';
+    return '$have/4 – 缺：$missing';
   }
 
   @override
-  String get quartettSetsAskSlot => 'ask';
+  String get quartettSetsAskSlot => '索要';
 
   @override
-  String get quartettSetsMissingSlot => 'missing';
+  String get quartettSetsMissingSlot => '缺少';
 
   @override
-  String get schiffeHintSetup =>
-      'Setup: tap the sea (or drag and release) to place the ship. Ships must not touch.';
+  String get schiffeHintSetup => '布阵：点击海面（或拖动后松开）放置舰船。舰船之间不能相邻。';
 
   @override
-  String get schiffeHintAllSunk => 'All ships sunk.';
+  String get schiffeHintAllSunk => '所有舰船已被击沉。';
 
   @override
   String schiffeHintWaiting(String player) {
-    return 'Waiting for $player …';
+    return '等待 $player…';
   }
 
   @override
-  String get schiffeHintExtraShot =>
-      'Hit! Again – tap a cell in the opponent\'s sea.';
+  String get schiffeHintExtraShot => '命中！再来 – 点击对方海域的一格。';
 
   @override
-  String get schiffeHintFire =>
-      'Tap an unknown cell in the opponent\'s sea to fire.';
+  String get schiffeHintFire => '点击对方海域中未知的一格开火。';
 
   @override
-  String get schiffeLookWater => 'water';
+  String get schiffeLookWater => '水';
 
   @override
-  String get schiffeLookShip => 'ship';
+  String get schiffeLookShip => '舰船';
 
   @override
-  String get schiffeLookMiss => 'miss';
+  String get schiffeLookMiss => '未命中';
 
   @override
-  String get schiffeLookShipHit => 'ship hit';
+  String get schiffeLookShipHit => '舰船被击中';
 
   @override
-  String get schiffeLookHit => 'hit';
+  String get schiffeLookHit => '命中';
 
   @override
-  String get schiffeLookSunk => 'sunk';
+  String get schiffeLookSunk => '击沉';
 
   @override
-  String get schiffeLookUnknown => 'unknown';
+  String get schiffeLookUnknown => '未知';
 
   @override
   String schiffeCellLabel(String cell, String state) {
@@ -434,336 +424,328 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get schiffeFleetComplete => 'Fleet complete';
+  String get schiffeFleetComplete => '舰队已就位';
 
   @override
   String schiffeShipWithLength(String ship, int length) {
-    return '$ship ($length)';
+    return '$ship（$length）';
   }
 
   @override
   String schiffeShipPlaced(String ship, int length) {
-    return '$ship ($length) · placed';
+    return '$ship（$length）· 已放置';
   }
 
   @override
   String schiffeSetupProgress(int index, int total, String player) {
-    return 'Ship $index of $total · $player is placing';
+    return '第 $index/$total 艘 · $player 布阵中';
   }
 
   @override
-  String get schiffeHorizontal => 'Horizontal';
+  String get schiffeHorizontal => '横向';
 
   @override
-  String get schiffeVertical => 'Vertical';
+  String get schiffeVertical => '纵向';
 
   @override
-  String get schiffeRandom => 'Random';
+  String get schiffeRandom => '随机';
 
   @override
-  String get schiffeFleet => 'Fleet';
+  String get schiffeFleet => '舰队';
 
   @override
   String schiffeExtraShotSunk(String ship) {
-    return '$ship sunk – hit! Again';
+    return '$ship被击沉 – 命中！再来';
   }
 
   @override
-  String get schiffeExtraShot => 'Hit! Again';
+  String get schiffeExtraShot => '命中！再来';
 
   @override
   String schiffeRemaining(int own, String player, int opponent) {
-    return 'Your fleet: $own · Opponent ($player): $opponent ships left';
+    return '你的舰队：$own · 对手（$player）：剩 $opponent 艘';
   }
 
   @override
   String schiffeIncoming(String player, String cell, String result) {
-    return '$player last fired at $cell: $result';
+    return '$player 上一炮打在 $cell：$result';
   }
 
   @override
-  String get schiffeTargetSection => 'Opponent';
+  String get schiffeTargetSection => '对手';
 
   @override
-  String get schiffeOwnSection => 'Your sea';
+  String get schiffeOwnSection => '你的海域';
 
   @override
-  String get schiffeMovePlace => 'places a ship';
+  String get schiffeMovePlace => '放置了一艘船';
 
   @override
   String schiffeMoveAutoplace(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'places $count ships at random',
-      one: 'places a ship at random',
+      other: '随机放置了 $count 艘船',
     );
     return '$_temp0';
   }
 
   @override
   String schiffeMoveFire(String cell, String result) {
-    return 'fires at $cell: $result';
+    return '炮击 $cell：$result';
   }
 
   @override
   String schiffeShipSunk(String ship) {
-    return '$ship sunk';
+    return '$ship被击沉';
   }
 
   @override
-  String get debugConsoleTitle => 'Debug console';
+  String get debugConsoleTitle => '调试控制台';
 
   @override
   String get debugUndo => 'undo';
 
   @override
-  String get debugMenu => 'Game / demo';
+  String get debugMenu => '游戏 / 演示';
 
   @override
   String debugNewGame(String game) {
-    return 'New: $game';
+    return '新建：$game';
   }
 
   @override
-  String get debugLegalMoves => 'Legal moves';
+  String get debugLegalMoves => '合法走法';
 
   @override
-  String get debugAutoPlay => 'Play to the end (random)';
+  String get debugAutoPlay => '随机下到结束';
 
   @override
-  String get debugDemo => 'Demo: all games';
+  String get debugDemo => '演示：所有游戏';
 
   @override
-  String get pairingTitle => 'Play over Wi-Fi';
+  String get pairingTitle => '通过 Wi-Fi 对战';
 
   @override
-  String get pairingWebUnavailable =>
-      'Network play is not available in the browser';
+  String get pairingWebUnavailable => '浏览器中无法进行联网对战';
 
   @override
-  String get pairingDeviceName => 'Device name';
+  String get pairingDeviceName => '设备名称';
 
   @override
-  String get pairingDeviceNameHelper => 'This is how the other player sees you';
+  String get pairingDeviceNameHelper => '对方会看到这个名字';
 
   @override
-  String get pairingModeHost => 'Host';
+  String get pairingModeHost => '创建';
 
   @override
-  String get pairingModeJoin => 'Join';
+  String get pairingModeJoin => '加入';
 
   @override
-  String get pairingChooseGame => 'Choose a game';
+  String get pairingChooseGame => '选择游戏';
 
   @override
-  String get pairingHostGame => 'Host game';
+  String get pairingHostGame => '创建对局';
 
   @override
   String pairingHostStartFailed(String error) {
-    return 'Could not start the game: $error';
+    return '无法开始对局：$error';
   }
 
   @override
-  String get pairingNotAdvertised =>
-      'Not automatically visible – the other player enters the address.';
+  String get pairingNotAdvertised => '无法被自动发现 – 请对方输入地址。';
 
   @override
-  String get pairingNoDiscoveryHost =>
-      'No automatic search on this device – the other player enters the address.';
+  String get pairingNoDiscoveryHost => '此设备不支持自动搜索 – 请对方输入地址。';
 
   @override
   String pairingHosting(String name, String game) {
-    return '$name is hosting $game';
+    return '$name 创建了 $game';
   }
 
   @override
   String pairingNoAddress(int port) {
-    return 'No Wi-Fi address found. Is the device connected to Wi-Fi? Port: $port';
+    return '找不到 Wi-Fi 地址。设备是否已连接 Wi-Fi？端口：$port';
   }
 
   @override
-  String get pairingAddresses => 'Addresses (to type in):';
+  String get pairingAddresses => '地址（手动输入）：';
 
   @override
-  String get pairingProbablyWifi => 'probably Wi-Fi';
+  String get pairingProbablyWifi => '可能是 Wi-Fi';
 
   @override
-  String get pairingWaitingForGuest => 'Waiting for the other player…';
+  String get pairingWaitingForGuest => '等待对方加入…';
 
   @override
-  String get pairingCancel => 'Cancel';
+  String get pairingCancel => '取消';
 
   @override
-  String get pairingGamesOnNetwork => 'Games on the network';
+  String get pairingGamesOnNetwork => '网络中的对局';
 
   @override
-  String get pairingNoDiscoveryJoin =>
-      'Automatic search is not available on this device. Enter the address below.';
+  String get pairingNoDiscoveryJoin => '此设备不支持自动搜索。请在下方输入地址。';
 
   @override
-  String get pairingBrowseFailed =>
-      'Cannot search the network. Enter the address below.';
+  String get pairingBrowseFailed => '无法搜索网络。请在下方输入地址。';
 
   @override
-  String get pairingSearching => 'Searching for games…';
+  String get pairingSearching => '正在搜索对局…';
 
   @override
-  String get pairingOtherVersion => 'different Klunki version';
+  String get pairingOtherVersion => 'Klunki 版本不同';
 
   @override
-  String get pairingOrEnterAddress => 'Or enter an address';
+  String get pairingOrEnterAddress => '或输入地址';
 
   @override
-  String get pairingManualLabel => 'IP, IP:port or klunki:// link';
+  String get pairingManualLabel => 'IP、IP:端口或 klunki:// 链接';
 
   @override
   String get pairingInvalidAddress =>
-      'Invalid address. Example: 192.168.1.20 or 192.168.1.20:4747';
+      '地址无效。例如：192.168.1.20 或 192.168.1.20:4747';
 
   @override
-  String get pairingConnect => 'Connect';
+  String get pairingConnect => '连接';
 
   @override
   String pairingConnecting(String host) {
-    return 'Connecting to $host…';
+    return '正在连接 $host…';
   }
 
   @override
-  String get pairingTimeout => 'Timed out';
+  String get pairingTimeout => '连接超时';
 
   @override
   String pairingJoinFailed(String host, String error) {
-    return 'Connecting to $host failed ($error).';
+    return '连接 $host 失败（$error）。';
   }
 
   @override
   String get pairingJoinHints =>
-      'Tips: Are both devices on the same Wi-Fi? Guest networks often block connections between devices. iOS: Is “Local Network” allowed for Klunki (Settings › Privacy)?';
+      '提示：两台设备是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。iOS：是否已允许 Klunki 使用“本地网络”（设置 › 隐私）？';
 
   @override
   String pairingStatus(String me, String peer, String peerMark) {
-    return 'You are $me · Opponent: $peer ($peerMark)';
+    return '你是 $me · 对手：$peer（$peerMark）';
   }
 
   @override
-  String get pairingOpponent => 'Opponent';
+  String get pairingOpponent => '对手';
 
   @override
-  String get pairingPeerLeft => 'Opponent left the game';
+  String get pairingPeerLeft => '对手已离开对局';
 
   @override
-  String get pairingPeerLost => 'Connection to the opponent lost';
+  String get pairingPeerLost => '与对手的连接已中断';
 
   @override
   String pairingWaitForRejoin(String reason) {
-    return '$reason. Waiting for them to rejoin…';
+    return '$reason。等待对方重新加入…';
   }
 
   @override
-  String get pairingReconnecting => 'Reconnecting…';
+  String get pairingReconnecting => '正在重新连接…';
 
   @override
-  String get pairingReconnect => 'Reconnect';
+  String get pairingReconnect => '重新连接';
 
   @override
-  String get pairingReconnectFailed =>
-      'Reconnecting failed. Is the host still in the game?';
+  String get pairingReconnectFailed => '重新连接失败。主机还在对局中吗？';
 
   @override
-  String get engineReasonConnect4FourInARow => 'Four in a row';
+  String get engineReasonConnect4FourInARow => '四子连线';
 
   @override
-  String get engineReasonConnect4BoardFull => 'Board full';
+  String get engineReasonConnect4BoardFull => '棋盘已满';
 
   @override
-  String get engineReasonMuehleFewerThanThree =>
-      'Opponent has fewer than 3 pieces';
+  String get engineReasonMuehleFewerThanThree => '对手棋子少于 3 枚';
 
   @override
-  String get engineReasonMuehleBlocked => 'Opponent cannot move';
+  String get engineReasonMuehleBlocked => '对手无路可走';
 
   @override
   String engineReasonMuehleNoRemovalLimit(int moves) {
-    return '$moves moves without a capture';
+    return '$moves 步内无吃子';
   }
 
   @override
-  String get engineReasonQuartettBothStacksEmpty => 'Both stacks empty';
+  String get engineReasonQuartettBothStacksEmpty => '双方牌堆都已空';
 
   @override
-  String get engineReasonQuartettAllCards => 'Opponent has no cards left';
+  String get engineReasonQuartettAllCards => '对手没有牌了';
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'Trick limit reached, equal stacks ($a:$b)';
+    return '达到轮数上限，牌数相同（$a:$b）';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'Trick limit reached, more cards ($a:$b)';
+    return '达到轮数上限，牌数更多（$a:$b）';
   }
 
   @override
   String engineReasonQuartettAllQuartetsEqual(int a, int b) {
-    return 'All quartets laid down, $a:$b';
+    return '所有套牌已放下，$a:$b';
   }
 
   @override
   String engineReasonQuartettMostQuartets(int a, int b) {
-    return 'More quartets ($a:$b)';
+    return '套数更多（$a:$b）';
   }
 
   @override
-  String get engineReasonSchiffeAllSunk => 'All ships sunk';
+  String get engineReasonSchiffeAllSunk => '所有舰船已被击沉';
 
   @override
-  String get engineSetA => 'Supercars';
+  String get engineSetA => '超级跑车';
 
   @override
-  String get engineSetB => 'Hypercars';
+  String get engineSetB => '极限超跑';
 
   @override
-  String get engineSetC => 'Classics';
+  String get engineSetC => '经典车';
 
   @override
-  String get engineSetD => 'Muscle Cars';
+  String get engineSetD => '肌肉车';
 
   @override
-  String get engineSetE => 'Rally Legends';
+  String get engineSetE => '拉力传奇';
 
   @override
-  String get engineSetF => 'Grand Tourers';
+  String get engineSetF => '豪华 GT';
 
   @override
-  String get engineSetG => 'Electric';
+  String get engineSetG => '电动车';
 
   @override
-  String get engineSetH => 'Pocket Rockets';
+  String get engineSetH => '小钢炮';
 
   @override
-  String get engineStatPs => 'Power';
+  String get engineStatPs => '功率';
 
   @override
-  String get engineStatKmh => 'Top speed';
+  String get engineStatKmh => '最高时速';
 
   @override
-  String get engineStatCcm => 'Displacement';
+  String get engineStatCcm => '排量';
 
   @override
-  String get engineStatKg => 'Weight';
+  String get engineStatKg => '重量';
 
   @override
   String get engineStatSec0to100 => '0–100 km/h';
 
   @override
-  String get engineUnitPs => 'hp';
+  String get engineUnitPs => '马力';
 
   @override
   String get engineUnitKmh => 'km/h';
 
   @override
-  String get engineUnitCcm => 'cc';
+  String get engineUnitCcm => 'cm³';
 
   @override
   String get engineUnitKg => 'kg';
@@ -772,17 +754,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get engineUnitSec => 's';
 
   @override
-  String get engineShip5 => 'Battleship';
+  String get engineShip5 => '战列舰';
 
   @override
-  String get engineShip4 => 'Cruiser';
+  String get engineShip4 => '巡洋舰';
 
   @override
-  String get engineShip3 => 'Destroyer';
+  String get engineShip3 => '驱逐舰';
 
   @override
-  String get engineShip2 => 'Submarine';
+  String get engineShip2 => '潜艇';
 
   @override
-  String get engineShipOther => 'Ship';
+  String get engineShipOther => '舰船';
 }
