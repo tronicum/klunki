@@ -176,6 +176,8 @@
   "pairingJoinFailed": "فشل الاتصال بـ {host} ({error}).",
   "pairingJoinHints": "نصائح: هل الجهازان على شبكة Wi-Fi نفسها؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. iOS: هل «الشبكة المحلية» مسموحة لـ Klunki (الإعدادات › الخصوصية)؟",
   "pairingStatus": "أنت ({name}، {mark}) · الخصم: {peer} ({peerMark})",
+  "netBarYou": "أنت ({name})",
+  "netBarOpponent": "الخصم: {peer}",
   "pairingOpponent": "الخصم",
   "pairingPeerLeft": "غادر {peer} اللعبة",
   "pairingPeerLost": "انقطع الاتصال بـ {peer}",

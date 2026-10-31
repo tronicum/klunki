@@ -11,7 +11,8 @@ import '../shell/screen_registry.dart';
 
 /// Owns a [GameController] over a [NetworkTransport] and shows the game's
 /// regular screen (through the shell registry) with a small connection bar
-/// underneath: "Du (Anna, X) · Gegner: Ben (O)", plus a banner while the
+/// underneath: each player's token in their colour plus "Du (Anna)" /
+/// "Gegner: Ben" (KLD-067), plus a banner while the
 /// other side is missing. The game shell names both players through a
 /// [PlayerLabelsScope] (KLD-056): "Du bist am Zug (X)", "Warte auf Ben (O)…",
 /// "Ben (O) gewinnt!", "Ben (O): …" in the history. The guest gets a "Neu verbinden" button there (the full
@@ -128,6 +129,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
       builder: (context, _) {
         final state = t.connection.value;
         final me = t.me;
+        final gameId = t.config.gameId;
         final peerName = t.peerName;
         final peer = peerName == null ? l10n.pairingOpponent : bidiName(context, peerName);
         final missing = state == NetConnectionState.peerMissing;
@@ -197,12 +199,40 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                         color: state == NetConnectionState.connected ? theme.colorScheme.primary : theme.colorScheme.error,
                       ),
                       const SizedBox(width: 8),
+                      // Each player as token (colour + mark, KLD-067) and name; read
+                      // out as the full sentence "Du (Anna, X) · Gegner: Ben (O)".
                       Expanded(
-                        child: Text(
-                          l10n.pairingStatus(
-                              bidiName(context, t.localName), playerMark(me), peer, playerMark(_otherPlayer(me))),
+                        child: Semantics(
                           key: const Key('net-status'),
-                          overflow: TextOverflow.ellipsis,
+                          label: l10n.pairingStatus(
+                              bidiName(context, t.localName), playerMark(me), peer, playerMark(_otherPlayer(me))),
+                          excludeSemantics: true,
+                          child: Row(
+                            children: [
+                              PlayerToken(key: const Key('net-you-token'), gameId: gameId, player: me, size: 20),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  l10n.netBarYou(bidiName(context, t.localName)),
+                                  key: const Key('net-you'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('·')),
+                              PlayerToken(
+                                  key: const Key('net-peer-token'), gameId: gameId, player: _otherPlayer(me), size: 20),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  l10n.netBarOpponent(peer),
+                                  key: const Key('net-peer'),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],

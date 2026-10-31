@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/ui/game_visuals.dart';
-import 'package:klunki_engine/klunki_engine.dart' show appGameSpecs;
+import 'package:klunki_engine/klunki_engine.dart' show Player, appGameSpecs;
 
 import '../l10n/l10n_test_utils.dart';
 
@@ -48,6 +48,19 @@ void main() {
         expect(contrast(s.ship, s.water), greaterThanOrEqualTo(3));
       });
 
+      test('$label: player colours (KLD-067) carry the pill text at AA and differ per player', () {
+        for (final id in [for (final s in appGameSpecs) s.id, 'unknown-game']) {
+          final a = playerColor(p, id, Player.a), o = playerColor(p, id, Player.b);
+          expect(a, isNot(o), reason: id);
+          for (final c in [a, o]) {
+            expect(contrast(c, inkOn(c)), greaterThanOrEqualTo(4.5), reason: '$id $c');
+            expect(contrastRatio(c, inkOn(c)), closeTo(contrast(c, inkOn(c)), 1e-9));
+          }
+        }
+        // O in games without piece colours: a solid colour on the card.
+        expect(contrast(p.secondPlayer, p.card), greaterThanOrEqualTo(3));
+      });
+
       test('$label: the theme carries the palette', () {
         final theme = KlunkiTheme.build(preset, b);
         expect(theme.extension<KlunkiPalette>(), same(p));
@@ -62,6 +75,14 @@ void main() {
       expect(gameVisuals[s.id]!.description!(deL10n), isNotEmpty);
     }
     expect(visualsOf('unknown-game'), same(GameVisuals.fallback));
+  });
+
+  test('inkOn picks black or white with at least 4.5:1 for any fill', () {
+    for (var v = 0; v <= 255; v += 5) {
+      for (final c in [Color.fromARGB(255, v, v, v), Color.fromARGB(255, v, 255 - v, 128), Color.fromARGB(255, 255, v, 0)]) {
+        expect(contrast(c, inkOn(c)), greaterThanOrEqualTo(4.5), reason: '$c');
+      }
+    }
   });
 
   testWidgets('KlunkiPalette.of falls back to the classic preset without the extension', (tester) async {

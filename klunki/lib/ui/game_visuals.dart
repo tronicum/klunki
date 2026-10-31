@@ -21,7 +21,14 @@ class GameVisuals {
   /// One-line description for the menu tile (null = none).
   final String Function(AppLocalizations l10n)? description;
 
-  /// Colour of a player's piece, for the turn indicator (null = no token).
+  /// Colour of a player's piece (null = the game has no piece colours).
+  ///
+  /// This is the per-game hook for the turn colour (KLD-067): the shell's
+  /// status pill, turn edge, player tokens and the network bar all use
+  /// [playerColor], which returns this colour when set. A game with
+  /// coloured pieces (GoStrategy: black / white stones) sets it so the turn
+  /// colour matches the board; without it player A takes the game accent and
+  /// player B [KlunkiPalette.secondPlayer].
   final Color? Function(KlunkiPalette palette, Player player)? token;
 
   const GameVisuals({required this.illustration, this.description, this.token});
@@ -58,3 +65,11 @@ final Map<String, GameVisuals> gameVisuals = {
 };
 
 GameVisuals visualsOf(String gameId) => gameVisuals[gameId] ?? GameVisuals.fallback;
+
+/// The colour of [player] in [gameId] (KLD-067): the piece colour where the
+/// game has one ([GameVisuals.token]: 4 Gewinnt red / yellow, Mühle light /
+/// dark stones), otherwise the game accent for A and
+/// [KlunkiPalette.secondPlayer] for B.
+Color playerColor(KlunkiPalette palette, String gameId, Player player) =>
+    visualsOf(gameId).token?.call(palette, player) ??
+    (player == Player.a ? palette.accent(gameId).color : palette.secondPlayer);

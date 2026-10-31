@@ -91,8 +91,19 @@ void main() {
     final pair = await _connect(tester, 'connect4', Connect4Screen);
 
     // Who is who, and no hot-seat controls over the network.
-    expect(_on(_hostKey, find.text('Du (Anna, X) · Gegner: Ben (O)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Du (Ben, O) · Gegner: Anna (X)')), findsOneWidget);
+    expect(_on(_hostKey, netStatus('Du (Anna, X) · Gegner: Ben (O)')), findsOneWidget);
+    expect(_on(_guestKey, netStatus('Du (Ben, O) · Gegner: Anna (X)')), findsOneWidget);
+    // KLD-067: each side as token (colour + mark) and name in the bar.
+    PlayerToken token(Key device, String key) =>
+        tester.widget<PlayerToken>(_on(device, find.byKey(Key(key))));
+    expect(token(_hostKey, 'net-you-token').player, Player.a);
+    expect(token(_hostKey, 'net-peer-token').player, Player.b);
+    expect(token(_guestKey, 'net-you-token').player, Player.b);
+    expect(token(_guestKey, 'net-you-token').gameId, 'connect4');
+    expect(_on(_hostKey, find.text('Du (Anna)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Gegner: Ben')), findsOneWidget);
+    expect(_on(_hostKey, find.byKey(const Key('shell-waiting'))), findsNothing);
+    expect(_on(_guestKey, find.byKey(const Key('shell-waiting'))), findsOneWidget);
     // The status line names the players (KLD-056).
     expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
     expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);

@@ -1100,6 +1100,24 @@
       }
     }
   },
+  "netBarYou": "Du ({name})",
+  "@netBarYou": {
+    "description": "KLD-067: network connection bar, this device's player next to its coloured token (the token shows the mark); name = own player name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "netBarOpponent": "Gegner: {peer}",
+  "@netBarOpponent": {
+    "description": "KLD-067: network connection bar, the other player next to its coloured token; peer = the other player's name.",
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
+  },
   "pairingOpponent": "Gegner",
   "@pairingOpponent": {
     "description": "Connection bar: fallback name of the other device."

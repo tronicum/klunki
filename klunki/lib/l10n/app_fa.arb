@@ -176,6 +176,8 @@
   "pairingJoinFailed": "اتصال به {host} ناموفق بود ({error}).",
   "pairingJoinHints": "نکته‌ها: آیا هر دو دستگاه روی یک Wi-Fi هستند؟ شبکه‌های مهمان اغلب اتصال بین دستگاه‌ها را مسدود می‌کنند. iOS: آیا «شبکهٔ محلی» برای Klunki مجاز است (تنظیمات › حریم خصوصی)؟",
   "pairingStatus": "تو ({name}، {mark}) · حریف: {peer} ({peerMark})",
+  "netBarYou": "تو ({name})",
+  "netBarOpponent": "حریف: {peer}",
   "pairingOpponent": "حریف",
   "pairingPeerLeft": "{peer} بازی را ترک کرد",
   "pairingPeerLost": "اتصال با {peer} قطع شد",

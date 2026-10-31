@@ -1158,6 +1158,18 @@ abstract class AppLocalizations {
   /// **'Du ({name}, {mark}) · Gegner: {peer} ({peerMark})'**
   String pairingStatus(String name, String mark, String peer, String peerMark);
 
+  /// KLD-067: network connection bar, this device's player next to its coloured token (the token shows the mark); name = own player name.
+  ///
+  /// In de, this message translates to:
+  /// **'Du ({name})'**
+  String netBarYou(String name);
+
+  /// KLD-067: network connection bar, the other player next to its coloured token; peer = the other player's name.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner: {peer}'**
+  String netBarOpponent(String peer);
+
   /// Connection bar: fallback name of the other device.
   ///
   /// In de, this message translates to:
