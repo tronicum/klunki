@@ -10,7 +10,11 @@ import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/hot_seat_transport.dart';
 import '../game_titles.dart';
+import '../player_name_dialog.dart';
 import 'handover_cover.dart';
+import 'player_labels.dart';
+
+export 'player_labels.dart' show PlayerLabels, PlayerLabelsScope;
 
 /// Builds the game-specific board inside a [GameScreen].
 typedef BoardBuilder = Widget Function(BuildContext context, GameController controller);
@@ -21,7 +25,7 @@ typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move
 
 /// Player marks used everywhere in the UI, consistent with the text console:
 /// player A is "X", player B is "O".
-String playerMark(Player p) => p == Player.a ? 'X' : 'O';
+String playerMark(Player p) => PlayerLabels.markOf(p);
 
 /// A fresh random seed for a new game (seeded games reshuffle, the others
 /// ignore it).
@@ -43,10 +47,16 @@ abstract interface class GameShell {
 /// The shared frame every game screen plugs into:
 ///
 /// * app bar with the game title, undo (hot-seat), restart and move history,
-/// * status line ("X ist am Zug") plus a hint line the board can set
+/// * status line ("X ist am Zug", with names "Anna (X) ist am Zug" or, on a
+///   network device, "Du bist am Zug (X)" / "Warte auf Ben (O)…") plus a
+///   hint line the board can set
 ///   through [GameScreen.of] → [GameShell.setHint],
 /// * a [HandoverCover] over the body while the controller needs a handover,
 /// * a result dialog ("Nochmal" / "Menü") once the game is over.
+///
+/// Players are named through the nearest [PlayerLabelsScope] (KLD-056):
+/// marks only by default, names in network games and, when the players typed
+/// some, in hot-seat games (app bar action "Spielernamen").
 ///
 /// The screen does not own [controller]; whoever created it disposes it
 /// (see `openGame` in `screen_registry.dart`).
@@ -151,7 +161,13 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   Future<void> _showResult() async {
     final r = controller.game.result;
     final l10n = AppLocalizations.of(context);
-    final headline = r.draw || r.winner == null ? l10n.shellDraw : l10n.shellWins(playerMark(r.winner!));
+    final labels = PlayerLabelsScope.of(context);
+    final w = r.winner;
+    final headline = r.draw || w == null
+        ? l10n.shellDraw
+        : labels.isLocal(w)
+            ? l10n.shellYouWin
+            : l10n.shellWins(labels.label(context, l10n, w));
     final reason = localizedResultReason(l10n, r);
     final again = await showDialog<bool>(
       context: context,
@@ -205,6 +221,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   void _showHistory() {
     final moves = controller.moves;
     final l10n = AppLocalizations.of(context);
+    final labels = PlayerLabelsScope.of(context);
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -231,7 +248,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                       dense: true,
                       // LTR: "12." must not become ".12" in RTL locales.
                       leading: Text('${m.index + 1}.', textDirection: TextDirection.ltr),
-                      title: Text(l10n.shellHistoryEntry(playerMark(m.player), _describe(l10n, m))),
+                      title: Text(l10n.shellHistoryEntry(labels.label(context, l10n, m.player), _describe(l10n, m))),
                     );
                   },
                 ),
@@ -242,13 +259,19 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     );
   }
 
-  String _status(AppLocalizations l10n) {
+  String _status(BuildContext context, AppLocalizations l10n) {
+    final labels = PlayerLabelsScope.of(context);
+    String label(Player p) => labels.label(context, l10n, p);
     final game = controller.game;
     final r = game.result;
     if (r.isOver) {
-      return r.winner == null ? l10n.shellDraw : l10n.shellHasWon(playerMark(r.winner!));
+      final w = r.winner;
+      if (w == null) return l10n.shellDraw;
+      return labels.isLocal(w) ? l10n.shellYouHaveWon : l10n.shellHasWon(label(w));
     }
-    return l10n.shellToMove(playerMark(game.currentPlayer));
+    final p = game.currentPlayer;
+    if (labels.local == null) return l10n.shellToMove(label(p));
+    return labels.isLocal(p) ? l10n.shellYourTurn(playerMark(p)) : l10n.shellWaitingFor(label(p));
   }
 
   @override
@@ -268,6 +291,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 tooltip: l10n.shellUndo,
                 icon: const Icon(Icons.undo),
                 onPressed: controller.canUndo ? controller.undo : null,
+              ),
+            // Hot-seat names (KLD-056), when the app provides the store.
+            if (_canRestart && PlayerNameScope.maybeOf(context) != null)
+              IconButton(
+                key: const Key('shell-names'),
+                tooltip: l10n.hotSeatNamesTitle,
+                icon: const Icon(Icons.people_outline),
+                onPressed: () => showHotSeatNamesDialog(context),
               ),
             if (_canRestart)
               IconButton(
@@ -292,7 +323,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Text(_status(l10n), key: const Key('shell-status'), style: theme.textTheme.titleMedium),
+                  child: Text(_status(context, l10n), key: const Key('shell-status'), style: theme.textTheme.titleMedium),
                 ),
                 if (_hint != null)
                   Padding(

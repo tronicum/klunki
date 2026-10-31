@@ -9,6 +9,7 @@ import 'channel/listener.dart';
 import 'channel/platform.dart';
 import 'connection.dart';
 import 'events.dart';
+import 'names.dart';
 
 /// The authoritative side of a session: owns the engine and the move log,
 /// listens for one guest and validates every move.
@@ -18,6 +19,8 @@ import 'events.dart';
 /// Hosting needs `dart:io` ([start] fails in a browser).
 class KlunkiHost {
   final GameConfig config;
+  /// The host's player name, sanitised ([sanitizePlayerName]; the mark of
+  /// [me] if empty). Sent as `name` in `hello` and `host` in `welcome`.
   final String name;
 
   /// The host's player; the guest plays the other one.
@@ -59,7 +62,7 @@ class KlunkiHost {
       log.add(MoveAccepted(log.length, by, m));
     }
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
-    final host = KlunkiHost._(config, name, hostPlayer, server, pingInterval, timeout, game);
+    final host = KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, game);
     host._log.addAll(log);
     server.channels.listen(host._onChannel);
     return host;
@@ -77,6 +80,8 @@ class KlunkiHost {
   /// The accepted move log (what `welcome` sends as the snapshot).
   List<Map<String, dynamic>> get moves => [for (final a in _log) a.move];
   bool get guestConnected => _guest != null;
+  /// The guest's name from its `hello`, sanitised ([sanitizePlayerName];
+  /// the guest's mark if empty); null until a guest joined.
   String? get guestName => _guestName;
 
   /// All session events, including [MoveAccepted] for both players' moves.
@@ -127,7 +132,9 @@ class KlunkiHost {
     if (m['protocol'] != protocolVersion) {
       throw ProtocolException('unsupported protocol ${m['protocol']}');
     }
-    final name = m['name'] as String? ?? 'Guest';
+    // Untrusted input: sanitised like a typed name, the guest's mark as fallback.
+    final raw = m['name'];
+    final name = playerNameOr(raw is String ? raw : null, guestPlayer);
     final token = m['token'] as String?;
     final reconnect = _token != null;
     if (reconnect && token != _token && name != _guestName) {

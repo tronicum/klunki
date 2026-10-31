@@ -153,8 +153,8 @@ void main() {
       discovery.addHost(const KlunkiHostInfo(name: 'Altes Handy', host: '192.168.0.30', port: 5000, protocol: 99));
       await tester.pump();
 
-      expect(find.text('Stefans iPad'), findsOneWidget);
-      expect(find.text('4 Gewinnt · 192.168.0.20:4747'), findsOneWidget);
+      expect(find.text('Stefans iPad hostet 4 Gewinnt'), findsOneWidget);
+      expect(find.text('192.168.0.20:4747'), findsOneWidget);
       expect(find.text('Altes Handy'), findsOneWidget);
       expect(find.text('192.168.0.30:5000 · andere Klunki-Version'), findsOneWidget);
       expect(discovery.isBrowsing, isTrue);
@@ -257,7 +257,7 @@ void main() {
       locale: const Locale('en'),
     ));
     expect(find.text('Play over Wi-Fi'), findsOneWidget);
-    expect(find.text('Device name'), findsOneWidget);
+    expect(find.text('Your name'), findsOneWidget);
     expect(find.text('Host game'), findsOneWidget);
     expect(find.text('Four in a Row'), findsOneWidget);
     await tester.tap(find.text('Join'));

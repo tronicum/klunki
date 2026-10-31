@@ -5,6 +5,7 @@ import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
+import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -48,7 +49,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle), actions: const [LanguageButton()]),
+      appBar: AppBar(title: Text(l10n.appTitle), actions: const [PlayerNameButton(), LanguageButton()]),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

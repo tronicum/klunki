@@ -223,9 +223,17 @@ class NetworkTransport implements GameTransport {
   /// Connection state changes (the current value is in [connection]).
   Stream<NetConnectionState> get connectionChanges => _stateChanges.stream;
 
-  /// The other side's name (guest name on the host, host name on the guest);
-  /// null until a guest joined.
+  /// The other side's player name (guest name on the host, host name on the
+  /// guest), cleaned by `klunki_net` (the peer's mark if it sent none); null
+  /// until a guest joined.
   String? get peerName => _peerName;
+
+  /// This device's player name as sent to the other side (KLD-056), cleaned;
+  /// the own mark if it is empty.
+  String get localName {
+    final n = _host?.name ?? _guest!.name;
+    return n.isEmpty ? (me == Player.a ? 'X' : 'O') : n;
+  }
 
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;

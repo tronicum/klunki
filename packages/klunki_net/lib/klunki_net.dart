@@ -21,4 +21,5 @@ export 'src/events.dart'
         NetError,
         NetException;
 export 'src/guest.dart' show KlunkiGuest;
+export 'src/names.dart' show maxPlayerNameLength, sanitizePlayerName, playerNameOr;
 export 'src/host.dart' show KlunkiHost;

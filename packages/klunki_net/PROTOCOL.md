@@ -48,9 +48,9 @@ compatible; a host without WebSocket support simply omits them.
 
 | type | direction | fields | meaning |
 |---|---|---|---|
-| `hello` | guest → host | `role: "guest"`, `name`, `protocol: 1`, `token?` | first message on a connection; `token` only when rejoining |
-| `hello` | host → guest | `role: "host"`, `name`, `protocol: 1` | reply to the guest's `hello` |
-| `welcome` | host → guest | `config` (`{game, seed}` = `GameConfig.toJson()`), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` | snapshot: guest's player + full accepted log |
+| `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 1`, `token?` | first message on a connection; `token` only when rejoining |
+| `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 1` | reply to the guest's `hello` |
+| `welcome` | host → guest | `config` (`{game, seed}` = `GameConfig.toJson()`), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
 | `rejected` | host → guest | `index`, `reason` | the guest's move was refused; nothing changed |
@@ -71,12 +71,37 @@ G→H {"type":"move","v":1,"index":2,"move":{"col":5}}
 H→G {"type":"rejected","v":1,"index":2,"reason":"not your turn"}
 ```
 
+## Player names (KLD-056)
+
+Both sides already learn each other's name in protocol v1, no new field was
+needed: the guest sends its name as `name` in its `hello`; the host sends its
+own as `name` in its `hello` and again as `host` in `welcome`. The apps use
+the user's player name (handle) here, not a device name. Names are display
+text only; nothing but the rejoin rule below compares them.
+
+Names are untrusted input. Both sides clean what they send and what they
+receive with the same rules (`sanitizePlayerName` in this package, also used
+by the app when the user types a name):
+
+- any script; whitespace of any kind becomes one space, trimmed at both ends;
+- control characters (C0, DEL, C1), bidi controls (U+061C, U+200E/F,
+  U+202A–U+202E, U+2066–U+2069), U+FEFF, lone surrogates and U+FFFE/U+FFFF
+  are dropped (ZWJ/ZWNJ stay);
+- at most 20 code points.
+
+A name that is missing, not a string or empty after cleaning is replaced by
+the player's mark: `"X"` for A, `"O"` for B (host: for the guest's name;
+guest: for the host's name, once `welcome` told it its own player). The
+reconnecting guest sends the same name again, so names survive a reconnect.
+The mDNS TXT key `n` and the join payload's `n=` carry the host's (cleaned)
+player name too.
+
 ## Rules
 
 **Handshake.** The guest sends `hello`; the host answers `hello` + `welcome`.
 The host chooses the players (default host = A, guest = B). The first guest to
 join gets a random `token`. Later connections are let in only with that token
-or the same `name`; they replace a stale connection of the same guest. Anyone
+or the same (cleaned) `name`; they replace a stale connection of the same guest. Anyone
 else gets `error "session full"`.
 
 **Moves.** For `move {index, move}` the host checks, in order:

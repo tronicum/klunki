@@ -59,12 +59,28 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String shellYourTurn(String mark) {
+    return '轮到你了（$mark）';
+  }
+
+  @override
+  String shellWaitingFor(String player) {
+    return '等待 $player…';
+  }
+
+  @override
+  String get shellYouHaveWon => '你获胜了';
+
+  @override
   String get shellDraw => '平局';
 
   @override
   String shellWins(String player) {
     return '$player 赢了！';
   }
+
+  @override
+  String get shellYouWin => '你赢了！';
 
   @override
   String get shellMenu => '菜单';
@@ -527,10 +543,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingTitle => '通过 Wi-Fi 对战';
 
   @override
-  String get pairingDeviceName => '设备名称';
+  String get pairingDeviceNameHelper => '对方会看到这个名字';
 
   @override
-  String get pairingDeviceNameHelper => '对方会看到这个名字';
+  String get playerNameTitle => '你叫什么名字？';
+
+  @override
+  String get playerNameLabel => '你的名字';
+
+  @override
+  String playerLabel(String name, String mark) {
+    return '$name（$mark）';
+  }
+
+  @override
+  String get hotSeatNamesTitle => '玩家名字';
+
+  @override
+  String hotSeatNameLabel(String mark) {
+    return '玩家 $mark';
+  }
+
+  @override
+  String get hotSeatNamesHelper => '可选 – 留空则只显示 X 和 O。';
 
   @override
   String get pairingModeHost => '创建';
@@ -623,18 +658,22 @@ class AppLocalizationsZh extends AppLocalizations {
       '提示：两台设备是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。iOS：是否已允许 Klunki 使用“本地网络”（设置 › 隐私）？';
 
   @override
-  String pairingStatus(String me, String peer, String peerMark) {
-    return '你是 $me · 对手：$peer（$peerMark）';
+  String pairingStatus(String name, String mark, String peer, String peerMark) {
+    return '你（$name，$mark）· 对手：$peer（$peerMark）';
   }
 
   @override
   String get pairingOpponent => '对手';
 
   @override
-  String get pairingPeerLeft => '对手已离开对局';
+  String pairingPeerLeft(String peer) {
+    return '$peer 已离开对局';
+  }
 
   @override
-  String get pairingPeerLost => '与对手的连接已中断';
+  String pairingPeerLost(String peer) {
+    return '与 $peer 的连接已中断';
+  }
 
   @override
   String pairingWaitForRejoin(String reason) {

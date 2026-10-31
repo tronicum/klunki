@@ -1,7 +1,8 @@
 // KLD-034 full flow: two complete apps side by side in one widget test. The
 // left app hosts, the right app finds it through a shared FakeNetwork and
 // joins; the transports are real NetworkTransports on 127.0.0.1. Both end up
-// on the game screen of the shell and play against each other.
+// on the game screen of the shell and play against each other. The player
+// names (KLD-056) are "Anna" (host) and "Ben" (guest).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
@@ -40,8 +41,8 @@ Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen) async {
   final hostDiscovery = FakeDiscovery(network: network, address: '192.168.0.10');
   final guestDiscovery = FakeDiscovery(network: network, address: '192.168.0.20');
   final created = CreatedTransports();
-  final hostDeps = testDeps(discovery: hostDiscovery, created: created, name: 'Host-iPhone');
-  final guestDeps = testDeps(discovery: guestDiscovery, created: created, name: 'Gast-iPad');
+  final hostDeps = testDeps(discovery: hostDiscovery, created: created, name: 'Anna');
+  final guestDeps = testDeps(discovery: guestDiscovery, created: created, name: 'Ben');
 
   Widget device(Key key, PairingDeps deps) => Expanded(child: KeyedSubtree(key: key, child: launcherApp(deps)));
   await tester.pumpWidget(Directionality(
@@ -67,7 +68,7 @@ Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen) async {
   await tester.pump();
   final tile = _on(_guestKey, find.byKey(Key('pair-host-192.168.0.10:$port')));
   await pumpUntil(tester, () => tile.evaluate().isNotEmpty, what: 'guest lists the host');
-  expect(_on(_guestKey, find.text('Host-iPhone')), findsOneWidget);
+  expect(_on(_guestKey, find.textContaining('Anna hostet ')), findsOneWidget);
   await tester.tap(tile);
 
   await pumpUntil(tester, () => _has(_hostKey, find.byType(screen)) && _has(_guestKey, find.byType(screen)),
@@ -88,8 +89,11 @@ void main() {
     final pair = await _connect(tester, 'connect4', Connect4Screen);
 
     // Who is who, and no hot-seat controls over the network.
-    expect(_on(_hostKey, find.text('Du bist X · Gegner: Gast-iPad (O)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Du bist O · Gegner: Host-iPhone (X)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Du (Anna, X) · Gegner: Ben (O)')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Du (Ben, O) · Gegner: Anna (X)')), findsOneWidget);
+    // The status line names the players (KLD-056).
+    expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
     for (final d in [_hostKey, _guestKey]) {
       expect(_on(d, find.byKey(const Key('shell-undo'))), findsNothing);
       expect(_on(d, find.byKey(const Key('shell-restart'))), findsNothing);
@@ -111,6 +115,20 @@ void main() {
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
     expect(_controller(tester, _hostKey).moves.length, 2);
     expect(_controller(tester, _guestKey).moves.length, 2);
+    expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
+
+    // The history names who moved, on both sides.
+    for (final d in [_hostKey, _guestKey]) {
+      await tester.tap(_on(d, find.byKey(const Key('shell-history'))));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(_on(d, find.textContaining('Anna (X): ')), findsOneWidget);
+      expect(_on(d, find.textContaining('Ben (O): ')), findsOneWidget);
+      await tester.tapAt(tester.getTopLeft(find.byKey(d)) + const Offset(8, 8)); // close the sheet
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    }
 
     // The guest leaves: its transport is closed, the host sees the banner.
     final guestTransport = pair.created.guests.single;
@@ -122,7 +140,7 @@ void main() {
     expect(pair.guestDiscovery.isBrowsing, isFalse);
 
     await pumpUntil(tester, () => _has(_hostKey, find.byKey(const Key('net-banner'))), what: 'host banner');
-    expect(_on(_hostKey, find.textContaining('Gegner hat das Spiel verlassen')), findsOneWidget);
+    expect(_on(_hostKey, find.textContaining('Ben hat das Spiel verlassen')), findsOneWidget);
 
     // The host leaves too: its transport is closed.
     await tester.tap(_on(_hostKey, find.byType(BackButton)));

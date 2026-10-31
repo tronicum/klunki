@@ -59,12 +59,28 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String shellYourTurn(String mark) {
+    return 'دورك ($mark)';
+  }
+
+  @override
+  String shellWaitingFor(String player) {
+    return 'في انتظار $player…';
+  }
+
+  @override
+  String get shellYouHaveWon => 'لقد فزت';
+
+  @override
   String get shellDraw => 'تعادل';
 
   @override
   String shellWins(String player) {
     return '$player يفوز!';
   }
+
+  @override
+  String get shellYouWin => 'أنت تفوز!';
 
   @override
   String get shellMenu => 'القائمة';
@@ -565,10 +581,29 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingTitle => 'اللعب عبر Wi-Fi';
 
   @override
-  String get pairingDeviceName => 'اسم الجهاز';
+  String get pairingDeviceNameHelper => 'هكذا يراك اللاعب الآخر';
 
   @override
-  String get pairingDeviceNameHelper => 'هكذا يراك اللاعب الآخر';
+  String get playerNameTitle => 'ما اسمك؟';
+
+  @override
+  String get playerNameLabel => 'اسمك';
+
+  @override
+  String playerLabel(String name, String mark) {
+    return '$name ($mark)';
+  }
+
+  @override
+  String get hotSeatNamesTitle => 'أسماء اللاعبين';
+
+  @override
+  String hotSeatNameLabel(String mark) {
+    return 'اللاعب $mark';
+  }
+
+  @override
+  String get hotSeatNamesHelper => 'اختياري – اتركه فارغًا لعرض X و O فقط.';
 
   @override
   String get pairingModeHost => 'استضافة';
@@ -665,18 +700,22 @@ class AppLocalizationsAr extends AppLocalizations {
       'نصائح: هل الجهازان على شبكة Wi-Fi نفسها؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. iOS: هل «الشبكة المحلية» مسموحة لـ Klunki (الإعدادات › الخصوصية)؟';
 
   @override
-  String pairingStatus(String me, String peer, String peerMark) {
-    return 'أنت $me · الخصم: $peer ($peerMark)';
+  String pairingStatus(String name, String mark, String peer, String peerMark) {
+    return 'أنت ($name، $mark) · الخصم: $peer ($peerMark)';
   }
 
   @override
   String get pairingOpponent => 'الخصم';
 
   @override
-  String get pairingPeerLeft => 'غادر الخصم اللعبة';
+  String pairingPeerLeft(String peer) {
+    return 'غادر $peer اللعبة';
+  }
 
   @override
-  String get pairingPeerLost => 'انقطع الاتصال بالخصم';
+  String pairingPeerLost(String peer) {
+    return 'انقطع الاتصال بـ $peer';
+  }
 
   @override
   String pairingWaitForRejoin(String reason) {

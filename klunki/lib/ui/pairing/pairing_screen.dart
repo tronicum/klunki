@@ -14,6 +14,7 @@ import '../../net/local_ip.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
+import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
@@ -39,7 +40,8 @@ class PairingDeps {
   /// This device's LAN IPv4 addresses, best first.
   final Future<List<String>> Function() localAddresses;
 
-  /// Default for the editable device name.
+  /// Suggestion for the player name ("Wie heißt du?") when none is saved:
+  /// the device name.
   final String Function() deviceName;
 
   /// Seed for a hosted game.
@@ -84,31 +86,39 @@ enum _Mode { host, join }
 /// guest) or join one (discovered hosts + manual entry). Once both sides are
 /// connected the route is replaced by a [NetworkGameSession], so leaving the
 /// game goes straight back to the menu.
+///
+/// The player name ("Dein Name", KLD-056) is the app's [PlayerNameController]
+/// ([nameController] or the [PlayerNameScope]); the first visit without a
+/// saved name asks for it once.
 class PairingScreen extends StatefulWidget {
   final PairingDeps deps;
 
-  PairingScreen({super.key, PairingDeps? deps}) : deps = deps ?? PairingDeps.platform();
+  /// Overrides the app's player name controller (tests).
+  final PlayerNameController? nameController;
+
+  PairingScreen({super.key, PairingDeps? deps, this.nameController}) : deps = deps ?? PairingDeps.platform();
 
   @override
   State<PairingScreen> createState() => _PairingScreenState();
 }
 
-class _PairingScreenState extends State<PairingScreen> {
+class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
   late final DiscoveryService? _discovery = widget.deps.discovery();
-  late final TextEditingController _name = TextEditingController(text: widget.deps.deviceName());
   _Mode _mode = _Mode.host;
 
   @override
+  PlayerNameController? get explicitNameController => widget.nameController;
+
+  @override
+  String playerNameSuggestion() => widget.deps.deviceName();
+
+  @override
   void dispose() {
-    _name.dispose();
     _discovery?.dispose();
     super.dispose();
   }
 
-  String get _deviceName {
-    final n = _name.text.trim();
-    return n.isEmpty ? widget.deps.deviceName() : n;
-  }
+  String get _deviceName => playerName;
 
   /// Replaces the pairing route by the game.
   void _openGame(NetworkTransport transport) {
@@ -121,7 +131,7 @@ class _PairingScreenState extends State<PairingScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     // A page can neither host nor browse mDNS: join-only (KLD-055).
-    if (kIsWeb) return WebJoinScreen(pageUrl: Uri.base);
+    if (kIsWeb) return WebJoinScreen(pageUrl: Uri.base, nameController: widget.nameController);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pairingTitle)),
       body: SafeArea(
@@ -131,16 +141,7 @@ class _PairingScreenState extends State<PairingScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                TextField(
-                  key: const Key('pair-name'),
-                  controller: _name,
-                  decoration: InputDecoration(
-                    labelText: l10n.pairingDeviceName,
-                    helperText: l10n.pairingDeviceNameHelper,
-                    border: const OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.done,
-                ),
+                playerNameField(key: const Key('pair-name')),
                 const SizedBox(height: 16),
                 SegmentedButton<_Mode>(
                   segments: [
@@ -390,7 +391,7 @@ class _HostPanelState extends State<_HostPanel> {
       key: const Key('pair-host-waiting'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.pairingHosting(_name, title), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+        Text(l10n.pairingHosting(bidiName(context, _name), title), key: const Key('pair-hosting'), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
         const SizedBox(height: 12),
         if (payload != null)
           Center(
@@ -647,9 +648,9 @@ class _JoinPanelState extends State<_JoinPanel> {
       key: Key('pair-host-${h.host}:${h.port}'),
       child: ListTile(
         leading: const Icon(Icons.devices),
-        title: Text(h.name),
+        // "Anna hostet 4 Gewinnt" (KLD-056: the host's player name).
+        title: Text(game == null ? bidiName(context, h.name) : l10n.pairingHosting(bidiName(context, h.name), game)),
         subtitle: Text([
-          ?game,
           bidiLtr(context, '${h.host}:${h.port}'),
           if (!compatible) l10n.pairingOtherVersion,
         ].join(' · ')),
