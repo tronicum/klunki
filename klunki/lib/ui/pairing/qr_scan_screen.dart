@@ -34,7 +34,7 @@ class QrCameraState {
 }
 
 /// The camera behind the scanner screen (KLD-052): the real one is
-/// `MobileQrScanner` (package mobile_scanner); tests use a fake that emits
+/// `MobileQrScanner` (package flutter_zxing, KLD-080); tests use a fake that emits
 /// [codes] and [state] without a camera.
 abstract class QrScanner {
   /// The text of every QR code the camera reads (repeats included).

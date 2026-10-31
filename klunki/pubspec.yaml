@@ -56,11 +56,15 @@ dependencies:
   # Renders the join QR code (pure Flutter, no permissions; scanning = KLD-052).
   qr_flutter: ^4.1.0
 
-  # Scans a host's QR code to join (KLD-052). Pinned: 7.4.3 was published
-  # 2026-10-31, too fresh; 7.4.2 (2026-09-14) uses Apple Vision/AVFoundation
-  # on iOS (no MLKit pods) and links via SwiftPM. Not used on the web (its web
-  # decoders load from a CDN; the PWA hides the scan button).
-  mobile_scanner: 7.4.2
+  # Scans a host's QR code to join (KLD-052, KLD-080): zxing-cpp (Apache-2.0)
+  # via Dart FFI, compiled from source on Android (CMake/NDK) and iOS (SwiftPM),
+  # so no proprietary barcode engine (ML Kit, Apple Vision) is linked. Pinned:
+  # 3.1.0 (2026-09-25). FFI, so not on the web (the PWA hides the scan button).
+  flutter_zxing: 3.1.0
+  # The camera behind flutter_zxing's ReaderWidget (already a transitive dep of
+  # flutter_zxing; declared because the scanner uses its torch, error and
+  # camera-list APIs). Pinned: 0.12.2 (2026-10-27) is too fresh.
+  camera: 0.12.1
 
 dev_dependencies:
   flutter_test:
@@ -101,6 +105,10 @@ flutter:
     - assets/fonts/NotoSansArabic/OFL.txt
     - assets/fonts/NotoSansSC/OFL.txt
     - assets/fonts/NotoSansMath/OFL.txt
+    # Licences of native code that flutter_zxing compiles in (KLD-080), read
+    # for LicenseRegistry (lib/app/third_party_licenses.dart).
+    - assets/licenses/zxing-cpp/LICENSE
+    - assets/licenses/libzint/LICENSE
   fonts:
     - family: Roboto
       fonts:

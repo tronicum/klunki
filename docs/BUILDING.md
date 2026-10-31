@@ -79,13 +79,15 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
 > Status: CI builds a release APK on every push to main (`build.yml`). The first Android build of this repo
 > happens on GitHub, so treat the Android setup as **unverified until that first run is green**.
 
-Project facts: `applicationId` / namespace `de.klunki.klunki`; `minSdk` 24 (Flutter's default, above the 23 that
-`mobile_scanner` needs); `compileSdk`/`targetSdk` 36; AGP 9.1.0, Kotlin 2.4.0, Gradle 9.3.1 (the wrapper jar and
+Project facts: `applicationId` / namespace `de.klunki.klunki`; `minSdk` 24 (Flutter's default);
+`compileSdk`/`targetSdk` 36; AGP 9.1.0, Kotlin 2.4.0, Gradle 9.3.1 (the wrapper jar and
 `gradlew` are not committed: `flutter build` adds them from the Flutter SDK).
 Permissions in `klunki/android/app/src/main/AndroidManifest.xml`: `INTERNET`, `ACCESS_NETWORK_STATE`,
 `ACCESS_WIFI_STATE`, `CHANGE_WIFI_MULTICAST_STATE` (mDNS discovery), `CAMERA` (QR scanning, optional).
 No cleartext/network-security config is needed: the app talks over `dart:io` sockets and WebSockets, which
 Android's cleartext-HTTP policy does not cover. (`ws://` to a LAN host or relay therefore works.)
+The QR scanner (`flutter_zxing`, KLD-080) compiles zxing-cpp natively via CMake and the NDK; AGP downloads
+CMake/NDK on the first Android build if they are missing (licences accepted).
 
 ### 4.1 SDK, cmdline-tools and licences
 1. Install Android Studio (or just the cmdline-tools) and in **SDK Manager** install: Android SDK Platform 36,

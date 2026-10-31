@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Local-network play (klunki_net TCP + mDNS discovery of _klunki._tcp).
          These live in the MAIN manifest because release builds merge only this one.
          - INTERNET: TCP sockets (host/join). Raw TCP isn't affected by the
@@ -18,12 +19,19 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
-    <!-- Scanning the host's QR code (KLD-052, mobile_scanner 7.4.2). The plugin's
-         library manifest declares both as well; listed here so the requirement is
-         explicit. The camera is optional: without one the join tab still works by
-         typing the code or address. -->
+    <!-- Scanning the host's QR code (KLD-052, KLD-080: flutter_zxing 3.1.0 on the
+         camera plugin's CameraX backend, camera_android_camerax). That library
+         manifest declares CAMERA, so it is listed here only to make the requirement
+         explicit. It also declares things the scanner never uses, removed here:
+         RECORD_AUDIO and WRITE_EXTERNAL_STORAGE (video recording / saving, the
+         scanner opens the camera with enableAudio: false), and a REQUIRED
+         android.hardware.camera.any feature, replaced by an optional one: without a
+         camera the join tab still works by typing the code or address. -->
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" tools:node="replace"/>
     <application
         android:label="Klunki"
         android:name="${applicationName}"
