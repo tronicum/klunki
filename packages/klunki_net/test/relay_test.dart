@@ -293,6 +293,28 @@ void main() {
       await host.close();
     });
 
+    test('KLD-083: the default bind is dual-stack: host via ::1, guest via 127.0.0.1, plus HTTP on both', () async {
+      final dual = await RelayServer.start(port: 0, pingInterval: null);
+      addTearDown(dual.close);
+      final v6 = Uri.parse('ws://[::1]:${dual.port}/relay');
+      final v4 = Uri.parse('ws://127.0.0.1:${dual.port}/relay');
+      final host = await KlunkiHost.startRelay(const GameConfig('connect4'), v6,
+          name: 'Ada', pingInterval: _ping, timeout: _timeout);
+      final guest = await KlunkiGuest.connectRelay(v4, host.roomCode!,
+          name: 'Bea', pingInterval: _ping, timeout: _timeout);
+      await until(() => host.guestConnected);
+      expect(guest.hostName, 'Ada');
+      final client = HttpClient();
+      addTearDown(client.close);
+      for (final h in ['[::1]', '127.0.0.1']) {
+        final res = await (await client.getUrl(Uri.parse('http://$h:${dual.port}/nothing'))).close();
+        await res.drain<void>();
+        expect(res.statusCode, isNot(0), reason: h); // answered at all (no web root: 404)
+      }
+      await guest.close();
+      await host.close();
+    });
+
     test('a wrong code and a full room fail with readable NetExceptions', () async {
       final host = await startRelayHost(const GameConfig('connect4'));
       final wrong = host.roomCode == '22222' ? '33333' : '22222';
@@ -581,6 +603,12 @@ void main() {
           'ws://192.168.1.20:8080/relay');
       expect(relayUriForPage(Uri.parse('https://klunki.example/app/')).toString(), 'wss://klunki.example/relay');
       expect(relayUriForPage(Uri.parse('file:///index.html')), isNull);
+      // KLD-083: `.local` names and bracketed IPv6 hosts.
+      expect(parseRelayUrl('Stefans-MacBook.local:8081').toString(), 'ws://stefans-macbook.local:8081/relay');
+      expect(parseRelayUrl('[::1]:8081').toString(), 'ws://[::1]:8081/relay');
+      expect(parseRelayUrl('http://[fd00::5]:8081/').toString(), 'ws://[fd00::5]:8081/relay');
+      expect(relayUriForPage(Uri.parse('http://pc.local:8081/')).toString(), 'ws://pc.local:8081/relay');
+      expect(relayUriForPage(Uri.parse('http://[::1]:8081/')).toString(), 'ws://[::1]:8081/relay');
     });
   });
 }

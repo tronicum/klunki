@@ -29,7 +29,11 @@ String formatRoomCode(String code) {
 /// `ws://192.168.1.20:8000/relay` → `192.168.1.20:8000` (what the relay
 /// address field shows); other paths and `wss` stay a full URL.
 String relayAddressLabel(Uri relay) {
-  if (relay.scheme == 'ws' && relay.path == '/relay') return relay.hasPort ? '${relay.host}:${relay.port}' : relay.host;
+  if (relay.scheme == 'ws' && relay.path == '/relay') {
+    // IPv6 hosts in brackets (`[::1]:8081`), so the label parses back.
+    final host = relay.host.contains(':') ? '[${relay.host}]' : relay.host;
+    return relay.hasPort ? '$host:${relay.port}' : host;
+  }
   return relay.toString();
 }
 
@@ -88,3 +92,42 @@ Uri roomJoinLink({required String code, required Uri relay, Uri? pageUrl}) {
     queryParameters: {roomQueryParameter: code},
   );
 }
+
+/// Whether [host] only reaches this machine (KLD-083): `localhost`,
+/// `*.localhost`, `127.x.x.x`, `::1` (also bracketed or IPv4-mapped). Other
+/// devices can't open a link or relay with such a host.
+bool isLoopbackHost(String host) {
+  var h = host.trim().toLowerCase();
+  if (h.startsWith('[') && h.endsWith(']')) h = h.substring(1, h.length - 1);
+  if (h.endsWith('.')) h = h.substring(0, h.length - 1);
+  if (h == 'localhost' || h.endsWith('.localhost')) return true;
+  if (h.startsWith('::ffff:')) h = h.substring(7);
+  if (_loopbackV4.hasMatch(h)) return true;
+  if (!h.contains(':')) return false;
+  try {
+    final bytes = Uri.parseIPv6Address(h);
+    return bytes.take(15).every((b) => b == 0) && bytes[15] == 1;
+  } on FormatException {
+    return false;
+  }
+}
+
+final RegExp _loopbackV4 = RegExp(r'^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$');
+
+/// The loopback host in the room link for [relay] (see [roomJoinLink]), or
+/// null when other devices can reach it: the page's host in the browser,
+/// else the relay's host (which is also in the link, as host or `&relay=`).
+String? loopbackHostOf({required Uri relay, Uri? pageUrl}) {
+  final page = pageUrl;
+  if (page != null && (page.scheme == 'http' || page.scheme == 'https') && isLoopbackHost(page.host)) {
+    return page.host;
+  }
+  return isLoopbackHost(relay.host) ? relay.host : null;
+}
+
+/// Generic LAN address in the localhost hint (a browser can't find out its
+/// own LAN IP).
+const String loopbackHintExample = 'http://192.168.x.x:8081';
+
+/// Generic `.local` (Bonjour/mDNS) address in the localhost hint.
+const String loopbackHintMdnsExample = 'http://my-computer.local:8081';

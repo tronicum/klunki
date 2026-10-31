@@ -1532,4 +1532,51 @@ class AppLocalizationsEs extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Carta $id: $name, grupo $set';
   }
+
+  @override
+  String relayLoopbackHint(String host, String example, String mdnsExample) {
+    return 'Nota: otros dispositivos no pueden acceder a «$host». Abre la página con la dirección wifi de este ordenador (p. ej. $example) o su nombre .local (p. ej. $mdnsExample) para que el enlace y el código QR funcionen en otros dispositivos.';
+  }
+
+  @override
+  String relayLoopbackShort(String host) {
+    return '«$host» solo funciona en este dispositivo: los demás necesitan la dirección wifi o el nombre .local de este ordenador.';
+  }
+
+  @override
+  String get loopbackHowTitle => '¿Cómo encuentro la dirección?';
+
+  @override
+  String get loopbackHowMacSettings =>
+      'Ajustes del Sistema › Wi-Fi › Detalles… › Dirección IP. O en Terminal:';
+
+  @override
+  String get loopbackHowMacMdns =>
+      'El nombre .local está en Ajustes del Sistema › General › Compartir («Nombre de host local»).';
+
+  @override
+  String get loopbackHowWindowsSettings =>
+      'Configuración › Red e Internet › Wi-Fi › propiedades (dirección IPv4). O en el símbolo del sistema (cmd), «Dirección IPv4» del adaptador wifi:';
+
+  @override
+  String get loopbackHowWindowsMdns =>
+      'En Windows 10/11 el nombre .local es <nombre del equipo>.local.';
+
+  @override
+  String get loopbackHowLinuxTerminal => 'En un terminal:';
+
+  @override
+  String get loopbackHowLinuxSettings =>
+      'O Configuración › Red › Wi-Fi › detalles. El nombre .local es <nombre de host>.local si Avahi está activo.';
+
+  @override
+  String loopbackHowRelay(String command) {
+    return 'Consejo: la consola de «$command» muestra estas direcciones al arrancar.';
+  }
+
+  @override
+  String get loopbackHowCopy => 'Copiar comando';
+
+  @override
+  String get loopbackHowCopied => 'Comando copiado';
 }

@@ -268,12 +268,15 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     ];
   }
 
+  static bool _isWebPage(Uri? page) => page != null && (page.scheme == 'http' || page.scheme == 'https');
+
   List<Widget> _waiting(BuildContext context, NetworkTransport t) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final code = t.roomCode ?? '';
     final relay = t.relayUrl ?? _relayUsed!;
     final link = roomJoinLink(code: code, relay: relay, pageUrl: widget.pageUrl).toString();
+    final loopback = loopbackHostOf(relay: relay, pageUrl: widget.pageUrl);
     final title = localizedGameTitle(l10n, _gameId, fallback: specById(_gameId)?.title ?? _gameId);
     return [
       Column(
@@ -323,6 +326,13 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
               onPressed: () => _copyLink(link),
             ),
           ),
+          if (loopback != null)
+            LoopbackHint(
+              key: const Key('relay-host-loopback'),
+              host: loopback,
+              // Natively there is no page to reopen: just the short warning.
+              short: !_isWebPage(widget.pageUrl),
+            ),
           Text(l10n.relayWaitingHint, key: const Key('relay-host-hint'), textAlign: TextAlign.center),
           const SizedBox(height: 4),
           Text(

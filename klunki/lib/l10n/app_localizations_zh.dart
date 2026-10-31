@@ -1477,4 +1477,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return '卡牌 $id：$name，$set';
   }
+
+  @override
+  String relayLoopbackHint(String host, String example, String mdnsExample) {
+    return '提示：其他设备无法访问“$host”。请通过这台电脑的 Wi-Fi 地址（例如 $example）或其 .local 名称（例如 $mdnsExample）打开页面，这样链接和二维码才能在其他设备上使用。';
+  }
+
+  @override
+  String relayLoopbackShort(String host) {
+    return '“$host”仅在本设备上可用——其他设备需要这台电脑的 Wi-Fi 地址或 .local 名称。';
+  }
+
+  @override
+  String get loopbackHowTitle => '如何找到地址？';
+
+  @override
+  String get loopbackHowMacSettings => '系统设置 › Wi-Fi › 详细信息… › IP 地址。或在终端中运行：';
+
+  @override
+  String get loopbackHowMacMdns => '.local 名称见系统设置 › 通用 › 共享（“本地主机名”）。';
+
+  @override
+  String get loopbackHowWindowsSettings =>
+      '设置 › 网络和 Internet › WLAN › 属性（IPv4 地址）。或在命令提示符（cmd）中查看 WLAN 适配器的“IPv4 地址”：';
+
+  @override
+  String get loopbackHowWindowsMdns =>
+      '在 Windows 10/11 上，.local 名称为 <计算机名>.local。';
+
+  @override
+  String get loopbackHowLinuxTerminal => '在终端中：';
+
+  @override
+  String get loopbackHowLinuxSettings =>
+      '或 设置 › 网络 › Wi-Fi › 详细信息。如果 Avahi 正在运行，.local 名称为 <主机名>.local。';
+
+  @override
+  String loopbackHowRelay(String command) {
+    return '提示：“$command”控制台启动时会显示这些地址。';
+  }
+
+  @override
+  String get loopbackHowCopy => '复制命令';
+
+  @override
+  String get loopbackHowCopied => '命令已复制';
 }

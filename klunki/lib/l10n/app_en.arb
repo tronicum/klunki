@@ -399,5 +399,17 @@
   "quartettGalleryNext": "Next card",
   "quartettGalleryTopMenu": "Top 5 by stat",
   "quartettGalleryTopTitle": "Top 5: {stat}",
-  "quartettCardSemantics": "Card {id}: {name}, set {set}"
+  "quartettCardSemantics": "Card {id}: {name}, set {set}",
+  "relayLoopbackHint": "Note: other devices can't reach “{host}”. Open the page via this computer's Wi-Fi address (e.g. {example}) or its .local name (e.g. {mdnsExample}) so the link and QR code work on other devices.",
+  "relayLoopbackShort": "“{host}” only works on this device – other devices need this computer's Wi-Fi address or .local name.",
+  "loopbackHowTitle": "How do I find the address?",
+  "loopbackHowMacSettings": "System Settings › Wi-Fi › Details… › IP address. Or in Terminal:",
+  "loopbackHowMacMdns": "The .local name is in System Settings › General › Sharing (“Local hostname”).",
+  "loopbackHowWindowsSettings": "Settings › Network & internet › Wi-Fi › properties (IPv4 address). Or in Command Prompt (cmd), “IPv4 Address” of the Wi-Fi adapter:",
+  "loopbackHowWindowsMdns": "On Windows 10/11 the .local name is <computer name>.local.",
+  "loopbackHowLinuxTerminal": "In a terminal:",
+  "loopbackHowLinuxSettings": "Or Settings › Network › Wi-Fi › details. The .local name is <hostname>.local if Avahi is running.",
+  "loopbackHowRelay": "Tip: the “{command}” console prints these addresses when it starts.",
+  "loopbackHowCopy": "Copy command",
+  "loopbackHowCopied": "Command copied"
 }

@@ -5,6 +5,7 @@ import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart' show QuartettDeck;
 import 'package:klunki_net/relay_server.dart';
 import 'package:klunki_net/src/cli/cli.dart';
+import 'package:klunki_net/src/cli/open_urls.dart';
 import 'package:test/test.dart';
 
 /// One terminal: typed lines in, everything printed collected.
@@ -102,6 +103,53 @@ Future<(Terminal, Terminal)> hostAndJoin(List<String> hostArgs) async {
 }
 
 void main() {
+  group('relay startup: "Open on other devices" (KLD-083)', () {
+    test('LAN addresses skip loopback, link-local, virtual interfaces and duplicates', () {
+      final all = <NicAddress>[
+        (interface: 'lo0', address: '127.0.0.1'),
+        (interface: 'en0', address: '192.168.178.105'),
+        (interface: 'en5', address: '169.254.12.3'),
+        (interface: 'docker0', address: '172.17.0.1'),
+        (interface: 'br-1a2b', address: '172.18.0.1'),
+        (interface: 'vmnet8', address: '192.168.56.1'),
+        (interface: 'utun3', address: '100.64.0.2'),
+        (interface: 'en1', address: '10.0.0.7'),
+        (interface: 'en1', address: '10.0.0.7'),
+      ];
+      expect(lanAddresses(all), [
+        (interface: 'en0', address: '192.168.178.105'),
+        (interface: 'en1', address: '10.0.0.7'),
+      ]);
+    });
+
+    test('the mDNS name: <first label>.local; localhost and empty give none', () {
+      expect(mdnsName('Stefans-MacBook'), 'Stefans-MacBook.local');
+      expect(mdnsName('pc.local'), 'pc.local');
+      expect(mdnsName('pc.fritz.box'), 'pc.local');
+      expect(mdnsName('localhost.localdomain'), isNull);
+      expect(mdnsName('localhost'), isNull);
+      expect(mdnsName(''), isNull);
+    });
+
+    test('the block aligns the URLs and names IP and mDNS', () {
+      final lines = openOnOtherDevices(
+        port: 8081,
+        lan: [(interface: 'en0', address: '192.168.178.105')],
+        mdns: 'Stefans-MacBook.local',
+      );
+      expect(lines.take(3), [
+        'Open on other devices:',
+        '  http://192.168.178.105:8081/        (Wi-Fi/LAN, en0)',
+        '  http://Stefans-MacBook.local:8081/  (Bonjour/mDNS name)',
+      ]);
+      expect(lines.last, contains('.local names work on Apple devices'));
+      expect(
+          openOnOtherDevices(port: 4749, lan: [(interface: 'eth0', address: '10.0.0.2')], web: false),
+          ['Relay address for other devices:', '  ws://10.0.0.2:4749/relay  (Wi-Fi/LAN, eth0)']);
+      expect(openOnOtherDevices(port: 1, lan: const []), isEmpty);
+    });
+  });
+
   test('two terminals play Four in a Row to the end over loopback', () async {
     final (host, guest) = await hostAndJoin(['connect4']);
     await host.waitFor('Your turn (X). X to move\n> ');

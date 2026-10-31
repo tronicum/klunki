@@ -400,5 +400,17 @@
   "quartettGalleryNext": "Carte suivante",
   "quartettGalleryTopMenu": "Top 5 par valeur",
   "quartettGalleryTopTitle": "Top 5 : {stat}",
-  "quartettCardSemantics": "Carte {id} : {name}, famille {set}"
+  "quartettCardSemantics": "Carte {id} : {name}, famille {set}",
+  "relayLoopbackHint": "Remarque : les autres appareils ne peuvent pas joindre « {host} ». Ouvre la page via l’adresse Wi-Fi de cet ordinateur (p. ex. {example}) ou son nom .local (p. ex. {mdnsExample}) pour que le lien et le code QR fonctionnent sur les autres appareils.",
+  "relayLoopbackShort": "« {host} » ne fonctionne que sur cet appareil – les autres appareils ont besoin de l’adresse Wi-Fi ou du nom .local de cet ordinateur.",
+  "loopbackHowTitle": "Comment trouver l’adresse ?",
+  "loopbackHowMacSettings": "Réglages Système › Wi-Fi › Détails… › Adresse IP. Ou dans le Terminal :",
+  "loopbackHowMacMdns": "Le nom .local se trouve dans Réglages Système › Général › Partage (« Nom d’hôte local »).",
+  "loopbackHowWindowsSettings": "Paramètres › Réseau et Internet › Wi-Fi › propriétés (adresse IPv4). Ou dans l’invite de commandes (cmd), « Adresse IPv4 » de la carte Wi-Fi :",
+  "loopbackHowWindowsMdns": "Sous Windows 10/11, le nom .local est <nom de l’ordinateur>.local.",
+  "loopbackHowLinuxTerminal": "Dans un terminal :",
+  "loopbackHowLinuxSettings": "Ou Paramètres › Réseau › Wi-Fi › détails. Le nom .local est <nom d’hôte>.local si Avahi est actif.",
+  "loopbackHowRelay": "Astuce : la console de « {command} » affiche ces adresses au démarrage.",
+  "loopbackHowCopy": "Copier la commande",
+  "loopbackHowCopied": "Commande copiée"
 }

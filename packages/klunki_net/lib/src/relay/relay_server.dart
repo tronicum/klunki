@@ -51,7 +51,9 @@ class RelayServer {
   }
 
   /// Binds the relay on [port] (0 = ephemeral, read [port] afterwards) at
-  /// [address] (default: all IPv4 interfaces).
+  /// [address] (default: all interfaces, IPv6 and IPv4 dual-stack, so a
+  /// `<name>.local` that resolves to an IPv6 address works as well as the
+  /// IPv4 LAN address; IPv4 only where the system has no IPv6).
   ///
   /// [webRoot]: serve this directory (a built PWA) on every path but
   /// `/relay`. [pingInterval]: WebSocket-level pings that detect vanished
@@ -74,7 +76,7 @@ class RelayServer {
         rootPath = rootPath.substring(0, rootPath.length - 1);
       }
     }
-    final http = await HttpServer.bind(address ?? InternetAddress.anyIPv4, port);
+    final http = await _bind(address, port);
     http.autoCompress = false;
     return RelayServer._(http, webRoot, rootPath, idleTimeout, maxLineLength, maxRooms, pingInterval,
         random ?? Random.secure());
@@ -368,4 +370,16 @@ String mimeTypeFor(String fileName) {
     'xml' => 'application/xml',
     _ => 'application/octet-stream',
   };
+}
+
+/// Binds [address], or by default every interface dual-stack (IPv6 `::`
+/// with `v6Only: false`, which accepts IPv4 too); IPv4 `0.0.0.0` where
+/// IPv6 is not available.
+Future<HttpServer> _bind(Object? address, int port) async {
+  if (address != null) return HttpServer.bind(address, port);
+  try {
+    return await HttpServer.bind(InternetAddress.anyIPv6, port, v6Only: false);
+  } on SocketException {
+    return HttpServer.bind(InternetAddress.anyIPv4, port);
+  }
 }

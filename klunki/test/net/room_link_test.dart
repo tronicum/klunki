@@ -7,6 +7,39 @@ import 'package:klunki/ui/pairing/relay_errors.dart';
 import 'package:klunki_net/klunki_net.dart';
 
 void main() {
+  group('KLD-083: loopback hosts', () {
+    test('localhost, 127.x, ::1 and *.localhost are loopback', () {
+      for (final h in ['localhost', 'LOCALHOST', '127.0.0.1', '127.1.2.3', '::1', '[::1]', '0:0:0:0:0:0:0:1',
+          '::ffff:127.0.0.1', 'foo.localhost', 'localhost.']) {
+        expect(isLoopbackHost(h), isTrue, reason: h);
+      }
+    });
+    test('LAN IPs, .local names and hostnames are not', () {
+      for (final h in ['192.168.178.105', '10.0.0.9', 'fd00::5', 'fe80::1', 'pc.local', 'klunki.example',
+          'localhost.example', 'mylocalhost', '128.0.0.1', '']) {
+        expect(isLoopbackHost(h), isFalse, reason: h);
+      }
+    });
+    test('loopbackHostOf: the page host in the browser, else the relay host', () {
+      final lan = Uri.parse('ws://192.168.1.5:8081/relay');
+      final local = Uri.parse('ws://localhost:8081/relay');
+      expect(loopbackHostOf(relay: local, pageUrl: Uri.parse('http://localhost:8081/')), 'localhost');
+      expect(loopbackHostOf(relay: lan, pageUrl: Uri.parse('http://127.0.0.1:8081/')), '127.0.0.1');
+      expect(loopbackHostOf(relay: Uri.parse('ws://[::1]:8081/relay'), pageUrl: Uri.parse('http://[::1]:8081/')),
+          '::1');
+      expect(loopbackHostOf(relay: local, pageUrl: Uri.parse('http://192.168.1.5:8081/')), 'localhost');
+      expect(loopbackHostOf(relay: lan, pageUrl: Uri.parse('http://192.168.1.5:8081/')), isNull);
+      expect(loopbackHostOf(relay: Uri.parse('ws://pc.local:8081/relay'), pageUrl: Uri.parse('http://pc.local:8081/')),
+          isNull);
+      expect(loopbackHostOf(relay: local), 'localhost'); // native
+      expect(loopbackHostOf(relay: lan), isNull);
+    });
+    test('IPv6 relay labels keep their brackets', () {
+      expect(relayAddressLabel(Uri.parse('ws://[::1]:8081/relay')), '[::1]:8081');
+      expect(relayAddressLabel(Uri.parse('ws://pc.local:8081/relay')), 'pc.local:8081');
+    });
+  });
+
   group('formatRoomCode', () {
     test('groups 3 + 2 and normalises', () {
       expect(formatRoomCode('K7Q2M'), 'K7Q 2M');

@@ -223,11 +223,32 @@ The relay serves the PWA **and** relays browser-vs-browser games on the same por
 dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/build/web
 # Klunki relay listening on port 8081: ws://<ip>:8081/relay
 # Serving the PWA from …: http://<ip>:8081/
+# Open on other devices:
+#   http://192.168.178.105:8081/        (Wi-Fi/LAN, en0)
+#   http://Stefans-MacBook.local:8081/  (Bonjour/mDNS name)
 ```
 Open `http://localhost:8081/` on this computer, or `http://<ip>:8081/` on other devices in the same Wi-Fi. Use
 `http`, not `https`: browsers block `ws://` connections from https pages. Any free port works (the default is
 4749). A plain static server (`python3 -m http.server`) also serves the app, but then relay games need a relay
-address set by hand ("Relay: … · ändern").
+address set by hand ("Relay: … · ändern"). The relay listens dual-stack (IPv6 and IPv4), so the `.local` name
+works too when it resolves to an IPv6 address first (macOS/iOS do that).
+
+**Host from the LAN address, not `localhost`.** The page uses its own address for the room link and QR code. If
+you host from `http://localhost:8081/` (or `127.0.0.1`, `[::1]`), the link points to `localhost`, which other
+devices can't reach; the app warns about that under the QR code and on the relay line (KLD-083). Hosting still
+works for two tabs on the same computer. For other devices, open the page via the Wi-Fi IP or the `.local` name.
+
+#### Finding this computer's address
+The `klunki relay` console prints both at startup ("Open on other devices"). Otherwise:
+
+| OS | Wi-Fi IP address | `.local` (Bonjour/mDNS) name |
+|---|---|---|
+| macOS | System Settings › Wi-Fi › Details… › IP address, or `ipconfig getifaddr en0` | System Settings › General › Sharing ("Local hostname") |
+| Windows | Settings › Network & internet › Wi-Fi › properties (IPv4 address), or `ipconfig` in cmd ("IPv4 Address" of the Wi-Fi adapter) | `<computer name>.local` on Windows 10/11 |
+| Linux | `hostname -I` or `ip -4 addr show`, or Settings › Network › Wi-Fi › details | `<hostname>.local` if Avahi runs |
+
+`.local` names work on Apple devices and most recent Windows, Android and Linux (with Avahi) devices, but not
+everywhere; the IP address always works on the same network.
 
 ### 6.3 One relay, not two
 Run **one** relay and open the page from it. The page uses its own origin as the relay, and rooms exist only

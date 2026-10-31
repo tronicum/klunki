@@ -409,7 +409,16 @@ also serves the PWA. The host stays authoritative; the relay only forwards messa
    dart run packages/klunki_net/bin/klunki.dart relay --port 8000 --web klunki/build/web
    # prints: Klunki relay listening on port 8000: ws://<mac-ip>:8000/relay
    #         Serving the PWA from …: http://<mac-ip>:8000/
+   #         Open on other devices:
+   #           http://<mac-ip>:8000/            (Wi-Fi/LAN, en0)
+   #           http://<mac-name>.local:8000/    (Bonjour/mDNS name)
    ```
+   Host from one of those addresses, **not** `localhost`: a room hosted from `http://localhost:8000/` gets a
+   link/QR with `localhost`, which the other devices can't open (the waiting screen warns about it, KLD-083).
+   Finding the address by hand: macOS `ipconfig getifaddr en0` (or System Settings › Wi-Fi › Details… › IP
+   address; the `.local` name is under System Settings › General › Sharing, "Local hostname"); Windows `ipconfig`
+   in cmd ("IPv4 Address" of the Wi-Fi adapter; `<computer name>.local` on Windows 10/11); Linux `hostname -I` or
+   `ip -4 addr show` (`<hostname>.local` with Avahi). See `docs/BUILDING.md` §6.2.
 2. **Browser A** opens `http://<mac-ip>:8000/` → **Über WLAN spielen** → **Spiel hosten** → picks a game →
    **Spiel hosten**. It shows the **room code** large (e.g. `K7Q 2M`), a QR code and the link
    `http://<mac-ip>:8000/?room=K7Q2M` (copy button).

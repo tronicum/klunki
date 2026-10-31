@@ -2507,6 +2507,78 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Karte {id}: {name}, Set {set}'**
   String quartettCardSemantics(String id, String name, String set);
+
+  /// KLD-083: host waiting screen in the browser when the page/relay is localhost (127.x, ::1, *.localhost). host = the loopback host (kept LTR); example = a generic LAN URL (http://192.168.x.x:8081), mdnsExample = a generic .local URL (both kept LTR).
+  ///
+  /// In de, this message translates to:
+  /// **'Hinweis: Andere Geräte können „{host}“ nicht erreichen. Öffne die Seite über die WLAN-Adresse dieses Rechners (z. B. {example}) oder seinen .local-Namen (z. B. {mdnsExample}), damit Link und QR-Code auf anderen Geräten funktionieren.'**
+  String relayLoopbackHint(String host, String example, String mdnsExample);
+
+  /// KLD-083: small warning under the relay line (and on the native waiting screen) when the relay address is localhost; host = the loopback host (kept LTR).
+  ///
+  /// In de, this message translates to:
+  /// **'„{host}“ ist nur auf diesem Gerät erreichbar – andere Geräte brauchen die WLAN-Adresse oder den .local-Namen des Rechners.'**
+  String relayLoopbackShort(String host);
+
+  /// KLD-083: collapsible help in the localhost warning: how to find this computer's address.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie finde ich die Adresse?'**
+  String get loopbackHowTitle;
+
+  /// KLD-083 help, macOS: where the Wi-Fi IP is shown (System Settings menu names as in the OS language); a terminal command follows (untranslated).
+  ///
+  /// In de, this message translates to:
+  /// **'Systemeinstellungen › WLAN › Details … › IP-Adresse. Oder im Terminal:'**
+  String get loopbackHowMacSettings;
+
+  /// KLD-083 help, macOS: where the .local name (Bonjour) is shown.
+  ///
+  /// In de, this message translates to:
+  /// **'Der .local-Name steht unter Systemeinstellungen › Allgemein › Freigaben („Lokaler Hostname“).'**
+  String get loopbackHowMacMdns;
+
+  /// KLD-083 help, Windows: where the IPv4 address is shown; the command `ipconfig` follows.
+  ///
+  /// In de, this message translates to:
+  /// **'Einstellungen › Netzwerk und Internet › WLAN › Eigenschaften (IPv4-Adresse). Oder in der Eingabeaufforderung (cmd), „IPv4-Adresse“ des WLAN-Adapters:'**
+  String get loopbackHowWindowsSettings;
+
+  /// KLD-083 help, Windows: the .local name.
+  ///
+  /// In de, this message translates to:
+  /// **'Der .local-Name ist unter Windows 10/11 <Computername>.local.'**
+  String get loopbackHowWindowsMdns;
+
+  /// KLD-083 help, Linux: label before the commands `hostname -I` / `ip -4 addr show`.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Terminal:'**
+  String get loopbackHowLinuxTerminal;
+
+  /// KLD-083 help, Linux: settings path and the .local name with Avahi.
+  ///
+  /// In de, this message translates to:
+  /// **'Oder Einstellungen › Netzwerk › WLAN › Details. Der .local-Name ist <Hostname>.local, wenn Avahi läuft.'**
+  String get loopbackHowLinuxSettings;
+
+  /// KLD-083 help: the relay console prints the addresses; command = `klunki relay` (kept LTR).
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: Die Konsole von „{command}“ zeigt diese Adressen beim Start an.'**
+  String loopbackHowRelay(String command);
+
+  /// KLD-083: tooltip of the copy button next to a terminal command.
+  ///
+  /// In de, this message translates to:
+  /// **'Befehl kopieren'**
+  String get loopbackHowCopy;
+
+  /// KLD-083: snackbar after copying a terminal command.
+  ///
+  /// In de, this message translates to:
+  /// **'Befehl kopiert'**
+  String get loopbackHowCopied;
 }
 
 class _AppLocalizationsDelegate

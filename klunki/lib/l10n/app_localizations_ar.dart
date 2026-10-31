@@ -1537,4 +1537,51 @@ class AppLocalizationsAr extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'البطاقة $id: $name، مجموعة $set';
   }
+
+  @override
+  String relayLoopbackHint(String host, String example, String mdnsExample) {
+    return 'ملاحظة: لا تستطيع الأجهزة الأخرى الوصول إلى «$host». افتح الصفحة عبر عنوان الواي فاي لهذا الحاسوب (مثلًا $example) أو اسمه .local (مثلًا $mdnsExample) حتى يعمل الرابط ورمز QR على الأجهزة الأخرى.';
+  }
+
+  @override
+  String relayLoopbackShort(String host) {
+    return '«$host» يعمل على هذا الجهاز فقط – تحتاج الأجهزة الأخرى إلى عنوان الواي فاي أو اسم .local لهذا الحاسوب.';
+  }
+
+  @override
+  String get loopbackHowTitle => 'كيف أجد العنوان؟';
+
+  @override
+  String get loopbackHowMacSettings =>
+      'إعدادات النظام › Wi-Fi › التفاصيل… › عنوان IP. أو في الطرفية:';
+
+  @override
+  String get loopbackHowMacMdns =>
+      'اسم .local موجود في إعدادات النظام › عام › المشاركة («اسم المضيف المحلي»).';
+
+  @override
+  String get loopbackHowWindowsSettings =>
+      'الإعدادات › الشبكة والإنترنت › Wi-Fi › الخصائص (عنوان IPv4). أو في موجه الأوامر (cmd)، «عنوان IPv4» لمحول Wi-Fi:';
+
+  @override
+  String get loopbackHowWindowsMdns =>
+      'في Windows 10/11 يكون اسم .local هو <اسم الحاسوب>.local.';
+
+  @override
+  String get loopbackHowLinuxTerminal => 'في الطرفية:';
+
+  @override
+  String get loopbackHowLinuxSettings =>
+      'أو الإعدادات › الشبكة › Wi-Fi › التفاصيل. اسم .local هو <اسم المضيف>.local إذا كان Avahi يعمل.';
+
+  @override
+  String loopbackHowRelay(String command) {
+    return 'تلميح: تعرض وحدة تحكم «$command» هذه العناوين عند البدء.';
+  }
+
+  @override
+  String get loopbackHowCopy => 'نسخ الأمر';
+
+  @override
+  String get loopbackHowCopied => 'تم نسخ الأمر';
 }
