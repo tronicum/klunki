@@ -16,13 +16,17 @@ void main() {
       host.events.listen(hostEvents.add);
       final guest = await joinHost(host.port, name: 'Bea');
 
-      expect(guest.config, const GameConfig('quartett-sets', seed: 7));
+      // Quartett's seed decides the deal: it stays with the host (KLD-064).
+      expect(guest.config, const GameConfig('quartett-sets'));
+      expect(guest.redacted, isTrue);
+      expect(guest.verification, Verification.pending);
       expect(guest.me, Player.b);
       expect(host.me, Player.a);
       expect(guest.hostName, 'Host');
       expect(guest.token, isNotNull);
       expect(guest.moves, isEmpty);
-      expect(guest.game, isA<QuartettGame>());
+      expect(guest.game, isA<QuartettView>());
+      expect((guest.game as QuartettGame).handOf(Player.b), (host.game as QuartettGame).handOf(Player.b));
       await until(() => hostEvents.isNotEmpty);
       expect(hostEvents.single, isA<PeerConnected>().having((e) => e.name, 'name', 'Bea'));
       expect(host.guestName, 'Bea');
@@ -34,10 +38,10 @@ void main() {
     test('raw handshake messages carry type and v', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
       final hello = await peer.next('hello');
       final welcome = await peer.next('welcome');
-      expect(hello, {'type': 'hello', 'v': 1, 'role': 'host', 'name': 'Host', 'protocol': 1});
+      expect(hello, {'type': 'hello', 'v': 2, 'role': 'host', 'name': 'Host', 'protocol': 2});
       expect(welcome['config'], {'game': 'connect4', 'seed': 0});
       expect(welcome['you'], 'b');
       expect(welcome['moves'], isEmpty);
@@ -106,9 +110,18 @@ void main() {
       expect(host.submitLocal({'action': 'fire', 'row': 0, 'col': 0}), isNull);
       await until(() => guest.moves.length == 3);
 
-      expect(guest.moves, host.moves);
-      expect([for (final h in guest.game.history) h['player']], [Player.a, Player.b, Player.a]);
+      // The host's fleet stays with the host; the guest's own move and the
+      // shot are as played.
+      expect(guest.moves, [
+        {'action': 'autoplace'},
+        host.moves[1],
+        host.moves[2],
+      ]);
+      expect([for (final e in guest.entries) e.player], [Player.a, Player.b, Player.a]);
       final hg = host.game as SchiffeGame, gg = guest.game as SchiffeGame;
+      expect(gg, isA<SchiffeView>());
+      expect(gg.ownGrid(Player.b), hg.ownGrid(Player.b));
+      expect(gg.placements(Player.a), isEmpty);
       expect(gg.phase, SchiffePhase.battle);
       expect(gg.currentPlayer, hg.currentPlayer);
       expect(gg.targetGrid(Player.a), hg.targetGrid(Player.a));
@@ -131,14 +144,15 @@ void main() {
       expect(host.submitLocal({'action': 'move', 'from': 60, 'to': 50}), isNull);
       await until(() => guest.moves.length == 3);
 
-      expect(jsonEncode(guest.moves), jsonEncode(host.moves));
-      expect([for (final h in gg.history) h['player']], [Player.a, Player.b, Player.a]);
-      expect(gg.currentPlayer, Player.b);
-      expect(gg.viewFor(Player.b), hg.viewFor(Player.b));
-      expect(gg.viewFor(Player.a), hg.viewFor(Player.a));
-      // The guest's own view hides X's ranks (the full log is on the wire,
-      // see PROTOCOL.md "Known limitations").
-      expect(gg.viewFor(Player.b)[99].hidden, isTrue);
+      // X's setup never reaches the guest (KLD-064).
+      expect(jsonEncode(guest.moves), jsonEncode([{'action': 'setup'}, host.moves[1], host.moves[2]]));
+      expect([for (final e in guest.entries) e.player], [Player.a, Player.b, Player.a]);
+      final view = guest.game as GoStrategyGame;
+      expect(view.currentPlayer, Player.b);
+      expect(view.viewFor(Player.b), hg.viewFor(Player.b));
+      expect(view.board, hg.viewFor(Player.b));
+      expect(view.viewFor(Player.b)[99].hidden, isTrue);
+      expect(gg.hasSetup(Player.b), isTrue);
       await guest.close();
       await host.close();
     });
@@ -174,16 +188,16 @@ void main() {
     test('duplicate and stale indices', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
       await peer.next('welcome');
       host.submitLocal({'col': 3});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 1, 'index': 0, 'player': 'a', 'move': {'col': 3}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 0, 'player': 'a', 'move': {'col': 3}});
 
       peer.send('move', {'index': 1, 'move': {'col': 4}});
       expect((await peer.next('accepted'))['index'], 1);
       // Resend of the same move: confirmed again, applied once.
       peer.send('move', {'index': 1, 'move': {'col': 4}});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 1, 'index': 1, 'player': 'b', 'move': {'col': 4}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 1, 'player': 'b', 'move': {'col': 4}});
       expect(host.moves.length, 2);
       // Stale index with a different move, and an index from the future.
       peer.send('move', {'index': 0, 'move': {'col': 5}});
@@ -247,8 +261,17 @@ void main() {
         expect(guest.game.result.winner, host.game.result.winner);
         expect(guest.game.result.draw, host.game.result.draw);
         expect(guest.game.result.reason, host.game.result.reason);
-        expect(jsonEncode(guest.moves), jsonEncode(host.moves));
-        expect(guest.game.history.length, host.game.history.length);
+        if (spec.redaction == null) {
+          expect(jsonEncode(guest.moves), jsonEncode(host.moves));
+          expect(guest.game.history.length, host.game.history.length);
+        } else {
+          // The guest only ever saw redacted moves; the host's reveal lets it
+          // replay and confirm the whole game (KLD-064).
+          expect(guest.moves.length, host.moves.length);
+          await until(() => guest.verification != Verification.pending);
+          expect(guest.verificationError, isNull);
+          expect(guest.verification, Verification.verified);
+        }
         expect(host.submitLocal(legalMoves(host.game, rng).firstOrNull ?? {'col': 0}), isNotNull);
         await guest.close();
         await host.close();
@@ -337,7 +360,7 @@ void main() {
   group('robustness', () {
     test('malformed line -> error + close', () async {
       final host = await startHost(const GameConfig('connect4'));
-      for (final bad in ['garbage', '[1,2]', '{"v":1}', '{"type":"hello","v":2}', '{"type":"move","v":1}']) {
+      for (final bad in ['garbage', '[1,2]', '{"v":2}', '{"type":"hello","v":1}', '{"type":"move","v":2}']) {
         final peer = await RawPeer.connect(host.port);
         peer.line(bad);
         final error = await peer.next('error');
@@ -352,7 +375,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
       await peer.next('welcome');
       peer.send('move', {'index': 'zero', 'move': {'col': 1}});
       await peer.next('error');
@@ -379,7 +402,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawPeer.connect(host.port); // never answers ping
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
       await peer.next('welcome');
       await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
       expect(events.whereType<PeerDisconnected>().single.timedOut, isTrue);

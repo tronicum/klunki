@@ -703,6 +703,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairingReconnect => 'Reconnect';
 
   @override
+  String get networkVerificationFailed =>
+      'The game record could not be verified';
+
+  @override
   String get pairingReconnectFailed =>
       'Reconnecting failed. Is the host still in the game?';
 

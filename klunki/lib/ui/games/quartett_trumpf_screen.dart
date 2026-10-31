@@ -115,6 +115,10 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
   late int _seenMoves;
   bool _submitting = false;
 
+  /// Our pick went out without a preview (network guest, KLD-064): reveal
+  /// it from the accepted event.
+  bool _revealOwn = false;
+
   GameController get c => widget.controller;
 
   @override
@@ -155,10 +159,13 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
       next = null;
       _submitting = false;
     } else if (moves.length > _seenMoves) {
-      if (_submitting) {
+      if (_submitting && !_revealOwn) {
         _submitting = false; // our own pick, already revealed
       } else {
-        // A move we did not make here (network): reveal it from its event.
+        // A move we did not make here (network), or our own pick on a
+        // device that cannot preview it: reveal it from its event.
+        _submitting = false;
+        _revealOwn = false;
         final m = moves.last;
         next = _Trick.fromPayload(m.player, m.event.payload, null);
       }
@@ -175,10 +182,20 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
   /// Computes the trick for [stat] on a replayed copy of the engine; the real
   /// game is only changed on "Weiter".
   void _pick(QuartettStat stat) {
-    if (!c.canAct || _reveal != null) return;
+    if (!c.canAct || _reveal != null || _submitting) return;
     final move = <String, dynamic>{'action': 'pick', 'stat': stat.id};
-    final copy = replay(c.config, c.moves.map((m) => m.move));
-    final event = copy?.applyMove(move);
+    final copy = c.previewCopy();
+    if (copy == null) {
+      // Network guest: the opponent's card is not on this device. Submit;
+      // the accepted event reveals the trick.
+      _submitting = true;
+      _revealOwn = true;
+      c.submit(move).then((r) {
+        if (!r.isAccepted) _submitting = _revealOwn = false;
+      });
+      return;
+    }
+    final event = copy.applyMove(move);
     final trick = event == null ? null : _Trick.fromPayload(c.game.currentPlayer, event.payload, move);
     if (trick != null) setState(() => _reveal = trick);
   }
@@ -243,9 +260,16 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
     );
   }
 
+  /// Whose card this device shows: the single local player, or (hot-seat)
+  /// the player to move.
+  Player _viewer(QuartettGame g) {
+    final local = c.transport.localPlayers;
+    return local.length == 1 ? local.first : g.currentPlayer;
+  }
+
   /// Own top card face-up (stats tappable), opponent's stack face-down.
   Widget _tableView(BuildContext context, QuartettGame game) {
-    final me = game.currentPlayer;
+    final me = _viewer(game);
     final opp = me == Player.a ? Player.b : Player.a;
     final top = game.topCard(me);
     if (top == null) return const SizedBox.shrink();

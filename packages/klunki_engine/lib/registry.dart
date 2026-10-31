@@ -4,6 +4,7 @@ import 'gostrategy.dart';
 import 'muehle.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
+import 'secrecy.dart';
 
 /// Everything needed to (re)create the same game on every device: a game id
 /// plus the seed for games with shuffled or random setup. Together with the
@@ -41,8 +42,13 @@ class GameSpec {
   /// runs in the engine, the CLI and over the network, but the app hides it
   /// (see [appGameSpecs]).
   final bool appReady;
+
+  /// How a network host redacts this game for the remote player (KLD-064);
+  /// set exactly for the [hiddenInformation] games.
+  final Redaction? redaction;
   final Game Function(int seed) _create;
-  const GameSpec(this.id, this.title, this._create, {this.hiddenInformation = false, this.appReady = true});
+  const GameSpec(this.id, this.title, this._create,
+      {this.hiddenInformation = false, this.appReady = true, this.redaction});
 
   Game create([int seed = 0]) => _create(seed);
 }
@@ -52,13 +58,15 @@ final List<GameSpec> gameSpecs = [
   GameSpec('connect4', '4 Gewinnt', (_) => Connect4Game()),
   GameSpec('muehle', 'Mühle', (_) => MuehleGame()),
   GameSpec('quartett-trumpf', 'Quartett (Trumpf)', (s) => QuartettGame(QuartettMode.trumpf, seed: s),
-      hiddenInformation: true),
+      hiddenInformation: true, redaction: const QuartettRedaction()),
   // 8 cards each plus a draw pile: with all 32 dealt every ask would hit.
   GameSpec('quartett-sets', 'Quartett (Sets)', (s) => QuartettGame(QuartettMode.sets, seed: s, handSize: 8),
-      hiddenInformation: true),
-  GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(), hiddenInformation: true),
+      hiddenInformation: true, redaction: const QuartettRedaction()),
+  GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(),
+      hiddenInformation: true, redaction: const SchiffeRedaction()),
   // Engine + CLI only until its app screen exists (KLD-058b).
-  GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(), hiddenInformation: true, appReady: false),
+  GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(),
+      hiddenInformation: true, appReady: false, redaction: const GoStrategyRedaction()),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

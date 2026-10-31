@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'secrecy.dart';
+
+part 'quartett_view.dart';
 
 /// Quartett for two players, in two flavours sharing one 32-card deck
 /// (8 sets A–H × 4 cards, ids like `B3`):
@@ -141,6 +144,10 @@ class QuartettGame implements Game {
     _c('H4', 'Abarth 595 Competizione', 180, 218, 1368, 1120, 7.3),
   ]);
 
+  /// Stands for a card the viewer may not see (opponent's cards and the
+  /// face-down stock in a [QuartettView]). Never part of [deck].
+  static const Card hiddenCard = Card(id: '?', name: '?', set: '?', stats: {});
+
   static final Map<String, Card> _byId = {for (final c in deck) c.id: c};
 
   /// Looks up a card by id; null if unknown.
@@ -241,6 +248,28 @@ class QuartettGame implements Game {
   /// Set letters laid down by [p], in order of completion.
   List<String> quartetsOf(Player p) => List.unmodifiable(_quartets[p]!);
   int get stockSize => _stock.length;
+
+  /// What [viewer] may know, as JSON (KLD-064, see [QuartettRedaction]):
+  /// counts, laid-down quartets, the viewer's own top card (Trumpf) or hand
+  /// (Sets). Never the opponent's cards, the stock or the seed.
+  Map<String, dynamic> viewJson(Player viewer) => {
+        'viewer': viewer.name,
+        'mode': mode.name,
+        'handSize': handSize,
+        'current': _current.name,
+        'result': resultToJson(result),
+        if (mode == QuartettMode.trumpf) ...{
+          'tricks': tricks,
+          'pot': potSize,
+          'stacks': {'a': stackSize(Player.a), 'b': stackSize(Player.b)},
+          'top': topCard(viewer)?.id,
+        } else ...{
+          'hand': [for (final c in handOf(viewer)) c.id],
+          'hands': {'a': handOf(Player.a).length, 'b': handOf(Player.b).length},
+          'stock': stockSize,
+          'quartets': {'a': quartetsOf(Player.a), 'b': quartetsOf(Player.b)},
+        },
+      };
 
   /// Legal moves for [currentPlayer]; empty when the game is over.
   List<Map<String, dynamic>> get legalMoves {

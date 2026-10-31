@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'secrecy.dart';
+
+part 'schiffe_view.dart';
 
 /// Phase of a Schiffe-versenken game. Game over is reported via
 /// [SchiffeGame.isOver]; the phase stays [battle] after the last shot.
@@ -63,6 +66,23 @@ class _Side {
       List.generate(SchiffeGame.size, (_) => List.filled(SchiffeGame.size, false));
 
   int get remaining => ships.where((s) => !s.sunk).length;
+
+  /// This side's own grid: ships plus incoming shots.
+  List<List<SchiffeCell>> ownGrid() => List.generate(SchiffeGame.size, (r) => List.generate(SchiffeGame.size, (c) {
+        final idx = shipAt[r][c];
+        final hit = shot[r][c];
+        if (idx == null) return hit ? SchiffeCell.miss : SchiffeCell.empty;
+        if (!hit) return SchiffeCell.ship;
+        return ships[idx].sunk ? SchiffeCell.sunk : SchiffeCell.hit;
+      }));
+
+  /// What the opponent knows about this side: shots and their results.
+  List<List<ShotMark>> marks() => List.generate(SchiffeGame.size, (r) => List.generate(SchiffeGame.size, (c) {
+        if (!shot[r][c]) return ShotMark.unknown;
+        final idx = shipAt[r][c];
+        if (idx == null) return ShotMark.miss;
+        return ships[idx].sunk ? ShotMark.sunk : ShotMark.hit;
+      }));
 }
 
 /// Schiffe versenken, classic German rules.
@@ -140,27 +160,30 @@ class SchiffeGame extends Game {
       List.unmodifiable(_sides[p]!.ships.map((s) => s.placement));
 
   /// [p]'s own grid: ships plus incoming shots. `grid[row][col]`.
-  List<List<SchiffeCell>> ownGrid(Player p) {
-    final side = _sides[p]!;
-    return List.generate(size, (r) => List.generate(size, (c) {
-          final idx = side.shipAt[r][c];
-          final shot = side.shot[r][c];
-          if (idx == null) return shot ? SchiffeCell.miss : SchiffeCell.empty;
-          if (!shot) return SchiffeCell.ship;
-          return side.ships[idx].sunk ? SchiffeCell.sunk : SchiffeCell.hit;
-        }));
-  }
+  List<List<SchiffeCell>> ownGrid(Player p) => _sides[p]!.ownGrid();
 
   /// What [p] knows about the opponent's grid. `grid[row][col]`. Never
   /// reveals unhit ship cells.
-  List<List<ShotMark>> targetGrid(Player p) {
-    final side = _sides[_other(p)]!;
-    return List.generate(size, (r) => List.generate(size, (c) {
-          if (!side.shot[r][c]) return ShotMark.unknown;
-          final idx = side.shipAt[r][c];
-          if (idx == null) return ShotMark.miss;
-          return side.ships[idx].sunk ? ShotMark.sunk : ShotMark.hit;
-        }));
+  List<List<ShotMark>> targetGrid(Player p) => _sides[_other(p)]!.marks();
+
+  /// What [viewer] may know, as JSON (KLD-064, see [SchiffeRedaction]): own
+  /// fleet and incoming shots, the shot results on the opponent's grid and
+  /// the opponent's ship counts. Never the opponent's unhit ship cells.
+  Map<String, dynamic> viewJson(Player viewer) {
+    final own = _sides[viewer]!, opp = _other(viewer);
+    return {
+      'viewer': viewer.name,
+      'fleet': fleet,
+      'extraShotOnHit': extraShotOnHit,
+      'phase': _phase.name,
+      'current': _current.name,
+      if (_winner != null) 'winner': _winner!.name,
+      'own': [for (final s in own.ships) _placementJson(s.placement)],
+      'incoming': [for (var r = 0; r < size; r++) for (var c = 0; c < size; c++) own.shot[r][c] ? '1' : '0'].join(),
+      'target': [for (final row in targetGrid(viewer)) for (final m in row) '${m.index}'].join(),
+      'oppPlaced': nextShipIndex(opp) ?? fleet.length,
+      'oppRemaining': shipsRemaining(opp),
+    };
   }
 
   // ---------------------------------------------------------------- moves
@@ -173,18 +196,7 @@ class SchiffeGame extends Game {
     if (_phase == SchiffePhase.setup) {
       final idx = nextShipIndex(_current);
       if (idx == null) return const [];
-      final occupied = _occupiedOf(_sides[_current]!);
-      final out = <Map<String, dynamic>>[];
-      for (final h in [true, false]) {
-        for (var r = 0; r < size; r++) {
-          for (var c = 0; c < size; c++) {
-            final p = ShipPlacement(
-                length: fleet[idx], row: r, col: c, horizontal: h);
-            if (_fits(occupied, p)) out.add(p.toMove(idx));
-          }
-        }
-      }
-      return out;
+      return _placementMoves(fleet, idx, _sides[_current]!);
     }
     final target = _sides[_other(_current)]!;
     return [
@@ -292,6 +304,18 @@ class SchiffeGame extends Game {
   }
 
   // -------------------------------------------------------------- helpers
+
+  /// Every valid placement of ship [idx] (of [fleet]) around [side]'s ships.
+  static List<Map<String, dynamic>> _placementMoves(List<int> fleet, int idx, _Side side) {
+    final occupied = _occupiedOf(side);
+    return [
+      for (final h in [true, false])
+        for (var r = 0; r < size; r++)
+          for (var c = 0; c < size; c++)
+            if (_fits(occupied, ShipPlacement(length: fleet[idx], row: r, col: c, horizontal: h)))
+              ShipPlacement(length: fleet[idx], row: r, col: c, horizontal: h).toMove(idx),
+    ];
+  }
 
   static bool _inBounds(int r, int c) => r >= 0 && r < size && c >= 0 && c < size;
 

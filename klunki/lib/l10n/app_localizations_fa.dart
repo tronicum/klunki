@@ -703,6 +703,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pairingReconnect => 'اتصال دوباره';
 
   @override
+  String get networkVerificationFailed => 'تأیید روند بازی ممکن نشد';
+
+  @override
   String get pairingReconnectFailed =>
       'اتصال دوباره ناموفق بود. آیا میزبان هنوز در بازی است؟';
 

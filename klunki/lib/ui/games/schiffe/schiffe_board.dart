@@ -15,9 +15,10 @@ import 'schiffe_grid.dart';
 const _wideBreakpoint = 600.0;
 
 /// The Schiffe versenken board: fleet placement (setup) and the battle with
-/// own + target grid. Only ever renders the view of the player to move
-/// (`ownGrid` / `targetGrid` of `currentPlayer`); in hot-seat the shell's
-/// handover cover hides it between turns.
+/// own + target grid. Only ever renders one player's view (`ownGrid` /
+/// `targetGrid` of [_SchiffeBoardState.viewer]): over the network this
+/// device's player, in hot-seat the player to move (the shell's handover
+/// cover hides it between turns).
 class SchiffeBoard extends StatefulWidget {
   final GameController controller;
 
@@ -36,6 +37,13 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
 
   GameController get controller => widget.controller;
   SchiffeGame get game => controller.game as SchiffeGame;
+
+  /// Whose ocean this device shows: the single local player (network), or
+  /// (hot-seat) the player to move. Never the remote opponent's fleet.
+  Player get viewer {
+    final local = controller.transport.localPlayers;
+    return local.length == 1 ? local.first : game.currentPlayer;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +83,7 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
 
   /// The opponent's most recent shot at the player to move.
   AcceptedMove? _lastIncoming(SchiffeGame g) {
-    final me = g.currentPlayer;
+    final me = viewer;
     for (final m in controller.moves.reversed) {
       if (m.move['action'] == 'fire' && m.player != me) return m;
     }
@@ -147,7 +155,7 @@ class _Setup extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = state.game;
     final l10n = AppLocalizations.of(context);
-    final me = g.currentPlayer;
+    final me = state.viewer;
     final next = g.nextShipIndex(me);
     final canAct = state.controller.canAct && next != null;
     final len = next == null ? 0 : g.fleet[next];
@@ -321,7 +329,7 @@ class _Battle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final g = state.game;
-    final me = g.currentPlayer;
+    final me = state.viewer;
     final opp = me == Player.a ? Player.b : Player.a;
     final canAct = state.controller.canAct;
     final theme = Theme.of(context);

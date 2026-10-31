@@ -173,6 +173,7 @@
   "pairingWaitForRejoin": "{reason}. بانتظار عودته…",
   "pairingReconnecting": "جارٍ إعادة الاتصال…",
   "pairingReconnect": "إعادة الاتصال",
+  "networkVerificationFailed": "تعذّر تأكيد سجل اللعبة",
   "pairingReconnectFailed": "فشلت إعادة الاتصال. هل المضيف ما زال في اللعبة؟",
   "pairingBrowserJoin": "الانضمام من متصفح (اكتب العنوان أو الصق الرابط):",
   "pairingCopyLink": "نسخ الرابط",

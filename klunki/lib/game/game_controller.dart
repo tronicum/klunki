@@ -60,6 +60,12 @@ class GameController extends ChangeNotifier {
 
   Future<SubmitResult> submit(Map<String, dynamic> move) => _transport.submit(move);
 
+  /// A private copy of the game with every accepted move replayed, for
+  /// previewing a move before it is submitted; null when this device only
+  /// holds a redacted view (network guest of a hidden-information game,
+  /// KLD-064): such a screen submits and shows the outcome from the event.
+  Game? previewCopy() => _transport.fullInformation ? replay(config, moves.map((m) => m.move)) : null;
+
   void acknowledgeHandover() {
     if (!_needsHandover) return;
     _needsHandover = false;

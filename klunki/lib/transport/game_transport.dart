@@ -22,6 +22,14 @@ abstract class GameTransport {
   /// `applyMove` on it directly; go through [submit].
   Game get game;
 
+  /// True when [game] is the full engine (hot-seat, network host, network
+  /// guest of a game without hidden information), so a screen may replay
+  /// [moves] on a copy to preview a move. False for a network guest of a
+  /// hidden-information game: [game] is then a read-only view of what this
+  /// player may know, [config] carries no secret seed, and [moves] /
+  /// events are redacted (KLD-064).
+  bool get fullInformation;
+
   /// Every accepted move so far, in order (`moves[i].index == i`).
   List<AcceptedMove> get moves;
 

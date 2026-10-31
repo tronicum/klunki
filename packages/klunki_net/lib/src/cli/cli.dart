@@ -357,7 +357,10 @@ Future<List<String>> _addresses(Object? bindAddress) async {
 ///
 /// It keeps its own copy of the game (built from the session's [GameConfig],
 /// so seeded deals match) and applies every accepted move to it; that gives
-/// the [GameEvent] the text adapter needs for the narration.
+/// the [GameEvent] the text adapter needs for the narration. A guest of a
+/// hidden-information game has no full game (KLD-064): it shows the view the
+/// host sent ([KlunkiGuest.game]) and narrates the redacted events, and at
+/// the end it waits for the host's reveal and prints the verification.
 class _Play {
   final KlunkiHost? _host;
   final KlunkiGuest? _guest;
@@ -376,6 +379,7 @@ class _Play {
   bool _reconnecting = false;
   bool _submitting = false;
   bool _finishing = false;
+  bool _awaitingVerification = false;
 
   _Play.host(KlunkiHost host, this._input, this._out)
       : _host = host,
@@ -411,7 +415,15 @@ class _Play {
     return _done.future;
   }
 
+  /// A guest of a hidden-information game: views only, no replay.
+  bool get _redactedGuest => _guest?.redacted ?? false;
+
   void _rebuild(List<Map<String, dynamic>> moves) {
+    if (_redactedGuest) {
+      _view = DebugConsole.forGame(_config.gameId, _guest!.game);
+      _applied = _guest.entries.length;
+      return;
+    }
     final game = replay(_config, [for (final m in moves) _copy(m)]) ?? createGame(_config);
     _view = DebugConsole.forGame(_config.gameId, game);
     _applied = moves.length;
@@ -444,11 +456,17 @@ class _Play {
         }
       case MoveRejected():
         break; // the guest's submit() reports it; the host has nothing to show
+      case GameVerified() || VerificationFailed():
+        if (_awaitingVerification) {
+          _reportVerification();
+          _finish(0, 'game over');
+        }
     }
   }
 
   void _onAccepted(MoveAccepted e) {
     if (e.index < _applied) return;
+    if (_redactedGuest) return _onRedactedAccepted(e);
     if (e.index > _applied) _rebuild(_sessionMoves.take(e.index).toList());
     final mover = _view.game.currentPlayer;
     final event = _view.game.applyMove(_copy(e.move));
@@ -460,6 +478,19 @@ class _Play {
       _applied++;
       _out.writeln(_narrate(mover, e.move, event));
     }
+    _afterMove();
+  }
+
+  /// A guest of a hidden-information game: the view comes from the host.
+  void _onRedactedAccepted(MoveAccepted e) {
+    _view = DebugConsole.forGame(_config.gameId, _guest!.game);
+    _applied = e.index + 1;
+    final event = e.event;
+    if (event != null) _out.writeln(_narrate(e.player, e.move, event));
+    _afterMove();
+  }
+
+  void _afterMove() {
     if (_view.game.isOver) {
       if (!_hidden) {
         _out
@@ -469,11 +500,35 @@ class _Play {
       _out
         ..writeln(_result())
         ..writeln('Game over.');
+      final guest = _guest;
+      if (guest != null && guest.verification != Verification.pending) _reportVerification();
+      if (guest != null && guest.verification == Verification.pending) {
+        // The host reveals its secrets right after the last move.
+        _awaitingVerification = true;
+        Future<void>.delayed(guest.timeout, () {
+          if (_finishing) return;
+          _out.writeln('The host did not reveal its hidden data; the game could not be verified.');
+          _finish(0, 'game over');
+        });
+        return;
+      }
       _finish(0, 'game over');
     } else if (_reconnecting) {
       // replaying missed moves; Resynced shows the turn
     } else {
       _showTurn();
+    }
+  }
+
+  /// The end-of-game check of a hidden-information game (guest only).
+  void _reportVerification() {
+    switch (_guest?.verification) {
+      case Verification.verified:
+        _out.writeln("Verified: the host's hidden data matches its commitments and the game replays as reported.");
+      case Verification.failed:
+        _out.writeln('Could not verify the game record: ${_guest!.verificationError}');
+      default:
+        break;
     }
   }
 
@@ -508,6 +563,11 @@ class _Play {
 
   void _onDisconnected(String reason) {
     final left = reason.startsWith('peer left');
+    if (_awaitingVerification) {
+      _out.writeln('The host left before revealing its hidden data; the game could not be verified.');
+      _finish(0, 'game over');
+      return;
+    }
     if (_host != null) {
       _opponentHere = false;
       if (left) {

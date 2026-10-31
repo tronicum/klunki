@@ -38,9 +38,13 @@ enum NetRole { host, guest }
 ///   [KlunkiGuest.game]); after a guest reconnect ([Resynced]) it is the new
 ///   replayed instance.
 /// - [moves] / [accepted] mirror the session's accepted log with the
-///   protocol indexes. The [GameEvent] of each move is obtained like in
-///   `HotSeatTransport`, from `applyMove` — on a private shadow engine that
-///   replays the log, because the net layer does not report events.
+///   protocol indexes and each move's [GameEvent] as the net layer reports
+///   it (the host's engine, or the guest's).
+/// - Hidden-information games (KLD-064): on the guest, [game] is a read-only
+///   view (e.g. `SchiffeView`) with only what this player may know, and the
+///   moves and events of the opponent are redacted ([fullInformation] is
+///   false). When the game is over the guest checks the host's reveal
+///   ([verification]).
 /// - [accepted] is a synchronous broadcast stream; for an accepted [submit]
 ///   the listeners have seen the move before the future completes.
 ///
@@ -51,7 +55,6 @@ class NetworkTransport implements GameTransport {
   final KlunkiHost? _host;
   final KlunkiGuest? _guest;
 
-  final Game _shadow;
   final List<AcceptedMove> _moves = [];
   final StreamController<AcceptedMove> _accepted = StreamController<AcceptedMove>.broadcast(sync: true);
   final ValueNotifier<NetConnectionState> _state;
@@ -66,7 +69,6 @@ class NetworkTransport implements GameTransport {
       : role = NetRole.host,
         _host = host,
         _guest = null,
-        _shadow = createGame(host.config),
         _state = ValueNotifier(host.guestConnected ? NetConnectionState.connected : NetConnectionState.connecting),
         _peerName = host.guestName {
     _init(host.events);
@@ -76,7 +78,6 @@ class NetworkTransport implements GameTransport {
       : role = NetRole.guest,
         _host = null,
         _guest = guest,
-        _shadow = createGame(guest.config),
         _state = ValueNotifier(guest.connected ? NetConnectionState.connected : NetConnectionState.peerMissing),
         _peerName = guest.hostName {
     _init(guest.events);
@@ -182,6 +183,9 @@ class NetworkTransport implements GameTransport {
   Game get game => _host?.game ?? _guest!.game;
 
   @override
+  bool get fullInformation => !(_guest?.redacted ?? false);
+
+  @override
   List<AcceptedMove> get moves => List.unmodifiable(_moves);
 
   @override
@@ -279,9 +283,19 @@ class NetworkTransport implements GameTransport {
   String? get roomLost => _roomLost.value;
   final ValueNotifier<String?> _roomLost = ValueNotifier(null);
 
-  /// Fires on every [connection] change and when the room is lost
-  /// ([roomLost]); for UI that shows both.
-  late final Listenable changes = Listenable.merge([_state, _roomLost]);
+  /// Guest of a hidden-information game: the end-of-game check of the
+  /// host's reveal (KLD-064). [Verification.notNeeded] on the host and for
+  /// games without hidden information.
+  ValueListenable<Verification> get verification => _verification;
+  late final ValueNotifier<Verification> _verification =
+      ValueNotifier(_guest?.verification ?? Verification.notNeeded);
+
+  /// The host's reveal did not confirm the game ([verification] failed).
+  bool get verificationFailed => _verification.value == Verification.failed;
+
+  /// Fires on every [connection] change, when the room is lost
+  /// ([roomLost]) and when [verification] changes; for UI that shows them.
+  late final Listenable changes = Listenable.merge([_state, _roomLost, _verification]);
 
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
@@ -336,28 +350,28 @@ class NetworkTransport implements GameTransport {
         _lastDisconnectReason = message;
         _roomLost.value = message;
         _setState(NetConnectionState.peerMissing);
+      case GameVerified() || VerificationFailed():
+        _verification.value = _guest?.verification ?? Verification.notNeeded;
       case MoveRejected():
       case NetError():
         break;
     }
   }
 
-  /// Brings [_moves] up to the session's log: every net move with an index we
-  /// have not emitted yet is applied to the shadow engine (for its event),
-  /// appended and emitted. Reading the log instead of the event payloads makes
-  /// this idempotent and immune to events emitted before we subscribed.
+  /// Brings [_moves] up to the session's log: every net entry with an index
+  /// we have not emitted yet is appended and emitted, with its event.
+  /// Reading the log instead of the event payloads makes this idempotent and
+  /// immune to events emitted before we subscribed.
   void _catchUp() {
     if (_disposed) return;
-    final log = _host?.moves ?? _guest!.moves;
+    final log = _host?.entries ?? _guest!.entries;
     while (_moves.length < log.length) {
       final index = _moves.length;
-      final move = Map<String, dynamic>.unmodifiable(log[index]);
-      final player = _shadow.currentPlayer;
-      final event = _shadow.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>);
-      if (event == null) {
-        throw StateError('accepted move #$index does not apply to the local replay of $config');
-      }
-      final entry = AcceptedMove(index: index, player: player, move: move, event: event);
+      final net = log[index];
+      final event = net.event;
+      if (event == null) throw StateError('accepted move #$index of $config has no event');
+      final move = Map<String, dynamic>.unmodifiable(net.move);
+      final entry = AcceptedMove(index: index, player: net.player, move: move, event: event);
       _moves.add(entry);
       _accepted.add(entry);
     }

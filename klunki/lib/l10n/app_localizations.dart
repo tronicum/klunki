@@ -1140,6 +1140,12 @@ abstract class AppLocalizations {
   /// **'Neu verbinden'**
   String get pairingReconnect;
 
+  /// Guest's banner after a hidden-information network game (KLD-064) when the host's revealed secrets do not match its commitments or the replayed game differs from what the host reported.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielverlauf konnte nicht bestätigt werden'**
+  String get networkVerificationFailed;
+
   /// Error below the connection banner when reconnecting failed.
   ///
   /// In de, this message translates to:

@@ -173,6 +173,15 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       ],
                     ),
                   ),
+                // KLD-064: the host's reveal did not confirm the game.
+                if (t.verificationFailed)
+                  Container(
+                    key: const Key('net-verification-failed'),
+                    color: theme.colorScheme.errorContainer,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Text(l10n.networkVerificationFailed,
+                        style: TextStyle(color: theme.colorScheme.onErrorContainer)),
+                  ),
                 if (_reconnectError != null && missing)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),

@@ -11,6 +11,7 @@ import 'connection.dart';
 import 'events.dart';
 import 'names.dart';
 import 'relay/relay_client.dart';
+import 'secrecy/secrecy.dart';
 
 /// The authoritative side of a session: owns the engine and the move log,
 /// listens for one guest and validates every move.
@@ -23,6 +24,12 @@ import 'relay/relay_client.dart';
 /// the host connects out to the relay, gets a [roomCode], and the guest that
 /// joins the room is served by the same session code. That works in the
 /// browser too.
+///
+/// Hidden-information games (`GameSpec.redaction`, KLD-064): the host is the
+/// referee. The guest gets only redacted moves, events and its own view; the
+/// host commits to every secret of its own (its setup, a secret seed) and
+/// reveals them with `reveal` once the game is over, so the guest can check
+/// the whole game.
 class KlunkiHost {
   final GameConfig config;
   /// The host's player name, sanitised ([sanitizePlayerName]; the mark of
@@ -43,7 +50,22 @@ class KlunkiHost {
   String? _guestName;
   String? _token; // set once a guest has joined; required to rejoin
 
-  KlunkiHost._(this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game);
+  // Hidden-information games only (KLD-064).
+  final Redaction? _redaction;
+  final List<_GuestRecord> _guestLog = []; // parallel to _log
+  String _startViewHash = '';
+  final String _seedSalt = newSalt();
+  Map<String, dynamic>? _lastGuestView; // the guest's view after the last move
+
+  /// Test hook: rewrites (or drops, by returning null) every message to the
+  /// guest before it is sent. Lets tests play a cheating host.
+  Map<String, dynamic>? Function(String type, Map<String, dynamic> fields)? debugRewriteOutgoing;
+
+  KlunkiHost._(this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game)
+      : _redaction = specById(config.gameId)?.redaction {
+    final redaction = _redaction;
+    if (redaction != null) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
+  }
 
   /// Binds a TCP server on [port] and a WebSocket server on [wsPort] (0 =
   /// ephemeral, read [port] / [wsPort] afterwards; [wsPort] null = TCP only).
@@ -60,11 +82,11 @@ class KlunkiHost {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final game = createGame(config);
-    final log = _replayLog(config, game, moves);
+    _validateLog(config, moves);
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
-    return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, game)
-      .._listen(log);
+    return KlunkiHost._(
+        config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, createGame(config))
+      .._listen(moves);
   }
 
   /// Hosts through the relay at [relayUrl] (`ws://host:port/relay`, e.g. from
@@ -89,25 +111,26 @@ class KlunkiHost {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final game = createGame(config);
-    final log = _replayLog(config, game, moves);
+    _validateLog(config, moves);
     final relay = await RelayHostListener.connect(relayUrl, timeout: timeout);
-    return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, game)
-      .._listen(log);
+    return KlunkiHost._(
+        config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, createGame(config))
+      .._listen(moves);
   }
 
-  static List<MoveAccepted> _replayLog(GameConfig config, Game game, List<Map<String, dynamic>> moves) {
-    final log = <MoveAccepted>[];
-    for (final m in moves) {
-      final by = game.currentPlayer;
-      if (game.applyMove(m) == null) throw ArgumentError.value(moves, 'moves', 'do not replay for $config');
-      log.add(MoveAccepted(log.length, by, m));
+  /// Throws [ArgumentError] (before anything is bound) if [moves] do not
+  /// replay for [config].
+  static void _validateLog(GameConfig config, List<Map<String, dynamic>> moves) {
+    if (replay(config, [for (final m in moves) jsonDecode(jsonEncode(m)) as Map<String, dynamic>]) == null) {
+      throw ArgumentError.value(moves, 'moves', 'do not replay for $config');
     }
-    return log;
   }
 
-  void _listen(List<MoveAccepted> log) {
-    _log.addAll(log);
+  void _listen(List<Map<String, dynamic>> moves) {
+    for (final m in moves) {
+      final reason = _apply(_game.currentPlayer, m);
+      if (reason != null) throw StateError('resumed move does not apply: $reason');
+    }
     _server.channels.listen(_onChannel, onError: (Object e) {
       _emit(NetError(e is NetException ? e.message : '$e'));
     });
@@ -129,8 +152,12 @@ class KlunkiHost {
   Player get guestPlayer => otherPlayer(me);
   Game get game => _game;
 
-  /// The accepted move log (what `welcome` sends as the snapshot).
+  /// The accepted move log (full moves; for a hidden-information game the
+  /// guest gets the redacted log instead).
   List<Map<String, dynamic>> get moves => [for (final a in _log) a.move];
+
+  /// The accepted log with each move's [GameEvent].
+  List<MoveAccepted> get entries => List.unmodifiable(_log);
   bool get guestConnected => _guest != null;
   /// The guest's name from its `hello`, sanitised ([sanitizePlayerName];
   /// the guest's mark if empty); null until a guest joined.
@@ -199,14 +226,30 @@ class KlunkiHost {
     old?.close('replaced by a new connection');
     _guestName = name;
     _token ??= _newToken();
-    conn.send('hello', {'role': 'host', 'name': this.name, 'protocol': protocolVersion});
-    conn.send('welcome', {
-      'config': config.toJson(),
-      'you': guestPlayer.name,
-      'moves': moves,
-      'token': _token,
-      'host': this.name,
-    });
+    _send(conn, 'hello', {'role': 'host', 'name': this.name, 'protocol': protocolVersion});
+    final redaction = _redaction;
+    if (redaction == null) {
+      _send(conn, 'welcome', {
+        'config': config.toJson(),
+        'you': guestPlayer.name,
+        'moves': moves,
+        'token': _token,
+        'host': this.name,
+      });
+    } else {
+      _send(conn, 'welcome', {
+        'config': redaction.secretSeed ? {'game': config.gameId} : config.toJson(),
+        'you': guestPlayer.name,
+        'token': _token,
+        'host': this.name,
+        'redacted': true,
+        if (redaction.secretSeed) 'seedCommit': commitment(_seedSalt, 'seed', config.seed),
+        'start': _startViewHash,
+        'log': [for (final r in _guestLog) r.step.toJson()],
+        'view': redaction.view(_game, guestPlayer),
+      });
+      if (_game.isOver) _sendReveal(conn);
+    }
     _emit(PeerConnected(name, reconnect: reconnect));
   }
 
@@ -220,8 +263,11 @@ class KlunkiHost {
     if (index < _log.length) {
       final entry = _log[index];
       if (entry.player == guestPlayer && jsonEncode(entry.move) == jsonEncode(move)) {
-        conn.send('accepted', _fields(entry)); // a resend: confirm again
-        return;
+        // A resend: confirm again (redacted games keep only the latest view).
+        if (_redaction == null || index == _log.length - 1) {
+          _send(conn, 'accepted', _fields(entry));
+          return;
+        }
       }
       reason = 'stale index $index (log has ${_log.length} moves)';
     } else if (index > _log.length) {
@@ -230,7 +276,7 @@ class KlunkiHost {
       reason = _apply(guestPlayer, move);
     }
     if (reason != null) {
-      conn.send('rejected', {'index': index, 'reason': reason});
+      _send(conn, 'rejected', {'index': index, 'reason': reason});
       _emit(MoveRejected(index, reason));
     }
   }
@@ -253,11 +299,64 @@ class KlunkiHost {
       _game = replay(config, moves)!;
     }
     if (result == null) return 'illegal move';
-    final entry = MoveAccepted(_log.length, by, jsonDecode(encoded) as Map<String, dynamic>);
+    final entry = MoveAccepted(_log.length, by, jsonDecode(encoded) as Map<String, dynamic>, event: result);
     _log.add(entry);
-    _guest?.send('accepted', _fields(entry));
+    final redaction = _redaction;
+    if (redaction != null) _recordForGuest(redaction, entry, result);
+    final guest = _guest;
+    if (guest != null) {
+      _send(guest, 'accepted', _fields(entry));
+      if (redaction != null && _game.isOver) _sendReveal(guest);
+    }
     _emit(entry);
     return null;
+  }
+
+  /// The guest's redacted step for [entry]; a move that hides a secret of
+  /// the host gets a fresh salt and a commitment.
+  void _recordForGuest(Redaction redaction, MoveAccepted entry, GameEvent event) {
+    final step = redaction.step(_game, entry.move, entry.player, event, guestPlayer);
+    final move = step['move'] as Map<String, dynamic>;
+    final view = step['view'] as Map<String, dynamic>;
+    final secret = entry.player != guestPlayer && canonicalJson(move) != canonicalJson(entry.move);
+    final salt = secret ? newSalt() : null;
+    _guestLog.add(_GuestRecord(
+        RedactedStep(entry.player, move, step['event'] as Map<String, dynamic>, viewHash(view),
+            salt == null ? null : commitment(salt, 'move:${entry.index}', entry.move)),
+        salt));
+    _lastGuestView = view;
+  }
+
+  /// `reveal`: the secret seed and every committed move with its salt, so
+  /// the guest can check the finished game.
+  void _sendReveal(Connection conn) {
+    final redaction = _redaction!;
+    _send(conn, 'reveal', {
+      if (redaction.secretSeed) ...{'seed': config.seed, 'seedSalt': _seedSalt},
+      'secrets': [
+        for (var i = 0; i < _guestLog.length; i++)
+          if (_guestLog[i].salt != null) {'index': i, 'move': _log[i].move, 'salt': _guestLog[i].salt},
+      ],
+    });
+  }
+
+  /// Test hook: plays a cheating host that swaps its own move at [index]
+  /// (e.g. its fleet) for [move] after the fact and rebuilds its engine.
+  /// Commitments already sent stay as they were. Returns false (and changes
+  /// nothing) if the log no longer replays.
+  bool debugReplaceMove(int index, Map<String, dynamic> move) {
+    final moves = this.moves..[index] = move;
+    final game = replay(config, moves);
+    if (game == null) return false;
+    _log[index] = MoveAccepted(index, _log[index].player, move, event: _log[index].event);
+    _game = game;
+    return true;
+  }
+
+  void _send(Connection conn, String type, Map<String, dynamic> fields) {
+    final hook = debugRewriteOutgoing;
+    final out = hook == null ? fields : hook(type, fields);
+    if (out != null) conn.send(type, out);
   }
 
   void _onClosed(Connection conn, String reason, bool timedOut) {
@@ -271,11 +370,29 @@ class KlunkiHost {
     if (!_events.isClosed) _events.add(e);
   }
 
-  static Map<String, dynamic> _fields(MoveAccepted e) =>
-      {'index': e.index, 'player': e.player.name, 'move': e.move};
+  Map<String, dynamic> _fields(MoveAccepted e) {
+    if (_redaction == null) return {'index': e.index, 'player': e.player.name, 'move': e.move};
+    final step = _guestLog[e.index].step;
+    return {
+      'index': e.index,
+      'player': e.player.name,
+      'move': step.move,
+      'event': step.event,
+      'view': _lastGuestView,
+      if (step.commit != null) 'commit': step.commit,
+    };
+  }
 
   static String _newToken() {
     final r = Random.secure();
     return List.generate(16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
   }
+}
+
+/// The guest's side of one log entry of a hidden-information game, plus the
+/// salt of its commitment (host only, sent with `reveal`).
+class _GuestRecord {
+  final RedactedStep step;
+  final String? salt;
+  const _GuestRecord(this.step, this.salt);
 }

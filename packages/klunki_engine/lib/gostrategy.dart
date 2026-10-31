@@ -1,6 +1,9 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'secrecy.dart';
+
+part 'gostrategy_view.dart';
 
 /// Phase of a GoStrategy game. Game over is reported via
 /// [GoStrategyGame.isOver]; the phase stays [play] after the last move.
@@ -272,6 +275,27 @@ class GoStrategyGame extends Game {
     }
     return out;
   }
+
+  /// What [viewer] may know, as JSON (KLD-064, see [GoStrategyRedaction]):
+  /// [viewFor] the viewer plus the public counters. Unrevealed enemy pieces
+  /// appear as owner only.
+  Map<String, dynamic> viewJson(Player viewer) => {
+        'viewer': viewer.name,
+        'noCaptureLimit': noCaptureLimit,
+        'phase': _phase.name,
+        'current': _current.name,
+        'setup': {for (final p in Player.values) p.name: hasSetup(p)},
+        'sinceCapture': _movesSinceCapture,
+        'lastMove': {for (final p in Player.values) p.name: _lastMove[p] == null ? null : [_lastMove[p]!.$1, _lastMove[p]!.$2]},
+        'streak': {for (final p in Player.values) p.name: _streak[p]},
+        'lastFight': jsonSafe(lastFight),
+        'result': resultToJson(result),
+        'cells': [for (final c in viewFor(viewer)) _cellJson(c)],
+        'remaining': {
+          for (final p in Player.values)
+            p.name: {for (final e in remaining(p).entries) if (e.value > 0) e.key.id: e.value},
+        },
+      };
 
   // ----------------------------------------------------------------- setup
 
