@@ -28,7 +28,12 @@ export 'src/events.dart'
         NetException,
         GameVerified,
         VerificationFailed,
-        Verification;
+        Verification,
+        IncompatiblePeer,
+        Incompatibility,
+        PeerAge,
+        VersionMismatch;
+export 'src/compat.dart' show BuildCompat, compareBuilds;
 export 'src/guest.dart' show KlunkiGuest;
 export 'src/relay/relay_protocol.dart'
     show

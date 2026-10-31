@@ -190,9 +190,11 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     if (transport == null) {
       setState(() {
         _connecting = null;
-        _error = failure != null && isSeatTaken(failure)
-            ? l10n.pairingSeatTaken
-            : '${l10n.pairingJoinFailed(bidiLtr(context, label), '$failure')}\n${l10n.webJoinHints}';
+        // KLD-085: another build: say which device to update, no network hints.
+        _error = (failure == null ? null : versionMismatchText(context, failure)) ??
+            (failure != null && isSeatTaken(failure)
+                ? l10n.pairingSeatTaken
+                : '${l10n.pairingJoinFailed(bidiLtr(context, label), '$failure')}\n${l10n.webJoinHints}');
       });
       return;
     }

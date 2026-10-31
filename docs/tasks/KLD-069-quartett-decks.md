@@ -155,7 +155,12 @@ requires < 3 % per stat for every deck.
    its format (KLD-082): `decimals`, `fixedDecimals`, `grouped`, `isYear`, unit `%`. Add it to
    `QuartettDeck.all`. Note the data caveats in the comment above it.
 2. Run `dart test` in `packages/klunki_engine` (validation, tie rate < 3 %,
-   full games) and `dart run tool/quartett_ties.dart`.
+   full games) and `dart run tool/quartett_ties.dart`. A new deck (or a
+   change to cards, stats or values of an existing one, KLD-085) changes
+   its network fingerprint: bump `revision:` of a changed deck, then add or
+   update the golden values in `test/compat_test.dart`
+   (`dart run tool/print_fingerprints.dart`). Photos, links, labels and
+   formats do not count.
 3. App: add `quartettDeck<Name>`, `quartettSet<Name>A`…`H` and any new
    `quartettStat*` keys to all 7 ARB files (de with descriptions), run
    `flutter gen-l10n`, map them in `engine_l10n.dart`

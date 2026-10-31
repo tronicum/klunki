@@ -425,5 +425,10 @@
   "loopbackHowRelay": "Tip: the “{command}” console prints these addresses when it starts.",
   "loopbackHowCopy": "Copy command",
   "loopbackHowCopied": "Command copied",
-  "goSetupInvalid": "Only your four rows at the bottom take pieces."
+  "goSetupInvalid": "Only your four rows at the bottom take pieces.",
+  "versionMismatchBoth": "The game versions don't match – please update both apps (browser: reload the page).",
+  "versionMismatchUpdateOther": "The game versions don't match: the other device has an older version. Please update the app there (browser: reload the page).",
+  "versionMismatchUpdateThis": "The game versions don't match: this device has an older version. Please update this app (browser: reload the page).",
+  "versionMismatchGuestRefused": "A device tried to join but was turned away: {reason}",
+  "menuVersion": "Version {version}"
 }

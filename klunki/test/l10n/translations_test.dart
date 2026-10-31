@@ -27,6 +27,8 @@ const sameAsEnglish = {
   'Horizontal',
   'Vertical',
   'Point {point}, {player}',
+  // KLD-085: the menu's version line ("Version" is French too).
+  'Version {version}',
   // GoStrategy (KLD-058b): the game's app name and ranks spelled alike.
   'GoStrategy',
   'General',

@@ -1567,4 +1567,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get goSetupInvalid => '只有你下方的四行可以放棋子。';
+
+  @override
+  String get versionMismatchBoth => '游戏版本不匹配——请更新两台设备上的应用（浏览器：重新加载页面）。';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      '游戏版本不匹配：另一台设备的版本较旧。请在那台设备上更新应用（浏览器：重新加载页面）。';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      '游戏版本不匹配：本设备的版本较旧。请更新此应用（浏览器：重新加载页面）。';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return '有设备尝试加入，但被拒绝：$reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return '版本 $version';
+  }
 }

@@ -19,6 +19,28 @@ Future<KlunkiHost> startHost(
 Future<KlunkiGuest> joinHost(int port, {String name = 'Guest', String? token}) =>
     KlunkiGuest.connect(loopback, port, name: name, token: token);
 
+/// The fields of a current guest's `hello` (KLD-085: with the build and
+/// the fingerprints of every game).
+Map<String, dynamic> guestHello(Object? name, {String? token}) => {
+      'role': 'guest',
+      if (name != null) 'name': name,
+      'protocol': protocolVersion,
+      if (token != null) 'token': token,
+      'build': 'test',
+      'games': BuildCompat().gamesJson(),
+    };
+
+/// The fields of a current host's `hello` for [config] (KLD-085: with the
+/// game's fingerprint).
+Map<String, dynamic> hostHello(GameConfig config, {Object? name}) => {
+      'role': 'host',
+      if (name != null) 'name': name,
+      'protocol': protocolVersion,
+      'build': 'test',
+      'game': compatKey(config),
+      'fingerprint': fingerprintOf(config)!.toJson(),
+    };
+
 /// Polls [condition] until it holds (fails after [limit]).
 Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5)}) async {
   final sw = Stopwatch()..start();
@@ -63,8 +85,8 @@ class RawPeer {
   static Future<RawPeer> connect(int port) async => RawPeer(await Socket.connect(loopback, port));
 
   void line(String raw) => socket.writeln(raw);
-  void send(String type, [Map<String, dynamic> fields = const {}]) =>
-      line(jsonEncode({'type': type, 'v': 2, ...fields}));
+  void send(String type, [Map<String, dynamic> fields = const {}, int v = protocolVersion]) =>
+      line(jsonEncode({'type': type, 'v': v, ...fields}));
 
   /// Next message of [type] after the previous [next] result (others skipped).
   Future<Map<String, dynamic>> next(String type) async {

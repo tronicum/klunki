@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
 
+import '../app/build_info.dart';
 import 'game_transport.dart';
 
 /// Connection state of a [NetworkTransport], for the pairing / reconnect UI.
@@ -97,7 +98,13 @@ class NetworkTransport implements GameTransport {
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final host = await KlunkiHost.start(config,
-        port: port, wsPort: wsPort, name: name, address: address, pingInterval: pingInterval, timeout: timeout);
+        port: port,
+        wsPort: wsPort,
+        name: name,
+        address: address,
+        pingInterval: pingInterval,
+        timeout: timeout,
+        compat: appBuildCompat());
     return NetworkTransport._host(host);
   }
 
@@ -112,7 +119,7 @@ class NetworkTransport implements GameTransport {
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final guest = await KlunkiGuest.connect(host, port,
-        name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+        name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
     return NetworkTransport._guest(guest);
   }
 
@@ -127,7 +134,7 @@ class NetworkTransport implements GameTransport {
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final guest = await KlunkiGuest.connectWebSocket(url,
-        name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+        name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
     return NetworkTransport._guest(guest);
   }
 
@@ -142,8 +149,8 @@ class NetworkTransport implements GameTransport {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final host =
-        await KlunkiHost.startRelay(config, relayUrl, name: name, pingInterval: pingInterval, timeout: timeout);
+    final host = await KlunkiHost.startRelay(config, relayUrl,
+        name: name, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
     return NetworkTransport._host(host);
   }
 
@@ -159,7 +166,7 @@ class NetworkTransport implements GameTransport {
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final guest = await KlunkiGuest.connectRelay(relayUrl, code,
-        name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+        name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
     return NetworkTransport._guest(guest);
   }
 
@@ -294,9 +301,15 @@ class NetworkTransport implements GameTransport {
   /// The host's reveal did not confirm the game ([verification] failed).
   bool get verificationFailed => _verification.value == Verification.failed;
 
+  /// Host: the last guest that was refused because its build does not fit
+  /// this one (KLD-085), else null. The host keeps waiting for another.
+  ValueListenable<VersionMismatch?> get refusedGuest => _refusedGuest;
+  final ValueNotifier<VersionMismatch?> _refusedGuest = ValueNotifier(null);
+
   /// Fires on every [connection] change, when the room is lost
-  /// ([roomLost]) and when [verification] changes; for UI that shows them.
-  late final Listenable changes = Listenable.merge([_state, _roomLost, _verification]);
+  /// ([roomLost]), when [verification] changes and when a guest is refused
+  /// ([refusedGuest]); for UI that shows them.
+  late final Listenable changes = Listenable.merge([_state, _roomLost, _verification, _refusedGuest]);
 
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
@@ -339,6 +352,7 @@ class NetworkTransport implements GameTransport {
     switch (e) {
       case PeerConnected(:final name):
         _peerName = name;
+        _refusedGuest.value = null;
         _setState(NetConnectionState.connected);
       case PeerDisconnected(:final reason):
         _lastDisconnectReason = reason;
@@ -351,6 +365,8 @@ class NetworkTransport implements GameTransport {
         _lastDisconnectReason = message;
         _roomLost.value = message;
         _setState(NetConnectionState.peerMissing);
+      case IncompatiblePeer(:final mismatch):
+        _refusedGuest.value = mismatch;
       case GameVerified() || VerificationFailed():
         _verification.value = _guest?.verification ?? Verification.notNeeded;
       case MoveRejected():

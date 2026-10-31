@@ -39,10 +39,15 @@ void main() {
     test('raw handshake messages carry type and v', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
       final hello = await peer.next('hello');
       final welcome = await peer.next('welcome');
-      expect(hello, {'type': 'hello', 'v': 2, 'role': 'host', 'name': 'Host', 'protocol': 2});
+      expect(hello, {
+        'type': 'hello',
+        'v': protocolVersion,
+        ...hostHello(const GameConfig('connect4'), name: 'Host'),
+        'build': '',
+      });
       expect(welcome['config'], {'game': 'connect4', 'seed': 0});
       expect(welcome['you'], 'b');
       expect(welcome['moves'], isEmpty);
@@ -274,16 +279,16 @@ void main() {
     test('duplicate and stale indices', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
       await peer.next('welcome');
       host.submitLocal({'col': 3});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 0, 'player': 'a', 'move': {'col': 3}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': protocolVersion, 'index': 0, 'player': 'a', 'move': {'col': 3}});
 
       peer.send('move', {'index': 1, 'move': {'col': 4}});
       expect((await peer.next('accepted'))['index'], 1);
       // Resend of the same move: confirmed again, applied once.
       peer.send('move', {'index': 1, 'move': {'col': 4}});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 1, 'player': 'b', 'move': {'col': 4}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': protocolVersion, 'index': 1, 'player': 'b', 'move': {'col': 4}});
       expect(host.moves.length, 2);
       // Stale index with a different move, and an index from the future.
       peer.send('move', {'index': 0, 'move': {'col': 5}});
@@ -305,6 +310,7 @@ void main() {
       await until(() => peers.isNotEmpty);
       final hostPeer = peers.single;
       await hostPeer.next('hello');
+      hostPeer.send('hello', hostHello(const GameConfig('connect4')));
       hostPeer.send('welcome', {'config': {'game': 'connect4', 'seed': 0}, 'you': 'b', 'moves': [], 'token': 't'});
       final guest = await guestFuture;
       final accepted = {'index': 0, 'player': 'a', 'move': {'col': 3}};
@@ -462,7 +468,9 @@ void main() {
       final fake = await ServerSocket.bind(loopback, 0);
       fake.listen((s) {
         final peer = RawPeer(s);
-        peer.next('hello').then((_) => peer.send('welcome', {
+        peer.next('hello').then((_) => peer
+          ..send('hello', hostHello(const GameConfig('connect4')))
+          ..send('welcome', {
               'config': {'game': 'connect4', 'seed': 0},
               'you': 'b',
               'moves': [{'col': 9}],
@@ -493,7 +501,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
       await peer.next('welcome');
       peer.send('move', {'index': 'zero', 'move': {'col': 1}});
       await peer.next('error');
@@ -520,7 +528,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawPeer.connect(host.port); // never answers ping
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
       await peer.next('welcome');
       await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
       expect(events.whereType<PeerDisconnected>().single.timedOut, isTrue);
@@ -532,7 +540,9 @@ void main() {
       final fake = await ServerSocket.bind(loopback, 0);
       fake.listen((s) {
         final peer = RawPeer(s);
-        peer.next('hello').then((_) => peer.send('welcome', {
+        peer.next('hello').then((_) => peer
+          ..send('hello', hostHello(const GameConfig('connect4')))
+          ..send('welcome', {
               'config': {'game': 'connect4', 'seed': 0},
               'you': 'b',
               'moves': [],

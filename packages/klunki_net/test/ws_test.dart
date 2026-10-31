@@ -34,7 +34,7 @@ class RawWsPeer {
       RawWsPeer(await WebSocket.connect(webSocketUri(loopback.address, port).toString()));
 
   void frame(Object raw) => ws.add(raw);
-  void send(String type, [Map<String, dynamic> fields = const {}, int v = 2]) =>
+  void send(String type, [Map<String, dynamic> fields = const {}, int v = protocolVersion]) =>
       frame(jsonEncode({'type': type, 'v': v, ...fields}));
 
   Future<Map<String, dynamic>> next(String type) async {
@@ -170,13 +170,18 @@ void main() {
     test('handshake and moves: one JSON message per text frame', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawWsPeer.connect(host.wsPort!);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
-      expect(await peer.next('hello'), {'type': 'hello', 'v': 2, 'role': 'host', 'name': 'Host', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
+      expect(await peer.next('hello'), {
+        'type': 'hello',
+        'v': protocolVersion,
+        ...hostHello(const GameConfig('connect4'), name: 'Host'),
+        'build': '',
+      });
       final welcome = await peer.next('welcome');
       expect(welcome['config'], {'game': 'connect4', 'seed': 0});
       expect(welcome['you'], 'b');
       host.submitLocal({'col': 2});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 0, 'player': 'a', 'move': {'col': 2}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': protocolVersion, 'index': 0, 'player': 'a', 'move': {'col': 2}});
       peer.send('move', {'index': 1, 'move': {'col': 9}});
       expect((await peer.next('rejected'))['reason'], 'illegal move');
       await peer.ws.close();
@@ -187,12 +192,17 @@ void main() {
       final host = await startHost(const GameConfig('connect4'));
       final v1 = await RawWsPeer.connect(host.wsPort!);
       v1.send('hello', {'role': 'guest', 'name': 'Old', 'protocol': 1}, 1);
-      expect((await v1.next('error'))['message'], 'unsupported protocol version 1 (expected 2)');
+      // KLD-085: the error comes in the old peer's envelope version, so it
+      // can read it.
+      final error = await v1.next('error');
+      expect(error['v'], 1);
+      expect(error['code'], 'incompatible-protocol');
+      expect(error['message'], contains('please update this app (browser: reload the page)'));
       await until(() => v1.closed);
 
       final p2 = await RawWsPeer.connect(host.wsPort!);
       p2.send('hello', {'role': 'guest', 'name': 'Old', 'protocol': 1});
-      expect((await p2.next('error'))['message'], 'unsupported protocol 1');
+      expect((await p2.next('error'))['code'], 'incompatible-protocol');
       await until(() => p2.closed);
       expect(host.guestConnected, isFalse);
 
@@ -210,8 +220,11 @@ void main() {
         await peer.next('hello');
         peer.send('hello', {'role': 'host', 'name': 'Old', 'protocol': 1}, 1);
       });
-      await expectLater(joinWs(fake.port),
-          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('unsupported protocol version 1'))));
+      await expectLater(
+          joinWs(fake.port),
+          throwsA(isA<NetException>()
+              .having((e) => e.mismatch?.kind, 'kind', Incompatibility.protocol)
+              .having((e) => e.mismatch?.peer, 'peer', PeerAge.older)));
       await fake.close(force: true);
     });
 
@@ -247,7 +260,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawWsPeer.connect(host.wsPort!); // never answers ping
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      peer.send('hello', guestHello('Raw'));
       await peer.next('welcome');
       await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
       expect(events.whereType<PeerDisconnected>().single.timedOut, isTrue);

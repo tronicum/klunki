@@ -1627,4 +1627,26 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get goSetupInvalid =>
       'Seules tes quatre rangées du bas acceptent des pièces.';
+
+  @override
+  String get versionMismatchBoth =>
+      'Les versions du jeu ne correspondent pas – mets à jour les deux applis (navigateur : recharge la page).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'Les versions du jeu ne correspondent pas : l’autre appareil a une version plus ancienne. Mets à jour l’appli sur cet appareil (navigateur : recharge la page).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'Les versions du jeu ne correspondent pas : cet appareil a une version plus ancienne. Mets à jour cette appli (navigateur : recharge la page).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'Un appareil a voulu rejoindre la partie mais a été refusé : $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'Version $version';
+  }
 }

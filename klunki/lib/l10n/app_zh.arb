@@ -426,5 +426,10 @@
   "loopbackHowRelay": "提示：“{command}”控制台启动时会显示这些地址。",
   "loopbackHowCopy": "复制命令",
   "loopbackHowCopied": "命令已复制",
-  "goSetupInvalid": "只有你下方的四行可以放棋子。"
+  "goSetupInvalid": "只有你下方的四行可以放棋子。",
+  "versionMismatchBoth": "游戏版本不匹配——请更新两台设备上的应用（浏览器：重新加载页面）。",
+  "versionMismatchUpdateOther": "游戏版本不匹配：另一台设备的版本较旧。请在那台设备上更新应用（浏览器：重新加载页面）。",
+  "versionMismatchUpdateThis": "游戏版本不匹配：本设备的版本较旧。请更新此应用（浏览器：重新加载页面）。",
+  "versionMismatchGuestRefused": "有设备尝试加入，但被拒绝：{reason}",
+  "menuVersion": "版本 {version}"
 }

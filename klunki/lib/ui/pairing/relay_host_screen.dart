@@ -16,6 +16,7 @@ import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'network_game_session.dart';
+import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
 import 'room_join.dart';
@@ -350,6 +351,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
               Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('relay-host-status'))),
             ],
           ),
+          RefusedGuestNotice(transport: t),
           const SizedBox(height: 16),
           OutlinedButton(key: const Key('relay-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
         ],

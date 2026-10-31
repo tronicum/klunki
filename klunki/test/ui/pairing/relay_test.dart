@@ -105,6 +105,11 @@ void main() {
         // KLD-071: the host refuses anyone without the guest's session token.
         const NetException('peer error: session full'):
             'Platz belegt: In diesem Spiel spielt schon jemand. Nur wer zuerst beigetreten ist, kann wieder einsteigen.',
+        // KLD-085: an old host in the room (e.g. a cached older PWA).
+        const NetException('incompatible versions (incompatible-protocol): …',
+                mismatch: VersionMismatch(Incompatibility.protocol, PeerAge.older, 'protocol 2 on the other device')):
+            'Die Spielversionen passen nicht zusammen: Das andere Gerät hat eine ältere Version. '
+                'Bitte dort die App aktualisieren (Browser: neu laden).',
         const NetException('relay: host left'): 'Der Host hat den Raum verlassen. Das Spiel ist beendet.',
         const NetException('relay: room expired (idle)'): 'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).',
         const NetException('cannot connect: cannot open ws://192.168.1.5:8000/relay?join=K7Q2M'):

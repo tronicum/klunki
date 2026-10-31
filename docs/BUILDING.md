@@ -215,6 +215,10 @@ python3 build/web/pwa_finalize.py        # fills the service worker's build hash
 python3 -I tool/check_pwa_external_urls.py build/web   # optional: no CDN URLs (what CI checks)
 ```
 `pwa_finalize.py` refuses to run twice on the same output. Rebuild first if you need to run it again.
+Optional: `--dart-define=KLUNKI_BUILD=<commit>` (any `flutter build`; CI passes the commit) puts the
+commit into the version line of the menu footer and into the network handshake's `build` label
+(KLD-085), e.g. `1.0.0+1 · abc1234 · P3 · ba13a678`. Two devices whose lines differ in the protocol
+(`P3`) or the last code (game data) cannot play together.
 CanvasKit and all fonts are served from the app's own origin; nothing is loaded from a CDN.
 
 ### 6.2 Serve it through the relay

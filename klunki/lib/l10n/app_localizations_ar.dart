@@ -1630,4 +1630,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get goSetupInvalid => 'صفوفك الأربعة في الأسفل فقط تقبل القطع.';
+
+  @override
+  String get versionMismatchBoth =>
+      'إصدارات اللعبة غير متوافقة – يُرجى تحديث التطبيقين (المتصفح: أعد تحميل الصفحة).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'إصدارات اللعبة غير متوافقة: الجهاز الآخر يستخدم إصدارًا أقدم. يُرجى تحديث التطبيق عليه (المتصفح: أعد تحميل الصفحة).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'إصدارات اللعبة غير متوافقة: هذا الجهاز يستخدم إصدارًا أقدم. يُرجى تحديث هذا التطبيق (المتصفح: أعد تحميل الصفحة).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'حاول جهاز الانضمام لكنه رُفض: $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'الإصدار $version';
+  }
 }

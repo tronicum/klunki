@@ -62,9 +62,20 @@ class GameSpec {
 
   /// Whether [GameConfig.deck] picks a Quartett deck for this game (KLD-069).
   final bool usesDeck;
+
+  /// Version of this game's rules (KLD-085). Bump it on every change that
+  /// makes an old and a new build disagree about a game (a move accepted by
+  /// one and refused by the other, a different deal from the same seed, a
+  /// changed move or view format). Network peers must have the same value
+  /// ([fingerprintOf]); the higher one is the newer build.
+  final int rulesVersion;
   final Game Function(int seed, QuartettDeck deck) _create;
   const GameSpec(this.id, this.title, this._create,
-      {this.hiddenInformation = false, this.appReady = true, this.redaction, this.usesDeck = false});
+      {this.hiddenInformation = false,
+      this.appReady = true,
+      this.redaction,
+      this.usesDeck = false,
+      this.rulesVersion = 1});
 
   /// A new game; [deck] (games with [usesDeck]) defaults to the car deck.
   /// Throws [ArgumentError] for an unknown deck.

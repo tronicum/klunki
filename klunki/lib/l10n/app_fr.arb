@@ -426,5 +426,10 @@
   "loopbackHowRelay": "Astuce : la console de « {command} » affiche ces adresses au démarrage.",
   "loopbackHowCopy": "Copier la commande",
   "loopbackHowCopied": "Commande copiée",
-  "goSetupInvalid": "Seules tes quatre rangées du bas acceptent des pièces."
+  "goSetupInvalid": "Seules tes quatre rangées du bas acceptent des pièces.",
+  "versionMismatchBoth": "Les versions du jeu ne correspondent pas – mets à jour les deux applis (navigateur : recharge la page).",
+  "versionMismatchUpdateOther": "Les versions du jeu ne correspondent pas : l’autre appareil a une version plus ancienne. Mets à jour l’appli sur cet appareil (navigateur : recharge la page).",
+  "versionMismatchUpdateThis": "Les versions du jeu ne correspondent pas : cet appareil a une version plus ancienne. Mets à jour cette appli (navigateur : recharge la page).",
+  "versionMismatchGuestRefused": "Un appareil a voulu rejoindre la partie mais a été refusé : {reason}",
+  "menuVersion": "Version {version}"
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/net/room_link.dart';
@@ -8,6 +9,7 @@ import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/game_visuals.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/language_picker.dart';
+import 'package:klunki/ui/ltr.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoinScreen;
@@ -146,6 +148,17 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
+                    // KLD-085: version, build, protocol and game data, to
+                    // compare two devices by eye when they cannot play together.
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: Text(
+                        l10n.menuVersion(bidiLtr(context, appVersionLine)),
+                        key: const Key('menu-version'),
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ),
                   ],
                 ),
               ),

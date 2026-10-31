@@ -1,4 +1,4 @@
-# Klunki network protocol, version 2
+# Klunki network protocol, version 3
 
 Two devices, one connection (TCP or WebSocket). The **host** owns the
 authoritative engine and move log. For games without hidden information
@@ -8,8 +8,11 @@ For hidden-information games (Quartett, Schiffe versenken, GoStrategy) the
 host is the referee and the guest only ever receives what its player may
 know; see "Hidden information" below.
 
-Version 2 (KLD-064) added the hidden-information messages. Version 1 peers
-are refused (see "Version mismatch").
+Version 2 (KLD-064) added the hidden-information messages. Version 3
+(KLD-085) adds build fingerprints to both `hello`s, so two builds that
+disagree about a game (protocol, rules, Quartett deck data) refuse each
+other with a clear error instead of playing a diverging game. Version 1 and
+2 peers are refused (see "Build compatibility").
 
 ## Transports and framing
 The messages and rules below are identical on both transports; only the
@@ -20,8 +23,8 @@ framing differs. The host accepts both at the same time, on two ports.
 | TCP | 4747 (`defaultTcpPort`) | UTF-8 text, **one JSON object per line**, terminated by `\n`; empty lines are ignored | apps (iOS/Android), the `klunki` CLI |
 | WebSocket (`ws://host:port`, RFC 6455) | 4748 (`defaultWebSocketPort`) | **one JSON object per text frame**; a binary frame is a protocol error (`error "malformed input (binary frame)"`) | the browser PWA, `klunki join ws://…` |
 
-- Every message has `type` (string) and `v` (int, protocol version = `2`).
-- Anything else (invalid UTF-8, not JSON, not an object, no `type`, `v != 2`,
+- Every message has `type` (string) and `v` (int, protocol version = `3`).
+- Anything else (invalid UTF-8, not JSON, not an object, no `type`, `v != 3`,
   an unknown or unexpected `type`, wrongly typed fields) is a protocol error:
   the receiver sends `error` and closes the connection.
 - The WebSocket port speaks plain HTTP/1.1 only for the upgrade: any request
@@ -44,7 +47,7 @@ extra number that the join payload and mDNS record carry anyway (`w=`, `ws`).
 
 **Advertising the WebSocket port** (app side, `klunki/lib/net/`):
 - join payload / QR: optional `w` parameter,
-  `klunki://join?h=192.168.1.20&p=4747&v=2&n=iPad&g=muehle&w=4748`;
+  `klunki://join?h=192.168.1.20&p=4747&v=3&n=iPad&g=muehle&w=4748`;
 - mDNS TXT record of `_klunki._tcp`: optional key `ws` (`"4748"`).
 
 Both are optional and ignored by older clients, so the payload stays backward
@@ -54,8 +57,8 @@ compatible; a host without WebSocket support simply omits them.
 
 | type | direction | fields | meaning |
 |---|---|---|---|
-| `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 2`, `token?` | first message on a connection; `token` only when rejoining |
-| `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 2` | reply to the guest's `hello` |
+| `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
+| `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
 | `welcome` | host → guest | `config` (`{game, seed, deck?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?}`; `{game, deck?}` = `GameConfig.publicJson()` when the seed is secret: the deck is public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
@@ -65,19 +68,19 @@ compatible; a host without WebSocket support simply omits them.
 | `rejected` | host → guest | `index`, `reason` | the guest's move was refused; nothing changed |
 | `ping` / `pong` | both | – | keepalive; `ping` is answered with `pong` |
 | `bye` | both | `reason` | polite end of the connection |
-| `error` | both | `message` | protocol error; the sender closes the connection |
+| `error` | both | `message`, `code?`, `protocol?`, `build?`, `game?`, `fingerprint?` | protocol error; the sender closes the connection. `code` and the rest only for a refused handshake, see "Build compatibility" |
 
 Example session (Four in a Row, host = A):
 
 ```
-G→H {"type":"hello","v":2,"role":"guest","name":"Bea","protocol":2}
-H→G {"type":"hello","v":2,"role":"host","name":"Host","protocol":2}
-H→G {"type":"welcome","v":2,"config":{"game":"connect4","seed":0},"you":"b","moves":[],"token":"9f…","host":"Host"}
-H→G {"type":"accepted","v":2,"index":0,"player":"a","move":{"col":3}}
-G→H {"type":"move","v":2,"index":1,"move":{"col":4}}
-H→G {"type":"accepted","v":2,"index":1,"player":"b","move":{"col":4}}
-G→H {"type":"move","v":2,"index":2,"move":{"col":5}}
-H→G {"type":"rejected","v":2,"index":2,"reason":"not your turn"}
+G→H {"type":"hello","v":3,"role":"guest","name":"Bea","protocol":3,"build":"1.0.0+1","games":{"connect4":{"rules":1,"rev":1,"content":"282f…"},…}}
+H→G {"type":"hello","v":3,"role":"host","name":"Host","protocol":3,"build":"1.0.0+1 abc1234","game":"connect4","fingerprint":{"rules":1,"rev":1,"content":"282f…"}}
+H→G {"type":"welcome","v":3,"config":{"game":"connect4","seed":0},"you":"b","moves":[],"token":"9f…","host":"Host"}
+H→G {"type":"accepted","v":3,"index":0,"player":"a","move":{"col":3}}
+G→H {"type":"move","v":3,"index":1,"move":{"col":4}}
+H→G {"type":"accepted","v":3,"index":1,"player":"b","move":{"col":4}}
+G→H {"type":"move","v":3,"index":2,"move":{"col":5}}
+H→G {"type":"rejected","v":3,"index":2,"reason":"not your turn"}
 ```
 
 ## Player names (KLD-056)
@@ -161,12 +164,97 @@ receives a fresh `welcome`, checks that its own log is a prefix of `moves`
 `replay(config, moves)` and continues. A non-prefix log or a snapshot that
 does not replay (`replay` returns null) is a divergence → `error`.
 
-**Version mismatch.** A peer speaking another version gets
-`error "unsupported protocol version 1 (expected 2)"` for an envelope `v` of 1,
-or `error "unsupported protocol 1"` for a `hello` with `protocol: 1`, and the
-connection closes; `KlunkiGuest.connect…` throws a `NetException` with that
-text. The apps compare the join payload's `v` and the mDNS `v` with their own
-version first, so an old host shows up as incompatible before anyone connects.
+**Version mismatch.** See "Build compatibility" below. The apps also compare
+the join payload's `v` and the mDNS `v` with their own version first, so an
+old host shows up as incompatible before anyone connects.
+
+## Build compatibility (KLD-085)
+
+Two devices may run different builds: an iPhone on a new build and a
+browser with a cached older PWA. With Quartett the decks can then differ
+(other cards or stats), and a game would silently diverge. So the
+handshake compares what both builds know about the game, and refuses a
+mismatch with a specific `code`.
+
+**Fingerprint** (`package:klunki_engine`'s `compat.dart`), per game and
+deck, keyed by `compatKey`: the game id, plus `/deck` for a game with a
+deck (`quartett-trumpf/rockets`; no deck = the default `cars`). The seed
+does not matter.
+
+| field | what | changes when |
+|---|---|---|
+| `rules` | `GameSpec.rulesVersion` | bumped by hand on a breaking rule change (a move one build accepts and the other refuses, another deal from the same seed, a changed move or view format) |
+| `rev` | `QuartettDeck.revision` (1 for games without a deck) | bumped by hand when deck data changes |
+| `content` | first 128 bits of SHA-256(`"klunki-content-v1\n"` + JSON of the game id and, for Quartett, the deck's id, stat ids in order with `higherWins`, and every card's id, set, name and values), hex | automatically, whenever that data changes (so a forgotten bump is still caught) |
+
+Values are written as text (whole numbers without a decimal point) so the
+VM and the browser hash the same bytes. Presentation is not part of it:
+stat labels, units, number formats, set and deck names, and the app's card
+photos, Wikipedia links and image credits. A build that only adds photos
+stays compatible. `dart run tool/print_fingerprints.dart` (in the engine)
+prints the current values; `test/compat_test.dart` keeps golden values.
+
+**`build`** is the app's version label (`1.0.0+1 abc1234`: pubspec version,
+optionally the commit from `--dart-define=KLUNKI_BUILD=…`; empty for the
+CLI). It decides nothing; it only tells which side is older when the
+fingerprints do not (same `rules` and `rev`, other `content`). The app shows
+the same version, the protocol and a short code over all fingerprints in the
+menu footer (`1.0.0+1 · abc1234 · P3 · ba13a678`), so people can compare two
+devices by eye.
+
+**The checks.**
+1. *Envelope.* A message whose `v` is not `3` closes the connection. The
+   answer is `error {code: "incompatible-protocol", protocol: 3, build,
+   message}` sent **in the peer's own envelope version** (`v` = the peer's
+   `v`): a protocol 2 build reads it as a normal `error` and shows its
+   English `message` ("incompatible versions: the other device runs a newer
+   Klunki (protocol 3, this one 2) – please update this app (browser: reload
+   the page)"). An `error` that arrives in another envelope version (an old
+   host refusing our `v`: `"unsupported protocol version 3 (expected 2)"`)
+   is read, not answered, and reported as a protocol mismatch.
+2. *Host, on the guest's `hello`*, before the seat check (an incompatible
+   guest never gets `session full`): `protocol` must be 3 and `games` must be
+   an object, else `incompatible-protocol`. **Missing fields are a mismatch,
+   never "compatible"**: builds before KLD-085 send none. Then the guest's
+   entry for the hosted game's key is compared with the host's own:
+   missing → `incompatible-content`; other `rules` → `incompatible-rules`;
+   other `rev` or `content` → `incompatible-content`.
+   The host answers `error {code, message, protocol, build, game,
+   fingerprint}` (its own key and fingerprint, so the guest can work out
+   which side is older), closes, emits `IncompatiblePeer` and keeps waiting
+   for another guest.
+3. *Guest, on `welcome`*: the host's `hello` must have carried `game` and
+   `fingerprint`, `game` must equal the key of the `config` in `welcome`
+   (the deck the host actually deals), and the fingerprint must equal the
+   guest's own for that key (an unknown game or deck is `incompatible-content`).
+   Otherwise the guest sends `error {code, …}` and fails the join. This
+   protects against an old or wrong host; with two current builds check 2
+   already caught any difference.
+
+**Codes** (`Incompatibility`): `incompatible-protocol`, `incompatible-rules`,
+`incompatible-content`. A failed join throws `NetException` with `mismatch`
+(`VersionMismatch {kind, peer, peerBuild, detail}`); `peer` is `older`,
+`newer` or `unknown` from the receiver's point of view, decided by the
+protocol number, then `rules`, then `rev`, then the `build` label (first
+`major.minor.patch+build` numbers). The app maps it to "Die Spielversionen
+passen nicht zusammen: Das andere Gerät hat eine ältere Version. Bitte dort
+die App aktualisieren (Browser: neu laden)." (or "Dieses Gerät …" / "bitte
+beide Apps aktualisieren"); the host's waiting screen says that a device was
+turned away.
+
+**Why a version bump (3) and not optional fields.** Optional fields would
+let a protocol 2 build join a new host, and a new guest join an old host,
+exactly the silent mismatch this is about. With `v = 3` every protocol 2
+build fails the envelope check on both sides, in both directions:
+
+| new side | old side (protocol 2) | what happens |
+|---|---|---|
+| host | guest | the old guest's `hello` (v 2) is refused with an `error` in v 2; the old app shows "Verbindung … fehlgeschlagen: peer error: incompatible versions: … please update this app (browser: reload the page)"; the new host shows that a device with an older version was turned away |
+| guest | host | the old host answers the v 3 `hello` with its own `error "unsupported protocol version 3 (expected 2)"` (v 2); the new guest reports a protocol mismatch, the other device older |
+| either | either, through the relay | the same: the relay forwards unchanged |
+
+Future changes to a game's rules or data need no new protocol version: bump
+`rulesVersion` / `revision` (the content hash changes by itself).
 
 ## Hidden information (KLD-064)
 
