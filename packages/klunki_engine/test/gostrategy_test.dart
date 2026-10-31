@@ -478,12 +478,12 @@ void main() {
   });
 
   group('registry', () {
-    test('gostrategy is registered as a hidden-information game without an app screen yet', () {
+    test('gostrategy is registered as a hidden-information game with an app screen (KLD-058b)', () {
       final spec = specById('gostrategy')!;
       expect(spec.title, 'GoStrategy');
       expect(spec.hiddenInformation, isTrue);
-      expect(spec.appReady, isFalse);
-      expect(appGameSpecs.map((s) => s.id), isNot(contains('gostrategy')));
+      expect(spec.appReady, isTrue);
+      expect(appGameSpecs.map((s) => s.id), contains('gostrategy'));
       expect(createGame(const GameConfig('gostrategy', seed: 4)), isA<GoStrategyGame>());
     });
   });

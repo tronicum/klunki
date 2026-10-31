@@ -1,5 +1,5 @@
 // I18N-06: what the user actually sees, per locale. Walks every screen (menu,
-// language picker, all five games incl. handover cover, restart dialog,
+// language picker, all six games incl. handover cover, restart dialog,
 // history sheet and result dialog, pairing host and join, the player name
 // dialogs and the network status lines of KLD-056) at two phone sizes
 // and fails on
@@ -36,7 +36,7 @@ import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
 import 'l10n_test_utils.dart';
 
-const gameIds = ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe'];
+const gameIds = ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy'];
 const sizes = [Size(390, 844), Size(360, 640)];
 
 /// Text that may be identical to English in every locale: the brand, player
@@ -177,7 +177,7 @@ class Audit {
   final List<String> layoutErrors = [];
 
   static final _icu = RegExp(r'\{\w+(,\s*(plural|select)\s*,.*)?\}', dotAll: true);
-  static final _keyLike = RegExp(r'\b(menu|shell|connect4|muehle|quartett|schiffe|debug|pairing|engine|language|relay|webJoin)[A-Z]\w*');
+  static final _keyLike = RegExp(r'\b(menu|shell|connect4|muehle|quartett|schiffe|go|debug|pairing|engine|language|relay|webJoin)[A-Z]\w*');
 
   /// Records the current screen; [where] names it in failure messages.
   void check(WidgetTester tester, String where) {
@@ -443,7 +443,9 @@ void main() {
           ));
           await tester.pump();
           audit.check(tester, 'relay host setup');
-          await tester.ensureVisible(find.byKey(const Key('relay-host-start')));
+          // Lazy ListView: with six games the button may not be built yet.
+          await tester.scrollUntilVisible(find.byKey(const Key('relay-host-start')), 200,
+              scrollable: find.byType(Scrollable).first);
           await tester.pump();
           await tester.tap(find.byKey(const Key('relay-host-start')));
           await tester.pump();
@@ -460,7 +462,9 @@ void main() {
             locale: locale,
           ));
           await tester.pump();
-          await tester.ensureVisible(find.byKey(const Key('relay-host-start')));
+          // Lazy ListView: with six games the button may not be built yet.
+          await tester.scrollUntilVisible(find.byKey(const Key('relay-host-start')), 200,
+              scrollable: find.byType(Scrollable).first);
           await tester.pump();
           await tester.tap(find.byKey(const Key('relay-host-start')));
           await pumpUntil(tester, () => find.byKey(const Key('relay-host-waiting')).evaluate().isNotEmpty,

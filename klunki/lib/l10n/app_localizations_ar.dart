@@ -870,6 +870,193 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy =>
+      'جيوش مخفية – اعثر على علم الخصم واستولِ عليه.';
+
+  @override
+  String get goPieceMarshal => 'مشير';
+
+  @override
+  String get goPieceGeneral => 'جنرال';
+
+  @override
+  String get goPieceColonel => 'عقيد';
+
+  @override
+  String get goPieceMajor => 'رائد';
+
+  @override
+  String get goPieceCaptain => 'نقيب';
+
+  @override
+  String get goPieceLieutenant => 'ملازم';
+
+  @override
+  String get goPieceSergeant => 'رقيب';
+
+  @override
+  String get goPieceMiner => 'خبير ألغام';
+
+  @override
+  String get goPieceScout => 'كشّاف';
+
+  @override
+  String get goPieceSpy => 'جاسوس';
+
+  @override
+  String get goPieceBomb => 'قنبلة';
+
+  @override
+  String get goPieceFlag => 'علم';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece ($rank)';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return 'رتّب جيشك ($player)';
+  }
+
+  @override
+  String get goSetupHint => 'المس قطعتين لتبديلهما، ثم «تم».';
+
+  @override
+  String goSetupSelected(String piece) {
+    return 'تم اختيار $piece – المس قطعة ثانية للتبديل.';
+  }
+
+  @override
+  String get goSetupShuffle => 'خلط من جديد';
+
+  @override
+  String get goSetupDone => 'تم';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player يرتّب أولًا – يمكنك التحضير في الأثناء.';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return 'بانتظار ترتيب $player …';
+  }
+
+  @override
+  String get goLegendTitle => 'القطع';
+
+  @override
+  String get goLegendRules =>
+      'الرتبة الأعلى تفوز، وعند التساوي يسقط الاثنان. الجاسوس يهزم المشير إذا هاجم. خبراء الألغام وحدهم يفككون القنابل. الكشافون يتحركون أي مسافة في خط مستقيم. القنابل والعلم لا تتحرك.';
+
+  @override
+  String get goHintSelect => 'المس إحدى قطعك، ثم مربعًا مميزًا.';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece: المس مربعًا مميزًا.';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece لا يستطيع التحرك الآن.';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return 'بانتظار $player …';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return '$moves حركة أخرى بلا قتال وتنتهي بالتعادل.';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return 'جيشك ($mark)';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return 'الخصم: $player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return 'تبقّى $left من $total';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return 'هجوم من $player';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner يهزم $loser';
+  }
+
+  @override
+  String get goFightBoth => 'يسقط الاثنان';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece يفكك القنبلة';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece يصطدم بقنبلة';
+  }
+
+  @override
+  String get goFightFlag => 'تم الاستيلاء على العلم!';
+
+  @override
+  String get goMoveSetup => 'يرتّب الجيش';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return 'يتحرك $from–$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return 'يهاجم ($from–$to): $result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell: $content';
+  }
+
+  @override
+  String get goCellFree => 'فارغ';
+
+  @override
+  String get goCellLake => 'بحيرة';
+
+  @override
+  String goCellHidden(String player) {
+    return 'قطعة مخفية لـ$player';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$piece لـ$player';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content، تحرّكت';
+  }
+
+  @override
   String gameNotInApp(String game) {
     return '$game غير متاح في التطبيق بعد.';
   }

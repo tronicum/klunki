@@ -10,7 +10,7 @@ import 'game_illustrations.dart';
 /// colour itself lives in the theme ([KlunkiPalette.accent]) so presets can
 /// change it.
 ///
-/// Adding a game (e.g. GoStrategy, once `appReady`): add an entry to [gameVisuals] (and an
+/// Adding a game: add an entry to [gameVisuals] (and an
 /// accent to the palettes in `app/theme.dart`). Games without an entry get
 /// [GameVisuals.fallback]: a die illustration, no description, no tokens.
 @immutable
@@ -62,13 +62,18 @@ final Map<String, GameVisuals> gameVisuals = {
     illustration: SchiffeIllustration.new,
     description: (l) => l.menuDescSchiffe,
   ),
+  'gostrategy': GameVisuals(
+    illustration: GoStrategyIllustration.new,
+    description: (l) => l.menuDescGoStrategy,
+    token: (p, player) => p.gostrategy.army(player == Player.a),
+  ),
 };
 
 GameVisuals visualsOf(String gameId) => gameVisuals[gameId] ?? GameVisuals.fallback;
 
 /// The colour of [player] in [gameId] (KLD-067): the piece colour where the
 /// game has one ([GameVisuals.token]: 4 Gewinnt red / yellow, Mühle light /
-/// dark stones), otherwise the game accent for A and
+/// dark stones, GoStrategy red X / blue O), otherwise the game accent for A and
 /// [KlunkiPalette.secondPlayer] for B.
 Color playerColor(KlunkiPalette palette, String gameId, Player player) =>
     visualsOf(gameId).token?.call(palette, player) ??

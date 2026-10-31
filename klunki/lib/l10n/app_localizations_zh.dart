@@ -823,6 +823,192 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy => '暗藏的军队——找到并夺取对方的军旗。';
+
+  @override
+  String get goPieceMarshal => '元帅';
+
+  @override
+  String get goPieceGeneral => '将军';
+
+  @override
+  String get goPieceColonel => '上校';
+
+  @override
+  String get goPieceMajor => '少校';
+
+  @override
+  String get goPieceCaptain => '上尉';
+
+  @override
+  String get goPieceLieutenant => '中尉';
+
+  @override
+  String get goPieceSergeant => '中士';
+
+  @override
+  String get goPieceMiner => '工兵';
+
+  @override
+  String get goPieceScout => '侦察兵';
+
+  @override
+  String get goPieceSpy => '间谍';
+
+  @override
+  String get goPieceBomb => '炸弹';
+
+  @override
+  String get goPieceFlag => '军旗';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece（$rank）';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return '布阵（$player）';
+  }
+
+  @override
+  String get goSetupHint => '点两个棋子即可交换，然后点“完成”。';
+
+  @override
+  String goSetupSelected(String piece) {
+    return '已选$piece——再点一个棋子来交换。';
+  }
+
+  @override
+  String get goSetupShuffle => '随机重排';
+
+  @override
+  String get goSetupDone => '完成';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player先布阵——你可以先做准备。';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return '等待$player布阵……';
+  }
+
+  @override
+  String get goLegendTitle => '棋子';
+
+  @override
+  String get goLegendRules =>
+      '军衔高者胜，军衔相同则同归于尽。间谍主动进攻时可击败元帅。只有工兵能排除炸弹。侦察兵可沿直线移动任意格。炸弹和军旗不能移动。';
+
+  @override
+  String get goHintSelect => '点你的一个棋子，再点一个标记的格子。';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece：点一个标记的格子。';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece现在不能移动。';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return '等待$player……';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return '再走$moves步无交战即为平局。';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return '你的军队（$mark）';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return '对手：$player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return '剩余 $left/$total';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return '$player发起进攻';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner击败$loser';
+  }
+
+  @override
+  String get goFightBoth => '同归于尽';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece排除了炸弹';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece踩中了炸弹';
+  }
+
+  @override
+  String get goFightFlag => '夺得军旗！';
+
+  @override
+  String get goMoveSetup => '布阵';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return '从$from走到$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return '进攻（$from–$to）：$result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell：$content';
+  }
+
+  @override
+  String get goCellFree => '空';
+
+  @override
+  String get goCellLake => '湖';
+
+  @override
+  String goCellHidden(String player) {
+    return '$player的暗子';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$player的$piece';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content，已移动';
+  }
+
+  @override
   String gameNotInApp(String game) {
     return '应用中暂未提供$game。';
   }

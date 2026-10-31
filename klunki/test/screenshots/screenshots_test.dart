@@ -85,8 +85,8 @@ Widget _themed(Widget home, {Locale locale = const Locale('de')}) => MaterialApp
       home: home,
     );
 
-Future<void> _shot(WidgetTester tester, String name) async {
-  await tester.pump(const Duration(seconds: 2));
+Future<void> _shot(WidgetTester tester, String name, {Duration settle = const Duration(seconds: 2)}) async {
+  await tester.pump(settle);
   await tester.pump();
   final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
   await tester.runAsync(() async {
@@ -146,6 +146,7 @@ void main() {
         ('quartett-trumpf', 4),
         ('quartett-sets', 3),
         ('schiffe', 60),
+        ('gostrategy', 42),
       ]) {
         testWidgets('$id $tag', skip: skip != null, (tester) async {
           await _setup(tester, size, b);
@@ -199,6 +200,41 @@ void main() {
         await _shot(tester, 'pairing-$tag');
       });
     }
+  }
+
+  // GoStrategy (KLD-058b): setup, the cover after a fight and the fight
+  // reveal, phone light/dark.
+  for (final b in Brightness.values) {
+    final tag = _tag(phone, b);
+    testWidgets('gostrategy setup $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await _game(tester, 'gostrategy', 0);
+      await _shot(tester, 'gostrategy-setup-$tag');
+    });
+
+    testWidgets('gostrategy fight $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      final c = await _game(tester, 'gostrategy', 0);
+      final g = c.game as GoStrategyGame;
+      // Both setups, then quiet moves until the player to move can attack.
+      Map<String, dynamic>? attack;
+      for (var i = 0; i < 400 && attack == null && !g.isOver; i++) {
+        if (c.needsHandover) c.acknowledgeHandover();
+        final legal = g.legalMoves;
+        attack = legal.where((m) => m['action'] == 'move' && g.board[m['to'] as int].owner != null).firstOrNull;
+        if (attack == null) c.submit(legal[(i * 7 + 3) % legal.length]);
+      }
+      if (c.needsHandover) c.acknowledgeHandover();
+      await tester.pump();
+      c.submit(attack!);
+      await tester.pump();
+      if (c.needsHandover) await _shot(tester, 'gostrategy-cover-$tag', settle: const Duration(milliseconds: 100));
+      debugDisableShadows = false; // [_shot] reset it
+      c.acknowledgeHandover();
+      await tester.pump();
+      await tester.pump(); // the reveal starts on this frame
+      await _shot(tester, 'gostrategy-fight-$tag', settle: const Duration(milliseconds: 900));
+    });
   }
 
   testWidgets('menu ar', skip: skip != null, (tester) async {

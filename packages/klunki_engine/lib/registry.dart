@@ -64,9 +64,8 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true, redaction: const QuartettRedaction()),
   GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(),
       hiddenInformation: true, redaction: const SchiffeRedaction()),
-  // Engine + CLI only until its app screen exists (KLD-058b).
   GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(),
-      hiddenInformation: true, appReady: false, redaction: const GoStrategyRedaction()),
+      hiddenInformation: true, redaction: const GoStrategyRedaction()),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

@@ -77,7 +77,18 @@ class GameScreen extends StatefulWidget {
   /// App bar title; defaults to the registry title of the game.
   final String? title;
 
-  const GameScreen({super.key, required this.controller, required this.boardBuilder, this.describeMove, this.title});
+  /// Optional public info shown on the hot-seat handover cover (e.g. the
+  /// outcome of the last fight in GoStrategy). Must never show secrets.
+  final WidgetBuilder? handoverDetail;
+
+  const GameScreen({
+    super.key,
+    required this.controller,
+    required this.boardBuilder,
+    this.describeMove,
+    this.title,
+    this.handoverDetail,
+  });
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
   static GameShell of(BuildContext context) {
@@ -415,6 +426,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 Expanded(
                   child: HandoverCover(
                     controller: controller,
+                    detail: widget.handoverDetail,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

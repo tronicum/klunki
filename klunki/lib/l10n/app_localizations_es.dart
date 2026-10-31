@@ -856,6 +856,195 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy =>
+      'Ejércitos ocultos: encuentra y captura la bandera rival.';
+
+  @override
+  String get goPieceMarshal => 'Mariscal';
+
+  @override
+  String get goPieceGeneral => 'General';
+
+  @override
+  String get goPieceColonel => 'Coronel';
+
+  @override
+  String get goPieceMajor => 'Comandante';
+
+  @override
+  String get goPieceCaptain => 'Capitán';
+
+  @override
+  String get goPieceLieutenant => 'Teniente';
+
+  @override
+  String get goPieceSergeant => 'Sargento';
+
+  @override
+  String get goPieceMiner => 'Minero';
+
+  @override
+  String get goPieceScout => 'Explorador';
+
+  @override
+  String get goPieceSpy => 'Espía';
+
+  @override
+  String get goPieceBomb => 'Bomba';
+
+  @override
+  String get goPieceFlag => 'Bandera';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece ($rank)';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return 'Coloca tu ejército ($player)';
+  }
+
+  @override
+  String get goSetupHint =>
+      'Toca dos piezas para intercambiarlas y luego «Listo».';
+
+  @override
+  String goSetupSelected(String piece) {
+    return '$piece elegido: toca otra pieza para intercambiar.';
+  }
+
+  @override
+  String get goSetupShuffle => 'Mezclar';
+
+  @override
+  String get goSetupDone => 'Listo';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player coloca primero; mientras tanto puedes preparar.';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return 'Esperando a que $player coloque …';
+  }
+
+  @override
+  String get goLegendTitle => 'Piezas';
+
+  @override
+  String get goLegendRules =>
+      'Gana el rango mayor; con rangos iguales caen los dos. El espía vence al mariscal si ataca. Solo los mineros desactivan bombas. Los exploradores avanzan en línea recta lo que quieran. Las bombas y la bandera no se mueven.';
+
+  @override
+  String get goHintSelect =>
+      'Toca una de tus piezas y luego una casilla marcada.';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece: toca una casilla marcada.';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece no puede moverse ahora.';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return 'Esperando a $player …';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return '$moves jugadas más sin combate y será empate.';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return 'Tu ejército ($mark)';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return 'Rival: $player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return 'quedan $left de $total';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return 'Ataque de $player';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner vence a $loser';
+  }
+
+  @override
+  String get goFightBoth => 'Caen los dos';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece desactiva la bomba';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece pisa una bomba';
+  }
+
+  @override
+  String get goFightFlag => '¡Bandera capturada!';
+
+  @override
+  String get goMoveSetup => 'coloca su ejército';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return 'mueve $from–$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return 'ataca ($from–$to): $result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell: $content';
+  }
+
+  @override
+  String get goCellFree => 'libre';
+
+  @override
+  String get goCellLake => 'lago';
+
+  @override
+  String goCellHidden(String player) {
+    return 'pieza oculta de $player';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$piece de $player';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content, movida';
+  }
+
+  @override
   String gameNotInApp(String game) {
     return '$game aún no está disponible en la app.';
   }
