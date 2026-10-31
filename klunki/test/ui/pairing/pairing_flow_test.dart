@@ -201,19 +201,36 @@ void main() {
         tester.widget<SchiffeCellView>(_on(d, find.byKey(Key('sv-$grid-$r-$c')))).look;
 
     await tester.pump(const Duration(seconds: 1)); // route transitions
-    // X (host) places its fleet at random, then O (guest).
-    await tester.tap(_on(_hostKey, find.byKey(const Key('sv-random'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 1, what: 'X fleet on the guest');
-    await tester.pump();
+    // O (guest) may arrange its fleet while X still places (KLD-068), but
+    // "Fertig" waits for its turn.
+    bool doneEnabled(Key d) => tester.widget<ButtonStyleButton>(_on(d, find.byKey(const Key('sv-done')))).enabled;
     await tester.tap(_on(_guestKey, find.byKey(const Key('sv-random'))));
-    await pumpUntil(tester, () => _controller(tester, _hostKey).moves.length == 2, what: 'O fleet on the host');
+    await tester.pump();
+    expect(_on(_guestKey, find.byKey(svShipMarkerKey)), findsNWidgets(19));
+    expect(doneEnabled(_guestKey), isFalse);
+    expect(_controller(tester, _hostKey).moves, isEmpty, reason: 'the draft stays on the guest');
+
+    // X (host) places its fleet at random and confirms, then O.
+    await tester.tap(_on(_hostKey, find.byKey(const Key('sv-random'))));
+    await tester.pump();
+    expect(doneEnabled(_hostKey), isTrue);
+    await tester.tap(_on(_hostKey, find.byKey(const Key('sv-done'))));
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 6, what: 'X fleet on the guest');
+    await tester.pump();
+    expect(doneEnabled(_guestKey), isTrue);
+    // The guest's arrangement survived X's moves; confirm it.
+    expect(_on(_guestKey, find.byKey(svShipMarkerKey)), findsNWidgets(19));
+    await tester.tap(_on(_guestKey, find.byKey(const Key('sv-done'))));
+    await pumpUntil(tester, () => _controller(tester, _hostKey).moves.length == 12, what: 'O fleet on the host');
     await tester.pump();
 
     final guestC = _controller(tester, _guestKey);
     expect(guestC.transport.fullInformation, isFalse);
     expect(guestC.game, isA<SchiffeView>(), reason: 'the guest holds a view, not the engine');
     final truth = _controller(tester, _hostKey).game as SchiffeGame;
-    expect(guestC.moves.first.move, {'action': 'autoplace'}, reason: "X's seed never reaches the guest");
+    for (var i = 0; i < 6; i++) {
+      expect(guestC.moves[i].move, {'action': 'place', 'ship': i}, reason: "X's positions never reach the guest");
+    }
 
     // The guest's own grid shows its own fleet; its target grid shows no
     // trace of X's fleet.
@@ -232,14 +249,14 @@ void main() {
           if (mine[r][c] == SchiffeCell.empty) (r, c)
     ].first;
     await tester.tap(_on(_hostKey, find.byKey(Key('sv-target-${water.$1}-${water.$2}'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 3, what: 'X shot on the guest');
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 13, what: 'X shot on the guest');
     await tester.pump();
     expect(look(_guestKey, 'own', water.$1, water.$2), SvLook.miss);
 
     // O fires at one of X's ship squares: the hit comes from the host's event.
     final hostShip = truth.placements(Player.a).first.cells.first;
     await tester.tap(_on(_guestKey, find.byKey(Key('sv-target-${hostShip[0]}-${hostShip[1]}'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 4, what: 'O shot');
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 14, what: 'O shot');
     await tester.pump();
     expect(look(_guestKey, 'target', hostShip[0], hostShip[1]), anyOf(SvLook.hit, SvLook.sunk));
     expect((_controller(tester, _guestKey).moves.last.event.payload as Map)['result'], isNot('miss'));

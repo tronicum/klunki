@@ -502,11 +502,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'Navire $index sur $total · $player place';
-  }
-
-  @override
   String get schiffeHorizontal => 'Horizontal';
 
   @override
@@ -561,6 +556,63 @@ class AppLocalizationsFr extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'tire sur $cell : $result';
   }
+
+  @override
+  String get schiffeRotate => 'Tourner';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'Tourner, actuellement $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'Retirer';
+
+  @override
+  String get schiffeRemoveTooltip => 'Retour au port';
+
+  @override
+  String get schiffeReset => 'Réinitialiser';
+
+  @override
+  String get schiffeDone => 'Terminé';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '$placed navires sur $total placés · $player place';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '$ship sélectionné : touche une case ou fais glisser le navire pour le déplacer. Touche-le encore ou « Tourner » pour le pivoter.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'Flotte prête. Touche un navire pour le modifier – ou « Terminé ».';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'Tu peux déjà placer tes navires. « Terminé » fonctionne dès que $player a fini.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'Ça ne rentre pas : les navires doivent être entièrement sur la mer et ne pas se toucher.';
+
+  @override
+  String get schiffeInvalidRotate =>
+      'Impossible de tourner ici – pas assez de place.';
+
+  @override
+  String get schiffeSubmitFailed =>
+      'Le placement n’a pas été accepté. Touche à nouveau « Terminé ».';
+
+  @override
+  String get schiffeSelected => 'sélectionné';
+
+  @override
+  String get schiffeHarbour => 'Port';
 
   @override
   String schiffeShipSunk(String ship) {

@@ -480,11 +480,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return '第 $index/$total 艘 · $player 布阵中';
-  }
-
-  @override
   String get schiffeHorizontal => '横向';
 
   @override
@@ -537,6 +532,59 @@ class AppLocalizationsZh extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return '炮击 $cell：$result';
   }
+
+  @override
+  String get schiffeRotate => '旋转';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return '旋转，当前$orientation';
+  }
+
+  @override
+  String get schiffeRemove => '移除';
+
+  @override
+  String get schiffeRemoveTooltip => '放回港口';
+
+  @override
+  String get schiffeReset => '重置';
+
+  @override
+  String get schiffeDone => '完成';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '已放置 $placed/$total 艘 · $player 布阵中';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '已选中$ship：点击格子或拖动舰船来移动。再点一次或点“旋转”可转向。';
+  }
+
+  @override
+  String get schiffeHintReady => '舰队已就位。点击舰船可修改，或点“完成”。';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return '你可以先布阵。$player 完成后即可点“完成”。';
+  }
+
+  @override
+  String get schiffeInvalidPlace => '放不下：舰船必须完全在海面上，且不能相邻。';
+
+  @override
+  String get schiffeInvalidRotate => '这里无法旋转：空间不够。';
+
+  @override
+  String get schiffeSubmitFailed => '布阵未被接受。请再点一次“完成”。';
+
+  @override
+  String get schiffeSelected => '已选中';
+
+  @override
+  String get schiffeHarbour => '港口';
 
   @override
   String schiffeShipSunk(String ship) {

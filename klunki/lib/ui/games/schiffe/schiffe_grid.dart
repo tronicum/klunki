@@ -48,7 +48,22 @@ class SchiffeCellView extends StatelessWidget {
   final VoidCallback? onTap;
   final String semanticLabel;
 
-  const SchiffeCellView({super.key, required this.look, required this.semanticLabel, this.preview, this.onTap});
+  /// Screen-reader tap only (no gesture detector): for grids whose pointer
+  /// input is handled by a surrounding listener (the setup, KLD-068).
+  final VoidCallback? onSemanticTap;
+
+  /// Part of the selected ship (screen-reader state).
+  final bool selected;
+
+  const SchiffeCellView({
+    super.key,
+    required this.look,
+    required this.semanticLabel,
+    this.preview,
+    this.onTap,
+    this.onSemanticTap,
+    this.selected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +135,13 @@ class SchiffeCellView extends StatelessWidget {
     if (onTap != null) {
       cell = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: cell);
     }
-    return Semantics(label: semanticLabel, button: onTap != null, child: cell);
+    return Semantics(
+      label: semanticLabel,
+      button: onTap != null || onSemanticTap != null,
+      selected: selected ? true : null,
+      onTap: onSemanticTap,
+      child: cell,
+    );
   }
 }
 

@@ -182,6 +182,69 @@ void main() {
     });
   });
 
+  group('Schiffe versenken — layout editing helpers (KLD-068)', () {
+    const s5 = ShipPlacement(length: 5, row: 2, col: 3, horizontal: true);
+
+    test('movedTo and rotated keep the length; rotated pivots on a cell', () {
+      expect(s5.movedTo(4, 0), const ShipPlacement(length: 5, row: 4, col: 0, horizontal: true));
+      // Around the first cell: C4 stays, ship runs down C4–G4.
+      expect(s5.rotated(), const ShipPlacement(length: 5, row: 2, col: 3, horizontal: false));
+      // Around cell 2 (C6): C6 stays, ship runs A6–E6.
+      final r2 = s5.rotated(pivot: 2);
+      expect(r2, const ShipPlacement(length: 5, row: 0, col: 5, horizontal: false));
+      expect(r2.cells, anyElement(equals([2, 5])));
+      expect(r2.rotated(pivot: 2), s5);
+      expect(s5.rotated(pivot: 4).cells, anyElement(equals([2, 7])));
+      expect(() => s5.rotated(pivot: 5), throwsRangeError);
+      expect(s5.indexOf(2, 5), 2);
+      expect(s5.indexOf(3, 5), isNull);
+    });
+
+    test('fitsAmong: board edges, overlap and touching (also diagonal)', () {
+      expect(SchiffeGame.fitsAmong(s5, const []), isTrue);
+      expect(SchiffeGame.fitsAmong(s5.movedTo(0, 6), const []), isFalse); // off board
+      expect(SchiffeGame.fitsAmong(s5.rotated(pivot: 4), const []), isFalse); // rows -2..2
+      const sub = ShipPlacement(length: 2, row: 4, col: 0, horizontal: true);
+      expect(SchiffeGame.fitsAmong(sub, [s5]), isTrue);
+      expect(SchiffeGame.fitsAmong(sub.movedTo(3, 1), [s5]), isFalse); // diagonal to C4
+      expect(SchiffeGame.fitsAmong(sub.movedTo(3, 4), [s5]), isFalse); // below
+      expect(SchiffeGame.fitsAmong(sub.movedTo(2, 4), [s5]), isFalse); // overlap
+    });
+
+    test('isValidLayout matches the engine accepting the place moves', () {
+      for (final seed in [3, 9, 77]) {
+        final layout = SchiffeGame.randomLayout(seed);
+        expect(SchiffeGame.isValidLayout(layout), isTrue);
+        final g = SchiffeGame();
+        for (var i = 0; i < layout.length; i++) {
+          expect(g.applyMove(layout[i].toMove(i)), isNotNull);
+        }
+        expect(g.nextShipIndex(Player.a), isNull);
+      }
+      final layout = SchiffeGame.randomLayout(3);
+      expect(SchiffeGame.isValidLayout(layout.sublist(1)), isFalse);
+      expect(SchiffeGame.isValidLayout([...layout.reversed]), isFalse); // wrong lengths
+      final bad = [...layout]..[5] = layout[4].movedTo(layout[4].row, layout[4].col);
+      expect(SchiffeGame.isValidLayout(bad), isFalse);
+    });
+
+    test('completeLayout keeps the given ships and fills the rest validly', () {
+      const fixed = ShipPlacement(length: 4, row: 9, col: 6, horizontal: true);
+      final out = SchiffeGame.completeLayout([null, fixed, null, null, null, null], 5)!;
+      expect(out[1], fixed);
+      expect(SchiffeGame.isValidLayout(out), isTrue);
+      expect(SchiffeGame.completeLayout([null, fixed, null, null, null, null], 5), out);
+      final full = SchiffeGame.completeLayout(List.filled(6, null), 11)!;
+      expect(SchiffeGame.isValidLayout(full), isTrue);
+      // Two 5s still fit together.
+      expect(
+        SchiffeGame.completeLayout([null, null], 1, fleet: const [5, 5]),
+        isNotNull,
+      );
+      expect(() => SchiffeGame.completeLayout([null], 1), throwsArgumentError);
+    });
+  });
+
   group('Schiffe versenken — battle', () {
     test('miss passes turn', () {
       final g = smallGame();

@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/engine_l10n.dart';
@@ -10,6 +7,7 @@ import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
 import '../../shell/game_screen.dart';
 import 'schiffe_grid.dart';
+import 'schiffe_setup.dart';
 
 /// Width from which setup and battle are laid out side by side.
 const _wideBreakpoint = 600.0;
@@ -29,12 +27,6 @@ class SchiffeBoard extends StatefulWidget {
 }
 
 class _SchiffeBoardState extends State<SchiffeBoard> {
-  final Random _rng = Random();
-  bool _horizontal = true;
-
-  /// Cell under the finger / mouse (anchor of the preview ship).
-  (int, int)? _preview;
-
   GameController get controller => widget.controller;
   SchiffeGame get game => controller.game as SchiffeGame;
 
@@ -51,15 +43,9 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
     final shell = GameScreen.of(context);
     final l10n = AppLocalizations.of(context);
     if (g.phase == SchiffePhase.setup) {
-      final next = g.nextShipIndex(g.currentPlayer);
-      shell.setHint(
-        !controller.canAct || next == null
-            ? null
-            : l10n.schiffeHintSetup,
-      );
-      return _Setup(state: this);
+      // Fresh placement state per player (hot-seat) and per game (restart).
+      return SchiffeSetup(key: ValueKey((viewer, controller.transport)), controller: controller, viewer: viewer);
     }
-    _preview = null;
     shell.setHint(_battleHint(l10n, g));
     return _Battle(state: this);
   }
@@ -90,24 +76,7 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
     return null;
   }
 
-  void _setPreview((int, int)? cell) {
-    if (cell != _preview) setState(() => _preview = cell);
-  }
-
-  void _toggleRotation() => setState(() => _horizontal = !_horizontal);
-
-  void _autoplace() => controller.submit({'action': 'autoplace', 'seed': _rng.nextInt(1 << 31)});
-
-  void _place(int ship, int row, int col) =>
-      controller.submit({'action': 'place', 'ship': ship, 'row': row, 'col': col, 'dir': _horizontal ? 'h' : 'v'});
-
   void _fire(int row, int col) => controller.submit({'action': 'fire', 'row': row, 'col': col});
-}
-
-(int, int)? _cellAt(Offset p, double unit) {
-  final r = (p.dy / unit).floor(), c = (p.dx / unit).floor();
-  if (r < 0 || c < 0 || r >= SchiffeGame.size || c >= SchiffeGame.size) return null;
-  return (r, c);
 }
 
 SvLook _ownLook(SchiffeCell c) => switch (c) {
@@ -143,181 +112,6 @@ Widget _section(BuildContext context, String title, Widget grid, {Key? key}) {
       Expanded(child: grid),
     ],
   );
-}
-
-// ------------------------------------------------------------------ setup
-
-class _Setup extends StatelessWidget {
-  final _SchiffeBoardState state;
-  const _Setup({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final g = state.game;
-    final l10n = AppLocalizations.of(context);
-    final me = state.viewer;
-    final next = g.nextShipIndex(me);
-    final canAct = state.controller.canAct && next != null;
-    final len = next == null ? 0 : g.fleet[next];
-    final dir = state._horizontal ? 'h' : 'v';
-
-    // Valid anchors of the next ship in the current orientation, straight
-    // from the engine's legal moves.
-    final anchors = <int>{};
-    for (final m in g.legalMoves) {
-      if (m['action'] != 'place' || m['dir'] != dir) continue;
-      final a = (m['row'] as int) * SchiffeGame.size + (m['col'] as int);
-      anchors.add(a);
-    }
-
-    final previewCells = <int>{};
-    SvPreview? previewLook;
-    final pv = state._preview;
-    if (pv != null && canAct) {
-      final ship = ShipPlacement(length: len, row: pv.$1, col: pv.$2, horizontal: state._horizontal);
-      for (final cell in ship.cells) {
-        if (cell[0] < SchiffeGame.size && cell[1] < SchiffeGame.size) {
-          previewCells.add(cell[0] * SchiffeGame.size + cell[1]);
-        }
-      }
-      previewLook = anchors.contains(pv.$1 * SchiffeGame.size + pv.$2) ? SvPreview.valid : SvPreview.invalid;
-    }
-
-    final own = g.ownGrid(me);
-    final grid = SchiffeGrid(
-      cellBuilder: (r, c) {
-        final look = _ownLook(own[r][c]);
-        final i = r * SchiffeGame.size + c;
-        return SchiffeCellView(
-          key: Key('sv-own-$r-$c'),
-          look: look,
-          preview: previewCells.contains(i) ? previewLook : null,
-          semanticLabel: l10n.schiffeCellLabel(svCellName(r, c), _lookLabel(l10n, look)),
-        );
-      },
-      wrapCells: canAct
-          ? (cells, unit) => Listener(
-              behavior: HitTestBehavior.opaque,
-              onPointerDown: (e) => state._setPreview(_cellAt(e.localPosition, unit)),
-              onPointerMove: (e) => state._setPreview(_cellAt(e.localPosition, unit)),
-              onPointerCancel: (_) => state._setPreview(null),
-              onPointerUp: (e) {
-                final cell = _cellAt(e.localPosition, unit);
-                if (cell != null && anchors.contains(cell.$1 * SchiffeGame.size + cell.$2)) {
-                  state._place(next, cell.$1, cell.$2);
-                }
-                if (e.kind != PointerDeviceKind.mouse) state._setPreview(null);
-              },
-              child: MouseRegion(
-                onHover: (e) => state._setPreview(_cellAt(e.localPosition, unit)),
-                onExit: (_) => state._setPreview(null),
-                child: cells,
-              ),
-            )
-          : null,
-    );
-
-    final theme = Theme.of(context);
-    final title = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          next == null ? l10n.schiffeFleetComplete : l10n.schiffeShipWithLength(localizedShipName(l10n, len), len),
-          key: const Key('sv-next-ship'),
-          style: theme.textTheme.titleLarge,
-        ),
-        if (next != null) Text(l10n.schiffeSetupProgress(next + 1, g.fleet.length, playerMark(me))),
-      ],
-    );
-    final rotate = OutlinedButton.icon(
-      key: const Key('sv-rotate'),
-      onPressed: canAct ? state._toggleRotation : null,
-      icon: Icon(state._horizontal ? Icons.swap_horiz : Icons.swap_vert),
-      label: Text(state._horizontal ? l10n.schiffeHorizontal : l10n.schiffeVertical),
-    );
-    final random = FilledButton.tonalIcon(
-      key: const Key('sv-random'),
-      onPressed: canAct ? state._autoplace : null,
-      icon: const Icon(Icons.casino_outlined),
-      label: Text(l10n.schiffeRandom),
-    );
-    Widget fleetItem(int i, {required bool dense}) {
-      final placed = next == null || i < next;
-      final current = i == next;
-      final l = g.fleet[i];
-      return Padding(
-        key: Key('sv-fleet-$i'),
-        padding: dense ? const EdgeInsetsDirectional.only(end: 6) : const EdgeInsets.symmetric(vertical: 2),
-        child: Chip(
-          visualDensity: VisualDensity.compact,
-          backgroundColor: current ? theme.colorScheme.primaryContainer : null,
-          avatar: Icon(
-            placed ? Icons.check_circle : (current ? Icons.arrow_right : Icons.radio_button_unchecked),
-            size: 18,
-            color: placed ? Colors.green.shade700 : null,
-          ),
-          label: Text(placed
-              ? l10n.schiffeShipPlaced(localizedShipName(l10n, l), l)
-              : l10n.schiffeShipWithLength(localizedShipName(l10n, l), l)),
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, box) {
-        if (box.maxWidth >= _wideBreakpoint) {
-          return Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: grid),
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 260,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        title,
-                        const SizedBox(height: 12),
-                        Wrap(spacing: 8, runSpacing: 8, children: [rotate, random]),
-                        const SizedBox(height: 16),
-                        Text(l10n.schiffeFleet, style: theme.textTheme.titleSmall),
-                        for (var i = 0; i < g.fleet.length; i++) fleetItem(i, dense: false),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              title,
-              const SizedBox(height: 8),
-              Wrap(spacing: 8, runSpacing: 8, children: [rotate, random]),
-              const SizedBox(height: 8),
-              Expanded(child: grid),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 40,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [for (var i = 0; i < g.fleet.length; i++) fleetItem(i, dense: true)],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 // ----------------------------------------------------------------- battle

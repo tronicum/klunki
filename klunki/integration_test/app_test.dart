@@ -147,12 +147,14 @@ void main() {
         var handovers = 0;
 
         if (id == 'schiffe') {
-          // Both fleets with "Zufällig", with the handover in between.
+          // Both fleets with "Zufällig" + "Fertig", with the handover in between.
           await tapAndSettle(tester, find.byKey(const Key('sv-random')));
+          await tapAndSettle(tester, find.byKey(const Key('sv-done')));
           await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after X fleet');
           await screenshot(binding, tester, 'handover_cover');
           await tapAndSettle(tester, find.byKey(handoverContinue));
           await tapAndSettle(tester, find.byKey(const Key('sv-random')));
+          await tapAndSettle(tester, find.byKey(const Key('sv-done')));
           await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after O fleet');
           await tapAndSettle(tester, find.byKey(handoverContinue));
           handovers = 2;

@@ -493,11 +493,6 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'کشتی $index از $total · $player می‌چیند';
-  }
-
-  @override
   String get schiffeHorizontal => 'افقی';
 
   @override
@@ -551,6 +546,61 @@ class AppLocalizationsFa extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'شلیک به $cell: $result';
   }
+
+  @override
+  String get schiffeRotate => 'چرخاندن';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'چرخاندن، اکنون $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'برداشتن';
+
+  @override
+  String get schiffeRemoveTooltip => 'بازگشت به بندر';
+
+  @override
+  String get schiffeReset => 'بازنشانی';
+
+  @override
+  String get schiffeDone => 'تمام';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '$placed از $total کشتی گذاشته شد · $player می‌چیند';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '$ship انتخاب شد: برای جابه‌جایی روی یک خانه بزن یا کشتی را بکش. برای چرخاندن دوباره رویش بزن یا «چرخاندن» را بزن.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'ناوگان آماده است. برای تغییر روی یک کشتی بزن، یا «تمام».';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'می‌توانی از حالا بچینی. «تمام» وقتی کار می‌کند که $player تمام کرده باشد.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'آنجا جا نمی‌شود: کشتی‌ها باید کامل روی دریا باشند و به هم نچسبند.';
+
+  @override
+  String get schiffeInvalidRotate => 'اینجا نمی‌شود چرخاند؛ جا کافی نیست.';
+
+  @override
+  String get schiffeSubmitFailed => 'چیدمان پذیرفته نشد. دوباره «تمام» را بزن.';
+
+  @override
+  String get schiffeSelected => 'انتخاب‌شده';
+
+  @override
+  String get schiffeHarbour => 'بندر';
 
   @override
   String schiffeShipSunk(String ship) {
