@@ -115,7 +115,7 @@ String? verifyRedactedGame({
   if (viewHash(redaction.view(game, me)) != startViewHash) return 'the start position does not match';
   for (var i = 0; i < steps.length; i++) {
     final step = steps[i];
-    final mover = game.currentPlayer;
+    final mover = game.playerOf(full[i]); // a resign names its player (KLD-065)
     if (mover != step.player) return 'move $i was reported for the wrong player';
     final GameEvent? event;
     try {

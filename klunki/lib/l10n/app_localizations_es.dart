@@ -1075,4 +1075,32 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get joinDirectHelper =>
       'Para un móvil, tableta o terminal que aloja la partida: introduce la dirección del dispositivo (IP).';
+
+  @override
+  String get shellResign => 'Rendirse';
+
+  @override
+  String get shellResignTitle => '¿Seguro que quieres rendirte?';
+
+  @override
+  String shellResignBody(String player) {
+    return 'La partida termina ahora y gana $player.';
+  }
+
+  @override
+  String get shellResignWho =>
+      '¿Quién se rinde? La partida termina ahora y gana el otro lado.';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player se rinde';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return '$player se ha rendido';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => 'Te has rendido';
 }

@@ -221,6 +221,38 @@ void main() {
     expect(await host.exitCode, 0);
   });
 
+  test('resign: the guest gives up off turn during the Schiffe setup (KLD-065)', () async {
+    final (host, guest) = await hostAndJoin(['schiffe']);
+    await host.waitFor('> ');
+    await guest.waitFor('Waiting for X…');
+    guest.type('resign');
+    for (final t in [host, guest]) {
+      await t.waitFor('X wins (O resigned)');
+      await t.waitFor('Game over.');
+    }
+    expect(guest.text, contains('You resign. X wins.'));
+    expect(host.text, contains('O resigns. You win!'));
+    expect(host.text, contains('you win!'));
+    expect(guest.text, contains('you lose.'));
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
+  test('resign: the host gives up on its turn (KLD-065)', () async {
+    final (host, guest) = await hostAndJoin(['connect4']);
+    await host.waitFor('> ');
+    host.type('help');
+    await host.waitFor('resign  give up');
+    host.type('resign');
+    for (final t in [host, guest]) {
+      await t.waitFor('O wins (X resigned)');
+      await t.waitFor('Game over.');
+    }
+    expect(guest.text, contains('X resigns. You win!'));
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
   test('a dropped connection is reported and the guest reconnects', () async {
     final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
     final port = int.parse((await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting')))[1]!);

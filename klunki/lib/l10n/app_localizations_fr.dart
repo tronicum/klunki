@@ -1076,4 +1076,32 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get joinDirectHelper =>
       'Pour un téléphone, une tablette ou un terminal qui héberge lui-même : saisis l’adresse de l’appareil (IP).';
+
+  @override
+  String get shellResign => 'Abandonner';
+
+  @override
+  String get shellResignTitle => 'Vraiment abandonner ?';
+
+  @override
+  String shellResignBody(String player) {
+    return 'La partie se termine maintenant et $player gagne.';
+  }
+
+  @override
+  String get shellResignWho =>
+      'Qui abandonne ? La partie se termine maintenant et l’autre camp gagne.';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player abandonne';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return '$player a abandonné';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => 'Tu as abandonné';
 }

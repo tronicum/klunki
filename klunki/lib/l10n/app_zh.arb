@@ -273,5 +273,12 @@
   "relaySave": "应用",
   "relayJoinIntro": "房间码来自选择了“创建对局”的浏览器。",
   "joinDirectTitle": "直接连接设备",
-  "joinDirectHelper": "适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。"
+  "joinDirectHelper": "适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。",
+  "shellResign": "认输",
+  "shellResignTitle": "确定要认输吗？",
+  "shellResignBody": "对局立即结束，{player} 获胜。",
+  "shellResignWho": "谁认输？对局立即结束，另一方获胜。",
+  "shellResignPlayer": "{player} 认输",
+  "engineReasonCommonResigned": "{player} 已认输",
+  "engineReasonCommonYouResigned": "你已认输"
 }

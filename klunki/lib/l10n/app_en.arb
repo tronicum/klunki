@@ -272,5 +272,12 @@
   "relaySave": "Apply",
   "relayJoinIntro": "The room code comes from a browser that chose “Host game”.",
   "joinDirectTitle": "Connect directly to a device",
-  "joinDirectHelper": "For a phone, tablet or terminal that hosts itself: enter the device address (IP)."
+  "joinDirectHelper": "For a phone, tablet or terminal that hosts itself: enter the device address (IP).",
+  "shellResign": "Resign",
+  "shellResignTitle": "Really resign?",
+  "shellResignBody": "The game ends now and {player} wins.",
+  "shellResignWho": "Who resigns? The game ends now and the other side wins.",
+  "shellResignPlayer": "{player} resigns",
+  "engineReasonCommonResigned": "{player} resigned",
+  "engineReasonCommonYouResigned": "You resigned"
 }

@@ -225,11 +225,9 @@ class GoStrategyGame extends Game {
   Player get currentPlayer => _current;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(winner: _winner, draw: _draw, reason: _reason, code: _code, params: _params);
 
-  @override
-  bool get isOver => _winner != null || _draw;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -289,7 +287,8 @@ class GoStrategyGame extends Game {
         'lastMove': {for (final p in Player.values) p.name: _lastMove[p] == null ? null : [_lastMove[p]!.$1, _lastMove[p]!.$2]},
         'streak': {for (final p in Player.values) p.name: _streak[p]},
         'lastFight': jsonSafe(lastFight),
-        'result': resultToJson(result),
+        'result': resultToJson(playResult),
+        if (resignedBy != null) 'resigned': resignedBy!.name,
         'cells': [for (final c in viewFor(viewer)) _cellJson(c)],
         'remaining': {
           for (final p in Player.values)
@@ -406,7 +405,7 @@ class GoStrategyGame extends Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     switch (move['action']) {
       case 'setup':

@@ -65,6 +65,7 @@ class QuartettView extends QuartettGame {
         .._reason = r.reason
         .._code = r.code
         .._params = r.params;
+      v._restoreResign(j['resigned']);
       return v;
     } on BadViewException {
       rethrow;
@@ -88,8 +89,18 @@ class QuartettView extends QuartettGame {
   @override
   List<Map<String, dynamic>> get legalMoves => _current == viewer ? super.legalMoves : const [];
 
+  /// Read-only: the host applies every move, a resign included, and sends
+  /// the next view (KLD-065: a resign arrives as `resigned` in the view).
   @override
   GameEvent? applyMove(Map<String, dynamic> move) => null;
+
+  @override
+  GameEvent? applyPlayMove(Map<String, dynamic> move) => null;
+
+  /// Restores the resignation reported in the host's view.
+  void _restoreResign(Object? name) {
+    if (name != null) super.applyMove(Game.resignMove(playerIn(name)));
+  }
 
   @override
   Map<String, dynamic> viewJson(Player viewer) {

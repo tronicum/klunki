@@ -47,6 +47,16 @@ void main() {
                   winner: Player.a, reason: 'more quartets (5:3)', code: GameEndReason.quartettMostQuartets, params: {'a': 5, 'b': 3})),
           'Mehr Quartette (5:3)');
     });
+
+    test('resign (KLD-065): the resigner by mark or by label', () {
+      const resigned = GameResult(
+          winner: Player.a, reason: 'O resigned', code: GameEndReason.commonResigned, params: {'player': 1});
+      expect(localizedResultReason(deL10n, resigned), 'O hat aufgegeben');
+      expect(localizedResultReason(enL10n, resigned), 'O resigned');
+      expect(localizedResultReason(deL10n, resigned, playerLabel: (p) => p == Player.b ? 'Ben (O)' : '?'),
+          'Ben (O) hat aufgegeben');
+      expect(localizedEndReason(deL10n, GameEndReason.commonResigned, const {'player': 0}), 'X hat aufgegeben');
+    });
   });
 
   group('Quartett and Schiffe ids', () {

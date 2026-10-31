@@ -195,7 +195,8 @@ class NetworkTransport implements GameTransport {
   Future<SubmitResult> submit(Map<String, dynamic> move) async {
     if (_disposed) return const SubmitResult.rejected(RejectReason.disconnected);
     if (game.isOver) return const SubmitResult.rejected(RejectReason.gameOver);
-    if (game.currentPlayer != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    // Either player may resign at any time (KLD-065): [Game.playerOf].
+    if (game.playerOf(move) != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
     try {
       jsonEncode(move); // a non-JSON move would break the guest's connection
     } on JsonUnsupportedObjectError {

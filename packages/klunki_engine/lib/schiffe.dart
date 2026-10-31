@@ -132,14 +132,12 @@ class SchiffeGame extends Game {
   Player get currentPlayer => _current;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(
           winner: _winner,
           reason: _winner != null ? 'all ships sunk' : '',
           code: _winner != null ? GameEndReason.schiffeAllSunk : null);
 
-  @override
-  bool get isOver => _winner != null;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -178,6 +176,7 @@ class SchiffeGame extends Game {
       'phase': _phase.name,
       'current': _current.name,
       if (_winner != null) 'winner': _winner!.name,
+      if (resignedBy != null) 'resigned': resignedBy!.name,
       'own': [for (final s in own.ships) _placementJson(s.placement)],
       'incoming': [for (var r = 0; r < size; r++) for (var c = 0; c < size; c++) own.shot[r][c] ? '1' : '0'].join(),
       'target': [for (final row in targetGrid(viewer)) for (final m in row) '${m.index}'].join(),
@@ -207,7 +206,7 @@ class SchiffeGame extends Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     switch (move['action']) {
       case 'place':

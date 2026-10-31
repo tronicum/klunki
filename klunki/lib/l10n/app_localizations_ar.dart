@@ -1082,4 +1082,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get joinDirectHelper =>
       'لهاتف أو جهاز لوحي أو طرفية تستضيف بنفسها: أدخل عنوان الجهاز (IP).';
+
+  @override
+  String get shellResign => 'استسلام';
+
+  @override
+  String get shellResignTitle => 'هل تريد الاستسلام حقًا؟';
+
+  @override
+  String shellResignBody(String player) {
+    return 'تنتهي اللعبة الآن ويفوز $player.';
+  }
+
+  @override
+  String get shellResignWho =>
+      'من يستسلم؟ تنتهي اللعبة الآن ويفوز الطرف الآخر.';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player يستسلم';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return 'استسلم $player';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => 'لقد استسلمت';
 }

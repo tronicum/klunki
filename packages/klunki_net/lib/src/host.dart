@@ -128,7 +128,7 @@ class KlunkiHost {
 
   void _listen(List<Map<String, dynamic>> moves) {
     for (final m in moves) {
-      final reason = _apply(_game.currentPlayer, m);
+      final reason = _apply(_game.playerOf(m), m); // a resign may come from either player
       if (reason != null) throw StateError('resumed move does not apply: $reason');
     }
     _server.channels.listen(_onChannel, onError: (Object e) {
@@ -284,7 +284,9 @@ class KlunkiHost {
   /// Validates and applies [move] for [by]; null on success, else the reason.
   String? _apply(Player by, Map<String, dynamic> move) {
     if (_game.isOver) return 'game is over';
-    if (_game.currentPlayer != by) return 'not your turn';
+    // The player to move, or for a resign the player it names (either
+    // player may resign at any time, KLD-065).
+    if (_game.playerOf(move) != by) return 'not your turn';
     final String encoded;
     try {
       encoded = jsonEncode(move);

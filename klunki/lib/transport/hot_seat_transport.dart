@@ -43,7 +43,8 @@ class HotSeatTransport implements GameTransport {
   SubmitResult submitSync(Map<String, dynamic> move) {
     if (_disposed) return const SubmitResult.rejected(RejectReason.disconnected);
     if (_game.isOver) return const SubmitResult.rejected(RejectReason.gameOver);
-    final player = _game.currentPlayer;
+    // The player to move, or the resigner for a resign (KLD-065).
+    final player = _game.playerOf(move);
     if (!localPlayers.contains(player)) return const SubmitResult.rejected(RejectReason.notYourTurn);
 
     final copy = Map<String, dynamic>.unmodifiable(move);

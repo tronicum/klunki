@@ -328,7 +328,7 @@ class KlunkiGuest {
     final game = createGame(config);
     final entries = <MoveAccepted>[];
     for (final move in snapshot) {
-      final by = game.currentPlayer;
+      final by = game.playerOf(move);
       final event = game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>);
       if (event == null) return (null, null, 'diverged: snapshot does not replay');
       entries.add(MoveAccepted(entries.length, by, move, event: event));
@@ -384,7 +384,7 @@ class KlunkiGuest {
     final move = m['move'] as Map<String, dynamic>;
     if (index < _log.length) return; // already applied (duplicate)
     if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
-    final event = player == _game.currentPlayer
+    final event = player == _game.playerOf(move)
         ? _game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>)
         : null;
     if (event == null) return _diverged(conn, 'diverged: accepted move does not apply locally');
@@ -406,7 +406,7 @@ class KlunkiGuest {
     if (commit != null && commit is! String) throw const ProtocolException('"commit" must be a string');
     if (index < _log.length) return; // already applied (duplicate)
     if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
-    if (player != _game.currentPlayer) return _diverged(conn, 'diverged: move reported for the wrong player');
+    if (player != _game.playerOf(move)) return _diverged(conn, 'diverged: move reported for the wrong player');
     if (player == _me) {
       final sent = _sent.remove(index);
       if (commit != null || (sent != null && canonicalJson(sent) != canonicalJson(move))) {

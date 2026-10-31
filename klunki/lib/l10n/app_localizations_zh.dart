@@ -1028,4 +1028,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get joinDirectHelper => '适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。';
+
+  @override
+  String get shellResign => '认输';
+
+  @override
+  String get shellResignTitle => '确定要认输吗？';
+
+  @override
+  String shellResignBody(String player) {
+    return '对局立即结束，$player 获胜。';
+  }
+
+  @override
+  String get shellResignWho => '谁认输？对局立即结束，另一方获胜。';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player 认输';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return '$player 已认输';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => '你已认输';
 }

@@ -273,5 +273,12 @@
   "relaySave": "Aplicar",
   "relayJoinIntro": "El código de sala viene de un navegador que eligió «Crear partida».",
   "joinDirectTitle": "Conectar directamente con un dispositivo",
-  "joinDirectHelper": "Para un móvil, tableta o terminal que aloja la partida: introduce la dirección del dispositivo (IP)."
+  "joinDirectHelper": "Para un móvil, tableta o terminal que aloja la partida: introduce la dirección del dispositivo (IP).",
+  "shellResign": "Rendirse",
+  "shellResignTitle": "¿Seguro que quieres rendirte?",
+  "shellResignBody": "La partida termina ahora y gana {player}.",
+  "shellResignWho": "¿Quién se rinde? La partida termina ahora y gana el otro lado.",
+  "shellResignPlayer": "{player} se rinde",
+  "engineReasonCommonResigned": "{player} se ha rendido",
+  "engineReasonCommonYouResigned": "Te has rendido"
 }

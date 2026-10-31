@@ -60,6 +60,7 @@ class SchiffeView extends SchiffeGame {
       view._phase = SchiffePhase.values.byName(j['phase'] as String);
       view._current = playerIn(j['current']);
       view._winner = playerOrNull(j['winner']);
+      view._restoreResign(j['resigned']);
       return view;
     } on BadViewException {
       rethrow;
@@ -106,8 +107,18 @@ class SchiffeView extends SchiffeGame {
   @override
   List<Map<String, dynamic>> get legalMoves => _current == viewer ? super.legalMoves : const [];
 
+  /// Read-only: the host applies every move, a resign included, and sends
+  /// the next view (KLD-065: a resign arrives as `resigned` in the view).
   @override
   GameEvent? applyMove(Map<String, dynamic> move) => null;
+
+  @override
+  GameEvent? applyPlayMove(Map<String, dynamic> move) => null;
+
+  /// Restores the resignation reported in the host's view.
+  void _restoreResign(Object? name) {
+    if (name != null) super.applyMove(Game.resignMove(playerIn(name)));
+  }
 
   @override
   Map<String, dynamic> viewJson(Player viewer) {

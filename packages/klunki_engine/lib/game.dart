@@ -19,6 +19,9 @@ class GameEvent {
 /// result. [code] is a stable string (`<game>.<reason>`), safe to persist or
 /// compare; the English [GameResult.reason] stays the console text.
 enum GameEndReason {
+  /// Any game: a player resigned (KLD-065). params: `player` (the resigner's
+  /// [Player.index]: 0 = A, 1 = B); the winner is the other player.
+  commonResigned('common.resigned'),
   connect4FourInARow('connect4.fourInARow'),
   connect4BoardFull('connect4.boardFull'),
   muehleFewerThanThree('muehle.fewerThanThree'),
@@ -81,12 +84,77 @@ class GameResult {
 }
 
 /// Common shape every game exposes.
+///
+/// Resigning (KLD-065) lives here, once for every game: the move
+/// `{'action': 'resign', 'player': 'a' | 'b'}` ([resignMove]) ends any
+/// running game at once, in every phase (setup included) and regardless of
+/// whose turn it is; the other player wins with [GameEndReason.commonResigned].
+/// It is an ordinary move, so it goes through the same move log as every
+/// other move (network replication, replay, hot-seat undo). Because it may
+/// come from the player who is *not* to move, the move names its player;
+/// use [playerOf] instead of [currentPlayer] to learn who made a move.
+///
+/// Games implement the play rules in [applyPlayMove] and [playResult];
+/// [applyMove], [result] and [isOver] add the resignation on top.
 abstract class Game {
   Player get currentPlayer;
-  GameResult get result;
-  bool get isOver => result.isOver;
-  List<Map<String, dynamic>> get history; // for undo / network replay
 
-  /// Apply a move for [currentPlayer]. Returns [null] if the game is over.
-  GameEvent? applyMove(Map<String, dynamic> move);
+  Player? _resignedBy;
+
+  /// The player who resigned, or null.
+  Player? get resignedBy => _resignedBy;
+
+  /// The outcome by the game's own rules, ignoring a resignation.
+  GameResult get playResult;
+
+  /// The outcome: [playResult], or the resignation result once a player
+  /// resigned.
+  GameResult get result {
+    final r = _resignedBy;
+    if (r == null) return playResult;
+    return GameResult(
+        winner: _other(r),
+        reason: '${r == Player.a ? 'X' : 'O'} resigned',
+        code: GameEndReason.commonResigned,
+        params: {'player': r.index});
+  }
+
+  bool get isOver => _resignedBy != null || playResult.isOver;
+
+  /// The game's own move log (resignation not included: see [resignedBy]).
+  /// The full log, resign included, is the transport's / session's move list.
+  List<Map<String, dynamic>> get history;
+
+  /// Applies [move]: a resign ([resignMove]) for the player it names, any
+  /// other move for [currentPlayer] via [applyPlayMove]. Returns null if the
+  /// move is illegal or the game is over; the state is then unchanged.
+  GameEvent? applyMove(Map<String, dynamic> move) {
+    if (move['action'] == 'resign') {
+      final p = resignerOf(move);
+      if (p == null || isOver) return null;
+      _resignedBy = p;
+      return GameEvent(winner: _other(p), payload: {'resigned': p});
+    }
+    if (isOver) return null;
+    return applyPlayMove(move);
+  }
+
+  /// Applies a game move for [currentPlayer]; null if illegal. Only called
+  /// while the game is running.
+  GameEvent? applyPlayMove(Map<String, dynamic> move);
+
+  /// The player who makes [move]: the resigner for a resign, else
+  /// [currentPlayer]. Transports use this to attribute moves.
+  Player playerOf(Map<String, dynamic> move) => resignerOf(move) ?? currentPlayer;
+
+  /// The resign move for [player].
+  static Map<String, dynamic> resignMove(Player player) => {'action': 'resign', 'player': player.name};
+
+  /// The resigning player if [move] is a well-formed resign move, else null.
+  static Player? resignerOf(Map<String, dynamic> move) {
+    if (move['action'] != 'resign') return null;
+    return switch (move['player']) { 'a' => Player.a, 'b' => Player.b, _ => null };
+  }
+
+  static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
 }

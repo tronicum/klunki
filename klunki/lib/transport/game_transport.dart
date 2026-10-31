@@ -36,7 +36,8 @@ abstract class GameTransport {
   /// Every accepted move from any side, in order.
   Stream<AcceptedMove> get accepted;
 
-  /// Submits a move for the current player. Rejections never change state.
+  /// Submits a move for the current player (a resign, `Game.resignMove`,
+  /// for the player it names, any time). Rejections never change state.
   Future<SubmitResult> submit(Map<String, dynamic> move);
 
   /// Releases resources; afterwards [submit] rejects with
