@@ -516,11 +516,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'السفينة $index من $total · $player يوزّع';
-  }
-
-  @override
   String get schiffeHorizontal => 'أفقي';
 
   @override
@@ -578,6 +573,62 @@ class AppLocalizationsAr extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'يطلق على $cell: $result';
   }
+
+  @override
+  String get schiffeRotate => 'تدوير';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'تدوير، حاليًا $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'إزالة';
+
+  @override
+  String get schiffeRemoveTooltip => 'العودة إلى الميناء';
+
+  @override
+  String get schiffeReset => 'إعادة ضبط';
+
+  @override
+  String get schiffeDone => 'تم';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return 'تم وضع $placed من $total سفن · $player يوزّع';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return 'تم اختيار $ship: انقر على خانة أو اسحب السفينة لنقلها. انقر عليها مرة أخرى أو على «تدوير» لتدويرها.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'الأسطول جاهز. انقر على سفينة لتغييرها، أو على «تم».';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'يمكنك البدء بالتوزيع. يعمل «تم» بعد أن ينتهي $player.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'لا تتسع هنا: يجب أن تكون السفن كلها في البحر وألا تتلامس.';
+
+  @override
+  String get schiffeInvalidRotate =>
+      'لا يمكن التدوير هنا، لا توجد مساحة كافية.';
+
+  @override
+  String get schiffeSubmitFailed => 'لم يُقبل التوزيع. انقر على «تم» مرة أخرى.';
+
+  @override
+  String get schiffeSelected => 'محددة';
+
+  @override
+  String get schiffeHarbour => 'الميناء';
 
   @override
   String schiffeShipSunk(String ship) {

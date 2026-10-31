@@ -753,21 +753,6 @@
       }
     }
   },
-  "schiffeSetupProgress": "Schiff {index} von {total} · {player} stellt auf",
-  "@schiffeSetupProgress": {
-    "description": "Setup subtitle.",
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "player": {
-        "type": "String"
-      }
-    }
-  },
   "schiffeHorizontal": "Horizontal",
   "@schiffeHorizontal": {
     "description": "Rotate button: current orientation."
@@ -859,6 +844,92 @@
         "type": "String"
       }
     }
+  },
+  "schiffeRotate": "Drehen",
+  "@schiffeRotate": {
+    "description": "KLD-068. Schiffe setup: button that turns the selected ship (or the next ship to place) by 90°."
+  },
+  "schiffeRotateSemantics": "Drehen, aktuell {orientation}",
+  "@schiffeRotateSemantics": {
+    "description": "KLD-068. Schiffe setup: screen-reader label of the rotate button; orientation = schiffeHorizontal/schiffeVertical.",
+    "placeholders": {
+      "orientation": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeRemove": "Entfernen",
+  "@schiffeRemove": {
+    "description": "KLD-068. Schiffe setup: button that takes the selected ship off the board."
+  },
+  "schiffeRemoveTooltip": "Zurück in den Hafen",
+  "@schiffeRemoveTooltip": {
+    "description": "KLD-068. Schiffe setup: tooltip of the remove button (the ship goes back to the harbour/tray)."
+  },
+  "schiffeReset": "Zurücksetzen",
+  "@schiffeReset": {
+    "description": "KLD-068. Schiffe setup: button that clears the board (all ships back to the harbour)."
+  },
+  "schiffeDone": "Fertig",
+  "@schiffeDone": {
+    "description": "KLD-068. Schiffe setup: button that confirms the fleet layout (enabled when all ships are placed)."
+  },
+  "schiffeSetupCount": "{placed} von {total} Schiffen gesetzt · {player} stellt auf",
+  "@schiffeSetupCount": {
+    "description": "KLD-068. Schiffe setup: progress line under the title.",
+    "placeholders": {
+      "placed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeHintSelected": "{ship} ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.",
+  "@schiffeHintSelected": {
+    "description": "KLD-068. Schiffe setup hint while a placed ship is selected; ship = e.g. \"Kreuzer (4)\".",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeHintReady": "Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.",
+  "@schiffeHintReady": {
+    "description": "KLD-068. Schiffe setup hint when all ships are placed."
+  },
+  "schiffeHintEarly": "Du kannst schon aufstellen. „Fertig“ geht, sobald {player} fertig ist.",
+  "@schiffeHintEarly": {
+    "description": "KLD-068. Schiffe network setup hint while the opponent still places: the own fleet can be arranged already.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffeInvalidPlace": "Passt dort nicht: Schiffe müssen ganz aufs Meer und dürfen sich nicht berühren.",
+  "@schiffeInvalidPlace": {
+    "description": "KLD-068. Schiffe setup: short message after an invalid placement or move."
+  },
+  "schiffeInvalidRotate": "Drehen geht hier nicht – zu wenig Platz.",
+  "@schiffeInvalidRotate": {
+    "description": "KLD-068. Schiffe setup: short message after a rotation that does not fit."
+  },
+  "schiffeSubmitFailed": "Die Aufstellung wurde nicht angenommen. Tippe nochmal „Fertig“.",
+  "@schiffeSubmitFailed": {
+    "description": "KLD-068. Schiffe setup: message when the host rejected the submitted layout."
+  },
+  "schiffeSelected": "ausgewählt",
+  "@schiffeSelected": {
+    "description": "KLD-068. Schiffe setup: screen-reader suffix of the selected ship (cell and harbour labels)."
+  },
+  "schiffeHarbour": "Hafen",
+  "@schiffeHarbour": {
+    "description": "KLD-068. Schiffe setup: heading of the list of ships (placed and still in the harbour)."
   },
   "schiffeShipSunk": "{ship} versenkt",
   "@schiffeShipSunk": {

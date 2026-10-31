@@ -39,6 +39,46 @@ class ShipPlacement {
   List<List<int>> get cells => List.generate(
       length, (i) => horizontal ? [row, col + i] : [row + i, col]);
 
+  /// The same ship with its top-left cell at ([row], [col]).
+  ShipPlacement movedTo(int row, int col) =>
+      ShipPlacement(length: length, row: row, col: col, horizontal: horizontal);
+
+  /// The ship turned by 90° around its cell number [pivot] (0 = the
+  /// top-left cell): that cell stays where it is, the ship then extends
+  /// right (was vertical) or down (was horizontal) from the pivot minus
+  /// [pivot] cells. The result may lie partly off the board; check it with
+  /// [SchiffeGame.fitsAmong].
+  ShipPlacement rotated({int pivot = 0}) {
+    if (pivot < 0 || pivot >= length) {
+      throw RangeError.range(pivot, 0, length - 1, 'pivot');
+    }
+    final pr = horizontal ? row : row + pivot;
+    final pc = horizontal ? col + pivot : col;
+    return horizontal
+        ? ShipPlacement(length: length, row: pr - pivot, col: pc, horizontal: false)
+        : ShipPlacement(length: length, row: pr, col: pc - pivot, horizontal: true);
+  }
+
+  /// Index of cell ([r], [c]) within this ship, or null if it is not one.
+  int? indexOf(int r, int c) {
+    for (var i = 0; i < length; i++) {
+      final cell = horizontal ? (row, col + i) : (row + i, col);
+      if (cell == (r, c)) return i;
+    }
+    return null;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ShipPlacement &&
+      other.length == length &&
+      other.row == row &&
+      other.col == col &&
+      other.horizontal == horizontal;
+
+  @override
+  int get hashCode => Object.hash(length, row, col, horizontal);
+
   /// The equivalent `place` move for ship [index].
   Map<String, dynamic> toMove(int index) =>
       {'action': 'place', 'ship': index, 'row': row, 'col': col, 'dir': dir};
@@ -350,6 +390,54 @@ class SchiffeGame extends Game {
     for (final cell in p.cells) {
       occupied[cell[0]][cell[1]] = v;
     }
+  }
+
+  /// True if [p] lies fully on the board and neither overlaps nor touches
+  /// (not even diagonally) any ship of [others]. For editing a layout before
+  /// it is submitted (KLD-068): pass the other ships, not [p]'s old position.
+  static bool fitsAmong(ShipPlacement p, Iterable<ShipPlacement> others) {
+    final occupied = List.generate(size, (_) => List.filled(size, false));
+    for (final o in others) {
+      for (final cell in o.cells) {
+        if (_inBounds(cell[0], cell[1])) occupied[cell[0]][cell[1]] = true;
+      }
+    }
+    return _fits(occupied, p);
+  }
+
+  /// True if [layout] is a complete, valid layout of [fleet]: ship i has
+  /// length `fleet[i]`, every ship is on the board, none overlap or touch.
+  /// Then its `place` moves in index order are all legal.
+  static bool isValidLayout(List<ShipPlacement> layout, {List<int> fleet = defaultFleet}) {
+    if (layout.length != fleet.length) return false;
+    for (var i = 0; i < layout.length; i++) {
+      if (layout[i].length != fleet[i]) return false;
+      if (!fitsAmong(layout[i], layout.take(i))) return false;
+    }
+    return true;
+  }
+
+  /// [partial] with every null slot filled by a random ship of length
+  /// `fleet[i]` around the given ships (kept as they are), deterministic for
+  /// [seed]; null if the given ships leave no room. The given ships must
+  /// already be valid among each other.
+  static List<ShipPlacement>? completeLayout(List<ShipPlacement?> partial, int seed,
+      {List<int> fleet = defaultFleet}) {
+    if (partial.length != fleet.length) {
+      throw ArgumentError.value(partial, 'partial', 'needs ${fleet.length} slots');
+    }
+    final occupied = List.generate(size, (_) => List.filled(size, false));
+    for (final p in partial) {
+      if (p != null) _mark(occupied, p, true);
+    }
+    final missing = [for (var i = 0; i < fleet.length; i++) if (partial[i] == null) i];
+    final generated = _generate([for (final i in missing) fleet[i]], Random(seed), occupied);
+    if (generated == null) return null;
+    final out = [...partial];
+    for (var k = 0; k < missing.length; k++) {
+      out[missing[k]] = generated[k];
+    }
+    return out.cast<ShipPlacement>();
   }
 
   /// A valid random layout (no overlap, no touching) of [fleet] on an empty

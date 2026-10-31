@@ -5,7 +5,8 @@ import '../shell/game_screen.dart';
 import 'schiffe/schiffe_board.dart';
 import 'schiffe/schiffe_describe.dart';
 
-/// Schiffe versenken screen (KLD-026): fleet placement with preview, rotate
+/// Schiffe versenken screen (KLD-026, placement KLD-068): editable fleet
+/// placement (`schiffe/schiffe_setup.dart`) with preview, rotate, move
 /// and random placement, then the battle with the target grid ("Gegner") and
 /// the own grid ("Dein Meer"). The board lives in `schiffe/schiffe_board.dart`.
 ///

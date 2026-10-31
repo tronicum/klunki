@@ -21,6 +21,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
+import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -124,6 +125,24 @@ Future<GameController> _game(WidgetTester tester, String id, int moves, {Locale 
   return c;
 }
 
+/// Schiffe setup: "Zufällig", then the first ship cell (row-major) tapped so
+/// that ship is selected. Returns that cell.
+Future<(int, int)> _schiffeSetup(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('sv-random')));
+  await tester.pump();
+  for (var r = 0; r < 10; r++) {
+    for (var c = 0; c < 10; c++) {
+      final cell = find.byKey(Key('sv-own-$r-$c'));
+      if (find.descendant(of: cell, matching: find.byKey(svShipMarkerKey)).evaluate().isNotEmpty) {
+        await tester.tap(cell);
+        await tester.pump();
+        return (r, c);
+      }
+    }
+  }
+  throw StateError('no ship');
+}
+
 void main() {
   final skip = _out == null ? 'set KLUNKI_SHOTS=<dir> to capture screenshots' : null;
   setUpAll(() async {
@@ -155,6 +174,46 @@ void main() {
           await tester.pump();
           await _shot(tester, '$id-$tag');
         });
+      }
+
+      if (size == phone) {
+        // KLD-068: placement with the whole fleet at random, one ship
+        // selected (accent outline) and the harbour list.
+        testWidgets('schiffe setup $tag', skip: skip != null, (tester) async {
+          await _setup(tester, size, b);
+          await _game(tester, 'schiffe', 0);
+          await _schiffeSetup(tester);
+          await _shot(tester, 'schiffe-setup-$tag');
+        });
+
+        // A ship being dragged: green footprint where it fits, red where not.
+        for (final fits in [true, false]) {
+          testWidgets('schiffe drag ${fits ? 'valid' : 'invalid'} $tag', skip: skip != null, (tester) async {
+            await _setup(tester, size, b);
+            await _game(tester, 'schiffe', 0);
+            final (r, c) = await _schiffeSetup(tester);
+            final g = await tester.startGesture(tester.getCenter(find.byKey(Key('sv-own-$r-$c'))));
+            await tester.pump();
+            Finder cell(int r, int c) => find.byKey(Key('sv-own-$r-$c'));
+            if (fits) {
+              // Drag across the sea until the footprint shows green.
+              search:
+              for (var r = 9; r >= 0; r--) {
+                for (var c = 0; c < 10; c++) {
+                  await g.moveTo(tester.getCenter(cell(r, c)));
+                  await tester.pump();
+                  if (tester.widget<SchiffeCellView>(cell(r, c)).preview == SvPreview.valid) break search;
+                }
+              }
+            } else {
+              await g.moveTo(tester.getCenter(cell(9, 9)));
+              await tester.pump();
+            }
+            await _shot(tester, 'schiffe-drag-${fits ? 'valid' : 'invalid'}-$tag');
+            await g.up();
+            await tester.pump(const Duration(seconds: 1));
+          });
+        }
       }
 
       testWidgets('result $tag', skip: skip != null, (tester) async {

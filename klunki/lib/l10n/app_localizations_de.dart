@@ -497,11 +497,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'Schiff $index von $total · $player stellt auf';
-  }
-
-  @override
   String get schiffeHorizontal => 'Horizontal';
 
   @override
@@ -555,6 +550,62 @@ class AppLocalizationsDe extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'schießt auf $cell: $result';
   }
+
+  @override
+  String get schiffeRotate => 'Drehen';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'Drehen, aktuell $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'Entfernen';
+
+  @override
+  String get schiffeRemoveTooltip => 'Zurück in den Hafen';
+
+  @override
+  String get schiffeReset => 'Zurücksetzen';
+
+  @override
+  String get schiffeDone => 'Fertig';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '$placed von $total Schiffen gesetzt · $player stellt auf';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '$ship ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'Du kannst schon aufstellen. „Fertig“ geht, sobald $player fertig ist.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'Passt dort nicht: Schiffe müssen ganz aufs Meer und dürfen sich nicht berühren.';
+
+  @override
+  String get schiffeInvalidRotate => 'Drehen geht hier nicht – zu wenig Platz.';
+
+  @override
+  String get schiffeSubmitFailed =>
+      'Die Aufstellung wurde nicht angenommen. Tippe nochmal „Fertig“.';
+
+  @override
+  String get schiffeSelected => 'ausgewählt';
+
+  @override
+  String get schiffeHarbour => 'Hafen';
 
   @override
   String schiffeShipSunk(String ship) {

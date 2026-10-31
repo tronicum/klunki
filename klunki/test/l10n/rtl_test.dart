@@ -108,8 +108,14 @@ void main() {
     final c = await pumpIn(tester, 'schiffe', fa, size: const Size(1180, 820));
     await tester.tap(find.byKey(const Key('sv-random')));
     await tester.pump();
+    await tester.tap(find.byKey(const Key('sv-done')));
+    await tester.pump();
+    await tester.pump();
     await continueHandover(tester);
     await tester.tap(find.byKey(const Key('sv-random')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('sv-done')));
+    await tester.pump();
     await tester.pump();
     await continueHandover(tester);
     final g = c.game as SchiffeGame;

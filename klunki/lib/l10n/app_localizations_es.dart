@@ -502,11 +502,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'Barco $index de $total · coloca $player';
-  }
-
-  @override
   String get schiffeHorizontal => 'Horizontal';
 
   @override
@@ -561,6 +556,62 @@ class AppLocalizationsEs extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'dispara a $cell: $result';
   }
+
+  @override
+  String get schiffeRotate => 'Girar';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'Girar, ahora $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'Quitar';
+
+  @override
+  String get schiffeRemoveTooltip => 'Volver al puerto';
+
+  @override
+  String get schiffeReset => 'Reiniciar';
+
+  @override
+  String get schiffeDone => 'Listo';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '$placed de $total barcos colocados · coloca $player';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '$ship seleccionado: toca una casilla o arrastra el barco para moverlo. Tócalo otra vez o «Girar» para girarlo.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'Flota lista. Toca un barco para cambiarlo, o «Listo».';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'Ya puedes colocar tus barcos. «Listo» funciona en cuanto $player termine.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'No cabe ahí: los barcos deben estar del todo en el mar y no pueden tocarse.';
+
+  @override
+  String get schiffeInvalidRotate => 'Aquí no se puede girar: no hay sitio.';
+
+  @override
+  String get schiffeSubmitFailed =>
+      'No se aceptó la colocación. Toca «Listo» otra vez.';
+
+  @override
+  String get schiffeSelected => 'seleccionado';
+
+  @override
+  String get schiffeHarbour => 'Puerto';
 
   @override
   String schiffeShipSunk(String ship) {

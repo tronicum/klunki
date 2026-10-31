@@ -432,29 +432,28 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                          child: Row(
+                          // A Wrap, not a Row: on narrow phones with long
+                          // names the legend moves below the pill instead of
+                          // squeezing the status into many lines.
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 4,
                             children: [
-                              Expanded(
-                                child: Align(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: _TurnIndicator(
-                                    gameId: controller.spec.id,
-                                    player: turnPlayer,
-                                    mood: mood,
-                                    network: labels.local != null,
-                                    status: status,
-                                  ),
-                                ),
+                              _TurnIndicator(
+                                gameId: controller.spec.id,
+                                player: turnPlayer,
+                                mood: mood,
+                                network: labels.local != null,
+                                status: status,
                               ),
                               // Hot-seat: both players with their colours (KLD-067).
                               if (labels.local == null)
-                                Padding(
-                                  padding: const EdgeInsetsDirectional.only(start: 8),
-                                  child: _PlayersLegend(
-                                    gameId: controller.spec.id,
-                                    labels: labels,
-                                    current: game.isOver ? null : game.currentPlayer,
-                                  ),
+                                _PlayersLegend(
+                                  gameId: controller.spec.id,
+                                  labels: labels,
+                                  current: game.isOver ? null : game.currentPlayer,
                                 ),
                             ],
                           ),

@@ -816,12 +816,6 @@ abstract class AppLocalizations {
   /// **'{ship} ({length}) · gesetzt'**
   String schiffeShipPlaced(String ship, int length);
 
-  /// Setup subtitle.
-  ///
-  /// In de, this message translates to:
-  /// **'Schiff {index} von {total} · {player} stellt auf'**
-  String schiffeSetupProgress(int index, int total, String player);
-
   /// Rotate button: current orientation.
   ///
   /// In de, this message translates to:
@@ -899,6 +893,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'schießt auf {cell}: {result}'**
   String schiffeMoveFire(String cell, String result);
+
+  /// KLD-068. Schiffe setup: button that turns the selected ship (or the next ship to place) by 90°.
+  ///
+  /// In de, this message translates to:
+  /// **'Drehen'**
+  String get schiffeRotate;
+
+  /// KLD-068. Schiffe setup: screen-reader label of the rotate button; orientation = schiffeHorizontal/schiffeVertical.
+  ///
+  /// In de, this message translates to:
+  /// **'Drehen, aktuell {orientation}'**
+  String schiffeRotateSemantics(String orientation);
+
+  /// KLD-068. Schiffe setup: button that takes the selected ship off the board.
+  ///
+  /// In de, this message translates to:
+  /// **'Entfernen'**
+  String get schiffeRemove;
+
+  /// KLD-068. Schiffe setup: tooltip of the remove button (the ship goes back to the harbour/tray).
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück in den Hafen'**
+  String get schiffeRemoveTooltip;
+
+  /// KLD-068. Schiffe setup: button that clears the board (all ships back to the harbour).
+  ///
+  /// In de, this message translates to:
+  /// **'Zurücksetzen'**
+  String get schiffeReset;
+
+  /// KLD-068. Schiffe setup: button that confirms the fleet layout (enabled when all ships are placed).
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get schiffeDone;
+
+  /// KLD-068. Schiffe setup: progress line under the title.
+  ///
+  /// In de, this message translates to:
+  /// **'{placed} von {total} Schiffen gesetzt · {player} stellt auf'**
+  String schiffeSetupCount(int placed, int total, String player);
+
+  /// KLD-068. Schiffe setup hint while a placed ship is selected; ship = e.g. "Kreuzer (4)".
+  ///
+  /// In de, this message translates to:
+  /// **'{ship} ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.'**
+  String schiffeHintSelected(String ship);
+
+  /// KLD-068. Schiffe setup hint when all ships are placed.
+  ///
+  /// In de, this message translates to:
+  /// **'Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.'**
+  String get schiffeHintReady;
+
+  /// KLD-068. Schiffe network setup hint while the opponent still places: the own fleet can be arranged already.
+  ///
+  /// In de, this message translates to:
+  /// **'Du kannst schon aufstellen. „Fertig“ geht, sobald {player} fertig ist.'**
+  String schiffeHintEarly(String player);
+
+  /// KLD-068. Schiffe setup: short message after an invalid placement or move.
+  ///
+  /// In de, this message translates to:
+  /// **'Passt dort nicht: Schiffe müssen ganz aufs Meer und dürfen sich nicht berühren.'**
+  String get schiffeInvalidPlace;
+
+  /// KLD-068. Schiffe setup: short message after a rotation that does not fit.
+  ///
+  /// In de, this message translates to:
+  /// **'Drehen geht hier nicht – zu wenig Platz.'**
+  String get schiffeInvalidRotate;
+
+  /// KLD-068. Schiffe setup: message when the host rejected the submitted layout.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Aufstellung wurde nicht angenommen. Tippe nochmal „Fertig“.'**
+  String get schiffeSubmitFailed;
+
+  /// KLD-068. Schiffe setup: screen-reader suffix of the selected ship (cell and harbour labels).
+  ///
+  /// In de, this message translates to:
+  /// **'ausgewählt'**
+  String get schiffeSelected;
+
+  /// KLD-068. Schiffe setup: heading of the list of ships (placed and still in the harbour).
+  ///
+  /// In de, this message translates to:
+  /// **'Hafen'**
+  String get schiffeHarbour;
 
   /// Shot result: which ship was sunk (name from the engine).
   ///

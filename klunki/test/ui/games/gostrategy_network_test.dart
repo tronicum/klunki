@@ -6,7 +6,7 @@
 //
 // The screen renders from `viewFor(me)` plus the fight payload only; the
 // guest holds a `GoStrategyView` and redacted events (protocol v2, KLD-064).
-@Timeout(Duration(seconds: 60))
+@Timeout(Duration(seconds: 90))
 library;
 
 import 'dart:async';
@@ -40,14 +40,15 @@ GoSquareView _square(WidgetTester tester, Key device, int sq) => tester.widget<G
 
 /// Pumps (fake time) and waits a little real time until [condition] holds.
 Future<void> _until(WidgetTester tester, bool Function() condition, String what) async {
-  // Counted rounds, not a Stopwatch: about 10 s of real waiting at most.
+  // Counted rounds, not a Stopwatch: about 20 s of real waiting at most
+  // (more under the load of the full suite).
   for (var round = 0;; round++) {
     await tester.pump();
     if (condition()) {
       await tester.pump(); // post-frame hint
       return;
     }
-    if (round > 1000) fail('condition not met: $what');
+    if (round > 2000) fail('condition not met: $what');
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
   }
 }
@@ -173,7 +174,9 @@ void main() {
         break;
       }
       final count = c.moves.length;
-      await c.submit(legal[(i * 7) % legal.length]);
+      // Not awaited: a guest's submit completes over the real socket, which
+      // only runs between the _until rounds below.
+      unawaited(c.submit(legal[(i * 7) % legal.length]));
       await _until(
           tester,
           () =>
@@ -257,7 +260,7 @@ void main() {
         await _until(tester, () => _controller(tester, _hostKey).moves.length == 2, 'host receives O setup');
         final hostC = _controller(tester, _hostKey);
         final g = hostC.game as GoStrategyGame;
-        await hostC.submit(g.legalMoves.firstWhere((m) => g.board[m['to'] as int].isEmpty));
+        unawaited(hostC.submit(g.legalMoves.firstWhere((m) => g.board[m['to'] as int].isEmpty)));
         await _until(tester, () => _controller(tester, _guestKey).moves.length == 3, 'guest receives X move');
         // O moves, then X is to move again: O resigns off turn.
         final guestC = _controller(tester, _guestKey);

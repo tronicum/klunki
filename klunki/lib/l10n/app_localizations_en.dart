@@ -493,11 +493,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String schiffeSetupProgress(int index, int total, String player) {
-    return 'Ship $index of $total · $player is placing';
-  }
-
-  @override
   String get schiffeHorizontal => 'Horizontal';
 
   @override
@@ -551,6 +546,62 @@ class AppLocalizationsEn extends AppLocalizations {
   String schiffeMoveFire(String cell, String result) {
     return 'fires at $cell: $result';
   }
+
+  @override
+  String get schiffeRotate => 'Rotate';
+
+  @override
+  String schiffeRotateSemantics(String orientation) {
+    return 'Rotate, currently $orientation';
+  }
+
+  @override
+  String get schiffeRemove => 'Remove';
+
+  @override
+  String get schiffeRemoveTooltip => 'Back to the harbour';
+
+  @override
+  String get schiffeReset => 'Reset';
+
+  @override
+  String get schiffeDone => 'Done';
+
+  @override
+  String schiffeSetupCount(int placed, int total, String player) {
+    return '$placed of $total ships placed · $player is placing';
+  }
+
+  @override
+  String schiffeHintSelected(String ship) {
+    return '$ship selected: tap a cell or drag the ship to move it. Tap it again or “Rotate” to turn it.';
+  }
+
+  @override
+  String get schiffeHintReady =>
+      'Fleet ready. Tap a ship to change it – or “Done”.';
+
+  @override
+  String schiffeHintEarly(String player) {
+    return 'You can already place your ships. “Done” works once $player has finished.';
+  }
+
+  @override
+  String get schiffeInvalidPlace =>
+      'Doesn’t fit there: ships must be fully on the sea and must not touch.';
+
+  @override
+  String get schiffeInvalidRotate => 'Can’t rotate here – not enough room.';
+
+  @override
+  String get schiffeSubmitFailed =>
+      'The setup was not accepted. Tap “Done” again.';
+
+  @override
+  String get schiffeSelected => 'selected';
+
+  @override
+  String get schiffeHarbour => 'Harbour';
 
   @override
   String schiffeShipSunk(String ship) {
