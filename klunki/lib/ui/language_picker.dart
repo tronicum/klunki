@@ -42,9 +42,10 @@ class LanguagePicker extends StatelessWidget {
       final selected = current == locale;
       return ListTile(
         key: Key('language-$key'),
-        // Endonyms include Arabic script in every app language.
+        // Endonyms include Arabic and Chinese script in every app language
+        // (the theme carries the same fallback; explicit for robustness).
         title: Text(label,
-            style: const TextStyle(fontFamilyFallback: arabicFontFallback)),
+            style: const TextStyle(fontFamilyFallback: appFontFallback)),
         trailing: selected ? const Icon(Icons.check) : null,
         selected: selected,
         onTap: () {

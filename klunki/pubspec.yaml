@@ -79,18 +79,40 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # Noto Sans Arabic (SIL OFL 1.1, notofonts/arabic release, see
-  # tool/update_web_fonts.py and docs/tasks/I18N-04-rtl.md). Used as the
-  # fontFamilyFallback for ar/fa so Arabic-script text renders offline in the
-  # PWA (CanvasKit has no system fonts). OFL.txt is read for LicenseRegistry.
+  # Bundled fonts so the PWA renders every locale offline (CanvasKit has no
+  # system fonts; see lib/app/fonts.dart, tool/update_web_fonts.py,
+  # docs/tasks/I18N-04-rtl.md and docs/tasks/I18N-07-08-offline-fonts.md).
+  # All SIL OFL 1.1; the OFL.txt files are read for LicenseRegistry.
+  # - Roboto: the web default family. Bundling a family named "Roboto" also
+  #   stops CanvasKit from fetching Roboto from fonts.gstatic.com at startup.
+  # - NotoSansArabic (ar/fa), NotoSansSC (subset: zh strings + 简体中文),
+  #   NotoSansMath (subset: symbols Roboto lacks, e.g. U+2192): fallbacks.
   assets:
+    - assets/fonts/Roboto/OFL.txt
     - assets/fonts/NotoSansArabic/OFL.txt
+    - assets/fonts/NotoSansSC/OFL.txt
+    - assets/fonts/NotoSansMath/OFL.txt
   fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto/Roboto-Bold.ttf
+          weight: 700
     - family: NotoSansArabic
       fonts:
         - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf
         - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf
           weight: 700
+    - family: NotoSansSC
+      fonts:
+        - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf
+        - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.ttf
+          weight: 700
+    - family: NotoSansMath
+      fonts:
+        - asset: assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

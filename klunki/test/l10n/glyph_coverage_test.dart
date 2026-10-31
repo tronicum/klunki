@@ -1,16 +1,19 @@
-// I18N-06: can the PWA draw every character of every language offline?
+// I18N-06/07/08: can the PWA draw every character of every language offline?
 //
 // Flutter web (CanvasKit) has no system fonts. Whatever the bundled fonts
 // (assets/fonts/**) do not cover is downloaded at runtime from
-// fonts.gstatic.com: Roboto for Latin, Noto Sans SC slices for Chinese, ...
-// That works online and after the service worker has cached those exact
-// files, but shows tofu (□) offline otherwise.
+// fonts.gstatic.com (Noto slices per script) and shows tofu (□) offline.
+// Klunki bundles Roboto (Latin), Noto Sans Arabic, a Noto Sans SC subset and a
+// Noto Sans Math subset (symbols), see lib/app/fonts.dart.
 //
 // This test parses the cmap of every bundled TTF/OTF and checks the
-// characters used in the ARB values (+ the picker endonyms):
-//  * scripts with a bundled font (Arabic, I18N-04b) must be fully covered;
-//  * scripts without one are reported (printed) and their test is skipped
-//    with the task that would bundle them (Han: I18N-07).
+// characters used in the ARB values (+ the picker endonyms), strictly:
+//  * every visible character of every locale is in a bundled font;
+//  * Latin characters (all of de/en/fr/es, the Latin in zh/ar/fa) are in
+//    Roboto itself, so Latin text never mixes in a fallback font;
+//  * every CJK character is in the Noto Sans SC subset. The subsets are
+//    built from the ARB files: a new string needs
+//    `python3 -I tool/update_web_fonts.py subset` (from klunki/).
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -87,14 +90,14 @@ String scriptOf(int c) {
   return 'Other';
 }
 
-/// Task that would bundle a font for [script] (shown in skip messages).
-const bundlingTask = {
-  'Arabic': 'I18N-04b',
-  'Han': 'I18N-07',
-  'CJK punctuation': 'I18N-07',
-  'Latin': 'not planned (Roboto, loaded online by the engine, then cached by klunki_sw.js)',
-  'General punctuation': 'not planned (Roboto / Noto Symbols, online)',
+/// What to do when [script] has characters missing from the bundled fonts.
+const fixHint = {
+  'Han': 'rerun `python3 -I tool/update_web_fonts.py subset` (from klunki/) to rebuild the Noto Sans SC subset',
+  'CJK punctuation': 'rerun `python3 -I tool/update_web_fonts.py subset` (from klunki/) to rebuild the Noto Sans SC subset',
+  'Arabic': 'Noto Sans Arabic lacks it: check the character or update the font (tool/update_web_fonts.py fetch)',
 };
+const subsetHint = 'rerun `python3 -I tool/update_web_fonts.py subset` (from klunki/): it rebuilds the Noto Sans SC '
+    'and Noto Sans Math subsets from the ARB files';
 
 /// Characters the user can see in [languageCode]: ARB values without
 /// placeholders and ICU syntax.
@@ -114,28 +117,37 @@ Set<int> arbCharacters(String languageCode) {
   return out;
 }
 
-/// Invisible / control characters that need no glyph.
-bool needsGlyph(int c) =>
-    c > 0x20 && !(c >= 0x200B && c <= 0x200F) && !(c >= 0x2066 && c <= 0x2069) && c != 0x00A0 && c != 0x202F;
+/// Characters that need a glyph. Controls, zero-width and bidi marks do not;
+/// U+00A0 / U+202F (no-break spaces) do: the engine requests a fallback font
+/// for any code point its fonts lack.
+bool needsGlyph(int c) => c > 0x20 && !(c >= 0x200B && c <= 0x200F) && !(c >= 0x2066 && c <= 0x2069);
+
+bool isLatin(int c) => scriptOf(c) == 'Latin';
+bool isCjk(int c) => scriptOf(c) == 'Han' || scriptOf(c) == 'CJK punctuation';
+
+const locales = ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa'];
 
 void main() {
-  final fontFiles = Directory('assets/fonts').existsSync()
-      ? Directory('assets/fonts')
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((f) => f.path.endsWith('.ttf') || f.path.endsWith('.otf'))
-          .toList()
-      : <File>[];
-  final covered = <int>{};
-  for (final f in fontFiles) {
-    covered.addAll(cmapCodePoints(f.readAsBytesSync()));
+  Set<int> coverageOf(String dir) {
+    final d = Directory('assets/fonts/$dir');
+    if (!d.existsSync()) return <int>{};
+    return {
+      for (final f in d.listSync().whereType<File>().where((f) => f.path.endsWith('.ttf') || f.path.endsWith('.otf')))
+        ...cmapCodePoints(f.readAsBytesSync()),
+    };
   }
+
+  final roboto = coverageOf('Roboto');
+  final arabic = coverageOf('NotoSansArabic');
+  final chinese = coverageOf('NotoSansSC');
+  final symbols = coverageOf('NotoSansMath');
+  final covered = {...roboto, ...arabic, ...chinese, ...symbols};
   final endonyms = {for (final l in appLanguages) ...l.endonym.runes};
 
-  /// Missing code points of [chars], grouped by script.
-  Map<String, List<int>> missingByScript(Set<int> chars) {
+  /// Missing code points of [chars] (not in [fonts]), grouped by script.
+  Map<String, List<int>> missingByScript(Iterable<int> chars, [Set<int>? fonts]) {
     final out = <String, List<int>>{};
-    for (final c in chars.where(needsGlyph).where((c) => !covered.contains(c))) {
+    for (final c in chars.where(needsGlyph).where((c) => !(fonts ?? covered).contains(c))) {
       (out[scriptOf(c)] ??= []).add(c);
     }
     return out;
@@ -145,55 +157,51 @@ void main() {
       cs.take(40).map((c) => '${String.fromCharCode(c)} U+${c.toRadixString(16).toUpperCase().padLeft(4, '0')}').join(', ') +
       (cs.length > 40 ? ' … (${cs.length} total)' : '');
 
-  test('cmap parser reads the bundled Arabic font', () {
-    if (fontFiles.isEmpty) {
-      markTestSkipped('no fonts bundled under assets/fonts');
-      return;
-    }
-    expect(covered, contains(0x0627)); // ا ARABIC LETTER ALEF
-    expect(covered, contains(0x06CC)); // ی FARSI YEH
-    expect(covered, isNot(contains(0x4E2D))); // 中: no CJK font bundled
+  String explain(Map<String, List<int>> missing) => missing.entries
+      .map((e) => '${e.value.length} ${e.key}: ${show(e.value)} -> ${fixHint[e.key] ?? subsetHint}')
+      .join('\n');
+
+  test('cmap parser reads the bundled fonts', () {
+    expect(roboto, containsAll([0x41, 0x7A, 0xE4, 0xDF, 0xE9, 0xF1, 0x2026, 0x2013, 0x203A])); // A z ä ß é ñ … – ›
+    expect(arabic, containsAll([0x0627, 0x06CC])); // ا ARABIC LETTER ALEF, ی FARSI YEH
+    expect(chinese, containsAll([0x7B80, 0x4F53, 0x4E2D, 0x6587])); // 简体中文
+    expect(symbols, contains(0x2192)); // →
+    expect(roboto, isNot(contains(0x4E2D)));
   });
 
-  test('report: which characters depend on the online font fallback', () {
-    final lines = <String>['Bundled fonts: ${fontFiles.map((f) => f.path).join(', ')}'];
-    for (final code in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) {
+  for (final code in locales) {
+    test('$code: every character is in a bundled font', () {
       final missing = missingByScript(arbCharacters(code));
-      for (final e in missing.entries) {
-        lines.add('$code: ${e.value.length} ${e.key} char(s) not bundled -> online fallback '
-            '(${bundlingTask[e.key] ?? 'no task'}): ${show(e.value)}');
-      }
-    }
-    final endo = missingByScript(endonyms);
-    for (final e in endo.entries) {
-      lines.add('picker endonyms (every locale): ${e.value.length} ${e.key} char(s) not bundled: ${show(e.value)}');
-    }
-    // ignore: avoid_print
-    print(lines.join('\n'));
-  });
-
-  for (final code in ['ar', 'fa']) {
-    test('$code: every Arabic-script character is in a bundled font (I18N-04b)', () {
-      if (fontFiles.isEmpty) {
-        markTestSkipped('no fonts bundled yet (I18N-04b)');
-        return;
-      }
-      final missing = missingByScript(arbCharacters(code))['Arabic'] ?? const [];
-      expect(missing, isEmpty, reason: show(missing));
+      expect(missing, isEmpty, reason: explain(missing));
     });
   }
 
-  test('picker endonyms: Arabic script bundled', () {
-    final missing = missingByScript(endonyms)['Arabic'] ?? const [];
-    expect(missing, isEmpty, reason: show(missing));
+  test('picker endonyms: every character is in a bundled font', () {
+    final missing = missingByScript(endonyms);
+    expect(missing, isEmpty, reason: explain(missing));
   });
 
-  final zhMissing = missingByScript({...arbCharacters('zh'), ...endonyms});
-  final han = [...?zhMissing['Han'], ...?zhMissing['CJK punctuation']];
-  test('zh: every Chinese character is in a bundled font',
-      () => expect(han, isEmpty, reason: show(han)),
-      skip: han.isEmpty
-          ? false
-          : 'TODO(I18N-07): ${han.length} Han/CJK characters come from fonts.gstatic.com '
-              '(Noto Sans SC slices), tofu offline unless cached. Not yet approved.');
+  for (final code in locales) {
+    test('$code: Latin characters are in Roboto', () {
+      final latin = arbCharacters(code).where(isLatin);
+      final missing = missingByScript(latin, roboto)['Latin'] ?? const [];
+      expect(missing, isEmpty,
+          reason: '${show(missing)}: not in assets/fonts/Roboto (web/static Roboto from roboto-3-classic). '
+              'Use the full static Roboto (tool/update_web_fonts.py fetch-roboto) or avoid the character.');
+    });
+  }
+
+  test('Noto Sans SC subset has every CJK character of every ARB file and the endonyms', () {
+    final cjk = {for (final code in locales) ...arbCharacters(code).where(isCjk), ...endonyms.where(isCjk)};
+    final missing = cjk.where((c) => !chinese.contains(c)).toList()..sort();
+    expect(missing, isEmpty,
+        reason: '${missing.length} CJK character(s) not in assets/fonts/NotoSansSC: ${show(missing)}.\n'
+            'A string introduced new characters: $subsetHint.');
+  });
+
+  test('report: bundled fonts', () {
+    // ignore: avoid_print
+    print('Bundled: Roboto ${roboto.length}, Noto Sans Arabic ${arabic.length}, '
+        'Noto Sans SC subset ${chinese.length}, Noto Sans Math subset ${symbols.length} code points');
+  });
 }
