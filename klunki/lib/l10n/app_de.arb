@@ -491,6 +491,40 @@
       }
     }
   },
+  "quartettTrumpfHintWaiting": "{player} wählt …",
+  "@quartettTrumpfHintWaiting": {
+    "description": "Quartett (Trumpf), network: hint while the opponent picks a stat. player = \"Ben (O)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfLastTrick": "Letzter Stich",
+  "@quartettTrumpfLastTrick": {
+    "description": "Quartett (Trumpf): button on the table that re-opens the result of the previous trick."
+  },
+  "quartettTrumpfGraceSeconds": "Weiter in {seconds} s",
+  "@quartettTrumpfGraceSeconds": {
+    "description": "Quartett (Trumpf), network: countdown under the reveal before it moves on by itself.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettTrumpfQueuedPick": "{player} hat gewählt: {stat}",
+  "@quartettTrumpfQueuedPick": {
+    "description": "Quartett (Trumpf), network: the opponent already picked the next stat; its result follows after the countdown.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "stat": {
+        "type": "String"
+      }
+    }
+  },
   "quartettSetsHit": "Treffer",
   "@quartettSetsHit": {
     "description": "Ask result: the opponent had the card."

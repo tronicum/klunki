@@ -1,0 +1,520 @@
+// Quartett (Trumpf) on a network device (KLD-086): "Weiter" is local only,
+// the next picker continues whenever they like, the waiting player gets a
+// grace period with a countdown and sees tricks picked meanwhile afterwards,
+// in order; "Letzter Stich" peeks at the last trick without blocking.
+//
+// Most tests run one device against a scripted opponent ([_DeviceTransport],
+// one local player, every own submit recorded as the "network message").
+// The last test plays host vs guest over real NetworkTransports on
+// 127.0.0.1, as in gostrategy_network_test.dart.
+@Timeout(Duration(seconds: 90))
+library;
+
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/transport/game_transport.dart';
+import 'package:klunki/transport/hot_seat_transport.dart';
+import 'package:klunki/transport/network_transport.dart';
+import 'package:klunki/ui/engine_l10n.dart';
+import 'package:klunki/ui/games/quartett_card.dart';
+import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
+import 'package:klunki/ui/pairing/network_game_session.dart';
+import 'package:klunki/ui/shell/game_screen.dart';
+import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+import '../../l10n/l10n_test_utils.dart';
+
+const _reveal = Key('qt-reveal');
+const _cont = Key('qt-continue');
+const _ownCard = Key('qt-own-card');
+const _lastTrick = Key('qt-last-trick');
+Key _statKey(String id) => Key('qt-stat-$id');
+
+/// One device of a network game with a single local player [me]. The
+/// opponent's moves come from [remote]; every own [submit] is recorded in
+/// [sent] (what would go over the wire).
+class _DeviceTransport implements GameTransport {
+  _DeviceTransport(int seed, this.me, {required this.fullInformation})
+      : _inner = HotSeatTransport(GameConfig('quartett-trumpf', seed: seed));
+
+  final HotSeatTransport _inner;
+  final Player me;
+  final List<Map<String, dynamic>> sent = [];
+
+  @override
+  final bool fullInformation;
+
+  @override
+  GameConfig get config => _inner.config;
+  @override
+  Set<Player> get localPlayers => {me};
+  @override
+  Game get game => _inner.game;
+  @override
+  List<AcceptedMove> get moves => _inner.moves;
+  @override
+  Stream<AcceptedMove> get accepted => _inner.accepted;
+
+  @override
+  Future<SubmitResult> submit(Map<String, dynamic> move) async {
+    if (game.currentPlayer != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    sent.add(move);
+    return _inner.submitSync(move);
+  }
+
+  /// The opponent picks [stat].
+  void remote(String stat) {
+    expect(game.currentPlayer, isNot(me));
+    expect(_inner.submitSync({'action': 'pick', 'stat': stat}).isAccepted, isTrue);
+  }
+
+  @override
+  void dispose() => _inner.dispose();
+}
+
+Map<String, dynamic> _pickMove(String stat) => {'action': 'pick', 'stat': stat};
+
+/// Trick winner ('a', 'b' or null) of [stats] played in order from [seed].
+List<Object?> _winners(int seed, List<String> stats) {
+  final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+  return [for (final s in stats) (g.applyMove(_pickMove(s))!.payload as Map)['trickWinner']];
+}
+
+/// First seed with two stats such that X wins the first trick and the second
+/// trick (X picks again) has winner [second].
+(int, String, String) _twoTricks(Object? second) {
+  final ids = [for (final s in QuartettDeck.cars.stats) s.id];
+  for (var seed = 1; seed < 5000; seed++) {
+    for (final s1 in ids) {
+      if (_winners(seed, [s1]).single != 'a') continue;
+      for (final s2 in ids) {
+        if (_winners(seed, [s1, s2]).last == second) return (seed, s1, s2);
+      }
+    }
+  }
+  throw StateError('no matching seed');
+}
+
+String _picked(String mark, String stat) => '$mark wählt ${localizedStatLabel(deL10n, stat)}';
+
+Future<(GameController, _DeviceTransport)> _pumpDevice(WidgetTester tester, int seed, Player me,
+    {bool fullInformation = false}) async {
+  final t = _DeviceTransport(seed, me, fullInformation: fullInformation);
+  final c = GameController(t);
+  addTearDown(c.dispose);
+  await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+  await tester.pump();
+  return (c, t);
+}
+
+Future<void> _tap(WidgetTester tester, Key key) async {
+  await tester.ensureVisible(find.byKey(key));
+  await tester.tap(find.byKey(key));
+  await tester.pump();
+  await tester.pump(); // post-frame hint
+}
+
+const _overlay = Key('qt-last-trick-overlay');
+const _grace = Key('qt-grace');
+const _notice = Key('qt-queued-notice');
+const _ms = Duration(milliseconds: 1);
+
+String _graceText(int s) => 'Weiter in $s s';
+
+String _valueOf(String stat, num v) {
+  final s = QuartettDeck.cars.statById(stat)!;
+  return formatQuartettValue(s, v, unit: localizedStatUnit(deL10n, stat));
+}
+
+/// The overlay's value line for trick [stats].last played from [seed].
+String _valuesLine(int seed, List<String> stats) {
+  final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+  Map? p;
+  for (final s in stats) {
+    p = g.applyMove(_pickMove(s))!.payload as Map;
+  }
+  final v = p!['values'] as Map;
+  final stat = stats.last;
+  return '${localizedStatLabel(deL10n, stat)}: X ${_valueOf(stat, v['a'] as num)} – O ${_valueOf(stat, v['b'] as num)}';
+}
+
+Future<void> _openOverlay(WidgetTester tester) async {
+  await _tap(tester, _lastTrick);
+  await tester.pump(const Duration(milliseconds: 300)); // dialog transition
+  expect(find.byKey(_overlay), findsOneWidget);
+}
+
+Future<void> _settleClose(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.pump();
+  expect(find.byKey(_overlay), findsNothing);
+}
+
+Finder _inOverlay(Finder f) => find.descendant(of: find.byKey(_overlay), matching: f);
+
+void main() {
+  test('the grace period is 5 s', () {
+    expect(quartettRevealGrace, const Duration(seconds: 5));
+  });
+
+  testWidgets('the trick winner continues at once; the pick goes out at once, "Weiter" sends nothing',
+      (tester) async {
+    final (seed, s1, s2) = _twoTricks('a');
+    // Host-like device (full information): still no preview, the pick is
+    // submitted on the tap.
+    final (c, t) = await _pumpDevice(tester, seed, Player.a, fullInformation: true);
+
+    await _tap(tester, _statKey(s1));
+    expect(t.sent, [_pickMove(s1)], reason: 'sent on the tap, not on "Weiter"');
+    expect(c.moves, hasLength(1));
+    expect(find.byKey(_reveal), findsOneWidget);
+    expect(find.text('X gewinnt den Stich'), findsOneWidget);
+    expect(find.byKey(_grace), findsNothing, reason: 'no countdown for the next picker');
+
+    // The next picker's reveal does not run away.
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.byKey(_reveal), findsOneWidget);
+
+    await _tap(tester, _cont);
+    expect(t.sent, hasLength(1), reason: '"Weiter" is local only');
+    expect(find.byKey(_reveal), findsNothing);
+    expect(find.byKey(_statKey(s2)), findsOneWidget);
+    expect(find.text('Wähle eine Eigenschaft deiner Karte'), findsOneWidget);
+
+    await _tap(tester, _statKey(s2));
+    expect(t.sent, [_pickMove(s1), _pickMove(s2)]);
+    expect(c.moves, hasLength(2));
+  });
+
+  testWidgets('waiting player: countdown, a trick picked meanwhile is announced, queued and shown next',
+      (tester) async {
+    final (seed, s1, s2) = _twoTricks('a');
+    final (c, t) = await _pumpDevice(tester, seed, Player.b);
+    expect(find.text('X wählt …'), findsOneWidget);
+
+    t.remote(s1);
+    await tester.pump();
+    expect(find.byKey(_reveal), findsOneWidget);
+    expect(find.text(_picked('X', s1)), findsOneWidget);
+    expect(find.text('X gewinnt den Stich'), findsOneWidget);
+    expect(find.byKey(_grace), findsOneWidget);
+    expect(find.text(_graceText(5)), findsOneWidget);
+    expect(find.byKey(_notice), findsNothing);
+
+    // X continues at once and picks again during O's grace period.
+    await tester.pump(const Duration(seconds: 1) + _ms);
+    expect(find.text(_graceText(4)), findsOneWidget);
+    t.remote(s2);
+    await tester.pump();
+    expect(c.moves, hasLength(2));
+    expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'the first trick stays for the grace period');
+    expect(find.text(_picked('X', s2)), findsNothing);
+    expect(find.text('X hat gewählt: ${localizedStatLabel(deL10n, s2)}'), findsOneWidget);
+    expect(find.text(_graceText(4)), findsOneWidget, reason: 'the countdown keeps running');
+
+    await tester.pump(quartettRevealGrace - const Duration(seconds: 1) - const Duration(milliseconds: 20));
+    expect(find.text(_picked('X', s1)), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 40));
+    expect(find.text(_picked('X', s1)), findsNothing);
+    expect(find.text(_picked('X', s2)), findsOneWidget, reason: 'the queued trick comes next');
+    expect(find.byKey(_notice), findsNothing);
+    expect(find.text(_graceText(5)), findsOneWidget, reason: 'with its own grace');
+
+    // Then O sees the own new top card and who picks, without any button.
+    await tester.pump(quartettRevealGrace - const Duration(milliseconds: 100));
+    expect(find.byKey(_reveal), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump();
+    expect(find.byKey(_reveal), findsNothing);
+    expect(find.byKey(_ownCard), findsOneWidget);
+    final top = (c.game as QuartettGame).topCard(Player.b)!;
+    expect(find.text(top.name), findsOneWidget);
+    expect(find.text('X wählt …'), findsOneWidget);
+    expect(t.sent, isEmpty);
+  });
+
+  testWidgets('waiting player: a tap skips the countdown and shows the queued trick at once', (tester) async {
+    final (seed, s1, s2) = _twoTricks('b');
+    final (c, t) = await _pumpDevice(tester, seed, Player.b);
+
+    t.remote(s1);
+    await tester.pump();
+    t.remote(s2); // O wins this one
+    await tester.pump();
+    expect(find.text(_picked('X', s1)), findsOneWidget);
+    expect(find.byKey(_notice), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 500));
+    await _tap(tester, _cont);
+    expect(find.text(_picked('X', s2)), findsOneWidget);
+    expect(find.text('O gewinnt den Stich'), findsOneWidget);
+    expect(find.byKey(_grace), findsNothing, reason: 'O picks next: no countdown');
+
+    // O picks next: this reveal stays until "Weiter".
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.text(_picked('X', s2)), findsOneWidget);
+    await _tap(tester, _cont);
+    expect(find.byKey(_reveal), findsNothing);
+    expect(c.canAct, isTrue);
+    expect(find.text('Wähle eine Eigenschaft deiner Karte'), findsOneWidget);
+    expect(t.sent, isEmpty, reason: '"Weiter" is local only');
+  });
+
+  testWidgets('a tap skips the countdown to the table', (tester) async {
+    final (seed, s1, _) = _twoTricks('a');
+    final (_, t) = await _pumpDevice(tester, seed, Player.b);
+    t.remote(s1);
+    await tester.pump();
+    expect(find.byKey(_grace), findsOneWidget);
+    await _tap(tester, _cont);
+    expect(find.byKey(_reveal), findsNothing);
+    expect(find.byKey(_ownCard), findsOneWidget);
+    expect(t.sent, isEmpty);
+  });
+
+  group('"Letzter Stich" overlay', () {
+    testWidgets('disabled before the first trick; on the guest it shows the last trick and closes three ways',
+        (tester) async {
+      final (seed, s1, _) = _twoTricks('a');
+      final (c, t) = await _pumpDevice(tester, seed, Player.b);
+      expect(tester.widget<ActionChip>(find.byKey(_lastTrick)).onPressed, isNull);
+
+      t.remote(s1);
+      await tester.pump();
+      final g = c.game as QuartettGame;
+      final (ca, cb) = (g.stackSize(Player.a), g.stackSize(Player.b));
+      await tester.pump(quartettRevealGrace + _ms);
+      await tester.pump();
+      expect(find.byKey(_reveal), findsNothing);
+
+      // Close button.
+      await _openOverlay(tester);
+      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
+      expect(_inOverlay(find.text('X gewinnt den Stich')), findsOneWidget);
+      expect(_inOverlay(find.text(_valuesLine(seed, [s1]))), findsOneWidget);
+      expect(_inOverlay(find.text('X: $ca Karten · O: $cb Karten')), findsOneWidget);
+      expect(_inOverlay(find.byKey(const Key('qt-reveal-a'))), findsOneWidget);
+      expect(_inOverlay(find.byKey(const Key('qt-reveal-b'))), findsOneWidget);
+      await tester.tap(find.byKey(const Key('qt-last-trick-close')));
+      await _settleClose(tester);
+
+      // Tap outside.
+      await _openOverlay(tester);
+      await tester.tapAt(const Offset(4, 4));
+      await _settleClose(tester);
+
+      // Back.
+      await _openOverlay(tester);
+      await tester.binding.handlePopRoute();
+      await _settleClose(tester);
+      expect(t.sent, isEmpty);
+    });
+
+    testWidgets('on the host (trick winner) it shows the same trick', (tester) async {
+      final (seed, s1, _) = _twoTricks('a');
+      final (c, t) = await _pumpDevice(tester, seed, Player.a, fullInformation: true);
+      await _tap(tester, _statKey(s1));
+      final g = c.game as QuartettGame;
+      final (ca, cb) = (g.stackSize(Player.a), g.stackSize(Player.b));
+      // Reachable during the reveal too.
+      await _openOverlay(tester);
+      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
+      expect(_inOverlay(find.text(_valuesLine(seed, [s1]))), findsOneWidget);
+      expect(_inOverlay(find.text('X: $ca Karten · O: $cb Karten')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('qt-last-trick-close')));
+      await _settleClose(tester);
+      expect(find.byKey(_reveal), findsOneWidget);
+      expect(t.sent, hasLength(1));
+    });
+
+    testWidgets('a result arriving while it is open is queued, then shown after closing', (tester) async {
+      final (seed, s1, s2) = _twoTricks('a');
+      final (_, t) = await _pumpDevice(tester, seed, Player.b);
+      t.remote(s1);
+      await tester.pump();
+      await _tap(tester, _cont); // skip to the table
+
+      await _openOverlay(tester);
+      t.remote(s2);
+      await tester.pump(const Duration(seconds: 10));
+      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget, reason: 'keeps what the player looks at');
+      expect(find.text(_picked('X', s2)), findsNothing);
+
+      await tester.tap(find.byKey(const Key('qt-last-trick-close')));
+      await _settleClose(tester);
+      expect(find.text(_picked('X', s2)), findsOneWidget, reason: 'nothing skipped');
+      expect(find.byKey(_grace), findsOneWidget);
+    });
+
+    testWidgets('it pauses a running countdown; the queued trick is not skipped', (tester) async {
+      final (seed, s1, s2) = _twoTricks('a');
+      final (_, t) = await _pumpDevice(tester, seed, Player.b);
+      t.remote(s1);
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1) + _ms);
+      await _openOverlay(tester);
+      t.remote(s2);
+      await tester.pump(const Duration(seconds: 20));
+      await tester.binding.handlePopRoute();
+      await _settleClose(tester);
+      expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'the countdown was paused');
+      expect(find.byKey(_notice), findsOneWidget);
+      await _tap(tester, _cont);
+      expect(find.text(_picked('X', s2)), findsOneWidget);
+    });
+
+    testWidgets('hot-seat: shows the last submitted trick, not the preview', (tester) async {
+      final (seed, s1, s2) = _twoTricks('a');
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+      await tester.pump();
+      expect(tester.widget<ActionChip>(find.byKey(_lastTrick)).onPressed, isNull);
+      await _tap(tester, _statKey(s1));
+      expect(tester.widget<ActionChip>(find.byKey(_lastTrick)).onPressed, isNull, reason: 'preview not applied');
+      await _tap(tester, _cont);
+      await _tap(tester, _statKey(s2)); // preview of trick 2
+      await _openOverlay(tester);
+      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
+      expect(_inOverlay(find.text('X: 17 Karten · O: 15 Karten')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('qt-last-trick-close')));
+      await _settleClose(tester);
+      expect(c.moves, hasLength(1));
+      await _tap(tester, _cont);
+      expect(c.moves, hasLength(2));
+    });
+  });
+
+  testWidgets('hot-seat keeps the preview: one tap on "Weiter" submits, no grace', (tester) async {
+    final (seed, s1, _) = _twoTricks('a');
+    final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+    addTearDown(c.dispose);
+    await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+    await tester.pump();
+    await _tap(tester, _statKey(s1));
+    expect(c.moves, isEmpty, reason: 'hot-seat previews; the pick is submitted on "Weiter"');
+    expect(find.byKey(_grace), findsNothing);
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.byKey(_reveal), findsOneWidget);
+    await _tap(tester, _cont);
+    expect(c.moves, hasLength(1));
+    expect(find.byKey(_reveal), findsNothing);
+  });
+
+  group('host vs guest over 127.0.0.1', () {
+    const hostKey = Key('device-host');
+    const guestKey = Key('device-guest');
+    const ping = Duration(milliseconds: 100);
+    const timeout = Duration(seconds: 10);
+
+    Finder on(Key device, Finder f) => find.descendant(of: find.byKey(device), matching: f);
+    GameController controller(WidgetTester tester, Key device) =>
+        tester.widget<GameScreen>(on(device, find.byType(GameScreen))).controller;
+
+    Future<void> until(WidgetTester tester, bool Function() condition, String what) async {
+      for (var round = 0;; round++) {
+        await tester.pump();
+        if (condition()) {
+          await tester.pump();
+          return;
+        }
+        if (round > 2000) fail('condition not met: $what');
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      }
+    }
+
+    Future<void> tapOn(WidgetTester tester, Key device, Key key) async {
+      await tester.ensureVisible(on(device, find.byKey(key)));
+      await tester.tap(on(device, find.byKey(key)));
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('the host winner picks again during the guest grace; the guest sees both tricks in order',
+        (tester) async {
+      tester.view.physicalSize = const Size(1400, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final (host, guest) = (await tester.runAsync(() async {
+        final h = await NetworkTransport.host(const GameConfig('quartett-trumpf', seed: 5),
+            name: 'Anna', address: InternetAddress.loopbackIPv4, wsPort: null, pingInterval: ping, timeout: timeout);
+        final g = await NetworkTransport.join(InternetAddress.loopbackIPv4, h.port!,
+            name: 'Ben', pingInterval: ping, timeout: timeout);
+        return (h, g);
+      }))!;
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox());
+        guest.dispose();
+        host.dispose();
+        for (var i = 0; i < 5; i++) {
+          await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+          await tester.pump();
+        }
+      });
+
+      Widget device(Key key, NetworkTransport t) => Expanded(
+            child: KeyedSubtree(key: key, child: localizedApp(NetworkGameSession(transport: t))),
+          );
+      await tester.pumpWidget(Directionality(
+        textDirection: TextDirection.ltr,
+        child: Row(children: [device(hostKey, host), device(guestKey, guest)]),
+      ));
+      await until(tester, () => on(guestKey, find.byKey(_ownCard)).evaluate().isNotEmpty, 'guest shows its card');
+
+      // The host (X) picks a stat that wins, from the real deal.
+      final hc = controller(tester, hostKey), gc = controller(tester, guestKey);
+      final g = hc.game as QuartettGame;
+      final xTop = g.topCard(Player.a)!, oTop = g.topCard(Player.b)!;
+      final s1 = QuartettDeck.cars.stats.firstWhere((s) => s.beats(xTop.stats[s.id]!, oTop.stats[s.id]!)).id;
+
+      await tapOn(tester, hostKey, _statKey(s1));
+      expect(hc.moves, hasLength(1), reason: 'the host applies its own pick at once');
+      await until(tester, () => gc.moves.length == 1, 'guest receives the pick without any "Weiter"');
+      expect(on(guestKey, find.text('X gewinnt den Stich')), findsOneWidget);
+      expect(on(hostKey, find.text('X gewinnt den Stich')), findsOneWidget);
+      expect(on(guestKey, find.byKey(_grace)), findsOneWidget);
+      expect(on(hostKey, find.byKey(_grace)), findsNothing);
+
+      // Both see the same trick in "Letzter Stich" (the dialog opens on the
+      // device's own navigator).
+      final values = on(guestKey, find.byKey(const Key('qt-reveal-a')));
+      expect(values, findsOneWidget);
+      for (final d in [hostKey, guestKey]) {
+        await tapOn(tester, d, _lastTrick);
+        await tester.pump(const Duration(milliseconds: 300));
+        final line = tester.widget<Text>(on(d, find.byKey(const Key('qt-last-trick-values')))).data!;
+        expect(line, startsWith('${localizedStatLabel(deL10n, s1)}: X '));
+        expect(on(d, find.descendant(of: find.byKey(_overlay), matching: find.text(_picked('X', s1)))),
+            findsOneWidget);
+        await tester.tap(on(d, find.byKey(const Key('qt-last-trick-close'))));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      expect(
+          tester.widget<Text>(on(hostKey, find.byKey(const Key('qt-reveal-text')))).data, 'X gewinnt den Stich');
+
+      // The host continues at once and picks again during the guest's grace.
+      await tapOn(tester, hostKey, _cont);
+      expect(gc.moves, hasLength(1), reason: '"Weiter" sends nothing');
+      final s2 = QuartettDeck.cars.stats.first.id;
+      await tapOn(tester, hostKey, _statKey(s2));
+      await until(tester, () => gc.moves.length == 2, 'guest receives the second pick');
+      final s1Text = _picked('X', s1);
+      final s2Text = _picked('X', s2);
+      expect(on(guestKey, find.text(s1Text)), findsOneWidget, reason: 'still in the grace period');
+      expect(on(guestKey, find.text(s2Text)), findsNothing);
+      expect(on(guestKey, find.byKey(_notice)), findsOneWidget);
+
+      // A tap shows the queued trick.
+      await tapOn(tester, guestKey, _cont);
+      expect(on(guestKey, find.text(s2Text)), findsOneWidget);
+      expect(hc.moves, hasLength(2), reason: 'the guest\'s "Weiter" sends nothing');
+    });
+  });
+}
