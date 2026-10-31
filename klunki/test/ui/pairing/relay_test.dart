@@ -521,7 +521,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(has(hostKey, find.byType(NetworkGameSession)), isFalse);
     await pumpUntil(tester, () => has(guestKey, find.byKey(const Key('net-banner'))), what: 'guest banner');
-    expect(on(guestKey, find.textContaining('Der Host hat den Raum verlassen')), findsOneWidget);
+    expect(on(guestKey, find.textContaining('Der Host hat den Raum verlassen')), findsOneWidget,
+        reason: 'guest disconnect reason: ${created.guests.single.lastDisconnectReason}');
     expect(on(guestKey, find.byKey(const Key('net-reconnect'))), findsNothing);
     await tester.pump(const Duration(seconds: 6));
   }, timeout: _timeout);

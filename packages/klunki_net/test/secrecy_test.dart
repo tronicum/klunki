@@ -366,7 +366,13 @@ Future<void> _step(_Tapped t, Random rng) async {
 }
 
 /// Plays random legal moves to the end ([check] every [every] moves and at
-/// the end), then waits for the guest's verification.
+/// the end), then waits for the guest's verification event.
+///
+/// Waiting for [KlunkiGuest.verification] is not enough: it is set while the
+/// `reveal` is handled, but the event goes out on an asynchronous stream,
+/// one event per microtask behind the moves still queued for delivery. When
+/// the last `accepted` and the `reveal` arrive in one read, the test resumes
+/// (the last submit completes) before the event is delivered.
 Future<void> _playOut(_Tapped t, Random rng, {void Function()? check, int every = 1}) async {
   var n = 0;
   while (!t.host.game.isOver) {
@@ -374,6 +380,7 @@ Future<void> _playOut(_Tapped t, Random rng, {void Function()? check, int every 
     await _step(t, rng);
     if (check != null && n % every == 0 && !t.host.game.isOver) check();
   }
-  await until(() => t.guest.verification != Verification.pending);
+  await until(() => t.guestEvents.any((e) => e is GameVerified || e is VerificationFailed));
+  expect(t.guest.verification, isNot(Verification.pending));
   check?.call();
 }

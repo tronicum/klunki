@@ -278,11 +278,9 @@ void main() {
     await tester.tap(on(webKey, find.byType(BackButton)));
     await tester.pumpAndSettle();
     await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('net-banner'))), what: 'host banner');
-    expect(on(hostKey, find.textContaining('\u2068علی\u2069 hat das Spiel verlassen')), findsOneWidget);
+    expect(on(hostKey, find.textContaining('\u2068علی\u2069 hat das Spiel verlassen')), findsOneWidget,
+        reason: 'host disconnect reason: ${host.lastDisconnectReason}');
     expect(created.guests.single.connection.value, NetConnectionState.closed);
-    // dart:io's WebSocket.close() arms a 5 s close timeout in the zone that
-    // closed it (here the widget test's fake-async zone): let it run out.
-    await tester.pump(const Duration(seconds: 6));
   }, timeout: _timeout);
 
   testWidgets('host falls back to a free WebSocket port when 4748 is busy, keeping 4747', (tester) async {
