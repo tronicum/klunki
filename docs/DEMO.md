@@ -59,7 +59,7 @@ Do this **the day before** and again **30 minutes before**.
 
 ## 1. Text demo (terminal + in-app Debug-Konsole) ✅
 
-Shows that all five games are fully playable as text: one engine, no UI needed.
+Shows that all games (five with app screens, plus GoStrategy) are fully playable as text: one engine, no UI needed.
 
 ### Prerequisites
 - [ ] Mac with Flutter 3.47.8 (Homebrew, `/opt/homebrew/share/flutter`); `dart` on the `PATH`.
@@ -78,6 +78,7 @@ dart run bin/klunki.dart demo muehle
 dart run bin/klunki.dart demo quartett-trumpf
 dart run bin/klunki.dart demo quartett-sets
 dart run bin/klunki.dart demo schiffe
+dart run bin/klunki.dart demo gostrategy   # engine + CLI only, no app screen yet (KLD-058b)
 
 # pipe through less to scroll in front of people
 dart run bin/klunki.dart demo muehle | less
@@ -93,7 +94,7 @@ Interactive commands (type `help` in any game):
 
 | Command | Effect |
 |---|---|
-| `new [game]` | restart, or switch game (`connect4`, `muehle`, `quartett-trumpf`, `quartett-sets`, `schiffe`) |
+| `new [game]` | restart, or switch game (`connect4`, `muehle`, `quartett-trumpf`, `quartett-sets`, `schiffe`, `gostrategy`) |
 | `moves` | list legal moves for the player on turn |
 | `auto [n]` | play n random legal moves (seeded; default: to the end) |
 | `undo` | take back the last move (replays the move list minus one) |
@@ -107,13 +108,16 @@ Move syntax per game:
 - **Quartett Trumpf:** `1`…`5` or a stat id (`ps`, `kmh`, `ccm`, `kg`, `sec0to100`)
 - **Quartett Sets:** a card id like `B3` (you must hold that set, not that card)
 - **Schiffe versenken:** `B2h` / `B2v` place the next ship, `fleet [seed]` place the rest randomly, `E5` fire
+- **GoStrategy:** `setup [seed]` random setup of your 40 pieces, `a4 a5` or `a4-a5` move/attack (files a–j,
+  ranks 1–10 from X's side). Board shows your pieces (`X9`, `XS`, `XB`, `XF`) and enemies as `O?` until a fight
+  reveals them. E.g. `dart run bin/klunki.dart gostrategy "setup 1" "setup 2" "a4 a5"`.
 
 ### What the audience sees
 - A banner `DEMO: 4 Gewinnt`, the empty board, then one plain-language line per move
   ("X drops into column 3 …"), the board again at highlights, and a result line, e.g.
   `Result: X wins (four in a row) after 11 moves.`
 - The current seeds give: 4 Gewinnt X wins in 11, Mühle O wins in 33, Quartett Trumpf X wins in 62, Quartett Sets O wins 6:2 in 31,
-  Schiffe O wins in 98 (default fleet of 6 ships: 5, 4, 3, 3, 2, 2). (Deterministic, so the outcome is the same every run unless the engine changes.)
+  Schiffe O wins in 98 (default fleet of 6 ships: 5, 4, 3, 3, 2, 2), GoStrategy X wins in 241 (O cannot move). (Deterministic, so the outcome is the same every run unless the engine changes.)
 - Quartett/Schiffe show only the player on turn's hand or fleet, plus the opponent's count. Hidden information works even in text.
 
 ### In-app Debug-Konsole (any platform that runs the app; debug/profile builds only)
@@ -131,6 +135,7 @@ dart run packages/klunki_net/bin/klunki.dart host connect4 --port 4747 --name Ad
 dart run packages/klunki_net/bin/klunki.dart join 127.0.0.1 4747 --name Bea
 ```
 - Any game id works; seeded games take `--seed`, e.g. `host quartett-trumpf --seed 42` (the guest gets the seed from the host).
+  `host gostrategy` plays GoStrategy (both type `setup [seed]`, then moves like `a4 a5`); the opponent's setup seed is not shown.
 - Each terminal shows only its own player's view (Quartett hand, Schiffe fleet) and only on its turn; every move is narrated on both.
 - In the game: a move on your turn, `board`, `moves`, `help`, `quit`. Out-of-turn input is refused.
 - A dropped connection shows a message on both; the guest asks `Reconnect? [Y/n]` and resumes. `quit` ends it for both.

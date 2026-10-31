@@ -35,7 +35,14 @@ enum GameEndReason {
   quartettAllQuartetsEqual('quartett.allQuartetsEqual'),
   /// params: `a`, `b` (quartet counts).
   quartettMostQuartets('quartett.mostQuartets'),
-  schiffeAllSunk('schiffe.allSunk');
+  schiffeAllSunk('schiffe.allSunk'),
+  gostrategyFlagCaptured('gostrategy.flagCaptured'),
+  /// The loser had no legal move on their turn.
+  gostrategyNoMoves('gostrategy.noMoves'),
+  /// Draw: neither player can move.
+  gostrategyBothBlocked('gostrategy.bothBlocked'),
+  /// params: `moves` (the draw limit).
+  gostrategyMoveLimit('gostrategy.moveLimit');
 
   final String code;
   const GameEndReason(this.code);

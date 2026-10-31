@@ -8,3 +8,4 @@ export 'debug/connect4_text.dart';
 export 'debug/muehle_text.dart';
 export 'debug/schiffe_text.dart';
 export 'debug/quartett_text.dart';
+export 'debug/gostrategy_text.dart';

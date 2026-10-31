@@ -177,6 +177,59 @@ void main() {
     });
   });
 
+  group('DebugConsole (gostrategy)', () {
+    test('square names and move parsing', () {
+      expect(GoStrategyText.name(60), 'a4');
+      expect(GoStrategyText.name(0), 'a10');
+      expect(GoStrategyText.name(99), 'j1');
+      expect(GoStrategyText.parseSquare('E5'), 54);
+      final t = GoStrategyText();
+      expect(t.parse('a4 a5'), {'action': 'move', 'from': 60, 'to': 50});
+      expect(t.parse('a4-a5'), {'action': 'move', 'from': 60, 'to': 50});
+      expect(t.parse('J10 j9'), {'action': 'move', 'from': 9, 'to': 19});
+      expect(t.parse('setup 5'), {'action': 'autosetup', 'seed': 5});
+      expect(t.parse('setup'), {'action': 'autosetup', 'seed': 0});
+      expect(t.parse('k1 a1'), isNull);
+      expect(t.parse('a11 a10'), isNull);
+      expect(t.format({'action': 'move', 'from': 60, 'to': 50}), 'a4-a5');
+      expect(t.format({'action': 'autosetup', 'seed': 5}), 'setup 5');
+    });
+
+    test('setup and moves are narrated; the screen hides enemy ranks', () {
+      final c = DebugConsole('gostrategy');
+      expect(c.screen, contains('"setup" or "setup <seed>"'));
+      expect(c.handle('setup 1'), startsWith('X sets up their army at random (seed 1). Now O sets up'));
+      expect(c.handle('setup 2'), startsWith('O sets up their army at random (seed 2). Both armies are ready'));
+      final screen = c.screen;
+      expect(screen, contains('O?'));
+      expect(RegExp(r'O[^?\s]').hasMatch(screen.split('\n').skip(2).take(10).join('\n')), isFalse);
+      expect(screen, contains('Pieces left: X 40, O 40'));
+      final legal = c.current.legalMoves.first;
+      expect(c.handle(c.current.format(legal)), startsWith('X moves '));
+      expect(c.handle('a1 a2'), startsWith('Illegal move'));
+    });
+
+    test('fights are narrated with both pieces', () {
+      final g = GoStrategyGame.position({
+        65: (Player.a, GoPiece.major),
+        55: (Player.b, GoPiece.captain),
+        98: (Player.a, GoPiece.flag),
+        0: (Player.b, GoPiece.flag),
+        1: (Player.b, GoPiece.scout),
+      });
+      final t = GoStrategyText(game: g);
+      final move = t.parse('f4 f5')!;
+      final e = g.applyMove(move)!;
+      expect(t.narrate(Player.a, move, e), "X's Major (7) on f4 attacks O's Captain (6) on f5: Major (7) wins.");
+      expect(t.render(), contains('X7'));
+    });
+
+    test('auto play reaches an end', () {
+      final c = DebugConsole('gostrategy', 5)..handle('auto');
+      expect(c.current.game.isOver, isTrue);
+    });
+  });
+
   group('DebugConsole (quartett)', () {
     test('trumpf: stats by number or id, narrated trick', () {
       final t = QuartettTrumpfText();

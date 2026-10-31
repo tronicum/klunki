@@ -484,9 +484,15 @@ class _Play {
   }
 
   /// Narration without the opponent's secrets: in Schiffe the opponent's ship
-  /// placements are not shown.
+  /// placements are not shown, in GoStrategy not the opponent's setup seed.
   String _narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final game = _view.game;
+    if (mover != _me && game is GoStrategyGame && move['action'] != 'move') {
+      final m = _view.mark(mover);
+      return game.phase == GoStrategyPhase.play
+          ? '$m has set up their army. Both armies are ready: X moves first.'
+          : '$m has set up their army.';
+    }
     if (mover != _me && game is SchiffeGame && move['action'] != 'fire') {
       final m = _view.mark(mover);
       var s = move['action'] == 'place' ? '$m places a ship.' : '$m places the rest of their fleet.';

@@ -11,7 +11,7 @@ import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoi
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
-/// The game-selection menu: every game in `gameSpecs` order. Tapping one
+/// The game-selection menu: every game in `appGameSpecs` order. Tapping one
 /// starts a hot-seat game with a fresh random seed (see [openGame]).
 ///
 /// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
@@ -72,7 +72,7 @@ class _MenuScreenState extends State<MenuScreen> {
               children: [
                 Text(l10n.menuChooseGame, textAlign: TextAlign.center, style: theme.textTheme.headlineMedium),
                 const SizedBox(height: 24),
-                for (final spec in gameSpecs)
+                for (final spec in appGameSpecs)
                   Card(
                     key: Key('menu-${spec.id}'),
                     child: ListTile(

@@ -19,7 +19,7 @@ void main() {
     for (final title in ['Four in a Row', 'Mill', 'Quartett (Trumps)', 'Quartett (Sets)', 'Sink the Fleet']) {
       expect(find.text(title), findsOneWidget, reason: title);
     }
-    expect(find.text('Pass the device'), findsNWidgets(gameSpecs.where((s) => s.hiddenInformation).length));
+    expect(find.text('Pass the device'), findsNWidgets(appGameSpecs.where((s) => s.hiddenInformation).length));
     expect(find.text('Debug console'), findsOneWidget);
     expect(find.text('Wähle ein Spiel'), findsNothing);
     expect(find.text('4 Gewinnt'), findsNothing);

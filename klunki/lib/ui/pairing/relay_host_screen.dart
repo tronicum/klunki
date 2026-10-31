@@ -71,7 +71,7 @@ class RelayHostScreen extends StatefulWidget {
 }
 
 class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField {
-  String _gameId = gameSpecs.first.id;
+  String _gameId = appGameSpecs.first.id;
   late final TextEditingController _relay = TextEditingController(
     text: switch (widget.defaultRelay) {
       final r? => relayAddressLabel(r),
@@ -236,7 +236,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         },
         child: Column(
           children: [
-            for (final spec in gameSpecs)
+            for (final spec in appGameSpecs)
               RadioListTile<String>(
                 key: Key('relay-game-${spec.id}'),
                 value: spec.id,

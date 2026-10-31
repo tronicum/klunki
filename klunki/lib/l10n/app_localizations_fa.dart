@@ -787,6 +787,26 @@ class AppLocalizationsFa extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => 'همهٔ کشتی‌ها غرق شدند';
 
   @override
+  String get engineReasonGostrategyFlagCaptured => 'پرچم تصرف شد';
+
+  @override
+  String get engineReasonGostrategyNoMoves => 'حریف دیگر هیچ حرکتی ندارد';
+
+  @override
+  String get engineReasonGostrategyBothBlocked =>
+      'هیچ‌یک از دو طرف نمی‌تواند حرکت کند';
+
+  @override
+  String engineReasonGostrategyMoveLimit(int moves) {
+    return '$moves حرکت بدون نبرد';
+  }
+
+  @override
+  String gameNotInApp(String game) {
+    return '$game هنوز در برنامه در دسترس نیست.';
+  }
+
+  @override
   String get engineSetA => 'سوپراسپرت‌ها';
 
   @override

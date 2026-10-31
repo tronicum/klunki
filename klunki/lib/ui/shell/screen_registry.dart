@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
+import '../../l10n/app_localizations.dart';
+import '../game_titles.dart';
 import '../games/connect4_screen.dart';
 import '../games/muehle_screen.dart';
 import '../games/quartett_sets_screen.dart';
@@ -13,7 +15,8 @@ import 'game_screen.dart';
 /// Builds the screen widget for a game; the screen renders a [GameScreen].
 typedef GameScreenBuilder = Widget Function(GameController controller);
 
-/// `GameSpec.id` → screen. Every id in `gameSpecs` must have an entry.
+/// `GameSpec.id` → screen. Every id in `appGameSpecs` must have an entry;
+/// games without one (`GameSpec.appReady` false) show [GameNotInAppScreen].
 final Map<String, GameScreenBuilder> gameScreens = {
   'connect4': (c) => Connect4Screen(controller: c),
   'muehle': (c) => MuehleScreen(controller: c),
@@ -25,8 +28,30 @@ final Map<String, GameScreenBuilder> gameScreens = {
 /// The screen for [controller]'s game.
 Widget buildGameScreen(GameController controller) {
   final builder = gameScreens[controller.config.gameId];
-  if (builder == null) throw ArgumentError('no screen for ${controller.config.gameId}');
+  if (builder == null) return GameNotInAppScreen(gameId: controller.config.gameId);
   return builder(controller);
+}
+
+/// Placeholder for a game the engine knows but the app cannot show yet, e.g.
+/// when joining a CLI host that plays GoStrategy (KLD-058b adds its screen).
+class GameNotInAppScreen extends StatelessWidget {
+  final String gameId;
+  const GameNotInAppScreen({super.key, required this.gameId});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final title = localizedGameTitle(l10n, gameId, fallback: specById(gameId)?.title ?? gameId);
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Text(l10n.gameNotInApp(title), textAlign: TextAlign.center),
+        ),
+      ),
+    );
+  }
 }
 
 /// Starts a hot-seat game of [gameId] (random seed unless given) and pushes
