@@ -2663,6 +2663,36 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nur deine vier Reihen unten nehmen Figuren auf.'**
   String get goSetupInvalid;
+
+  /// KLD-085: joining failed because the two devices run builds that do not fit together (protocol, game rules or Quartett deck data); which one is older is unknown. "Browser: reload" is for the PWA.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Spielversionen passen nicht zusammen – bitte beide Apps aktualisieren (Browser: neu laden).'**
+  String get versionMismatchBoth;
+
+  /// KLD-085: like versionMismatchBoth, and the other device runs the older build.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Spielversionen passen nicht zusammen: Das andere Gerät hat eine ältere Version. Bitte dort die App aktualisieren (Browser: neu laden).'**
+  String get versionMismatchUpdateOther;
+
+  /// KLD-085: like versionMismatchBoth, and this device runs the older build.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Spielversionen passen nicht zusammen: Dieses Gerät hat eine ältere Version. Bitte diese App aktualisieren (Browser: neu laden).'**
+  String get versionMismatchUpdateThis;
+
+  /// KLD-085: host waiting screen: a guest with an incompatible build tried to join and was refused; the host keeps waiting. reason is one of the versionMismatch texts.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Gerät wollte beitreten, wurde aber abgewiesen: {reason}'**
+  String versionMismatchGuestRefused(String reason);
+
+  /// KLD-085: menu footer, the app version line so two devices can be compared by eye (e.g. "1.0.0+1 · abc1234 · P3 · ba13a678": version, build, protocol, game data code).
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version}'**
+  String menuVersion(String version);
 }
 
 class _AppLocalizationsDelegate

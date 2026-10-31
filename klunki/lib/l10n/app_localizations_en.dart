@@ -1612,4 +1612,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get goSetupInvalid => 'Only your four rows at the bottom take pieces.';
+
+  @override
+  String get versionMismatchBoth =>
+      'The game versions don\'t match – please update both apps (browser: reload the page).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'The game versions don\'t match: the other device has an older version. Please update the app there (browser: reload the page).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'The game versions don\'t match: this device has an older version. Please update this app (browser: reload the page).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'A device tried to join but was turned away: $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'Version $version';
+  }
 }

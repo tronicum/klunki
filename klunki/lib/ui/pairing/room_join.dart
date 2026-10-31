@@ -156,7 +156,8 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
     }
     if (transport == null) {
       final l10n = AppLocalizations.of(context);
-      final friendly = relayErrorText(context, failure!, code: code, relay: relay);
+      final friendly =
+          versionMismatchText(context, failure!) ?? relayErrorText(context, failure, code: code, relay: relay);
       setState(() {
         _joining = null;
         _error =

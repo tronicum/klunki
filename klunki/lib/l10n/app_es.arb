@@ -426,5 +426,10 @@
   "loopbackHowRelay": "Consejo: la consola de «{command}» muestra estas direcciones al arrancar.",
   "loopbackHowCopy": "Copiar comando",
   "loopbackHowCopied": "Comando copiado",
-  "goSetupInvalid": "Solo tus cuatro filas de abajo admiten piezas."
+  "goSetupInvalid": "Solo tus cuatro filas de abajo admiten piezas.",
+  "versionMismatchBoth": "Las versiones del juego no coinciden: actualiza las dos apps (navegador: recarga la página).",
+  "versionMismatchUpdateOther": "Las versiones del juego no coinciden: el otro dispositivo tiene una versión más antigua. Actualiza allí la app (navegador: recarga la página).",
+  "versionMismatchUpdateThis": "Las versiones del juego no coinciden: este dispositivo tiene una versión más antigua. Actualiza esta app (navegador: recarga la página).",
+  "versionMismatchGuestRefused": "Un dispositivo intentó unirse, pero fue rechazado: {reason}",
+  "menuVersion": "Versión {version}"
 }

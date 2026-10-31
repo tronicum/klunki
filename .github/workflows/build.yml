@@ -41,7 +41,7 @@ jobs:
       - run: flutter pub get
       # The documented steps (README.md, docs/DEMO.md, docs/BUILDING.md):
       # build, then fill the offline service worker's build hash and precache list.
-      - run: flutter build web --release
+      - run: flutter build web --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
       - run: python3 -I build/web/pwa_finalize.py
       # The PWA must start offline: no CanvasKit/fonts/scripts from
       # jsdelivr, unpkg, gstatic or googleapis. Allows only the engine's
@@ -106,7 +106,7 @@ jobs:
           fi
       - run: flutter --version
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: klunki-android-apk

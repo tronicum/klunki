@@ -70,7 +70,7 @@ void main() {
     test('the host sanitises an incoming name', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawPeer.connect(host.port);
-      peer.send('hello', {'role': 'guest', 'name': '\u202E  Ev\u0000il\n  ${'x' * 30}', 'protocol': 2});
+      peer.send('hello', guestHello('\u202E  Ev\u0000il\n  ${'x' * 30}'));
       await peer.next('welcome');
       expect(host.guestName, 'Evil ${'x' * 15}');
       peer.destroy();
@@ -81,7 +81,7 @@ void main() {
       for (final name in <Object?>['', '  \u2066\u2069 ', null, 42]) {
         final host = await startHost(const GameConfig('connect4'));
         final peer = await RawPeer.connect(host.port);
-        peer.send('hello', {'role': 'guest', 'protocol': 2, if (name != null) 'name': name});
+        peer.send('hello', guestHello(name));
         await peer.next('welcome');
         expect(host.guestName, 'O', reason: 'name $name');
         peer.destroy();
@@ -102,7 +102,7 @@ void main() {
     test('the guest sanitises the host name and falls back to its mark', () async {
       final fake = await RawHost.start((peer) async {
         await peer.next('hello');
-        peer.send('hello', {'role': 'host', 'name': '\u202Eevil', 'protocol': 2});
+        peer.send('hello', hostHello(const GameConfig('connect4'), name: '\u202Eevil'));
         peer.send('welcome', {
           'config': {'game': 'connect4', 'seed': 0},
           'you': 'b',
@@ -118,7 +118,7 @@ void main() {
 
       final silent = await RawHost.start((peer) async {
         await peer.next('hello');
-        peer.send('hello', {'role': 'host', 'protocol': 2});
+        peer.send('hello', hostHello(const GameConfig('connect4')));
         peer.send('welcome', {
           'config': {'game': 'connect4', 'seed': 0},
           'you': 'b',

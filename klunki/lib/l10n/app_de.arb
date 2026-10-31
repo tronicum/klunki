@@ -2442,5 +2442,37 @@
   "goSetupInvalid": "Nur deine vier Reihen unten nehmen Figuren auf.",
   "@goSetupInvalid": {
     "description": "KLD-081 GoStrategy setup on the board: hint when a piece is dropped or placed outside the own four home rows."
+  },
+  "versionMismatchBoth": "Die Spielversionen passen nicht zusammen – bitte beide Apps aktualisieren (Browser: neu laden).",
+  "@versionMismatchBoth": {
+    "description": "KLD-085: joining failed because the two devices run builds that do not fit together (protocol, game rules or Quartett deck data); which one is older is unknown. \"Browser: reload\" is for the PWA."
+  },
+  "versionMismatchUpdateOther": "Die Spielversionen passen nicht zusammen: Das andere Gerät hat eine ältere Version. Bitte dort die App aktualisieren (Browser: neu laden).",
+  "@versionMismatchUpdateOther": {
+    "description": "KLD-085: like versionMismatchBoth, and the other device runs the older build."
+  },
+  "versionMismatchUpdateThis": "Die Spielversionen passen nicht zusammen: Dieses Gerät hat eine ältere Version. Bitte diese App aktualisieren (Browser: neu laden).",
+  "@versionMismatchUpdateThis": {
+    "description": "KLD-085: like versionMismatchBoth, and this device runs the older build."
+  },
+  "versionMismatchGuestRefused": "Ein Gerät wollte beitreten, wurde aber abgewiesen: {reason}",
+  "@versionMismatchGuestRefused": {
+    "description": "KLD-085: host waiting screen: a guest with an incompatible build tried to join and was refused; the host keeps waiting. reason is one of the versionMismatch texts.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Die Spielversionen passen nicht zusammen …"
+      }
+    }
+  },
+  "menuVersion": "Version {version}",
+  "@menuVersion": {
+    "description": "KLD-085: menu footer, the app version line so two devices can be compared by eye (e.g. \"1.0.0+1 · abc1234 · P3 · ba13a678\": version, build, protocol, game data code).",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0+1 · abc1234 · P3 · ba13a678"
+      }
+    }
   }
 }

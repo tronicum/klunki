@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart';
 
 import 'channel/channel.dart';
 import 'channel/platform.dart' as platform;
+import 'compat.dart';
 import 'connection.dart';
 import 'events.dart';
 import 'names.dart';
@@ -42,6 +43,9 @@ class KlunkiGuest {
   /// This guest's player name, sanitised ([sanitizePlayerName]; may be
   /// empty, the host then shows the guest's mark).
   final String name;
+
+  /// What this build sends and checks in the handshake (KLD-085).
+  final BuildCompat compat;
   final Duration _pingInterval;
   final Duration _timeout;
   final _events = StreamController<NetEvent>.broadcast();
@@ -56,6 +60,7 @@ class KlunkiGuest {
   String? _hostName;
   Connection? _conn;
   bool _connected = false; // handshake done on the current connection
+  Map<String, dynamic>? _hostHello; // the host's hello on the current connection (KLD-085)
 
   // Hidden-information games only (KLD-064).
   bool _redacted = false;
@@ -67,8 +72,9 @@ class KlunkiGuest {
   String? _verificationError;
 
   KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout,
-      {this.roomCode})
-      : name = sanitizePlayerName(name);
+      {this.roomCode, BuildCompat? compat})
+      : name = sanitizePlayerName(name),
+        compat = compat ?? BuildCompat();
 
   /// Connects over TCP to [host]:[port] and completes after the `welcome`
   /// snapshot was replayed. Throws [NetException] if the handshake fails
@@ -80,8 +86,9 @@ class KlunkiGuest {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    BuildCompat? compat,
   }) async {
-    final guest = KlunkiGuest._(host, port, null, name, token, pingInterval, timeout);
+    final guest = KlunkiGuest._(host, port, null, name, token, pingInterval, timeout, compat: compat);
     await guest._open();
     return guest;
   }
@@ -97,11 +104,12 @@ class KlunkiGuest {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    BuildCompat? compat,
   }) async {
     if ((url.scheme != 'ws' && url.scheme != 'wss') || url.host.isEmpty) {
       throw ArgumentError.value(url, 'url', 'expected ws://host:port');
     }
-    final guest = KlunkiGuest._(url.host, url.port, url, name, token, pingInterval, timeout);
+    final guest = KlunkiGuest._(url.host, url.port, url, name, token, pingInterval, timeout, compat: compat);
     await guest._open();
     return guest;
   }
@@ -125,6 +133,7 @@ class KlunkiGuest {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    BuildCompat? compat,
   }) async {
     if ((relayUrl.scheme != 'ws' && relayUrl.scheme != 'wss') || relayUrl.host.isEmpty) {
       throw ArgumentError.value(relayUrl, 'relayUrl', 'expected ws://host:port/relay');
@@ -132,7 +141,7 @@ class KlunkiGuest {
     final room = normalizeRoomCode(code);
     if (room == null) throw ArgumentError.value(code, 'code', 'not a room code');
     final guest = KlunkiGuest._(relayUrl.host, relayUrl.port, relayUrl, name, token, pingInterval, timeout,
-        roomCode: room);
+        roomCode: room, compat: compat);
     await guest._open();
     return guest;
   }
@@ -232,13 +241,17 @@ class KlunkiGuest {
       timeout: _timeout,
       onMessage: (m) => _onMessage(conn, m, welcome),
       onClosed: (reason, {timedOut = false}) => _onClosed(conn, reason, timedOut, welcome),
+      build: compat.build,
     );
     _conn = conn;
+    _hostHello = null;
     conn.send('hello', {
       'role': 'guest',
       'name': name,
       'protocol': protocolVersion,
       if (_token != null) 'token': _token,
+      'build': compat.build,
+      'games': compat.gamesJson(),
     });
     try {
       await welcome.future.timeout(_timeout);
@@ -252,11 +265,19 @@ class KlunkiGuest {
     switch (m['type']) {
       case 'hello':
         if (m['role'] != 'host') throw const ProtocolException('expected role "host"');
-        if (m['protocol'] != protocolVersion) throw ProtocolException('unsupported protocol ${m['protocol']}');
+        if (m['protocol'] != protocolVersion) {
+          final build = m['build'] is String ? m['build'] as String : null;
+          final protocol = m['protocol'];
+          return _incompatible(conn, welcome,
+              protocolMismatch(protocol is int ? protocol : null, peerBuild: build, myBuild: compat.build));
+        }
+        _hostHello = m;
         final name = m['name'];
         if (name is String) _hostName = sanitizePlayerName(name);
       case 'welcome':
         if (welcome.isCompleted) throw const ProtocolException('duplicate welcome');
+        final mismatch = _checkCompat(m);
+        if (mismatch != null) return _incompatible(conn, welcome, mismatch);
         final error = _onWelcome(m);
         if (error != null) {
           welcome.completeError(NetException(error));
@@ -277,6 +298,40 @@ class KlunkiGuest {
       default:
         throw ProtocolException('unexpected message "${m['type']}"');
     }
+  }
+
+  /// Checks the host's build against ours (KLD-085) once `welcome` names
+  /// the game: the host's `hello` must carry the fingerprint of exactly
+  /// that game (and deck), equal to ours. A host from before KLD-085 sends
+  /// none: that is a mismatch too, never "compatible".
+  VersionMismatch? _checkCompat(Map<String, dynamic> welcome) {
+    final hello = _hostHello;
+    final build = hello?['build'] is String ? hello!['build'] as String : null;
+    final rawConfig = welcome['config'];
+    final game = rawConfig is Map<String, dynamic> ? rawConfig['game'] : null;
+    if (hello == null || hello['fingerprint'] == null || game is! String) {
+      return VersionMismatch(Incompatibility.protocol, compareBuilds(compat.build, build),
+          hello == null ? 'welcome without hello' : 'the host sent no game fingerprint',
+          peerBuild: build);
+    }
+    final deck = (rawConfig as Map<String, dynamic>)['deck'];
+    final config = GameConfig(game, deck: deck is String ? deck : null);
+    final key = compatKey(config);
+    if (hello['game'] != key) {
+      return VersionMismatch(Incompatibility.content, compareBuilds(compat.build, build),
+          'the host announced "${hello['game']}" but hosts "$key"',
+          peerBuild: build);
+    }
+    return compareFingerprints(key, compat.of(config), GameFingerprint.tryParse(hello['fingerprint']),
+        peerBuild: build, myBuild: compat.build);
+  }
+
+  /// The builds do not fit: tell the host (`error` with the `code`) and
+  /// fail the handshake with a [NetException] carrying [mismatch].
+  void _incompatible(Connection conn, Completer<void> welcome, VersionMismatch mismatch) {
+    if (!welcome.isCompleted) welcome.completeError(NetException(mismatch.message, mismatch: mismatch));
+    _emit(NetError(mismatch.message));
+    conn.fail(mismatch.message, mismatchErrorFields(mismatch, compat));
   }
 
   /// Applies a snapshot; returns an error message on divergence.
@@ -480,7 +535,14 @@ class KlunkiGuest {
   }
 
   void _onClosed(Connection conn, String reason, bool timedOut, Completer<void> welcome) {
-    if (!welcome.isCompleted) welcome.completeError(NetException(reason));
+    if (!welcome.isCompleted) {
+      // KLD-085: the host refused our build, or speaks another protocol
+      // version (e.g. an old host answering our hello with its own error).
+      final mismatch = conn.versionMismatch
+          ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
+          : mismatchFromError(conn.peerError, compat);
+      welcome.completeError(NetException(mismatch?.message ?? reason, mismatch: mismatch));
+    }
     if (conn != _conn) return;
     final wasConnected = _connected;
     _connected = false;

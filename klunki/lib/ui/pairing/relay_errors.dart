@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_net/guest_web.dart' show NetException;
+import 'package:klunki_net/guest_web.dart' show NetException, PeerAge, VersionMismatch;
 
 import '../../net/room_link.dart';
 import '../ltr.dart';
@@ -62,6 +62,25 @@ RelayFailure? classifyRelayError(Object error) {
 /// (`session full`): only the guest with the session token gets back in
 /// (KLD-071). Same over TCP, WebSocket and a relay.
 bool isSeatTaken(Object error) => _text(error).contains('session full');
+
+/// The version mismatch behind [error] (KLD-085): the [NetException]'s
+/// [NetException.mismatch], or null.
+VersionMismatch? versionMismatchOf(Object error) => error is NetException ? error.mismatch : null;
+
+/// A localized sentence for a version mismatch (KLD-085): which device has
+/// to update, "both" when that is unknown.
+String versionMismatchMessage(AppLocalizations l10n, VersionMismatch mismatch) => switch (mismatch.peer) {
+  PeerAge.older => l10n.versionMismatchUpdateOther,
+  PeerAge.newer => l10n.versionMismatchUpdateThis,
+  PeerAge.unknown => l10n.versionMismatchBoth,
+};
+
+/// [versionMismatchMessage] for [error] if the join failed because the two
+/// builds do not fit together, else null.
+String? versionMismatchText(BuildContext context, Object error) {
+  final mismatch = versionMismatchOf(error);
+  return mismatch == null ? null : versionMismatchMessage(AppLocalizations.of(context), mismatch);
+}
 
 /// Whether [failure] means the room is gone for good (rejoining is useless).
 bool relayRoomClosed(RelayFailure? failure) =>

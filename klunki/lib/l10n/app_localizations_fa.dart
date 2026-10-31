@@ -1609,4 +1609,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get goSetupInvalid => 'فقط چهار ردیف پایینِ خودت مهره می‌پذیرند.';
+
+  @override
+  String get versionMismatchBoth =>
+      'نسخه‌های بازی با هم سازگار نیستند – لطفاً هر دو برنامه را به‌روز کن (مرورگر: صفحه را دوباره بارگیری کن).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'نسخه‌های بازی با هم سازگار نیستند: دستگاه دیگر نسخهٔ قدیمی‌تری دارد. لطفاً برنامه را آنجا به‌روز کن (مرورگر: صفحه را دوباره بارگیری کن).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'نسخه‌های بازی با هم سازگار نیستند: این دستگاه نسخهٔ قدیمی‌تری دارد. لطفاً این برنامه را به‌روز کن (مرورگر: صفحه را دوباره بارگیری کن).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'دستگاهی خواست بپیوندد اما رد شد: $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'نسخه $version';
+  }
 }

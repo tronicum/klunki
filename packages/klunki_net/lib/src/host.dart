@@ -7,6 +7,7 @@ import 'package:klunki_engine/klunki_engine.dart';
 import 'channel/channel.dart';
 import 'channel/listener.dart';
 import 'channel/platform.dart';
+import 'compat.dart';
 import 'connection.dart';
 import 'events.dart';
 import 'names.dart';
@@ -38,6 +39,9 @@ class KlunkiHost {
 
   /// The host's player; the guest plays the other one.
   final Player me;
+
+  /// What this build sends and checks in the handshake (KLD-085).
+  final BuildCompat compat;
   final HostListener _server;
   final Duration _pingInterval;
   final Duration _timeout;
@@ -62,7 +66,8 @@ class KlunkiHost {
   /// guest before it is sent. Lets tests play a cheating host.
   Map<String, dynamic>? Function(String type, Map<String, dynamic> fields)? debugRewriteOutgoing;
 
-  KlunkiHost._(this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game)
+  KlunkiHost._(
+      this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat)
       : _redaction = specById(config.gameId)?.redaction {
     final redaction = _redaction;
     if (redaction != null) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
@@ -82,11 +87,13 @@ class KlunkiHost {
     List<Map<String, dynamic>> moves = const [],
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    BuildCompat? compat,
   }) async {
     _validateLog(config, moves);
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
     return KlunkiHost._(
-        config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, createGame(config))
+        config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, createGame(config),
+        compat ?? BuildCompat())
       .._listen(moves);
   }
 
@@ -111,11 +118,13 @@ class KlunkiHost {
     List<Map<String, dynamic>> moves = const [],
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    BuildCompat? compat,
   }) async {
     _validateLog(config, moves);
     final relay = await RelayHostListener.connect(relayUrl, timeout: timeout);
     return KlunkiHost._(
-        config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, createGame(config))
+        config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, createGame(config),
+        compat ?? BuildCompat())
       .._listen(moves);
   }
 
@@ -197,6 +206,7 @@ class KlunkiHost {
       timeout: _timeout,
       onMessage: (m) => _onMessage(conn, m),
       onClosed: (reason, {timedOut = false}) => _onClosed(conn, reason, timedOut),
+      build: compat.build,
     );
     _pending.add(conn);
     // A connection that never says hello must not hold a relay room's guest
@@ -220,9 +230,10 @@ class KlunkiHost {
   void _onHello(Connection conn, Map<String, dynamic> m) {
     if (m['type'] != 'hello') throw const ProtocolException('expected hello');
     if (m['role'] != 'guest') throw const ProtocolException('expected role "guest"');
-    if (m['protocol'] != protocolVersion) {
-      throw ProtocolException('unsupported protocol ${m['protocol']}');
-    }
+    // KLD-085: the builds must fit together, checked before the seat (an
+    // incompatible guest never gets "session full" or the guest's seat).
+    final mismatch = _checkCompat(m);
+    if (mismatch != null) return _refuse(conn, mismatch);
     // Untrusted input: sanitised like a typed name, the guest's mark as fallback.
     final raw = m['name'];
     final name = playerNameOr(raw is String ? raw : null, guestPlayer);
@@ -240,7 +251,14 @@ class KlunkiHost {
     old?.close('replaced by a new connection');
     _guestName = name;
     _token ??= _newToken();
-    _send(conn, 'hello', {'role': 'host', 'name': this.name, 'protocol': protocolVersion});
+    _send(conn, 'hello', {
+      'role': 'host',
+      'name': this.name,
+      'protocol': protocolVersion,
+      'build': compat.build,
+      'game': compatKey(config),
+      if (_fingerprint case final f?) 'fingerprint': f.toJson(),
+    });
     final redaction = _redaction;
     if (redaction == null) {
       _send(conn, 'welcome', {
@@ -265,6 +283,37 @@ class KlunkiHost {
       if (_game.isOver) _sendReveal(conn);
     }
     _emit(PeerConnected(name, reconnect: reconnect));
+  }
+
+  /// This build's fingerprint of the hosted game.
+  GameFingerprint? get _fingerprint => compat.of(config);
+
+  /// Compares the guest's `hello` with this build (KLD-085); null if they
+  /// fit. A `hello` without the fields is from a build before KLD-085.
+  VersionMismatch? _checkCompat(Map<String, dynamic> m) {
+    final build = m['build'] is String ? m['build'] as String : null;
+    final protocol = m['protocol'];
+    if (protocol != protocolVersion) {
+      return protocolMismatch(protocol is int ? protocol : null, peerBuild: build, myBuild: compat.build);
+    }
+    final games = m['games'];
+    if (games is! Map<String, dynamic>) {
+      return VersionMismatch(Incompatibility.protocol, compareBuilds(compat.build, build), 'hello without "games"',
+          peerBuild: build);
+    }
+    final key = compatKey(config);
+    return compareFingerprints(key, _fingerprint, GameFingerprint.tryParse(games[key]),
+        peerBuild: build, myBuild: compat.build);
+  }
+
+  /// Refuses a guest whose build does not fit: `error` with the mismatch's
+  /// `code` and this side's fingerprint, then [IncompatiblePeer].
+  void _refuse(Connection conn, VersionMismatch mismatch) {
+    _pending.remove(conn);
+    _helloDeadlines.remove(conn)?.cancel();
+    conn.fail(mismatch.message,
+        mismatchErrorFields(mismatch, compat, key: compatKey(config), fingerprint: _fingerprint));
+    _emit(IncompatiblePeer(mismatch));
   }
 
   void _onGuestMove(Connection conn, Map<String, dynamic> m) {
@@ -376,8 +425,14 @@ class KlunkiHost {
   }
 
   void _onClosed(Connection conn, String reason, bool timedOut) {
-    _pending.remove(conn);
+    final wasPending = _pending.remove(conn);
     _helloDeadlines.remove(conn)?.cancel();
+    // KLD-085: a guest of another protocol version (e.g. a cached old PWA),
+    // or a guest that refused our build after the handshake.
+    final mismatch = conn.versionMismatch
+        ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
+        : mismatchFromError(conn.peerError, compat);
+    if (mismatch != null && (wasPending || conn == _guest)) _emit(IncompatiblePeer(mismatch));
     if (conn != _guest) return;
     _guest = null;
     _emit(PeerDisconnected(reason, timedOut: timedOut));

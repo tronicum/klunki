@@ -1,8 +1,9 @@
 import 'package:klunki_engine/klunki_engine.dart';
 
 /// Protocol version carried as `v` in every message (and `protocol` in `hello`).
-/// 2 since KLD-064 (hidden information is redacted; see PROTOCOL.md).
-const int protocolVersion = 2;
+/// 2 since KLD-064 (hidden information is redacted), 3 since KLD-085 (the
+/// `hello`s carry build fingerprints; see PROTOCOL.md).
+const int protocolVersion = 3;
 
 /// Something that happened in a session. Host and guest share these types.
 sealed class NetEvent {
@@ -96,6 +97,77 @@ enum Verification {
   failed,
 }
 
+/// Host only: a guest could not join because the two builds do not fit
+/// together (KLD-085); the guest was refused, the host keeps waiting.
+class IncompatiblePeer extends NetEvent {
+  final VersionMismatch mismatch;
+  const IncompatiblePeer(this.mismatch);
+  @override
+  String toString() => 'IncompatiblePeer($mismatch)';
+}
+
+/// What does not match between two builds (KLD-085), as the `code` of the
+/// `error` message that refuses the handshake.
+enum Incompatibility {
+  /// Another protocol version, or a `hello` without the fingerprint fields
+  /// (a build from before KLD-085).
+  protocol('incompatible-protocol'),
+
+  /// The game's rules version differs ([GameSpec.rulesVersion]).
+  rules('incompatible-rules'),
+
+  /// The game's data differs (Quartett deck: cards, stats, values), or one
+  /// side does not know the game or deck at all.
+  content('incompatible-content');
+
+  /// The wire code.
+  final String code;
+  const Incompatibility(this.code);
+
+  static Incompatibility? fromCode(Object? code) {
+    for (final i in values) {
+      if (i.code == code) return i;
+    }
+    return null;
+  }
+}
+
+/// How the other side's build compares to this one.
+enum PeerAge {
+  /// The other side runs an older build: it should update.
+  older,
+
+  /// The other side runs a newer build: this side should update.
+  newer,
+
+  /// Cannot tell (e.g. two builds with the same version numbers but
+  /// different data): both should update.
+  unknown,
+}
+
+/// Why two builds cannot play together (KLD-085). [peer] says which side
+/// is older, from this side's point of view; [peerBuild] is the other
+/// side's build label, if it sent one (informational).
+class VersionMismatch {
+  final Incompatibility kind;
+  final PeerAge peer;
+  final String? peerBuild;
+
+  /// English details for logs and for the other side's error message.
+  final String detail;
+  const VersionMismatch(this.kind, this.peer, this.detail, {this.peerBuild});
+
+  /// English, one line: what the apps show only as a fallback.
+  String get message => 'incompatible versions (${kind.code}): $detail – ${switch (peer) {
+        PeerAge.older => 'the other device runs an older build, please update it',
+        PeerAge.newer => 'this device runs an older build, please update it',
+        PeerAge.unknown => 'please update both',
+      }} (browser: reload the page)';
+
+  @override
+  String toString() => 'VersionMismatch(${kind.code}, peer ${peer.name}, $detail)';
+}
+
 /// A protocol problem (malformed input, divergent logs, refused handshake).
 class NetError extends NetEvent {
   final String message;
@@ -108,7 +180,11 @@ class NetError extends NetEvent {
 /// handshake fails.
 class NetException implements Exception {
   final String message;
-  const NetException(this.message);
+
+  /// Set when the handshake failed because the builds do not fit together
+  /// (KLD-085).
+  final VersionMismatch? mismatch;
+  const NetException(this.message, {this.mismatch});
   @override
   String toString() => 'NetException: $message';
 }

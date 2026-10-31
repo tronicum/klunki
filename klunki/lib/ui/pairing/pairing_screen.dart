@@ -25,6 +25,7 @@ import 'device_name.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
+import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
 import 'room_join.dart';
@@ -512,6 +513,7 @@ class _HostPanelState extends State<_HostPanel> {
             Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
           ],
         ),
+        RefusedGuestNotice(transport: t),
         const SizedBox(height: 16),
         OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
       ],
@@ -617,9 +619,11 @@ class _JoinPanelState extends State<_JoinPanel> {
       setState(() {
         _connecting = null;
         // The hints go with every failed join.
-        _error = failure != null && isSeatTaken(failure)
-            ? l10n.pairingSeatTaken
-            : '${l10n.pairingJoinFailed(label, '$failure')}\n${l10n.pairingJoinHints}';
+        // KLD-085: another build: say which device to update, no network hints.
+        _error = (failure == null ? null : versionMismatchText(context, failure)) ??
+            (failure != null && isSeatTaken(failure)
+                ? l10n.pairingSeatTaken
+                : '${l10n.pairingJoinFailed(label, '$failure')}\n${l10n.pairingJoinHints}');
       });
       return;
     }

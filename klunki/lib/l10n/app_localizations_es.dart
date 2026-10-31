@@ -1625,4 +1625,26 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get goSetupInvalid => 'Solo tus cuatro filas de abajo admiten piezas.';
+
+  @override
+  String get versionMismatchBoth =>
+      'Las versiones del juego no coinciden: actualiza las dos apps (navegador: recarga la página).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'Las versiones del juego no coinciden: el otro dispositivo tiene una versión más antigua. Actualiza allí la app (navegador: recarga la página).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'Las versiones del juego no coinciden: este dispositivo tiene una versión más antigua. Actualiza esta app (navegador: recarga la página).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'Un dispositivo intentó unirse, pero fue rechazado: $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'Versión $version';
+  }
 }

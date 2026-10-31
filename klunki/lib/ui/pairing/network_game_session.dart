@@ -93,7 +93,11 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
     try {
       await t.reconnect();
     } catch (e) {
-      if (mounted) setState(() => _reconnectError = AppLocalizations.of(context).pairingReconnectFailed);
+      // KLD-085: the host was updated in between (or this app was).
+      if (mounted) {
+        setState(() =>
+            _reconnectError = versionMismatchText(context, e) ?? AppLocalizations.of(context).pairingReconnectFailed);
+      }
     }
   }
 

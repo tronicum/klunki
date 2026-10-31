@@ -490,6 +490,8 @@ class _Play {
           _out.writeln('The relay room is gone; the game cannot continue.');
           _finish(1, 'relay room closed');
         }
+      case IncompatiblePeer(:final mismatch):
+        _out.writeln('A guest was refused: ${mismatch.message}');
       case MoveRejected():
         break; // the guest's submit() reports it; the host has nothing to show
       case GameVerified() || VerificationFailed():

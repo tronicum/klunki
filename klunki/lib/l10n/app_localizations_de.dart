@@ -1618,4 +1618,26 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get goSetupInvalid =>
       'Nur deine vier Reihen unten nehmen Figuren auf.';
+
+  @override
+  String get versionMismatchBoth =>
+      'Die Spielversionen passen nicht zusammen – bitte beide Apps aktualisieren (Browser: neu laden).';
+
+  @override
+  String get versionMismatchUpdateOther =>
+      'Die Spielversionen passen nicht zusammen: Das andere Gerät hat eine ältere Version. Bitte dort die App aktualisieren (Browser: neu laden).';
+
+  @override
+  String get versionMismatchUpdateThis =>
+      'Die Spielversionen passen nicht zusammen: Dieses Gerät hat eine ältere Version. Bitte diese App aktualisieren (Browser: neu laden).';
+
+  @override
+  String versionMismatchGuestRefused(String reason) {
+    return 'Ein Gerät wollte beitreten, wurde aber abgewiesen: $reason';
+  }
+
+  @override
+  String menuVersion(String version) {
+    return 'Version $version';
+  }
 }

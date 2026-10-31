@@ -2,7 +2,7 @@
 ///
 /// Canonical form (what the QR code encodes):
 ///
-///     klunki://join?h=192.168.1.20&p=4747&v=2&n=Stefans%20iPhone&g=muehle&w=4748
+///     klunki://join?h=192.168.1.20&p=4747&v=3&n=Stefans%20iPhone&g=muehle&w=4748
 ///
 /// `h` host (required), `p` port (default [klunkiDefaultPort]), `v` protocol
 /// version (default [klunkiProtocolVersion]), `n` display name, `g` game id
@@ -20,7 +20,7 @@ const int klunkiDefaultPort = 4747;
 
 /// `klunki_net`'s `protocolVersion`, mirrored for the same reason (a test
 /// keeps them in sync).
-const int klunkiProtocolVersion = 2;
+const int klunkiProtocolVersion = 3;
 
 /// `klunki_net`'s `defaultWebSocketPort` (KLD-054), mirrored likewise.
 const int klunkiDefaultWebSocketPort = 4748;

@@ -19,9 +19,16 @@ class QuartettDeck {
   final List<QuartettStat> stats;
   final Map<String, String> setNames;
   final List<Card> cards;
+
+  /// Gameplay revision of this deck (KLD-085): bump it whenever cards,
+  /// stats (ids, order, [QuartettStat.higherWins]) or values change, not for
+  /// labels, formats or photos. Two devices compare it to tell which one is
+  /// older when their deck fingerprints differ ([contentFingerprint]); the
+  /// fingerprint itself catches a forgotten bump.
+  final int revision;
   final Map<String, Card> _byId;
 
-  QuartettDeck._(this.id, this.name, this.stats, this.setNames, this.cards)
+  QuartettDeck._(this.id, this.name, this.stats, this.setNames, this.cards, this.revision)
       : _byId = {for (final c in cards) c.id: c};
 
   /// Builds a deck from rows `(id, name, values)`; `values` follow [stats].
@@ -31,6 +38,7 @@ class QuartettDeck {
     required List<QuartettStat> stats,
     required Map<String, String> setNames,
     required List<(String, String, List<num>)> rows,
+    int revision = 1,
   }) {
     final cards = [
       for (final (cardId, cardName, values) in rows)
@@ -42,7 +50,8 @@ class QuartettDeck {
           stats: {for (var i = 0; i < stats.length && i < values.length; i++) stats[i].id: values[i]},
         ),
     ]..sort((a, b) => a.id.compareTo(b.id));
-    return QuartettDeck._(id, name, List.unmodifiable(stats), Map.unmodifiable(setNames), List.unmodifiable(cards));
+    return QuartettDeck._(id, name, List.unmodifiable(stats), Map.unmodifiable(setNames), List.unmodifiable(cards),
+        revision);
   }
 
   /// Looks up a card by id; null if unknown.
@@ -217,6 +226,7 @@ QuartettDeck _cars() => QuartettDeck.build(
 QuartettDeck _trains() => QuartettDeck.build(
       id: 'trains',
       name: 'Züge',
+      revision: 2, // KLD-082: number built instead of the year stat
       stats: const [
         _kmh,
         QuartettStat(id: 'kw', label: 'Leistung', unit: 'kW'),
@@ -290,6 +300,7 @@ QuartettDeck _trains() => QuartettDeck.build(
 QuartettDeck _rockets() => QuartettDeck.build(
       id: 'rockets',
       name: 'Raketen',
+      revision: 2, // KLD-082: flights and success rate instead of the year stats
       stats: const [
         QuartettStat(id: 'heightM', label: 'Höhe', unit: 'm', decimals: 1),
         QuartettStat(id: 'thrustKn', label: 'Startschub', unit: 'kN'),
@@ -353,6 +364,7 @@ QuartettDeck _rockets() => QuartettDeck.build(
 QuartettDeck _planes() => QuartettDeck.build(
       id: 'planes',
       name: 'Flugzeuge',
+      revision: 2, // KLD-082: number built instead of the year stat
       stats: const [
         _kmh,
         QuartettStat(id: 'rangeKm', label: 'Reichweite', unit: 'km', decimals: 1),
