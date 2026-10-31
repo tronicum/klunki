@@ -18,6 +18,10 @@
   - `docs/DEMO.md`, `docs/tasks/BOARD.md`
 
 ## Package choice
+> **Superseded by KLD-080:** the scanner backend is now `flutter_zxing` 3.1.0 (open-source zxing-cpp via FFI,
+> no ML Kit / Apple Vision); see `docs/tasks/KLD-080-zxing-scanner.md`. The screen, parser and tests below are
+> unchanged. The original choice, for the record:
+
 `mobile_scanner` **7.4.2** (published 2026-09-14; 7.4.3 from 2026-10-31 is too fresh). Since 7.0 its iOS/macOS side
 is one Swift implementation on **Apple Vision + AVFoundation** with no pod dependencies (no Google MLKit pods), and
 it ships a `Package.swift`, so it links through Flutter's SwiftPM integration like `bonsoir` (no Podfile, no
