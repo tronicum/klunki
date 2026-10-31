@@ -1,4 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Web: no sockets, no network play.
-WidgetBuilder? get pairingScreenBuilder => null;
+import 'web_join_screen.dart';
+
+/// Web: join-only over WebSocket (KLD-055); a page cannot host or browse mDNS.
+WidgetBuilder? get pairingScreenBuilder => (_) => WebJoinScreen(pageUrl: Uri.base);

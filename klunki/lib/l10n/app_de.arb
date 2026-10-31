@@ -844,10 +844,6 @@
   "@pairingTitle": {
     "description": "App bar title of the pairing screen (host or join a game on the local Wi-Fi)."
   },
-  "pairingWebUnavailable": "Netzwerkspiel ist im Browser nicht verfügbar",
-  "@pairingWebUnavailable": {
-    "description": "Pairing screen body on web, where there are no sockets."
-  },
   "pairingDeviceName": "Gerätename",
   "@pairingDeviceName": {
     "description": "Label of the editable device name field."
@@ -1038,6 +1034,47 @@
   "pairingReconnectFailed": "Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?",
   "@pairingReconnectFailed": {
     "description": "Error below the connection banner when reconnecting failed."
+  },
+  "pairingBrowserJoin": "Im Browser beitreten (Adresse eingeben oder Link einfügen):",
+  "@pairingBrowserJoin": {
+    "description": "Host waiting view: heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code)."
+  },
+  "pairingCopyLink": "Link kopieren",
+  "@pairingCopyLink": {
+    "description": "Tooltip of the button that copies the klunki:// join link."
+  },
+  "pairingLinkCopied": "Link kopiert",
+  "@pairingLinkCopied": {
+    "description": "Snackbar after copying the join link."
+  },
+  "webJoinIntro": "Tritt im Browser einem Spiel bei, das ein iPhone, iPad, Android-Gerät oder das Terminal (klunki host) hostet. Der Host zeigt Adresse und Link unter „Im Browser beitreten“.",
+  "@webJoinIntro": {
+    "description": "Browser (PWA) join screen: what it does. \"klunki host\" is the terminal command and stays as is; the quoted text is pairingBrowserJoin without its parenthesis."
+  },
+  "webJoinHttpsWarning": "Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.",
+  "@webJoinHttpsWarning": {
+    "description": "Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages)."
+  },
+  "webJoinAddressLabel": "IP, IP:Port, ws://- oder klunki://-Link",
+  "@webJoinAddressLabel": {
+    "description": "Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link)."
+  },
+  "webJoinAddressHelper": "Der Port ist der Browser-Port (WebSocket) des Hosts, ohne Angabe {port}.",
+  "@webJoinAddressHelper": {
+    "description": "Browser join screen: helper below the address field; port = the default WebSocket port (4748).",
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "webJoinInvalidAddress": "Ungültige Adresse. Beispiel: 192.168.1.20, 192.168.1.20:4748 oder klunki://join?h=…",
+  "@webJoinInvalidAddress": {
+    "description": "Browser join screen: the typed address could not be parsed."
+  },
+  "webJoinHints": "Tipps: Ist dieses Gerät im selben WLAN wie der Host? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem Host muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).",
+  "@webJoinHints": {
+    "description": "Troubleshooting hints shown with every failed browser join (same Wi-Fi, http not https, host version with browser support)."
   },
   "engineReasonConnect4FourInARow": "Vier in einer Reihe",
   "@engineReasonConnect4FourInARow": {

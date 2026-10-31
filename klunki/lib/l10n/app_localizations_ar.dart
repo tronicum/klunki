@@ -565,9 +565,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingTitle => 'اللعب عبر Wi-Fi';
 
   @override
-  String get pairingWebUnavailable => 'اللعب عبر الشبكة غير متاح في المتصفح';
-
-  @override
   String get pairingDeviceName => 'اسم الجهاز';
 
   @override
@@ -695,6 +692,40 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'فشلت إعادة الاتصال. هل المضيف ما زال في اللعبة؟';
+
+  @override
+  String get pairingBrowserJoin =>
+      'الانضمام من متصفح (اكتب العنوان أو الصق الرابط):';
+
+  @override
+  String get pairingCopyLink => 'نسخ الرابط';
+
+  @override
+  String get pairingLinkCopied => 'تم نسخ الرابط';
+
+  @override
+  String get webJoinIntro =>
+      'انضم من المتصفح إلى لعبة يستضيفها iPhone أو iPad أو جهاز Android أو الطرفية (klunki host). يعرض المضيف العنوان والرابط تحت «الانضمام من متصفح».';
+
+  @override
+  String get webJoinHttpsWarning =>
+      'فُتحت هذه الصفحة عبر https. من هناك تحظر المتصفحات اتصالات ws:// بالشبكة المحلية. افتح Klunki عبر http://.';
+
+  @override
+  String get webJoinAddressLabel => 'IP أو IP:منفذ أو رابط ws:// أو klunki://';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return 'المنفذ هو منفذ المتصفح (WebSocket) لدى المضيف؛ بدونه: $port.';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      'عنوان غير صالح. مثال: 192.168.1.20 أو 192.168.1.20:4748 أو klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      'نصائح: هل هذا الجهاز على شبكة Wi-Fi نفسها التي عليها المضيف؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. يجب فتح الصفحة عبر http:// وليس https://. يجب أن يعمل على المضيف إصدار من Klunki يدعم المتصفح (يعرض «الانضمام من متصفح»).';
 
   @override
   String get engineReasonConnect4FourInARow => 'أربعة في صف';

@@ -26,15 +26,37 @@ class CreatedTransports {
   final List<NetworkTransport> guests = [];
   final List<(String, int)> joinCalls = [];
   final List<int> hostPorts = [];
+  final List<int> hostWsPorts = [];
+  final List<Uri> webJoinCalls = [];
 }
 
-/// Host on 127.0.0.1 (port as asked), created in the root zone.
-Future<NetworkTransport> loopbackHost(CreatedTransports created, GameConfig config, {required String name, required int port}) {
+/// Host on 127.0.0.1 (TCP and WebSocket ports as asked), created in the root zone.
+Future<NetworkTransport> loopbackHost(CreatedTransports created, GameConfig config,
+    {required String name, required int port, int wsPort = 0}) {
   created.hostPorts.add(port);
+  created.hostWsPorts.add(wsPort);
   return Zone.root.run(() async {
     final t = await NetworkTransport.host(config,
-        name: name, port: port, address: InternetAddress.loopbackIPv4, pingInterval: pingInterval, timeout: netTimeout);
+        name: name,
+        port: port,
+        wsPort: wsPort,
+        address: InternetAddress.loopbackIPv4,
+        pingInterval: pingInterval,
+        timeout: netTimeout);
     created.hosts.add(t);
+    return t;
+  });
+}
+
+/// Browser-style guest (KLD-055): joins the WebSocket port of [url] on
+/// 127.0.0.1 whatever host the UI asked for, through
+/// `NetworkTransport.joinWebSocket`, created in the root zone.
+Future<NetworkTransport> loopbackWebJoin(CreatedTransports created, Uri url, {required String name}) {
+  created.webJoinCalls.add(url);
+  return Zone.root.run(() async {
+    final t = await NetworkTransport.joinWebSocket(url.replace(host: '127.0.0.1'),
+        name: name, pingInterval: pingInterval, timeout: netTimeout);
+    created.guests.add(t);
     return t;
   });
 }
@@ -57,6 +79,7 @@ PairingDeps testDeps({
   String name = 'Testgerät',
   List<String> addresses = const ['192.168.0.10', '10.0.0.7'],
   int preferredPort = 0,
+  int preferredWsPort = 0,
   HostTransportFactory? hostTransport,
   JoinTransportFactory? joinTransport,
   Duration joinTimeout = const Duration(seconds: 12),
@@ -64,13 +87,15 @@ PairingDeps testDeps({
     PairingDeps(
       discovery: () => discovery,
       hostTransport: hostTransport ??
-          (config, {required name, required port}) => loopbackHost(created, config, name: name, port: port),
+          (config, {required name, required port, required wsPort}) =>
+              loopbackHost(created, config, name: name, port: port, wsPort: wsPort),
       joinTransport:
           joinTransport ?? (host, port, {required name}) => loopbackJoin(created, host, port, name: name),
       localAddresses: () async => addresses,
       deviceName: () => name,
       seed: () => 7,
       preferredPort: preferredPort,
+      preferredWsPort: preferredWsPort,
       joinTimeout: joinTimeout,
     );
 

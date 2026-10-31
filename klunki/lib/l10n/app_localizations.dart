@@ -876,12 +876,6 @@ abstract class AppLocalizations {
   /// **'Über WLAN spielen'**
   String get pairingTitle;
 
-  /// Pairing screen body on web, where there are no sockets.
-  ///
-  /// In de, this message translates to:
-  /// **'Netzwerkspiel ist im Browser nicht verfügbar'**
-  String get pairingWebUnavailable;
-
   /// Label of the editable device name field.
   ///
   /// In de, this message translates to:
@@ -1097,6 +1091,60 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?'**
   String get pairingReconnectFailed;
+
+  /// Host waiting view: heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code).
+  ///
+  /// In de, this message translates to:
+  /// **'Im Browser beitreten (Adresse eingeben oder Link einfügen):'**
+  String get pairingBrowserJoin;
+
+  /// Tooltip of the button that copies the klunki:// join link.
+  ///
+  /// In de, this message translates to:
+  /// **'Link kopieren'**
+  String get pairingCopyLink;
+
+  /// Snackbar after copying the join link.
+  ///
+  /// In de, this message translates to:
+  /// **'Link kopiert'**
+  String get pairingLinkCopied;
+
+  /// Browser (PWA) join screen: what it does. "klunki host" is the terminal command and stays as is; the quoted text is pairingBrowserJoin without its parenthesis.
+  ///
+  /// In de, this message translates to:
+  /// **'Tritt im Browser einem Spiel bei, das ein iPhone, iPad, Android-Gerät oder das Terminal (klunki host) hostet. Der Host zeigt Adresse und Link unter „Im Browser beitreten“.'**
+  String get webJoinIntro;
+
+  /// Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages).
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.'**
+  String get webJoinHttpsWarning;
+
+  /// Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link).
+  ///
+  /// In de, this message translates to:
+  /// **'IP, IP:Port, ws://- oder klunki://-Link'**
+  String get webJoinAddressLabel;
+
+  /// Browser join screen: helper below the address field; port = the default WebSocket port (4748).
+  ///
+  /// In de, this message translates to:
+  /// **'Der Port ist der Browser-Port (WebSocket) des Hosts, ohne Angabe {port}.'**
+  String webJoinAddressHelper(int port);
+
+  /// Browser join screen: the typed address could not be parsed.
+  ///
+  /// In de, this message translates to:
+  /// **'Ungültige Adresse. Beispiel: 192.168.1.20, 192.168.1.20:4748 oder klunki://join?h=…'**
+  String get webJoinInvalidAddress;
+
+  /// Troubleshooting hints shown with every failed browser join (same Wi-Fi, http not https, host version with browser support).
+  ///
+  /// In de, this message translates to:
+  /// **'Tipps: Ist dieses Gerät im selben WLAN wie der Host? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem Host muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).'**
+  String get webJoinHints;
 
   /// Result reason (4 Gewinnt): four markers lined up.
   ///
