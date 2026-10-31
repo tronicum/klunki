@@ -318,7 +318,7 @@ void main() {
   test('bin/klunki.dart runs as a process (usage, exit 64)', () async {
     final p = await Process.run(Platform.resolvedExecutable, ['run', 'bin/klunki.dart']);
     expect(p.exitCode, usageExit);
-    expect(p.stderr, contains('dart run klunki_net:klunki host <game>'));
+    expect(p.stderr, contains('dart run packages/klunki_net/bin/klunki.dart host <game>'));
   }, timeout: const Timeout(Duration(minutes: 2)));
 }
 

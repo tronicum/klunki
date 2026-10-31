@@ -118,7 +118,7 @@ void main() {
         expect(find.byKey(const Key('room-start-hint')), unreachable ? findsOneWidget : findsNothing);
         if (unreachable) {
           expect(tester.widget<SelectableText>(find.byKey(const Key('relay-start-command'))).data,
-              'dart run klunki_net:klunki relay --web klunki/build/web');
+              'dart run packages/klunki_net/bin/klunki.dart relay --web klunki/build/web');
         }
       }
     });

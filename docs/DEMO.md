@@ -122,12 +122,13 @@ Move syntax per game:
 - It's hidden in **release** builds (`kReleaseMode`). For a phone demo of the console use `flutter run` (debug) or `--profile`.
 
 ### Two terminals over the network (KLD-031)
-Same Mac or two Macs on one Wi-Fi; the host plays X and moves first.
+Same Mac or two Macs on one Wi-Fi; the host plays X and moves first. Run from the repo root (inside
+`packages/klunki_net`, `dart run klunki_net:klunki …` works too).
 ```bash
 # terminal 1 (prints its IP addresses, the port and the game config)
-cd packages/klunki_net && dart run klunki_net:klunki host connect4 --port 4747 --name Ada
+dart run packages/klunki_net/bin/klunki.dart host connect4 --port 4747 --name Ada
 # terminal 2 (use 127.0.0.1 on the same Mac, otherwise an IP printed by the host)
-cd packages/klunki_net && dart run klunki_net:klunki join 127.0.0.1 4747 --name Bea
+dart run packages/klunki_net/bin/klunki.dart join 127.0.0.1 4747 --name Bea
 ```
 - Any game id works; seeded games take `--seed`, e.g. `host quartett-trumpf --seed 42` (the guest gets the seed from the host).
 - Each terminal shows only its own player's view (Quartett hand, Schiffe fleet) and only on its turn; every move is narrated on both.
@@ -203,11 +204,11 @@ Replaces the original "Android ↔ Android" demo (only one Android phone is avai
 Shows the same protocol without phones (same Mac, or two Macs on one Wi-Fi):
 ```bash
 # terminal 1: the host plays X and moves first
-cd packages/klunki_net && dart run klunki_net:klunki host connect4 --port 4747 --name Ada
+dart run packages/klunki_net/bin/klunki.dart host connect4 --port 4747 --name Ada
 # terminal 2: 127.0.0.1 on the same Mac, otherwise an IP printed by the host
-cd packages/klunki_net && dart run klunki_net:klunki join <ip> 4747 --name Bea
+dart run packages/klunki_net/bin/klunki.dart join <ip> 4747 --name Bea
 ```
-- The host prints its IP addresses and a paste-ready `dart run klunki_net:klunki join <ip> <port>` line per address.
+- The host prints its IP addresses and a paste-ready `dart run packages/klunki_net/bin/klunki.dart join <ip> <port>` line per address.
 - `--seed S` (host only) fixes the deal for Quartett/Schiffe, e.g. `host quartett-trumpf --seed 42`. The guest gets the seed from the host.
 - Details (in-game commands, reconnect): see section 1, "Two terminals over the network".
 
@@ -360,7 +361,7 @@ The host listens on TCP 4747 (apps, CLI) and WebSocket 4748 (browsers); a busy p
 2. Start a host, either
    - **iPhone/iPad/Android:** Menu → **Über WLAN spielen** → **Hosten** → pick a game. Under
      "Im Browser beitreten" it shows `IP:wsPort` and the `klunki://join?…&w=<wsPort>` link (copy button), or
-   - **Terminal:** `cd packages/klunki_net && dart run klunki_net:klunki host connect4` (prints
+   - **Terminal:** `dart run packages/klunki_net/bin/klunki.dart host connect4` (prints
      `Browsers and WebSocket guests join at ws://<ip>:4748`).
 3. In the browser: Menu → **Über WLAN spielen** (join-only: no host tab, no search list) → type `IP`
    (WebSocket port 4748), `IP:port` (the port is the **WebSocket** port), `ws://ip:port`, or paste the
@@ -384,10 +385,11 @@ also serves the PWA. The host stays authoritative; the relay only forwards messa
 `packages/klunki_net/PROTOCOL.md`, "Relay").
 
 **In 3 steps on the LAN:**
-1. On the Mac: build the PWA and start relay + web server in one process (any free port; the default is 4749):
+1. On the Mac, from the repo root: build the PWA and start relay + web server in one process (any free port; the
+   default is 4749):
    ```bash
-   cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py
-   dart run klunki_net:klunki relay --port 8000 --web build/web
+   (cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py)
+   dart run packages/klunki_net/bin/klunki.dart relay --port 8000 --web klunki/build/web
    # prints: Klunki relay listening on port 8000: ws://<mac-ip>:8000/relay
    #         Serving the PWA from …: http://<mac-ip>:8000/
    ```
@@ -416,12 +418,11 @@ plain server's page explains how to start a relay; browser A hosts Four in a Row
 7 moves to "Du gewinnst!" / "Ada (X) gewinnt!"; a second run joins through the `?room=` link. PASS/FAIL plus
 screenshots in `/tmp/pwa-relay/{code,link}`.
 
-**CLI vs CLI through the relay** (no browser): in two more terminals
+**CLI vs CLI through the relay** (no browser): in two more terminals, from the repo root
 ```bash
-cd packages/klunki_net
-dart run klunki_net:klunki host connect4 --relay ws://127.0.0.1:8000 --name Ada
+dart run packages/klunki_net/bin/klunki.dart host connect4 --relay ws://127.0.0.1:8000 --name Ada
 # prints: Room code: K7Q2M  and the join command
-dart run klunki_net:klunki join --relay ws://127.0.0.1:8000 --room k7q2m --name Bea
+dart run packages/klunki_net/bin/klunki.dart join --relay ws://127.0.0.1:8000 --room k7q2m --name Bea
 ```
 A browser can join a CLI host's room and vice versa.
 

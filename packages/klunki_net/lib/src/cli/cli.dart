@@ -25,15 +25,17 @@ const int usageExit = 64;
 String get usage => '''
 Klunki over the network: two terminals play each other.
 
+Run from the repo root (inside packages/klunki_net, `dart run klunki_net:klunki` works too).
+
 Usage:
-  dart run klunki_net:klunki host <game> [--port N] [--ws-port N] [--seed S] [--name NAME]
-  dart run klunki_net:klunki join <ip>[:port] [port] [--name NAME]
-  dart run klunki_net:klunki join ws://<ip>[:port] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart host <game> [--port N] [--ws-port N] [--seed S] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart join <ip>[:port] [port] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart join ws://<ip>[:port] [--name NAME]
 
 Through a relay (browser vs browser, or terminals that cannot reach each other):
-  dart run klunki_net:klunki relay [--port N] [--web DIR]
-  dart run klunki_net:klunki host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]
-  dart run klunki_net:klunki join --relay ws://<relay>[:port] --room CODE [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR]
+  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--name NAME]
 
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
 Default ports: $defaultPort (TCP), $defaultWsPort (WebSocket, for browsers); 0 picks a free one
@@ -97,7 +99,7 @@ Future<int> runCli(
       ..writeln('Hosting $title in relay room ${host.roomCode} on $relay — waiting for a guest…')
       ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
       ..writeln('Join from another terminal with:')
-      ..writeln('  dart run klunki_net:klunki join --relay $relay --room ${host.roomCode}');
+      ..writeln('  dart run packages/klunki_net/bin/klunki.dart join --relay $relay --room ${host.roomCode}');
     return _Play.host(host, input, out).run();
   }
 
@@ -126,7 +128,7 @@ Future<int> runCli(
       ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
       ..writeln('Join from another terminal with:');
     for (final ip in ips) {
-      out.writeln('  dart run klunki_net:klunki join $ip ${host.port}'
+      out.writeln('  dart run packages/klunki_net/bin/klunki.dart join $ip ${host.port}'
           '${ip == InternetAddress.loopbackIPv4.address ? '   (same machine)' : ''}');
     }
     if (host.wsPort case final wsPort?) {
@@ -305,8 +307,8 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
   }
   out
     ..writeln('Terminals:')
-    ..writeln('  dart run klunki_net:klunki host connect4 --relay ws://${ips.first}:${relay.port}')
-    ..writeln('  dart run klunki_net:klunki join --relay ws://${ips.first}:${relay.port} --room CODE')
+    ..writeln('  dart run packages/klunki_net/bin/klunki.dart host connect4 --relay ws://${ips.first}:${relay.port}')
+    ..writeln('  dart run packages/klunki_net/bin/klunki.dart join --relay ws://${ips.first}:${relay.port} --room CODE')
     ..writeln('Press Ctrl+C to stop.');
   await (stop ?? _interrupted());
   await relay.close();

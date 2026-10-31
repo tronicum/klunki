@@ -16,7 +16,7 @@ const String roomQueryParameter = 'room';
 const String relayQueryParameter = 'relay';
 
 /// How the relay is started (shown when a page is not served by a relay).
-const String relayStartCommand = 'dart run klunki_net:klunki relay --web klunki/build/web';
+const String relayStartCommand = 'dart run packages/klunki_net/bin/klunki.dart relay --web klunki/build/web';
 
 /// `K7Q2M` → `K7Q 2M` (3 + 2, easier to read out and type). Anything that is
 /// not a valid code is returned unchanged.

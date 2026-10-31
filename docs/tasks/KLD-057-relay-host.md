@@ -83,10 +83,12 @@ webRoot:, idleTimeout:, maxLineLength:, maxRooms:, pingInterval:)`, `.port`, `.r
 `mimeTypeFor(name)`.
 
 ## CLI
+From the repo root (no root pubspec, so `dart run klunki_net:klunki …` only works inside
+`packages/klunki_net` or `klunki/`); relative `--web` paths resolve against the current directory.
 ```bash
-dart run klunki_net:klunki relay [--port N] [--web DIR]          # default port 4749; Ctrl+C stops
-dart run klunki_net:klunki host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]   # prints "Room code: K7Q2M"
-dart run klunki_net:klunki join --relay ws://<relay>[:port] --room CODE [--name NAME]
+dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR]          # default port 4749; Ctrl+C stops
+dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]   # prints "Room code: K7Q2M"
+dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--name NAME]
 ```
 `--relay` accepts `ws://`, `wss://`, `http(s)://` or `host:port`; the path defaults to `/relay`.
 `host --relay` cannot be combined with `--port`/`--ws-port`. A relay host whose room is lost ends with exit 1.
@@ -129,7 +131,7 @@ What the user sees:
 - **`?room=CODE[&relay=…]`** at startup opens the join screen over the menu with the code filled in and joins
   right away (after the first-run name dialog), like `?join=`. An invalid code is only prefilled.
 - **Not served by a relay** (plain `python3 -m http.server`): "Kein Relay erreichbar unter host:port." plus
-  "Browser gegen Browser braucht ein Relay …" and the command `dart run klunki_net:klunki relay --web klunki/build/web`.
+  "Browser gegen Browser braucht ein Relay …" and the command `dart run packages/klunki_net/bin/klunki.dart relay --web klunki/build/web`.
 - **Errors** (`relay_errors.dart`, from the `klunki_net` messages): unknown code, room full, host left, room expired,
   relay not reachable (also a join timeout), relay connection lost. Anything else falls back to the usual
   "Verbindung zu … fehlgeschlagen (…)".
