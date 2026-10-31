@@ -148,7 +148,7 @@ void main() {
   });
 
   group('?join= at startup', () {
-    testWidgets('opens the join screen over the menu, prefilled, and connects right away', (tester) async {
+    testWidgets('opens the join screen over the menu, asks for the name once, then connects', (tester) async {
       final r = _Recorder();
       final link = const JoinPayload(host: '10.0.0.7', port: 4747, name: 'iPad', wsPort: 4800).format();
       await tester.pumpWidget(KlunkiApp(
@@ -159,6 +159,14 @@ void main() {
       await tester.pump(); // post-frame: push
       await tester.pumpAndSettle();
       expect(find.byType(WebJoinScreen), findsOneWidget);
+      // First visit, no saved name: "Wie heißt du?" before connecting (KLD-056).
+      expect(find.byKey(const Key('player-name-dialog')), findsOneWidget);
+      expect(find.text('Wie heißt du?'), findsOneWidget);
+      expect(r.calls, isEmpty);
+      expect(tester.widget<TextField>(find.byKey(const Key('player-name-field'))).controller!.text, 'Browser');
+      await tester.tap(find.byKey(const Key('player-name-ok')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('player-name-dialog')), findsNothing);
       expect(tester.widget<TextField>(find.byKey(const Key('web-join-address'))).controller!.text, link);
       expect(r.calls.single, (_ws('10.0.0.7', 4800), 'Browser'));
       expect(find.byKey(const Key('web-join-error')), findsOneWidget);
@@ -237,6 +245,8 @@ void main() {
     await tester.tap(on(webKey, find.byKey(const Key('open-web-join'))));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1)); // route transition (the host's spinner never settles)
+    // An Arabic name in the German UI (KLD-056).
+    await tester.enterText(on(webKey, find.byKey(const Key('web-join-name'))), 'علی');
     await tester.enterText(on(webKey, find.byKey(const Key('web-join-address'))), link);
     await tester.tap(on(webKey, find.byKey(const Key('web-join-connect'))));
 
@@ -246,8 +256,10 @@ void main() {
     await tester.pump();
     expect(created.webJoinCalls.single, Uri(scheme: 'ws', host: '192.168.0.10', port: host.wsPort));
     expect(on(webKey, find.byType(NetworkGameSession)), findsOneWidget);
-    expect(on(webKey, find.text('Du bist O · Gegner: Host-iPhone (X)')), findsOneWidget);
-    expect(on(hostKey, find.text('Du bist X · Gegner: Browser (O)')), findsOneWidget);
+    expect(on(webKey, find.text('Du (\u2068علی\u2069, O) · Gegner: Host-iPhone (X)')), findsOneWidget);
+    expect(on(hostKey, find.text('Du (Host-iPhone, X) · Gegner: \u2068علی\u2069 (O)')), findsOneWidget);
+    expect(on(hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(on(webKey, find.text('Warte auf Host-iPhone (X)…')), findsOneWidget);
 
     Connect4Cell cell(Key d, int r, int c) => tester.widget<Connect4Cell>(on(d, find.byKey(Key('c4-cell-$r-$c'))));
     GameScreen screen(Key d) => tester.widget<GameScreen>(on(d, find.byType(GameScreen)));
@@ -266,6 +278,7 @@ void main() {
     await tester.tap(on(webKey, find.byType(BackButton)));
     await tester.pumpAndSettle();
     await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('net-banner'))), what: 'host banner');
+    expect(on(hostKey, find.textContaining('\u2068علی\u2069 hat das Spiel verlassen')), findsOneWidget);
     expect(created.guests.single.connection.value, NetConnectionState.closed);
     // dart:io's WebSocket.close() arms a 5 s close timeout in the zone that
     // closed it (here the widget test's fake-async zone): let it run out.

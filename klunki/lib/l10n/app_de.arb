@@ -70,6 +70,28 @@
       }
     }
   },
+  "shellYourTurn": "Du bist am Zug ({mark})",
+  "@shellYourTurn": {
+    "description": "Status line in a network game when this device is to move; mark = own mark (X, O).",
+    "placeholders": {
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "shellWaitingFor": "Warte auf {player}…",
+  "@shellWaitingFor": {
+    "description": "Status line in a network game while the other player is to move; player = \"Ben (O)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "shellYouHaveWon": "Du hast gewonnen",
+  "@shellYouHaveWon": {
+    "description": "Status line in a network game after this device won."
+  },
   "shellDraw": "Unentschieden",
   "@shellDraw": {
     "description": "Status line / result dialog title for a draw."
@@ -82,6 +104,10 @@
         "type": "String"
       }
     }
+  },
+  "shellYouWin": "Du gewinnst!",
+  "@shellYouWin": {
+    "description": "Result dialog headline in a network game when this device won."
   },
   "shellMenu": "Menü",
   "@shellMenu": {
@@ -844,13 +870,46 @@
   "@pairingTitle": {
     "description": "App bar title of the pairing screen (host or join a game on the local Wi-Fi)."
   },
-  "pairingDeviceName": "Gerätename",
-  "@pairingDeviceName": {
-    "description": "Label of the editable device name field."
-  },
   "pairingDeviceNameHelper": "So sieht dich dein Mitspieler",
   "@pairingDeviceNameHelper": {
     "description": "Helper text below the device name field."
+  },
+  "playerNameTitle": "Wie heißt du?",
+  "@playerNameTitle": {
+    "description": "Title of the player name dialog (first visit of \"play over Wi-Fi\", or the menu person button)."
+  },
+  "playerNameLabel": "Dein Name",
+  "@playerNameLabel": {
+    "description": "Label of the player name field (pairing screens, name dialog) and tooltip of the menu person button."
+  },
+  "playerLabel": "{name} ({mark})",
+  "@playerLabel": {
+    "description": "A named player with its mark, e.g. \"Anna (X)\"; used inside other sentences (status line, result, history).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "hotSeatNamesTitle": "Spielernamen",
+  "@hotSeatNamesTitle": {
+    "description": "Hot-seat game: title of the player names dialog and tooltip of its app bar button."
+  },
+  "hotSeatNameLabel": "Spieler {mark}",
+  "@hotSeatNameLabel": {
+    "description": "Hot-seat player names dialog: label of the name field of one player; mark = X or O.",
+    "placeholders": {
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "hotSeatNamesHelper": "Optional – leer lassen, um nur X und O zu zeigen.",
+  "@hotSeatNamesHelper": {
+    "description": "Hot-seat player names dialog: hint that the names are optional."
   },
   "pairingModeHost": "Hosten",
   "@pairingModeHost": {
@@ -987,11 +1046,14 @@
   "@pairingJoinHints": {
     "description": "Troubleshooting hints shown with every failed join."
   },
-  "pairingStatus": "Du bist {me} · Gegner: {peer} ({peerMark})",
+  "pairingStatus": "Du ({name}, {mark}) · Gegner: {peer} ({peerMark})",
   "@pairingStatus": {
-    "description": "Network game connection bar; me / peerMark = player marks (X, O), peer = the other device's name.",
+    "description": "Network game connection bar; name = own player name, mark / peerMark = player marks (X, O), peer = the other player's name.",
     "placeholders": {
-      "me": {
+      "name": {
+        "type": "String"
+      },
+      "mark": {
         "type": "String"
       },
       "peer": {
@@ -1006,13 +1068,23 @@
   "@pairingOpponent": {
     "description": "Connection bar: fallback name of the other device."
   },
-  "pairingPeerLeft": "Gegner hat das Spiel verlassen",
+  "pairingPeerLeft": "{peer} hat das Spiel verlassen",
   "@pairingPeerLeft": {
-    "description": "Connection banner: the other side left."
+    "description": "Connection banner: the other player left; peer = their name.",
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
   },
-  "pairingPeerLost": "Verbindung zum Gegner unterbrochen",
+  "pairingPeerLost": "Verbindung zu {peer} unterbrochen",
   "@pairingPeerLost": {
-    "description": "Connection banner: the connection dropped."
+    "description": "Connection banner: the connection dropped; peer = the other player's name.",
+    "placeholders": {
+      "peer": {
+        "type": "String"
+      }
+    }
   },
   "pairingWaitForRejoin": "{reason}. Warte, bis er wieder beitritt…",
   "@pairingWaitForRejoin": {

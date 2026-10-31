@@ -59,12 +59,28 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String shellYourTurn(String mark) {
+    return 'نوبت توست ($mark)';
+  }
+
+  @override
+  String shellWaitingFor(String player) {
+    return 'در انتظار $player…';
+  }
+
+  @override
+  String get shellYouHaveWon => 'تو برنده شدی';
+
+  @override
   String get shellDraw => 'مساوی';
 
   @override
   String shellWins(String player) {
     return '$player می‌برد!';
   }
+
+  @override
+  String get shellYouWin => 'تو می‌بری!';
 
   @override
   String get shellMenu => 'منو';
@@ -538,10 +554,30 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pairingTitle => 'بازی از طریق Wi-Fi';
 
   @override
-  String get pairingDeviceName => 'نام دستگاه';
+  String get pairingDeviceNameHelper => 'بازیکن دیگر تو را با این نام می‌بیند';
 
   @override
-  String get pairingDeviceNameHelper => 'بازیکن دیگر تو را با این نام می‌بیند';
+  String get playerNameTitle => 'اسمت چیست؟';
+
+  @override
+  String get playerNameLabel => 'نام تو';
+
+  @override
+  String playerLabel(String name, String mark) {
+    return '$name ($mark)';
+  }
+
+  @override
+  String get hotSeatNamesTitle => 'نام بازیکنان';
+
+  @override
+  String hotSeatNameLabel(String mark) {
+    return 'بازیکن $mark';
+  }
+
+  @override
+  String get hotSeatNamesHelper =>
+      'اختیاری – خالی بگذار تا فقط X و O نمایش داده شود.';
 
   @override
   String get pairingModeHost => 'میزبانی';
@@ -638,18 +674,22 @@ class AppLocalizationsFa extends AppLocalizations {
       'نکته‌ها: آیا هر دو دستگاه روی یک Wi-Fi هستند؟ شبکه‌های مهمان اغلب اتصال بین دستگاه‌ها را مسدود می‌کنند. iOS: آیا «شبکهٔ محلی» برای Klunki مجاز است (تنظیمات › حریم خصوصی)؟';
 
   @override
-  String pairingStatus(String me, String peer, String peerMark) {
-    return 'تو $me هستی · حریف: $peer ($peerMark)';
+  String pairingStatus(String name, String mark, String peer, String peerMark) {
+    return 'تو ($name، $mark) · حریف: $peer ($peerMark)';
   }
 
   @override
   String get pairingOpponent => 'حریف';
 
   @override
-  String get pairingPeerLeft => 'حریف بازی را ترک کرد';
+  String pairingPeerLeft(String peer) {
+    return '$peer بازی را ترک کرد';
+  }
 
   @override
-  String get pairingPeerLost => 'اتصال با حریف قطع شد';
+  String pairingPeerLost(String peer) {
+    return 'اتصال با $peer قطع شد';
+  }
 
   @override
   String pairingWaitForRejoin(String reason) {

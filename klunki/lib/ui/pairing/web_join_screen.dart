@@ -8,19 +8,21 @@ import '../../net/web_join_target.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
+import '../player_name_dialog.dart';
 import 'network_game_session.dart';
 
 /// Joins the host's WebSocket endpoint [url] (`ws://host:port`).
 typedef WebJoinTransportFactory = Future<NetworkTransport> Function(Uri url, {required String name});
 
-/// Default device name of a browser guest (what the host shows).
+/// Default player name suggestion of a browser guest (what the host shows
+/// until the player picks a name).
 const String webDefaultDeviceName = 'Browser';
 
 /// Everything the web join screen talks to, injectable for tests.
 class WebJoinDeps {
   final WebJoinTransportFactory joinTransport;
 
-  /// Default for the editable device name.
+  /// Suggestion for the player name when none is saved ("Browser").
   final String Function() deviceName;
 
   /// Upper bound for a join attempt (also covers a WebSocket that never
@@ -48,6 +50,11 @@ class WebJoinDeps {
 /// reached directly through `?join=<link>` in the page URL ([initialInput] +
 /// [autoConnect]). Once connected the route is replaced by the same
 /// [NetworkGameSession] the apps use.
+///
+/// The player name ("Dein Name", KLD-056) is the app's
+/// [PlayerNameController] ([nameController] or the [PlayerNameScope]); the
+/// first visit without a saved name asks for it once, before an automatic
+/// `?join=` connect.
 class WebJoinScreen extends StatefulWidget {
   final WebJoinDeps deps;
 
@@ -61,15 +68,18 @@ class WebJoinScreen extends StatefulWidget {
   /// from https pages).
   final Uri? pageUrl;
 
-  WebJoinScreen({super.key, WebJoinDeps? deps, this.initialInput, this.autoConnect = false, this.pageUrl})
+  /// Overrides the app's player name controller (tests).
+  final PlayerNameController? nameController;
+
+  WebJoinScreen(
+      {super.key, WebJoinDeps? deps, this.initialInput, this.autoConnect = false, this.pageUrl, this.nameController})
       : deps = deps ?? WebJoinDeps.platform();
 
   @override
   State<WebJoinScreen> createState() => _WebJoinScreenState();
 }
 
-class _WebJoinScreenState extends State<WebJoinScreen> {
-  late final TextEditingController _name = TextEditingController(text: widget.deps.deviceName());
+class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
   late final TextEditingController _address = TextEditingController(text: widget.initialInput ?? '');
   String? _addressError;
 
@@ -82,24 +92,27 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
   void initState() {
     super.initState();
     if (widget.autoConnect && (widget.initialInput ?? '').trim().isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await playerNameReady; // the first-run name dialog comes first
         if (mounted) _connectTyped();
       });
     }
   }
 
   @override
+  PlayerNameController? get explicitNameController => widget.nameController;
+
+  @override
+  String playerNameSuggestion() => widget.deps.deviceName();
+
+  @override
   void dispose() {
     _attempt++; // a join still in flight is closed when it completes
-    _name.dispose();
     _address.dispose();
     super.dispose();
   }
 
-  String get _deviceName {
-    final n = _name.text.trim();
-    return n.isEmpty ? widget.deps.deviceName() : n;
-  }
+  String get _deviceName => playerName;
 
   void _connectTyped() {
     final target = WebJoinTarget.tryParse(_address.text);
@@ -179,17 +192,8 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
                       key: const Key('web-join-https'), style: TextStyle(color: theme.colorScheme.error)),
                 ],
                 const SizedBox(height: 16),
-                TextField(
-                  key: const Key('web-join-name'),
-                  controller: _name,
-                  enabled: !busy,
-                  decoration: InputDecoration(
-                    labelText: l10n.pairingDeviceName,
-                    helperText: l10n.pairingDeviceNameHelper,
-                    border: const OutlineInputBorder(),
-                  ),
-                  textInputAction: TextInputAction.next,
-                ),
+                playerNameField(
+                    key: const Key('web-join-name'), enabled: !busy, textInputAction: TextInputAction.next),
                 const SizedBox(height: 16),
                 TextField(
                   key: const Key('web-join-address'),
@@ -214,7 +218,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> {
                   const SizedBox(height: 4),
                   Text(
                     [
-                      if (target.name != null) target.name!,
+                      if (target.name != null) bidiName(context, target.name!),
                       if (game != null) localizedGameTitle(l10n, game, fallback: game),
                       bidiLtr(context, target.uri.toString()),
                     ].join(' · '),

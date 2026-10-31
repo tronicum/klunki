@@ -50,7 +50,7 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-036 | Disconnect / reconnect UX ("opponent left", resume from snapshot). The basic leave/disconnect banner plus "Neu verbinden" already exist (KLD-034, `network_game_session.dart`) | 034 | `klunki/lib/ui/pairing/reconnect*`, `klunki/lib/transport/network_transport.dart`, `klunki/test/ui/pairing/reconnect*` | – |
 | KLD-054 ✅ | WebSocket transport in `packages/klunki_net` (io + browser channels, host listens on TCP and WS, web-compile test); app: `JoinPayload.wsPort`, `NetworkTransport.joinWebSocket`, `ws` mDNS TXT key (see `docs/tasks/KLD-054-websocket.md`) | 030, 032, 033 | `packages/klunki_net/**`, `klunki/lib/net/**`, `klunki/lib/transport/network_transport.dart`, `klunki/test/net/**`, `klunki/test/transport/**` | – |
 | KLD-055 ✅ | Browser join screen (PWA joins a host over WebSocket: paste a link or `?join=`, web pairing UI; see `docs/tasks/KLD-055-web-join.md`) | 054 | `klunki/lib/ui/pairing/**`, `klunki/lib/net/web_join_target.dart` | – |
-| KLD-056 🚧 | Player name/handle for multiplayer (persisted, shown in status, connection bar, discovery, result) — in progress | 055 | (see card) | – |
+| KLD-056 ✅ | Player name/handle for multiplayer (persisted, first-run "Wie heißt du?" dialog, shown in status, connection bar, discovery, result) plus optional hot-seat names; see `docs/tasks/KLD-056-player-name.md` | 055 | `klunki/lib/profile/**`, `klunki/lib/ui/player_name_dialog.dart`, `klunki/lib/ui/shell/player_labels.dart`, `packages/klunki_net/lib/src/names.dart` | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
 

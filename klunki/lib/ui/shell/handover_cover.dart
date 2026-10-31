@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../game/game_controller.dart';
-import 'game_screen.dart';
+import 'player_labels.dart';
 
 /// Hides [child] behind an opaque full-size cover while
 /// [GameController.needsHandover] is set (hidden-information games in
@@ -45,8 +45,9 @@ class _Cover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mark = playerMark(controller.game.currentPlayer);
     final l10n = AppLocalizations.of(context);
+    // "Ben (O)" with hot-seat names, else just the mark (KLD-056).
+    final mark = PlayerLabelsScope.of(context).label(context, l10n, controller.game.currentPlayer);
     return Material(
       key: const Key('handover-cover'),
       color: theme.colorScheme.surfaceContainerHighest,

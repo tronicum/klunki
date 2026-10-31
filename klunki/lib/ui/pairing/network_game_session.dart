@@ -4,13 +4,16 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/network_transport.dart';
+import '../ltr.dart';
 import '../shell/game_screen.dart';
 import '../shell/screen_registry.dart';
 
 /// Owns a [GameController] over a [NetworkTransport] and shows the game's
 /// regular screen (through the shell registry) with a small connection bar
-/// underneath: "Du bist X · Gegner: NAME", plus a banner while the other
-/// side is missing. The guest gets a "Neu verbinden" button there (the full
+/// underneath: "Du (Anna, X) · Gegner: Ben (O)", plus a banner while the
+/// other side is missing. The game shell names both players through a
+/// [PlayerLabelsScope] (KLD-056): "Du bist am Zug (X)", "Warte auf Ben (O)…",
+/// "Ben (O) gewinnt!", "Ben (O): …" in the history. The guest gets a "Neu verbinden" button there (the full
 /// reconnect UX is KLD-036).
 ///
 /// One local player per device, so the controller never asks for a
@@ -39,14 +42,36 @@ class _NetworkGameSessionState extends State<NetworkGameSession> {
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.transport;
     return Scaffold(
-      body: buildGameScreen(_controller),
-      bottomNavigationBar: NetworkConnectionBar(transport: widget.transport),
+      // The peer's name arrives with the handshake (and again on reconnect).
+      body: ValueListenableBuilder<NetConnectionState>(
+        valueListenable: t.connection,
+        builder: (context, _, child) => PlayerLabelsScope(labels: networkLabels(t), child: child!),
+        child: buildGameScreen(_controller),
+      ),
+      bottomNavigationBar: NetworkConnectionBar(transport: t),
     );
   }
 }
 
-/// "Du bist X · Gegner: iPad (O)" and, while the peer is missing, a banner.
+/// Labels for a network game: this device's player is [NetworkTransport.me]
+/// ("Du"), both players carry their names.
+PlayerLabels networkLabels(NetworkTransport t) {
+  final peer = t.peerName;
+  return PlayerLabels(
+    local: t.me,
+    names: {
+      t.me: t.localName,
+      _otherPlayer(t.me): ?peer,
+    },
+  );
+}
+
+/// The other player.
+Player _otherPlayer(Player p) => p == Player.a ? Player.b : Player.a;
+
+/// "Du (Anna, X) · Gegner: Ben (O)" and, while the peer is missing, a banner.
 class NetworkConnectionBar extends StatefulWidget {
   final NetworkTransport transport;
 
@@ -70,10 +95,10 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
     }
   }
 
-  String _missingText(AppLocalizations l10n) {
+  String _missingText(AppLocalizations l10n, String peer) {
     final reason = t.lastDisconnectReason ?? '';
-    if (reason.startsWith('peer left')) return l10n.pairingPeerLeft;
-    return l10n.pairingPeerLost;
+    if (reason.startsWith('peer left')) return l10n.pairingPeerLeft(peer);
+    return l10n.pairingPeerLost(peer);
   }
 
   @override
@@ -84,7 +109,8 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
       valueListenable: t.connection,
       builder: (context, state, _) {
         final me = t.me;
-        final peer = t.peerName ?? l10n.pairingOpponent;
+        final peerName = t.peerName;
+        final peer = peerName == null ? l10n.pairingOpponent : bidiName(context, peerName);
         final missing = state == NetConnectionState.peerMissing;
         final reconnecting = state == NetConnectionState.reconnecting;
         return Material(
@@ -113,8 +139,8 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                             reconnecting
                                 ? l10n.pairingReconnecting
                                 : t.role == NetRole.host
-                                    ? l10n.pairingWaitForRejoin(_missingText(l10n))
-                                    : _missingText(l10n),
+                                    ? l10n.pairingWaitForRejoin(_missingText(l10n, peer))
+                                    : _missingText(l10n, peer),
                             style: TextStyle(color: theme.colorScheme.onErrorContainer),
                           ),
                         ),
@@ -144,7 +170,8 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          l10n.pairingStatus(playerMark(me), peer, playerMark(me == Player.a ? Player.b : Player.a)),
+                          l10n.pairingStatus(
+                              bidiName(context, t.localName), playerMark(me), peer, playerMark(_otherPlayer(me))),
                           key: const Key('net-status'),
                           overflow: TextOverflow.ellipsis,
                         ),

@@ -7,6 +7,7 @@ import 'channel/channel.dart';
 import 'channel/platform.dart' as platform;
 import 'connection.dart';
 import 'events.dart';
+import 'names.dart';
 
 /// The joining side: runs its own engine but applies only moves the host
 /// accepted, in log order.
@@ -23,6 +24,9 @@ class KlunkiGuest {
 
   /// Set for a WebSocket guest: the `ws://` URL it (re)connects to.
   final Uri? webSocketUrl;
+
+  /// This guest's player name, sanitised ([sanitizePlayerName]; may be
+  /// empty, the host then shows the guest's mark).
   final String name;
   final Duration _pingInterval;
   final Duration _timeout;
@@ -39,7 +43,8 @@ class KlunkiGuest {
   Connection? _conn;
   bool _connected = false; // handshake done on the current connection
 
-  KlunkiGuest._(this.host, this.port, this.webSocketUrl, this.name, this._token, this._pingInterval, this._timeout);
+  KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout)
+      : name = sanitizePlayerName(name);
 
   /// Connects over TCP to [host]:[port] and completes after the `welcome`
   /// snapshot was replayed. Throws [NetException] if the handshake fails
@@ -92,6 +97,8 @@ class KlunkiGuest {
   Game get game => _game;
   List<Map<String, dynamic>> get moves => [for (final a in _log) a.move];
   String? get token => _token;
+  /// The host's name from `hello` / `welcome`, sanitised
+  /// ([sanitizePlayerName]; the host's mark if empty or missing).
   String? get hostName => _hostName;
   bool get connected => _connected;
 
@@ -158,7 +165,8 @@ class KlunkiGuest {
       case 'hello':
         if (m['role'] != 'host') throw const ProtocolException('expected role "host"');
         if (m['protocol'] != protocolVersion) throw ProtocolException('unsupported protocol ${m['protocol']}');
-        _hostName = m['name'] as String?;
+        final name = m['name'];
+        if (name is String) _hostName = sanitizePlayerName(name);
       case 'welcome':
         if (welcome.isCompleted) throw const ProtocolException('duplicate welcome');
         final error = _onWelcome(m);
@@ -186,7 +194,8 @@ class KlunkiGuest {
     final config = GameConfig.fromJson(m['config'] as Map<String, dynamic>);
     final me = playerFromName(m['you']);
     final snapshot = [for (final x in m['moves'] as List) x as Map<String, dynamic>];
-    _hostName = m['host'] as String? ?? _hostName;
+    final hostName = m['host'];
+    if (hostName is String) _hostName = sanitizePlayerName(hostName);
     _token = m['token'] as String? ?? _token;
     if (_joined && (config != _config || me != _me)) return 'reconnected to a different game';
     if (specById(config.gameId) == null) return 'unknown game "${config.gameId}"';
@@ -207,6 +216,7 @@ class KlunkiGuest {
     final known = _joined ? _log.length : 0;
     _config = config;
     _me = me;
+    if (_hostName == null || _hostName!.isEmpty) _hostName = markOf(otherPlayer(me));
     _game = game;
     _log
       ..clear()

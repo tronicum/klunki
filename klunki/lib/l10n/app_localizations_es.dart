@@ -59,12 +59,28 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String shellYourTurn(String mark) {
+    return 'Te toca ($mark)';
+  }
+
+  @override
+  String shellWaitingFor(String player) {
+    return 'Esperando a $player…';
+  }
+
+  @override
+  String get shellYouHaveWon => 'Has ganado';
+
+  @override
   String get shellDraw => 'Empate';
 
   @override
   String shellWins(String player) {
     return '¡$player gana!';
   }
+
+  @override
+  String get shellYouWin => '¡Ganas tú!';
 
   @override
   String get shellMenu => 'Menú';
@@ -545,10 +561,30 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pairingTitle => 'Jugar por wifi';
 
   @override
-  String get pairingDeviceName => 'Nombre del dispositivo';
+  String get pairingDeviceNameHelper => 'Así te ve el otro jugador';
 
   @override
-  String get pairingDeviceNameHelper => 'Así te ve el otro jugador';
+  String get playerNameTitle => '¿Cómo te llamas?';
+
+  @override
+  String get playerNameLabel => 'Tu nombre';
+
+  @override
+  String playerLabel(String name, String mark) {
+    return '$name ($mark)';
+  }
+
+  @override
+  String get hotSeatNamesTitle => 'Nombres de los jugadores';
+
+  @override
+  String hotSeatNameLabel(String mark) {
+    return 'Jugador $mark';
+  }
+
+  @override
+  String get hotSeatNamesHelper =>
+      'Opcional: déjalo vacío para mostrar solo X y O.';
 
   @override
   String get pairingModeHost => 'Crear';
@@ -645,18 +681,22 @@ class AppLocalizationsEs extends AppLocalizations {
       'Consejos: ¿están ambos dispositivos en el mismo wifi? Las redes de invitados suelen bloquear las conexiones entre dispositivos. iOS: ¿está permitida la «Red local» para Klunki (Ajustes › Privacidad)?';
 
   @override
-  String pairingStatus(String me, String peer, String peerMark) {
-    return 'Eres $me · Rival: $peer ($peerMark)';
+  String pairingStatus(String name, String mark, String peer, String peerMark) {
+    return 'Tú ($name, $mark) · Rival: $peer ($peerMark)';
   }
 
   @override
   String get pairingOpponent => 'Rival';
 
   @override
-  String get pairingPeerLeft => 'El rival ha salido de la partida';
+  String pairingPeerLeft(String peer) {
+    return '$peer ha salido de la partida';
+  }
 
   @override
-  String get pairingPeerLost => 'Se perdió la conexión con el rival';
+  String pairingPeerLost(String peer) {
+    return 'Se perdió la conexión con $peer';
+  }
 
   @override
   String pairingWaitForRejoin(String reason) {

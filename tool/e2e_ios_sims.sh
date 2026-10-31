@@ -125,6 +125,8 @@ echo "--- guest: rc=$GUEST_RC  $(grep -o 'E2E_TIMING .*' "$OUT/guest.log" | head
 echo "    $GUEST_RESULT"
 echo "--- $(grep -o 'E2E_MDNS .*' "$OUT/guest.log" | head -1)"
 echo "--- $(grep -o 'E2E_JOINED .*' "$OUT/guest.log" | head -1)"
+echo "--- $(grep -o 'E2E_NAMES .*' "$OUT/host.log" | head -1)"
+echo "--- $(grep -o 'E2E_NAMES .*' "$OUT/guest.log" | head -1)"
 echo "--- screenshots: $OUT/screenshots"
 echo "--- total ${TOTAL}s (host up after ${HOST_UP}s)"
 

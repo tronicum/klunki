@@ -7,6 +7,7 @@ import '../games/muehle_screen.dart';
 import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
+import '../../profile/player_name_controller.dart';
 import 'game_screen.dart';
 
 /// Builds the screen widget for a game; the screen renders a [GameScreen].
@@ -56,5 +57,21 @@ class _GameSessionState extends State<GameSession> {
   }
 
   @override
-  Widget build(BuildContext context) => buildGameScreen(_controller);
+  Widget build(BuildContext context) {
+    final screen = buildGameScreen(_controller);
+    final hotSeat = PlayerNameScope.maybeOf(context)?.hotSeat;
+    if (hotSeat == null) return screen;
+    // Optional hot-seat names (KLD-056); "Nochmal" keeps them (same store).
+    return ValueListenableBuilder<HotSeatNames>(
+      valueListenable: hotSeat,
+      builder: (context, names, child) => PlayerLabelsScope(labels: hotSeatLabels(names), child: child!),
+      child: screen,
+    );
+  }
 }
+
+/// Labels for a hot-seat game: both players on this device, names optional.
+PlayerLabels hotSeatLabels(HotSeatNames names) => PlayerLabels(names: {
+      Player.a: ?names.x,
+      Player.b: ?names.o,
+    });

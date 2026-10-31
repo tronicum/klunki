@@ -23,6 +23,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/app/test_mode.dart';
 import 'package:klunki/l10n/locale_controller.dart';
+import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/muehle_screen.dart';
 import 'package:klunki/ui/menu_screen.dart';
@@ -46,8 +47,9 @@ const joinWait = Duration(minutes: 5);
 /// How long the guest looks at the mDNS list before deciding.
 const mdnsWait = Duration(seconds: 20);
 
-const hostName = 'Klunki E2E Host';
-const guestName = 'Klunki E2E Guest';
+/// Player names (KLD-056), preset so the first-run name dialog is skipped.
+const hostName = 'iPhone';
+const guestName = 'iPad';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -58,13 +60,14 @@ void main() {
   Future<void> openPairing(WidgetTester tester, String name) async {
     // German, like the widget tests; the run is independent of the
     // simulator language and of a saved choice.
-    await tester.pumpWidget(KlunkiApp(localeController: LocaleController.memory(const Locale('de'))));
+    await tester.pumpWidget(KlunkiApp(
+      localeController: LocaleController.memory(const Locale('de')),
+      playerNameController: PlayerNameController.memory(name: name),
+    ));
     await tester.pumpAndSettle();
     expect(find.byType(MenuScreen), findsOneWidget);
     await tapAndSettle(tester, find.byKey(const Key('menu-network')));
-    await tester.enterText(find.byKey(const Key('pair-name')), name);
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('player-name-dialog')), findsNothing, reason: 'the name is already set');
   }
 
   Future<void> host(WidgetTester tester) async {
@@ -90,7 +93,8 @@ void main() {
     await tester.pump();
 
     // mDNS: does the host show up in the list? Reported either way.
-    final entry = find.widgetWithText(Card, hostName);
+    // The entry's title is "iPhone hostet Mühle" (KLD-056: the host's name).
+    final entry = find.ancestor(of: find.text('$hostName hostet Mühle'), matching: find.byType(Card));
     final sw = Stopwatch()..start();
     while (entry.evaluate().isEmpty && sw.elapsed < mdnsWait) {
       await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -152,6 +156,18 @@ void main() {
     expect(c.config.seed, E2eMode.seed, reason: 'the fixed seed of the test mode');
     log('E2E_START $tag me=${playerMark(me)} seed=${c.config.seed}');
 
+    // The connection bar shows both player names (KLD-056).
+    final myName = isHost ? hostName : guestName;
+    final peerName = isHost ? guestName : hostName;
+    String status() => tester.widget<Text>(find.byKey(const Key('net-status'))).data ?? '';
+    await pumpUntil(
+        tester,
+        () => find.byKey(const Key('net-status')).evaluate().isNotEmpty && status().contains('Gegner: $peerName'),
+        what: 'the peer name in the connection bar');
+    expect(status(), startsWith('Du ($myName, '));
+    expect(status(), contains('Gegner: $peerName ('));
+    log('E2E_NAMES $tag "${status()}"');
+
     final gameSw = Stopwatch()..start();
     for (final s in muehleScript) {
       // Wait until the previous move arrived and it is my turn, or until
@@ -188,7 +204,10 @@ void main() {
     expect(g.isOver, isTrue);
     expect(g.result.winner, muehleScriptWinner);
     expect(g.result.reason, muehleScriptReason);
-    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('O gewinnt!')), findsOneWidget);
+    // O (the guest) wins: the guest reads "Du gewinnst!", the host the
+    // guest's name with its mark (KLD-056).
+    final headline = me == muehleScriptWinner ? 'Du gewinnst!' : '$guestName (O) gewinnt!';
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text(headline)), findsOneWidget);
     await screenshot(binding, tester, 'net_${tag}_result');
 
     final moves = jsonEncode([for (final m in c.moves) m.move]);

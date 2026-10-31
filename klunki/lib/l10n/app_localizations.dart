@@ -198,6 +198,24 @@ abstract class AppLocalizations {
   /// **'{player} hat gewonnen'**
   String shellHasWon(String player);
 
+  /// Status line in a network game when this device is to move; mark = own mark (X, O).
+  ///
+  /// In de, this message translates to:
+  /// **'Du bist am Zug ({mark})'**
+  String shellYourTurn(String mark);
+
+  /// Status line in a network game while the other player is to move; player = "Ben (O)".
+  ///
+  /// In de, this message translates to:
+  /// **'Warte auf {player}…'**
+  String shellWaitingFor(String player);
+
+  /// Status line in a network game after this device won.
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast gewonnen'**
+  String get shellYouHaveWon;
+
   /// Status line / result dialog title for a draw.
   ///
   /// In de, this message translates to:
@@ -209,6 +227,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{player} gewinnt!'**
   String shellWins(String player);
+
+  /// Result dialog headline in a network game when this device won.
+  ///
+  /// In de, this message translates to:
+  /// **'Du gewinnst!'**
+  String get shellYouWin;
 
   /// Result dialog button: back to the menu.
   ///
@@ -876,17 +900,47 @@ abstract class AppLocalizations {
   /// **'Über WLAN spielen'**
   String get pairingTitle;
 
-  /// Label of the editable device name field.
-  ///
-  /// In de, this message translates to:
-  /// **'Gerätename'**
-  String get pairingDeviceName;
-
   /// Helper text below the device name field.
   ///
   /// In de, this message translates to:
   /// **'So sieht dich dein Mitspieler'**
   String get pairingDeviceNameHelper;
+
+  /// Title of the player name dialog (first visit of "play over Wi-Fi", or the menu person button).
+  ///
+  /// In de, this message translates to:
+  /// **'Wie heißt du?'**
+  String get playerNameTitle;
+
+  /// Label of the player name field (pairing screens, name dialog) and tooltip of the menu person button.
+  ///
+  /// In de, this message translates to:
+  /// **'Dein Name'**
+  String get playerNameLabel;
+
+  /// A named player with its mark, e.g. "Anna (X)"; used inside other sentences (status line, result, history).
+  ///
+  /// In de, this message translates to:
+  /// **'{name} ({mark})'**
+  String playerLabel(String name, String mark);
+
+  /// Hot-seat game: title of the player names dialog and tooltip of its app bar button.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielernamen'**
+  String get hotSeatNamesTitle;
+
+  /// Hot-seat player names dialog: label of the name field of one player; mark = X or O.
+  ///
+  /// In de, this message translates to:
+  /// **'Spieler {mark}'**
+  String hotSeatNameLabel(String mark);
+
+  /// Hot-seat player names dialog: hint that the names are optional.
+  ///
+  /// In de, this message translates to:
+  /// **'Optional – leer lassen, um nur X und O zu zeigen.'**
+  String get hotSeatNamesHelper;
 
   /// Segmented button: host a game on this device.
   ///
@@ -1044,11 +1098,11 @@ abstract class AppLocalizations {
   /// **'Tipps: Sind beide Geräte im selben WLAN? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. iOS: Ist „Lokales Netzwerk“ für Klunki erlaubt (Einstellungen › Datenschutz)?'**
   String get pairingJoinHints;
 
-  /// Network game connection bar; me / peerMark = player marks (X, O), peer = the other device's name.
+  /// Network game connection bar; name = own player name, mark / peerMark = player marks (X, O), peer = the other player's name.
   ///
   /// In de, this message translates to:
-  /// **'Du bist {me} · Gegner: {peer} ({peerMark})'**
-  String pairingStatus(String me, String peer, String peerMark);
+  /// **'Du ({name}, {mark}) · Gegner: {peer} ({peerMark})'**
+  String pairingStatus(String name, String mark, String peer, String peerMark);
 
   /// Connection bar: fallback name of the other device.
   ///
@@ -1056,17 +1110,17 @@ abstract class AppLocalizations {
   /// **'Gegner'**
   String get pairingOpponent;
 
-  /// Connection banner: the other side left.
+  /// Connection banner: the other player left; peer = their name.
   ///
   /// In de, this message translates to:
-  /// **'Gegner hat das Spiel verlassen'**
-  String get pairingPeerLeft;
+  /// **'{peer} hat das Spiel verlassen'**
+  String pairingPeerLeft(String peer);
 
-  /// Connection banner: the connection dropped.
+  /// Connection banner: the connection dropped; peer = the other player's name.
   ///
   /// In de, this message translates to:
-  /// **'Verbindung zum Gegner unterbrochen'**
-  String get pairingPeerLost;
+  /// **'Verbindung zu {peer} unterbrochen'**
+  String pairingPeerLost(String peer);
 
   /// Host's connection banner; reason = pairingPeerLeft or pairingPeerLost.
   ///

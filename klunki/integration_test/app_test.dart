@@ -21,6 +21,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/main.dart' as app;
 import 'package:klunki/net/local_ip.dart';
+import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart' show playerMark;
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -41,10 +42,14 @@ void main() {
   }
 
   /// Starts the app the way `main()` does (saved language from the real
-  /// shared_preferences) and waits for the menu.
+  /// shared_preferences) and waits for the menu. The player name is preset
+  /// in memory (KLD-056), so "Über WLAN spielen" skips its first-run dialog.
   Future<LocaleController> startApp(WidgetTester tester) async {
     final controller = await LocaleController.load();
-    await tester.pumpWidget(KlunkiApp(localeController: controller));
+    await tester.pumpWidget(KlunkiApp(
+      localeController: controller,
+      playerNameController: PlayerNameController.memory(name: 'iPhone'),
+    ));
     await tester.pumpAndSettle();
     expect(find.byType(MenuScreen), findsOneWidget);
     return controller;
@@ -225,6 +230,8 @@ void main() {
     // Host screen: address list + QR + mDNS advertising.
     await startApp(tester);
     await tapAndSettle(tester, find.byKey(const Key('menu-network')));
+    expect(find.byKey(const Key('player-name-dialog')), findsNothing, reason: 'the name is already set');
+    expect(tester.widget<TextField>(find.byKey(const Key('pair-name'))).controller?.text, 'iPhone');
     await tapAndSettle(tester, find.byKey(const Key('pair-game-muehle')));
     await tester.tap(find.byKey(const Key('pair-host-start')));
     await pumpUntilFound(tester, find.byKey(const Key('pair-host-waiting')), what: 'hosting');

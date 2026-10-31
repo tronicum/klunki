@@ -1,6 +1,7 @@
 // I18N-06: what the user actually sees, per locale. Walks every screen (menu,
 // language picker, all five games incl. handover cover, restart dialog,
-// history sheet and result dialog, pairing host and join) at two phone sizes
+// history sheet and result dialog, pairing host and join, the player name
+// dialogs and the network status lines of KLD-056) at two phone sizes
 // and fails on
 //  * visible text (Text/RichText, tooltips) that is the English string while
 //    the locale is not en (untranslated leftovers, also in engine strings),
@@ -23,6 +24,9 @@ import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
+import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki/game/game_controller.dart';
+import 'package:klunki_engine/klunki_engine.dart' show GameConfig, Player;
 
 import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
@@ -216,6 +220,17 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
   await tester.tap(find.byKey(Key('menu-$id')));
   await tester.pumpAndSettle();
   audit.check(tester, '$id start');
+  if (id == 'connect4') {
+    // Hot-seat player names (KLD-056): dialog, then names in the status line.
+    await tester.tap(find.byKey(const Key('shell-names')));
+    await tester.pumpAndSettle();
+    audit.check(tester, '$id names dialog');
+    await tester.enterText(find.byKey(const Key('hot-seat-name-X')), 'Anna');
+    await tester.enterText(find.byKey(const Key('hot-seat-name-O')), 'Ben');
+    await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
+    await tester.pumpAndSettle();
+    audit.check(tester, '$id with names');
+  }
 
   var sawHistory = false;
   for (var step = 0; step < 2000; step++) {
@@ -287,8 +302,44 @@ void main() {
           await tester.tapAt(const Offset(4, 4)); // barrier: close the picker
           await tester.pumpAndSettle();
 
+          // Player name dialog from the menu (KLD-056).
+          await tester.tap(find.byKey(const Key('player-name-button')));
+          await tester.pumpAndSettle();
+          audit.check(tester, 'player name dialog');
+          await tester.tap(find.byKey(const Key('player-name-cancel')));
+          await tester.pumpAndSettle();
+
           for (final id in gameIds) {
             await walkGame(tester, audit, id);
+          }
+          audit.expectClean();
+        });
+
+        testWidgets('network status lines and result at $at (KLD-056)', (tester) async {
+          await setSize(tester, size);
+          final audit = Audit(locale, size);
+          for (final local in Player.values) {
+            final c = GameController.hotSeat(const GameConfig('connect4', seed: 1));
+            addTearDown(c.dispose);
+            await tester.pumpWidget(localizedApp(
+              PlayerLabelsScope(
+                labels: PlayerLabels(local: local, names: const {Player.a: 'Anna', Player.b: 'Ben'}),
+                child: buildGameScreen(c),
+              ),
+              locale: locale,
+            ));
+            await tester.pump();
+            for (var step = 0; step < 60 && !c.game.isOver; step++) {
+              audit.check(tester, 'network game $local step $step');
+              await c.submit(legalMovesOf(c.game).first);
+              await tester.pump();
+              await tester.pump();
+            }
+            await tester.pumpAndSettle();
+            audit.check(tester, 'network game $local result');
+            await tester.tap(find.byKey(const Key('shell-history')), warnIfMissed: false);
+            await tester.pumpAndSettle();
+            audit.check(tester, 'network game $local history');
           }
           audit.expectClean();
         });
