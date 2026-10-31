@@ -158,6 +158,52 @@ Future<void> _settleClose(WidgetTester tester) async {
 
 Finder _inOverlay(Finder f) => find.descendant(of: find.byKey(_overlay), matching: f);
 
+/// A whole game from [seed] (picks: the first stat of the picker's card
+/// that wins, else the first stat): (stat of each trick, its picker, its
+/// winner).
+(List<String>, List<Player>, List<Player?>) _wholeGame(int seed) {
+  final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+  final stats = <String>[], pickers = <Player>[], winners = <Player?>[];
+  while (!g.isOver) {
+    final p = g.currentPlayer;
+    final mine = g.topCard(p)!, theirs = g.topCard(p == Player.a ? Player.b : Player.a)!;
+    final s = QuartettDeck.cars.stats.where((s) => s.beats(mine.stats[s.id]!, theirs.stats[s.id]!)).firstOrNull ??
+        QuartettDeck.cars.stats.first;
+    final w = (g.applyMove(_pickMove(s.id))!.payload as Map)['trickWinner'];
+    stats.add(s.id);
+    pickers.add(p);
+    winners.add(w == null ? null : Player.values.byName(w as String));
+  }
+  return (stats, pickers, winners);
+}
+
+/// First seed whose [_wholeGame] satisfies [test].
+(int, List<String>, List<Player>, List<Player?>) _findGame(
+    bool Function(List<String> stats, List<Player> pickers, List<Player?> winners) test) {
+  for (var seed = 1; seed < 500; seed++) {
+    final (s, p, w) = _wholeGame(seed);
+    if (test(s, p, w)) return (seed, s, p, w);
+  }
+  throw StateError('no matching game');
+}
+
+/// A device for [me] with every pick of [stats] but the last [rest] already
+/// played (as if the game had run that far).
+Future<(GameController, _DeviceTransport)> _pumpNearEnd(
+    WidgetTester tester, int seed, Player me, List<String> stats, int rest) async {
+  final t = _DeviceTransport(seed, me, fullInformation: false);
+  for (final s in stats.take(stats.length - rest)) {
+    expect(t._inner.submitSync(_pickMove(s)).isAccepted, isTrue);
+  }
+  final c = GameController(t);
+  addTearDown(c.dispose);
+  await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+  await tester.pump();
+  return (c, t);
+}
+
+const _resultDialog = Key('result-dialog');
+
 void main() {
   test('the grace period is 5 s', () {
     expect(quartettRevealGrace, const Duration(seconds: 5));
@@ -388,6 +434,96 @@ void main() {
       expect(c.moves, hasLength(1));
       await _tap(tester, _cont);
       expect(c.moves, hasLength(2));
+    });
+  });
+
+  group('game end (KLD-089): the result waits until every trick was shown', () {
+    testWidgets('waiting player: the final tricks queued behind a reveal come before the result', (tester) async {
+      // The last two tricks are picked by the same player, who wins the last
+      // one: on the other device both are still to show when the game ends.
+      final (seed, stats, pickers, _) = _findGame((s, p, w) {
+        final n = s.length;
+        return n >= 3 && p[n - 1] == p[n - 2] && w[n - 1] == p[n - 1];
+      });
+      final winner = pickers.last;
+      final me = winner == Player.a ? Player.b : Player.a;
+      final (c, t) = await _pumpNearEnd(tester, seed, me, stats, 2);
+      final mark = playerMark(winner);
+
+      t.remote(stats[stats.length - 2]);
+      await tester.pump();
+      t.remote(stats.last);
+      await tester.pump();
+      await tester.pump();
+      expect(c.game.isOver, isTrue);
+      expect(find.text(_picked(mark, stats[stats.length - 2])), findsOneWidget);
+      expect(find.byKey(_notice), findsOneWidget, reason: 'the final trick is queued');
+      expect(find.byKey(_resultDialog), findsNothing, reason: 'the result must not cover tricks still to show');
+
+      // The grace runs out: the final trick comes next, still no result.
+      await tester.pump(quartettRevealGrace + _ms);
+      await tester.pump();
+      expect(find.text(_picked(mark, stats.last)), findsOneWidget);
+      expect(find.byKey(_resultDialog), findsNothing);
+
+      // "Weiter" (or the end of its grace): now the result.
+      await _tap(tester, _cont);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(_reveal), findsNothing);
+      expect(find.byKey(_resultDialog), findsOneWidget);
+    });
+
+    testWidgets('waiting player: the result follows when the grace of the final trick runs out', (tester) async {
+      final (seed, stats, pickers, _) = _findGame((s, p, w) => w.last == p.last);
+      final winner = pickers.last;
+      final me = winner == Player.a ? Player.b : Player.a;
+      final (_, t) = await _pumpNearEnd(tester, seed, me, stats, 1);
+      t.remote(stats.last);
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(_reveal), findsOneWidget);
+      expect(find.byKey(_resultDialog), findsNothing);
+      await tester.pump(quartettRevealGrace + _ms);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(_reveal), findsNothing);
+      expect(find.byKey(_resultDialog), findsOneWidget);
+    });
+
+    testWidgets('the winner of the final trick reads it until "Weiter", then the result', (tester) async {
+      final (seed, stats, pickers, _) = _findGame((s, p, w) => w.last == p.last);
+      final winner = pickers.last;
+      final (c, t) = await _pumpNearEnd(tester, seed, winner, stats, 1);
+      await _tap(tester, _statKey(stats.last));
+      expect(c.game.isOver, isTrue);
+      expect(t.sent, [_pickMove(stats.last)]);
+      await tester.pump(const Duration(seconds: 10));
+      expect(find.byKey(_reveal), findsOneWidget);
+      expect(find.text('${playerMark(winner)} gewinnt den Stich'), findsOneWidget);
+      expect(find.byKey(_resultDialog), findsNothing);
+      await _tap(tester, _cont);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(_resultDialog), findsOneWidget);
+    });
+
+    testWidgets('hot-seat: the final trick is previewed; "Weiter" ends the game, the result follows at once',
+        (tester) async {
+      final (seed, stats, _, _) = _findGame((s, p, w) => true);
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      addTearDown(c.dispose);
+      for (final s in stats.take(stats.length - 1)) {
+        expect((await c.submit(_pickMove(s))).isAccepted, isTrue);
+      }
+      c.acknowledgeHandover();
+      await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+      await tester.pump();
+      await _tap(tester, _statKey(stats.last));
+      expect(find.byKey(_reveal), findsOneWidget);
+      expect(find.byKey(_resultDialog), findsNothing);
+      await _tap(tester, _cont);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(c.game.isOver, isTrue);
+      expect(find.byKey(_resultDialog), findsOneWidget);
     });
   });
 
