@@ -73,6 +73,7 @@ void main() {
     final cases = <Object, RelayFailure?>{
       const NetException('relay: no room with code K7Q2M'): RelayFailure.unknownCode,
       const NetException('relay: room K7Q2M is full'): RelayFailure.roomFull,
+      const NetException('peer error: session full'): RelayFailure.seatTaken, // KLD-071
       'relay: host left': RelayFailure.hostLeft,
       'relay: room expired (idle)': RelayFailure.expired,
       const NetException('cannot connect: cannot open ws://h:8080/relay?create'): RelayFailure.unreachable,

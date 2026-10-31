@@ -111,6 +111,13 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-067 ✅ | Turn colour: status pill filled with the colour of the player to move (black/white text by contrast), coloured turn edge under the app bar, network "my turn" (filled, glow, one pulse + light haptic) vs "waiting" (muted, hourglass, faded opponent colour), hot-seat legend with both players' tokens + names, connection bar with a token per player; per-game hook `playerColor` / `GameVisuals.token` (GoStrategy); reduced motion respected. See `docs/tasks/KLD-067-turn-colour.md` | medium | 062 | `klunki/lib/ui/shell/game_screen.dart`, `klunki/lib/ui/pairing/network_game_session.dart`, `klunki/lib/ui/game_visuals.dart`, `klunki/lib/app/theme.dart`, `klunki/lib/l10n/**` (2 `netBar*` keys after `pairingStatus`) | – |
 | KLD-066 | Start/welcome screen "Klunki – deine Spielesammlung für die Hosentasche" (wordmark, tagline, playful intro animation, reduced motion), later also native launch screen and PWA splash; see `docs/tasks/KLD-066-start-screen.md` | medium-low | 062 | `klunki/lib/ui/start_screen.dart`, `klunki/lib/l10n/**`, later `klunki/web/**`, launch assets | 🧑 for native launch assets |
 
+## Review 2026-10
+
+| ID | Task | Priority | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|---|
+| KLD-071 ✅ | Rejoin only with the session token (review S1): no name fallback, constant-time compare, hello deadline; clear "Platz belegt" in the app and CLI. See `docs/tasks/KLD-071-rejoin-token.md` | 🔴 | – | `packages/klunki_net/lib/src/{host,cli/cli}.dart`, `PROTOCOL.md`, `klunki/lib/ui/pairing/{relay_errors,pairing_screen,web_join_screen}.dart`, `klunki/lib/l10n/**` | – |
+| KLD-075 ✅ | Links and QR codes no longer silently replace the saved relay (review S3): "Relay aus Link: …" for that join only, "Als Standard speichern", foreign-relay warning in the PWA. See `docs/tasks/KLD-075-relay-links.md` | 🟠 | – | `klunki/lib/ui/pairing/{room_join,web_join_screen}.dart`, `klunki/lib/l10n/**` | – |
+
 ## Backlog
 
 | ID | Task | Notes |

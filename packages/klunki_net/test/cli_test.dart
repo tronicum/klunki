@@ -253,6 +253,32 @@ void main() {
     expect(await guest.exitCode, 0);
   });
 
+  test('KLD-071: a second terminal with the same name cannot take the seat', () async {
+    final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
+    final port = (await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting for a guest')))[1]!;
+    final ben = Terminal('guest', ['join', '127.0.0.1', port, '--name', 'Ben']);
+    await host.waitFor('Ben joined: you are X, Ben is O.');
+    await ben.waitFor("Joined Ada's game");
+
+    for (final name in ['Ben', 'O']) {
+      final out = StringBuffer();
+      expect(await runCli(['join', '127.0.0.1', port, '--name', name], out: out, input: const Stream.empty()), 1);
+      expect(out.toString(), contains('session full'));
+      expect(out.toString(), contains('The seat is taken'));
+    }
+    // The real Ben is still connected and plays on.
+    await host.waitFor('> ');
+    host.type('3');
+    await ben.waitFor('Your turn (O).');
+    ben.type('4');
+    await host.waitFor('O drops into column 4');
+    expect(host.text, isNot(contains('Lost the connection')));
+    ben.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await ben.exitCode, 0);
+    expect(await host.exitCode, 0);
+  });
+
   test('a dropped connection is reported and the guest reconnects', () async {
     final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
     final port = int.parse((await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting')))[1]!);

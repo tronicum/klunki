@@ -17,6 +17,10 @@ enum RelayFailure {
   /// The room already has a guest.
   roomFull,
 
+  /// The host refused the join: its guest seat belongs to someone else, who
+  /// can come back only with the session token (`session full`, KLD-071).
+  seatTaken,
+
   /// The host left: the room is closed.
   hostLeft,
 
@@ -38,6 +42,7 @@ String _text(Object error) => error is NetException ? error.message : '$error';
 RelayFailure? classifyRelayError(Object error) {
   if (error is TimeoutException) return RelayFailure.unreachable;
   final s = _text(error);
+  if (isSeatTaken(error)) return RelayFailure.seatTaken;
   if (s.contains('no room with code')) return RelayFailure.unknownCode;
   if (s.contains('is full')) return RelayFailure.roomFull;
   if (s.contains('host left') || s.contains('host connection failed')) return RelayFailure.hostLeft;
@@ -52,6 +57,11 @@ RelayFailure? classifyRelayError(Object error) {
   if (s.startsWith('relay')) return RelayFailure.lost;
   return null;
 }
+
+/// Whether the host refused [error]'s join because its seat is taken
+/// (`session full`): only the guest with the session token gets back in
+/// (KLD-071). Same over TCP, WebSocket and a relay.
+bool isSeatTaken(Object error) => _text(error).contains('session full');
 
 /// Whether [failure] means the room is gone for good (rejoining is useless).
 bool relayRoomClosed(RelayFailure? failure) =>
@@ -68,6 +78,7 @@ String? relayErrorText(BuildContext context, Object error, {String? code, Uri? r
     null => null,
     RelayFailure.unknownCode => l10n.relayErrorUnknownCode(room),
     RelayFailure.roomFull => l10n.relayErrorRoomFull(room),
+    RelayFailure.seatTaken => l10n.pairingSeatTaken,
     RelayFailure.hostLeft => l10n.relayErrorHostLeft,
     RelayFailure.expired => l10n.relayErrorExpired,
     RelayFailure.unreachable => l10n.relayErrorUnreachable(

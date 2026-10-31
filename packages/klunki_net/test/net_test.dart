@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -65,6 +66,87 @@ void main() {
       final guest = await joinHost(host.port, name: 'Bea');
       await expectLater(joinHost(host.port, name: 'Mallory'),
           throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      expect(guest.connected, isTrue);
+      await guest.close();
+      await host.close();
+    });
+  });
+
+  group('KLD-071: the seat is reclaimed only with the session token', () {
+    test('an intruder with the guest\'s name or the default mark is refused; the guest stays', () async {
+      final host = await startHost(const GameConfig('connect4'));
+      final hostEvents = <NetEvent>[];
+      host.events.listen(hostEvents.add);
+      final ben = await joinHost(host.port, name: 'Ben');
+      await until(() => host.guestConnected);
+      for (final name in ['Ben', 'O', '']) {
+        await expectLater(joinHost(host.port, name: name),
+            throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      }
+      expect(ben.connected, isTrue);
+      expect(host.guestConnected, isTrue);
+      expect(host.guestName, 'Ben');
+      expect(host.submitLocal({'col': 3}), isNull);
+      await until(() => ben.moves.length == 1);
+      expect(await ben.submit({'col': 4}), isNull);
+      expect(hostEvents.whereType<PeerDisconnected>(), isEmpty);
+      expect(hostEvents.whereType<PeerConnected>(), hasLength(1));
+      await ben.close();
+      await host.close();
+    });
+
+    test('a guest joined without a name (mark "O") cannot be replaced by another "O"', () async {
+      final host = await startHost(const GameConfig('connect4'));
+      final first = await joinHost(host.port, name: '');
+      await until(() => host.guestConnected);
+      expect(host.guestName, 'O');
+      await expectLater(joinHost(host.port, name: ''), throwsA(isA<NetException>()));
+      expect(first.connected, isTrue);
+      await first.close();
+      await host.close();
+    });
+
+    test('while the guest is away: same name and wrong tokens are refused, the token gets back in', () async {
+      final host = await startHost(const GameConfig('schiffe', seed: 7));
+      final ben = await joinHost(host.port, name: 'Ben');
+      final token = ben.token!;
+      await ben.close();
+      await until(() => !host.guestConnected);
+
+      final wrong = token.replaceRange(0, 1, token[0] == 'a' ? 'b' : 'a');
+      for (final (name, t) in [('Ben', null), ('O', null), ('Ben', wrong), ('Ben', '${token}0'), ('Ben', '')]) {
+        await expectLater(joinHost(host.port, name: name, token: t),
+            throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      }
+      expect(host.guestConnected, isFalse);
+      final again = await joinHost(host.port, name: 'Ben', token: token);
+      expect(again.me, Player.b);
+      expect(again.redacted, isTrue);
+      await again.close();
+      await host.close();
+    });
+
+    test('a connection that never says hello is dropped after the timeout', () async {
+      final host = await startHost(const GameConfig('connect4'), timeout: const Duration(milliseconds: 300));
+      final socket = await Socket.connect(loopback, host.port);
+      final received = StringBuffer();
+      final done = Completer<void>();
+      void finish() {
+        if (!done.isCompleted) done.complete();
+      }
+
+      socket.listen((d) => received.write(utf8.decode(d)), onDone: finish, onError: (_) => finish(), cancelOnError: true);
+      // Answer pings so only the missing hello can end it.
+      final pong = Timer.periodic(const Duration(milliseconds: 20), (_) {
+        try {
+          socket.write('{"type":"pong","v":$protocolVersion}\n');
+        } catch (_) {}
+      });
+      await done.future.timeout(const Duration(seconds: 3));
+      pong.cancel();
+      expect(received.toString(), contains('no hello'));
+      socket.destroy();
+      final guest = await joinHost(host.port, name: 'Ben');
       expect(guest.connected, isTrue);
       await guest.close();
       await host.close();

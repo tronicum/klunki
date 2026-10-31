@@ -15,6 +15,7 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'network_game_session.dart';
 import 'relay_host_screen.dart';
+import 'relay_errors.dart';
 import 'relay_line.dart';
 import 'room_join.dart';
 
@@ -127,17 +128,6 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
   @override
   void initState() {
     super.initState();
-    // A `?room=` link names its relay (`&relay=`, else this page): it
-    // becomes the shared relay setting.
-    final room = widget.initialRoom;
-    if (room != null) {
-      final relay = room.relay;
-      if (relay == null || relay == _pageRelay) {
-        _relaySettings.reset();
-      } else {
-        _relaySettings.set(relay);
-      }
-    }
     if (widget.autoConnect && (widget.initialInput ?? '').trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await playerNameReady; // the first-run name dialog comes first
@@ -199,7 +189,9 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     if (transport == null) {
       setState(() {
         _connecting = null;
-        _error = '${l10n.pairingJoinFailed(bidiLtr(context, label), '$failure')}\n${l10n.webJoinHints}';
+        _error = failure != null && isSeatTaken(failure)
+            ? l10n.pairingSeatTaken
+            : '${l10n.pairingJoinFailed(bidiLtr(context, label), '$failure')}\n${l10n.webJoinHints}';
       });
       return;
     }
@@ -268,6 +260,12 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
         defaultRelay: _pageRelay,
         settings: _relaySettings,
         initialCode: widget.initialRoom?.code ?? widget.initialRoom?.raw,
+        // A `?room=` link names its relay (`&relay=`, else this page): used
+        // for this join only, never saved silently (KLD-075).
+        linkRelay: switch (widget.initialRoom) {
+          null => null,
+          final room => room.relay ?? _pageRelay,
+        },
         autoConnect: widget.initialRoom?.code != null,
         ready: playerNameReady,
         playerName: () => _deviceName,

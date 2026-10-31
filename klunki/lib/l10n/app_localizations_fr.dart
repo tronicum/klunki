@@ -1016,6 +1016,25 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String relayFromLink(String address) {
+    return 'Relais du lien : $address';
+  }
+
+  @override
+  String get relayLinkSaveDefault => 'Enregistrer par défaut';
+
+  @override
+  String get relayLinkUseSaved => 'Utiliser le relais enregistré';
+
+  @override
+  String get relayLinkForeign =>
+      'Attention : ce lien mène à un autre relais, pas au serveur de cette page. Ne rejoins que si tu fais confiance à l’expéditeur : un relais étranger voit tous les coups.';
+
+  @override
+  String get pairingSeatTaken =>
+      'Place occupée : quelqu’un joue déjà cette partie. Seul le joueur qui l’a rejointe en premier peut revenir.';
+
+  @override
   String get webJoinDirectTitle =>
       'Ou se connecter à un appareil hôte (appli ou terminal)';
 

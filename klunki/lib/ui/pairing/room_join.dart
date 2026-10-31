@@ -25,6 +25,13 @@ Future<NetworkTransport> platformRelayJoin(Uri relay, String code, {required Str
 /// [defaultRelay], the page's own server, until another one is chosen; with
 /// none at all, joining asks for one). Used by the web join screen and the
 /// app's join tab. Calls [onConnected] with the joined transport.
+///
+/// A relay named by a link ([linkRelay], `?room=…&relay=…`) or a scanned
+/// room QR code ([RoomCodeJoinState.joinScanned]) is used for that join only
+/// (KLD-075): it is shown as "Relay aus Link: …" with "Als Standard
+/// speichern", and the saved setting changes only when the player taps that.
+/// In the browser a link to a relay other than the page's own server
+/// ([defaultRelay]) gets a warning and does not join on its own.
 class RoomCodeJoin extends StatefulWidget {
   final RelayJoinTransportFactory joinTransport;
   final Duration joinTimeout;
@@ -38,6 +45,10 @@ class RoomCodeJoin extends StatefulWidget {
 
   /// Prefills the code (`?room=`).
   final String? initialCode;
+
+  /// The relay of a `?room=` link (KLD-075): used for joining from this
+  /// screen without changing [settings].
+  final Uri? linkRelay;
 
   /// Joins [initialCode] right away, after [ready] completes (the first-run
   /// name dialog).
@@ -57,6 +68,7 @@ class RoomCodeJoin extends StatefulWidget {
     required this.settings,
     this.defaultRelay,
     this.initialCode,
+    this.linkRelay,
     this.autoConnect = false,
     this.ready,
   });
@@ -75,10 +87,26 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
   bool _showStartHint = false;
   int _attempt = 0;
 
+  /// The relay of a link or scanned QR code, used instead of [settings]
+  /// until the player saves it as the default or drops it (KLD-075).
+  late Uri? _linkRelay = widget.linkRelay;
+
+  /// The link's relay is not the page's own server (browser only): it could
+  /// be a phishing or abuse relay, so the player is warned.
+  bool get _foreignLink {
+    final link = _linkRelay, page = widget.defaultRelay;
+    return link != null && page != null && link != page;
+  }
+
+  /// The relay a join uses now: the link's, else the setting (or ask).
+  Future<Uri?> _relay() async =>
+      _linkRelay ?? await relayOrAsk(context, widget.settings, defaultRelay: widget.defaultRelay);
+
   @override
   void initState() {
     super.initState();
-    if (widget.autoConnect && (widget.initialCode ?? '').trim().isNotEmpty) {
+    // A link to a foreign relay waits for the player to read the warning.
+    if (widget.autoConnect && !_foreignLink && (widget.initialCode ?? '').trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await widget.ready;
         if (mounted) _join();
@@ -98,7 +126,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
     final code = normalizeRoomCode(_code.text);
     setState(() => _codeError = code == null ? l10n.relayCodeInvalid : null);
     if (code == null) return;
-    final relay = await relayOrAsk(context, widget.settings, defaultRelay: widget.defaultRelay);
+    final relay = await _relay();
     if (relay == null || !mounted) return;
     _connect(code, relay);
   }
@@ -147,18 +175,92 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
   }
 
   /// Joins room [code] on [relay] as if typed (a scanned QR code,
-  /// KLD-052): fills the code, makes [relay] the shared relay setting (so it
-  /// stays for hosting and the next code), and connects.
+  /// KLD-052): fills the code and connects through [relay] for this join
+  /// only (KLD-075: the saved setting stays unless the player taps "Als
+  /// Standard speichern").
   void joinScanned(String code, Uri relay) {
     if (_joining != null) return;
     _code.text = formatRoomCode(code);
-    if (relay == widget.defaultRelay) {
+    setState(() {
+      _codeError = null;
+      _linkRelay = relay;
+    });
+    _connect(code, relay);
+  }
+
+  /// "Als Standard speichern": the link's relay becomes the setting.
+  void _saveLinkRelay() {
+    final link = _linkRelay;
+    if (link == null) return;
+    if (link == widget.defaultRelay) {
       widget.settings.reset();
     } else {
-      widget.settings.set(relay);
+      widget.settings.set(link);
     }
-    setState(() => _codeError = null);
-    _connect(code, relay);
+    setState(() => _linkRelay = null);
+  }
+
+  /// "Gespeichertes Relay verwenden": forget the link's relay.
+  void _dropLinkRelay() => setState(() => _linkRelay = null);
+
+  /// "Relay aus Link: …" with its two buttons (and the foreign-relay warning
+  /// in the browser); nothing when the link names the relay in use anyway.
+  Widget _linkRelayNotice(BuildContext context, bool busy) {
+    return ValueListenableBuilder<Uri?>(
+      valueListenable: widget.settings,
+      builder: (context, _, _) {
+        final link = _linkRelay;
+        if (link == null || link == widget.settings.relayFor(widget.defaultRelay)) return const SizedBox.shrink();
+        final theme = Theme.of(context);
+        final l10n = AppLocalizations.of(context);
+        return Padding(
+          key: const Key('room-link-relay'),
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.link, size: 20, color: _foreignLink ? theme.colorScheme.error : null),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.relayFromLink(bidiLtr(context, relayAddressLabel(link))),
+                      key: const Key('room-link-relay-address'),
+                    ),
+                  ),
+                ],
+              ),
+              if (_foreignLink)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    l10n.relayLinkForeign,
+                    key: const Key('room-link-relay-foreign'),
+                    style: TextStyle(color: theme.colorScheme.error),
+                  ),
+                ),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                children: [
+                  TextButton(
+                    key: const Key('room-link-relay-drop'),
+                    onPressed: busy ? null : _dropLinkRelay,
+                    child: Text(l10n.relayLinkUseSaved),
+                  ),
+                  TextButton(
+                    key: const Key('room-link-relay-save'),
+                    onPressed: busy ? null : _saveLinkRelay,
+                    child: Text(l10n.relayLinkSaveDefault),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _cancel() {
@@ -179,6 +281,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
         const SizedBox(height: 4),
         Text(l10n.relayJoinIntro, key: const Key('room-join-intro'), style: theme.textTheme.bodySmall),
         const SizedBox(height: 8),
+        _linkRelayNotice(context, busy),
         TextField(
           key: const Key('room-code'),
           controller: _code,

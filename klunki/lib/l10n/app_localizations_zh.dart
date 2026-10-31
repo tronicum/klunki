@@ -974,6 +974,24 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String relayFromLink(String address) {
+    return '链接中的中继：$address';
+  }
+
+  @override
+  String get relayLinkSaveDefault => '设为默认';
+
+  @override
+  String get relayLinkUseSaved => '使用已保存的中继';
+
+  @override
+  String get relayLinkForeign =>
+      '注意：此链接指向另一个中继，而不是本页面的服务器。只有信任发送者时才加入：外部中继能看到每一步棋。';
+
+  @override
+  String get pairingSeatTaken => '位置已被占用：已有人在玩这局游戏。只有最先加入的玩家才能重新加入。';
+
+  @override
   String get webJoinDirectTitle => '或连接到主机设备（应用或终端）';
 
   @override

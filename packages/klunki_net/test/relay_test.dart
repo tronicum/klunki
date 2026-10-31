@@ -331,6 +331,36 @@ void main() {
       await host.close();
     });
 
+    test('KLD-071: whoever has the code cannot take a guest\'s seat without its token', () async {
+      final host = await startRelayHost(const GameConfig('schiffe', seed: 3));
+      final hostEvents = <NetEvent>[];
+      host.events.listen(hostEvents.add);
+      final bea = await joinRelay(host.roomCode!, name: 'Bea');
+      await until(() => host.guestConnected);
+      // While Bea is connected the relay itself says the room is full.
+      await expectLater(joinRelay(host.roomCode!, name: 'Bea'),
+          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('is full'))));
+      expect(bea.connected, isTrue);
+      final token = bea.token!;
+      await bea.close(reason: 'phone locked');
+      await until(() => !host.guestConnected);
+
+      // The slot is free at the relay, but the host refuses anyone without the
+      // token: same name, default mark, wrong token. Nobody sees Bea's fleet.
+      for (final (name, t) in [('Bea', null), ('O', null), ('Bea', 'f' * token.length)]) {
+        await expectLater(joinRelay(host.roomCode!, name: name, token: t),
+            throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      }
+      expect(hostEvents.whereType<PeerConnected>(), hasLength(1));
+
+      final again = await joinRelay(host.roomCode!, name: 'Bea', token: token);
+      expect(again.me, Player.b);
+      await until(() => host.guestConnected);
+      expect(hostEvents.whereType<PeerConnected>().map((e) => e.reconnect), [false, true]);
+      await again.close();
+      await host.close();
+    });
+
     test('guest.reconnect() rejoins the room after the relay dropped the guest', () async {
       final host = await startRelayHost(const GameConfig('connect4'));
       final guest = await joinRelay(host.roomCode!);

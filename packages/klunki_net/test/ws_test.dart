@@ -116,6 +116,23 @@ void main() {
       await host.close();
     });
 
+    test('KLD-071: a WebSocket intruder with the guest\'s name is refused, the token gets back in', () async {
+      final host = await startHost(const GameConfig('connect4'));
+      final web = await joinWs(host.wsPort!, name: 'Ben');
+      await expectLater(joinWs(host.wsPort!, name: 'Ben'),
+          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      expect(web.connected, isTrue);
+      final token = web.token!;
+      await web.close();
+      await until(() => !host.guestConnected);
+      await expectLater(joinWs(host.wsPort!, name: 'Ben'),
+          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('session full'))));
+      final again = await joinWs(host.wsPort!, name: 'Ben', token: token);
+      expect(again.connected, isTrue);
+      await again.close();
+      await host.close();
+    });
+
     test('a TCP guest is refused while a WebSocket guest holds the session', () async {
       final host = await startHost(const GameConfig('connect4'));
       final ws = await joinWs(host.wsPort!, name: 'Web');
