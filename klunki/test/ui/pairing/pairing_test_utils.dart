@@ -28,6 +28,45 @@ class CreatedTransports {
   final List<int> hostPorts = [];
   final List<int> hostWsPorts = [];
   final List<Uri> webJoinCalls = [];
+  final List<Uri> relayHostCalls = [];
+  final List<(Uri, String)> relayJoinCalls = [];
+}
+
+/// Relay host (KLD-057b) through `NetworkTransport.hostRelay`, created in the
+/// root zone.
+Future<NetworkTransport> relayHost(CreatedTransports created, GameConfig config, Uri relay, {required String name}) {
+  created.relayHostCalls.add(relay);
+  return _rootZone(() async {
+    final t = await NetworkTransport.hostRelay(config, relay, name: name, pingInterval: pingInterval, timeout: netTimeout);
+    created.hosts.add(t);
+    return t;
+  });
+}
+
+/// Runs [body] in the root zone and hands its result or error back to the
+/// caller's zone (an error does not cross error zones by itself).
+Future<T> _rootZone<T>(Future<T> Function() body) async {
+  final (T?, Object?) r = await Zone.root.run(() async {
+    try {
+      return (await body(), null);
+    } catch (e) {
+      return (null, e);
+    }
+  });
+  if (r.$2 != null) throw r.$2!;
+  return r.$1 as T;
+}
+
+/// Room-code join (KLD-057b) through `NetworkTransport.joinRelay`, created
+/// in the root zone.
+Future<NetworkTransport> relayJoin(CreatedTransports created, Uri relay, String code, {required String name}) {
+  created.relayJoinCalls.add((relay, code));
+  return _rootZone(() async {
+    final t =
+        await NetworkTransport.joinRelay(relay, code, name: name, pingInterval: pingInterval, timeout: netTimeout);
+    created.guests.add(t);
+    return t;
+  });
 }
 
 /// Host on 127.0.0.1 (TCP and WebSocket ports as asked), created in the root zone.

@@ -854,4 +854,90 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get engineShipOther => 'کشتی';
+
+  @override
+  String get relayHostIntro =>
+      'مرورگر دوم در همان شبکهٔ Wi-Fi با کد اتاق وارد می‌شود.';
+
+  @override
+  String get relayRoomCode => 'کد اتاق';
+
+  @override
+  String get relayWaitingHint =>
+      'پیوند را در دستگاه دوم باز کن یا کد QR را اسکن کن. یا Klunki را آنجا باز کن و کد اتاق را وارد کن.';
+
+  @override
+  String relayInfo(String address) {
+    return 'رله: $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'پیوستن با کد اتاق';
+
+  @override
+  String get relayCodeHelper =>
+      '۵ نویسه. مرورگری که میزبان بازی است کد را نشان می‌دهد.';
+
+  @override
+  String get relayCodeInvalid =>
+      'کد اتاق نامعتبر است: ۵ حرف یا رقم (بدون 0، O، 1، I، L).';
+
+  @override
+  String get relayJoin => 'ورود به اتاق';
+
+  @override
+  String relayJoining(String code) {
+    return 'در حال ورود به اتاق $code…';
+  }
+
+  @override
+  String get relayAddressLabel => 'نشانی رله';
+
+  @override
+  String get relayAddressHelper =>
+      'رایانه‌ای در Wi-Fi که «klunki relay» را اجرا می‌کند، مثلاً 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'پیشرفته: نشانی رله';
+
+  @override
+  String get relayAddressInvalid =>
+      'نشانی رله نامعتبر است. نمونه: 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'اتاقی با کد $code وجود ندارد. آیا کد درست است و میزبان هنوز منتظر است؟';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'اتاق $code پر است: دو نفر در آن بازی می‌کنند.';
+  }
+
+  @override
+  String get relayErrorHostLeft => 'میزبان اتاق را ترک کرد. بازی تمام شد.';
+
+  @override
+  String get relayErrorExpired => 'اتاق منقضی شد (۱۰ دقیقه بدون فعالیت).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'هیچ رله‌ای در $address در دسترس نیست.';
+  }
+
+  @override
+  String get relayErrorLost => 'اتصال به رله قطع شد.';
+
+  @override
+  String get relayStartHint =>
+      'بازی مرورگر با مرورگر به رله نیاز دارد. آن را روی رایانه‌ای در Wi-Fi اجرا کن و Klunki را از نشانی آن باز کن:';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason یک بازی تازه شروع کن.';
+  }
+
+  @override
+  String get webJoinDirectTitle =>
+      'یا به دستگاه میزبان وصل شو (برنامه یا ترمینال)';
 }

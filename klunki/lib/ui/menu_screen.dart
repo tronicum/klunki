@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/net/room_link.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
-import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps;
+import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoinScreen;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -15,15 +16,18 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 ///
 /// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
 /// browser join screen on top of the menu and connects right away, so "back"
-/// from there lands in the menu.
+/// from there lands in the menu. [initialRoom] (`?room=CODE`, KLD-057b) does
+/// the same for a relay room: the join screen with the code filled in, joined
+/// right away when the code is valid.
 class MenuScreen extends StatefulWidget {
   final String? initialJoinLink;
+  final RoomLink? initialRoom;
   final Uri? pageUrl;
 
   /// Test hook for the `?join=` flow (default: the real WebSocket join).
   final WebJoinDeps? webJoinDeps;
 
-  const MenuScreen({super.key, this.initialJoinLink, this.pageUrl, this.webJoinDeps});
+  const MenuScreen({super.key, this.initialJoinLink, this.initialRoom, this.pageUrl, this.webJoinDeps});
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -33,8 +37,16 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
+    final room = widget.initialRoom;
     final link = widget.initialJoinLink;
-    if (link != null) {
+    if (room != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => WebJoinScreen(initialRoom: room, pageUrl: widget.pageUrl, deps: widget.webJoinDeps),
+        ));
+      });
+    } else if (link != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         Navigator.of(context).push(MaterialPageRoute<void>(

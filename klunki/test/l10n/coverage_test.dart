@@ -11,6 +11,7 @@
 // Locales whose ARB still has a non-empty `@@x-untranslated` list are skipped
 // for the English check (TODO(I18N-03)); the check turns strict by itself as
 // soon as the list is gone.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -21,12 +22,15 @@ import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/relay_host_screen.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki_engine/klunki_engine.dart' show GameConfig, Player;
+import 'package:klunki_net/klunki_net.dart' show NetException, relayUriForPage;
+import 'package:klunki_net/relay_server.dart';
 
 import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
@@ -173,7 +177,7 @@ class Audit {
   final List<String> layoutErrors = [];
 
   static final _icu = RegExp(r'\{\w+(,\s*(plural|select)\s*,.*)?\}', dotAll: true);
-  static final _keyLike = RegExp(r'\b(menu|shell|connect4|muehle|quartett|schiffe|debug|pairing|engine|language)[A-Z]\w*');
+  static final _keyLike = RegExp(r'\b(menu|shell|connect4|muehle|quartett|schiffe|debug|pairing|engine|language|relay|webJoin)[A-Z]\w*');
 
   /// Records the current screen; [where] names it in failure messages.
   void check(WidgetTester tester, String where) {
@@ -414,6 +418,91 @@ void main() {
               find.byKey(const Key('web-join-error')), find.byKey(const Key('web-join')), const Offset(0, -200));
           await tester.pump();
           audit.check(tester, 'web join (failed)');
+          audit.expectClean();
+        });
+
+        testWidgets('relay host and room join at $at (KLD-057b)', (tester) async {
+          await setSize(tester, size);
+          final audit = Audit(locale, size);
+          final server = (await tester.runAsync(() => Zone.root.run(
+              () => RelayServer.start(port: 0, address: InternetAddress.loopbackIPv4, pingInterval: null))))!;
+          final created = CreatedTransports();
+          final page = Uri.parse('http://127.0.0.1:${server.port}/');
+          // Unreachable relay first: the start hint.
+          await tester.pumpWidget(localizedApp(
+            RelayHostScreen(
+              hostTransport: (config, relay, {required name}) =>
+                  Future.error(const NetException('cannot connect: refused')),
+              defaultRelay: relayUriForPage(page),
+              pageUrl: page,
+            ),
+            locale: locale,
+          ));
+          await tester.pump();
+          audit.check(tester, 'relay host setup');
+          await tester.ensureVisible(find.byKey(const Key('relay-host-start')));
+          await tester.pump();
+          await tester.tap(find.byKey(const Key('relay-host-start')));
+          await tester.pump();
+          await tester.pump();
+          audit.check(tester, 'relay host (no relay)');
+
+          await tester.pumpWidget(localizedApp(
+            RelayHostScreen(
+              key: const Key('second'),
+              hostTransport: (config, relay, {required name}) => relayHost(created, config, relay, name: name),
+              defaultRelay: relayUriForPage(page),
+              pageUrl: page,
+            ),
+            locale: locale,
+          ));
+          await tester.pump();
+          await tester.ensureVisible(find.byKey(const Key('relay-host-start')));
+          await tester.pump();
+          await tester.tap(find.byKey(const Key('relay-host-start')));
+          await pumpUntil(tester, () => find.byKey(const Key('relay-host-waiting')).evaluate().isNotEmpty,
+              what: 'relay waiting view', limit: const Duration(seconds: 30));
+          audit.check(tester, 'relay host waiting');
+
+          // The room-code join with each friendly error.
+          var error = const NetException('relay: no room with code K7Q2M');
+          await tester.pumpWidget(localizedApp(
+            WebJoinScreen(
+              deps: WebJoinDeps(
+                joinTransport: (url, {required name}) => Future.error(StateError('refused')),
+                relayJoin: (relay, code, {required name}) => Future.error(error),
+              ),
+              pageUrl: page,
+            ),
+            locale: locale,
+          ));
+          await tester.pump();
+          audit.check(tester, 'room join');
+          for (final e in const [
+            NetException('relay: no room with code K7Q2M'),
+            NetException('relay: room K7Q2M is full'),
+            NetException('relay: room expired (idle)'),
+            NetException('cannot connect: refused'),
+          ]) {
+            error = e;
+            await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
+            await tester.testTextInput.receiveAction(TextInputAction.go);
+            await tester.pump();
+            await tester.pump();
+            await tester.dragUntilVisible(
+                find.byKey(const Key('room-error')), find.byKey(const Key('web-join')), const Offset(0, -200));
+            await tester.pump();
+            audit.check(tester, 'room join ($e)');
+          }
+          await tester.enterText(find.byKey(const Key('room-code')), 'OOPS0');
+          await tester.testTextInput.receiveAction(TextInputAction.go);
+          await tester.pump();
+          audit.check(tester, 'room join (invalid code)');
+
+          await unmountAndSettleSockets(tester, created);
+          await tester.runAsync(server.close);
+          // dart:io's WebSocket.close() arms a 5 s timer in the test zone.
+          await tester.pump(const Duration(seconds: 6));
           audit.expectClean();
         });
       }

@@ -1324,5 +1324,123 @@
   "engineShipOther": "Schiff",
   "@engineShipOther": {
     "description": "Schiffe versenken: name of a ship with a length outside the default fleet."
+  },
+  "relayHostIntro": "Ein zweiter Browser im selben WLAN tritt mit dem Raumcode bei.",
+  "@relayHostIntro": {
+    "description": "Web pairing screen, under the \"Spiel hosten\" button (KLD-057)."
+  },
+  "relayRoomCode": "Raumcode",
+  "@relayRoomCode": {
+    "description": "Label of the room code (host waiting screen and the join field)."
+  },
+  "relayWaitingHint": "Öffne den Link auf dem zweiten Gerät oder scanne den QR-Code. Oder öffne dort Klunki und gib den Raumcode ein.",
+  "@relayWaitingHint": {
+    "description": "Host waiting screen: how the second player joins."
+  },
+  "relayInfo": "Relay: {address}",
+  "@relayInfo": {
+    "description": "Small line with the relay address (host:port).",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "relayJoinTitle": "Mit Raumcode beitreten",
+  "@relayJoinTitle": {
+    "description": "Heading of the room-code join section."
+  },
+  "relayCodeHelper": "5 Zeichen. Der Browser, der das Spiel hostet, zeigt den Code.",
+  "@relayCodeHelper": {
+    "description": "Helper text under the room code field."
+  },
+  "relayCodeInvalid": "Ungültiger Raumcode: 5 Buchstaben oder Ziffern (ohne 0, O, 1, I, L).",
+  "@relayCodeInvalid": {
+    "description": "Error for a malformed room code."
+  },
+  "relayJoin": "Raum beitreten",
+  "@relayJoin": {
+    "description": "Button: join the room."
+  },
+  "relayJoining": "Trete Raum {code} bei…",
+  "@relayJoining": {
+    "description": "Progress while joining a room; code is grouped like \"K7Q 2M\".",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "relayAddressLabel": "Relay-Adresse",
+  "@relayAddressLabel": {
+    "description": "Label of the relay address field."
+  },
+  "relayAddressHelper": "Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749",
+  "@relayAddressHelper": {
+    "description": "Helper under the relay address field."
+  },
+  "relayAddressAdvanced": "Erweitert: Relay-Adresse",
+  "@relayAddressAdvanced": {
+    "description": "Expandable section with the relay address (web)."
+  },
+  "relayAddressInvalid": "Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749",
+  "@relayAddressInvalid": {
+    "description": "Error for a malformed relay address."
+  },
+  "relayErrorUnknownCode": "Kein Raum mit dem Code {code}. Stimmt der Code, und wartet der Host noch?",
+  "@relayErrorUnknownCode": {
+    "description": "Relay error: no room with this code; code grouped like \"K7Q 2M\".",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "relayErrorRoomFull": "Raum {code} ist schon voll: Dort spielen bereits zwei.",
+  "@relayErrorRoomFull": {
+    "description": "Relay error: the room already has a guest.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "relayErrorHostLeft": "Der Host hat den Raum verlassen. Das Spiel ist beendet.",
+  "@relayErrorHostLeft": {
+    "description": "Relay: the host closed the room (guest banner / join error)."
+  },
+  "relayErrorExpired": "Der Raum ist abgelaufen (10 Minuten ohne Aktivität).",
+  "@relayErrorExpired": {
+    "description": "Relay: the room expired after 10 idle minutes."
+  },
+  "relayErrorUnreachable": "Kein Relay erreichbar unter {address}.",
+  "@relayErrorUnreachable": {
+    "description": "Relay not reachable; address = host:port or ws:// URL.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "relayErrorLost": "Die Verbindung zum Relay ist abgebrochen.",
+  "@relayErrorLost": {
+    "description": "Relay: the connection to the relay broke (relay stopped, network loss)."
+  },
+  "relayStartHint": "Browser gegen Browser braucht ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:",
+  "@relayStartHint": {
+    "description": "Shown when the page is not served by a relay; the start command follows on its own line."
+  },
+  "relayRoomLost": "{reason} Starte ein neues Spiel.",
+  "@relayRoomLost": {
+    "description": "Host banner when the relay room is gone; reason = relayErrorExpired / relayErrorLost.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "webJoinDirectTitle": "Oder mit einem Host-Gerät verbinden (App oder Terminal)",
+  "@webJoinDirectTitle": {
+    "description": "Web join screen: heading of the direct address section (native host)."
   }
 }

@@ -2,14 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_net/guest_web.dart' show relayUriForPage;
 
 import '../../net/join_payload.dart';
+import '../../net/room_link.dart';
 import '../../net/web_join_target.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
+import '../shell/game_screen.dart' show newGameSeed;
 import 'network_game_session.dart';
+import 'relay_host_screen.dart';
+import 'room_join.dart';
 
 /// Joins the host's WebSocket endpoint [url] (`ws://host:port`).
 typedef WebJoinTransportFactory = Future<NetworkTransport> Function(Uri url, {required String name});
@@ -22,6 +27,15 @@ const String webDefaultDeviceName = 'Browser';
 class WebJoinDeps {
   final WebJoinTransportFactory joinTransport;
 
+  /// Room-code join through the relay (KLD-057b).
+  final RelayJoinTransportFactory relayJoin;
+
+  /// "Spiel hosten" through the relay (KLD-057b).
+  final RelayHostTransportFactory relayHost;
+
+  /// Seed of a game hosted through the relay.
+  final int Function() seed;
+
   /// Suggestion for the player name when none is saved ("Browser").
   final String Function() deviceName;
 
@@ -31,6 +45,9 @@ class WebJoinDeps {
 
   const WebJoinDeps({
     required this.joinTransport,
+    this.relayJoin = platformRelayJoin,
+    this.relayHost = platformRelayHost,
+    this.seed = newGameSeed,
     this.deviceName = _browser,
     this.joinTimeout = const Duration(seconds: 12),
   });
@@ -38,9 +55,8 @@ class WebJoinDeps {
   static String _browser() => webDefaultDeviceName;
 
   /// The real thing: `NetworkTransport.joinWebSocket`.
-  factory WebJoinDeps.platform() => WebJoinDeps(
-        joinTransport: (url, {required name}) => NetworkTransport.joinWebSocket(url, name: name),
-      );
+  factory WebJoinDeps.platform() =>
+      WebJoinDeps(joinTransport: (url, {required name}) => NetworkTransport.joinWebSocket(url, name: name));
 }
 
 /// "Über WLAN spielen" in the browser (KLD-055): join-only. A web page can
@@ -64,6 +80,10 @@ class WebJoinScreen extends StatefulWidget {
   /// Connects to [initialInput] right away.
   final bool autoConnect;
 
+  /// A `?room=` link (KLD-057b): prefills the room code (and relay) and joins
+  /// right away if the code is valid.
+  final RoomLink? initialRoom;
+
   /// The page URL; an `https:` page gets a warning (browsers block `ws://`
   /// from https pages).
   final Uri? pageUrl;
@@ -71,9 +91,15 @@ class WebJoinScreen extends StatefulWidget {
   /// Overrides the app's player name controller (tests).
   final PlayerNameController? nameController;
 
-  WebJoinScreen(
-      {super.key, WebJoinDeps? deps, this.initialInput, this.autoConnect = false, this.pageUrl, this.nameController})
-      : deps = deps ?? WebJoinDeps.platform();
+  WebJoinScreen({
+    super.key,
+    WebJoinDeps? deps,
+    this.initialInput,
+    this.autoConnect = false,
+    this.initialRoom,
+    this.pageUrl,
+    this.nameController,
+  }) : deps = deps ?? WebJoinDeps.platform();
 
   @override
   State<WebJoinScreen> createState() => _WebJoinScreenState();
@@ -156,10 +182,35 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
       });
       return;
     }
+    _openGame(transport);
+  }
+
+  void _openGame(NetworkTransport transport) {
     _attempt++;
-    Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-      builder: (_) => NetworkGameSession(transport: transport!),
-    ));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute<void>(builder: (_) => NetworkGameSession(transport: transport)));
+  }
+
+  /// The relay of this page: its own server (null natively / in tests
+  /// without a page URL).
+  Uri? get _pageRelay => switch (widget.pageUrl) {
+    final p? => relayUriForPage(p),
+    null => null,
+  };
+
+  void _host() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => RelayHostScreen(
+          hostTransport: widget.deps.relayHost,
+          defaultRelay: _pageRelay,
+          pageUrl: widget.pageUrl,
+          seed: widget.deps.seed,
+          deviceName: widget.deps.deviceName,
+          nameController: widget.nameController,
+        ),
+      ),
+    );
   }
 
   void _cancelConnect() {
@@ -175,80 +226,134 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     final https = widget.pageUrl?.scheme == 'https';
     final target = WebJoinTarget.tryParse(_address.text);
     final game = target?.gameId;
+    final directFirst = (widget.initialInput ?? '').trim().isNotEmpty;
+    // Browser vs browser through the relay (KLD-057b).
+    final relay = <Widget>[
+      FilledButton.tonalIcon(
+        key: const Key('web-host'),
+        onPressed: busy ? null : _host,
+        icon: const Icon(Icons.wifi_tethering),
+        label: Text(l10n.pairingHostGame),
+      ),
+      const SizedBox(height: 4),
+      Text(l10n.relayHostIntro, style: theme.textTheme.bodySmall),
+      const Divider(height: 32),
+      RoomCodeJoin(
+        joinTransport: widget.deps.relayJoin,
+        joinTimeout: widget.deps.joinTimeout,
+        defaultRelay: _pageRelay,
+        initialCode: widget.initialRoom?.code ?? widget.initialRoom?.raw,
+        initialRelay: widget.initialRoom?.relay,
+        autoConnect: widget.initialRoom?.code != null,
+        ready: playerNameReady,
+        playerName: () => _deviceName,
+        onConnected: _openGame,
+      ),
+    ];
+    final direct = <Widget>[
+      Text(l10n.webJoinDirectTitle, style: theme.textTheme.titleMedium),
+      const SizedBox(height: 8),
+      Text(l10n.webJoinIntro, key: const Key('web-join-intro')),
+      const SizedBox(height: 16),
+      TextField(
+        key: const Key('web-join-address'),
+        controller: _address,
+        enabled: !busy,
+        keyboardType: TextInputType.url,
+        textDirection: TextDirection.ltr,
+        autocorrect: false,
+        decoration: InputDecoration(
+          labelText: l10n.webJoinAddressLabel,
+          hintText: '192.168.1.20',
+          helperText: l10n.webJoinAddressHelper(klunkiDefaultWebSocketPort),
+          helperMaxLines: 3,
+          errorText: _addressError,
+          errorMaxLines: 3,
+          border: const OutlineInputBorder(),
+        ),
+        onChanged: (_) => setState(() {}),
+        onSubmitted: (_) => _connectTyped(),
+      ),
+      if (target != null) ...[
+        const SizedBox(height: 4),
+        Text(
+          [
+            if (target.name != null) bidiName(context, target.name!),
+            if (game != null) localizedGameTitle(l10n, game, fallback: game),
+            bidiLtr(context, target.uri.toString()),
+          ].join(' · '),
+          key: const Key('web-join-target'),
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
+      const SizedBox(height: 8),
+      FilledButton(
+        key: const Key('web-join-connect'),
+        onPressed: busy ? null : _connectTyped,
+        child: Text(l10n.pairingConnect),
+      ),
+      if (busy) ...[
+        const SizedBox(height: 16),
+        Row(
+          key: const Key('web-join-progress'),
+          children: [
+            const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            const SizedBox(width: 12),
+            Expanded(child: Text(l10n.pairingConnecting(bidiLtr(context, _connecting!)))),
+            TextButton(onPressed: _cancelConnect, child: Text(l10n.pairingCancel)),
+          ],
+        ),
+      ],
+      if (_error != null) ...[
+        const SizedBox(height: 16),
+        Text(
+          _error!,
+          key: const Key('web-join-error'),
+          style: TextStyle(color: theme.colorScheme.error),
+        ),
+      ],
+    ];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pairingTitle)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
-            child: ListView(
+            // Not a lazy ListView: the room-code join keeps its state (and
+            // its `?room=` auto-join runs once) while scrolled out of view.
+            child: SingleChildScrollView(
               key: const Key('web-join'),
               padding: const EdgeInsets.all(16),
-              children: [
-                Text(l10n.webJoinIntro, key: const Key('web-join-intro')),
-                if (https) ...[
-                  const SizedBox(height: 12),
-                  Text(l10n.webJoinHttpsWarning,
-                      key: const Key('web-join-https'), style: TextStyle(color: theme.colorScheme.error)),
-                ],
-                const SizedBox(height: 16),
-                playerNameField(
-                    key: const Key('web-join-name'), enabled: !busy, textInputAction: TextInputAction.next),
-                const SizedBox(height: 16),
-                TextField(
-                  key: const Key('web-join-address'),
-                  controller: _address,
-                  enabled: !busy,
-                  keyboardType: TextInputType.url,
-                  textDirection: TextDirection.ltr,
-                  autocorrect: false,
-                  decoration: InputDecoration(
-                    labelText: l10n.webJoinAddressLabel,
-                    hintText: '192.168.1.20',
-                    helperText: l10n.webJoinAddressHelper(klunkiDefaultWebSocketPort),
-                    helperMaxLines: 3,
-                    errorText: _addressError,
-                    errorMaxLines: 3,
-                    border: const OutlineInputBorder(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (https) ...[
+                    Text(
+                      l10n.webJoinHttpsWarning,
+                      key: const Key('web-join-https'),
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  playerNameField(
+                    key: const Key('web-join-name'),
+                    enabled: !busy,
+                    textInputAction: TextInputAction.next,
                   ),
-                  onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) => _connectTyped(),
-                ),
-                if (target != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    [
-                      if (target.name != null) bidiName(context, target.name!),
-                      if (game != null) localizedGameTitle(l10n, game, fallback: game),
-                      bidiLtr(context, target.uri.toString()),
-                    ].join(' · '),
-                    key: const Key('web-join-target'),
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ],
-                const SizedBox(height: 8),
-                FilledButton(
-                  key: const Key('web-join-connect'),
-                  onPressed: busy ? null : _connectTyped,
-                  child: Text(l10n.pairingConnect),
-                ),
-                if (busy) ...[
                   const SizedBox(height: 16),
-                  Row(
-                    key: const Key('web-join-progress'),
-                    children: [
-                      const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(l10n.pairingConnecting(bidiLtr(context, _connecting!)))),
-                      TextButton(onPressed: _cancelConnect, child: Text(l10n.pairingCancel)),
-                    ],
-                  ),
+                  // `?join=` first shows the direct section (its progress and
+                  // error), otherwise the relay (KLD-057b) comes first.
+                  if (directFirst) ...[
+                    ...direct,
+                    const Divider(height: 32),
+                    ...relay,
+                  ] else ...[
+                    ...relay,
+                    const Divider(height: 32),
+                    ...direct,
+                  ],
                 ],
-                if (_error != null) ...[
-                  const SizedBox(height: 16),
-                  Text(_error!, key: const Key('web-join-error'), style: TextStyle(color: theme.colorScheme.error)),
-                ],
-              ],
+              ),
             ),
           ),
         ),

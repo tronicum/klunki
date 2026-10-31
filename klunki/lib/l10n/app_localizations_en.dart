@@ -855,4 +855,91 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get engineShipOther => 'Ship';
+
+  @override
+  String get relayHostIntro =>
+      'A second browser on the same Wi-Fi joins with the room code.';
+
+  @override
+  String get relayRoomCode => 'Room code';
+
+  @override
+  String get relayWaitingHint =>
+      'Open the link on the second device or scan the QR code. Or open Klunki there and enter the room code.';
+
+  @override
+  String relayInfo(String address) {
+    return 'Relay: $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'Join with a room code';
+
+  @override
+  String get relayCodeHelper =>
+      '5 characters. The browser hosting the game shows the code.';
+
+  @override
+  String get relayCodeInvalid =>
+      'Invalid room code: 5 letters or digits (no 0, O, 1, I, L).';
+
+  @override
+  String get relayJoin => 'Join room';
+
+  @override
+  String relayJoining(String code) {
+    return 'Joining room $code…';
+  }
+
+  @override
+  String get relayAddressLabel => 'Relay address';
+
+  @override
+  String get relayAddressHelper =>
+      'Computer on the Wi-Fi running \"klunki relay\", e.g. 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'Advanced: relay address';
+
+  @override
+  String get relayAddressInvalid =>
+      'Invalid relay address. Example: 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'No room with the code $code. Is the code right, and is the host still waiting?';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'Room $code is already full: two are playing there.';
+  }
+
+  @override
+  String get relayErrorHostLeft => 'The host left the room. The game is over.';
+
+  @override
+  String get relayErrorExpired =>
+      'The room expired (10 minutes without activity).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'No relay reachable at $address.';
+  }
+
+  @override
+  String get relayErrorLost => 'The connection to the relay was lost.';
+
+  @override
+  String get relayStartHint =>
+      'Browser vs browser needs a relay. Start it on a computer on the Wi-Fi and open Klunki from its address:';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason Start a new game.';
+  }
+
+  @override
+  String get webJoinDirectTitle =>
+      'Or connect to a host device (app or terminal)';
 }

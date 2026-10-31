@@ -25,37 +25,54 @@ class JoinQrCode extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Semantics(
-          label: 'QR-Code zum Beitreten: ${payload.address}',
-          image: true,
-          child: ExcludeSemantics(
-            child: Container(
-              // Always dark on white: scanners need the contrast, whatever the theme.
-              color: Colors.white,
-              padding: const EdgeInsets.all(8),
-              child: QrImageView(
-                data: data,
-                size: size,
-                backgroundColor: Colors.white,
-                eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
-                dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
-                errorCorrectionLevel: QrErrorCorrectLevel.M,
-                errorStateBuilder: (context, error) => SizedBox.square(
-                  dimension: size,
-                  child: const Center(child: Text('QR-Code nicht verfügbar', textAlign: TextAlign.center)),
-                ),
-              ),
-            ),
-          ),
-        ),
+        KlunkiQrCode(data: data, size: size, semanticLabel: 'QR-Code zum Beitreten: ${payload.address}'),
         if (showAddress) ...[
           const SizedBox(height: 8),
           SelectableText(
             payload.address,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
           ),
         ],
       ],
+    );
+  }
+}
+
+/// A plain QR code for [data], always dark on white (scanners need the
+/// contrast, whatever the theme). Used for the `klunki://` join payload and
+/// for the relay room link (KLD-057).
+class KlunkiQrCode extends StatelessWidget {
+  final String data;
+  final double size;
+  final String semanticLabel;
+
+  const KlunkiQrCode({super.key, required this.data, this.size = 200, required this.semanticLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: semanticLabel,
+      image: true,
+      child: ExcludeSemantics(
+        child: Container(
+          // Always dark on white: scanners need the contrast, whatever the theme.
+          color: Colors.white,
+          padding: const EdgeInsets.all(8),
+          child: QrImageView(
+            data: data,
+            size: size,
+            backgroundColor: Colors.white,
+            eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
+            dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
+            errorCorrectionLevel: QrErrorCorrectLevel.M,
+            errorStateBuilder: (context, error) => SizedBox.square(
+              dimension: size,
+              child: const Center(child: Text('QR-Code nicht verfügbar', textAlign: TextAlign.center)),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

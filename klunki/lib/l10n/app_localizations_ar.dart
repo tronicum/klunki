@@ -880,4 +880,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get engineShipOther => 'سفينة';
+
+  @override
+  String get relayHostIntro =>
+      'ينضم متصفح ثانٍ على شبكة Wi-Fi نفسها برمز الغرفة.';
+
+  @override
+  String get relayRoomCode => 'رمز الغرفة';
+
+  @override
+  String get relayWaitingHint =>
+      'افتح الرابط على الجهاز الثاني أو امسح رمز QR. أو افتح Klunki هناك وأدخل رمز الغرفة.';
+
+  @override
+  String relayInfo(String address) {
+    return 'المُرحِّل: $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'الانضمام برمز الغرفة';
+
+  @override
+  String get relayCodeHelper => '5 رموز. يعرض المتصفح المستضيف للعبة الرمز.';
+
+  @override
+  String get relayCodeInvalid =>
+      'رمز غرفة غير صالح: 5 أحرف أو أرقام (بدون 0 وO و1 وI وL).';
+
+  @override
+  String get relayJoin => 'انضم إلى الغرفة';
+
+  @override
+  String relayJoining(String code) {
+    return 'جارٍ الانضمام إلى الغرفة $code…';
+  }
+
+  @override
+  String get relayAddressLabel => 'عنوان المُرحِّل';
+
+  @override
+  String get relayAddressHelper =>
+      'حاسوب على شبكة Wi-Fi يشغّل «klunki relay»، مثلًا 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'متقدم: عنوان المُرحِّل';
+
+  @override
+  String get relayAddressInvalid =>
+      'عنوان مُرحِّل غير صالح. مثال: 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'لا توجد غرفة بالرمز $code. هل الرمز صحيح، وهل ما زال المضيف ينتظر؟';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'الغرفة $code ممتلئة: يلعب فيها اثنان بالفعل.';
+  }
+
+  @override
+  String get relayErrorHostLeft => 'غادر المضيف الغرفة. انتهت اللعبة.';
+
+  @override
+  String get relayErrorExpired => 'انتهت صلاحية الغرفة (10 دقائق دون نشاط).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'لا يوجد مُرحِّل متاح على $address.';
+  }
+
+  @override
+  String get relayErrorLost => 'انقطع الاتصال بالمُرحِّل.';
+
+  @override
+  String get relayStartHint =>
+      'يتطلب اللعب بين متصفحين مُرحِّلًا. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason ابدأ لعبة جديدة.';
+  }
+
+  @override
+  String get webJoinDirectTitle => 'أو اتصل بجهاز مضيف (تطبيق أو طرفية)';
 }

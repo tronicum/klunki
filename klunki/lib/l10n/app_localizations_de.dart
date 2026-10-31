@@ -856,4 +856,92 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get engineShipOther => 'Schiff';
+
+  @override
+  String get relayHostIntro =>
+      'Ein zweiter Browser im selben WLAN tritt mit dem Raumcode bei.';
+
+  @override
+  String get relayRoomCode => 'Raumcode';
+
+  @override
+  String get relayWaitingHint =>
+      'Öffne den Link auf dem zweiten Gerät oder scanne den QR-Code. Oder öffne dort Klunki und gib den Raumcode ein.';
+
+  @override
+  String relayInfo(String address) {
+    return 'Relay: $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'Mit Raumcode beitreten';
+
+  @override
+  String get relayCodeHelper =>
+      '5 Zeichen. Der Browser, der das Spiel hostet, zeigt den Code.';
+
+  @override
+  String get relayCodeInvalid =>
+      'Ungültiger Raumcode: 5 Buchstaben oder Ziffern (ohne 0, O, 1, I, L).';
+
+  @override
+  String get relayJoin => 'Raum beitreten';
+
+  @override
+  String relayJoining(String code) {
+    return 'Trete Raum $code bei…';
+  }
+
+  @override
+  String get relayAddressLabel => 'Relay-Adresse';
+
+  @override
+  String get relayAddressHelper =>
+      'Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'Erweitert: Relay-Adresse';
+
+  @override
+  String get relayAddressInvalid =>
+      'Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'Kein Raum mit dem Code $code. Stimmt der Code, und wartet der Host noch?';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'Raum $code ist schon voll: Dort spielen bereits zwei.';
+  }
+
+  @override
+  String get relayErrorHostLeft =>
+      'Der Host hat den Raum verlassen. Das Spiel ist beendet.';
+
+  @override
+  String get relayErrorExpired =>
+      'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'Kein Relay erreichbar unter $address.';
+  }
+
+  @override
+  String get relayErrorLost => 'Die Verbindung zum Relay ist abgebrochen.';
+
+  @override
+  String get relayStartHint =>
+      'Browser gegen Browser braucht ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason Starte ein neues Spiel.';
+  }
+
+  @override
+  String get webJoinDirectTitle =>
+      'Oder mit einem Host-Gerät verbinden (App oder Terminal)';
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
+import 'package:klunki/net/room_link.dart';
 import 'package:klunki/net/web_join_target.dart';
 import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/ui/menu_screen.dart';
@@ -18,7 +19,7 @@ import 'theme.dart';
 ///
 /// [pageUrl] is the page URL on the web (default [Uri.base] there, nothing
 /// natively): `?join=<klunki:// link>` opens the browser join flow at start
-/// (KLD-055).
+/// (KLD-055), `?room=CODE[&relay=host:port]` joins a relay room (KLD-057b).
 class KlunkiApp extends StatefulWidget {
   const KlunkiApp({
     super.key,
@@ -54,6 +55,7 @@ class _KlunkiAppState extends State<KlunkiApp> {
   late final HotSeatNamesController _hotSeat = widget.hotSeatNames ?? HotSeatNamesController.memory();
   late final Uri? _pageUrl = widget.pageUrl ?? (kIsWeb ? Uri.base : null);
   late final String? _joinLink = WebJoinTarget.joinParameter(_pageUrl);
+  late final RoomLink? _room = RoomLink.fromPage(_pageUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +79,8 @@ class _KlunkiAppState extends State<KlunkiApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: AppLocalizations.supportedLocales,
-            home: MenuScreen(initialJoinLink: _joinLink, pageUrl: _pageUrl, webJoinDeps: widget.webJoinDeps),
+            home: MenuScreen(
+                initialJoinLink: _joinLink, initialRoom: _room, pageUrl: _pageUrl, webJoinDeps: widget.webJoinDeps),
           ),
         ),
       ),

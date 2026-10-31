@@ -862,4 +862,92 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get engineShipOther => 'Barco';
+
+  @override
+  String get relayHostIntro =>
+      'Un segundo navegador en la misma red wifi se une con el código de sala.';
+
+  @override
+  String get relayRoomCode => 'Código de sala';
+
+  @override
+  String get relayWaitingHint =>
+      'Abre el enlace en el segundo dispositivo o escanea el código QR. O abre Klunki allí e introduce el código de sala.';
+
+  @override
+  String relayInfo(String address) {
+    return 'Relé: $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'Unirse con un código de sala';
+
+  @override
+  String get relayCodeHelper =>
+      '5 caracteres. El navegador que crea la partida muestra el código.';
+
+  @override
+  String get relayCodeInvalid =>
+      'Código de sala no válido: 5 letras o cifras (sin 0, O, 1, I, L).';
+
+  @override
+  String get relayJoin => 'Entrar en la sala';
+
+  @override
+  String relayJoining(String code) {
+    return 'Entrando en la sala $code…';
+  }
+
+  @override
+  String get relayAddressLabel => 'Dirección del relé';
+
+  @override
+  String get relayAddressHelper =>
+      'Ordenador de la red wifi que ejecuta «klunki relay», p. ej. 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'Avanzado: dirección del relé';
+
+  @override
+  String get relayAddressInvalid =>
+      'Dirección de relé no válida. Ejemplo: 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'No hay ninguna sala con el código $code. ¿Es correcto el código y sigue esperando el anfitrión?';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'La sala $code ya está llena: allí ya juegan dos.';
+  }
+
+  @override
+  String get relayErrorHostLeft =>
+      'El anfitrión ha salido de la sala. La partida ha terminado.';
+
+  @override
+  String get relayErrorExpired =>
+      'La sala ha caducado (10 minutos sin actividad).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'No hay ningún relé accesible en $address.';
+  }
+
+  @override
+  String get relayErrorLost => 'Se ha perdido la conexión con el relé.';
+
+  @override
+  String get relayStartHint =>
+      'Navegador contra navegador necesita un relé. Inícialo en un ordenador de la red wifi y abre Klunki desde su dirección:';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason Empieza una partida nueva.';
+  }
+
+  @override
+  String get webJoinDirectTitle =>
+      'O conectar con un dispositivo anfitrión (app o terminal)';
 }

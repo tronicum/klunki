@@ -864,4 +864,92 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get engineShipOther => 'Navire';
+
+  @override
+  String get relayHostIntro =>
+      'Un second navigateur sur le même Wi-Fi rejoint la partie avec le code de salle.';
+
+  @override
+  String get relayRoomCode => 'Code de salle';
+
+  @override
+  String get relayWaitingHint =>
+      'Ouvre le lien sur le second appareil ou scanne le code QR. Ou ouvre Klunki dessus et saisis le code de salle.';
+
+  @override
+  String relayInfo(String address) {
+    return 'Relais : $address';
+  }
+
+  @override
+  String get relayJoinTitle => 'Rejoindre avec un code de salle';
+
+  @override
+  String get relayCodeHelper =>
+      '5 caractères. Le navigateur qui héberge la partie affiche le code.';
+
+  @override
+  String get relayCodeInvalid =>
+      'Code de salle invalide : 5 lettres ou chiffres (sans 0, O, 1, I, L).';
+
+  @override
+  String get relayJoin => 'Rejoindre la salle';
+
+  @override
+  String relayJoining(String code) {
+    return 'Connexion à la salle $code…';
+  }
+
+  @override
+  String get relayAddressLabel => 'Adresse du relais';
+
+  @override
+  String get relayAddressHelper =>
+      'Ordinateur du Wi-Fi qui exécute « klunki relay », p. ex. 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => 'Avancé : adresse du relais';
+
+  @override
+  String get relayAddressInvalid =>
+      'Adresse de relais invalide. Exemple : 192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return 'Aucune salle avec le code $code. Le code est-il juste, et l’hôte attend-il encore ?';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return 'La salle $code est déjà pleine : deux joueurs y jouent.';
+  }
+
+  @override
+  String get relayErrorHostLeft =>
+      'L’hôte a quitté la salle. La partie est terminée.';
+
+  @override
+  String get relayErrorExpired =>
+      'La salle a expiré (10 minutes sans activité).';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return 'Aucun relais joignable à $address.';
+  }
+
+  @override
+  String get relayErrorLost => 'La connexion au relais a été perdue.';
+
+  @override
+  String get relayStartHint =>
+      'Navigateur contre navigateur nécessite un relais. Lance-le sur un ordinateur du Wi-Fi et ouvre Klunki depuis son adresse :';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason Lance une nouvelle partie.';
+  }
+
+  @override
+  String get webJoinDirectTitle =>
+      'Ou se connecter à un appareil hôte (appli ou terminal)';
 }

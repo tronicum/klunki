@@ -1,9 +1,9 @@
 # KLD-057: Browser hosts a game (relay with room codes)
 
-- **ID:** `KLD-057a` (network package + CLI, DONE), `KLD-057b` (UI, open)
+- **ID:** `KLD-057a` (network package + CLI, DONE), `KLD-057b` (UI, DONE)
 - **Title:** Browser vs browser: a relay pairs a host and a guest by room code; the host stays authoritative
 - **Milestone:** P3/P4 (PWA multiplayer)
-- **Status:** 057a DONE · 057b TODO
+- **Status:** 057a DONE · 057b DONE
 - **Depends on:** KLD-054 (WebSocket in `klunki_net`), KLD-055 (web join screen), KLD-056 (player names)
 - **Touched paths (057a):**
   - `packages/klunki_net/lib/src/relay/relay_protocol.dart` (new, web-safe: codes, URLs, control messages)
@@ -106,19 +106,60 @@ dart run klunki_net:klunki join --relay ws://<relay>[:port] --room CODE [--name 
       `web_compile_test` compiles a relay host + guest for the web
 - [x] `PROTOCOL.md` "Relay" section, `BOARD.md`
 
-## KLD-057b: what the UI needs (open)
-- **Host:** a "Spiel hosten" entry in the web pairing flow (and optionally in the apps): pick a game, call
-  `KlunkiHost.startRelay(config, relayUriForPage(Uri.base)!, name: profile name)`, show `roomCode` large
-  (plus a copyable `?room=` link), wait for `PeerConnected`, then start the same `NetworkGameSession`.
-  `NetworkTransport` needs a `hostRelay(...)` factory next to `host`/`joinWebSocket` (the host session API is
-  the same, so the transport code should only need the factory). Show `NetError('relay: …')` as "room lost".
-- **Join:** a room-code field in `WebJoinScreen` (5 characters, uppercase, `normalizeRoomCode`), relay from
-  the page origin; `NetworkTransport.joinRelay(relayUrl, code, name:)` → `KlunkiGuest.connectRelay`.
-  Map `relay: no room with code` / `is full` to German hints. Optionally `?room=CODE` at startup.
-- **Relay address:** default = page origin (`relayUriForPage`); when the PWA is served elsewhere (e.g.
-  python http.server), the user needs a field for the relay address (`parseRelayUrl`). Native apps have no
-  page origin: they would need a typed relay address, or keep hosting directly (they can listen).
-- Strings in all 7 ARB files; widget tests with a real `RelayServer` on loopback.
+## KLD-057b: the UI (DONE)
+**Touched paths:** `klunki/lib/transport/network_transport.dart` (`hostRelay`, `joinRelay`, `roomCode`,
+`relayUrl`, `roomLost`, `changes`), `klunki/lib/net/room_link.dart` (new: `formatRoomCode`, `RoomLink`
+(`?room=` / `&relay=`), `roomJoinLink`, `relayAddressLabel`, `relayStartCommand`), `klunki/lib/net/join_qr.dart`
+(`KlunkiQrCode` for any string), `klunki/lib/ui/pairing/relay_host_screen.dart` (new),
+`room_join.dart` (new, `RoomCodeJoin` + `RelayStartHint`), `relay_errors.dart` (new),
+`web_join_screen.dart`, `pairing_screen.dart` (join tab), `network_game_session.dart` (relay banners),
+`klunki/lib/app/klunki_app.dart`, `klunki/lib/ui/menu_screen.dart` (`?room=`), 7 ARB files (+ generated),
+`klunki/assets/fonts/NotoSansSC/**` (subset rerun), `klunki/tool/pwa_relay_e2e.{sh,mjs}` (new), tests, `docs/DEMO.md`.
+
+What the user sees:
+- **PWA → Über WLAN spielen:** name field, then **Spiel hosten** ("Ein zweiter Browser im selben WLAN tritt mit
+  dem Raumcode bei."), then **Mit Raumcode beitreten** (code field in capitals, "Erweitert: Relay-Adresse"
+  prefilled with the page's own `host:port`, **Raum beitreten**), then the existing direct join to a native host
+  ("Oder mit einem Host-Gerät verbinden"). With `?join=` the direct section comes first.
+- **Spiel hosten:** name, game choice (same list as the app's host tab), "Erweitert: Relay-Adresse",
+  **Spiel hosten** → waiting screen: "Ada hostet 4 Gewinnt", **Raumcode** large and grouped (`K7Q 2M`), QR code of
+  the join link, the link `<page>/?room=K7Q2M` (selectable, copy button; `&relay=host:port` when another relay was
+  chosen), a hint, "Relay: host:port", spinner "Warte auf Mitspieler…", Abbrechen. When the guest's hello
+  arrives the route is replaced by the usual `NetworkGameSession` (connection bar with both names).
+- **`?room=CODE[&relay=…]`** at startup opens the join screen over the menu with the code filled in and joins
+  right away (after the first-run name dialog), like `?join=`. An invalid code is only prefilled.
+- **Not served by a relay** (plain `python3 -m http.server`): "Kein Relay erreichbar unter host:port." plus
+  "Browser gegen Browser braucht ein Relay …" and the command `dart run klunki_net:klunki relay --web klunki/build/web`.
+- **Errors** (`relay_errors.dart`, from the `klunki_net` messages): unknown code, room full, host left, room expired,
+  relay not reachable (also a join timeout), relay connection lost. Anything else falls back to the usual
+  "Verbindung zu … fehlgeschlagen (…)".
+- **In the game:** a relay guest whose host left (bye, or `relay: host left`) gets "Der Host hat den Raum verlassen.
+  Das Spiel ist beendet." without the pointless "Neu verbinden"; a guest that lost its own connection keeps
+  "Neu verbinden" (token rejoin through the room). A relay host whose room is lost (`NetError('relay: …')`, e.g.
+  relay restart or idle expiry) gets "… Starte ein neues Spiel." instead of "Warte, bis er wieder beitritt".
+- **Apps (native):** the join tab gets the same **Mit Raumcode beitreten** block with a visible, required relay
+  address field (an app has no page origin). Hosting through the relay from the apps was skipped (they can listen
+  directly); the LAN host flow is unchanged.
+
+l10n: 22 new keys (`relay*`, `webJoinDirectTitle`) in all 7 ARB files; fr/es/zh/ar/fa are machine translations
+under the existing `@@x-review` marker. Room codes, addresses and URLs are LTR (`bidiLtr`, `textDirection: ltr`).
+The Noto Sans SC subset was rebuilt (`tool/update_web_fonts.py subset`) for the new zh characters.
+
+Tests:
+- `test/net/room_link_test.dart`: code grouping, `?room=`/`&relay=` parsing, join links, error classification.
+- `test/ui/pairing/relay_test.dart`: room-code validation and normalisation (`k7q-2m` → `K7Q2M`, page relay),
+  each relay error's text and the start hint, the advanced relay field, the native join tab, `?room=` at startup
+  (name dialog first, `&relay=`, invalid code), the host waiting screen against a real `RelayServer` on loopback
+  (grouped code, link = QR data, guest arrives → game), no relay → start hint, relay stops while waiting →
+  "Die Verbindung zum Relay ist abgebrochen.", and an **in-process end to end** game: two web join screens, A hosts via
+  the relay, B types the code, Four in a Row to the result on both, then A leaves and B sees "Der Host hat den Raum
+  verlassen" without "Neu verbinden".
+- `test/l10n/coverage_test.dart` ("relay host and room join", every locale, two sizes), `rtl_test.dart` (ar).
+- **Real browsers:** `klunki/tool/pwa_relay_e2e.sh [--build] [--port N] [--out DIR]` starts the relay with
+  `--web build/web` and a plain python server, then drives two headless Firefox instances over WebDriver BiDi
+  (Flutter's accessibility tree is switched on, widgets are found by their semantics labels and tapped with real
+  pointer events; no app test hooks). Run 1: the plain server shows the "no relay" hint, A hosts, B types the code,
+  7 moves, both show the result. Run 2: B opens A's `?room=` link instead. PASS/FAIL + screenshots.
 
 ## Constraints / notes
 - No new dependencies (plain `dart:io` server). No changes to the app in 057a.
@@ -128,4 +169,5 @@ dart run klunki_net:klunki join --relay ws://<relay>[:port] --room CODE [--name 
   kicks it or the relay's WebSocket ping (20 s) notices; then it can rejoin.
 
 ## Definition of done
-`cd packages/klunki_net && dart analyze && dart test`; `cd packages/klunki_engine && dart analyze && dart test`.
+`cd packages/klunki_net && dart analyze && dart test`; `cd packages/klunki_engine && dart analyze && dart test`;
+`cd klunki && flutter analyze && flutter test`; `klunki/tool/pwa_relay_e2e.sh --build` (057b).

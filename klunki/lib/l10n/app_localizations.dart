@@ -1409,6 +1409,138 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Schiff'**
   String get engineShipOther;
+
+  /// Web pairing screen, under the "Spiel hosten" button (KLD-057).
+  ///
+  /// In de, this message translates to:
+  /// **'Ein zweiter Browser im selben WLAN tritt mit dem Raumcode bei.'**
+  String get relayHostIntro;
+
+  /// Label of the room code (host waiting screen and the join field).
+  ///
+  /// In de, this message translates to:
+  /// **'Raumcode'**
+  String get relayRoomCode;
+
+  /// Host waiting screen: how the second player joins.
+  ///
+  /// In de, this message translates to:
+  /// **'Öffne den Link auf dem zweiten Gerät oder scanne den QR-Code. Oder öffne dort Klunki und gib den Raumcode ein.'**
+  String get relayWaitingHint;
+
+  /// Small line with the relay address (host:port).
+  ///
+  /// In de, this message translates to:
+  /// **'Relay: {address}'**
+  String relayInfo(String address);
+
+  /// Heading of the room-code join section.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Raumcode beitreten'**
+  String get relayJoinTitle;
+
+  /// Helper text under the room code field.
+  ///
+  /// In de, this message translates to:
+  /// **'5 Zeichen. Der Browser, der das Spiel hostet, zeigt den Code.'**
+  String get relayCodeHelper;
+
+  /// Error for a malformed room code.
+  ///
+  /// In de, this message translates to:
+  /// **'Ungültiger Raumcode: 5 Buchstaben oder Ziffern (ohne 0, O, 1, I, L).'**
+  String get relayCodeInvalid;
+
+  /// Button: join the room.
+  ///
+  /// In de, this message translates to:
+  /// **'Raum beitreten'**
+  String get relayJoin;
+
+  /// Progress while joining a room; code is grouped like "K7Q 2M".
+  ///
+  /// In de, this message translates to:
+  /// **'Trete Raum {code} bei…'**
+  String relayJoining(String code);
+
+  /// Label of the relay address field.
+  ///
+  /// In de, this message translates to:
+  /// **'Relay-Adresse'**
+  String get relayAddressLabel;
+
+  /// Helper under the relay address field.
+  ///
+  /// In de, this message translates to:
+  /// **'Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749'**
+  String get relayAddressHelper;
+
+  /// Expandable section with the relay address (web).
+  ///
+  /// In de, this message translates to:
+  /// **'Erweitert: Relay-Adresse'**
+  String get relayAddressAdvanced;
+
+  /// Error for a malformed relay address.
+  ///
+  /// In de, this message translates to:
+  /// **'Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749'**
+  String get relayAddressInvalid;
+
+  /// Relay error: no room with this code; code grouped like "K7Q 2M".
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Raum mit dem Code {code}. Stimmt der Code, und wartet der Host noch?'**
+  String relayErrorUnknownCode(String code);
+
+  /// Relay error: the room already has a guest.
+  ///
+  /// In de, this message translates to:
+  /// **'Raum {code} ist schon voll: Dort spielen bereits zwei.'**
+  String relayErrorRoomFull(String code);
+
+  /// Relay: the host closed the room (guest banner / join error).
+  ///
+  /// In de, this message translates to:
+  /// **'Der Host hat den Raum verlassen. Das Spiel ist beendet.'**
+  String get relayErrorHostLeft;
+
+  /// Relay: the room expired after 10 idle minutes.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).'**
+  String get relayErrorExpired;
+
+  /// Relay not reachable; address = host:port or ws:// URL.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Relay erreichbar unter {address}.'**
+  String relayErrorUnreachable(String address);
+
+  /// Relay: the connection to the relay broke (relay stopped, network loss).
+  ///
+  /// In de, this message translates to:
+  /// **'Die Verbindung zum Relay ist abgebrochen.'**
+  String get relayErrorLost;
+
+  /// Shown when the page is not served by a relay; the start command follows on its own line.
+  ///
+  /// In de, this message translates to:
+  /// **'Browser gegen Browser braucht ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:'**
+  String get relayStartHint;
+
+  /// Host banner when the relay room is gone; reason = relayErrorExpired / relayErrorLost.
+  ///
+  /// In de, this message translates to:
+  /// **'{reason} Starte ein neues Spiel.'**
+  String relayRoomLost(String reason);
+
+  /// Web join screen: heading of the direct address section (native host).
+  ///
+  /// In de, this message translates to:
+  /// **'Oder mit einem Host-Gerät verbinden (App oder Terminal)'**
+  String get webJoinDirectTitle;
 }
 
 class _AppLocalizationsDelegate

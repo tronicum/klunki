@@ -19,6 +19,7 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
+import 'room_join.dart';
 import 'web_join_screen.dart';
 
 /// Starts a host session for [config] on TCP [port] and WebSocket [wsPort]
@@ -37,6 +38,9 @@ class PairingDeps {
   final DiscoveryService? Function() discovery;
   final HostTransportFactory hostTransport;
   final JoinTransportFactory joinTransport;
+
+  /// Joins a relay room by code (KLD-057b).
+  final RelayJoinTransportFactory relayJoin;
 
   /// This device's LAN IPv4 addresses, best first.
   final Future<List<String>> Function() localAddresses;
@@ -62,6 +66,7 @@ class PairingDeps {
     required this.discovery,
     required this.hostTransport,
     required this.joinTransport,
+    this.relayJoin = platformRelayJoin,
     required this.localAddresses,
     required this.deviceName,
     this.seed = newGameSeed,
@@ -640,6 +645,20 @@ class _JoinPanelState extends State<_JoinPanel> {
           const SizedBox(height: 16),
           Text(_error!, key: const Key('pair-join-error'), style: TextStyle(color: theme.colorScheme.error)),
         ],
+        // A browser hosting through the relay (KLD-057b): an app has no page
+        // origin, so the relay address is typed.
+        const Divider(height: 32),
+        RoomCodeJoin(
+          joinTransport: widget.deps.relayJoin,
+          joinTimeout: widget.deps.joinTimeout,
+          playerName: widget.deviceName,
+          onConnected: (t) {
+            _attempt++;
+            _browse?.cancel();
+            _browse = null;
+            widget.onConnected(t);
+          },
+        ),
       ],
     );
   }

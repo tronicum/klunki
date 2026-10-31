@@ -10,8 +10,10 @@ import 'package:klunki/net/join_payload.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/web_join_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:klunki_net/klunki_net.dart' show NetException;
 
 import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
@@ -182,5 +184,39 @@ void main() {
     final manual = tester.widget<TextField>(find.byKey(const Key('pair-manual')));
     expect(manual.textDirection, TextDirection.ltr);
     await unmountAndSettleSockets(tester, created);
+  });
+
+  testWidgets('room join in ar (KLD-057b): code field LTR, code and relay address isolated LTR in the errors',
+      (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    Object error = const NetException('relay: no room with code K7Q2M');
+    await tester.pumpWidget(localizedApp(
+      WebJoinScreen(
+        pageUrl: Uri.parse('http://192.168.1.5:8000/'),
+        deps: WebJoinDeps(
+          joinTransport: (url, {required name}) => Future.error(StateError('unused')),
+          relayJoin: (relay, code, {required name}) => Future.error(error),
+        ),
+      ),
+      locale: ar,
+    ));
+    await tester.pump();
+    expect(dirOf(tester, find.byKey(const Key('room-code'))), TextDirection.rtl);
+    expect(tester.widget<TextField>(find.byKey(const Key('room-code'))).textDirection, TextDirection.ltr);
+    Future<String> errorFor(Object e) async {
+      error = e;
+      await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
+      await tester.testTextInput.receiveAction(TextInputAction.go);
+      await tester.pump();
+      await tester.pump();
+      return tester.widget<Text>(find.byKey(const Key('room-error'))).data!;
+    }
+
+    expect(await errorFor(const NetException('relay: no room with code K7Q2M')), contains('\u2066K7Q 2M\u2069'));
+    expect(await errorFor(const NetException('cannot connect: refused')), contains('\u2066192.168.1.5:8000\u2069'));
+    final command = tester.widget<SelectableText>(find.byKey(const Key('relay-start-command')));
+    expect(command.textDirection, TextDirection.ltr);
   });
 }

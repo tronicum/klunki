@@ -836,4 +836,84 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get engineShipOther => '舰船';
+
+  @override
+  String get relayHostIntro => '同一 Wi-Fi 下的另一个浏览器用房间码加入。';
+
+  @override
+  String get relayRoomCode => '房间码';
+
+  @override
+  String get relayWaitingHint => '在第二台设备上打开链接或扫描二维码。也可以在那里打开 Klunki 并输入房间码。';
+
+  @override
+  String relayInfo(String address) {
+    return '中继：$address';
+  }
+
+  @override
+  String get relayJoinTitle => '用房间码加入';
+
+  @override
+  String get relayCodeHelper => '5 个字符。创建游戏的浏览器会显示该码。';
+
+  @override
+  String get relayCodeInvalid => '房间码无效：5 个字母或数字（不含 0、O、1、I、L）。';
+
+  @override
+  String get relayJoin => '加入房间';
+
+  @override
+  String relayJoining(String code) {
+    return '正在加入房间 $code…';
+  }
+
+  @override
+  String get relayAddressLabel => '中继地址';
+
+  @override
+  String get relayAddressHelper =>
+      '同一 Wi-Fi 中运行 “klunki relay” 的电脑，例如 192.168.1.20:4749';
+
+  @override
+  String get relayAddressAdvanced => '高级：中继地址';
+
+  @override
+  String get relayAddressInvalid => '中继地址无效。示例：192.168.1.20:4749';
+
+  @override
+  String relayErrorUnknownCode(String code) {
+    return '没有房间码为 $code 的房间。请确认房间码正确，且主机仍在等待。';
+  }
+
+  @override
+  String relayErrorRoomFull(String code) {
+    return '房间 $code 已满：已有两人在玩。';
+  }
+
+  @override
+  String get relayErrorHostLeft => '主机已离开房间，游戏结束。';
+
+  @override
+  String get relayErrorExpired => '房间已过期（10 分钟无活动）。';
+
+  @override
+  String relayErrorUnreachable(String address) {
+    return '无法连接 $address 上的中继。';
+  }
+
+  @override
+  String get relayErrorLost => '与中继的连接已断开。';
+
+  @override
+  String get relayStartHint =>
+      '浏览器对战浏览器需要一个中继。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：';
+
+  @override
+  String relayRoomLost(String reason) {
+    return '$reason请开始新游戏。';
+  }
+
+  @override
+  String get webJoinDirectTitle => '或连接到主机设备（应用或终端）';
 }

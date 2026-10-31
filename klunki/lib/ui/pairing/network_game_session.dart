@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../game/game_controller.dart';
 import '../../transport/network_transport.dart';
 import '../ltr.dart';
+import 'relay_errors.dart';
 import '../shell/game_screen.dart';
 import '../shell/screen_registry.dart';
 
@@ -101,18 +102,37 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
     return l10n.pairingPeerLost(peer);
   }
 
+  /// Relay games (KLD-057b): the room is gone (host left, expired, relay
+  /// lost), so waiting or reconnecting is pointless; null otherwise.
+  String? _roomClosedText(BuildContext context) {
+    if (t.roomCode == null) return null;
+    final lost = t.roomLost;
+    if (t.role == NetRole.host) {
+      if (lost == null) return null;
+      final why = relayErrorText(context, lost, relay: t.relayUrl) ?? lost;
+      return AppLocalizations.of(context).relayRoomLost(why);
+    }
+    final reason = t.lastDisconnectReason ?? '';
+    // A relay host that says bye has closed its session, and with it the room.
+    if (reason.startsWith('peer left')) return AppLocalizations.of(context).relayErrorHostLeft;
+    if (!relayRoomClosed(classifyRelayError(reason))) return null;
+    return relayErrorText(context, reason, code: t.roomCode, relay: t.relayUrl);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    return ValueListenableBuilder<NetConnectionState>(
-      valueListenable: t.connection,
-      builder: (context, state, _) {
+    return ListenableBuilder(
+      listenable: t.changes,
+      builder: (context, _) {
+        final state = t.connection.value;
         final me = t.me;
         final peerName = t.peerName;
         final peer = peerName == null ? l10n.pairingOpponent : bidiName(context, peerName);
         final missing = state == NetConnectionState.peerMissing;
         final reconnecting = state == NetConnectionState.reconnecting;
+        final roomClosed = missing ? _roomClosedText(context) : null;
         return Material(
           key: const Key('net-bar'),
           color: theme.colorScheme.surfaceContainer,
@@ -138,13 +158,13 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                           child: Text(
                             reconnecting
                                 ? l10n.pairingReconnecting
-                                : t.role == NetRole.host
+                                : roomClosed ?? (t.role == NetRole.host
                                     ? l10n.pairingWaitForRejoin(_missingText(l10n, peer))
-                                    : _missingText(l10n, peer),
+                                    : _missingText(l10n, peer)),
                             style: TextStyle(color: theme.colorScheme.onErrorContainer),
                           ),
                         ),
-                        if (missing && t.role == NetRole.guest)
+                        if (missing && t.role == NetRole.guest && roomClosed == null)
                           TextButton(
                             key: const Key('net-reconnect'),
                             onPressed: _reconnect,

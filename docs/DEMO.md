@@ -306,7 +306,7 @@ Then (labels: see demo 3):
 
 ## 5. PWA (web, offline) ⏳ (KLD-010)
 
-The web build plays hot-seat, and it can **join** a game hosted by the iOS/Android app or the `klunki` CLI over WebSocket on the LAN (KLD-054/055, see "Browser spielt gegen iPhone/Terminal" below). A browser cannot host, and browser ↔ browser play is not possible.
+The web build plays hot-seat, it can **join** a game hosted by the iOS/Android app or the `klunki` CLI over WebSocket on the LAN (KLD-054/055, see "Browser spielt gegen iPhone/Terminal" below), and two browsers play each other through the **relay** (KLD-057, see "Browser gegen Browser über das Relay" below).
 
 ### Prerequisites
 - [ ] KLD-010 DONE (Klunki branding in `manifest.json`/`index.html`, custom offline service worker).
@@ -383,31 +383,55 @@ Two browsers cannot connect to each other directly, so one computer on the Wi-Fi
 also serves the PWA. The host stays authoritative; the relay only forwards messages (see
 `packages/klunki_net/PROTOCOL.md`, "Relay").
 
-1. Build the PWA and start relay + web server in one process (any free port; 8080 is just an example):
+**In 3 steps on the LAN:**
+1. On the Mac: build the PWA and start relay + web server in one process (any free port; the default is 4749):
    ```bash
-   cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py && cd ..
-   cd packages/klunki_net && dart run klunki_net:klunki relay --port 8080 --web ../../klunki/build/web
-   # prints: Klunki relay listening on port 8080: ws://<mac-ip>:8080/relay
-   #         Serving the PWA from …: http://<mac-ip>:8080/
+   cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py
+   dart run klunki_net:klunki relay --port 8000 --web build/web
+   # prints: Klunki relay listening on port 8000: ws://<mac-ip>:8000/relay
+   #         Serving the PWA from …: http://<mac-ip>:8000/
    ```
-2. **Once the UI exists (KLD-057b, open):** browser A opens `http://<mac-ip>:8080/` → **Spiel hosten** →
-   picks a game and shows a room code like `K7Q2M`; browser B opens the same address → enters the code →
-   joins. The PWA uses its own origin as the relay (`ws://<location.host>/relay`).
-3. **Today (CLI vs CLI through the relay):** in two more terminals
-   ```bash
-   cd packages/klunki_net
-   dart run klunki_net:klunki host connect4 --relay ws://127.0.0.1:8080 --name Ada
-   # prints: Room code: K7Q2M  and the join command
-   dart run klunki_net:klunki join --relay ws://127.0.0.1:8080 --room k7q2m --name Bea
-   ```
-   The code is case-insensitive; the relay address may omit `/relay`. Without `--port`, the relay uses 4749.
+2. **Browser A** opens `http://<mac-ip>:8000/` → **Über WLAN spielen** → **Spiel hosten** → picks a game →
+   **Spiel hosten**. It shows the **room code** large (e.g. `K7Q 2M`), a QR code and the link
+   `http://<mac-ip>:8000/?room=K7Q2M` (copy button).
+3. **Browser B** (phone or laptop on the same Wi-Fi) scans the QR code / opens the link, **or** opens
+   `http://<mac-ip>:8000/` → **Über WLAN spielen** → types the code under **Mit Raumcode beitreten** (case, spaces
+   and dashes do not matter) → **Raum beitreten**. Both switch to the game.
 
-What to check: the host terminal prints "Bea joined", moves cross over in both directions; quitting the
-host closes the room ("Opponent left"). Stop the relay with Ctrl+C.
+The PWA uses its own origin as the relay (`ws://<location.host>/relay`). If the PWA is served from somewhere
+else, "Erweitert: Relay-Adresse" takes another relay (`host:port`); the host's link then carries `&relay=…`.
+The iOS/Android apps can join a browser's room too: **Über WLAN spielen** → **Beitreten** → **Mit Raumcode
+beitreten** with the relay address (`<mac-ip>:8000`) filled in.
 
-Troubleshooting: "relay: no room with code …" = typo or the host is gone (rooms also expire after
-10 minutes without traffic); "relay: room … is full" = someone already joined (a guest whose Wi-Fi dropped
-can rejoin after about 10 s). Use `http://`, not https, and keep the relay reachable (same Wi-Fi).
+What the audience sees: the host's waiting screen with the code, then both browsers in the game with the
+connection bar ("Du (Ada, X) · Gegner: Bea (O)"); moves cross over instantly. If the host leaves, the guest sees
+"Der Host hat den Raum verlassen. Das Spiel ist beendet."
+
+**Automated, two real browsers** (headless Firefox over WebDriver BiDi; needs Node ≥ 22, nothing is installed):
+```bash
+klunki/tool/pwa_relay_e2e.sh --build --port 8765 --out /tmp/pwa-relay   # or without --build to reuse build/web
+```
+It starts the relay (`--web build/web`) on the port and a plain `python3 -m http.server` on port+1, then: the
+plain server's page explains how to start a relay; browser A hosts Four in a Row, B types the code, they play
+7 moves to "Du gewinnst!" / "Ada (X) gewinnt!"; a second run joins through the `?room=` link. PASS/FAIL plus
+screenshots in `/tmp/pwa-relay/{code,link}`.
+
+**CLI vs CLI through the relay** (no browser): in two more terminals
+```bash
+cd packages/klunki_net
+dart run klunki_net:klunki host connect4 --relay ws://127.0.0.1:8000 --name Ada
+# prints: Room code: K7Q2M  and the join command
+dart run klunki_net:klunki join --relay ws://127.0.0.1:8000 --room k7q2m --name Bea
+```
+A browser can join a CLI host's room and vice versa.
+
+Troubleshooting:
+- "Kein Relay erreichbar unter …" = the page is not served by `klunki relay` (e.g. a plain python server):
+  start the relay as in step 1 and open the page from it, or enter the relay under "Erweitert".
+- "Kein Raum mit dem Code …" = typo or the host is gone; rooms also expire after 10 minutes without traffic
+  ("Der Raum ist abgelaufen").
+- "Raum … ist schon voll" = someone already joined (a guest whose Wi-Fi dropped can rejoin after about 10 s).
+- Use `http://`, not https, and keep the relay reachable (same Wi-Fi). Stop the relay with Ctrl+C.
 
 ---
 

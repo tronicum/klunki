@@ -130,6 +130,38 @@ class NetworkTransport implements GameTransport {
     return NetworkTransport._guest(guest);
   }
 
+  /// Hosts [config] through the relay at [relayUrl] (`ws://host:port/relay`,
+  /// KLD-057): completes once the relay assigned a room code ([roomCode]).
+  /// The host plays A. Web-safe (this is how a browser hosts). Throws
+  /// [NetException] if the relay cannot be reached or refuses.
+  static Future<NetworkTransport> hostRelay(
+    GameConfig config,
+    Uri relayUrl, {
+    String name = 'Host',
+    Duration pingInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final host =
+        await KlunkiHost.startRelay(config, relayUrl, name: name, pingInterval: pingInterval, timeout: timeout);
+    return NetworkTransport._host(host);
+  }
+
+  /// Joins room [code] on the relay at [relayUrl] (KLD-057). Throws
+  /// [ArgumentError] for a malformed code and [NetException] if the relay
+  /// refuses (`relay: no room with code …`, `… is full`) or the handshake fails.
+  static Future<NetworkTransport> joinRelay(
+    Uri relayUrl,
+    String code, {
+    String name = 'Guest',
+    String? token,
+    Duration pingInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final guest = await KlunkiGuest.connectRelay(relayUrl, code,
+        name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+    return NetworkTransport._guest(guest);
+  }
+
   void _init(Stream<NetEvent> events) {
     _netSub = events.listen(_onNetEvent);
     _catchUp(); // the snapshot (guest) or a resumed log (host)
@@ -235,6 +267,22 @@ class NetworkTransport implements GameTransport {
     return n.isEmpty ? (me == Player.a ? 'X' : 'O') : n;
   }
 
+  /// The relay room's code (host or guest through a relay), else null.
+  String? get roomCode => _host != null ? _host.roomCode : _guest!.roomCode;
+
+  /// The relay endpoint (host or guest through a relay), else null.
+  Uri? get relayUrl => _host != null ? _host.relayUrl : _guest!.relayUrl;
+
+  /// Host through a relay: why the room was lost (relay restart, idle
+  /// expiry, network loss; a `relay: …` message), else null. The session
+  /// cannot continue in that room.
+  String? get roomLost => _roomLost.value;
+  final ValueNotifier<String?> _roomLost = ValueNotifier(null);
+
+  /// Fires on every [connection] change and when the room is lost
+  /// ([roomLost]); for UI that shows both.
+  late final Listenable changes = Listenable.merge([_state, _roomLost]);
+
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
 
@@ -284,6 +332,10 @@ class NetworkTransport implements GameTransport {
       case MoveAccepted():
       case Resynced():
         _catchUp();
+      case NetError(:final message) when role == NetRole.host && message.startsWith('relay'):
+        _lastDisconnectReason = message;
+        _roomLost.value = message;
+        _setState(NetConnectionState.peerMissing);
       case MoveRejected():
       case NetError():
         break;
