@@ -100,7 +100,7 @@ class GoStrategyText extends TextGame {
 
   @override
   String format(Map<String, dynamic> move) => switch (move['action']) {
-        'move' => '${name(move['from'])}-${name(move['to'])}',
+        'move' => '${name(move['from'] as int)}-${name(move['to'] as int)}',
         'autosetup' => 'setup ${move['seed']}',
         _ => 'setup',
       };
@@ -114,7 +114,7 @@ class GoStrategyText extends TextGame {
       final how = move['action'] == 'autosetup' ? ' at random (seed ${move['seed']})' : '';
       return '$me sets up their army$how.${_afterSetup(event)}';
     }
-    final from = name(move['from']), to = name(move['to']);
+    final from = name(move['from'] as int), to = name(move['to'] as int);
     final fight = p['fight'] as Map?;
     String s;
     if (fight == null) {

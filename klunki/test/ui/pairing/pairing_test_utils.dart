@@ -18,7 +18,19 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../l10n/l10n_test_utils.dart';
 
 const pingInterval = Duration(milliseconds: 100);
-const netTimeout = Duration(seconds: 2);
+
+/// Keepalive / handshake timeout of the loopback transports in widget tests.
+///
+/// The sockets and their keepalive timers run in the real zone, but every
+/// `tester.pump()` is synchronous: while a frame of two side-by-side apps is
+/// laid out and painted, the isolate cannot read pongs. Under full-suite load
+/// (one test isolate per core) a single pump can take more than 2 s of wall
+/// time, so a 2 s timeout dropped the connection mid-game and the next
+/// [pumpUntil] failed ("X move in the browser", KLD-070). No pairing test
+/// relies on the timeout firing (they all leave with a `bye`), so it is the
+/// library default instead; the cut/Wi-Fi-loss tests in `test/e2e` and
+/// `klunki_net` keep their short timeouts outside widget tests.
+const netTimeout = Duration(seconds: 10);
 
 /// Records every transport the factories created.
 class CreatedTransports {
@@ -158,8 +170,11 @@ Widget launcherApp(PairingDeps deps) => localizedApp(
     );
 
 /// Pumps frames with short real waits in between until [condition] holds.
+///
+/// [limit] is wall-clock time (`Stopwatch` is not faked by the widget test's
+/// fake-async zone), so it only bounds a hang; generous for loaded CI runners.
 Future<void> pumpUntil(WidgetTester tester, bool Function() condition,
-    {String? what, Duration limit = const Duration(seconds: 5)}) async {
+    {String? what, Duration limit = const Duration(seconds: 15)}) async {
   final sw = Stopwatch()..start();
   while (true) {
     await tester.pump();

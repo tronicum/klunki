@@ -55,8 +55,8 @@ class Connect4Game extends Game {
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
-    final int col = move['col'];
-    if (col < 0 || col >= cols) return null; // out of range
+    final col = move['col'];
+    if (col is! int || col < 0 || col >= cols) return null; // malformed or out of range
     final row = _dropRow(col);
     if (row == null) return null; // invalid: column full
 

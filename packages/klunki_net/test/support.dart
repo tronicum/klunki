@@ -89,7 +89,7 @@ class Proxy {
       final upstream = await Socket.connect(loopback, targetPort);
       proxy._sockets.addAll([client, upstream]);
       for (final s in [client, upstream]) {
-        s.done.catchError((_) {});
+        unawaited(s.done.catchError((_) {}));
       }
       client.listen(upstream.add, onDone: upstream.destroy, onError: (_) => upstream.destroy());
       upstream.listen(client.add, onDone: client.destroy, onError: (_) => client.destroy());

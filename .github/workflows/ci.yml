@@ -1,0 +1,90 @@
+# Klunki CI (KLD-070): analyze and test the two pure-Dart packages and the
+# Flutter app. Builds (PWA, Android, iOS) live in build.yml.
+#
+# Flutter is pinned to the exact version the project is developed with
+# (`flutter --version`: 3.47.8 stable, Dart 3.13.7; klunki/pubspec.yaml needs
+# sdk ^3.13.7). Bump FLUTTER_VERSION here and in build.yml together.
+# Every action is pinned to a commit SHA (tag in the comment).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.8'
+
+jobs:
+  engine:
+    name: klunki_engine (dart analyze + test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: packages/klunki_engine
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: dart pub get
+      - run: dart analyze --fatal-infos
+      - run: dart test
+
+  net:
+    name: klunki_net (dart analyze + test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: packages/klunki_net
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: dart pub get
+      - run: dart analyze --fatal-infos
+      # Includes test/web_compile_test.dart: an import-graph walk plus
+      # `dart compile js` (dart2js from the Dart SDK). No browser, Chrome or
+      # Node needed. The socket tests use 127.0.0.1 only.
+      - run: dart test
+
+  app:
+    name: klunki app (flutter analyze + test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: klunki
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      # The generated l10n files are committed: fail if they are stale.
+      - name: Generated l10n is up to date
+        run: |
+          flutter gen-l10n
+          git diff --exit-code -- lib/l10n
+      - run: flutter analyze
+      - run: flutter test

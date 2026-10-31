@@ -111,6 +111,12 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-067 ✅ | Turn colour: status pill filled with the colour of the player to move (black/white text by contrast), coloured turn edge under the app bar, network "my turn" (filled, glow, one pulse + light haptic) vs "waiting" (muted, hourglass, faded opponent colour), hot-seat legend with both players' tokens + names, connection bar with a token per player; per-game hook `playerColor` / `GameVisuals.token` (GoStrategy); reduced motion respected. See `docs/tasks/KLD-067-turn-colour.md` | medium | 062 | `klunki/lib/ui/shell/game_screen.dart`, `klunki/lib/ui/pairing/network_game_session.dart`, `klunki/lib/ui/game_visuals.dart`, `klunki/lib/app/theme.dart`, `klunki/lib/l10n/**` (2 `netBar*` keys after `pairingStatus`) | – |
 | KLD-066 | Start/welcome screen "Klunki – deine Spielesammlung für die Hosentasche" (wordmark, tagline, playful intro animation, reduced motion), later also native launch screen and PWA splash; see `docs/tasks/KLD-066-start-screen.md` | medium-low | 062 | `klunki/lib/ui/start_screen.dart`, `klunki/lib/l10n/**`, later `klunki/web/**`, launch assets | 🧑 for native launch assets |
 
+## Infrastructure
+
+| ID | Task | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|
+| KLD-070 ✅ | GitHub Actions: `ci.yml` (engine/net `dart analyze --fatal-infos` + `dart test`, app gen-l10n check + `flutter analyze` + `flutter test`; push main + PRs) and `build.yml` (PWA build + finalize + no-CDN-URL check → artifact `klunki-pwa`; Android release APK, debug-signed unless `KEYSTORE_*` secrets → `klunki-android-apk`; iOS `--no-codesign` compile check on manual runs only; Pages deploy disabled). Flutter 3.47.8 pinned, actions SHA-pinned. Release signing from `key.properties` / env with debug fallback. Moderate lints (`strict-casts`, `cancel_subscriptions`, `unawaited_futures` in the packages). Flaky loopback widget tests fixed (2 s keepalive vs long synchronous pumps → 10 s in widget tests). `docs/BUILDING.md`. **Android CI build unverified until first run on GitHub.** See `docs/tasks/KLD-070-ci.md` | – | `.github/workflows/**`, `klunki/android/app/build.gradle.kts`, `klunki/tool/check_pwa_external_urls.py`, `**/analysis_options.yaml`, `klunki/test/{ui/pairing/pairing_test_utils,e2e/e2e_support,e2e/muehle_screens_e2e_test,ui/shell/resign_test}.dart`, `docs/BUILDING.md`, `README.md` | 🧑 push; optional signing secrets |
+
 ## Backlog
 
 | ID | Task | Notes |
@@ -120,7 +126,7 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
 | ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
-| KLD-053 | Android release signing (keystore) instead of the debug keys | 🧑 chooses passwords, keeps the keystore |
+| KLD-053 | Android release signing (keystore) instead of the debug keys. Gradle part done in KLD-070 (`key.properties` / `KLUNKI_KEYSTORE_*`, debug fallback); remaining: 🧑 creates the keystore, optional CI secrets | 🧑 chooses passwords, keeps the keystore |
 
 ## Waves (what can run in parallel)
 

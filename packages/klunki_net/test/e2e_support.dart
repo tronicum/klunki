@@ -44,7 +44,7 @@ class WifiProxy {
   }) async {
     final proxy = WifiProxy._(await ServerSocket.bind(loopback, 0), seed, minDelay, maxDelay);
     proxy._server.listen((client) async {
-      client.done.catchError((_) {});
+      unawaited(client.done.catchError((_) {}));
       final Socket upstream;
       try {
         upstream = await Socket.connect(loopback, targetPort);
@@ -52,7 +52,7 @@ class WifiProxy {
         client.destroy();
         return;
       }
-      upstream.done.catchError((_) {});
+      unawaited(upstream.done.catchError((_) {}));
       final n = proxy.connections++;
       final link = _Link(client, upstream);
       proxy._links.add(link);

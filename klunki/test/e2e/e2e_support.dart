@@ -20,6 +20,11 @@ final loopback = InternetAddress.loopbackIPv4;
 const pingInterval = Duration(milliseconds: 100);
 const netTimeout = Duration(seconds: 2);
 
+/// Timeout for transports driven from a `testWidgets` body: a synchronous
+/// `tester.pump()` can block the isolate (and so the pongs) for more than
+/// 2 s on a loaded machine. Use [netTimeout] only where a cut must be noticed.
+const widgetNetTimeout = Duration(seconds: 10);
+
 const muehleConfig = GameConfig('muehle');
 
 /// Polls [condition] with real 2 ms delays until it holds (throws after
@@ -41,16 +46,19 @@ class AppStack {
   AppStack(this.name, this.transport) : controller = GameController(transport);
 
   /// Host "iOS" device: plays X.
-  static Future<AppStack> host({String name = 'iPad (iOS)', GameConfig config = muehleConfig}) async =>
+  static Future<AppStack> host(
+          {String name = 'iPad (iOS)', GameConfig config = muehleConfig, Duration timeout = netTimeout}) async =>
       AppStack(name,
-          await NetworkTransport.host(config, name: name, address: loopback, pingInterval: pingInterval, timeout: netTimeout));
+          await NetworkTransport.host(config, name: name, address: loopback, pingInterval: pingInterval, timeout: timeout));
 
   /// Guest "Android" device: joins [port] and plays O.
-  static Future<AppStack> join(int port, {String name = 'Pixel (Android)', String? token}) async =>
-      AppStack(name, await joinTransport(port, name: name, token: token));
+  static Future<AppStack> join(int port,
+          {String name = 'Pixel (Android)', String? token, Duration timeout = netTimeout}) async =>
+      AppStack(name, await joinTransport(port, name: name, token: token, timeout: timeout));
 
-  static Future<NetworkTransport> joinTransport(int port, {String name = 'Pixel (Android)', String? token}) =>
-      NetworkTransport.join(loopback, port, name: name, token: token, pingInterval: pingInterval, timeout: netTimeout);
+  static Future<NetworkTransport> joinTransport(int port,
+          {String name = 'Pixel (Android)', String? token, Duration timeout = netTimeout}) =>
+      NetworkTransport.join(loopback, port, name: name, token: token, pingInterval: pingInterval, timeout: timeout);
 
   /// Replaces the stack after an app restart (the old controller is disposed).
   Future<void> replace(NetworkTransport next) async {

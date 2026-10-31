@@ -77,8 +77,8 @@ class SchiffeText extends TextGame {
 
   @override
   String format(Map<String, dynamic> move) => switch (move['action']) {
-        'fire' => cell(move['row'], move['col']),
-        'place' => '${cell(move['row'], move['col'])}${move['dir']}',
+        'fire' => cell(move['row'] as int, move['col'] as int),
+        'place' => '${cell(move['row'] as int, move['col'] as int)}${move['dir']}',
         _ => 'fleet ${move['seed']}',
       };
 
@@ -90,13 +90,13 @@ class SchiffeText extends TextGame {
     switch (move['action']) {
       case 'place':
         final len = p['length'] as int;
-        return '$me places a ${SchiffeGame.shipName(len)} ($len) at ${cell(move['row'], move['col'])} '
+        return '$me places a ${SchiffeGame.shipName(len)} ($len) at ${cell(move['row'] as int, move['col'] as int)} '
             '${move['dir'] == 'h' ? 'horizontally' : 'vertically'}.${_setupDone(mover)}';
       case 'autoplace':
         return '$me places ${(p['autoplaced'] as List).length == game.fleet.length ? 'the whole' : 'the rest of the'} '
             'fleet at random (seed ${move['seed']}).${_setupDone(mover)}';
     }
-    final at = cell(move['row'], move['col']);
+    final at = cell(move['row'] as int, move['col'] as int);
     final name = p['ship'] == null ? '' : SchiffeGame.shipName(p['ship'] as int);
     final s = switch (p['result']) {
       'miss' => '$me fires at $at: miss.',

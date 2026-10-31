@@ -1,0 +1,11 @@
+# KLD-070: moderate tightening on top of the analyzer defaults that keeps
+# `dart analyze` green. Stricter settings (package:lints/recommended,
+# strict-inference, strict-raw-types, avoid_dynamic_calls, ...) are a
+# follow-up, see docs/tasks/KLD-070-ci.md.
+analyzer:
+  language:
+    strict-casts: true
+linter:
+  rules:
+    - cancel_subscriptions
+    - unawaited_futures
