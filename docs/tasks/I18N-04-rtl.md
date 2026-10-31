@@ -2,7 +2,7 @@
 
 - **ID:** `I18N-04`
 - **Title:** RTL layout for ar/fa (boards stay LTR, addresses stay LTR) + font plan for offline web
-- **Status:** RTL DONE, Arabic fonts DONE (I18N-04b), Chinese fonts PROPOSED
+- **Status:** RTL DONE, Arabic fonts DONE (I18N-04b), Chinese + Latin fonts DONE (I18N-07/08, see `I18N-07-08-offline-fonts.md`)
 - **Depends on:** I18N-01, I18N-02, KLD-034
 - **Touched paths:**
   - `klunki/lib/ui/ltr.dart` (new: `LtrBoard`, `LtrText`, `ltrIsolate`, `bidiLtr`)
@@ -111,7 +111,7 @@ served on 127.0.0.1:8765, locale stored in localStorage, language picker opened)
 Manual check: DevTools → Network "Offline" after one online visit, switch to العربية: the
 picker and Arabic strings render without tofu.
 
-## Fonts: proposal (Arabic part DONE above; Chinese still PROPOSED)
+## Fonts: proposal (Arabic DONE above; Chinese DONE in I18N-07 as a bundled subset, see `I18N-07-08-offline-fonts.md`)
 
 ### Problem
 Mobile is fine: Android ships Noto Sans CJK and Noto Naskh/Sans Arabic as system fonts, iOS has

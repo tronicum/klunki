@@ -40,6 +40,6 @@ and guards it with tests.
   Chrome is not supported (not installed here; CDP would need a second driver).
 
 ## Left over
-- I18N-07: bundle a CJK subset (or mirror Noto Sans SC slices) for offline Chinese.
-- Roboto is not bundled: a PWA that never was online shows no Latin text. Bundle Roboto (or a Latin
-  subset) or precache it in `pwa_finalize.py`.
+- I18N-07: bundle a CJK subset (or mirror Noto Sans SC slices) for offline Chinese. **DONE**
+- I18N-08: Roboto is not bundled: a PWA that never was online shows no Latin text. **DONE**, both in
+  `I18N-07-08-offline-fonts.md` (PASS 7/7 in all three modes, no fonts.gstatic.com request).
