@@ -189,6 +189,42 @@ void main() {
     }
   });
 
+  group('Quartett decks over the network (KLD-069)', () {
+    for (final deck in QuartettDeck.all) {
+      for (final id in ['quartett-trumpf', 'quartett-sets']) {
+        test('$id with ${deck.id}: the deck is public config, the seed stays secret, the game verifies', () async {
+          final t = await _Tapped.start(GameConfig(id, seed: 424242, deck: deck.id), hostPlayer: Player.b);
+          final welcome = t.beforeReveal.firstWhere((m) => m['type'] == 'welcome');
+          expect(welcome['config'], {'game': id, 'deck': deck.id});
+          expect(t.guest.config, GameConfig(id, deck: deck.id));
+          expect((t.guest.game as QuartettGame).deck, same(deck));
+          await _playOut(t, Random(deck.id.hashCode ^ id.hashCode));
+          expect(t.guest.verification, Verification.verified, reason: t.guest.verificationError);
+          expect(t.reveal!['seed'], 424242);
+          await t.close();
+        });
+      }
+    }
+
+    test('a host that swaps the deck in the reveal replay is caught', () async {
+      // The guest replays with the deck it was told; a host that dealt from
+      // another deck cannot match the start view.
+      final error = verifyRedactedGame(
+        gameId: 'quartett-trumpf',
+        deck: 'rockets',
+        me: Player.b,
+        seed: 1,
+        seedSalt: 's',
+        seedCommit: commitment('s', 'seed', 1),
+        startViewHash: viewHash(const QuartettRedaction().view(
+            QuartettGame(QuartettMode.trumpf, seed: 1, deck: QuartettDeck.trains), Player.b)),
+        steps: const [],
+        secrets: const {},
+      );
+      expect(error, contains('start position'));
+    });
+  });
+
   group('commitments catch a cheating host', () {
     test('a host that swaps its fleet mid-game is detected', () async {
       final t = await _Tapped.start(const GameConfig('schiffe'));

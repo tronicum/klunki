@@ -1089,4 +1089,174 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get engineReasonCommonYouResigned => 'تو تسلیم شدی';
+
+  @override
+  String get quartettDeckCars => 'خودروها';
+
+  @override
+  String get quartettDeckTrains => 'قطارها';
+
+  @override
+  String get quartettDeckRockets => 'موشک‌ها';
+
+  @override
+  String get quartettDeckPlanes => 'هواپیماها';
+
+  @override
+  String get quartettSetTrainsA => 'ICE';
+
+  @override
+  String get quartettSetTrainsB => 'شینکانسن';
+
+  @override
+  String get quartettSetTrainsC => 'TGV';
+
+  @override
+  String get quartettSetTrainsD => 'سریع‌های اروپا';
+
+  @override
+  String get quartettSetTrainsE => 'آسیا و آمریکا';
+
+  @override
+  String get quartettSetTrainsF => 'لوکوموتیوهای برقی';
+
+  @override
+  String get quartettSetTrainsG => 'اسطوره‌های بخار';
+
+  @override
+  String get quartettSetTrainsH => 'غول‌های باری';
+
+  @override
+  String get quartettSetRocketsA => 'موشک‌های ماه';
+
+  @override
+  String get quartettSetRocketsB => 'قابل استفاده مجدد';
+
+  @override
+  String get quartettSetRocketsC => 'اروپا';
+
+  @override
+  String get quartettSetRocketsD => 'کلاسیک‌های آمریکا';
+
+  @override
+  String get quartettSetRocketsE => 'روسیه';
+
+  @override
+  String get quartettSetRocketsF => 'چین';
+
+  @override
+  String get quartettSetRocketsG => 'ژاپن و هند';
+
+  @override
+  String get quartettSetRocketsH => 'پرتابگرهای کوچک';
+
+  @override
+  String get quartettSetPlanesA => 'پهن‌پیکرها';
+
+  @override
+  String get quartettSetPlanesB => 'میان‌برد';
+
+  @override
+  String get quartettSetPlanesC => 'مافوق صوت';
+
+  @override
+  String get quartettSetPlanesD => 'کلاسیک‌های ملخی';
+
+  @override
+  String get quartettSetPlanesE => 'غول‌های باری هوایی';
+
+  @override
+  String get quartettSetPlanesF => 'تجاری و ورزشی';
+
+  @override
+  String get quartettSetPlanesG => 'پیشگامان';
+
+  @override
+  String get quartettSetPlanesH => 'عجایب رکورددار';
+
+  @override
+  String get quartettStatKw => 'توان';
+
+  @override
+  String get quartettStatLengthM => 'طول';
+
+  @override
+  String get quartettStatMassT => 'وزن';
+
+  @override
+  String get quartettStatTractiveKn => 'نیروی کشش';
+
+  @override
+  String get quartettStatInService => 'در خدمت از';
+
+  @override
+  String get quartettStatHeightM => 'ارتفاع';
+
+  @override
+  String get quartettStatThrustKn => 'رانش برخاست';
+
+  @override
+  String get quartettStatLeoT => 'محموله (LEO)';
+
+  @override
+  String get quartettStatLaunchMassT => 'جرم پرتاب';
+
+  @override
+  String get quartettStatFlights => 'پرتاب‌ها';
+
+  @override
+  String get quartettStatFirstFlight => 'نخستین پرواز';
+
+  @override
+  String get quartettStatRangeKm => 'برد';
+
+  @override
+  String get quartettStatWingspanM => 'طول بال';
+
+  @override
+  String get quartettStatMtowT => 'وزن برخاست';
+
+  @override
+  String get quartettDeckPickerTitle => 'دسته کارت را انتخاب کن';
+
+  @override
+  String get quartettDeckLabel => 'دسته کارت';
+
+  @override
+  String quartettDeckSets(int sets) {
+    return '$sets سری 4 کارتی';
+  }
+
+  @override
+  String get quartettDeckPlay => 'بازی کن';
+
+  @override
+  String get quartettGalleryOpen => 'دیدن کارت‌ها';
+
+  @override
+  String get quartettGalleryTitle => 'کارت‌های کوارتت';
+
+  @override
+  String quartettGalleryCardOf(int index, int total) {
+    return 'کارت $index از $total';
+  }
+
+  @override
+  String get quartettGalleryPrevious => 'کارت قبلی';
+
+  @override
+  String get quartettGalleryNext => 'کارت بعدی';
+
+  @override
+  String get quartettGalleryTopMenu => '5 برتر بر اساس مقدار';
+
+  @override
+  String quartettGalleryTopTitle(String stat) {
+    return '5 برتر: $stat';
+  }
+
+  @override
+  String quartettCardSemantics(String id, String name, String set) {
+    return 'کارت $id: $name، سری $set';
+  }
 }

@@ -1055,4 +1055,174 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get engineReasonCommonYouResigned => '你已认输';
+
+  @override
+  String get quartettDeckCars => '汽车';
+
+  @override
+  String get quartettDeckTrains => '火车';
+
+  @override
+  String get quartettDeckRockets => '火箭';
+
+  @override
+  String get quartettDeckPlanes => '飞机';
+
+  @override
+  String get quartettSetTrainsA => 'ICE';
+
+  @override
+  String get quartettSetTrainsB => '新干线';
+
+  @override
+  String get quartettSetTrainsC => 'TGV';
+
+  @override
+  String get quartettSetTrainsD => '欧洲高速列车';
+
+  @override
+  String get quartettSetTrainsE => '亚洲与美洲';
+
+  @override
+  String get quartettSetTrainsF => '电力机车';
+
+  @override
+  String get quartettSetTrainsG => '蒸汽传奇';
+
+  @override
+  String get quartettSetTrainsH => '货运巨人';
+
+  @override
+  String get quartettSetRocketsA => '登月火箭';
+
+  @override
+  String get quartettSetRocketsB => '可重复使用';
+
+  @override
+  String get quartettSetRocketsC => '欧洲';
+
+  @override
+  String get quartettSetRocketsD => '美国经典';
+
+  @override
+  String get quartettSetRocketsE => '俄罗斯';
+
+  @override
+  String get quartettSetRocketsF => '中国';
+
+  @override
+  String get quartettSetRocketsG => '日本与印度';
+
+  @override
+  String get quartettSetRocketsH => '小型运载火箭';
+
+  @override
+  String get quartettSetPlanesA => '宽体客机';
+
+  @override
+  String get quartettSetPlanesB => '中程客机';
+
+  @override
+  String get quartettSetPlanesC => '超音速';
+
+  @override
+  String get quartettSetPlanesD => '螺旋桨经典';
+
+  @override
+  String get quartettSetPlanesE => '货运巨无霸';
+
+  @override
+  String get quartettSetPlanesF => '公务与运动';
+
+  @override
+  String get quartettSetPlanesG => '先驱';
+
+  @override
+  String get quartettSetPlanesH => '纪录奇机';
+
+  @override
+  String get quartettStatKw => '功率';
+
+  @override
+  String get quartettStatLengthM => '长度';
+
+  @override
+  String get quartettStatMassT => '重量';
+
+  @override
+  String get quartettStatTractiveKn => '起动牵引力';
+
+  @override
+  String get quartettStatInService => '投入运营';
+
+  @override
+  String get quartettStatHeightM => '高度';
+
+  @override
+  String get quartettStatThrustKn => '起飞推力';
+
+  @override
+  String get quartettStatLeoT => '近地轨道运载能力';
+
+  @override
+  String get quartettStatLaunchMassT => '起飞质量';
+
+  @override
+  String get quartettStatFlights => '发射次数';
+
+  @override
+  String get quartettStatFirstFlight => '首飞';
+
+  @override
+  String get quartettStatRangeKm => '航程';
+
+  @override
+  String get quartettStatWingspanM => '翼展';
+
+  @override
+  String get quartettStatMtowT => '起飞重量';
+
+  @override
+  String get quartettDeckPickerTitle => '选择卡组';
+
+  @override
+  String get quartettDeckLabel => '卡组';
+
+  @override
+  String quartettDeckSets(int sets) {
+    return '$sets 组，每组 4 张';
+  }
+
+  @override
+  String get quartettDeckPlay => '开始游戏';
+
+  @override
+  String get quartettGalleryOpen => '浏览卡牌';
+
+  @override
+  String get quartettGalleryTitle => '卡牌图鉴';
+
+  @override
+  String quartettGalleryCardOf(int index, int total) {
+    return '第 $index 张，共 $total 张';
+  }
+
+  @override
+  String get quartettGalleryPrevious => '上一张';
+
+  @override
+  String get quartettGalleryNext => '下一张';
+
+  @override
+  String get quartettGalleryTopMenu => '按数值前 5 名';
+
+  @override
+  String quartettGalleryTopTitle(String stat) {
+    return '前 5 名：$stat';
+  }
+
+  @override
+  String quartettCardSemantics(String id, String name, String set) {
+    return '卡牌 $id：$name，$set';
+  }
 }

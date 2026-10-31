@@ -6,6 +6,7 @@ import 'package:klunki/net/room_link.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/game_visuals.dart';
+import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
@@ -105,7 +106,21 @@ class _MenuScreenState extends State<MenuScreen> {
                     const SizedBox(height: 4),
                     _SectionLabel(icon: Icons.people_alt_outlined, text: l10n.menuSectionHotSeat),
                     const SizedBox(height: 8),
-                    _GameGrid(specs: appGameSpecs, onOpen: (id) => openGame(context, id)),
+                    _GameGrid(specs: appGameSpecs, onOpen: (id) => openGameFromMenu(context, id)),
+                    // View-only Quartett card gallery (KLD-069).
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton.icon(
+                          key: const Key('menu-quartett-gallery'),
+                          icon: const Icon(Icons.style_outlined, size: 18),
+                          label: Text(l10n.quartettGalleryOpen),
+                          onPressed: () => Navigator.of(context)
+                              .push(MaterialPageRoute<void>(builder: (_) => const QuartettGalleryScreen())),
+                        ),
+                      ),
+                    ),
                     // Native: host or join (KLD-034); web: host via relay or join (KLD-055, KLD-057b).
                     if (pairing != null) ...[
                       const SizedBox(height: 16),

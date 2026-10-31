@@ -28,16 +28,17 @@ Klunki over the network: two terminals play each other.
 Run from the repo root (inside packages/klunki_net, `dart run klunki_net:klunki` works too).
 
 Usage:
-  dart run packages/klunki_net/bin/klunki.dart host <game> [--port N] [--ws-port N] [--seed S] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart host <game> [--port N] [--ws-port N] [--seed S] [--deck D] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join <ip>[:port] [port] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join ws://<ip>[:port] [--name NAME]
 
 Through a relay (browser vs browser, or terminals that cannot reach each other):
   dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR]
-  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--deck D] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--name NAME]
 
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
+Quartett decks (--deck, default ${QuartettDeck.defaultId}): ${QuartettDeck.all.map((d) => d.id).join(', ')}
 Default ports: $defaultPort (TCP), $defaultWsPort (WebSocket, for browsers); 0 picks a free one
 (--port 0 alone frees both).
 The host accepts TCP and WebSocket guests. The host plays X and moves first.
@@ -84,7 +85,7 @@ Future<int> runCli(
 
   if (parsed.command == 'host' && parsed.relay != null) {
     final relay = parsed.relay!;
-    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
+    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30), deck: parsed.deck);
     final KlunkiHost host;
     try {
       host = await KlunkiHost.startRelay(config, relay,
@@ -93,7 +94,7 @@ Future<int> runCli(
       out.writeln('Cannot open a room on the relay $relay: ${e.message}');
       return 1;
     }
-    final title = specById(config.gameId)!.title;
+    final title = _title(config);
     out
       ..writeln('Room code: ${host.roomCode}')
       ..writeln('Hosting $title in relay room ${host.roomCode} on $relay — waiting for a guest…')
@@ -104,7 +105,7 @@ Future<int> runCli(
   }
 
   if (parsed.command == 'host') {
-    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
+    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30), deck: parsed.deck);
     final port = parsed.port ?? defaultPort;
     // `--port 0` without `--ws-port`: both ports are picked freely.
     final wsPort = parsed.wsPort ?? (port == 0 ? 0 : defaultWsPort);
@@ -121,7 +122,7 @@ Future<int> runCli(
       out.writeln('Cannot listen on port $port (TCP) / $wsPort (WebSocket): ${e.message}');
       return 1;
     }
-    final title = specById(config.gameId)!.title;
+    final title = _title(config);
     final ips = await _addresses(bindAddress);
     out
       ..writeln('Hosting $title on ${ips.map((ip) => '$ip:${host.port}').join(', ')} — waiting for a guest…')
@@ -156,17 +157,28 @@ Future<int> runCli(
     out.writeln('Could not join $where: ${e.message}');
     return 1;
   }
-  final title = specById(guest.config.gameId)?.title ?? guest.config.gameId;
+  final title = _title(guest.config);
   out
     ..writeln("Joined ${guest.hostName ?? 'the host'}'s game: $title on $where")
     ..writeln('Game config: ${jsonEncode(guest.config.toJson())} (you play ${guest.me == Player.a ? 'X' : 'O'})');
   return _Play.guest(guest, input, out).run();
 }
 
+/// Game title, with the Quartett deck when it is not the default (KLD-069).
+String _title(GameConfig config) {
+  final spec = specById(config.gameId);
+  final title = spec?.title ?? config.gameId;
+  final deck = spec != null && spec.usesDeck ? QuartettDeck.byId(config.deck) : null;
+  return deck == null || deck.id == QuartettDeck.defaultId ? title : '$title – ${deck.name}';
+}
+
 class _Args {
   final String command, target;
   final int? port, wsPort, seed;
   final String? name;
+
+  /// `host --deck`: the Quartett deck id (KLD-069).
+  final String? deck;
 
   /// `join ws://…`: the WebSocket URL (then [target] / [port] are unused).
   final Uri? webSocket;
@@ -177,7 +189,7 @@ class _Args {
   /// `join --room`: the normalised room code.
   final String? room;
   _Args(this.command, this.target, this.port, this.seed, this.name,
-      {this.wsPort, this.webSocket, this.relay, this.room});
+      {this.wsPort, this.webSocket, this.relay, this.room, this.deck});
 }
 
 _Args? _parse(List<String> args) {
@@ -188,9 +200,10 @@ _Args? _parse(List<String> args) {
   String? name;
   Uri? relay;
   String? room;
+  String? deck;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room') {
+    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room' || a == '--deck') {
       if (i + 1 >= args.length) return null;
       final v = args[++i];
       switch (a) {
@@ -206,6 +219,9 @@ _Args? _parse(List<String> args) {
         case '--ws-port':
           wsPort = int.tryParse(v);
           if (wsPort == null || wsPort < 0 || wsPort > 65535 || command != 'host') return null;
+        case '--deck':
+          deck = v;
+          if (QuartettDeck.byId(v) == null || command != 'host') return null;
         case '--seed':
           seed = int.tryParse(v);
           if (seed == null || command != 'host') return null;
@@ -221,7 +237,8 @@ _Args? _parse(List<String> args) {
   if (command == 'host') {
     if (positional.length != 1 || specById(positional.first) == null) return null;
     if (relay != null && (port != null || wsPort != null)) return null;
-    return _Args(command, positional.first, port, seed, name, wsPort: wsPort, relay: relay);
+    if (deck != null && !specById(positional.first)!.usesDeck) return null;
+    return _Args(command, positional.first, port, seed, name, wsPort: wsPort, relay: relay, deck: deck);
   }
   if (relay != null || room != null) {
     // `join --relay URL --room CODE`: both, and nothing else.

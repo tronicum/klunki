@@ -52,9 +52,26 @@ class DebugConsole {
   /// Drives `auto`; seeded so a debug session can be reproduced.
   Random _rng;
 
-  DebugConsole([String gameId = 'connect4', int seed = 1])
-      : _current = games[gameId]!(),
+  /// [deck] picks the Quartett deck (KLD-069) for the Quartett games; other
+  /// games ignore it. Throws [ArgumentError] for an unknown deck.
+  DebugConsole([String gameId = 'connect4', int seed = 1, String? deck])
+      : _current = _make(gameId, deck),
         _rng = Random(seed);
+
+  /// A fresh text game of [gameId], with [deck] for the Quartett games.
+  static TextGame _make(String gameId, String? deck) {
+    if (deck == null) return games[gameId]!();
+    final d = QuartettDeck.byId(deck);
+    if (d == null) throw ArgumentError.value(deck, 'deck', 'unknown deck (${deckIds.join(', ')})');
+    return switch (gameId) {
+      'quartett-trumpf' => QuartettTrumpfText(0, d),
+      'quartett-sets' => QuartettSetsText(0, 8, d),
+      _ => games[gameId]!(),
+    };
+  }
+
+  /// Ids of the Quartett decks (`--deck`, `new quartett-trumpf trains`).
+  static List<String> get deckIds => [for (final d in QuartettDeck.all) d.id];
 
   TextGame get current => _current;
 
@@ -72,9 +89,12 @@ class DebugConsole {
         return _help();
       case 'new':
         if (words.length > 1) {
-          final make = games[words[1]];
-          if (make == null) return _unknownGame(words[1]);
-          _current = make();
+          if (!games.containsKey(words[1])) return _unknownGame(words[1]);
+          final deck = words.length > 2 ? words[2] : null;
+          if (deck != null && QuartettDeck.byId(deck) == null) {
+            return 'Unknown deck "$deck". Decks: ${deckIds.join(', ')}';
+          }
+          _current = _make(words[1], deck);
         } else {
           _current = _current.restart();
         }
@@ -175,6 +195,7 @@ ${_current.title} moves:
   ${_current.moveHelp}
 Commands:
   new [game]    restart, or switch game (${games.keys.join(', ')})
+  new quartett-trumpf|quartett-sets <deck>   Quartett with a deck (${deckIds.join(', ')})
   moves         list legal moves
   auto [n]      play n random legal moves (default: to the end)
   resign [x|o]  give up (default: the player to move); the other player wins

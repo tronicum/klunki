@@ -7,6 +7,7 @@ import 'package:klunki_net/guest_web.dart' show relayUriForPage;
 import '../../net/join_payload.dart';
 import '../../net/room_link.dart';
 import '../../net/web_join_target.dart';
+import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
@@ -226,6 +227,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
           hostTransport: widget.deps.relayHost,
           defaultRelay: _pageRelay,
           relaySettings: _relaySettings,
+          deckSettings: QuartettDeckSettings.shared(),
           pageUrl: widget.pageUrl,
           seed: widget.deps.seed,
           deviceName: widget.deps.deviceName,

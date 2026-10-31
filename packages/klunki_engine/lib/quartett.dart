@@ -3,10 +3,12 @@ import 'dart:math';
 import 'game.dart';
 import 'secrecy.dart';
 
+part 'quartett_decks.dart';
 part 'quartett_view.dart';
 
-/// Quartett for two players, in two flavours sharing one 32-card deck
-/// (8 sets A–H × 4 cards, ids like `B3`):
+/// Quartett for two players, in two flavours, with any [QuartettDeck] of 32
+/// cards (8 sets A–H × 4 cards, ids like `B3`; KLD-069: cars, trains,
+/// rockets, planes):
 ///
 /// * [QuartettMode.trumpf] — Quartett (Trumpf), Trumpf mode: compare a stat of
 ///   the two top cards, the better value takes the trick.
@@ -32,26 +34,24 @@ class QuartettStat {
   bool beats(num x, num y) => higherWins ? x > y : x < y;
 }
 
-/// A single Quartett card. [set] is the set letter `A`–`H`.
+/// A single Quartett card. [set] is the set letter `A`–`H`, [deck] the id of
+/// its [QuartettDeck] (ids `A1`…`H4` repeat across decks).
 class Card {
   final String id;
   final String name;
   final String set;
+  final String deck;
   final Map<String, num> stats;
   const Card(
       {required this.id,
       required this.name,
       required this.set,
+      this.deck = QuartettDeck.defaultId,
       required this.stats});
 
   @override
   String toString() => '$id $name';
 }
-
-Card _c(String id, String name, num ps, num kmh, num ccm, num kg, num sec) =>
-    Card(id: id, name: name, set: id[0], stats: {
-      'ps': ps, 'kmh': kmh, 'ccm': ccm, 'kg': kg, 'sec0to100': sec, //
-    });
 
 /// Rules engine. Moves:
 /// * trumpf: `{'action': 'pick', 'stat': id}`
@@ -87,78 +87,26 @@ Card _c(String id, String name, num ps, num kmh, num ccm, num kg, num sec) =>
 class QuartettGame extends Game {
   static const int maxTricks = 200;
 
-  static const List<QuartettStat> stats = [
-    QuartettStat(id: 'ps', label: 'Leistung', unit: 'PS'),
-    QuartettStat(id: 'kmh', label: 'Höchstgeschwindigkeit', unit: 'km/h'),
-    QuartettStat(id: 'ccm', label: 'Hubraum', unit: 'cm³'),
-    QuartettStat(id: 'kg', label: 'Gewicht', unit: 'kg', higherWins: false),
-    QuartettStat(
-        id: 'sec0to100', label: '0–100 km/h', unit: 's', higherWins: false),
-  ];
+  /// The deck in play (default: [QuartettDeck.cars]).
+  final QuartettDeck deck;
 
-  /// Display names of the eight sets.
-  static const Map<String, String> setNames = {
-    'A': 'Supersportwagen',
-    'B': 'Hypercars',
-    'C': 'Klassiker',
-    'D': 'Muscle Cars',
-    'E': 'Rallye-Legenden',
-    'F': 'Gran Turismo',
-    'G': 'Elektro',
-    'H': 'Kleine Flitzer',
-  };
+  /// The stats of [deck], in card order.
+  List<QuartettStat> get stats => deck.stats;
 
-  /// The built-in demo deck (32 cards, sorted by id).
-  static final List<Card> deck = List.unmodifiable([
-    _c('A1', 'Porsche 911 Turbo S', 650, 330, 3745, 1640, 2.7),
-    _c('A2', 'Ferrari F8 Tributo', 720, 340, 3902, 1435, 2.9),
-    _c('A3', 'Lamborghini Huracán EVO', 640, 325, 5204, 1422, 2.9),
-    _c('A4', 'McLaren 720S', 720, 341, 3994, 1419, 2.9),
-    _c('B1', 'Bugatti Chiron', 1500, 420, 7993, 1995, 2.4),
-    _c('B2', 'Koenigsegg Jesko', 1600, 480, 5065, 1420, 2.5),
-    _c('B3', 'Pagani Huayra', 800, 383, 5980, 1350, 2.8),
-    _c('B4', 'Rimac Nevera', 1914, 412, 0, 2300, 1.9),
-    _c('C1', 'Mercedes 300 SL', 215, 260, 2996, 1295, 9.3),
-    _c('C2', 'Jaguar E-Type', 269, 241, 3781, 1234, 7.0),
-    _c('C3', 'Ferrari 250 GTO', 300, 280, 2953, 880, 6.1),
-    _c('C4', 'Lamborghini Miura', 350, 280, 3929, 1180, 6.7),
-    _c('D1', 'Ford Mustang Shelby GT500', 760, 290, 5163, 1916, 3.7),
-    _c('D2', 'Dodge Challenger Hellcat', 717, 315, 6166, 2000, 3.6),
-    _c('D3', 'Chevrolet Camaro ZL1', 659, 318, 6162, 1800, 4.0),
-    _c('D4', 'Chevrolet Corvette Z06', 680, 315, 5500, 1600, 2.6),
-    _c('E1', 'Lancia Delta Integrale', 215, 220, 1995, 1300, 5.7),
-    _c('E2', 'Audi Sport quattro', 306, 250, 2133, 1300, 4.8),
-    _c('E3', 'Subaru Impreza WRX STI', 300, 255, 2457, 1500, 5.2),
-    _c('E4', 'Mitsubishi Lancer Evo IX', 280, 250, 1997, 1400, 4.8),
-    _c('F1', 'Aston Martin DB11 V12', 608, 322, 5204, 1875, 3.9),
-    _c('F2', 'Bentley Continental GT', 659, 335, 5950, 2244, 3.6),
-    _c('F3', 'Mercedes-AMG GT R', 585, 318, 3982, 1630, 3.6),
-    _c('F4', 'Nissan GT-R Nismo', 600, 315, 3799, 1725, 2.8),
-    _c('G1', 'Tesla Model S Plaid', 1020, 322, 0, 2162, 2.1),
-    _c('G2', 'Porsche Taycan Turbo S', 761, 260, 0, 2295, 2.8),
-    _c('G3', 'Lucid Air Sapphire', 1234, 330, 0, 2375, 1.9),
-    _c('G4', 'Audi e-tron GT', 646, 250, 0, 2350, 3.3),
-    _c('H1', 'Mini Cooper S', 178, 235, 1998, 1265, 6.7),
-    _c('H2', 'VW Polo GTI', 207, 238, 1984, 1355, 6.5),
-    _c('H3', 'Toyota GR Yaris', 261, 230, 1618, 1280, 5.5),
-    _c('H4', 'Abarth 595 Competizione', 180, 218, 1368, 1120, 7.3),
-  ]);
+  /// Display names (engine, German) of the eight sets of [deck].
+  Map<String, String> get setNames => deck.setNames;
+
+  /// All 32 cards of [deck], sorted by id.
+  List<Card> get cards => deck.cards;
 
   /// Stands for a card the viewer may not see (opponent's cards and the
   /// face-down stock in a [QuartettView]). Never part of [deck].
-  static const Card hiddenCard = Card(id: '?', name: '?', set: '?', stats: {});
+  static const Card hiddenCard = Card(id: '?', name: '?', set: '?', deck: '?', stats: {});
 
-  static final Map<String, Card> _byId = {for (final c in deck) c.id: c};
+  /// Looks up a card of [deck] by id; null if unknown.
+  Card? cardById(String id) => deck.cardById(id);
 
-  /// Looks up a card by id; null if unknown.
-  static Card? cardById(String id) => _byId[id];
-
-  static QuartettStat? statById(String id) {
-    for (final s in stats) {
-      if (s.id == id) return s;
-    }
-    return null;
-  }
+  QuartettStat? statById(String id) => deck.statById(id);
 
   final QuartettMode mode;
   final int seed;
@@ -184,9 +132,10 @@ class QuartettGame extends Game {
   final List<Card> _stock = [];
   final Map<Player, List<String>> _quartets = {Player.a: [], Player.b: []};
 
-  QuartettGame(this.mode, {this.seed = 0, this.handSize = 16})
-      : assert(handSize >= 1 && handSize <= 16) {
-    final cards = List<Card>.of(deck);
+  QuartettGame(this.mode, {this.seed = 0, this.handSize = 16, QuartettDeck? deck})
+      : deck = deck ?? QuartettDeck.cars,
+        assert(handSize >= 1 && handSize <= 16) {
+    final cards = List<Card>.of(this.deck.cards);
     final rnd = Random(seed);
     for (var i = cards.length - 1; i > 0; i--) {
       final j = rnd.nextInt(i + 1);
@@ -253,6 +202,7 @@ class QuartettGame extends Game {
   Map<String, dynamic> viewJson(Player viewer) => {
         'viewer': viewer.name,
         'mode': mode.name,
+        'deck': deck.id,
         'handSize': handSize,
         'current': _current.name,
         'result': resultToJson(playResult),
@@ -282,7 +232,7 @@ class QuartettGame extends Game {
     final held = hand.map((c) => c.id).toSet();
     final sets = hand.map((c) => c.set).toSet();
     return [
-      for (final c in deck)
+      for (final c in deck.cards)
         if (sets.contains(c.set) && !held.contains(c.id))
           {'action': 'ask', 'card': c.id}
     ];
@@ -372,7 +322,7 @@ class QuartettGame extends Game {
   GameEvent? _ask(Map<String, dynamic> move) {
     if (move['action'] != 'ask') return null;
     final id = move['card'];
-    final card = id is String ? _byId[id] : null;
+    final card = id is String ? deck.cardById(id) : null;
     if (card == null) return null;
     final me = _current, opp = _other(me);
     final hand = _hands[me]!;

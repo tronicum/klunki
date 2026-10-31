@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettGame, QuartettStat;
+import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettDeck, QuartettStat;
 
 import '../../app/theme.dart';
 import '../engine_l10n.dart';
+import 'quartett_pictograms.dart';
 
 /// Shared Quartett card widgets (Trumpf screen KLD-024, Sets screen KLD-025).
 ///
@@ -18,8 +19,13 @@ import '../engine_l10n.dart';
 Color quartettSetColor(String set, [QuartettPalette? palette]) =>
     (palette ?? KlunkiPalette.classicLight.quartett).set(set);
 
-/// Localized display name of a set letter (e.g. `B` → "Hypercars").
-String quartettSetName(AppLocalizations l10n, String set) => localizedSetName(l10n, set);
+/// Localized display name of a set letter of [deck] (e.g. `B` → "Hypercars"
+/// in the car deck, the default).
+String quartettSetName(AppLocalizations l10n, String set, [String deck = qe.QuartettDeck.defaultId]) =>
+    localizedSetName(l10n, set, deck);
+
+/// The deck of [card] (the car deck for an unknown id).
+qe.QuartettDeck quartettDeckOf(qe.Card card) => qe.QuartettDeck.byId(card.deck) ?? qe.QuartettDeck.cars;
 
 /// A stat value with unit and the decimal separator of [locale] (default
 /// German, decimal comma): `2,7 s`, `650 PS`. [unit] defaults to the engine's
@@ -32,7 +38,8 @@ String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de
   var f = NumberFormat('0.0', locale);
   if (f.symbols.ZERO_DIGIT != '0') f = NumberFormat('0.0', 'en');
   final v = value is double ? f.format(value) : '$value';
-  return '$v ${unit ?? stat.unit}';
+  final u = unit ?? stat.unit;
+  return u.isEmpty ? v : '$v $u';
 }
 
 /// How a highlighted stat row came out in a trick.
@@ -52,9 +59,9 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
 /// A Quartett card, face-up ([QuartettCard.new]) or face-down
 /// ([QuartettCard.back]).
 ///
-/// Face-up: coloured header per set with the id badge ("B3"), set name and car
-/// name, then one row per [qe.QuartettGame.stats] entry (label, value + unit,
-/// ↑ "higher wins" / ↓ "lower wins").
+/// Face-up: coloured header per set with the id badge ("B3"), set name, card
+/// name and the deck's pictogram (KLD-069), then one row per stat of the
+/// card's deck (label, value + unit, ↑ "higher wins" / ↓ "lower wins").
 ///
 /// * [onStatTap] makes the stat rows tappable (null = read-only); rows are
 ///   disabled again when [enabled] is false.
@@ -64,8 +71,8 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
 ///   [highlightStat] alone tints it with the set colour (selection).
 /// * [dense] uses smaller text for side-by-side layouts.
 ///
-/// Face-down: patterned back with an optional [count] ("15 Karten") and
-/// [label] (e.g. "O").
+/// Face-down: patterned back with the [deck]'s pictogram, an optional [count]
+/// ("15 Karten") and [label] (e.g. "O").
 class QuartettCard extends StatelessWidget {
   final qe.Card? card;
   final void Function(qe.QuartettStat stat)? onStatTap;
@@ -81,6 +88,9 @@ class QuartettCard extends StatelessWidget {
   /// Back side only: caption on the back, e.g. the owner's mark.
   final String? label;
 
+  /// Back side only: the deck id, for its pictogram (default: cars).
+  final String? deck;
+
   /// Face-up card.
   const QuartettCard({
     super.key,
@@ -92,10 +102,11 @@ class QuartettCard extends StatelessWidget {
     this.outcome,
     this.dense = false,
   }) : count = null,
-       label = null;
+       label = null,
+       deck = null;
 
   /// Face-down card (back side). Never reveals a card.
-  const QuartettCard.back({super.key, this.count, this.label, this.dense = false})
+  const QuartettCard.back({super.key, this.count, this.label, this.deck, this.dense = false})
     : card = null,
       onStatTap = null,
       enabled = false,
@@ -157,7 +168,7 @@ class QuartettCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        quartettSetName(AppLocalizations.of(context), c.set),
+                        quartettSetName(AppLocalizations.of(context), c.set, c.deck),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: text.labelMedium?.copyWith(color: onColor.withValues(alpha: 0.85)),
@@ -174,10 +185,23 @@ class QuartettCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                SizedBox(width: dense ? 6 : 8),
+                ExcludeSemantics(
+                  child: Container(
+                    width: dense ? 40 : 52,
+                    height: dense ? 28 : 36,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(color: onColor, borderRadius: BorderRadius.circular(6)),
+                    child: CustomPaint(
+                      key: Key('quartett-pictogram-${c.deck}'),
+                      painter: QuartettPictogram(c.deck, color: color, detail: onColor),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-          for (final s in qe.QuartettGame.stats) _statRow(context, c, s, color),
+          for (final s in quartettDeckOf(c).stats) _statRow(context, c, s, color),
         ],
       ),
     );
@@ -280,7 +304,15 @@ class QuartettCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (label != null) Text(label!, style: theme.textTheme.headlineSmall?.copyWith(color: on)),
-                      Icon(Icons.directions_car, size: dense ? 28 : 40, color: on),
+                      ExcludeSemantics(
+                        child: SizedBox(
+                          width: dense ? 44 : 64,
+                          height: dense ? 28 : 40,
+                          child: CustomPaint(
+                            painter: QuartettPictogram(deck ?? qe.QuartettDeck.defaultId, color: on, detail: p.backA),
+                          ),
+                        ),
+                      ),
                       Text(
                         l10n.quartettCardBack,
                         style: theme.textTheme.labelSmall?.copyWith(color: on, letterSpacing: 2),

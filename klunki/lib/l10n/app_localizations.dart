@@ -1787,6 +1787,330 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Du hast aufgegeben'**
   String get engineReasonCommonYouResigned;
+
+  /// KLD-069 Quartett deck name: cars.
+  ///
+  /// In de, this message translates to:
+  /// **'Autos'**
+  String get quartettDeckCars;
+
+  /// KLD-069 Quartett deck name: trains.
+  ///
+  /// In de, this message translates to:
+  /// **'Züge'**
+  String get quartettDeckTrains;
+
+  /// KLD-069 Quartett deck name: rockets (launch vehicles).
+  ///
+  /// In de, this message translates to:
+  /// **'Raketen'**
+  String get quartettDeckRockets;
+
+  /// KLD-069 Quartett deck name: planes.
+  ///
+  /// In de, this message translates to:
+  /// **'Flugzeuge'**
+  String get quartettDeckPlanes;
+
+  /// KLD-069 Quartett set name, trains deck, set A: German high-speed trains (brand name, keep).
+  ///
+  /// In de, this message translates to:
+  /// **'ICE'**
+  String get quartettSetTrainsA;
+
+  /// KLD-069 Quartett set name, trains deck, set B: Japanese high-speed trains.
+  ///
+  /// In de, this message translates to:
+  /// **'Shinkansen'**
+  String get quartettSetTrainsB;
+
+  /// KLD-069 Quartett set name, trains deck, set C: French high-speed trains (brand name, keep).
+  ///
+  /// In de, this message translates to:
+  /// **'TGV'**
+  String get quartettSetTrainsC;
+
+  /// KLD-069 Quartett set name, trains deck, set D: European high-speed trains.
+  ///
+  /// In de, this message translates to:
+  /// **'Europas Schnelle'**
+  String get quartettSetTrainsD;
+
+  /// KLD-069 Quartett set name, trains deck, set E: High-speed trains from Asia and America.
+  ///
+  /// In de, this message translates to:
+  /// **'Asien & Amerika'**
+  String get quartettSetTrainsE;
+
+  /// KLD-069 Quartett set name, trains deck, set F: Electric locomotives.
+  ///
+  /// In de, this message translates to:
+  /// **'E-Loks'**
+  String get quartettSetTrainsF;
+
+  /// KLD-069 Quartett set name, trains deck, set G: Famous steam locomotives.
+  ///
+  /// In de, this message translates to:
+  /// **'Dampf-Legenden'**
+  String get quartettSetTrainsG;
+
+  /// KLD-069 Quartett set name, trains deck, set H: Heavy freight locomotives.
+  ///
+  /// In de, this message translates to:
+  /// **'Güter-Riesen'**
+  String get quartettSetTrainsH;
+
+  /// KLD-069 Quartett set name, rockets deck, set A: Moon rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'Mondraketen'**
+  String get quartettSetRocketsA;
+
+  /// KLD-069 Quartett set name, rockets deck, set B: Rockets with reusable boosters.
+  ///
+  /// In de, this message translates to:
+  /// **'Wiederverwendbar'**
+  String get quartettSetRocketsB;
+
+  /// KLD-069 Quartett set name, rockets deck, set C: European rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'Europa'**
+  String get quartettSetRocketsC;
+
+  /// KLD-069 Quartett set name, rockets deck, set D: Classic US rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'USA-Klassiker'**
+  String get quartettSetRocketsD;
+
+  /// KLD-069 Quartett set name, rockets deck, set E: Russian/Soviet rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'Russland'**
+  String get quartettSetRocketsE;
+
+  /// KLD-069 Quartett set name, rockets deck, set F: Chinese rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'China'**
+  String get quartettSetRocketsF;
+
+  /// KLD-069 Quartett set name, rockets deck, set G: Japanese and Indian rockets.
+  ///
+  /// In de, this message translates to:
+  /// **'Japan & Indien'**
+  String get quartettSetRocketsG;
+
+  /// KLD-069 Quartett set name, rockets deck, set H: Small launch vehicles.
+  ///
+  /// In de, this message translates to:
+  /// **'Kleine Träger'**
+  String get quartettSetRocketsH;
+
+  /// KLD-069 Quartett set name, planes deck, set A: Wide-body airliners.
+  ///
+  /// In de, this message translates to:
+  /// **'Großraumjets'**
+  String get quartettSetPlanesA;
+
+  /// KLD-069 Quartett set name, planes deck, set B: Narrow-body medium-haul airliners.
+  ///
+  /// In de, this message translates to:
+  /// **'Mittelstrecke'**
+  String get quartettSetPlanesB;
+
+  /// KLD-069 Quartett set name, planes deck, set C: Supersonic aircraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Überschall'**
+  String get quartettSetPlanesC;
+
+  /// KLD-069 Quartett set name, planes deck, set D: Propeller aircraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Propeller-Klassiker'**
+  String get quartettSetPlanesD;
+
+  /// KLD-069 Quartett set name, planes deck, set E: Giant cargo aircraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Frachtriesen'**
+  String get quartettSetPlanesE;
+
+  /// KLD-069 Quartett set name, planes deck, set F: Business jets and light aircraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Business & Sport'**
+  String get quartettSetPlanesF;
+
+  /// KLD-069 Quartett set name, planes deck, set G: Pioneer aircraft (1903–1927).
+  ///
+  /// In de, this message translates to:
+  /// **'Pioniere'**
+  String get quartettSetPlanesG;
+
+  /// KLD-069 Quartett set name, planes deck, set H: Unusual record aircraft.
+  ///
+  /// In de, this message translates to:
+  /// **'Rekord-Exoten'**
+  String get quartettSetPlanesH;
+
+  /// KLD-069 Quartett stat label: power in kW (trains).
+  ///
+  /// In de, this message translates to:
+  /// **'Leistung'**
+  String get quartettStatKw;
+
+  /// KLD-069 Quartett stat label: length in metres (trains, planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Länge'**
+  String get quartettStatLengthM;
+
+  /// KLD-069 Quartett stat label: weight in tonnes, lower wins (trains).
+  ///
+  /// In de, this message translates to:
+  /// **'Gewicht'**
+  String get quartettStatMassT;
+
+  /// KLD-069 Quartett stat label: starting tractive effort in kN (trains).
+  ///
+  /// In de, this message translates to:
+  /// **'Anfahrzugkraft'**
+  String get quartettStatTractiveKn;
+
+  /// KLD-069 Quartett stat label: year in service since (trains).
+  ///
+  /// In de, this message translates to:
+  /// **'In Betrieb seit'**
+  String get quartettStatInService;
+
+  /// KLD-069 Quartett stat label: height in metres (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Höhe'**
+  String get quartettStatHeightM;
+
+  /// KLD-069 Quartett stat label: liftoff thrust in kN (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Startschub'**
+  String get quartettStatThrustKn;
+
+  /// KLD-069 Quartett stat label: payload to low Earth orbit in tonnes (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Nutzlast (LEO)'**
+  String get quartettStatLeoT;
+
+  /// KLD-069 Quartett stat label: launch mass in tonnes (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Startmasse'**
+  String get quartettStatLaunchMassT;
+
+  /// KLD-069 Quartett stat label: number of launches (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Starts'**
+  String get quartettStatFlights;
+
+  /// KLD-069 Quartett stat label: year of the first flight, lower wins (rockets, planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Erstflug'**
+  String get quartettStatFirstFlight;
+
+  /// KLD-069 Quartett stat label: range in km (planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Reichweite'**
+  String get quartettStatRangeKm;
+
+  /// KLD-069 Quartett stat label: wingspan in metres (planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Spannweite'**
+  String get quartettStatWingspanM;
+
+  /// KLD-069 Quartett stat label: maximum take-off weight in tonnes (planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Startgewicht'**
+  String get quartettStatMtowT;
+
+  /// KLD-069 deck picker title (before a Quartett game).
+  ///
+  /// In de, this message translates to:
+  /// **'Kartendeck wählen'**
+  String get quartettDeckPickerTitle;
+
+  /// KLD-069 heading of the deck choice in the network host setup.
+  ///
+  /// In de, this message translates to:
+  /// **'Kartendeck'**
+  String get quartettDeckLabel;
+
+  /// KLD-069 deck info line: number of sets of 4 cards.
+  ///
+  /// In de, this message translates to:
+  /// **'{sets} Sets à 4 Karten'**
+  String quartettDeckSets(int sets);
+
+  /// KLD-069 deck picker button: start the game.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielen'**
+  String get quartettDeckPlay;
+
+  /// KLD-069 button/link: open the view-only card gallery.
+  ///
+  /// In de, this message translates to:
+  /// **'Karten ansehen'**
+  String get quartettGalleryOpen;
+
+  /// KLD-069 card gallery title (list of decks).
+  ///
+  /// In de, this message translates to:
+  /// **'Quartett-Karten'**
+  String get quartettGalleryTitle;
+
+  /// KLD-069 full-size card view title: position in the deck.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte {index} von {total}'**
+  String quartettGalleryCardOf(int index, int total);
+
+  /// KLD-069 full-size card view: button for the previous card.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorherige Karte'**
+  String get quartettGalleryPrevious;
+
+  /// KLD-069 full-size card view: button for the next card.
+  ///
+  /// In de, this message translates to:
+  /// **'Nächste Karte'**
+  String get quartettGalleryNext;
+
+  /// KLD-069 deck gallery: menu to show the best 5 cards of a stat.
+  ///
+  /// In de, this message translates to:
+  /// **'Top 5 nach Wert'**
+  String get quartettGalleryTopMenu;
+
+  /// KLD-069 deck gallery: title of the best-5 list; stat = stat label.
+  ///
+  /// In de, this message translates to:
+  /// **'Top 5: {stat}'**
+  String quartettGalleryTopTitle(String stat);
+
+  /// KLD-069 screen-reader label of a small card in the gallery; id e.g. B3, name = vehicle name, set = set name.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte {id}: {name}, Set {set}'**
+  String quartettCardSemantics(String id, String name, String set);
 }
 
 class _AppLocalizationsDelegate

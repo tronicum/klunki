@@ -56,8 +56,8 @@ compatible; a host without WebSocket support simply omits them.
 |---|---|---|---|
 | `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 2`, `token?` | first message on a connection; `token` only when rejoining |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 2` | reply to the guest's `hello` |
-| `welcome` | host → guest | `config` (`{game, seed}` = `GameConfig.toJson()`), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
-| `welcome` (redacted) | host → guest | `config` (`{game, seed}`; `{game}` only when the seed is secret), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
+| `welcome` | host → guest | `config` (`{game, seed, deck?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
+| `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?}`; `{game, deck?}` = `GameConfig.publicJson()` when the seed is secret: the deck is public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
 | `accepted` (redacted) | host → guest | `index`, `player`, `move` (redacted), `event` (redacted), `view`, `commit?` | the same for a hidden-information game |

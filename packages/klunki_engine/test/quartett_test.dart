@@ -39,10 +39,10 @@ Map<String, dynamic> ask(String card) => {'action': 'ask', 'card': card};
 /// Picks the stat where [g]'s current top card beats the most deck cards.
 String greedyStat(QuartettGame g) {
   final c = g.topCard(g.currentPlayer)!;
-  var best = QuartettGame.stats.first.id;
+  var best = QuartettDeck.cars.stats.first.id;
   var bestScore = -1;
-  for (final s in QuartettGame.stats) {
-    final n = QuartettGame.deck
+  for (final s in QuartettDeck.cars.stats) {
+    final n = QuartettDeck.cars.cards
         .where((d) => s.beats(c.stats[s.id]!, d.stats[s.id]!))
         .length;
     if (n > bestScore) {
@@ -56,19 +56,19 @@ String greedyStat(QuartettGame g) {
 void main() {
   group('deck', () {
     test('32 unique cards, 8 sets of 4, all stats present', () {
-      expect(QuartettGame.deck.length, 32);
-      expect(QuartettGame.deck.map((c) => c.id).toSet().length, 32);
+      expect(QuartettDeck.cars.cards.length, 32);
+      expect(QuartettDeck.cars.cards.map((c) => c.id).toSet().length, 32);
       for (final s in 'ABCDEFGH'.split('')) {
-        expect(QuartettGame.deck.where((c) => c.set == s).length, 4);
+        expect(QuartettDeck.cars.cards.where((c) => c.set == s).length, 4);
       }
-      for (final c in QuartettGame.deck) {
-        for (final s in QuartettGame.stats) {
+      for (final c in QuartettDeck.cars.cards) {
+        for (final s in QuartettDeck.cars.stats) {
           expect(c.stats[s.id], isNotNull, reason: '${c.id} ${s.id}');
         }
       }
-      expect(QuartettGame.statById('kg')!.higherWins, isFalse);
-      expect(QuartettGame.statById('sec0to100')!.higherWins, isFalse);
-      expect(QuartettGame.statById('ps')!.higherWins, isTrue);
+      expect(QuartettDeck.cars.statById('kg')!.higherWins, isFalse);
+      expect(QuartettDeck.cars.statById('sec0to100')!.higherWins, isFalse);
+      expect(QuartettDeck.cars.statById('ps')!.higherWins, isTrue);
     });
 
     test('deterministic deal per seed', () {
@@ -95,12 +95,12 @@ void main() {
       expect(g.stackSize(Player.a), 16);
       expect(g.stackSize(Player.b), 16);
       expect(g.currentPlayer, Player.a);
-      expect(g.legalMoves.length, QuartettGame.stats.length);
+      expect(g.legalMoves.length, QuartettDeck.cars.stats.length);
     });
 
     /// Plays one trick with [stat] and checks the outcome against the values.
     void checkTrick(QuartettGame g, String stat) {
-      final s = QuartettGame.statById(stat)!;
+      final s = QuartettDeck.cars.statById(stat)!;
       final ca = g.topCard(Player.a)!, cb = g.topCard(Player.b)!;
       final va = ca.stats[stat]!, vb = cb.stats[stat]!;
       final before = g.currentPlayer;
@@ -130,7 +130,7 @@ void main() {
 
     test('higher-wins and lower-wins stats decide tricks correctly', () {
       for (var seed = 0; seed < 20; seed++) {
-        for (final s in QuartettGame.stats) {
+        for (final s in QuartettDeck.cars.stats) {
           checkTrick(QuartettGame(QuartettMode.trumpf, seed: seed), s.id);
         }
       }
@@ -155,7 +155,7 @@ void main() {
       String? tied;
       while (!g.isOver && tied == null) {
         final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
-        for (final s in QuartettGame.stats) {
+        for (final s in QuartettDeck.cars.stats) {
           if (a.stats[s.id] == b.stats[s.id]) tied = s.id;
         }
         if (tied == null) g.applyMove(pick('ps'));
@@ -172,7 +172,7 @@ void main() {
       // Resolve: keep picking until someone wins a trick; they get the pot.
       while (!g.isOver && g.potSize > 0) {
         final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
-        final decisive = QuartettGame.stats
+        final decisive = QuartettDeck.cars.stats
             .firstWhere((s) => a.stats[s.id] != b.stats[s.id]);
         final pot = g.potSize;
         final w = decisive.beats(a.stats[decisive.id]!, b.stats[decisive.id]!)
@@ -322,7 +322,7 @@ expect(g.result.params, {'a': 16, 'b': 16});
       final small = QuartettGame(QuartettMode.sets, seed: 0, handSize: 4);
       final heldSets = small.handOf(Player.a).map((c) => c.set).toSet();
       final notHeld =
-          QuartettGame.deck.firstWhere((c) => !heldSets.contains(c.set));
+          QuartettDeck.cars.cards.firstWhere((c) => !heldSets.contains(c.set));
       for (final (game, m) in <(QuartettGame, Map<String, dynamic>)>[
         (g, ask(own)), // own card
         (g, ask('D1')), // laid-down set (by B)
@@ -418,12 +418,12 @@ expect(g.result.params, {'a': 16, 'b': 16});
     test('legalMoves consistent with applyMove on random states', () {
       final candidates = {
         QuartettMode.trumpf: [
-          for (final s in QuartettGame.stats) pick(s.id),
+          for (final s in QuartettDeck.cars.stats) pick(s.id),
           pick('x'),
           ask('A1'),
         ],
         QuartettMode.sets: [
-          for (final c in QuartettGame.deck) ask(c.id),
+          for (final c in QuartettDeck.cars.cards) ask(c.id),
           ask('Q1'),
           pick('ps'),
         ],

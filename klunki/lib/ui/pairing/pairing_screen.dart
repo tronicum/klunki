@@ -13,12 +13,14 @@ import '../../net/join_payload.dart';
 import '../../net/join_qr.dart';
 import '../../net/local_ip.dart';
 import '../../net/scanned_join_code.dart';
+import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
+import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import 'device_name.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
@@ -75,6 +77,10 @@ class PairingDeps {
   /// "Spiel hosten" wording: one relay for everything).
   final RelaySettings Function() relaySettings;
 
+  /// The remembered Quartett deck (KLD-069), preselected when hosting
+  /// Quartett.
+  final QuartettDeckSettings Function() quartettDecks;
+
   const PairingDeps({
     required this.discovery,
     required this.hostTransport,
@@ -88,6 +94,7 @@ class PairingDeps {
     this.joinTimeout = const Duration(seconds: 12),
     this.qrScanner,
     this.relaySettings = RelaySettings.memory,
+    this.quartettDecks = QuartettDeckSettings.memory,
   });
 
   /// The real thing: platform discovery, TCP on all interfaces.
@@ -103,6 +110,7 @@ class PairingDeps {
         preferredPort: E2eMode.enabled ? E2eMode.port : klunkiDefaultPort,
         qrScanner: MobileQrScanner.new,
         relaySettings: RelaySettings.shared,
+        quartettDecks: QuartettDeckSettings.shared,
       );
 }
 
@@ -227,6 +235,11 @@ class _HostPanel extends StatefulWidget {
 
 class _HostPanelState extends State<_HostPanel> {
   String _gameId = appGameSpecs.first.id;
+  late final QuartettDeckSettings _deckSettings = widget.deps.quartettDecks();
+  late String _deck = _deckSettings.value;
+
+  /// The deck to host with (KLD-069): only for Quartett.
+  String? get _hostDeck => specById(_gameId)?.usesDeck == true ? _deck : null;
   bool _starting = false;
   String? _error;
 
@@ -263,7 +276,7 @@ class _HostPanelState extends State<_HostPanel> {
       _error = null;
     });
     final deps = widget.deps;
-    final config = GameConfig(_gameId, seed: deps.seed());
+    final config = GameConfig(_gameId, seed: deps.seed(), deck: _hostDeck);
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -387,6 +400,21 @@ class _HostPanelState extends State<_HostPanel> {
             ],
           ),
         ),
+        if (_hostDeck != null) ...[
+          const SizedBox(height: 8),
+          Text(l10n.quartettDeckLabel, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 4),
+          QuartettDeckChooser(
+            key: const Key('pair-deck'),
+            keyPrefix: 'pair-deck-',
+            selected: _deck,
+            enabled: !_starting,
+            onChanged: (d) {
+              setState(() => _deck = d);
+              _deckSettings.set(d);
+            },
+          ),
+        ],
         const SizedBox(height: 8),
         FilledButton.icon(
           key: const Key('pair-host-start'),

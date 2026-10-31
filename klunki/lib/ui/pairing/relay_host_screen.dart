@@ -7,9 +7,11 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../net/join_qr.dart';
 import '../../net/room_link.dart';
+import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
+import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
@@ -48,6 +50,9 @@ class RelayHostScreen extends StatefulWidget {
   /// a private in-memory one.
   final RelaySettings? relaySettings;
 
+  /// The remembered Quartett deck (KLD-069); null: a private in-memory one.
+  final QuartettDeckSettings? deckSettings;
+
   /// The page URL, for the join link (`<page>/?room=CODE`).
   final Uri? pageUrl;
 
@@ -65,6 +70,7 @@ class RelayHostScreen extends StatefulWidget {
     this.hostTransport = platformRelayHost,
     this.defaultRelay,
     this.relaySettings,
+    this.deckSettings,
     this.pageUrl,
     this.seed = newGameSeed,
     this.deviceName = _browser,
@@ -79,6 +85,11 @@ class RelayHostScreen extends StatefulWidget {
 
 class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField {
   String _gameId = appGameSpecs.first.id;
+  late final QuartettDeckSettings _deckSettings = widget.deckSettings ?? QuartettDeckSettings.memory();
+  late String _deck = _deckSettings.value;
+
+  /// The deck to host with (KLD-069): only for Quartett.
+  String? get _hostDeck => specById(_gameId)?.usesDeck == true ? _deck : null;
   late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
@@ -116,7 +127,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       _error = null;
       _showStartHint = false;
     });
-    final config = GameConfig(_gameId, seed: widget.seed());
+    final config = GameConfig(_gameId, seed: widget.seed(), deck: _hostDeck);
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -217,6 +228,21 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           ],
         ),
       ),
+      if (_hostDeck != null) ...[
+        const SizedBox(height: 8),
+        Text(l10n.quartettDeckLabel, style: theme.textTheme.titleSmall),
+        const SizedBox(height: 4),
+        QuartettDeckChooser(
+          key: const Key('relay-deck'),
+          keyPrefix: 'relay-deck-',
+          selected: _deck,
+          enabled: !_starting,
+          onChanged: (d) {
+            setState(() => _deck = d);
+            _deckSettings.set(d);
+          },
+        ),
+      ],
       const SizedBox(height: 8),
       RelayLine(settings: _settings, defaultRelay: widget.defaultRelay, enabled: !_starting),
       const SizedBox(height: 8),

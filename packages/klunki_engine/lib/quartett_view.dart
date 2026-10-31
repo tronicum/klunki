@@ -10,7 +10,8 @@ class QuartettView extends QuartettGame {
   /// The player whose view this is.
   final Player viewer;
 
-  QuartettView._(this.viewer, QuartettMode mode, int handSize) : super(mode, handSize: handSize) {
+  QuartettView._(this.viewer, QuartettMode mode, int handSize, QuartettDeck deck)
+      : super(mode, handSize: handSize, deck: deck) {
     for (final p in Player.values) {
       _stacks[p]!.clear();
       _hands[p]!.clear();
@@ -29,8 +30,11 @@ class QuartettView extends QuartettGame {
       final mode = QuartettMode.values.byName(j['mode'] as String);
       final handSize = j['handSize'] as int;
       if (handSize < 1 || handSize > 16) throw BadViewException('bad hand size $handSize');
-      final v = QuartettView._(viewer, mode, handSize);
-      Card card(Object? id) => QuartettGame._byId[id] ?? (throw BadViewException('unknown card $id'));
+      final deckId = j['deck'];
+      if (deckId != null && deckId is! String) throw const BadViewException('bad deck');
+      final deck = QuartettDeck.byId(deckId as String?) ?? (throw BadViewException('unknown deck $deckId'));
+      final v = QuartettView._(viewer, mode, handSize, deck);
+      Card card(Object? id) => (id is String ? deck.cardById(id) : null) ?? (throw BadViewException('unknown card $id'));
       List<Card> hidden(Object? n) => List.filled(n as int, QuartettGame.hiddenCard);
       if (mode == QuartettMode.trumpf) {
         final stacks = j['stacks'] as Map;
@@ -109,7 +113,7 @@ class QuartettView extends QuartettGame {
   }
 
   @override
-  String toString() => 'QuartettView(${viewer.name}, ${mode.name})';
+  String toString() => 'QuartettView(${viewer.name}, ${mode.name}, ${deck.id})';
 }
 
 /// Redaction for both Quartett modes: the seed (and with it the deal) stays

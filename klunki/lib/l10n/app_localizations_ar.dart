@@ -1110,4 +1110,174 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get engineReasonCommonYouResigned => 'لقد استسلمت';
+
+  @override
+  String get quartettDeckCars => 'سيارات';
+
+  @override
+  String get quartettDeckTrains => 'قطارات';
+
+  @override
+  String get quartettDeckRockets => 'صواريخ';
+
+  @override
+  String get quartettDeckPlanes => 'طائرات';
+
+  @override
+  String get quartettSetTrainsA => 'ICE';
+
+  @override
+  String get quartettSetTrainsB => 'شينكانسن';
+
+  @override
+  String get quartettSetTrainsC => 'TGV';
+
+  @override
+  String get quartettSetTrainsD => 'سريعات أوروبا';
+
+  @override
+  String get quartettSetTrainsE => 'آسيا وأمريكا';
+
+  @override
+  String get quartettSetTrainsF => 'قاطرات كهربائية';
+
+  @override
+  String get quartettSetTrainsG => 'أساطير البخار';
+
+  @override
+  String get quartettSetTrainsH => 'عمالقة الشحن';
+
+  @override
+  String get quartettSetRocketsA => 'صواريخ القمر';
+
+  @override
+  String get quartettSetRocketsB => 'قابلة لإعادة الاستخدام';
+
+  @override
+  String get quartettSetRocketsC => 'أوروبا';
+
+  @override
+  String get quartettSetRocketsD => 'كلاسيكيات أمريكية';
+
+  @override
+  String get quartettSetRocketsE => 'روسيا';
+
+  @override
+  String get quartettSetRocketsF => 'الصين';
+
+  @override
+  String get quartettSetRocketsG => 'اليابان والهند';
+
+  @override
+  String get quartettSetRocketsH => 'صواريخ إطلاق صغيرة';
+
+  @override
+  String get quartettSetPlanesA => 'طائرات عريضة البدن';
+
+  @override
+  String get quartettSetPlanesB => 'المدى المتوسط';
+
+  @override
+  String get quartettSetPlanesC => 'فوق صوتية';
+
+  @override
+  String get quartettSetPlanesD => 'كلاسيكيات المراوح';
+
+  @override
+  String get quartettSetPlanesE => 'عمالقة الشحن الجوي';
+
+  @override
+  String get quartettSetPlanesF => 'الأعمال والرياضة';
+
+  @override
+  String get quartettSetPlanesG => 'الرواد';
+
+  @override
+  String get quartettSetPlanesH => 'غرائب الأرقام القياسية';
+
+  @override
+  String get quartettStatKw => 'القدرة';
+
+  @override
+  String get quartettStatLengthM => 'الطول';
+
+  @override
+  String get quartettStatMassT => 'الوزن';
+
+  @override
+  String get quartettStatTractiveKn => 'قوة الجر';
+
+  @override
+  String get quartettStatInService => 'في الخدمة منذ';
+
+  @override
+  String get quartettStatHeightM => 'الارتفاع';
+
+  @override
+  String get quartettStatThrustKn => 'قوة الدفع عند الإقلاع';
+
+  @override
+  String get quartettStatLeoT => 'الحمولة (LEO)';
+
+  @override
+  String get quartettStatLaunchMassT => 'كتلة الإطلاق';
+
+  @override
+  String get quartettStatFlights => 'عمليات الإطلاق';
+
+  @override
+  String get quartettStatFirstFlight => 'أول رحلة';
+
+  @override
+  String get quartettStatRangeKm => 'المدى';
+
+  @override
+  String get quartettStatWingspanM => 'باع الجناحين';
+
+  @override
+  String get quartettStatMtowT => 'وزن الإقلاع';
+
+  @override
+  String get quartettDeckPickerTitle => 'اختر مجموعة البطاقات';
+
+  @override
+  String get quartettDeckLabel => 'مجموعة البطاقات';
+
+  @override
+  String quartettDeckSets(int sets) {
+    return '$sets مجموعات من 4 بطاقات';
+  }
+
+  @override
+  String get quartettDeckPlay => 'العب';
+
+  @override
+  String get quartettGalleryOpen => 'تصفح البطاقات';
+
+  @override
+  String get quartettGalleryTitle => 'بطاقات الرباعيات';
+
+  @override
+  String quartettGalleryCardOf(int index, int total) {
+    return 'البطاقة $index من $total';
+  }
+
+  @override
+  String get quartettGalleryPrevious => 'البطاقة السابقة';
+
+  @override
+  String get quartettGalleryNext => 'البطاقة التالية';
+
+  @override
+  String get quartettGalleryTopMenu => 'أفضل 5 حسب القيمة';
+
+  @override
+  String quartettGalleryTopTitle(String stat) {
+    return 'أفضل 5: $stat';
+  }
+
+  @override
+  String quartettCardSemantics(String id, String name, String set) {
+    return 'البطاقة $id: $name، مجموعة $set';
+  }
 }

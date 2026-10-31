@@ -134,7 +134,7 @@ void main() {
   });
 
   test('Quartett values use Western digits in ar and fa (fa would default to Persian digits)', () {
-    final stat = QuartettGame.stats.first;
+    final stat = QuartettDeck.cars.stats.first;
     expect(formatQuartettValue(stat, 2.7, locale: 'fa'), '2.7 ${stat.unit}');
     expect(formatQuartettValue(stat, 2.7, locale: 'ar'), '2.7 ${stat.unit}');
     expect(formatQuartettValue(stat, 650, locale: 'fa'), '650 ${stat.unit}');

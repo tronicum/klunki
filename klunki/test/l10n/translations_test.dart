@@ -27,6 +27,13 @@ const sameAsEnglish = {
   'Horizontal',
   'Vertical',
   'Point {point}, {player}',
+  // Quartett decks (KLD-069): train brands and words spelled the same.
+  'ICE',
+  'TGV',
+  'Shinkansen',
+  'Trains',
+  'Europe',
+  'China',
 };
 
 Map<String, dynamic> _arb(String locale) =>

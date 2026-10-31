@@ -41,7 +41,14 @@ const sizes = [Size(390, 844), Size(360, 640)];
 
 /// Text that may be identical to English in every locale: the brand, player
 /// symbols, units, and the debug console command.
-const allowEnglish = {'Klunki', 'X', 'O', 'km/h', 'kg', 's', 'PS', 'ccm', 'undo'};
+const allowEnglish = {
+  'Klunki', 'X', 'O', 'km/h', 'kg', 's', 'PS', 'ccm', 'undo',
+  // Quartett decks (KLD-069): brand-like set names and words spelled the same.
+  'ICE', 'TGV', 'Shinkansen', 'Trains', 'Europe', 'China',
+};
+
+/// The deck each Quartett game is walked with (KLD-069: the picker first).
+const walkDecks = {'quartett-trumpf': 'trains', 'quartett-sets': 'rockets'};
 
 /// Coordinates (A1–J10), numbers, scores like `3 : 2`, card codes like `B3`.
 final allowPattern = RegExp(r'^[\s\dA-J.,:;/–\-+×%()#]*$');
@@ -226,6 +233,14 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
   await tester.pumpAndSettle();
   await tester.tap(find.byKey(Key('menu-$id')));
   await tester.pumpAndSettle();
+  if (walkDecks[id] case final deck?) {
+    // Quartett asks for the deck first (KLD-069).
+    audit.check(tester, '$id deck picker');
+    await tester.tap(find.byKey(Key('quartett-deck-$deck')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('quartett-deck-play')));
+    await tester.pumpAndSettle();
+  }
   audit.check(tester, '$id start');
   if (id == 'connect4') {
     // Hot-seat player names (KLD-056): dialog, then names in the status line.

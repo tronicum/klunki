@@ -238,7 +238,7 @@ class KlunkiHost {
       });
     } else {
       _send(conn, 'welcome', {
-        'config': redaction.secretSeed ? {'game': config.gameId} : config.toJson(),
+        'config': redaction.secretSeed ? config.publicJson() : config.toJson(),
         'you': guestPlayer.name,
         'token': _token,
         'host': this.name,

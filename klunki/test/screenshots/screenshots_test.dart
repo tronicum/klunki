@@ -21,6 +21,9 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
+import 'package:klunki/profile/quartett_deck_settings.dart';
+import 'package:klunki/ui/games/quartett_deck_picker.dart';
+import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -199,6 +202,55 @@ void main() {
         await _shot(tester, 'pairing-$tag');
       });
     }
+  }
+
+  // KLD-069: a card of every deck, the card gallery and the deck picker,
+  // phone light and dark.
+  for (final b in Brightness.values) {
+    final tag = _tag(phone, b);
+    for (final (deck, card) in [('cars', 'B2'), ('trains', 'C4'), ('rockets', 'A1'), ('planes', 'C1')]) {
+      testWidgets('kld069 card $deck $tag', skip: skip != null, (tester) async {
+        await _setup(tester, phone, b);
+        final d = QuartettDeck.byId(deck)!;
+        await tester.pumpWidget(_wrap(_themed(
+            QuartettCardPagerScreen(deck: d, initialIndex: d.cards.indexOf(d.cardById(card)!)))));
+        await _shot(tester, 'kld069-card-$deck-$tag');
+      });
+    }
+    testWidgets('kld069 gallery $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await tester.pumpWidget(_wrap(_themed(const QuartettGalleryScreen())));
+      await _shot(tester, 'kld069-gallery-$tag');
+    });
+    testWidgets('kld069 deck gallery $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await tester.pumpWidget(_wrap(_themed(QuartettDeckGalleryScreen(deck: QuartettDeck.rockets))));
+      await _shot(tester, 'kld069-deck-rockets-$tag');
+    });
+    testWidgets('kld069 picker $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await tester.pumpWidget(_wrap(_themed(Builder(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: ElevatedButton(
+              key: const Key('go'),
+              onPressed: () => showQuartettDeckPicker(context, settings: QuartettDeckSettings.memory('trains')),
+              child: const Text('go'),
+            ),
+          ),
+        ),
+      ))));
+      await tester.tap(find.byKey(const Key('go')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld069-picker-$tag');
+    });
+    testWidgets('kld069 trumpf trains $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      final c = GameController.hotSeat(const GameConfig('quartett-trumpf', seed: 7, deck: 'trains'));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_wrap(_themed(buildGameScreen(c))));
+      await _shot(tester, 'kld069-trumpf-trains-$tag');
+    });
   }
 
   testWidgets('menu ar', skip: skip != null, (tester) async {
