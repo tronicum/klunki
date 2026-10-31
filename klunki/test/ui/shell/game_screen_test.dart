@@ -13,15 +13,15 @@ import '../../l10n/l10n_test_utils.dart';
 void main() {
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
     expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id});
-    expect(gameSpecs.where((s) => !s.appReady).map((s) => s.id), contains('gostrategy'));
+    expect(appGameSpecs.map((s) => s.id), contains('gostrategy'), reason: 'KLD-058b');
+    for (final s in gameSpecs.where((s) => !s.appReady)) {
+      expect(gameScreens.containsKey(s.id), isFalse, reason: s.id);
+    }
   });
 
-  testWidgets('a game without a screen (GoStrategy) is not in the menu and shows a placeholder', (tester) async {
-    await tester.pumpWidget(klunkiApp());
-    expect(find.text('GoStrategy'), findsNothing);
-    await pumpGame(tester, 'gostrategy');
-    expect(find.byType(GameNotInAppScreen), findsOneWidget);
-    expect(find.text('GoStrategy gibt es in der App noch nicht.'), findsOneWidget);
+  testWidgets('a game the app cannot show yet gets a placeholder', (tester) async {
+    await tester.pumpWidget(localizedApp(const GameNotInAppScreen(gameId: 'future-game')));
+    expect(find.text('future-game gibt es in der App noch nicht.'), findsOneWidget);
   });
 
   group('menu', () {

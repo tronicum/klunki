@@ -832,6 +832,194 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy =>
+      'ارتش‌های پنهان – پرچم حریف را پیدا کن و تصرف کن.';
+
+  @override
+  String get goPieceMarshal => 'مارشال';
+
+  @override
+  String get goPieceGeneral => 'ژنرال';
+
+  @override
+  String get goPieceColonel => 'سرهنگ';
+
+  @override
+  String get goPieceMajor => 'سرگرد';
+
+  @override
+  String get goPieceCaptain => 'سروان';
+
+  @override
+  String get goPieceLieutenant => 'ستوان';
+
+  @override
+  String get goPieceSergeant => 'گروهبان';
+
+  @override
+  String get goPieceMiner => 'مین‌یاب';
+
+  @override
+  String get goPieceScout => 'دیده‌بان';
+
+  @override
+  String get goPieceSpy => 'جاسوس';
+
+  @override
+  String get goPieceBomb => 'بمب';
+
+  @override
+  String get goPieceFlag => 'پرچم';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece ($rank)';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return 'ارتشت را بچین ($player)';
+  }
+
+  @override
+  String get goSetupHint => 'دو مهره را لمس کن تا جابه‌جا شوند، سپس «تمام».';
+
+  @override
+  String goSetupSelected(String piece) {
+    return '$piece انتخاب شد – مهرهٔ دوم را برای جابه‌جایی لمس کن.';
+  }
+
+  @override
+  String get goSetupShuffle => 'چیدمان تصادفی';
+
+  @override
+  String get goSetupDone => 'تمام';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player اول می‌چیند – تو هم می‌توانی آماده شوی.';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return 'در انتظار چیدمان $player …';
+  }
+
+  @override
+  String get goLegendTitle => 'مهره‌ها';
+
+  @override
+  String get goLegendRules =>
+      'درجهٔ بالاتر می‌برد و با درجهٔ برابر هر دو می‌افتند. جاسوس اگر حمله کند مارشال را می‌زند. فقط مین‌یاب‌ها بمب را خنثی می‌کنند. دیده‌بان‌ها هر قدر بخواهند در خط مستقیم می‌روند. بمب‌ها و پرچم حرکت نمی‌کنند.';
+
+  @override
+  String get goHintSelect =>
+      'یکی از مهره‌هایت را لمس کن، بعد یک خانهٔ علامت‌دار را.';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece: یک خانهٔ علامت‌دار را لمس کن.';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece الان نمی‌تواند حرکت کند.';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return 'در انتظار $player …';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return '$moves حرکت دیگر بدون نبرد، بازی مساوی می‌شود.';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return 'ارتش تو ($mark)';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return 'حریف: $player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return '$left از $total مانده';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return 'حمله از طرف $player';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner $loser را می‌زند';
+  }
+
+  @override
+  String get goFightBoth => 'هر دو می‌افتند';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece بمب را خنثی می‌کند';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece روی بمب می‌رود';
+  }
+
+  @override
+  String get goFightFlag => 'پرچم تصرف شد!';
+
+  @override
+  String get goMoveSetup => 'ارتش را می‌چیند';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return 'حرکت $from–$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return 'حمله ($from–$to): $result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell: $content';
+  }
+
+  @override
+  String get goCellFree => 'خالی';
+
+  @override
+  String get goCellLake => 'دریاچه';
+
+  @override
+  String goCellHidden(String player) {
+    return 'مهرهٔ پنهان $player';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$piece از $player';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content، حرکت‌کرده';
+  }
+
+  @override
   String gameNotInApp(String game) {
     return '$game هنوز در برنامه در دسترس نیست.';
   }

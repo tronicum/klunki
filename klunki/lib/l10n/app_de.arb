@@ -1269,7 +1269,7 @@
   "@engineReasonSchiffeAllSunk": {
     "description": "Result reason (Schiffe versenken): the whole fleet is sunk."
   },
-  "engineReasonGostrategyFlagCaptured": "Flagge erobert",
+  "engineReasonGostrategyFlagCaptured": "Fahne erobert",
   "@engineReasonGostrategyFlagCaptured": {
     "description": "Result reason (GoStrategy): the winner captured the enemy flag."
   },
@@ -1287,6 +1287,328 @@
     "placeholders": {
       "moves": {
         "type": "int"
+      }
+    }
+  },
+  "menuGameGoStrategy": "GoStrategy",
+  "@menuGameGoStrategy": {
+    "description": "Game title: the hidden-rank capture-the-flag game; \"GoStrategy\" is the app name of the game (no brand), not translated (KLD-058b)."
+  },
+  "menuDescGoStrategy": "Verdeckte Armeen – finde und erobere die gegnerische Fahne.",
+  "@menuDescGoStrategy": {
+    "description": "Menu tile one-liner for GoStrategy (KLD-058b)."
+  },
+  "goPieceMarshal": "Marschall",
+  "@goPieceMarshal": {
+    "description": "GoStrategy piece name (rank 10)."
+  },
+  "goPieceGeneral": "General",
+  "@goPieceGeneral": {
+    "description": "GoStrategy piece name (rank 9)."
+  },
+  "goPieceColonel": "Oberst",
+  "@goPieceColonel": {
+    "description": "GoStrategy piece name (rank 8)."
+  },
+  "goPieceMajor": "Major",
+  "@goPieceMajor": {
+    "description": "GoStrategy piece name (rank 7)."
+  },
+  "goPieceCaptain": "Hauptmann",
+  "@goPieceCaptain": {
+    "description": "GoStrategy piece name (rank 6)."
+  },
+  "goPieceLieutenant": "Leutnant",
+  "@goPieceLieutenant": {
+    "description": "GoStrategy piece name (rank 5)."
+  },
+  "goPieceSergeant": "Feldwebel",
+  "@goPieceSergeant": {
+    "description": "GoStrategy piece name (rank 4)."
+  },
+  "goPieceMiner": "Mineur",
+  "@goPieceMiner": {
+    "description": "GoStrategy piece name (rank 3, defuses bombs)."
+  },
+  "goPieceScout": "Aufklärer",
+  "@goPieceScout": {
+    "description": "GoStrategy piece name (rank 2, runs any distance in a straight line)."
+  },
+  "goPieceSpy": "Spion",
+  "@goPieceSpy": {
+    "description": "GoStrategy piece name (rank 1, beats the marshal when attacking)."
+  },
+  "goPieceBomb": "Bombe",
+  "@goPieceBomb": {
+    "description": "GoStrategy piece name (immobile, destroys attackers except miners)."
+  },
+  "goPieceFlag": "Fahne",
+  "@goPieceFlag": {
+    "description": "GoStrategy piece name (immobile, capturing it wins)."
+  },
+  "goPieceRank": "{piece} ({rank})",
+  "@goPieceRank": {
+    "description": "GoStrategy piece with its rank, e.g. \"Hauptmann (6)\". rank = digits.",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      },
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "goSetupTitle": "Stelle deine Armee auf ({player})",
+  "@goSetupTitle": {
+    "description": "GoStrategy setup headline. player = mark X or O.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goSetupHint": "Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.",
+  "@goSetupHint": {
+    "description": "GoStrategy setup hint line."
+  },
+  "goSetupSelected": "{piece} gewählt – tippe eine zweite Figur zum Tauschen.",
+  "@goSetupSelected": {
+    "description": "GoStrategy setup hint after the first piece of a swap was tapped. piece = piece name.",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "goSetupShuffle": "Neu mischen",
+  "@goSetupShuffle": {
+    "description": "GoStrategy setup button: new random setup."
+  },
+  "goSetupDone": "Fertig",
+  "@goSetupDone": {
+    "description": "GoStrategy setup button: submit the setup."
+  },
+  "goSetupFirst": "{player} stellt zuerst auf – du kannst schon vorbereiten.",
+  "@goSetupFirst": {
+    "description": "GoStrategy network: the other player sets up first; this player can already arrange. player = \"Anna (X)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goWaitingSetup": "Warte, bis {player} aufgestellt hat …",
+  "@goWaitingSetup": {
+    "description": "GoStrategy network: waiting for the other player's setup. player = \"Ben (O)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goLegendTitle": "Figuren",
+  "@goLegendTitle": {
+    "description": "GoStrategy setup: heading of the piece list."
+  },
+  "goLegendRules": "Höherer Rang gewinnt, bei gleichem Rang fallen beide. Der Spion schlägt den Marschall, wenn er angreift. Nur Mineure entschärfen Bomben. Aufklärer ziehen beliebig weit geradeaus. Bomben und Fahne bleiben stehen.",
+  "@goLegendRules": {
+    "description": "GoStrategy setup: short rules legend under the piece list."
+  },
+  "goHintSelect": "Tippe eine deiner Figuren an, dann ein markiertes Feld.",
+  "@goHintSelect": {
+    "description": "GoStrategy hint: how to move."
+  },
+  "goHintSelected": "{piece}: tippe ein markiertes Feld.",
+  "@goHintSelected": {
+    "description": "GoStrategy hint with a piece selected. piece = \"Hauptmann (6)\".",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "goHintNoTargets": "{piece} kann gerade nicht ziehen.",
+  "@goHintNoTargets": {
+    "description": "GoStrategy hint: the selected piece has no legal move. piece = \"Hauptmann (6)\".",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "goHintWaiting": "Warte auf {player} …",
+  "@goHintWaiting": {
+    "description": "GoStrategy hint while the other player moves. player = \"Ben (O)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goMoveLimit": "Noch {moves} Züge ohne Kampf, dann ist es unentschieden.",
+  "@goMoveLimit": {
+    "description": "GoStrategy: shown near the move limit. moves = digits, moves left without a fight before the draw.",
+    "placeholders": {
+      "moves": {
+        "type": "String"
+      }
+    }
+  },
+  "goArmyOwn": "Deine Armee ({mark})",
+  "@goArmyOwn": {
+    "description": "GoStrategy panel heading: the viewer's army. mark = X or O.",
+    "placeholders": {
+      "mark": {
+        "type": "String"
+      }
+    }
+  },
+  "goArmyEnemy": "Gegner: {player}",
+  "@goArmyEnemy": {
+    "description": "GoStrategy panel heading: the opponent's army. player = \"Ben (O)\" or \"O\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goArmyLeft": "{left} von {total} übrig",
+  "@goArmyLeft": {
+    "description": "GoStrategy panel: pieces left of an army. left/total = digits.",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "goFightBy": "Angriff von {player}",
+  "@goFightBy": {
+    "description": "GoStrategy fight reveal headline. player = \"Anna (X)\" or \"X\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goFightBeats": "{winner} schlägt {loser}",
+  "@goFightBeats": {
+    "description": "GoStrategy fight outcome. winner/loser = \"Hauptmann (6)\".",
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      },
+      "loser": {
+        "type": "String"
+      }
+    }
+  },
+  "goFightBoth": "Beide fallen",
+  "@goFightBoth": {
+    "description": "GoStrategy fight outcome: equal ranks, both pieces removed."
+  },
+  "goFightDefused": "{piece} entschärft die Bombe",
+  "@goFightDefused": {
+    "description": "GoStrategy fight outcome: a miner removes a bomb. piece = \"Mineur (3)\".",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "goFightBomb": "{piece} läuft auf eine Bombe",
+  "@goFightBomb": {
+    "description": "GoStrategy fight outcome: the attacker hits a bomb and is removed. piece = \"Hauptmann (6)\".",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      }
+    }
+  },
+  "goFightFlag": "Fahne erobert!",
+  "@goFightFlag": {
+    "description": "GoStrategy fight outcome: the flag was captured (game won)."
+  },
+  "goMoveSetup": "stellt die Armee auf",
+  "@goMoveSetup": {
+    "description": "GoStrategy move history: a player submitted the setup (positions stay secret)."
+  },
+  "goMoveStep": "zieht {from}–{to}",
+  "@goMoveStep": {
+    "description": "GoStrategy move history: a quiet move. from/to = squares like a4 (LTR).",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "goMoveAttack": "greift an ({from}–{to}): {result}",
+  "@goMoveAttack": {
+    "description": "GoStrategy move history: an attack. from/to = squares (LTR), result = goFight* text.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      },
+      "result": {
+        "type": "String"
+      }
+    }
+  },
+  "goCellLabel": "{cell}: {content}",
+  "@goCellLabel": {
+    "description": "GoStrategy board square for screen readers. cell = a1–j10 (LTR), content = goCell* text.",
+    "placeholders": {
+      "cell": {
+        "type": "String"
+      },
+      "content": {
+        "type": "String"
+      }
+    }
+  },
+  "goCellFree": "frei",
+  "@goCellFree": {
+    "description": "GoStrategy square content for screen readers: empty land square."
+  },
+  "goCellLake": "See",
+  "@goCellLake": {
+    "description": "GoStrategy square content for screen readers: lake (no piece may enter)."
+  },
+  "goCellHidden": "verdeckte Figur von {player}",
+  "@goCellHidden": {
+    "description": "GoStrategy square content: an enemy piece of unknown rank. player = \"O\" or \"Ben (O)\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goCellPiece": "{piece} von {player}",
+  "@goCellPiece": {
+    "description": "GoStrategy square content: a known piece. piece = \"Hauptmann (6)\", player = \"X\".",
+    "placeholders": {
+      "piece": {
+        "type": "String"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "goCellMoved": "{content}, bewegt",
+  "@goCellMoved": {
+    "description": "GoStrategy square content suffix: the piece has moved (so it is no bomb or flag).",
+    "placeholders": {
+      "content": {
+        "type": "String"
       }
     }
   },

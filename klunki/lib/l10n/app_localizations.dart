@@ -1329,7 +1329,7 @@ abstract class AppLocalizations {
   /// Result reason (GoStrategy): the winner captured the enemy flag.
   ///
   /// In de, this message translates to:
-  /// **'Flagge erobert'**
+  /// **'Fahne erobert'**
   String get engineReasonGostrategyFlagCaptured;
 
   /// Result reason (GoStrategy): the loser had no legal move on their turn.
@@ -1349,6 +1349,288 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{moves} Züge ohne Kampf'**
   String engineReasonGostrategyMoveLimit(int moves);
+
+  /// Game title: the hidden-rank capture-the-flag game; "GoStrategy" is the app name of the game (no brand), not translated (KLD-058b).
+  ///
+  /// In de, this message translates to:
+  /// **'GoStrategy'**
+  String get menuGameGoStrategy;
+
+  /// Menu tile one-liner for GoStrategy (KLD-058b).
+  ///
+  /// In de, this message translates to:
+  /// **'Verdeckte Armeen – finde und erobere die gegnerische Fahne.'**
+  String get menuDescGoStrategy;
+
+  /// GoStrategy piece name (rank 10).
+  ///
+  /// In de, this message translates to:
+  /// **'Marschall'**
+  String get goPieceMarshal;
+
+  /// GoStrategy piece name (rank 9).
+  ///
+  /// In de, this message translates to:
+  /// **'General'**
+  String get goPieceGeneral;
+
+  /// GoStrategy piece name (rank 8).
+  ///
+  /// In de, this message translates to:
+  /// **'Oberst'**
+  String get goPieceColonel;
+
+  /// GoStrategy piece name (rank 7).
+  ///
+  /// In de, this message translates to:
+  /// **'Major'**
+  String get goPieceMajor;
+
+  /// GoStrategy piece name (rank 6).
+  ///
+  /// In de, this message translates to:
+  /// **'Hauptmann'**
+  String get goPieceCaptain;
+
+  /// GoStrategy piece name (rank 5).
+  ///
+  /// In de, this message translates to:
+  /// **'Leutnant'**
+  String get goPieceLieutenant;
+
+  /// GoStrategy piece name (rank 4).
+  ///
+  /// In de, this message translates to:
+  /// **'Feldwebel'**
+  String get goPieceSergeant;
+
+  /// GoStrategy piece name (rank 3, defuses bombs).
+  ///
+  /// In de, this message translates to:
+  /// **'Mineur'**
+  String get goPieceMiner;
+
+  /// GoStrategy piece name (rank 2, runs any distance in a straight line).
+  ///
+  /// In de, this message translates to:
+  /// **'Aufklärer'**
+  String get goPieceScout;
+
+  /// GoStrategy piece name (rank 1, beats the marshal when attacking).
+  ///
+  /// In de, this message translates to:
+  /// **'Spion'**
+  String get goPieceSpy;
+
+  /// GoStrategy piece name (immobile, destroys attackers except miners).
+  ///
+  /// In de, this message translates to:
+  /// **'Bombe'**
+  String get goPieceBomb;
+
+  /// GoStrategy piece name (immobile, capturing it wins).
+  ///
+  /// In de, this message translates to:
+  /// **'Fahne'**
+  String get goPieceFlag;
+
+  /// GoStrategy piece with its rank, e.g. "Hauptmann (6)". rank = digits.
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} ({rank})'**
+  String goPieceRank(String piece, String rank);
+
+  /// GoStrategy setup headline. player = mark X or O.
+  ///
+  /// In de, this message translates to:
+  /// **'Stelle deine Armee auf ({player})'**
+  String goSetupTitle(String player);
+
+  /// GoStrategy setup hint line.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.'**
+  String get goSetupHint;
+
+  /// GoStrategy setup hint after the first piece of a swap was tapped. piece = piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} gewählt – tippe eine zweite Figur zum Tauschen.'**
+  String goSetupSelected(String piece);
+
+  /// GoStrategy setup button: new random setup.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu mischen'**
+  String get goSetupShuffle;
+
+  /// GoStrategy setup button: submit the setup.
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get goSetupDone;
+
+  /// GoStrategy network: the other player sets up first; this player can already arrange. player = "Anna (X)".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} stellt zuerst auf – du kannst schon vorbereiten.'**
+  String goSetupFirst(String player);
+
+  /// GoStrategy network: waiting for the other player's setup. player = "Ben (O)".
+  ///
+  /// In de, this message translates to:
+  /// **'Warte, bis {player} aufgestellt hat …'**
+  String goWaitingSetup(String player);
+
+  /// GoStrategy setup: heading of the piece list.
+  ///
+  /// In de, this message translates to:
+  /// **'Figuren'**
+  String get goLegendTitle;
+
+  /// GoStrategy setup: short rules legend under the piece list.
+  ///
+  /// In de, this message translates to:
+  /// **'Höherer Rang gewinnt, bei gleichem Rang fallen beide. Der Spion schlägt den Marschall, wenn er angreift. Nur Mineure entschärfen Bomben. Aufklärer ziehen beliebig weit geradeaus. Bomben und Fahne bleiben stehen.'**
+  String get goLegendRules;
+
+  /// GoStrategy hint: how to move.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe eine deiner Figuren an, dann ein markiertes Feld.'**
+  String get goHintSelect;
+
+  /// GoStrategy hint with a piece selected. piece = "Hauptmann (6)".
+  ///
+  /// In de, this message translates to:
+  /// **'{piece}: tippe ein markiertes Feld.'**
+  String goHintSelected(String piece);
+
+  /// GoStrategy hint: the selected piece has no legal move. piece = "Hauptmann (6)".
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} kann gerade nicht ziehen.'**
+  String goHintNoTargets(String piece);
+
+  /// GoStrategy hint while the other player moves. player = "Ben (O)".
+  ///
+  /// In de, this message translates to:
+  /// **'Warte auf {player} …'**
+  String goHintWaiting(String player);
+
+  /// GoStrategy: shown near the move limit. moves = digits, moves left without a fight before the draw.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch {moves} Züge ohne Kampf, dann ist es unentschieden.'**
+  String goMoveLimit(String moves);
+
+  /// GoStrategy panel heading: the viewer's army. mark = X or O.
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Armee ({mark})'**
+  String goArmyOwn(String mark);
+
+  /// GoStrategy panel heading: the opponent's army. player = "Ben (O)" or "O".
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner: {player}'**
+  String goArmyEnemy(String player);
+
+  /// GoStrategy panel: pieces left of an army. left/total = digits.
+  ///
+  /// In de, this message translates to:
+  /// **'{left} von {total} übrig'**
+  String goArmyLeft(String left, String total);
+
+  /// GoStrategy fight reveal headline. player = "Anna (X)" or "X".
+  ///
+  /// In de, this message translates to:
+  /// **'Angriff von {player}'**
+  String goFightBy(String player);
+
+  /// GoStrategy fight outcome. winner/loser = "Hauptmann (6)".
+  ///
+  /// In de, this message translates to:
+  /// **'{winner} schlägt {loser}'**
+  String goFightBeats(String winner, String loser);
+
+  /// GoStrategy fight outcome: equal ranks, both pieces removed.
+  ///
+  /// In de, this message translates to:
+  /// **'Beide fallen'**
+  String get goFightBoth;
+
+  /// GoStrategy fight outcome: a miner removes a bomb. piece = "Mineur (3)".
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} entschärft die Bombe'**
+  String goFightDefused(String piece);
+
+  /// GoStrategy fight outcome: the attacker hits a bomb and is removed. piece = "Hauptmann (6)".
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} läuft auf eine Bombe'**
+  String goFightBomb(String piece);
+
+  /// GoStrategy fight outcome: the flag was captured (game won).
+  ///
+  /// In de, this message translates to:
+  /// **'Fahne erobert!'**
+  String get goFightFlag;
+
+  /// GoStrategy move history: a player submitted the setup (positions stay secret).
+  ///
+  /// In de, this message translates to:
+  /// **'stellt die Armee auf'**
+  String get goMoveSetup;
+
+  /// GoStrategy move history: a quiet move. from/to = squares like a4 (LTR).
+  ///
+  /// In de, this message translates to:
+  /// **'zieht {from}–{to}'**
+  String goMoveStep(String from, String to);
+
+  /// GoStrategy move history: an attack. from/to = squares (LTR), result = goFight* text.
+  ///
+  /// In de, this message translates to:
+  /// **'greift an ({from}–{to}): {result}'**
+  String goMoveAttack(String from, String to, String result);
+
+  /// GoStrategy board square for screen readers. cell = a1–j10 (LTR), content = goCell* text.
+  ///
+  /// In de, this message translates to:
+  /// **'{cell}: {content}'**
+  String goCellLabel(String cell, String content);
+
+  /// GoStrategy square content for screen readers: empty land square.
+  ///
+  /// In de, this message translates to:
+  /// **'frei'**
+  String get goCellFree;
+
+  /// GoStrategy square content for screen readers: lake (no piece may enter).
+  ///
+  /// In de, this message translates to:
+  /// **'See'**
+  String get goCellLake;
+
+  /// GoStrategy square content: an enemy piece of unknown rank. player = "O" or "Ben (O)".
+  ///
+  /// In de, this message translates to:
+  /// **'verdeckte Figur von {player}'**
+  String goCellHidden(String player);
+
+  /// GoStrategy square content: a known piece. piece = "Hauptmann (6)", player = "X".
+  ///
+  /// In de, this message translates to:
+  /// **'{piece} von {player}'**
+  String goCellPiece(String piece, String player);
+
+  /// GoStrategy square content suffix: the piece has moved (so it is no bomb or flag).
+  ///
+  /// In de, this message translates to:
+  /// **'{content}, bewegt'**
+  String goCellMoved(String content);
 
   /// Shown instead of a game screen when a network game uses a game the app cannot show yet (e.g. a CLI host plays GoStrategy).
   ///

@@ -832,6 +832,193 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy =>
+      'Hidden armies – find and capture the enemy flag.';
+
+  @override
+  String get goPieceMarshal => 'Marshal';
+
+  @override
+  String get goPieceGeneral => 'General';
+
+  @override
+  String get goPieceColonel => 'Colonel';
+
+  @override
+  String get goPieceMajor => 'Major';
+
+  @override
+  String get goPieceCaptain => 'Captain';
+
+  @override
+  String get goPieceLieutenant => 'Lieutenant';
+
+  @override
+  String get goPieceSergeant => 'Sergeant';
+
+  @override
+  String get goPieceMiner => 'Miner';
+
+  @override
+  String get goPieceScout => 'Scout';
+
+  @override
+  String get goPieceSpy => 'Spy';
+
+  @override
+  String get goPieceBomb => 'Bomb';
+
+  @override
+  String get goPieceFlag => 'Flag';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece ($rank)';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return 'Set up your army ($player)';
+  }
+
+  @override
+  String get goSetupHint => 'Tap two pieces to swap them, then “Done”.';
+
+  @override
+  String goSetupSelected(String piece) {
+    return '$piece selected – tap a second piece to swap.';
+  }
+
+  @override
+  String get goSetupShuffle => 'Shuffle';
+
+  @override
+  String get goSetupDone => 'Done';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player sets up first – you can prepare meanwhile.';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return 'Waiting for $player to set up …';
+  }
+
+  @override
+  String get goLegendTitle => 'Pieces';
+
+  @override
+  String get goLegendRules =>
+      'Higher rank wins; with equal ranks both fall. The spy beats the marshal when it attacks. Only miners defuse bombs. Scouts move any distance in a straight line. Bombs and the flag never move.';
+
+  @override
+  String get goHintSelect => 'Tap one of your pieces, then a marked square.';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece: tap a marked square.';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece cannot move right now.';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return 'Waiting for $player …';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return '$moves more moves without a fight and it is a draw.';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return 'Your army ($mark)';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return 'Opponent: $player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return '$left of $total left';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return 'Attack by $player';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner beats $loser';
+  }
+
+  @override
+  String get goFightBoth => 'Both fall';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece defuses the bomb';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece hits a bomb';
+  }
+
+  @override
+  String get goFightFlag => 'Flag captured!';
+
+  @override
+  String get goMoveSetup => 'sets up the army';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return 'moves $from–$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return 'attacks ($from–$to): $result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell: $content';
+  }
+
+  @override
+  String get goCellFree => 'empty';
+
+  @override
+  String get goCellLake => 'lake';
+
+  @override
+  String goCellHidden(String player) {
+    return 'hidden piece of $player';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$piece of $player';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content, moved';
+  }
+
+  @override
   String gameNotInApp(String game) {
     return '$game is not available in the app yet.';
   }

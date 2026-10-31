@@ -239,6 +239,106 @@ class SchiffeIllustration extends CustomPainter {
   bool shouldRepaint(SchiffeIllustration old) => old.palette != palette;
 }
 
+/// GoStrategy: a patch of the board with a lake, a red army tile with a
+/// star (own piece), a blue tile seen from the back (hidden enemy) and the
+/// flag on its pole.
+class GoStrategyIllustration extends CustomPainter {
+  final KlunkiPalette palette;
+  const GoStrategyIllustration(this.palette);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = palette.gostrategy;
+    final r = _square(size);
+    const n = 4;
+    final cell = r.width / n;
+    final rr = RRect.fromRectAndRadius(r, Radius.circular(cell * 0.3));
+    canvas.drawRRect(rr.shift(Offset(0, cell * 0.1)), _fill(Colors.black.withValues(alpha: 0.18)));
+    canvas.save();
+    canvas.clipRRect(rr);
+    for (var row = 0; row < n; row++) {
+      for (var c = 0; c < n; c++) {
+        canvas.drawRect(
+          Rect.fromLTWH(r.left + c * cell, r.top + row * cell, cell, cell),
+          _fill((row + c).isEven ? p.land : p.landAlt),
+        );
+      }
+    }
+    // A lake in the top right corner (2×1 squares).
+    final lake = Rect.fromLTWH(r.left + cell * 2, r.top, cell * 2, cell);
+    canvas.drawRect(
+      lake,
+      Paint()
+        ..shader = LinearGradient(colors: [palette.schiffe.water, palette.schiffe.waterDeep]).createShader(lake),
+    );
+    canvas.restore();
+    canvas.drawRRect(
+        rr,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1, cell * 0.06)
+          ..color = p.edge);
+
+    void tile(int c, int row, Color color, {bool star = false, bool back = false}) {
+      final t = Rect.fromLTWH(r.left + c * cell, r.top + row * cell, cell, cell).deflate(cell * 0.1);
+      final tr = RRect.fromRectAndRadius(t, Radius.circular(cell * 0.18));
+      canvas.drawRRect(tr.shift(Offset(0, cell * 0.06)), _fill(Colors.black.withValues(alpha: 0.25)));
+      canvas.drawRRect(tr, _fill(color));
+      if (star) _star(canvas, t.center, t.width * 0.3, p.onPiece);
+      if (back) {
+        canvas.drawRRect(
+            RRect.fromRectAndRadius(t.deflate(t.width * 0.18), Radius.circular(cell * 0.1)),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = cell * 0.06
+              ..color = p.onPiece.withValues(alpha: 0.6));
+      }
+    }
+
+    tile(0, 3, p.red, star: true);
+    tile(1, 1, p.blue, back: true);
+    tile(3, 2, p.blue, back: true);
+    // The flag: pole on the red tile at (2, 3), cloth waving left to right.
+    final base = Offset(r.left + cell * 2.5, r.top + cell * 3.8);
+    final top = Offset(base.dx - cell * 0.25, r.top + cell * 1.4);
+    tile(2, 3, p.red);
+    canvas.drawLine(
+        base - Offset(cell * 0.25, cell * 0.25),
+        top,
+        Paint()
+          ..color = p.edge
+          ..strokeWidth = cell * 0.08
+          ..strokeCap = StrokeCap.round);
+    final cloth = Path()
+      ..moveTo(top.dx, top.dy)
+      ..quadraticBezierTo(top.dx + cell * 0.5, top.dy - cell * 0.15, top.dx + cell * 0.95, top.dy + cell * 0.1)
+      ..lineTo(top.dx + cell * 0.95, top.dy + cell * 0.65)
+      ..quadraticBezierTo(top.dx + cell * 0.5, top.dy + cell * 0.45, top.dx, top.dy + cell * 0.6)
+      ..close();
+    canvas.drawPath(cloth, _fill(p.red));
+    canvas.drawPath(
+        cloth,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = cell * 0.04
+          ..color = Colors.black.withValues(alpha: 0.3));
+  }
+
+  void _star(Canvas canvas, Offset c, double r, Color color) {
+    final path = Path();
+    for (var i = 0; i < 10; i++) {
+      final rad = i.isEven ? r : r * 0.45;
+      final a = -math.pi / 2 + i * math.pi / 5;
+      final pt = c + Offset(math.cos(a) * rad, math.sin(a) * rad);
+      i == 0 ? path.moveTo(pt.dx, pt.dy) : path.lineTo(pt.dx, pt.dy);
+    }
+    canvas.drawPath(path..close(), _fill(color));
+  }
+
+  @override
+  bool shouldRepaint(GoStrategyIllustration old) => old.palette != palette;
+}
+
 /// Fallback for games without their own illustration: a die.
 class DefaultGameIllustration extends CustomPainter {
   final KlunkiPalette palette;

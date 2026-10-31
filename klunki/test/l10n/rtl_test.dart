@@ -56,7 +56,7 @@ void main() {
   });
 
   for (final locale in [ar, fa]) {
-    for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe']) {
+    for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy']) {
       testWidgets('$id in ${locale.languageCode}: status RTL, plays to the result dialog, history opens',
           (tester) async {
         await pumpIn(tester, id, locale, size: const Size(900, 1200));

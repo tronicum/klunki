@@ -11,7 +11,8 @@ import 'fonts.dart';
 ///   [KlunkiPalette]. [KlunkiPreset.classic] ("Spieltisch": warm paper,
 ///   wooden board, classic piece colours) is the current and only preset.
 /// * [KlunkiPalette]: a [ThemeExtension] with the background, the per-game
-///   accents and the board materials (4 Gewinnt, Mühle, Schiffe, Quartett).
+///   accents and the board materials (4 Gewinnt, Mühle, Schiffe, Quartett,
+///   GoStrategy).
 ///   Widgets read it with [KlunkiPalette.of]; no board colour is hard-coded
 ///   in a widget.
 /// * [KlunkiTheme.build] turns a preset + brightness into [ThemeData]
@@ -233,6 +234,37 @@ class QuartettPalette {
   Color setText(String s) => setTextLighten == 0 ? set(s) : Color.lerp(set(s), Colors.white, setTextLighten)!;
 }
 
+/// GoStrategy board and army colours (KLD-058b). Lakes use the Schiffe
+/// water colours ([SchiffePalette.water] / [SchiffePalette.waterDeep]).
+@immutable
+class GoStrategyPalette {
+  /// Land squares (two shades in a checker), grid lines and the board edge.
+  final Color land, landAlt, line, edge;
+
+  /// Army colours: player A (X) and player B (O), text/icons on them.
+  final Color red, blue, onPiece;
+
+  /// Selected piece outline, legal-target dots, attack ring, last-move tint.
+  final Color select, target, attack, lastMove;
+
+  const GoStrategyPalette({
+    required this.land,
+    required this.landAlt,
+    required this.line,
+    required this.edge,
+    required this.red,
+    required this.blue,
+    required this.onPiece,
+    required this.select,
+    required this.target,
+    required this.attack,
+    required this.lastMove,
+  });
+
+  /// The army colour of a player (A red, B blue).
+  Color army(bool playerA) => playerA ? red : blue;
+}
+
 /// The board/game colours of the app, as a [ThemeExtension].
 @immutable
 class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
@@ -256,6 +288,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
   final MuehlePalette muehle;
   final SchiffePalette schiffe;
   final QuartettPalette quartett;
+  final GoStrategyPalette gostrategy;
 
   const KlunkiPalette({
     required this.background,
@@ -271,6 +304,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     required this.muehle,
     required this.schiffe,
     required this.quartett,
+    required this.gostrategy,
   });
 
   /// The palette of the current theme; the classic preset when the theme
@@ -300,13 +334,13 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     backgroundBottom: Color(0xFFF3E4CB),
     card: Color(0xFFFFFCF6),
     surface: Color(0xFFFFF8F0),
-    // GoStrategy (KLD-06x): add 'gostrategy': GameAccent(Color(0xFF4E6B2F), Color(0xFFDDE8C8)).
     accents: {
       'connect4': GameAccent(Color(0xFF1C5DB8), Color(0xFFD6E4FA)),
       'muehle': GameAccent(Color(0xFF8A5527), Color(0xFFF1DEC4)),
       'quartett-trumpf': GameAccent(Color(0xFFB3261E), Color(0xFFF9DAD5)),
       'quartett-sets': GameAccent(Color(0xFF6E3C96), Color(0xFFEADCF5)),
       'schiffe': GameAccent(Color(0xFF00707A), Color(0xFFCCEDEF)),
+      'gostrategy': GameAccent(Color(0xFF4E6B2F), Color(0xFFDDE8C8)),
     },
     defaultAccent: GameAccent(Color(0xFF5D5A52), Color(0xFFE8E2D6)),
     networkAccent: GameAccent(Color(0xFF8C4A00), Color(0xFFFFE0C2)),
@@ -361,6 +395,19 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       onBack: Color(0xFFFFF3E0),
       cardFace: Color(0xFFFFFDF8),
     ),
+    gostrategy: GoStrategyPalette(
+      land: Color(0xFFE6D7AE),
+      landAlt: Color(0xFFDDCB9C),
+      line: Color(0xFFB59F69),
+      edge: Color(0xFF7A6638),
+      red: Color(0xFFB3261E),
+      blue: Color(0xFF1F4F9E),
+      onPiece: Colors.white,
+      select: Color(0xFFFFB300),
+      target: Color(0xFF2E7D32),
+      attack: Color(0xFFD50000),
+      lastMove: Color(0x557A6638),
+    ),
   );
 
   static const classicDark = KlunkiPalette(
@@ -375,6 +422,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       'quartett-trumpf': GameAccent(Color(0xFF9A2A22), Color(0xFF42221F)),
       'quartett-sets': GameAccent(Color(0xFF5E3382), Color(0xFF33243F)),
       'schiffe': GameAccent(Color(0xFF00636B), Color(0xFF18363A)),
+      'gostrategy': GameAccent(Color(0xFF3F5726), Color(0xFF2A3320)),
     },
     defaultAccent: GameAccent(Color(0xFF4F4B44), Color(0xFF34302B)),
     networkAccent: GameAccent(Color(0xFF7A4100), Color(0xFF3F2C1A)),
@@ -429,6 +477,19 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       onBack: Color(0xFFFFF3E0),
       cardFace: Color(0xFF2E2721),
       setTextLighten: 0.5,
+    ),
+    gostrategy: GoStrategyPalette(
+      land: Color(0xFF5B5140),
+      landAlt: Color(0xFF524937),
+      line: Color(0xFF3B3326),
+      edge: Color(0xFF2A241A),
+      red: Color(0xFFC62828),
+      blue: Color(0xFF2E63BE),
+      onPiece: Colors.white,
+      select: Color(0xFFFFC233),
+      target: Color(0xFF81C784),
+      attack: Color(0xFFFF5252),
+      lastMove: Color(0x66FFF3D6),
     ),
   );
 

@@ -57,8 +57,7 @@ final List<GameSpec> gameSpecs = [
   GameSpec('quartett-sets', 'Quartett (Sets)', (s) => QuartettGame(QuartettMode.sets, seed: s, handSize: 8),
       hiddenInformation: true),
   GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(), hiddenInformation: true),
-  // Engine + CLI only until its app screen exists (KLD-058b).
-  GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(), hiddenInformation: true, appReady: false),
+  GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(), hiddenInformation: true),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

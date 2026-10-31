@@ -822,7 +822,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => 'Alle Schiffe versenkt';
 
   @override
-  String get engineReasonGostrategyFlagCaptured => 'Flagge erobert';
+  String get engineReasonGostrategyFlagCaptured => 'Fahne erobert';
 
   @override
   String get engineReasonGostrategyNoMoves => 'Gegner hat keinen Zug mehr';
@@ -833,6 +833,195 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String engineReasonGostrategyMoveLimit(int moves) {
     return '$moves Züge ohne Kampf';
+  }
+
+  @override
+  String get menuGameGoStrategy => 'GoStrategy';
+
+  @override
+  String get menuDescGoStrategy =>
+      'Verdeckte Armeen – finde und erobere die gegnerische Fahne.';
+
+  @override
+  String get goPieceMarshal => 'Marschall';
+
+  @override
+  String get goPieceGeneral => 'General';
+
+  @override
+  String get goPieceColonel => 'Oberst';
+
+  @override
+  String get goPieceMajor => 'Major';
+
+  @override
+  String get goPieceCaptain => 'Hauptmann';
+
+  @override
+  String get goPieceLieutenant => 'Leutnant';
+
+  @override
+  String get goPieceSergeant => 'Feldwebel';
+
+  @override
+  String get goPieceMiner => 'Mineur';
+
+  @override
+  String get goPieceScout => 'Aufklärer';
+
+  @override
+  String get goPieceSpy => 'Spion';
+
+  @override
+  String get goPieceBomb => 'Bombe';
+
+  @override
+  String get goPieceFlag => 'Fahne';
+
+  @override
+  String goPieceRank(String piece, String rank) {
+    return '$piece ($rank)';
+  }
+
+  @override
+  String goSetupTitle(String player) {
+    return 'Stelle deine Armee auf ($player)';
+  }
+
+  @override
+  String get goSetupHint =>
+      'Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.';
+
+  @override
+  String goSetupSelected(String piece) {
+    return '$piece gewählt – tippe eine zweite Figur zum Tauschen.';
+  }
+
+  @override
+  String get goSetupShuffle => 'Neu mischen';
+
+  @override
+  String get goSetupDone => 'Fertig';
+
+  @override
+  String goSetupFirst(String player) {
+    return '$player stellt zuerst auf – du kannst schon vorbereiten.';
+  }
+
+  @override
+  String goWaitingSetup(String player) {
+    return 'Warte, bis $player aufgestellt hat …';
+  }
+
+  @override
+  String get goLegendTitle => 'Figuren';
+
+  @override
+  String get goLegendRules =>
+      'Höherer Rang gewinnt, bei gleichem Rang fallen beide. Der Spion schlägt den Marschall, wenn er angreift. Nur Mineure entschärfen Bomben. Aufklärer ziehen beliebig weit geradeaus. Bomben und Fahne bleiben stehen.';
+
+  @override
+  String get goHintSelect =>
+      'Tippe eine deiner Figuren an, dann ein markiertes Feld.';
+
+  @override
+  String goHintSelected(String piece) {
+    return '$piece: tippe ein markiertes Feld.';
+  }
+
+  @override
+  String goHintNoTargets(String piece) {
+    return '$piece kann gerade nicht ziehen.';
+  }
+
+  @override
+  String goHintWaiting(String player) {
+    return 'Warte auf $player …';
+  }
+
+  @override
+  String goMoveLimit(String moves) {
+    return 'Noch $moves Züge ohne Kampf, dann ist es unentschieden.';
+  }
+
+  @override
+  String goArmyOwn(String mark) {
+    return 'Deine Armee ($mark)';
+  }
+
+  @override
+  String goArmyEnemy(String player) {
+    return 'Gegner: $player';
+  }
+
+  @override
+  String goArmyLeft(String left, String total) {
+    return '$left von $total übrig';
+  }
+
+  @override
+  String goFightBy(String player) {
+    return 'Angriff von $player';
+  }
+
+  @override
+  String goFightBeats(String winner, String loser) {
+    return '$winner schlägt $loser';
+  }
+
+  @override
+  String get goFightBoth => 'Beide fallen';
+
+  @override
+  String goFightDefused(String piece) {
+    return '$piece entschärft die Bombe';
+  }
+
+  @override
+  String goFightBomb(String piece) {
+    return '$piece läuft auf eine Bombe';
+  }
+
+  @override
+  String get goFightFlag => 'Fahne erobert!';
+
+  @override
+  String get goMoveSetup => 'stellt die Armee auf';
+
+  @override
+  String goMoveStep(String from, String to) {
+    return 'zieht $from–$to';
+  }
+
+  @override
+  String goMoveAttack(String from, String to, String result) {
+    return 'greift an ($from–$to): $result';
+  }
+
+  @override
+  String goCellLabel(String cell, String content) {
+    return '$cell: $content';
+  }
+
+  @override
+  String get goCellFree => 'frei';
+
+  @override
+  String get goCellLake => 'See';
+
+  @override
+  String goCellHidden(String player) {
+    return 'verdeckte Figur von $player';
+  }
+
+  @override
+  String goCellPiece(String piece, String player) {
+    return '$piece von $player';
+  }
+
+  @override
+  String goCellMoved(String content) {
+    return '$content, bewegt';
   }
 
   @override

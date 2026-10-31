@@ -5,6 +5,7 @@ import '../../game/game_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../game_titles.dart';
 import '../games/connect4_screen.dart';
+import '../games/gostrategy_screen.dart';
 import '../games/muehle_screen.dart';
 import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
@@ -23,6 +24,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'quartett-trumpf': (c) => QuartettTrumpfScreen(controller: c),
   'quartett-sets': (c) => QuartettSetsScreen(controller: c),
   'schiffe': (c) => SchiffeScreen(controller: c),
+  'gostrategy': (c) => GoStrategyScreen(controller: c),
 };
 
 /// The screen for [controller]'s game.
@@ -32,8 +34,9 @@ Widget buildGameScreen(GameController controller) {
   return builder(controller);
 }
 
-/// Placeholder for a game the engine knows but the app cannot show yet, e.g.
-/// when joining a CLI host that plays GoStrategy (KLD-058b adds its screen).
+/// Placeholder for a game the engine knows but the app cannot show yet
+/// (`GameSpec.appReady` false), e.g. when joining a CLI host that plays a
+/// game added to the engine before its screen.
 class GameNotInAppScreen extends StatelessWidget {
   final String gameId;
   const GameNotInAppScreen({super.key, required this.gameId});

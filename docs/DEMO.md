@@ -12,7 +12,7 @@ Legend: 🧑 = the user does it personally (device, account, GUI click, password
 | # | Demo | Status | Needs |
 |---|---|---|---|
 | 1 | Text demo (terminal + in-app Debug-Konsole) | ✅ ready (terminal) | Mac with Flutter/Dart |
-| 2 | Hot-seat on one device | ✅ ready (KLD-020…026: real screens for all five games; verified by widget tests, manual check on device pending) | + simulator, or iPhone/iPad/Android/Chrome |
+| 2 | Hot-seat on one device | ✅ ready (KLD-020…026, 058b: real screens for all six games; verified by widget tests, manual check on device pending) | + simulator, or iPhone/iPad/Android/Chrome |
 | 3 | iPhone ↔ iPad over Wi-Fi | ⏳ KLD-012 (device part), 032–034, 040 (030 done) (036 nice-to-have) | iPhone + iPad + Xcode |
 | 4 | Android ↔ iOS over Wi-Fi (end of PoC) | ⏳ + KLD-011, 035 | + Android phone + Android Studio |
 | 5 | PWA (web, offline) | ✅ ready (KLD-010) | Chrome on the Mac |
@@ -59,7 +59,7 @@ Do this **the day before** and again **30 minutes before**.
 
 ## 1. Text demo (terminal + in-app Debug-Konsole) ✅
 
-Shows that all games (five with app screens, plus GoStrategy) are fully playable as text: one engine, no UI needed.
+Shows that all six games are fully playable as text: one engine, no UI needed.
 
 ### Prerequisites
 - [ ] Mac with Flutter 3.47.8 (Homebrew, `/opt/homebrew/share/flutter`); `dart` on the `PATH`.
@@ -78,7 +78,7 @@ dart run bin/klunki.dart demo muehle
 dart run bin/klunki.dart demo quartett-trumpf
 dart run bin/klunki.dart demo quartett-sets
 dart run bin/klunki.dart demo schiffe
-dart run bin/klunki.dart demo gostrategy   # engine + CLI only, no app screen yet (KLD-058b)
+dart run bin/klunki.dart demo gostrategy
 
 # pipe through less to scroll in front of people
 dart run bin/klunki.dart demo muehle | less
@@ -147,9 +147,9 @@ dart run packages/klunki_net/bin/klunki.dart join 127.0.0.1 4747 --name Bea
 
 ---
 
-## 2. Hot-seat on one device ✅ (P2: KLD-020…026)
+## 2. Hot-seat on one device ✅ (P2: KLD-020…026, GoStrategy: KLD-058b)
 
-Two people take turns on one device. All five games have real screens; each one is played to the end by a scripted widget test.
+Two people take turns on one device. All six games have real screens; each one is played to the end by a scripted widget test.
 (A manual run on a real device is still pending.)
 
 ### Prerequisites
@@ -166,8 +166,8 @@ flutter run -d chrome                  # web, hot-seat works there too
 ```
 
 ### Steps
-1. The menu **Wähle ein Spiel** lists **4 Gewinnt**, **Mühle**, **Quartett (Trumpf)**, **Quartett (Sets)** and **Schiffe versenken**.
-   The three hidden-information games carry the subtitle "Gerät weitergeben". Tap a game.
+1. The menu **Wähle ein Spiel** lists **4 Gewinnt**, **Mühle**, **Quartett (Trumpf)**, **Quartett (Sets)**, **Schiffe versenken**
+   and **GoStrategy**. The four hidden-information games carry the eye-off badge and "Gerät weitergeben". Tap a game.
 2. Play. The status line shows "X ist am Zug" (X always starts), with a hint line below it:
    - **4 Gewinnt:** tap a column. The disc drops, and the winning four are highlighted.
    - **Mühle:** "Setze einen Stein" (tap a point), then "Wähle einen Stein zum Ziehen" → "Wähle ein Ziel" ("… zum Springen" with three stones left).
@@ -177,15 +177,25 @@ flutter run -d chrome                  # web, hot-seat works there too
      then **Weiter** and pass the device. Completed quartets are shown per player.
    - **Schiffe versenken:** setup ("Schiff 1 von N · X stellt auf"): tap the sea to place each ship, toggle **Horizontal**/**Vertikal**,
      or use **Zufällig**. Battle: "Tippe auf ein unbekanntes Feld im Gegner-Meer, um zu schießen" ("Treffer! Nochmal …" after a hit).
-3. **Handover (Quartett Trumpf, Quartett Sets, Schiffe):** whenever the turn passes to the other player, a full-screen cover
-   "Gib das Gerät an O weiter" hides everything. The next player taps **Ich bin O – weiter**. The other player's cards or fleet are never visible.
+   - **GoStrategy:** setup "Stelle deine Armee auf (X)": the own four rows start from a random setup; **Neu mischen** reshuffles,
+     tap two pieces to swap them, **Fertig** submits (then the cover, then O sets up). Below: the piece list with counts and a
+     short rules legend. Play: your army is always at the bottom (the board is turned for O); tap a piece → its legal squares get a
+     green dot (red ring = attack; a scout shows its whole line), tap one to move. Enemy pieces are blank backs until a fight
+     reveals them; a dot marks enemy pieces that have moved (no bomb or flag). A fight shows a short card ("Hauptmann (6) schlägt
+     Leutnant (5)", "Beide fallen", "Mineur (3) entschärft die Bombe", "Fahne erobert!"); tap it to skip. Under the board: pieces
+     left per side and, near the end, "Noch N Züge ohne Kampf …".
+3. **Handover (Quartett Trumpf, Quartett Sets, Schiffe, GoStrategy):** whenever the turn passes to the other player, a full-screen cover
+   "Gib das Gerät an O weiter" hides everything. The next player taps **Ich bin O – weiter**. The other player's cards, fleet or army
+   ranks are never visible. In GoStrategy the cover also shows the outcome of the fight just made (public), and the next player then
+   sees the fight card on the board.
 4. At the end the result dialog shows "X gewinnt!" or "Unentschieden" plus the reason, with **Nochmal** (new game) or **Menü**.
    The app bar has **Zug zurück** (undo), **Neues Spiel** ("Neues Spiel?" → **Neu starten**) and **Züge** (move history).
 
 ### What the audience sees
-- Suggested order (fast to slow): 4 Gewinnt → Mühle → Quartett (Trumpf) → Schiffe versenken (use **Zufällig** for setup) → Quartett (Sets).
+- Suggested order (fast to slow): 4 Gewinnt → Mühle → Quartett (Trumpf) → Schiffe versenken (use **Zufällig** for setup) → Quartett (Sets)
+  → GoStrategy (just **Fertig** twice, then a few moves until the first fight; a full game is long).
 - 4 Gewinnt and Mühle: both players on the same screen, no cover.
-- Quartett and Schiffe: the handover cover between turns shows that the hidden information stays hidden.
+- Quartett, Schiffe and GoStrategy: the handover cover between turns shows that the hidden information stays hidden.
 
 ### Troubleshooting
 - Simulator slow on first launch → start it before the demo (`open -a Simulator`).
@@ -252,12 +262,14 @@ Then on the devices (TODO: confirm the labels from KLD-034):
 1. iPhone: Menu → **Über WLAN spielen** → **Hosten** → pick "4 Gewinnt". It shows name, `IP:port`, QR, "Warte auf Mitspieler…".
 2. First time only: the iOS prompt "„Klunki“ möchte Geräte in deinem lokalen Netzwerk finden" → 🧑 **Erlauben** (on both devices).
 3. iPad: **Über WLAN spielen** → **Beitreten** → tap the iPhone's entry (or type `IP:port`).
-4. Play to the end. Then swap: the iPad hosts, the iPhone joins. Repeat for each game (Mühle, Quartett Trumpf, Quartett Sets, Schiffe).
+4. Play to the end. Then swap: the iPad hosts, the iPhone joins. Repeat for each game (Mühle, Quartett Trumpf, Quartett Sets, Schiffe,
+   GoStrategy: the guest can arrange its army while the host sets up; "Fertig" unlocks once the host is done).
 
 ### What the audience sees
 - The iPad's join list shows the iPhone within a few seconds. After a tap, both screens switch to the game.
 - A move on one device appears on the other almost instantly. Each device only lets its own player (X = host, O = guest) move.
-- Quartett/Schiffe: each device shows only its owner's cards/fleet. **No handover cover** over the network.
+- Quartett/Schiffe/GoStrategy: each device shows only its owner's cards/fleet/army ranks (GoStrategy: own army at the bottom on both).
+  **No handover cover** over the network.
 - (With 036) Lock the iPad for a moment → "Verbindung verloren – verbinde neu…" → unlock → the game continues.
 
 ### Troubleshooting

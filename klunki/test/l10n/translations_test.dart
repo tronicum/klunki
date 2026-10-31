@@ -27,6 +27,11 @@ const sameAsEnglish = {
   'Horizontal',
   'Vertical',
   'Point {point}, {player}',
+  // GoStrategy (KLD-058b): the game's app name and ranks spelled alike.
+  'GoStrategy',
+  'General',
+  'Colonel',
+  'Lieutenant',
 };
 
 Map<String, dynamic> _arb(String locale) =>
@@ -78,7 +83,7 @@ void main() {
         expect(find.text(l10n.menuGameSchiffe), findsOneWidget);
       });
 
-      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe']) {
+      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy']) {
         testWidgets('$code: $id renders and plays to the result dialog without overflow', (tester) async {
           await phone(tester);
           await pumpGame(tester, id, locale: locale);

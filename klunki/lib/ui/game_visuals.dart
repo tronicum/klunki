@@ -10,7 +10,7 @@ import 'game_illustrations.dart';
 /// colour itself lives in the theme ([KlunkiPalette.accent]) so presets can
 /// change it.
 ///
-/// Adding a game (e.g. GoStrategy, once `appReady`): add an entry to [gameVisuals] (and an
+/// Adding a game: add an entry to [gameVisuals] (and an
 /// accent to the palettes in `app/theme.dart`). Games without an entry get
 /// [GameVisuals.fallback]: a die illustration, no description, no tokens.
 @immutable
@@ -54,6 +54,11 @@ final Map<String, GameVisuals> gameVisuals = {
   'schiffe': GameVisuals(
     illustration: SchiffeIllustration.new,
     description: (l) => l.menuDescSchiffe,
+  ),
+  'gostrategy': GameVisuals(
+    illustration: GoStrategyIllustration.new,
+    description: (l) => l.menuDescGoStrategy,
+    token: (p, player) => p.gostrategy.army(player == Player.a),
   ),
 };
 
