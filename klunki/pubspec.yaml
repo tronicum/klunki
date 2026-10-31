@@ -118,6 +118,9 @@ flutter:
     # credits.json = authors and licences (see docs/tasks/KLD-082-quartett-media.md,
     # tool/fetch_card_media.py). Bundled so they work offline; never hotlinked.
     - assets/quartett/rockets/
+    - assets/quartett/planes/
+    - assets/quartett/trains/
+    - assets/quartett/cars/
   fonts:
     - family: Roboto
       fonts:

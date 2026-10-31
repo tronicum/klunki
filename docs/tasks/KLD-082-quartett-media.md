@@ -3,7 +3,7 @@
 - **ID:** `KLD-082`
 - **Title:** Wikipedia links and free-licence Wikimedia Commons photos on the Quartett cards, rockets deck first; plus the stat format fix and new stats
 - **Milestone:** M3 (content)
-- **Status:** DONE for the rockets deck · **Next: cars, trains, planes** (same pipeline, one JSON per deck)
+- **Status:** DONE for the rockets deck · cars, trains, planes done in KLD-084 (`docs/tasks/KLD-084-deck-photos.md`)
 - **Depends on:** KLD-069 (decks, gallery), KLD-070 (PWA external-URL check)
 - **Touched paths:**
   - `klunki/tool/fetch_card_media.py`, `klunki/tool/card_media/rockets.json`, `klunki/tool/check_pwa_external_urls.py`, `klunki/tool/update_web_fonts.py`
@@ -233,7 +233,7 @@ All other stats unchanged (KLD-069 table).
   `kld082-deck-rockets-*`, `kld082-card-rockets-{A1,B3,G3}-*`,
   `kld082-credit-dialog-*`, `kld082-image-credits-*`, phone light/dark.
 
-## Next: cars, trains, planes
+## Next: cars, trains, planes (done: KLD-084)
 1. Copy `klunki/tool/card_media/rockets.json` to `<deck>.json` with en titles.
 2. `python3 -I klunki/tool/fetch_card_media.py <deck> --candidates`, pick
    photos (lead images are often logos or fair use), set `file`, rerun

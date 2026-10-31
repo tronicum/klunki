@@ -1,0 +1,613 @@
+{
+  "deck": "planes",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Airbus A380-800",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus_A380",
+        "en": "https://en.wikipedia.org/wiki/Airbus_A380"
+      },
+      "image": {
+        "commonsTitle": "File:A6-EDY A380 Emirates 31 jan 2013 jfk (8442269364) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:A6-EDY_A380_Emirates_31_jan_2013_jfk_(8442269364)_(cropped).jpg",
+        "author": "Maarten Visser from Capelle aan den IJssel, Nederland",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "New York JFK",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32784
+      }
+    },
+    "A2": {
+      "name": "Boeing 747-8I",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Boeing_747",
+        "en": "https://en.wikipedia.org/wiki/Boeing_747-8"
+      },
+      "image": {
+        "commonsTitle": "File:D-ABYT at FRA.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:D-ABYT_at_FRA.jpg",
+        "author": "Juke Schweizer",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Lufthansa Boeing 747-8 (Retro livery) during landing at Frankfurt Airport.",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26180
+      }
+    },
+    "A3": {
+      "name": "Boeing 777-300ER",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Boeing_777",
+        "en": "https://en.wikipedia.org/wiki/Boeing_777"
+      },
+      "image": {
+        "commonsTitle": "File:JASDF B777-300ER 80-1111 (1) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:JASDF_B777-300ER_80-1111_(1)_(cropped).jpg",
+        "author": "Japan Air Self-Defense Force",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "The new Japanese Air Force One (reg 80-1111) after arriving at New Chitose Airport.",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38162
+      }
+    },
+    "A4": {
+      "name": "Airbus A350-900",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus_A350",
+        "en": "https://en.wikipedia.org/wiki/Airbus_A350"
+      },
+      "image": {
+        "commonsTitle": "File:EGLF - Airbus A350-941 - F-WZNW.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:EGLF_-_Airbus_A350-941_-_F-WZNW.jpg",
+        "author": "Steve Lynes",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Farnborough International Airshow, Hampshire",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 20845
+      }
+    },
+    "B1": {
+      "name": "Airbus A320neo",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus-A320-Familie",
+        "en": "https://en.wikipedia.org/wiki/Airbus_A320neo_family"
+      },
+      "image": {
+        "commonsTitle": "File:IndiGo Airbus A320neo F-WWDG (to VT-ITI) (28915135713).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:IndiGo_Airbus_A320neo_F-WWDG_(to_VT-ITI)_(28915135713).jpg",
+        "author": "BriYYZ from Toronto, Canada",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Arriving TLS after a test flight.",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26662
+      }
+    },
+    "B2": {
+      "name": "Boeing 737 MAX 8",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Boeing_737",
+        "en": "https://en.wikipedia.org/wiki/Boeing_737_MAX"
+      },
+      "image": {
+        "commonsTitle": "File:N8749Q Southwest Boeing 737 MAX-8.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:N8749Q_Southwest_Boeing_737_MAX-8.jpg",
+        "author": "Tomás Del Coro",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Las Vegas - McCarran International Airport (LAS / KLAS) USA - Nevada June 8, 2021 Photo: Tomás Del Coro",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 25753
+      }
+    },
+    "B3": {
+      "name": "Airbus A220-300",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus_A220",
+        "en": "https://en.wikipedia.org/wiki/Airbus_A220"
+      },
+      "image": {
+        "commonsTitle": "File:Airbus A220-300.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Airbus_A220-300.jpg",
+        "author": "Romain COUPY",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Previously knowed as CS300, the FTV8 (Flight Test Vehicle) performed a low-pass at Toulouse-Blagnac airport on 10 July 2018, for the official presentation at Airbus' headquarters with her new name.",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 24468
+      }
+    },
+    "B4": {
+      "name": "Embraer E195-E2",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Embraer-E-Jet-Familie",
+        "en": "https://en.wikipedia.org/wiki/Embraer_E-Jet_E2_family"
+      },
+      "image": {
+        "commonsTitle": "File:EC-NHA Embraer 195-E2 Binter arrecife 29-02-20.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:EC-NHA_Embraer_195-E2_Binter_arrecife_29-02-20.jpg",
+        "author": "Rob Hodgkins",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "EC-NHA Embraer 195-E2 Binter Arrecife 29-02-2020",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32530
+      }
+    },
+    "C1": {
+      "name": "Concorde",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Concorde",
+        "en": "https://en.wikipedia.org/wiki/Concorde"
+      },
+      "image": {
+        "commonsTitle": "File:British Airways Concorde G-BOAC 03.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:British_Airways_Concorde_G-BOAC_03.jpg",
+        "author": "Eduard Marmet",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "British Airways Concorde G-BOAC",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 21564
+      }
+    },
+    "C2": {
+      "name": "Tupolew Tu-144",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Tupolew_Tu-144",
+        "en": "https://en.wikipedia.org/wiki/Tupolev_Tu-144"
+      },
+      "image": {
+        "commonsTitle": "File:Tupolev TU-144 (6060104119).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Tupolev_TU-144_(6060104119).jpg",
+        "author": "clipperarctic",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Aeroflot Tupolev Tu-144 taking off",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 23762
+      }
+    },
+    "C3": {
+      "name": "Lockheed SR-71",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lockheed_SR-71",
+        "en": "https://en.wikipedia.org/wiki/Lockheed_SR-71_Blackbird"
+      },
+      "image": {
+        "commonsTitle": "File:Lockheed SR-71 Blackbird.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Lockheed_SR-71_Blackbird.jpg",
+        "author": "USAF / Judson Brohmer",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The SR-71B Blackbird, flown by the Dryden Flight Research Center as NASA 831, slices across the snow-covered southern Sierra Nevada Mountains of California after being refueled by an Air Force tanker during a 1994 flight. SR-71B was the trainer version of the SR-71. Notice the dual cockpit to allow ",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32778
+      }
+    },
+    "C4": {
+      "name": "North American X-15",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/North_American_X-15",
+        "en": "https://en.wikipedia.org/wiki/North_American_X-15"
+      },
+      "image": {
+        "commonsTitle": "File:X-15 flying.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:X-15_flying.jpg",
+        "author": "U.S. Air Force",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "\"The X-15A-3 rocket plane flies over Edwards Air Force Base during a mission in the 1960s. The aircraft crashed in 1967, killing pilot Maj. Michael J. Adams. According to a NASA report, the X-15A-3 crashed 'due to a stable, albeit non-robust adaptive controller.' The U. S. Air Force Test Pilot Schoo",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26298
+      }
+    },
+    "D1": {
+      "name": "Douglas DC-3",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Douglas_DC-3",
+        "en": "https://en.wikipedia.org/wiki/Douglas_DC-3"
+      },
+      "image": {
+        "commonsTitle": "File:Douglas DC-3, SE-CFP.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Douglas_DC-3,_SE-CFP.jpg",
+        "author": "Towpilot",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "shareAlike": true,
+        "description": "This is a picture of a Working Life Museums in Sweden, number",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39651
+      }
+    },
+    "D2": {
+      "name": "Junkers Ju 52/3m",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Junkers_Ju_52%2F3m",
+        "en": "https://en.wikipedia.org/wiki/Junkers_Ju_52"
+      },
+      "image": {
+        "commonsTitle": "File:Ju-Air Junkers Ju-52 in flight over Austria.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ju-Air_Junkers_Ju-52_in_flight_over_Austria.jpg",
+        "author": "Bernd K",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Ju-Air Junkers Ju 52/3m HB/HOS in flight over Austria",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37101
+      }
+    },
+    "D3": {
+      "name": "Lockheed Super Constellation",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lockheed_Super_Constellation",
+        "en": "https://en.wikipedia.org/wiki/Lockheed_L-1049_Super_Constellation"
+      },
+      "image": {
+        "commonsTitle": "File:Lockheed L1049C CF-TGC TCA LAP 12.09.54 edited-2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Lockheed_L1049C_CF-TGC_TCA_LAP_12.09.54_edited-2.jpg",
+        "author": "RuthAS",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+        "shareAlike": false,
+        "description": "Lockheed L1049C Super Constellation of Trans-Canada Airlines arriving at London Heathrow North",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34705
+      }
+    },
+    "D4": {
+      "name": "De Havilland Dash 8-400",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/De_Havilland_DHC-8",
+        "en": "https://en.wikipedia.org/wiki/De_Havilland_Canada_Dash_8"
+      },
+      "image": {
+        "commonsTitle": "File:Hamburg Airport Widerøe Bombardier DHC-8-402Q LN-WDR (DSC08713).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Hamburg_Airport_Wider%C3%B8e_Bombardier_DHC-8-402Q_LN-WDR_(DSC08713).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Die Bombardier DHC-8-402Q Dash 8 der Fluggesellschaft Widerøe mit dem Kennzeichen LN-WDR im Landeanflug auf die Bahn 23 des Flughafens Hamburg. Das Flugzeug führte einen Flug von Bergen (Norwegen) nach Hamburg durch.",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 23568
+      }
+    },
+    "E1": {
+      "name": "Antonow An-225",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Antonow_An-225",
+        "en": "https://en.wikipedia.org/wiki/Antonov_An-225_Mriya"
+      },
+      "image": {
+        "commonsTitle": "File:Antonov Design Bureau Antonov An-225 Mriya at Leipzig Halle (EDDP-LEJ).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Antonov_Design_Bureau_Antonov_An-225_Mriya_at_Leipzig_Halle_(EDDP-LEJ).jpg",
+        "author": "Myroslav Kaplun",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Antonov Design Bureau Antonov An-225 Mriya UR-82060 Leipzig Halle - Leipzig - (EDDP / LEJ)",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30242
+      }
+    },
+    "E2": {
+      "name": "Antonow An-124",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Antonow_An-124",
+        "en": "https://en.wikipedia.org/wiki/Antonov_An-124_Ruslan"
+      },
+      "image": {
+        "commonsTitle": "File:Антонов Ан-124 9773054055093, Москва - Домодедово RP2297.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:%D0%90%D0%BD%D1%82%D0%BE%D0%BD%D0%BE%D0%B2_%D0%90%D0%BD-124_9773054055093,_%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0_-_%D0%94%D0%BE%D0%BC%D0%BE%D0%B4%D0%B5%D0%B4%D0%BE%D0%B2%D0%BE_RP2297.jpg",
+        "author": "Alex Beltyukov",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28752
+      }
+    },
+    "E3": {
+      "name": "Boeing 747 Dreamlifter",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Boeing_747",
+        "en": "https://en.wikipedia.org/wiki/Boeing_Dreamlifter"
+      },
+      "image": {
+        "commonsTitle": "File:Boeing, N780BA, B747-409(LCF) Dreamlifter - PAE (19833251496).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Boeing,_N780BA,_B747-409(LCF)_Dreamlifter_-_PAE_(19833251496).jpg",
+        "author": "Eric Salard",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "MSN 24310 LN 778 B747-409LCF BOEING / ATLAS AIR PAE BOEING AIRPORT EX CHINA AIRLINES AS B-162 AND B-18272 / STORED 12/2004 TO 02/2007",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 22389
+      }
+    },
+    "E4": {
+      "name": "Airbus Beluga XL",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus_Beluga_XL",
+        "en": "https://en.wikipedia.org/wiki/Airbus_BelugaXL"
+      },
+      "image": {
+        "commonsTitle": "File:Hamburg-Finkenwerder Airport Airbus Transport International Airbus A330-743L Beluga XL F-GXLH (DSC09365).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Hamburg-Finkenwerder_Airport_Airbus_Transport_International_Airbus_A330-743L_Beluga_XL_F-GXLH_(DSC09365).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Der Airbus Transport International Airbus A330-743L Beluga XL mit dem Kennzeichen F-GXLH im Landeanflug auf die Bahn 23 des Flugplatzes Hamburg-Finkenwerder. Das Flugzeug führte einen Flug vom Flughafen Toulouse-Blagnac zum Flugplatz Hamburg-Finkenwerder durch.",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26675
+      }
+    },
+    "F1": {
+      "name": "Cessna 172",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Cessna_172",
+        "en": "https://en.wikipedia.org/wiki/Cessna_172"
+      },
+      "image": {
+        "commonsTitle": "File:Cessna 172S Skyhawk at Bristol Airport (England) 23Aug2014 arp.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Cessna_172S_Skyhawk_at_Bristol_Airport_(England)_23Aug2014_arp.jpg",
+        "author": "Adrian Pingstone",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Cessna 172S Skyhawk (also called the Cessna SP), registration G-LLCH, departs Bristol Airport, Bristol, England.",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 23125
+      }
+    },
+    "F2": {
+      "name": "Learjet 75",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Learjet_70%2F75"
+      },
+      "image": {
+        "commonsTitle": "File:G-ZNTH Learjet 75 LJ75 c n 45-540 - BZE (46212773245).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:G-ZNTH_Learjet_75_LJ75_c_n_45-540_-_BZE_(46212773245).jpg",
+        "author": "Markus Eigenheer from Genève, Schweiz",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Learjet 75",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 18343
+      }
+    },
+    "F3": {
+      "name": "Gulfstream G650",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gulfstream_G650",
+        "en": "https://en.wikipedia.org/wiki/Gulfstream_G650%2FG700%2FG800"
+      },
+      "image": {
+        "commonsTitle": "File:G-ULFS Gulfstream G650 CVT 05-05-16 (27046023031) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:G-ULFS_Gulfstream_G650_CVT_05-05-16_(27046023031)_(cropped).jpg",
+        "author": "Rob Hodgkins",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "G-ULFS Gulfstream G650 Coventry 05-05-2016",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 24899
+      }
+    },
+    "F4": {
+      "name": "Pilatus PC-12",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Pilatus_PC-12",
+        "en": "https://en.wikipedia.org/wiki/Pilatus_PC-12"
+      },
+      "image": {
+        "commonsTitle": "File:Pilatus PC-12 45 Jetfly LX-JFH (7358281460).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Pilatus_PC-12_45_Jetfly_LX-JFH_(7358281460).jpg",
+        "author": "Curimedia",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Landing at rwy 25R Barcelona BCN/LEBL",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 21445
+      }
+    },
+    "G1": {
+      "name": "Wright Flyer",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wright_Flyer",
+        "en": "https://en.wikipedia.org/wiki/Wright_Flyer"
+      },
+      "image": {
+        "commonsTitle": "File:First flight2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:First_flight2.jpg",
+        "author": "John T. Daniels",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "First successful flight of the Wright Flyer, by the Wright brothers. The machine traveled 120 ft (36.6 m) in 12 seconds at 10:35 a.m. at Kill Devil Hills, North Carolina. Orville Wright was at the controls of the machine, lying prone on the lower wing with his hips in the cradle which operated the w",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29524
+      }
+    },
+    "G2": {
+      "name": "Blériot XI",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bl%C3%A9riot_XI",
+        "en": "https://en.wikipedia.org/wiki/Bl%C3%A9riot_XI"
+      },
+      "image": {
+        "commonsTitle": "File:Bleriot XI OTT 2013 D7N9461 004.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bleriot_XI_OTT_2013_D7N9461_004.jpg",
+        "author": "Stefan Krause, Germany",
+        "license": "FAL",
+        "licenseUrl": "https://artlibre.org/licence/lal/en",
+        "shareAlike": false,
+        "description": "Eine Blériot XI, geflogen von Mikael Carlson beim Oldtimer Fliegertreffen, Flugfeld Hahnweide, Germany.",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 21690
+      }
+    },
+    "G3": {
+      "name": "Spirit of St. Louis",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Spirit_of_St._Louis",
+        "en": "https://en.wikipedia.org/wiki/Spirit_of_St._Louis"
+      },
+      "image": {
+        "commonsTitle": "File:Spirit Of St Louis2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Spirit_Of_St_Louis2.jpg",
+        "author": "Ad Meskens",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Spirit of St-Louis photographed at National Air and Space Museum. The Spirit of St. Louis (Registration: N-X-211) is the custom-built single engine, single seat monoplane that was flown solo by Charles Lindbergh on May 20-21, 1927, on the first non-stop flight from New York to Paris.",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33055
+      }
+    },
+    "G4": {
+      "name": "Junkers F 13",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Junkers_F_13",
+        "en": "https://en.wikipedia.org/wiki/Junkers_F_13"
+      },
+      "image": {
+        "commonsTitle": "File:Replica Junkers F13 ‘HB-RIM’ (49789577598).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Replica_Junkers_F13_%E2%80%98HB-RIM%E2%80%99_(49789577598).jpg",
+        "author": "Alan Wilson from Peterborough, Cambs, UK",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "c/n 13-001 Built 2016 Registered to DIMOR Aero (Suisse) GmbH. Seen displaying at the 2019 Fête Aérienne Le Temps Des helices (Aerial Festival – The Time of the Propellers). Aérodrome de Cerny-La-Ferté-Alais, Cerny, France 9th June 2019",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 24918
+      }
+    },
+    "H1": {
+      "name": "Solar Impulse 2",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Solar_Impulse",
+        "en": "https://en.wikipedia.org/wiki/Solar_Impulse"
+      },
+      "image": {
+        "commonsTitle": "File:Solar Impulse SI2 pilote Bertrand Piccard Payerne November 2014.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Solar_Impulse_SI2_pilote_Bertrand_Piccard_Payerne_November_2014.jpg",
+        "author": "Milko Vuille",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Solar Impulse 2, piloted by Bertrand Piccard, taking off from Payerne Air Base on 13 November 2014.",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39299
+      }
+    },
+    "H2": {
+      "name": "Hughes H-4 Hercules",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Hughes_H-4",
+        "en": "https://en.wikipedia.org/wiki/Hughes_H-4_Hercules"
+      },
+      "image": {
+        "commonsTitle": "File:H-4 Hercules 2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:H-4_Hercules_2.jpg",
+        "author": "SDASM Archives",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "H-4 Hercules \"Spruce Goose\"",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38869
+      }
+    },
+    "H3": {
+      "name": "Stratolaunch Roc",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Scaled_Composites_Stratolaunch",
+        "en": "https://en.wikipedia.org/wiki/Scaled_Composites_Stratolaunch"
+      },
+      "image": {
+        "commonsTitle": "File:230113- Stratolaunch Talon Photo Chase-091.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:230113-_Stratolaunch_Talon_Photo_Chase-091.jpg",
+        "author": "Eva Folsom",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Scaled Composites Model 351 Stratolaunch, Roc",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30693
+      }
+    },
+    "H4": {
+      "name": "Rutan Voyager",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Rutan_Voyager",
+        "en": "https://en.wikipedia.org/wiki/Rutan_Voyager"
+      },
+      "image": {
+        "commonsTitle": "File:Voyager aircraft return from non-stop trip around the world (EC87-0029-02).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Voyager_aircraft_return_from_non-stop_trip_around_the_world_(EC87-0029-02).jpg",
+        "author": "NASA Armstrong Flight Research Center / NASA/Thomas Harrop",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The Voyager aircraft circles before landing at Edwards Air Force Base, Edwards, California, to complete its record breaking, nonstop unfueled flight around the world.",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39589
+      }
+    }
+  }
+}
