@@ -112,14 +112,12 @@ class SchiffeGame extends Game {
   Player get currentPlayer => _current;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(
           winner: _winner,
           reason: _winner != null ? 'all ships sunk' : '',
           code: _winner != null ? GameEndReason.schiffeAllSunk : null);
 
-  @override
-  bool get isOver => _winner != null;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -195,7 +193,7 @@ class SchiffeGame extends Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     switch (move['action']) {
       case 'place':

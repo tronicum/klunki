@@ -6,7 +6,7 @@ import 'game.dart';
 ///
 /// Board is stored column-major: `board[col][row]` where row 0 is the
 /// *bottom*.
-class Connect4Game implements Game {
+class Connect4Game extends Game {
   static const int cols = 7;
   static const int rows = 6;
 
@@ -26,7 +26,8 @@ class Connect4Game implements Game {
   @override
   Player get currentPlayer => _current;
 
-  GameResult get result => GameResult(
+  @override
+  GameResult get playResult => GameResult(
       winner: _winner,
       draw: _draw,
       reason: _winner != null ? 'four in a row' : (_draw ? 'board full' : ''),
@@ -34,8 +35,6 @@ class Connect4Game implements Game {
           ? GameEndReason.connect4FourInARow
           : (_draw ? GameEndReason.connect4BoardFull : null));
 
-  @override
-  bool get isOver => _winner != null || _draw;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -54,7 +53,7 @@ class Connect4Game implements Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     final int col = move['col'];
     if (col < 0 || col >= cols) return null; // out of range

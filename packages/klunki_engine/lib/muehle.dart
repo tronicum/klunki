@@ -126,7 +126,7 @@ class MuehleGame extends Game {
   int get movesSinceRemoval => _movesSinceRemoval;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(
           winner: _winner,
           draw: _draw,
@@ -134,8 +134,6 @@ class MuehleGame extends Game {
           code: _code,
           params: _params);
 
-  @override
-  bool get isOver => _winner != null || _draw;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -222,7 +220,7 @@ class MuehleGame extends Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     final action = move['action'];
     final player = _current;

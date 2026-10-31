@@ -117,6 +117,16 @@ else gets `error "session full"`.
 Host moves go through steps 3–4 locally and are sent as `accepted`. Moves are
 normalised through JSON on the host, so both logs hold identical maps.
 
+**Resign (KLD-065).** `{"action":"resign","player":"a"|"b"}` is an ordinary
+move in every game: no new message type, the protocol version stays 1. It is
+the one move that may come from the player who is *not* to move (and during
+setup phases), so "the guest's turn" in step 3 means `Game.playerOf(move)`:
+the player the resign names, the player to move for anything else. A guest
+can only resign for itself (`"player":"a"` from the guest → `"not your
+turn"`). The engine ends the game at once ("game is over" for anything after
+it); both sides attribute the `accepted` entry to the resigner, also when
+replaying a `welcome` snapshot.
+
 **Guest.** Applies `accepted` only when `index == local log length` (it ignores
 lower indices = duplicates; a higher index is a gap → `error`). If an accepted
 move does not apply locally, the states diverged → `error` and close; the guest

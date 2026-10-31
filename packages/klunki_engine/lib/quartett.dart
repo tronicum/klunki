@@ -81,7 +81,7 @@ Card _c(String id, String name, num ps, num kmh, num ccm, num kg, num sec) =>
 ///   empty (the last cards tied into the pot) the game is a draw.
 /// * After [maxTricks] tricks the larger stack wins (pot ignored); equal is a
 ///   draw.
-class QuartettGame implements Game {
+class QuartettGame extends Game {
   static const int maxTricks = 200;
 
   static const List<QuartettStat> stats = [
@@ -207,7 +207,7 @@ class QuartettGame implements Game {
   Player get currentPlayer => _current;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(
           winner: _winner,
           draw: _draw,
@@ -215,8 +215,6 @@ class QuartettGame implements Game {
           code: _code,
           params: _params);
 
-  @override
-  bool get isOver => _winner != null || _draw;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -261,7 +259,7 @@ class QuartettGame implements Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     return mode == QuartettMode.trumpf ? _pick(move) : _ask(move);
   }

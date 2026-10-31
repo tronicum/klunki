@@ -191,7 +191,8 @@ class NetworkTransport implements GameTransport {
   Future<SubmitResult> submit(Map<String, dynamic> move) async {
     if (_disposed) return const SubmitResult.rejected(RejectReason.disconnected);
     if (game.isOver) return const SubmitResult.rejected(RejectReason.gameOver);
-    if (game.currentPlayer != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    // Either player may resign at any time (KLD-065): [Game.playerOf].
+    if (game.playerOf(move) != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
     try {
       jsonEncode(move); // a non-JSON move would break the guest's connection
     } on JsonUnsupportedObjectError {
@@ -352,7 +353,7 @@ class NetworkTransport implements GameTransport {
     while (_moves.length < log.length) {
       final index = _moves.length;
       final move = Map<String, dynamic>.unmodifiable(log[index]);
-      final player = _shadow.currentPlayer;
+      final player = _shadow.playerOf(move);
       final event = _shadow.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>);
       if (event == null) {
         throw StateError('accepted move #$index does not apply to the local replay of $config');

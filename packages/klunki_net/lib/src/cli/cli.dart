@@ -46,7 +46,7 @@ messages (WebSocket at /relay, default port $defaultRelayPort). --web DIR also s
 built PWA (klunki/build/web), so browsers use the same address. Ctrl+C stops it.
 host --relay prints the room code; join --relay --room CODE joins that room
 (the code is case-insensitive). The relay address may omit the path (/relay).
-In the game: type a move on your turn; "board", "moves", "help", "quit".''';
+In the game: type a move on your turn; "board", "moves", "resign", "help", "quit".''';
 
 /// Runs the `klunki` network CLI. Returns the exit code.
 ///
@@ -450,7 +450,7 @@ class _Play {
   void _onAccepted(MoveAccepted e) {
     if (e.index < _applied) return;
     if (e.index > _applied) _rebuild(_sessionMoves.take(e.index).toList());
-    final mover = _view.game.currentPlayer;
+    final mover = _view.game.playerOf(e.move);
     final event = _view.game.applyMove(_copy(e.move));
     if (event == null) {
       // Cannot happen while both run the same engine; resync from the log.
@@ -487,6 +487,9 @@ class _Play {
   /// placements are not shown, in GoStrategy not the opponent's setup seed.
   String _narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final game = _view.game;
+    if (Game.resignerOf(move) != null) {
+      return mover == _me ? 'You resign. ${_view.mark(event.winner)} wins.' : '$_oppMark resigns. You win!';
+    }
     if (mover != _me && game is GoStrategyGame && move['action'] != 'move') {
       final m = _view.mark(mover);
       return game.phase == GoStrategyPhase.play
@@ -577,7 +580,9 @@ class _Play {
       case '' || 'board':
         return _showTurn();
     }
-    final move = _view.parse(line);
+    // Either player may resign at any time, also off turn (KLD-065).
+    final resign = line.toLowerCase() == 'resign';
+    final move = resign ? Game.resignMove(_me) : _view.parse(line);
     if (move == null) {
       _out.writeln('Unknown command "$line". Type "help".');
       return _prompt();
@@ -588,7 +593,7 @@ class _Play {
           : 'Your opponent is disconnected — waiting for them to rejoin.');
       return;
     }
-    if (!_myTurn) return _notYourTurn();
+    if (!_myTurn && !(resign && !_view.game.isOver)) return _notYourTurn();
     if (_submitting) return _out.writeln('Your last move is still on its way…');
     final String? reason;
     if (_host != null) {
@@ -649,6 +654,7 @@ Moves: ${_view.moveHelp}
 Commands:
   board   show the board (your own view)
   moves   list your legal moves (on your turn)
+  resign  give up (any time, also on the opponent's turn); the opponent wins
   help    this text
   quit    leave the game''';
 

@@ -270,5 +270,12 @@
   "relaySave": "Appliquer",
   "relayJoinIntro": "Le code de salle vient d’un navigateur qui a choisi « Héberger la partie ».",
   "joinDirectTitle": "Se connecter directement à un appareil",
-  "joinDirectHelper": "Pour un téléphone, une tablette ou un terminal qui héberge lui-même : saisis l’adresse de l’appareil (IP)."
+  "joinDirectHelper": "Pour un téléphone, une tablette ou un terminal qui héberge lui-même : saisis l’adresse de l’appareil (IP).",
+  "shellResign": "Abandonner",
+  "shellResignTitle": "Vraiment abandonner ?",
+  "shellResignBody": "La partie se termine maintenant et {player} gagne.",
+  "shellResignWho": "Qui abandonne ? La partie se termine maintenant et l’autre camp gagne.",
+  "shellResignPlayer": "{player} abandonne",
+  "engineReasonCommonResigned": "{player} a abandonné",
+  "engineReasonCommonYouResigned": "Tu as abandonné"
 }

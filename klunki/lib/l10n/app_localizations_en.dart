@@ -1049,4 +1049,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get joinDirectHelper =>
       'For a phone, tablet or terminal that hosts itself: enter the device address (IP).';
+
+  @override
+  String get shellResign => 'Resign';
+
+  @override
+  String get shellResignTitle => 'Really resign?';
+
+  @override
+  String shellResignBody(String player) {
+    return 'The game ends now and $player wins.';
+  }
+
+  @override
+  String get shellResignWho =>
+      'Who resigns? The game ends now and the other side wins.';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player resigns';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return '$player resigned';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => 'You resigned';
 }

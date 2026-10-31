@@ -90,7 +90,7 @@ class DebugConsole {
         return screen;
       case 'history':
         if (_moves.isEmpty) return 'No moves yet.';
-        return [for (var i = 0; i < _moves.length; i++) '${i + 1}. ${_current.format(_moves[i])}'].join('\n');
+        return [for (var i = 0; i < _moves.length; i++) '${i + 1}. ${_current.formatMove(_moves[i])}'].join('\n');
       case 'moves':
         final legal = _current.legalMoves.map(_current.format).toList();
         if (legal.isEmpty) return 'No legal moves (${_current.status()}).';
@@ -107,7 +107,7 @@ class DebugConsole {
         return [for (final id in ids) demo(id)].join('\n\n');
     }
 
-    final move = _current.parse(input);
+    final move = _current.parseResign(input) ?? _current.parse(input);
     if (move == null) return 'Unknown command "$input". Type "help".';
     final narration = _apply(move);
     if (narration == null) return 'Illegal move "$input".\n$screen';
@@ -116,11 +116,11 @@ class DebugConsole {
 
   /// Applies [move] and returns its narration, or null if it was illegal.
   String? _apply(Map<String, dynamic> move) {
-    final mover = _current.game.currentPlayer;
+    final mover = _current.game.playerOf(move);
     final event = _current.game.applyMove(move);
     if (event == null) return null;
     _moves.add(move);
-    return _current.narrate(mover, move, event);
+    return _current.narrateMove(mover, move, event);
   }
 
   String _auto(int n) {
@@ -177,6 +177,7 @@ Commands:
   new [game]    restart, or switch game (${games.keys.join(', ')})
   moves         list legal moves
   auto [n]      play n random legal moves (default: to the end)
+  resign [x|o]  give up (default: the player to move); the other player wins
   undo          take back the last move
   history       list accepted moves
   demo [games]  narrated full game of each (or the given) game

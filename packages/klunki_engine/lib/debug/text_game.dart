@@ -34,6 +34,31 @@ abstract class TextGame {
   /// after the engine applied it, so the game already shows the new state.
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event);
 
+  /// [format] that also knows the shared resign move: `resign X`.
+  String formatMove(Map<String, dynamic> move) {
+    final r = Game.resignerOf(move);
+    return r != null ? 'resign ${mark(r)}' : format(move);
+  }
+
+  /// [narrate] that also knows the shared resign move.
+  String narrateMove(Player mover, Map<String, dynamic> move, GameEvent event) {
+    final r = Game.resignerOf(move);
+    if (r == null) return narrate(mover, move, event);
+    return '${mark(r)} resigns. ${mark(event.winner)} wins.';
+  }
+
+  /// The resign move typed as `resign` (for [byDefault], else the player to move)
+  /// or `resign x` / `resign o`; null if [input] is not a resign command.
+  Map<String, dynamic>? parseResign(String input, {Player? byDefault}) {
+    final words = input.trim().toLowerCase().split(RegExp(r'\s+'));
+    if (words.first != 'resign' || words.length > 2) return null;
+    if (words.length == 1) return Game.resignMove(byDefault ?? game.currentPlayer);
+    for (final p in Player.values) {
+      if (words[1] == mark(p).toLowerCase() || words[1] == p.name) return Game.resignMove(p);
+    }
+    return null;
+  }
+
   /// Whether the board is worth showing after this event in a demo.
   bool isHighlight(GameEvent event) => event.winner != null || event.draw;
 

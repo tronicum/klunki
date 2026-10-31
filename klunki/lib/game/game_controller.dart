@@ -60,6 +60,14 @@ class GameController extends ChangeNotifier {
 
   Future<SubmitResult> submit(Map<String, dynamic> move) => _transport.submit(move);
 
+  /// Players who may resign now (KLD-065): the local players while the game
+  /// runs, regardless of whose turn it is.
+  Set<Player> get canResign => game.isOver ? const {} : _transport.localPlayers;
+
+  /// [player] gives up; the other player wins. A normal move in the log
+  /// (hot-seat undo takes it back).
+  Future<SubmitResult> resign(Player player) => submit(Game.resignMove(player));
+
   void acknowledgeHandover() {
     if (!_needsHandover) return;
     _needsHandover = false;
@@ -104,7 +112,9 @@ class GameController extends ChangeNotifier {
   void _onAccepted(AcceptedMove m) {
     if (_disposed) return;
     _lastEvent = m.event;
-    if (_sharedDeviceSecrets && !game.isOver && game.currentPlayer != m.player) {
+    if (game.isOver) {
+      _needsHandover = false; // e.g. a resign while the cover was up
+    } else if (_sharedDeviceSecrets && game.currentPlayer != m.player) {
       _needsHandover = true;
     }
     notifyListeners();

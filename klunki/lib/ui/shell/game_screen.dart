@@ -48,7 +48,9 @@ abstract interface class GameShell {
 
 /// The shared frame every game screen plugs into:
 ///
-/// * app bar with the game title, undo (hot-seat), restart and move history,
+/// * app bar with the game title, undo (hot-seat), restart, resign
+///   ("Aufgeben", KLD-065: with a confirmation; in hot-seat the dialog asks
+///   which player gives up) and move history,
 /// * status line ("X ist am Zug", with names "Anna (X) ist am Zug" or, on a
 ///   network device, "Du bist am Zug (X)" / "Warte auf Ben (O)…") plus a
 ///   hint line the board can set
@@ -164,7 +166,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         : labels.isLocal(w)
         ? l10n.shellYouWin
         : l10n.shellWins(labels.label(context, l10n, w));
-    final reason = localizedResultReason(l10n, r);
+    final resigner = r.code == GameEndReason.commonResigned ? controller.game.resignedBy : null;
+    final reason = resigner != null && labels.isLocal(resigner)
+        ? l10n.engineReasonCommonYouResigned
+        : localizedResultReason(l10n, r, playerLabel: (p) => labels.label(context, l10n, p));
     final again = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -228,12 +233,60 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     controller.restart(seed: newGameSeed());
   }
 
+  /// "Aufgeben" (KLD-065): confirm, then resign. On a network device the
+  /// local player resigns; in hot-seat both players are local, so the dialog
+  /// asks who gives up (one button per player) instead of guessing from the
+  /// turn: either player may resign at any time.
+  Future<void> _resign() async {
+    final players = controller.canResign;
+    if (players.isEmpty) return;
+    final l10n = AppLocalizations.of(context);
+    final labels = PlayerLabelsScope.of(context);
+    String label(Player p) => labels.label(context, l10n, p);
+    final palette = KlunkiPalette.of(context);
+    final accent = palette.accent(controller.spec.id);
+    final single = players.length == 1 ? players.first : null;
+    final who = await showDialog<Player>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        key: const Key('resign-dialog'),
+        icon: Icon(Icons.flag_outlined, size: 36, color: accent.onSurface(Theme.of(ctx).brightness)),
+        title: Text(l10n.shellResignTitle),
+        content: Text(single != null ? l10n.shellResignBody(label(single == Player.a ? Player.b : Player.a)) : l10n.shellResignWho),
+        actions: [
+          TextButton(
+            key: const Key('resign-cancel'),
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.shellCancel),
+          ),
+          if (single != null)
+            FilledButton(
+              key: const Key('resign-confirm'),
+              onPressed: () => Navigator.of(ctx).pop(single),
+              child: Text(l10n.shellResign),
+            )
+          else
+            for (final p in Player.values)
+              FilledButton.tonal(
+                key: Key('resign-${p.name}'),
+                onPressed: () => Navigator.of(ctx).pop(p),
+                child: Text(l10n.shellResignPlayer(label(p))),
+              ),
+        ],
+      ),
+    );
+    if (who == null || !mounted) return;
+    await controller.resign(who);
+  }
+
   /// Restart (and "Nochmal") only where the device owns the game: hot-seat.
   /// Over the network the host owns the session (`NetworkTransport` does not
   /// support restart).
   bool get _canRestart => controller.transport is HotSeatTransport;
 
-  String _describe(AppLocalizations l10n, AcceptedMove m) => widget.describeMove?.call(l10n, m) ?? m.move.toString();
+  String _describe(AppLocalizations l10n, AcceptedMove m) => Game.resignerOf(m.move) != null
+      ? l10n.shellResign // the shared resign move; the board describers know only their own moves
+      : widget.describeMove?.call(l10n, m) ?? m.move.toString();
 
   void _showHistory() {
     final moves = controller.moves;
@@ -328,6 +381,13 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 tooltip: l10n.shellNewGame,
                 icon: const Icon(Icons.refresh),
                 onPressed: _restart,
+              ),
+            if (controller.canResign.isNotEmpty)
+              IconButton(
+                key: const Key('shell-resign'),
+                tooltip: l10n.shellResign,
+                icon: const Icon(Icons.flag_outlined),
+                onPressed: _resign,
               ),
             IconButton(
               key: const Key('shell-history'),

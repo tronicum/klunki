@@ -1727,6 +1727,48 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Für ein Handy, Tablet oder Terminal, das selbst hostet: Geräte-Adresse (IP) eingeben.'**
   String get joinDirectHelper;
+
+  /// KLD-065 resign: app bar action (tooltip) and the confirm button of the resign dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Aufgeben'**
+  String get shellResign;
+
+  /// KLD-065 resign: title of the confirmation dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Wirklich aufgeben?'**
+  String get shellResignTitle;
+
+  /// KLD-065 resign dialog (network game): what happens; player = the opponent's label, e.g. "Anna (X)".
+  ///
+  /// In de, this message translates to:
+  /// **'Die Partie endet sofort, {player} gewinnt.'**
+  String shellResignBody(String player);
+
+  /// KLD-065 resign dialog (hot-seat): asks which of the two players gives up.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.'**
+  String get shellResignWho;
+
+  /// KLD-065 resign dialog (hot-seat): button for one player; player = label, e.g. "Anna (X)" or "X".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} gibt auf'**
+  String shellResignPlayer(String player);
+
+  /// Result reason (any game): a player resigned; player = label, e.g. "Anna (X)" or "X".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat aufgegeben'**
+  String engineReasonCommonResigned(String player);
+
+  /// Result reason on the device of the player who resigned (network game).
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast aufgegeben'**
+  String get engineReasonCommonYouResigned;
 }
 
 class _AppLocalizationsDelegate

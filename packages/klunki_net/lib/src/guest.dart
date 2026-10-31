@@ -255,7 +255,7 @@ class KlunkiGuest {
     final game = createGame(config);
     final entries = <MoveAccepted>[];
     for (final move in snapshot) {
-      final by = game.currentPlayer;
+      final by = game.playerOf(move);
       if (game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>) == null) {
         return 'diverged: snapshot does not replay';
       }
@@ -286,7 +286,7 @@ class KlunkiGuest {
     final move = m['move'] as Map<String, dynamic>;
     if (index < _log.length) return; // already applied (duplicate)
     if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
-    if (player != _game.currentPlayer || _game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>) == null) {
+    if (player != _game.playerOf(move) || _game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>) == null) {
       const error = 'diverged: accepted move does not apply locally';
       conn.fail(error);
       _emit(const NetError(error));

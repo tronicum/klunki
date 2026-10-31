@@ -99,7 +99,7 @@ class KlunkiHost {
   static List<MoveAccepted> _replayLog(GameConfig config, Game game, List<Map<String, dynamic>> moves) {
     final log = <MoveAccepted>[];
     for (final m in moves) {
-      final by = game.currentPlayer;
+      final by = game.playerOf(m); // a resign may come from either player
       if (game.applyMove(m) == null) throw ArgumentError.value(moves, 'moves', 'do not replay for $config');
       log.add(MoveAccepted(log.length, by, m));
     }
@@ -238,7 +238,9 @@ class KlunkiHost {
   /// Validates and applies [move] for [by]; null on success, else the reason.
   String? _apply(Player by, Map<String, dynamic> move) {
     if (_game.isOver) return 'game is over';
-    if (_game.currentPlayer != by) return 'not your turn';
+    // The player to move, or for a resign the player it names (either
+    // player may resign at any time, KLD-065).
+    if (_game.playerOf(move) != by) return 'not your turn';
     final String encoded;
     try {
       encoded = jsonEncode(move);

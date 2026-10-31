@@ -1048,4 +1048,32 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get joinDirectHelper =>
       'برای گوشی، تبلت یا ترمینالی که خودش میزبان است: نشانی دستگاه (IP) را وارد کن.';
+
+  @override
+  String get shellResign => 'تسلیم';
+
+  @override
+  String get shellResignTitle => 'واقعاً تسلیم می‌شوی؟';
+
+  @override
+  String shellResignBody(String player) {
+    return 'بازی همین حالا تمام می‌شود و $player برنده می‌شود.';
+  }
+
+  @override
+  String get shellResignWho =>
+      'چه کسی تسلیم می‌شود؟ بازی همین حالا تمام می‌شود و طرف مقابل برنده می‌شود.';
+
+  @override
+  String shellResignPlayer(String player) {
+    return '$player تسلیم می‌شود';
+  }
+
+  @override
+  String engineReasonCommonResigned(String player) {
+    return '$player تسلیم شد';
+  }
+
+  @override
+  String get engineReasonCommonYouResigned => 'تو تسلیم شدی';
 }

@@ -222,11 +222,9 @@ class GoStrategyGame extends Game {
   Player get currentPlayer => _current;
 
   @override
-  GameResult get result =>
+  GameResult get playResult =>
       GameResult(winner: _winner, draw: _draw, reason: _reason, code: _code, params: _params);
 
-  @override
-  bool get isOver => _winner != null || _draw;
 
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
@@ -382,7 +380,7 @@ class GoStrategyGame extends Game {
   }
 
   @override
-  GameEvent? applyMove(Map<String, dynamic> move) {
+  GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
     switch (move['action']) {
       case 'setup':

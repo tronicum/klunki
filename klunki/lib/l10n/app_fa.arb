@@ -270,5 +270,12 @@
   "relaySave": "اعمال",
   "relayJoinIntro": "کد اتاق از مرورگری می‌آید که «میزبانی بازی» را انتخاب کرده است.",
   "joinDirectTitle": "اتصال مستقیم به یک دستگاه",
-  "joinDirectHelper": "برای گوشی، تبلت یا ترمینالی که خودش میزبان است: نشانی دستگاه (IP) را وارد کن."
+  "joinDirectHelper": "برای گوشی، تبلت یا ترمینالی که خودش میزبان است: نشانی دستگاه (IP) را وارد کن.",
+  "shellResign": "تسلیم",
+  "shellResignTitle": "واقعاً تسلیم می‌شوی؟",
+  "shellResignBody": "بازی همین حالا تمام می‌شود و {player} برنده می‌شود.",
+  "shellResignWho": "چه کسی تسلیم می‌شود؟ بازی همین حالا تمام می‌شود و طرف مقابل برنده می‌شود.",
+  "shellResignPlayer": "{player} تسلیم می‌شود",
+  "engineReasonCommonResigned": "{player} تسلیم شد",
+  "engineReasonCommonYouResigned": "تو تسلیم شدی"
 }

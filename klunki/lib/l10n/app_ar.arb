@@ -270,5 +270,12 @@
   "relaySave": "تطبيق",
   "relayJoinIntro": "يأتي رمز الغرفة من متصفح اختار «استضف اللعبة».",
   "joinDirectTitle": "الاتصال مباشرة بجهاز",
-  "joinDirectHelper": "لهاتف أو جهاز لوحي أو طرفية تستضيف بنفسها: أدخل عنوان الجهاز (IP)."
+  "joinDirectHelper": "لهاتف أو جهاز لوحي أو طرفية تستضيف بنفسها: أدخل عنوان الجهاز (IP).",
+  "shellResign": "استسلام",
+  "shellResignTitle": "هل تريد الاستسلام حقًا؟",
+  "shellResignBody": "تنتهي اللعبة الآن ويفوز {player}.",
+  "shellResignWho": "من يستسلم؟ تنتهي اللعبة الآن ويفوز الطرف الآخر.",
+  "shellResignPlayer": "{player} يستسلم",
+  "engineReasonCommonResigned": "استسلم {player}",
+  "engineReasonCommonYouResigned": "لقد استسلمت"
 }

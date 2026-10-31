@@ -9,9 +9,14 @@ import 'package:klunki_engine/klunki_engine.dart';
 /// not translated.
 
 /// Localized text for a [GameEndReason] with its [params] (see the enum docs).
-String localizedEndReason(AppLocalizations l10n, GameEndReason code, [Map<String, int> params = const {}]) {
+/// [playerLabel] names a player for reasons about one (resign: "Anna (X) hat
+/// aufgegeben"); default: the mark.
+String localizedEndReason(AppLocalizations l10n, GameEndReason code,
+    [Map<String, int> params = const {}, String Function(Player p)? playerLabel]) {
   int p(String name) => params[name] ?? 0;
+  String label(Player player) => playerLabel?.call(player) ?? (player == Player.a ? 'X' : 'O');
   return switch (code) {
+    GameEndReason.commonResigned => l10n.engineReasonCommonResigned(label(p('player') == 1 ? Player.b : Player.a)),
     GameEndReason.connect4FourInARow => l10n.engineReasonConnect4FourInARow,
     GameEndReason.connect4BoardFull => l10n.engineReasonConnect4BoardFull,
     GameEndReason.muehleFewerThanThree => l10n.engineReasonMuehleFewerThanThree,
@@ -33,9 +38,9 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code, [Map<String
 
 /// Localized reason of [result]: empty while the game runs, the engine's
 /// English text for a result without a code.
-String localizedResultReason(AppLocalizations l10n, GameResult result) {
+String localizedResultReason(AppLocalizations l10n, GameResult result, {String Function(Player p)? playerLabel}) {
   final code = result.code;
-  return code == null ? result.reason : localizedEndReason(l10n, code, result.params);
+  return code == null ? result.reason : localizedEndReason(l10n, code, result.params, playerLabel);
 }
 
 /// Localized name of a Quartett set letter `A`–`H`; the engine's name (or the

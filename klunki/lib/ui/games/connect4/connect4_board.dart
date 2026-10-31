@@ -54,7 +54,8 @@ typedef Connect4Pos = ({int col, int row});
 /// of every winning line; empty if there is no winner.
 Set<Connect4Pos> connect4WinningCells(Connect4Game game) {
   final winner = game.result.winner;
-  if (winner == null || game.history.isEmpty) return const {};
+  // Only a four in a row has a line (not a resign, KLD-065).
+  if (winner == null || game.result.code != GameEndReason.connect4FourInARow || game.history.isEmpty) return const {};
   final last = game.history.last;
   final col = last['col'] as int, row = last['row'] as int;
   final board = game.board;
