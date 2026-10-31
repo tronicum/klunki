@@ -49,6 +49,38 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuGameSchiffe => 'Bataille navale';
 
   @override
+  String get menuDescConnect4 =>
+      'Quatre en ligne – horizontale, verticale ou diagonale.';
+
+  @override
+  String get menuDescMuehle =>
+      'Forme des lignes de trois et capture les pions adverses.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'Comparez les valeurs – la meilleure remporte les deux cartes.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'Demande des cartes et réunis des familles complètes de quatre.';
+
+  @override
+  String get menuDescSchiffe => 'Cachez vos flottes et tirez à tour de rôle.';
+
+  @override
+  String get menuSectionHotSeat => 'À deux sur un appareil';
+
+  @override
+  String get menuSectionNetwork => 'Avec deux appareils';
+
+  @override
+  String get menuNetworkSubtitle => 'Héberger ou rejoindre une partie';
+
+  @override
+  String get menuHiddenInfo =>
+      'Cartes ou flotte secrètes – passez-vous l\'appareil';
+
+  @override
   String shellToMove(String player) {
     return 'Au tour de $player';
   }

@@ -49,6 +49,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuGameSchiffe => 'Sink the Fleet';
 
   @override
+  String get menuDescConnect4 => 'Four in a line – across, down or diagonal.';
+
+  @override
+  String get menuDescMuehle =>
+      'Form rows of three and capture your opponent\'s pieces.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'Compare values – the better value wins both cards.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'Ask for cards and collect complete sets of four.';
+
+  @override
+  String get menuDescSchiffe => 'Hide your fleets and take turns firing.';
+
+  @override
+  String get menuSectionHotSeat => 'Two players, one device';
+
+  @override
+  String get menuSectionNetwork => 'Two devices';
+
+  @override
+  String get menuNetworkSubtitle => 'Host or join a game';
+
+  @override
+  String get menuHiddenInfo => 'Secret cards or fleet – you pass the device';
+
+  @override
   String shellToMove(String player) {
     return '$player\'s turn';
   }

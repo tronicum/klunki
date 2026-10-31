@@ -5,6 +5,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
+import '../../../app/theme.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import 'muehle_geometry.dart';
@@ -226,8 +227,14 @@ class _MuehleBoardState extends State<MuehleBoard> with SingleTickerProviderStat
                 animation: _flash,
                 builder: (_, _) => CustomPaint(
                   painter: MuehleBoardPainter(
+                    colors: KlunkiPalette.of(context).muehle,
                     millLines: _millLines,
-                    flash: _flash.isAnimating ? math.sin(_flash.value * math.pi * 3).abs() * (1 - _flash.value * 0.4) : 0,
+                    // Reduced motion: a steady highlight instead of the pulse.
+                    flash: !_flash.isAnimating
+                        ? 0
+                        : reduceMotion(context)
+                            ? 0.8
+                            : math.sin(_flash.value * math.pi * 3).abs() * (1 - _flash.value * 0.4),
                   ),
                 ),
               ),
@@ -279,16 +286,17 @@ class _Point extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final o = owner;
+    final m = KlunkiPalette.of(context).muehle;
     Widget? child;
     if (o != null) {
       final light = o == Player.a;
       final ring = selected
-          ? MuehleColors.select
+          ? m.select
           : removable
-              ? MuehleColors.remove
+              ? m.remove
               : movable
-                  ? MuehleColors.target
-                  : (light ? MuehleColors.lightEdge : MuehleColors.darkEdge);
+                  ? m.target
+                  : (light ? m.lightEdge : m.darkEdge);
       final ringWidth = selected || removable ? stoneSize * 0.14 : (movable ? stoneSize * 0.08 : 1.5);
       child = AnimatedScale(
         scale: selected ? 1.12 : 1,
@@ -299,20 +307,20 @@ class _Point extends StatelessWidget {
           height: stoneSize,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: light ? MuehleColors.light : MuehleColors.dark,
+            color: light ? m.light : m.dark,
             border: Border.all(color: ring, width: ringWidth),
             boxShadow: const [BoxShadow(color: Color(0x55000000), blurRadius: 3, offset: Offset(1, 2))],
             gradient: RadialGradient(
               center: const Alignment(-0.3, -0.4),
               colors: light
-                  ? const [Colors.white, MuehleColors.light, Color(0xFFDCD5C4)]
-                  : const [Color(0xFF5A5A60), MuehleColors.dark, Color(0xFF151517)],
+                  ? [Colors.white, m.light, m.lightShade]
+                  : [m.darkShine, m.dark, Color.lerp(m.dark, Colors.black, 0.5)!],
             ),
           ),
           child: selected
               ? SizedBox(key: Key('muehle-selected-$point'))
               : removable
-                  ? Icon(Icons.close, key: Key('muehle-removable-$point'), size: stoneSize * 0.6, color: MuehleColors.remove)
+                  ? Icon(Icons.close, key: Key('muehle-removable-$point'), size: stoneSize * 0.6, color: m.remove)
                   : null,
         ),
       );
@@ -323,8 +331,8 @@ class _Point extends StatelessWidget {
         height: stoneSize * 0.5,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: MuehleColors.target.withValues(alpha: 0.35),
-          border: Border.all(color: MuehleColors.target, width: 2.5),
+          color: m.target.withValues(alpha: 0.35),
+          border: Border.all(color: m.target, width: 2.5),
         ),
       );
     }
@@ -358,6 +366,7 @@ class _PlayerPanel extends StatelessWidget {
     final onBoard = game.piecesOnBoard(player);
     final captured = MuehleGame.piecesPerPlayer - game.piecesInHand(opp) - game.piecesOnBoard(opp);
     final light = player == Player.a;
+    final m = KlunkiPalette.of(context).muehle;
     final small = theme.textTheme.bodySmall;
     final l10n = AppLocalizations.of(context);
     return Card(
@@ -382,8 +391,8 @@ class _PlayerPanel extends StatelessWidget {
                 height: 18,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: light ? MuehleColors.light : MuehleColors.dark,
-                  border: Border.all(color: light ? MuehleColors.lightEdge : MuehleColors.darkEdge),
+                  color: light ? m.light : m.dark,
+                  border: Border.all(color: light ? m.lightEdge : m.darkEdge),
                 ),
               ),
               const SizedBox(width: 6),

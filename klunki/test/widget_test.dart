@@ -17,6 +17,8 @@ void main() {
 
   testWidgets('debug console plays a Four in a Row move', (WidgetTester tester) async {
     await tester.pumpWidget(klunkiApp());
+    // Below the game tiles (KLD-062); scroll it into view first.
+    await tester.ensureVisible(find.text('Debug-Konsole'));
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();
 
@@ -32,6 +34,8 @@ void main() {
 
   testWidgets('debug console menu runs the narrated demo', (WidgetTester tester) async {
     await tester.pumpWidget(klunkiApp());
+    // Below the game tiles (KLD-062); scroll it into view first.
+    await tester.ensureVisible(find.text('Debug-Konsole'));
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();
 

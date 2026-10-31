@@ -49,6 +49,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuGameSchiffe => '海战棋';
 
   @override
+  String get menuDescConnect4 => '四子连成一线就能获胜。';
+
+  @override
+  String get menuDescMuehle => '连成三子一线，吃掉对方的棋子。';
+
+  @override
+  String get menuDescQuartettTrumpf => '选一项属性，胜者赢得两张牌。';
+
+  @override
+  String get menuDescQuartettSets => '向对方要牌，集齐四张同系列的牌。';
+
+  @override
+  String get menuDescSchiffe => '布置舰队，轮流开火。';
+
+  @override
+  String get menuSectionHotSeat => '两人用一台设备';
+
+  @override
+  String get menuSectionNetwork => '两台设备';
+
+  @override
+  String get menuNetworkSubtitle => '创建或加入游戏';
+
+  @override
+  String get menuHiddenInfo => '手牌或舰队不能给对方看——轮流传递设备';
+
+  @override
   String shellToMove(String player) {
     return '轮到 $player';
   }

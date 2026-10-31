@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettGame, QuartettStat;
 
+import '../../app/theme.dart';
 import '../engine_l10n.dart';
 
 /// Shared Quartett card widgets (Trumpf screen KLD-024, Sets screen KLD-025).
@@ -11,18 +12,11 @@ import '../engine_l10n.dart';
 /// engine with the `qe` prefix; callers pass a `qe.Card` (any import style
 /// works, it is the same type).
 
-/// Header colour of a set letter `A`–`H` (grey for anything else).
-Color quartettSetColor(String set) => switch (set) {
-      'A' => const Color(0xFFC62828), // red
-      'B' => const Color(0xFF6A1B9A), // purple
-      'C' => const Color(0xFF8D6E63), // brown
-      'D' => const Color(0xFFEF6C00), // orange
-      'E' => const Color(0xFF2E7D32), // green
-      'F' => const Color(0xFF1565C0), // blue
-      'G' => const Color(0xFF00838F), // teal
-      'H' => const Color(0xFFAD1457), // pink
-      _ => const Color(0xFF616161),
-    };
+/// Header colour of a set letter `A`–`H` (grey for anything else), from
+/// [palette] (default: the classic light palette; widgets pass
+/// `KlunkiPalette.of(context).quartett`). White text on it is WCAG AA.
+Color quartettSetColor(String set, [QuartettPalette? palette]) =>
+    (palette ?? KlunkiPalette.classicLight.quartett).set(set);
 
 /// Localized display name of a set letter (e.g. `B` → "Hypercars").
 String quartettSetName(AppLocalizations l10n, String set) => localizedSetName(l10n, set);
@@ -44,12 +38,16 @@ String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de
 /// How a highlighted stat row came out in a trick.
 enum QuartettOutcome { win, lose, tie }
 
-/// Colour used for an outcome (green / red / grey).
-Color quartettOutcomeColor(QuartettOutcome o) => switch (o) {
-      QuartettOutcome.win => const Color(0xFF2E7D32),
-      QuartettOutcome.lose => const Color(0xFFC62828),
-      QuartettOutcome.tie => const Color(0xFF757575),
-    };
+/// Colour used for an outcome (green / red / grey), from [palette] (default:
+/// the classic light palette).
+Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
+  final p = palette ?? KlunkiPalette.classicLight.quartett;
+  return switch (o) {
+    QuartettOutcome.win => p.win,
+    QuartettOutcome.lose => p.lose,
+    QuartettOutcome.tie => p.tie,
+  };
+}
 
 /// A Quartett card, face-up ([QuartettCard.new]) or face-down
 /// ([QuartettCard.back]).
@@ -93,17 +91,17 @@ class QuartettCard extends StatelessWidget {
     this.highlightStat,
     this.outcome,
     this.dense = false,
-  })  : count = null,
-        label = null;
+  }) : count = null,
+       label = null;
 
   /// Face-down card (back side). Never reveals a card.
   const QuartettCard.back({super.key, this.count, this.label, this.dense = false})
-      : card = null,
-        onStatTap = null,
-        enabled = false,
-        statKeyPrefix = null,
-        highlightStat = null,
-        outcome = null;
+    : card = null,
+      onStatTap = null,
+      enabled = false,
+      statKeyPrefix = null,
+      highlightStat = null,
+      outcome = null;
 
   bool get isFaceDown => card == null;
 
@@ -115,11 +113,12 @@ class QuartettCard extends StatelessWidget {
 
   Widget _buildFront(BuildContext context, qe.Card c) {
     final theme = Theme.of(context);
-    final color = quartettSetColor(c.set);
+    final palette = KlunkiPalette.of(context).quartett;
+    final color = quartettSetColor(c.set, palette);
     final onColor = Colors.white;
     final text = theme.textTheme;
     return Material(
-      color: theme.colorScheme.surface,
+      color: palette.cardFace,
       elevation: 3,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
@@ -131,7 +130,13 @@ class QuartettCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            color: color,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color, Color.lerp(color, Colors.black, 0.18)!],
+              ),
+            ),
             padding: EdgeInsets.all(dense ? 8 : 12),
             child: Row(
               children: [
@@ -140,8 +145,10 @@ class QuartettCard extends StatelessWidget {
                   decoration: BoxDecoration(color: onColor, borderRadius: BorderRadius.circular(6)),
                   child: Text(
                     c.id,
-                    style: (dense ? text.titleSmall : text.titleMedium)
-                        ?.copyWith(color: color, fontWeight: FontWeight.bold),
+                    style: (dense ? text.titleSmall : text.titleMedium)?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 SizedBox(width: dense ? 8 : 12),
@@ -159,8 +166,10 @@ class QuartettCard extends StatelessWidget {
                         c.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: (dense ? text.titleSmall : text.titleMedium)
-                            ?.copyWith(color: onColor, fontWeight: FontWeight.w600),
+                        style: (dense ? text.titleSmall : text.titleMedium)?.copyWith(
+                          color: onColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -180,7 +189,12 @@ class QuartettCard extends StatelessWidget {
     final text = dense ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium;
     final highlighted = highlightStat == s.id;
     final o = outcome;
-    final tint = !highlighted ? null : (o == null ? setColor : quartettOutcomeColor(o));
+    final palette = KlunkiPalette.of(context).quartett;
+    final tint = !highlighted
+        ? null
+        : (o == null
+              ? (theme.brightness == Brightness.dark ? palette.setText(c.set) : setColor)
+              : quartettOutcomeColor(o, palette));
     final value = c.stats[s.id];
     final tap = onStatTap;
     final row = Container(
@@ -205,8 +219,14 @@ class QuartettCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            value == null ? '–' : formatQuartettValue(s, value,
-                    locale: Localizations.localeOf(context).languageCode, unit: localizedStatUnit(l10n, s.id)),
+            value == null
+                ? '–'
+                : formatQuartettValue(
+                    s,
+                    value,
+                    locale: Localizations.localeOf(context).languageCode,
+                    unit: localizedStatUnit(l10n, s.id),
+                  ),
             style: text?.copyWith(fontWeight: FontWeight.bold, color: tint),
           ),
           const SizedBox(width: 4),
@@ -228,50 +248,49 @@ class QuartettCard extends StatelessWidget {
 
   Widget _buildBack(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final p = KlunkiPalette.of(context).quartett;
+    final on = p.onBack;
     final l10n = AppLocalizations.of(context);
     return AspectRatio(
       aspectRatio: 0.7,
       child: Material(
         elevation: 3,
         clipBehavior: Clip.antiAlias,
-        color: scheme.primary,
+        color: p.backA,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: scheme.onPrimary.withValues(alpha: 0.6), width: 2),
+          side: BorderSide(color: on.withValues(alpha: 0.7), width: 2),
         ),
         child: Container(
           margin: const EdgeInsets.all(6),
+          clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.5)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [scheme.primary, scheme.tertiary],
-            ),
+            border: Border.all(color: on.withValues(alpha: 0.5)),
+            gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [p.backA, p.backB]),
           ),
-          child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (label != null)
-                      Text(label!, style: theme.textTheme.headlineSmall?.copyWith(color: scheme.onPrimary)),
-                    Icon(Icons.directions_car, size: dense ? 28 : 40, color: scheme.onPrimary),
-                    Text(l10n.quartettCardBack,
-                        style: theme.textTheme.labelSmall?.copyWith(color: scheme.onPrimary, letterSpacing: 2)),
-                    if (count != null) ...[
-                      const SizedBox(height: 6),
+          child: CustomPaint(
+            painter: _BackPattern(on.withValues(alpha: 0.12)),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (label != null) Text(label!, style: theme.textTheme.headlineSmall?.copyWith(color: on)),
+                      Icon(Icons.directions_car, size: dense ? 28 : 40, color: on),
                       Text(
-                        l10n.quartettCards(count!),
-                        style: theme.textTheme.titleSmall?.copyWith(color: scheme.onPrimary),
+                        l10n.quartettCardBack,
+                        style: theme.textTheme.labelSmall?.copyWith(color: on, letterSpacing: 2),
                       ),
+                      if (count != null) ...[
+                        const SizedBox(height: 6),
+                        Text(l10n.quartettCards(count!), style: theme.textTheme.titleSmall?.copyWith(color: on)),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -280,4 +299,25 @@ class QuartettCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Diamond lattice on the card back.
+class _BackPattern extends CustomPainter {
+  final Color color;
+  const _BackPattern(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.5;
+    const step = 14.0;
+    for (var x = -size.height; x < size.width + size.height; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x + size.height, size.height), paint);
+      canvas.drawLine(Offset(x, size.height), Offset(x + size.height, 0), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BackPattern old) => old.color != color;
 }

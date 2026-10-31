@@ -6,6 +6,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
+import '../../app/theme.dart';
 import '../shell/game_screen.dart';
 import 'quartett_card.dart';
 
@@ -306,7 +307,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
     final l10n = AppLocalizations.of(context);
     final w = t.winner;
     final headline = w == null ? l10n.quartettTrumpfTie : l10n.quartettTrumpfWinsTrick(playerMark(w));
-    final color = w == null ? quartettOutcomeColor(QuartettOutcome.tie) : quartettOutcomeColor(QuartettOutcome.win);
+    final color = w == null ? quartettOutcomeColor(QuartettOutcome.tie, KlunkiPalette.of(context).quartett) : quartettOutcomeColor(QuartettOutcome.win, KlunkiPalette.of(context).quartett);
     QuartettOutcome outcomeOf(Player p) =>
         w == null ? QuartettOutcome.tie : (w == p ? QuartettOutcome.win : QuartettOutcome.lose);
 
@@ -326,7 +327,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
               l10n.quartettTrumpfSideOutcome(playerMark(p), word),
               key: Key('qt-reveal-${p.name}-outcome'),
               textAlign: TextAlign.center,
-              style: theme.textTheme.labelLarge?.copyWith(color: quartettOutcomeColor(o), fontWeight: FontWeight.bold),
+              style: theme.textTheme.labelLarge?.copyWith(color: quartettOutcomeColor(o, KlunkiPalette.of(context).quartett), fontWeight: FontWeight.bold),
             ),
           ),
           QuartettCard(

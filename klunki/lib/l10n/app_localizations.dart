@@ -186,6 +186,60 @@ abstract class AppLocalizations {
   /// **'Schiffe versenken'**
   String get menuGameSchiffe;
 
+  /// Menu tile one-liner for 4 Gewinnt (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Vier in einer Reihe – waagerecht, senkrecht oder schräg.'**
+  String get menuDescConnect4;
+
+  /// Menu tile one-liner for Mühle (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Bilde Dreierreihen und schlage gegnerische Steine.'**
+  String get menuDescMuehle;
+
+  /// Menu tile one-liner for Quartett (Trumpf) (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Vergleicht Werte – der bessere Wert gewinnt beide Karten.'**
+  String get menuDescQuartettTrumpf;
+
+  /// Menu tile one-liner for Quartett (Sets) (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Erfrage Karten und sammle vollständige Vierer-Sets.'**
+  String get menuDescQuartettSets;
+
+  /// Menu tile one-liner for Schiffe versenken (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Versteckt eure Flotten und schießt abwechselnd.'**
+  String get menuDescSchiffe;
+
+  /// Menu section header above the hot-seat game tiles (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Zu zweit an einem Gerät'**
+  String get menuSectionHotSeat;
+
+  /// Menu section header above the network entry (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Mit zwei Geräten'**
+  String get menuSectionNetwork;
+
+  /// Subtitle of the network entry "Über WLAN spielen" (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel hosten oder beitreten'**
+  String get menuNetworkSubtitle;
+
+  /// Tooltip/semantics of the eye-off badge on hidden-information game tiles (secret hand or fleet, the device is passed between turns) (KLD-062).
+  ///
+  /// In de, this message translates to:
+  /// **'Geheime Karten oder Flotte – ihr reicht das Gerät weiter'**
+  String get menuHiddenInfo;
+
   /// Status line: whose turn it is. player = mark X or O.
   ///
   /// In de, this message translates to:

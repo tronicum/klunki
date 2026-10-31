@@ -49,6 +49,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get menuGameSchiffe => 'Hundir la flota';
 
   @override
+  String get menuDescConnect4 =>
+      'Cuatro en línea: horizontal, vertical o diagonal.';
+
+  @override
+  String get menuDescMuehle =>
+      'Forma líneas de tres y captura las fichas rivales.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'Comparad valores: el mejor gana ambas cartas.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'Pide cartas y reúne grupos completos de cuatro.';
+
+  @override
+  String get menuDescSchiffe =>
+      'Esconded vuestras flotas y disparad por turnos.';
+
+  @override
+  String get menuSectionHotSeat => 'Dos jugadores, un dispositivo';
+
+  @override
+  String get menuSectionNetwork => 'Con dos dispositivos';
+
+  @override
+  String get menuNetworkSubtitle => 'Crear o unirse a una partida';
+
+  @override
+  String get menuHiddenInfo =>
+      'Cartas o flota secretas: os pasáis el dispositivo';
+
+  @override
   String shellToMove(String player) {
     return 'Turno de $player';
   }

@@ -5,14 +5,17 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
+import '../../../app/theme.dart';
 import '../../ltr.dart';
 
 /// Duration of the drop animation of the last piece.
 const connect4DropDuration = Duration(milliseconds: 250);
 
-/// Classic 4 Gewinnt colours, slightly adjusted for dark themes.
+/// 4 Gewinnt colours from the theme's [KlunkiPalette] (classic preset: blue
+/// frame, red and yellow pieces, holes in the page colour).
 class Connect4Colors {
   final Color board;
+  final Color boardShade;
   final Color red;
   final Color yellow;
   final Color hole;
@@ -20,6 +23,7 @@ class Connect4Colors {
 
   const Connect4Colors({
     required this.board,
+    this.boardShade = const Color(0xFF0D3C8C),
     required this.red,
     required this.yellow,
     required this.hole,
@@ -27,14 +31,14 @@ class Connect4Colors {
   });
 
   factory Connect4Colors.of(BuildContext context) {
-    final theme = Theme.of(context);
-    final dark = theme.brightness == Brightness.dark;
+    final p = KlunkiPalette.of(context).connect4;
     return Connect4Colors(
-      board: dark ? const Color(0xFF0D3C8C) : const Color(0xFF1565C0),
-      red: dark ? const Color(0xFFE53935) : const Color(0xFFD32F2F),
-      yellow: dark ? const Color(0xFFFFCA28) : const Color(0xFFFFC107),
-      hole: theme.colorScheme.surface,
-      highlight: Colors.white,
+      board: p.board,
+      boardShade: p.boardShade,
+      red: p.red,
+      yellow: p.yellow,
+      hole: p.hole,
+      highlight: p.highlight,
     );
   }
 
@@ -115,17 +119,22 @@ class Connect4Cell extends StatelessWidget {
         child: visible
             ? Connect4Piece(
                 color: colors.piece(p),
+                ringed: p == Player.b,
                 faded: faded,
                 ring: winning ? colors.highlight : null,
                 marker: lastMove && !winning,
               )
             : DecoratedBox(
                 decoration: BoxDecoration(
-                  color: colors.hole,
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: size * 0.04),
-                  ],
+                  // A hole: darker at the top edge (inner shadow look).
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color.lerp(colors.hole, Colors.black, 0.22)!, colors.hole, colors.hole],
+                    stops: const [0, 0.35, 1],
+                  ),
+                  border: Border.all(color: colors.boardShade, width: size * 0.025),
                 ),
               ),
       ),
@@ -140,7 +149,12 @@ class Connect4Piece extends StatelessWidget {
   final bool marker;
   final bool faded;
 
-  const Connect4Piece({super.key, required this.color, this.ring, this.marker = false, this.faded = false});
+  /// Draw an embossed inner ring (player O), so X and O differ by shape as
+  /// well as by colour (UX-REVIEW 2.10).
+  final bool ringed;
+
+  const Connect4Piece(
+      {super.key, required this.color, this.ring, this.marker = false, this.faded = false, this.ringed = false});
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +173,7 @@ class Connect4Piece extends StatelessWidget {
                 ? Border.all(color: Colors.black.withValues(alpha: 0.18), width: d * 0.04)
                 : Border.all(color: ring!, width: d * 0.1),
             boxShadow: ring == null
-                ? null
+                ? [BoxShadow(color: Colors.black.withValues(alpha: 0.28), blurRadius: d * 0.05, offset: Offset(0, d * 0.04))]
                 : [BoxShadow(color: ring!.withValues(alpha: 0.8), blurRadius: d * 0.25, spreadRadius: d * 0.02)],
           ),
           child: marker
@@ -173,7 +187,18 @@ class Connect4Piece extends StatelessWidget {
                     ),
                   ),
                 )
-              : const SizedBox.expand(),
+              : ringed
+                  ? Center(
+                      child: Container(
+                        width: d * 0.56,
+                        height: d * 0.56,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black.withValues(alpha: 0.16), width: d * 0.05),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.expand(),
         ),
       );
     });
@@ -228,7 +253,7 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
 
   void _onChange() {
     final n = _c.moves.length;
-    if (n == _seenMoves + 1) {
+    if (n == _seenMoves + 1 && !reduceMotion(context)) {
       _drop.forward(from: 0);
     } else {
       _drop.value = 1; // undo / restart: no animation
@@ -273,13 +298,26 @@ class _Connect4BoardState extends State<Connect4Board> with SingleTickerProvider
       final highlightCol = enabled ? (_pressedCol ?? _hoverCol) : null;
 
       return Center(
-        child: SizedBox(
+        child: Container(
           width: width,
           height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(cell * 0.18),
+            boxShadow: [
+              BoxShadow(color: colors.boardShade, offset: Offset(0, cell * 0.08)),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: cell * 0.2, offset: Offset(0, cell * 0.1)),
+            ],
+          ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(cell * 0.18),
-            child: ColoredBox(
-              color: colors.board,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color.lerp(colors.board, Colors.white, 0.08)!, colors.board],
+                ),
+              ),
               child: AnimatedBuilder(
                 animation: _drop,
                 builder: (context, _) {

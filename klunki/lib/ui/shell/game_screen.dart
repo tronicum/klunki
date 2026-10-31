@@ -9,7 +9,9 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/hot_seat_transport.dart';
+import '../../app/theme.dart';
 import '../game_titles.dart';
+import '../game_visuals.dart';
 import '../player_name_dialog.dart';
 import 'handover_cover.dart';
 import 'player_labels.dart';
@@ -71,13 +73,7 @@ class GameScreen extends StatefulWidget {
   /// App bar title; defaults to the registry title of the game.
   final String? title;
 
-  const GameScreen({
-    super.key,
-    required this.controller,
-    required this.boardBuilder,
-    this.describeMove,
-    this.title,
-  });
+  const GameScreen({super.key, required this.controller, required this.boardBuilder, this.describeMove, this.title});
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
   static GameShell of(BuildContext context) {
@@ -166,20 +162,41 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final headline = r.draw || w == null
         ? l10n.shellDraw
         : labels.isLocal(w)
-            ? l10n.shellYouWin
-            : l10n.shellWins(labels.label(context, l10n, w));
+        ? l10n.shellYouWin
+        : l10n.shellWins(labels.label(context, l10n, w));
     final reason = localizedResultReason(l10n, r);
     final again = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         key: const Key('result-dialog'),
+        icon: w == null
+            ? Icon(
+                Icons.handshake_outlined,
+                size: 40,
+                color: KlunkiPalette.of(ctx).accent(controller.spec.id).onSurface(Theme.of(ctx).brightness),
+              )
+            : Center(
+                child: SizedBox.square(
+                  dimension: 64,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Center(child: Icon(Icons.emoji_events, size: 56, color: KlunkiPalette.of(ctx).trophy)),
+                      PositionedDirectional(
+                        end: -10,
+                        bottom: -2,
+                        child: PlayerToken(gameId: controller.spec.id, player: w, size: 28),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
         title: Text(headline),
         content: reason.isEmpty ? null : Text(reason, key: const Key('result-reason')),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
-          if (_canRestart)
-            FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellPlayAgain)),
+          if (_canRestart) FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellPlayAgain)),
         ],
       ),
     );
@@ -278,11 +295,16 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
+    final accent = KlunkiPalette.of(context).accent(controller.spec.id);
+    final game = controller.game;
+    final status = _status(context, l10n);
     return _GameShellScope(
       shell: this,
       hint: _hint,
       child: Scaffold(
         appBar: AppBar(
+          backgroundColor: accent.color,
+          foregroundColor: accent.onColor,
           title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
           actions: [
             if (controller.transport is HotSeatTransport)
@@ -315,25 +337,43 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
             ),
           ],
         ),
-        body: SafeArea(
-          child: HandoverCover(
-            controller: controller,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                  child: Text(_status(context, l10n), key: const Key('shell-status'), style: theme.textTheme.titleMedium),
-                ),
-                if (_hint != null)
+        body: KlunkiBackground(
+          child: SafeArea(
+            child: HandoverCover(
+              controller: controller,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                    child: Text(_hint!, key: const Key('shell-hint'), style: theme.textTheme.bodyMedium),
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                    child: _TurnIndicator(
+                      gameId: controller.spec.id,
+                      // Null once the game is over: the pill shows the result.
+                      player: game.isOver ? game.result.winner : game.currentPlayer,
+                      over: game.isOver,
+                      accent: accent,
+                      // liveRegion: screen readers announce turn changes and results.
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(status, key: const Key('shell-status'), style: theme.textTheme.titleMedium),
+                      ),
+                    ),
                   ),
-                Expanded(
-                  child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller)),
-                ),
-              ],
+                  if (_hint != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+                      child: Semantics(
+                        liveRegion: true,
+                        child: Text(
+                          _hint!,
+                          key: const Key('shell-hint'),
+                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
+                ],
+              ),
             ),
           ),
         ),
@@ -350,4 +390,96 @@ class _GameShellScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_GameShellScope old) => old.hint != hint;
+}
+
+/// A player's piece as a small round token: the game's piece colour where
+/// it has one (4 Gewinnt red/yellow, Mühle light/dark, see `game_visuals.dart`)
+/// plus the mark, so the identity is never colour-only (UX-REVIEW 2.1, 2.10).
+class PlayerToken extends StatelessWidget {
+  final String gameId;
+  final Player player;
+  final double size;
+  const PlayerToken({super.key, required this.gameId, required this.player, this.size = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = KlunkiPalette.of(context);
+    final accent = palette.accent(gameId);
+    final piece = visualsOf(gameId).token?.call(palette, player);
+    final fill = piece ?? (player == Player.a ? accent.color : palette.card);
+    final ink = fill.computeLuminance() > 0.4 ? Colors.black87 : Colors.white;
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: fill,
+          border: Border.all(color: piece == null ? accent.color : Colors.black26, width: size * 0.08),
+          boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
+        ),
+        child: Text(
+          playerMark(player),
+          textDirection: TextDirection.ltr,
+          style: TextStyle(color: ink, fontSize: size * 0.5, fontWeight: FontWeight.w700, height: 1),
+        ),
+      ),
+    );
+  }
+}
+
+/// The status line as a pill: the token of the player to move (or the
+/// winner) plus the status text. The pill's tint follows the player, with a
+/// short colour transition (none with reduced motion).
+class _TurnIndicator extends StatelessWidget {
+  final String gameId;
+  final Player? player;
+  final bool over;
+  final GameAccent accent;
+  final Widget child;
+
+  const _TurnIndicator({
+    required this.gameId,
+    required this.player,
+    required this.over,
+    required this.accent,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final p = player;
+    final tint = over ? accent.color : (p == Player.a ? accent.color : theme.colorScheme.outline);
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: AnimatedContainer(
+        duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 14, 6),
+        constraints: const BoxConstraints(minHeight: 40),
+        decoration: BoxDecoration(
+          color: Color.alphaBlend(tint.withValues(alpha: 0.14), KlunkiPalette.of(context).card),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: tint.withValues(alpha: 0.6), width: 1.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (p != null)
+              PlayerToken(gameId: gameId, player: p, size: 26)
+            else
+              Icon(Icons.handshake_outlined, size: 24, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(width: 10),
+            if (over && p != null) ...[
+              Icon(Icons.emoji_events, size: 20, color: KlunkiPalette.of(context).trophy),
+              const SizedBox(width: 6),
+            ],
+            Flexible(child: child),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -49,6 +49,36 @@ class AppLocalizationsFa extends AppLocalizations {
   String get menuGameSchiffe => 'نبرد دریایی';
 
   @override
+  String get menuDescConnect4 => 'چهار در یک ردیف – افقی، عمودی یا مورب.';
+
+  @override
+  String get menuDescMuehle => 'ردیف‌های سه‌تایی بساز و مهره‌های حریف را بگیر.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'مقدارها را مقایسه کنید – مقدار بهتر هر دو کارت را می‌برد.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'کارت بخواه و دسته‌های کامل چهارتایی جمع کن.';
+
+  @override
+  String get menuDescSchiffe => 'ناوگان‌تان را پنهان کنید و به نوبت شلیک کنید.';
+
+  @override
+  String get menuSectionHotSeat => 'دو نفر، یک دستگاه';
+
+  @override
+  String get menuSectionNetwork => 'با دو دستگاه';
+
+  @override
+  String get menuNetworkSubtitle => 'میزبانی یا پیوستن به بازی';
+
+  @override
+  String get menuHiddenInfo =>
+      'کارت‌ها یا ناوگان مخفی – دستگاه را دست‌به‌دست کنید';
+
+  @override
   String shellToMove(String player) {
     return 'نوبت $player';
   }

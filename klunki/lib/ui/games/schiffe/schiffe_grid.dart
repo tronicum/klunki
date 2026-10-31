@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../../app/theme.dart';
 import '../../ltr.dart';
 
 /// Row letters of the 10×10 grid (row 0 = A).
@@ -49,13 +50,10 @@ class SchiffeCellView extends StatelessWidget {
 
   const SchiffeCellView({super.key, required this.look, required this.semanticLabel, this.preview, this.onTap});
 
-  static const previewValid = Color(0x9943A047);
-  static const previewInvalid = Color(0x99E53935);
-
   @override
   Widget build(BuildContext context) {
-    final s = Theme.of(context).colorScheme;
-    var bg = s.primaryContainer.withValues(alpha: 0.45);
+    final p = KlunkiPalette.of(context).schiffe;
+    var bg = p.water;
     Widget? marker;
     Widget cross(Color c) => FractionallySizedBox(
       widthFactor: 0.8,
@@ -65,7 +63,15 @@ class SchiffeCellView extends StatelessWidget {
     Widget shipBody() => Container(
       key: svShipMarkerKey,
       margin: const EdgeInsets.all(2),
-      decoration: BoxDecoration(color: s.outline, borderRadius: BorderRadius.circular(3)),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: p.shipEdge),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color.lerp(p.ship, Colors.white, 0.2)!, p.ship],
+        ),
+      ),
     );
     switch (look) {
       case SvLook.water:
@@ -73,11 +79,16 @@ class SchiffeCellView extends StatelessWidget {
       case SvLook.ship:
         marker = shipBody();
       case SvLook.miss:
+        // A splash: white dot with a ring.
         marker = FractionallySizedBox(
-          widthFactor: 0.28,
-          heightFactor: 0.28,
+          widthFactor: 0.34,
+          heightFactor: 0.34,
           child: DecoratedBox(
-            decoration: BoxDecoration(color: s.onSurfaceVariant, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: p.miss,
+              shape: BoxShape.circle,
+              border: Border.all(color: p.gridLine, width: 1.5),
+            ),
           ),
         );
       case SvLook.shipHit:
@@ -85,23 +96,22 @@ class SchiffeCellView extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             shipBody(),
-            Center(child: cross(s.error)),
+            Center(child: cross(p.hit)),
           ],
         );
       case SvLook.hit:
-        bg = s.errorContainer;
-        marker = cross(s.error);
+        bg = p.hitBg;
+        marker = cross(p.hit);
       case SvLook.sunk:
-        bg = s.error;
-        marker = cross(s.onError);
+        bg = p.sunk;
+        marker = cross(p.onSunk);
     }
     Widget cell = Container(
-      margin: const EdgeInsets.all(0.5),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(2)),
+      decoration: BoxDecoration(color: bg, border: Border.all(color: p.gridLine, width: 0.5)),
       foregroundDecoration: preview == null
           ? null
           : BoxDecoration(
-              color: preview == SvPreview.valid ? previewValid : previewInvalid,
+              color: preview == SvPreview.valid ? p.previewValid : p.previewInvalid,
               borderRadius: BorderRadius.circular(2),
             ),
       alignment: Alignment.center,
@@ -156,9 +166,16 @@ class SchiffeGrid extends StatelessWidget {
           ),
         );
         final outlineWidth = max(2.0, unit * 0.09);
-        Widget cells = SizedBox(
+        final sea = KlunkiPalette.of(context).schiffe;
+        Widget cells = Container(
           width: unit * n,
           height: unit * n,
+          foregroundDecoration: BoxDecoration(
+            border: Border.all(color: sea.gridLine, width: 2),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
           child: Stack(
             children: [
               Column(

@@ -84,6 +84,14 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | I18N-07 ✅ | Chinese font offline for the PWA: bundled Noto Sans SC subset (Regular + Bold, OFL) covering the UI strings plus 简体中文, in the font fallback chain; strict glyph tests; `tool/update_web_fonts.py` regenerates the subset (see `docs/tasks/I18N-07-08-offline-fonts.md`) | 03, 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**`, `klunki/tool/update_web_fonts.py` | – |
 | I18N-08 ✅ | Bundled Roboto (Regular/Medium/Bold, OFL) plus a Noto Sans Math subset for arrows, dashes and ellipsis, so the offline PWA shows Latin text and the 'X' inside ar/fa text on a first visit without internet | 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**` | – |
 
+## Look & feel
+
+| ID | Task | Priority | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|---|
+| KLD-062 ✅ | Visual baseline: warm "Spieltisch" theme (light + dark, `KlunkiPalette` theme extension with per-game accents and board materials, preset structure), menu as a tile grid with drawn illustrations + one-liners, accent app bars, turn pill with player tokens, wood/sea/blue boards, card styling, reduced-motion handling. UX-REVIEW done: 1.1 (one-liners, no rules sheet yet), 1.2 (eye-off badge), 2.1 (player token in status + result), 2.10 (ring on O pieces), 5.2 partly (live regions = quick win 9, reduced motion), quick win 11 partly (Debug-Konsole demoted). See `docs/tasks/KLD-062-visual-design.md` | medium | – | `klunki/lib/app/theme.dart`, `klunki/lib/ui/**`, `klunki/lib/l10n/**` (9 `menu*` keys after `menuGameSchiffe`), `klunki/test/app/theme_test.dart`, `klunki/test/screenshots/**` | – |
+| KLD-063 | Selectable themes: more `KlunkiPreset`s (e.g. "Klassisch", "Nacht", "Pastell", high contrast) + picker in settings, persisted via `shared_preferences` (like the language) | low/medium | 062 | `klunki/lib/app/theme.dart`, `klunki/lib/app/klunki_app.dart`, new settings UI | – |
+| KLD-066 | Start/welcome screen "Klunki – deine Spielesammlung für die Hosentasche" (wordmark, tagline, playful intro animation, reduced motion), later also native launch screen and PWA splash; see `docs/tasks/KLD-066-start-screen.md` | medium-low | 062 | `klunki/lib/ui/start_screen.dart`, `klunki/lib/l10n/**`, later `klunki/web/**`, launch assets | 🧑 for native launch assets |
+
 ## Backlog
 
 | ID | Task | Notes |

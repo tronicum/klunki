@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
+import '../../app/theme.dart';
 import '../shell/game_screen.dart';
 import 'quartett_card.dart';
 
@@ -325,7 +326,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   }
 
   Widget _quartetBadge(BuildContext context, String set) {
-    final color = quartettSetColor(set);
+    final color = quartettSetColor(set, KlunkiPalette.of(context).quartett);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
@@ -350,7 +351,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     } else {
       headline = l10n.quartettSetsMissEmpty;
     }
-    final color = quartettOutcomeColor(f.hit ? QuartettOutcome.win : QuartettOutcome.lose);
+    final color = quartettOutcomeColor(f.hit ? QuartettOutcome.win : QuartettOutcome.lose, KlunkiPalette.of(context).quartett);
     final q = f.quartet;
     final sub = <String>[
       if (f.own && f.hit && !c.game.isOver) l10n.quartettSetsAskAgain,
@@ -386,7 +387,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                           l10n.quartettSetsQuartetLaid(quartettSetName(l10n, q)),
                           key: const Key('qs-quartet-text'),
                           style: theme.textTheme.titleSmall
-                              ?.copyWith(color: quartettSetColor(q), fontWeight: FontWeight.bold),
+                              ?.copyWith(color: KlunkiPalette.of(context).quartett.setText(q), fontWeight: FontWeight.bold),
                         ),
                       ),
                   ],
@@ -440,7 +441,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
 
   Widget _setGroup(BuildContext context, String set, Set<String> held, Set<String> askable) {
     final theme = Theme.of(context);
-    final color = quartettSetColor(set);
+    final color = KlunkiPalette.of(context).quartett.setText(set);
     final slots = [for (final card in QuartettGame.deck) if (card.set == set) card];
     final have = slots.where((card) => held.contains(card.id)).length;
     return Padding(
@@ -500,7 +501,7 @@ class _OwnCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = quartettSetColor(card.set);
+    final color = quartettSetColor(card.set, KlunkiPalette.of(context).quartett);
     return Material(
       key: Key('qs-hand-${card.id}'),
       color: color,
@@ -559,7 +560,7 @@ class _MissingSlot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = quartettSetColor(card.set);
+    final color = KlunkiPalette.of(context).quartett.setText(card.set);
     final enabled = onAsk != null;
     return Material(
       key: Key('qs-ask-${card.id}'),
