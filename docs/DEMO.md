@@ -317,6 +317,20 @@ open -a "Google Chrome" http://localhost:8080
   A phone install needs HTTPS hosting (🧑 a hosting decision; not part of the PoC).
 - **Old version keeps loading:** DevTools → Application → "Clear site data", or bump the service-worker cache version (KLD-010).
 - **Blank page:** the server must serve from `build/web` (base href `/`). Check the DevTools console.
+- **Text missing or boxes (□) offline:** the web build bundles only Noto Sans Arabic. Latin (Roboto) and Chinese
+  (Noto Sans SC) come from fonts.gstatic.com at runtime. Visit the app **online once** before the demo (Roboto is then
+  cached by `klunki_sw.js`); Chinese stays tofu offline until I18N-07. See `docs/tasks/I18N-06-pwa-i18n-check.md`.
+
+### Language check (I18N-06)
+With the server running, from the repo root (needs Node ≥ 22 and Firefox; nothing is installed):
+```bash
+klunki/tool/pwa_i18n_check.sh http://localhost:8080/ /tmp/pwa-i18n online        # all locales render?
+klunki/tool/pwa_i18n_check.sh http://localhost:8080/ /tmp/pwa-i18n offline-warm  # installed PWA, then offline
+klunki/tool/pwa_i18n_check.sh http://localhost:8080/ /tmp/pwa-i18n offline       # no internet at all
+```
+It prints `PASS`/`FAIL` per locale (FAIL = app did not boot, or an external request while offline) and writes
+`<locale>-menu.png`, `-picker.png`, `-game.png` plus `report.json`. Look at the PNGs for □ boxes or missing text.
+A single locale in the browser: `http://localhost:8080/?lang=fr` (not saved).
 
 ---
 

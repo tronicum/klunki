@@ -404,7 +404,8 @@ class _HostPanelState extends State<_HostPanel> {
           children: [
             const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
             const SizedBox(width: 12),
-            Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status')),
+            // Flexible: long translations wrap instead of overflowing (I18N-06).
+            Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
           ],
         ),
         const SizedBox(height: 16),
