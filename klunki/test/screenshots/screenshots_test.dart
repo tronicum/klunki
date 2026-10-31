@@ -21,6 +21,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
+import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -164,6 +165,31 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(seconds: 1));
         await _shot(tester, 'result-$tag');
+      });
+
+      // KLD-067: a network game over loopback, from both sides: the host
+      // ("Du bist am Zug") and the guest ("Warte auf Anna (X)…").
+      testWidgets('network $tag', skip: skip != null, (tester) async {
+        await _setup(tester, size, b);
+        final created = CreatedTransports();
+        final host = (await tester.runAsync(
+            () => loopbackHost(created, const GameConfig('connect4', seed: 7), name: 'Anna', port: 0)))!;
+        final guest = (await tester.runAsync(() => loopbackJoin(created, '127.0.0.1', host.port!, name: 'Ben')))!;
+        await pumpUntil(tester, () => host.peerName != null && guest.peerName != null, what: 'connected');
+        for (final (i, col) in [3, 3, 2].indexed) {
+          final t = host.game.currentPlayer == host.me ? host : guest;
+          final r = await tester.runAsync(() => t.submit({'col': col}));
+          expect(r!.isAccepted, isTrue, reason: 'move $i');
+          await pumpUntil(tester, () => host.moves.length == i + 1 && guest.moves.length == i + 1, what: 'move $i');
+        }
+        for (final (side, t) in [('waiting', host), ('myturn', guest)]) {
+          await tester.pumpWidget(_wrap(_themed(NetworkGameSession(key: ValueKey(side), transport: t))));
+          await tester.pump();
+          await _shot(tester, 'network-$side-$tag');
+          debugDisableShadows = false;
+        }
+        debugDisableShadows = true;
+        await unmountAndSettleSockets(tester, created);
       });
 
       testWidgets('pairing $tag', skip: skip != null, (tester) async {

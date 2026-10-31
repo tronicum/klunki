@@ -256,8 +256,8 @@ void main() {
     await tester.pump();
     expect(created.webJoinCalls.single, Uri(scheme: 'ws', host: '192.168.0.10', port: host.wsPort));
     expect(on(webKey, find.byType(NetworkGameSession)), findsOneWidget);
-    expect(on(webKey, find.text('Du (\u2068علی\u2069, O) · Gegner: Host-iPhone (X)')), findsOneWidget);
-    expect(on(hostKey, find.text('Du (Host-iPhone, X) · Gegner: \u2068علی\u2069 (O)')), findsOneWidget);
+    expect(on(webKey, netStatus('Du (\u2068علی\u2069, O) · Gegner: Host-iPhone (X)')), findsOneWidget);
+    expect(on(hostKey, netStatus('Du (Host-iPhone, X) · Gegner: \u2068علی\u2069 (O)')), findsOneWidget);
     expect(on(hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
     expect(on(webKey, find.text('Warte auf Host-iPhone (X)…')), findsOneWidget);
 

@@ -101,6 +101,19 @@ class _ReducedMotionTransitions extends PageTransitionsBuilder {
   }
 }
 
+/// WCAG 2 contrast ratio of two colours (1–21).
+double contrastRatio(Color a, Color b) {
+  final la = a.computeLuminance(), lb = b.computeLuminance();
+  return la > lb ? (la + 0.05) / (lb + 0.05) : (lb + 0.05) / (la + 0.05);
+}
+
+/// Black or white, whichever has the higher contrast on [fill]: at least
+/// 4.58:1 for any colour (KLD-067: text on a player-coloured status pill).
+Color inkOn(Color fill) {
+  final l = fill.computeLuminance();
+  return (l + 0.05) / 0.05 >= 1.05 / (l + 0.05) ? Colors.black : Colors.white;
+}
+
 /// True when animations should be skipped (reduced motion).
 bool reduceMotion(BuildContext context) => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
@@ -252,6 +265,11 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
   /// Trophy colour (result dialog, status pill of a finished game).
   final Color trophy;
 
+  /// Colour of player B (O) in games without piece colours of their own;
+  /// player A (X) takes the game accent (KLD-067, see `playerColor` in
+  /// `ui/game_visuals.dart`).
+  final Color secondPlayer;
+
   final Connect4Palette connect4;
   final MuehlePalette muehle;
   final SchiffePalette schiffe;
@@ -267,6 +285,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     required this.defaultAccent,
     required this.networkAccent,
     required this.trophy,
+    required this.secondPlayer,
     required this.connect4,
     required this.muehle,
     required this.schiffe,
@@ -311,6 +330,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     defaultAccent: GameAccent(Color(0xFF5D5A52), Color(0xFFE8E2D6)),
     networkAccent: GameAccent(Color(0xFF8C4A00), Color(0xFFFFE0C2)),
     trophy: Color(0xFFC98A00),
+    secondPlayer: Color(0xFF4A5560), // slate
     connect4: Connect4Palette(
       board: Color(0xFF1C5DB8),
       boardShade: Color(0xFF134A96),
@@ -379,6 +399,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     defaultAccent: GameAccent(Color(0xFF4F4B44), Color(0xFF34302B)),
     networkAccent: GameAccent(Color(0xFF7A4100), Color(0xFF3F2C1A)),
     trophy: Color(0xFFFFC233),
+    secondPlayer: Color(0xFFB4C0CC), // light slate
     connect4: Connect4Palette(
       board: Color(0xFF184C96),
       boardShade: Color(0xFF0F3570),

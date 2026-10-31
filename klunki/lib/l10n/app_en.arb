@@ -175,6 +175,8 @@
   "pairingJoinFailed": "Connecting to {host} failed ({error}).",
   "pairingJoinHints": "Tips: Are both devices on the same Wi-Fi? Guest networks often block connections between devices. iOS: Is “Local Network” allowed for Klunki (Settings › Privacy)?",
   "pairingStatus": "You ({name}, {mark}) · Opponent: {peer} ({peerMark})",
+  "netBarYou": "You ({name})",
+  "netBarOpponent": "Opponent: {peer}",
   "pairingOpponent": "Opponent",
   "pairingPeerLeft": "{peer} left the game",
   "pairingPeerLost": "Connection to {peer} lost",

@@ -690,6 +690,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String netBarYou(String name) {
+    return '你（$name）';
+  }
+
+  @override
+  String netBarOpponent(String peer) {
+    return '对手：$peer';
+  }
+
+  @override
   String get pairingOpponent => '对手';
 
   @override

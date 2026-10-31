@@ -709,6 +709,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String netBarYou(String name) {
+    return 'You ($name)';
+  }
+
+  @override
+  String netBarOpponent(String peer) {
+    return 'Opponent: $peer';
+  }
+
+  @override
   String get pairingOpponent => 'Opponent';
 
   @override

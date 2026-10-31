@@ -176,6 +176,8 @@
   "pairingJoinFailed": "连接 {host} 失败（{error}）。",
   "pairingJoinHints": "提示：两台设备是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。iOS：是否已允许 Klunki 使用“本地网络”（设置 › 隐私）？",
   "pairingStatus": "你（{name}，{mark}）· 对手：{peer}（{peerMark}）",
+  "netBarYou": "你（{name}）",
+  "netBarOpponent": "对手：{peer}",
   "pairingOpponent": "对手",
   "pairingPeerLeft": "{peer} 已离开对局",
   "pairingPeerLost": "与 {peer} 的连接已中断",

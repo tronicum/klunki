@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -12,6 +13,7 @@ import '../../transport/hot_seat_transport.dart';
 import '../../app/theme.dart';
 import '../game_titles.dart';
 import '../game_visuals.dart';
+import '../ltr.dart';
 import '../player_name_dialog.dart';
 import 'handover_cover.dart';
 import 'player_labels.dart';
@@ -298,6 +300,12 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final accent = KlunkiPalette.of(context).accent(controller.spec.id);
     final game = controller.game;
     final status = _status(context, l10n);
+    final labels = PlayerLabelsScope.of(context);
+    // Null once the game is over: the winner (or none for a draw).
+    final turnPlayer = game.isOver ? game.result.winner : game.currentPlayer;
+    final mood = game.isOver
+        ? (turnPlayer == null ? TurnMood.draw : TurnMood.won)
+        : (labels.local != null && !labels.isLocal(game.currentPlayer) ? TurnMood.waiting : TurnMood.active);
     return _GameShellScope(
       shell: this,
       hint: _hint,
@@ -339,46 +347,78 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         ),
         body: KlunkiBackground(
           child: SafeArea(
-            child: HandoverCover(
-              controller: controller,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-                    child: _TurnIndicator(
-                      gameId: controller.spec.id,
-                      // Null once the game is over: the pill shows the result.
-                      player: game.isOver ? game.result.winner : game.currentPlayer,
-                      over: game.isOver,
-                      accent: accent,
-                      // liveRegion: screen readers announce turn changes and results.
-                      child: Semantics(
-                        liveRegion: true,
-                        child: Text(status, key: const Key('shell-status'), style: theme.textTheme.titleMedium),
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Outside the handover cover: whose turn it is is no secret.
+                _TurnEdge(color: _edgeColor(context, mood, turnPlayer)),
+                Expanded(
+                  child: HandoverCover(
+                    controller: controller,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Align(
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: _TurnIndicator(
+                                    gameId: controller.spec.id,
+                                    player: turnPlayer,
+                                    mood: mood,
+                                    network: labels.local != null,
+                                    status: status,
+                                  ),
+                                ),
+                              ),
+                              // Hot-seat: both players with their colours (KLD-067).
+                              if (labels.local == null)
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(start: 8),
+                                  child: _PlayersLegend(
+                                    gameId: controller.spec.id,
+                                    labels: labels,
+                                    current: game.isOver ? null : game.currentPlayer,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        if (_hint != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+                            child: Semantics(
+                              liveRegion: true,
+                              child: Text(
+                                _hint!,
+                                key: const Key('shell-hint'),
+                                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                          ),
+                        Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
+                      ],
                     ),
                   ),
-                  if (_hint != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
-                      child: Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          _hint!,
-                          key: const Key('shell-hint'),
-                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ),
-                  Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// The turn edge: the colour of the player to move (faded while waiting
+  /// for the other device), the winner's colour at the end, none for a draw.
+  Color _edgeColor(BuildContext context, TurnMood mood, Player? p) {
+    if (p == null) return Colors.transparent;
+    final palette = KlunkiPalette.of(context);
+    final c = visibleOn(context, playerColor(palette, controller.spec.id, p));
+    return mood == TurnMood.waiting ? c.withValues(alpha: 0.35) : c;
   }
 }
 
@@ -392,9 +432,10 @@ class _GameShellScope extends InheritedWidget {
   bool updateShouldNotify(_GameShellScope old) => old.hint != hint;
 }
 
-/// A player's piece as a small round token: the game's piece colour where
-/// it has one (4 Gewinnt red/yellow, Mühle light/dark, see `game_visuals.dart`)
-/// plus the mark, so the identity is never colour-only (UX-REVIEW 2.1, 2.10).
+/// A player's piece as a small round token in the player's colour
+/// ([playerColor]: 4 Gewinnt red/yellow, Mühle light/dark, accent / slate
+/// elsewhere, see `game_visuals.dart`) plus the mark, so the identity is
+/// never colour-only (UX-REVIEW 2.1, 2.10).
 class PlayerToken extends StatelessWidget {
   final String gameId;
   final Player player;
@@ -403,11 +444,7 @@ class PlayerToken extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = KlunkiPalette.of(context);
-    final accent = palette.accent(gameId);
-    final piece = visualsOf(gameId).token?.call(palette, player);
-    final fill = piece ?? (player == Player.a ? accent.color : palette.card);
-    final ink = fill.computeLuminance() > 0.4 ? Colors.black87 : Colors.white;
+    final fill = playerColor(KlunkiPalette.of(context), gameId, player);
     return ExcludeSemantics(
       child: Container(
         width: size,
@@ -416,70 +453,259 @@ class PlayerToken extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: fill,
-          border: Border.all(color: piece == null ? accent.color : Colors.black26, width: size * 0.08),
+          border: Border.all(color: Colors.black26, width: size * 0.08),
           boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
         ),
         child: Text(
           playerMark(player),
           textDirection: TextDirection.ltr,
-          style: TextStyle(color: ink, fontSize: size * 0.5, fontWeight: FontWeight.w700, height: 1),
+          style: TextStyle(color: inkOn(fill), fontSize: size * 0.5, fontWeight: FontWeight.w700, height: 1),
         ),
       ),
     );
   }
 }
 
-/// The status line as a pill: the token of the player to move (or the
-/// winner) plus the status text. The pill's tint follows the player, with a
-/// short colour transition (none with reduced motion).
-class _TurnIndicator extends StatelessWidget {
+/// What the status pill shows (KLD-067).
+enum TurnMood {
+  /// A player on this device moves: hot-seat, or "Du bist am Zug" on a
+  /// network device. The pill is filled with the player's colour.
+  active,
+
+  /// Network: waiting for the other device. Muted pill, outlined in the
+  /// other player's colour, with an hourglass.
+  waiting,
+
+  /// Game over with a winner (trophy).
+  won,
+
+  /// Game over, draw.
+  draw,
+}
+
+/// The coloured edge under the app bar: the turn colour across the whole
+/// width, so whose turn it is shows at a glance. Animated colour change
+/// (instant with reduced motion).
+class _TurnEdge extends StatelessWidget {
+  final Color color;
+  const _TurnEdge({required this.color});
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+        child: AnimatedContainer(
+          key: const Key('shell-turn-edge'),
+          height: 6,
+          duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          color: color,
+        ),
+      );
+}
+
+/// The status line as a pill (KLD-062, KLD-067): token plus status text.
+///
+/// * [TurnMood.active]: filled with the player's colour, text in black or
+///   white for contrast, a soft glow. On a network device it pulses once
+///   when the turn comes back to this player, with a light haptic tap.
+/// * [TurnMood.waiting]: card-coloured, outlined in the other player's
+///   colour, hourglass, muted text.
+/// * [TurnMood.won] / [TurnMood.draw]: trophy + winner token / handshake.
+///
+/// Colour is never the only signal: the text and the token (with the mark)
+/// stay. Colour changes animate briefly; with reduced motion there is no
+/// transition and no pulse.
+class _TurnIndicator extends StatefulWidget {
   final String gameId;
   final Player? player;
-  final bool over;
-  final GameAccent accent;
-  final Widget child;
+  final TurnMood mood;
+  final bool network;
+  final String status;
 
   const _TurnIndicator({
     required this.gameId,
     required this.player,
-    required this.over,
-    required this.accent,
-    required this.child,
+    required this.mood,
+    required this.network,
+    required this.status,
   });
+
+  @override
+  State<_TurnIndicator> createState() => _TurnIndicatorState();
+}
+
+class _TurnIndicatorState extends State<_TurnIndicator> with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+  late final Animation<double> _scale = TweenSequence<double>([
+    TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.07).chain(CurveTween(curve: Curves.easeOut)), weight: 40),
+    TweenSequenceItem(tween: Tween(begin: 1.07, end: 1.0).chain(CurveTween(curve: Curves.easeIn)), weight: 60),
+  ]).animate(_pulse);
+
+  @override
+  void didUpdateWidget(_TurnIndicator old) {
+    super.didUpdateWidget(old);
+    // "Du bist am Zug" again on a network device: a short pulse and tap.
+    if (widget.network && widget.mood == TurnMood.active && old.mood != TurnMood.active) {
+      HapticFeedback.lightImpact();
+      if (!reduceMotion(context)) _pulse.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final p = player;
-    final tint = over ? accent.color : (p == Player.a ? accent.color : theme.colorScheme.outline);
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
+    final palette = KlunkiPalette.of(context);
+    final p = widget.player;
+    final mood = widget.mood;
+    final color = p == null ? theme.colorScheme.outline : playerColor(palette, widget.gameId, p);
+
+    final Color fill;
+    final Color border;
+    final Color ink;
+    List<BoxShadow>? glow;
+    switch (mood) {
+      case TurnMood.active:
+        fill = color;
+        // The filled pill's edge keeps non-text contrast (3:1) to the page.
+        border = visibleOn(context, color, minRatio: 3);
+        ink = inkOn(color);
+        glow = [BoxShadow(color: color.withValues(alpha: 0.45), blurRadius: 12, spreadRadius: 1)];
+      case TurnMood.waiting:
+        fill = Color.alphaBlend(color.withValues(alpha: 0.10), palette.card);
+        border = visibleOn(context, color).withValues(alpha: 0.7);
+        ink = theme.colorScheme.onSurfaceVariant;
+      case TurnMood.won:
+        fill = Color.alphaBlend(palette.trophy.withValues(alpha: 0.14), palette.card);
+        border = palette.trophy;
+        ink = theme.colorScheme.onSurface;
+      case TurnMood.draw:
+        fill = palette.card;
+        border = theme.colorScheme.outline;
+        ink = theme.colorScheme.onSurface;
+    }
+
+    final style = theme.textTheme.titleMedium?.copyWith(
+      color: ink,
+      fontWeight: mood == TurnMood.active ? FontWeight.w700 : null,
+    );
+    return ScaleTransition(
+      scale: _scale,
       child: AnimatedContainer(
+        key: const Key('shell-turn'),
         duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250),
         curve: Curves.easeOut,
         padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 14, 6),
         constraints: const BoxConstraints(minHeight: 40),
         decoration: BoxDecoration(
-          color: Color.alphaBlend(tint.withValues(alpha: 0.14), KlunkiPalette.of(context).card),
+          color: fill,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: tint.withValues(alpha: 0.6), width: 1.5),
+          border: Border.all(color: border, width: mood == TurnMood.waiting ? 2 : 1.5),
+          boxShadow: glow,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (p != null)
-              PlayerToken(gameId: gameId, player: p, size: 26)
+              PlayerToken(gameId: widget.gameId, player: p, size: 26)
             else
               Icon(Icons.handshake_outlined, size: 24, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(width: 10),
-            if (over && p != null) ...[
-              Icon(Icons.emoji_events, size: 20, color: KlunkiPalette.of(context).trophy),
+            if (mood == TurnMood.won) ...[
+              Icon(Icons.emoji_events, size: 20, color: palette.trophy),
               const SizedBox(width: 6),
             ],
-            Flexible(child: child),
+            if (mood == TurnMood.waiting) ...[
+              Icon(Icons.hourglass_top, key: const Key('shell-waiting'), size: 18, color: ink),
+              const SizedBox(width: 4),
+            ],
+            // liveRegion: screen readers announce turn changes and results.
+            Flexible(
+              child: Semantics(
+                liveRegion: true,
+                child: Text(widget.status, key: const Key('shell-status'), style: style),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
+
+/// Hot-seat (KLD-067): both players side by side, each as token + name
+/// (just the token when unnamed); the one to move at full strength with an
+/// underline in its colour, the other faded. Decorative: the status line
+/// already says whose turn it is.
+class _PlayersLegend extends StatelessWidget {
+  final String gameId;
+  final PlayerLabels labels;
+  final Player? current;
+
+  const _PlayersLegend({required this.gameId, required this.labels, required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = KlunkiPalette.of(context);
+    final duration = reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250);
+    Widget entry(Player p) {
+      final on = current == p;
+      final name = labels.nameOf(p);
+      final color = playerColor(palette, gameId, p);
+      return AnimatedOpacity(
+        key: Key('shell-player-${playerMark(p)}'),
+        opacity: current == null || on ? 1 : 0.6,
+        duration: duration,
+        child: AnimatedContainer(
+          duration: duration,
+          padding: const EdgeInsets.only(bottom: 3),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: on ? visibleOn(context, color) : Colors.transparent,
+                width: 3,
+              ),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              PlayerToken(gameId: gameId, player: p, size: 20),
+              if (name != null) ...[
+                const SizedBox(width: 4),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 72),
+                  child: Text(
+                    bidiName(context, name),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ExcludeSemantics(
+      child: Row(
+        key: const Key('shell-players'),
+        mainAxisSize: MainAxisSize.min,
+        children: [entry(Player.a), const SizedBox(width: 10), entry(Player.b)],
+      ),
+    );
+  }
+}
+
+/// [color] as a line or edge on the page: the colour itself unless it
+/// would vanish there (contrast to the card colour below [minRatio]: light
+/// stone on paper, dark stone on the dark table), then the theme outline.
+Color visibleOn(BuildContext context, Color color, {double minRatio = 1.4}) =>
+    contrastRatio(color, KlunkiPalette.of(context).card) >= minRatio ? color : Theme.of(context).colorScheme.outline;
