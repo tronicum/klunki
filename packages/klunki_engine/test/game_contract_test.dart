@@ -34,6 +34,13 @@ final _specs = <_Spec>[
     {'action': 'setup', 'pieces': ['flag']},
     {'action': 'autosetup', 'seed': 'x'},
   ]),
+  _Spec('ChessGame', ChessGame.new, {'action': 'move', 'from': 'e2', 'to': 'e4'}, [
+    {'action': 'move', 'from': 'e2', 'to': 'e5'},
+    {'action': 'move', 'from': 'e7', 'to': 'e5'},
+    {'action': 'move', 'from': 'i2', 'to': 'i4'},
+    {'action': 'move', 'from': 'e2', 'to': 'e4', 'promotion': 'q'},
+    {'from': 'e2', 'to': 'e4'},
+  ]),
 ];
 
 void main() {

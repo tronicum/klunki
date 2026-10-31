@@ -6,6 +6,7 @@ export 'muehle.dart' show MuehleGame, MuehlePhase;
 export 'quartett.dart' show QuartettGame, QuartettMode, QuartettStat, QuartettDeck, Card, QuartettView, QuartettRedaction;
 export 'schiffe.dart';
 export 'gostrategy.dart';
+export 'chess.dart';
 export 'registry.dart';
 export 'compat.dart';
 export 'secrecy.dart';

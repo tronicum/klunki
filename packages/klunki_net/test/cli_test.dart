@@ -449,7 +449,7 @@ void main() {
     for (final args in [
       <String>[],
       ['host'],
-      ['host', 'chess'],
+      ['host', 'backgammon'],
       ['host', 'connect4', '--port', 'x'],
       ['join'],
       ['join', '1.2.3.4', 'notaport'],
