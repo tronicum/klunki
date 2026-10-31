@@ -129,21 +129,25 @@ void main() {
     test('a connection that never says hello is dropped after the timeout', () async {
       final host = await startHost(const GameConfig('connect4'), timeout: const Duration(milliseconds: 300));
       final socket = await Socket.connect(loopback, host.port);
+      // The host drops the socket while our pongs are still unread on its
+      // side, so the kernel may answer with RST instead of FIN: reads and
+      // the writes still in flight then fail with "connection reset by
+      // peer". That is a normal end here. A write error never reaches the
+      // caller of write(); it completes `done` with an error, which must be
+      // handled or it is uncaught (the first CI run's flake).
+      unawaited(socket.done.catchError((_) {}));
       final received = StringBuffer();
-      final done = Completer<void>();
+      final closed = Completer<void>();
+      late final Timer pong;
       void finish() {
-        if (!done.isCompleted) done.complete();
+        pong.cancel(); // no writes after the host has closed
+        if (!closed.isCompleted) closed.complete();
       }
 
-      socket.listen((d) => received.write(utf8.decode(d)), onDone: finish, onError: (_) => finish(), cancelOnError: true);
       // Answer pings so only the missing hello can end it.
-      final pong = Timer.periodic(const Duration(milliseconds: 20), (_) {
-        try {
-          socket.write('{"type":"pong","v":$protocolVersion}\n');
-        } catch (_) {}
-      });
-      await done.future.timeout(const Duration(seconds: 3));
-      pong.cancel();
+      pong = Timer.periodic(const Duration(milliseconds: 20), (_) => socket.write('{"type":"pong","v":$protocolVersion}\n'));
+      socket.listen((d) => received.write(utf8.decode(d)), onDone: finish, onError: (_) => finish(), cancelOnError: true);
+      await closed.future.timeout(const Duration(seconds: 3));
       expect(received.toString(), contains('no hello'));
       socket.destroy();
       final guest = await joinHost(host.port, name: 'Ben');
@@ -404,6 +408,38 @@ void main() {
       await host.close();
     });
 
+    test('a connection reset (RST) mid-game is a disconnect on both sides, never an uncaught error', () async {
+      // Both sides keep writing (pings, a move) into a connection the peer
+      // has reset. dart:io reports such a write failure only through the
+      // socket's `done` future; SocketChannel must handle it, or it escapes
+      // as an uncaught SocketException (errno 54 / 104).
+      final host = await startHost(const GameConfig('connect4'), pingInterval: const Duration(milliseconds: 5));
+      final proxy = await Proxy.start(host.port);
+      final hostEvents = <NetEvent>[];
+      host.events.listen(hostEvents.add);
+      final guest = await KlunkiGuest.connect(loopback, proxy.port, name: 'Bea');
+      final guestEvents = <NetEvent>[];
+      guest.events.listen(guestEvents.add);
+      host.submitLocal({'col': 3});
+      await until(() => guest.moves.length == 1);
+
+      proxy.reset();
+      final submitted = guest.submit({'col': 4}); // written into the reset connection
+      await until(() => !host.guestConnected && !guest.connected);
+      expect(await submitted, isNotNull);
+      expect(hostEvents.whereType<PeerDisconnected>(), hasLength(1));
+      expect(guestEvents.whereType<PeerDisconnected>(), hasLength(1));
+      // Let any late write error surface inside this test.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+
+      await guest.reconnect();
+      expect(guest.connected, isTrue);
+      expect(guest.moves, host.moves);
+      await guest.close();
+      await proxy.close();
+      await host.close();
+    });
+
     test('a new guest instance rejoins with the token; a stranger is refused', () async {
       final host = await startHost(const GameConfig('muehle'));
       final first = await joinHost(host.port, name: 'Bea');
@@ -524,5 +560,46 @@ void main() {
       expect(events.whereType<PeerDisconnected>().single.reason, contains('bedtime'));
       await guest.close();
     });
+
+    // The side that closes still has the other side's pings unread. Closing
+    // a socket with unread input makes the kernel answer with RST instead of
+    // FIN, and a peer that gets the RST before it has read the `bye` loses
+    // it (it reported "connection closed": the web join's flaky "… hat das
+    // Spiel verlassen"). The channels drain their input until the peer
+    // closes, so the `bye` always arrives.
+    for (final transport in ['tcp', 'ws']) {
+      Future<KlunkiGuest> join(KlunkiHost host, Duration pingInterval) => transport == 'tcp'
+          ? KlunkiGuest.connect(loopback, host.port, name: 'Bea', pingInterval: pingInterval)
+          : KlunkiGuest.connectWebSocket(webSocketUri(loopback.address, host.wsPort!),
+              name: 'Bea', pingInterval: pingInterval);
+
+      test('$transport: a leaving guest\'s bye reaches a host that keeps sending', () async {
+        for (var round = 0; round < 20; round++) {
+          final host = await startHost(const GameConfig('connect4'), pingInterval: const Duration(milliseconds: 1));
+          final events = <NetEvent>[];
+          host.events.listen(events.add);
+          final guest = await join(host, const Duration(seconds: 2));
+          await Future<void>.delayed(const Duration(milliseconds: 5)); // let pings pile up unread
+          await guest.close(reason: 'bedtime');
+          await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
+          expect(events.whereType<PeerDisconnected>().single.reason, 'peer left: bedtime', reason: 'round $round');
+          await host.close();
+        }
+      });
+
+      test('$transport: a closing host\'s bye reaches a guest that keeps sending', () async {
+        for (var round = 0; round < 20; round++) {
+          final host = await startHost(const GameConfig('connect4'));
+          final guest = await join(host, const Duration(milliseconds: 1));
+          final events = <NetEvent>[];
+          guest.events.listen(events.add);
+          await Future<void>.delayed(const Duration(milliseconds: 5));
+          await host.close(reason: 'bedtime');
+          await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
+          expect(events.whereType<PeerDisconnected>().single.reason, 'peer left: bedtime', reason: 'round $round');
+          await guest.close();
+        }
+      });
+    }
   });
 }

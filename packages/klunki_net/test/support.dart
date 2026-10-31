@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
@@ -99,6 +100,18 @@ class Proxy {
 
   int get port => server.port;
 
+  /// Resets every connection hard (TCP RST instead of FIN), as a crashed
+  /// peer or a NAT dropping the flow does: both ends then see
+  /// "connection reset by peer" on reads and on writes still in flight.
+  void reset() {
+    // Arm every socket first: destroying one ends its stream synchronously,
+    // and the pass-through then destroys the other end with a plain FIN.
+    for (final s in _sockets) {
+      lingerZero(s);
+    }
+    cut();
+  }
+
   /// Destroys every connection without a `bye`.
   void cut() {
     for (final s in _sockets) {
@@ -111,4 +124,14 @@ class Proxy {
     cut();
     await server.close();
   }
+}
+
+/// Sets `SO_LINGER {on, 0}` on [socket], so its close sends RST instead of
+/// FIN and drops anything unsent: the peer gets ECONNRESET.
+void lingerZero(Socket socket) {
+  // struct linger { int l_onoff; int l_linger; } is two native ints on
+  // macOS and Linux; SO_LINGER differs (0x80 on Darwin/BSD, 13 on Linux).
+  final linger = Uint8List(8)..buffer.asByteData().setInt32(0, 1, Endian.host);
+  final soLinger = Platform.isLinux || Platform.isAndroid ? 13 : 0x80;
+  socket.setRawOption(RawSocketOption(RawSocketOption.levelSocket, soLinger, linger));
 }

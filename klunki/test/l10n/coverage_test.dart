@@ -523,8 +523,6 @@ void main() {
 
           await unmountAndSettleSockets(tester, created);
           await tester.runAsync(server.close);
-          // dart:io's WebSocket.close() arms a 5 s timer in the test zone.
-          await tester.pump(const Duration(seconds: 6));
           audit.expectClean();
         });
       }
