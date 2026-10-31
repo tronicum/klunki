@@ -2376,12 +2376,6 @@ abstract class AppLocalizations {
   /// **'Anfahrzugkraft'**
   String get quartettStatTractiveKn;
 
-  /// KLD-069 Quartett stat label: year in service since (trains).
-  ///
-  /// In de, this message translates to:
-  /// **'In Betrieb seit'**
-  String get quartettStatInService;
-
   /// KLD-069 Quartett stat label: height in metres (rockets).
   ///
   /// In de, this message translates to:
@@ -2411,12 +2405,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Starts'**
   String get quartettStatFlights;
-
-  /// KLD-069 Quartett stat label: year of the first flight, lower wins (rockets, planes).
-  ///
-  /// In de, this message translates to:
-  /// **'Erstflug'**
-  String get quartettStatFirstFlight;
 
   /// KLD-069 Quartett stat label: range in km (planes).
   ///
@@ -2507,6 +2495,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Karte {id}: {name}, Set {set}'**
   String quartettCardSemantics(String id, String name, String set);
+
+  /// KLD-082 Quartett stat label: number built of the type/class, higher wins (trains, planes).
+  ///
+  /// In de, this message translates to:
+  /// **'Gebaut'**
+  String get quartettStatBuilt;
+
+  /// KLD-082 Quartett stat label: share of successful launches in percent, higher wins (rockets).
+  ///
+  /// In de, this message translates to:
+  /// **'Erfolgsquote'**
+  String get quartettStatSuccessPct;
+
+  /// KLD-082 unit after the number built, short (de "Stk." = pieces), e.g. "11.000 Stk.".
+  ///
+  /// In de, this message translates to:
+  /// **'Stk.'**
+  String get quartettUnitBuilt;
+
+  /// KLD-082 credit line of a card photo; author = photographer/author from Wikimedia Commons, license = licence short name (e.g. "CC BY-SA 4.0"), both untranslated.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto: {author}, {license}'**
+  String quartettPhotoCredit(String author, String license);
+
+  /// KLD-082 title of the photo credit dialog of a Quartett card.
+  ///
+  /// In de, this message translates to:
+  /// **'Bildnachweis'**
+  String get quartettPhotoCreditTitle;
+
+  /// KLD-082 tooltip / screen-reader label of the small (i) button on a card photo.
+  ///
+  /// In de, this message translates to:
+  /// **'Bildnachweis anzeigen'**
+  String get quartettPhotoCreditTooltip;
+
+  /// KLD-082 credit dialog: the photo was scaled down for the app (an adaptation in licence terms).
+  ///
+  /// In de, this message translates to:
+  /// **'Für die App verkleinert.'**
+  String get quartettPhotoModified;
+
+  /// KLD-082 credit dialog, share-alike licences only: the resized photo keeps the same licence.
+  ///
+  /// In de, this message translates to:
+  /// **'Die verkleinerte Fassung steht unter derselben Lizenz.'**
+  String get quartettPhotoShareAlike;
+
+  /// KLD-082 button: open the licence text (web page).
+  ///
+  /// In de, this message translates to:
+  /// **'Lizenz'**
+  String get quartettPhotoLicense;
+
+  /// KLD-082 button: open the photo page on Wikimedia Commons.
+  ///
+  /// In de, this message translates to:
+  /// **'Quelle'**
+  String get quartettPhotoSource;
+
+  /// KLD-082 button: close the credit dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Schließen'**
+  String get quartettPhotoClose;
+
+  /// KLD-082 button on the full-size card: open the Wikipedia article about the vehicle.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf Wikipedia lesen'**
+  String get quartettWikipediaRead;
+
+  /// KLD-082 title of the screen that lists the credits of all card photos.
+  ///
+  /// In de, this message translates to:
+  /// **'Bildnachweise'**
+  String get quartettImageCreditsTitle;
+
+  /// KLD-082 intro text of the image credits screen.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen. Sie sind in der App enthalten; nur die Links brauchen Internet.'**
+  String get quartettImageCreditsIntro;
+
+  /// KLD-082 snack bar when a web link could not be opened.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Link konnte nicht geöffnet werden.'**
+  String get quartettLinkFailed;
 }
 
 class _AppLocalizationsDelegate

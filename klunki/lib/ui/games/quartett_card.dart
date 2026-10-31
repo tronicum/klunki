@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettDeck,
 
 import '../../app/theme.dart';
 import '../engine_l10n.dart';
+import 'quartett_media.dart';
 import 'quartett_pictograms.dart';
 
 /// Shared Quartett card widgets (Trumpf screen KLD-024, Sets screen KLD-025).
@@ -34,11 +35,33 @@ qe.QuartettDeck quartettDeckOf(qe.Card card) => qe.QuartettDeck.byId(card.deck) 
 /// Digits are always Western (0–9), like every other number in the app
 /// (I18N-04): a locale whose default digits are not Western (fa: `۲٫۷`) falls
 /// back to English formatting, so ints and decimals on one card match.
+///
+/// The number of decimals comes from the stat ([qe.QuartettStat.decimals]),
+/// never from the runtime type: on the web every number is a double, which
+/// once printed years as "1999,0" (KLD-082). Years and other whole numbers
+/// print as bare ASCII digits without grouping ("1990", "35100"); counts
+/// marked [qe.QuartettStat.grouped] get the locale's thousands separator
+/// ("11.000 Stk."), percentages the locale's percent format ("99 %" in de,
+/// "99%" in en; the [unit] is ignored for them).
 String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de', String? unit}) {
-  var f = NumberFormat('0.0', locale);
-  if (f.symbols.ZERO_DIGIT != '0') f = NumberFormat('0.0', 'en');
-  final v = value is double ? f.format(value) : '$value';
-  final u = unit ?? stat.unit;
+  // Western digits only: fall back to English for e.g. fa (I18N-04).
+  final loc = NumberFormat.decimalPattern(locale).symbols.ZERO_DIGIT == '0' ? locale : 'en';
+  if (stat.isPercent) {
+    final f = NumberFormat.percentPattern(loc)
+      ..minimumFractionDigits = stat.fixedDecimals ? stat.decimals : 0
+      ..maximumFractionDigits = stat.decimals;
+    return f.format(num.parse(stat.formatNumber(value)) / 100);
+  }
+  var v = stat.formatNumber(value);
+  if (stat.grouped) {
+    final f = NumberFormat.decimalPattern(loc)
+      ..minimumFractionDigits = stat.fixedDecimals ? stat.decimals : 0
+      ..maximumFractionDigits = stat.decimals;
+    v = f.format(num.parse(v));
+  } else if (v.contains('.')) {
+    v = v.replaceAll('.', NumberFormat.decimalPattern(loc).symbols.DECIMAL_SEP);
+  }
+  final u = stat.isYear ? '' : (unit ?? stat.unit);
   return u.isEmpty ? v : '$v $u';
 }
 
@@ -70,6 +93,11 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
 /// * [highlightStat] + [outcome] tint that row green/red/grey (trick reveal);
 ///   [highlightStat] alone tints it with the set colour (selection).
 /// * [dense] uses smaller text for side-by-side layouts.
+/// * KLD-082: a card with a bundled photo shows it in a band between the
+///   header and the stats (the stat rows are unchanged); without one the
+///   header pictogram stands alone. [showLinks] (full-size views only, not
+///   in a running trick) adds the "ⓘ" credit button on the photo and
+///   "Auf Wikipedia lesen" below the stats.
 ///
 /// Face-down: patterned back with the [deck]'s pictogram, an optional [count]
 /// ("15 Karten") and [label] (e.g. "O").
@@ -81,6 +109,9 @@ class QuartettCard extends StatelessWidget {
   final String? highlightStat;
   final QuartettOutcome? outcome;
   final bool dense;
+
+  /// Photo credit button and Wikipedia link (KLD-082).
+  final bool showLinks;
 
   /// Back side only: number shown on the back ("15 Karten").
   final int? count;
@@ -101,6 +132,7 @@ class QuartettCard extends StatelessWidget {
     this.highlightStat,
     this.outcome,
     this.dense = false,
+    this.showLinks = false,
   }) : count = null,
        label = null,
        deck = null;
@@ -112,7 +144,8 @@ class QuartettCard extends StatelessWidget {
       enabled = false,
       statKeyPrefix = null,
       highlightStat = null,
-      outcome = null;
+      outcome = null,
+      showLinks = false;
 
   bool get isFaceDown => card == null;
 
@@ -128,6 +161,7 @@ class QuartettCard extends StatelessWidget {
     final color = quartettSetColor(c.set, palette);
     final onColor = Colors.white;
     final text = theme.textTheme;
+    final media = quartettMediaOf(c);
     return Material(
       color: palette.cardFace,
       elevation: 3,
@@ -201,7 +235,23 @@ class QuartettCard extends StatelessWidget {
               ],
             ),
           ),
+          if (media?.image case final img?)
+            QuartettCardPhoto(
+              key: Key('quartett-photo-${c.deck}-${c.id}'),
+              credit: img,
+              height: dense ? 72 : 132,
+              onInfo: showLinks ? () => showQuartettPhotoCredit(context, img) : null,
+            ),
           for (final s in quartettDeckOf(c).stats) _statRow(context, c, s, color),
+          if (showLinks && media != null)
+            Container(
+              alignment: AlignmentDirectional.centerEnd,
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.4))),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: QuartettWikipediaButton(media: media),
+            ),
         ],
       ),
     );
@@ -231,38 +281,53 @@ class QuartettCard extends StatelessWidget {
           start: BorderSide(color: tint ?? Colors.transparent, width: 4),
         ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              localizedStatLabel(l10n, s.id),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: text?.copyWith(fontWeight: highlighted ? FontWeight.bold : null),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            value == null
-                ? '–'
-                : formatQuartettValue(
-                    s,
-                    value,
-                    locale: Localizations.localeOf(context).languageCode,
-                    unit: localizedStatUnit(l10n, s.id),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final rowWidth = box.maxWidth;
+          return Row(
+            children: [
+              Expanded(
+                child: Text(
+                  localizedStatLabel(l10n, s.id),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text?.copyWith(fontWeight: highlighted ? FontWeight.bold : null),
+                ),
+              ),
+              const SizedBox(width: 8),
+              // A long value ("1.500 Stk." on a narrow trick card) shrinks
+              // instead of overflowing; the label keeps at least ~40 %.
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: rowWidth * 0.6),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(
+                    value == null
+                        ? '–'
+                        : formatQuartettValue(
+                            s,
+                            value,
+                            locale: Localizations.localeOf(context).languageCode,
+                            unit: localizedStatUnit(l10n, s.id),
+                          ),
+                    maxLines: 1,
+                    style: text?.copyWith(fontWeight: FontWeight.bold, color: tint),
                   ),
-            style: text?.copyWith(fontWeight: FontWeight.bold, color: tint),
-          ),
-          const SizedBox(width: 4),
-          Tooltip(
-            message: s.higherWins ? l10n.quartettHigherWins : l10n.quartettLowerWins,
-            child: Icon(
-              s.higherWins ? Icons.arrow_upward : Icons.arrow_downward,
-              size: dense ? 14 : 18,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Tooltip(
+                message: s.higherWins ? l10n.quartettHigherWins : l10n.quartettLowerWins,
+                child: Icon(
+                  s.higherWins ? Icons.arrow_upward : Icons.arrow_downward,
+                  size: dense ? 14 : 18,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
     final key = statKeyPrefix == null ? null : Key('$statKeyPrefix${s.id}');

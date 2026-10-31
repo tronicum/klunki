@@ -39,6 +39,17 @@ ALLOWED_URLS = {
 # Files that may mention the hosts without a URL (the service worker's list).
 ALLOWED_BARE = {'klunki_sw.js'}
 
+# KLD-082: Quartett cards carry Wikipedia articles, Wikimedia Commons file
+# pages and licence pages as *link targets only* ("Auf Wikipedia lesen",
+# photo credit): opened in a new tab on a tap, never fetched by the app. The
+# card photos are bundled assets. So these hosts may appear only as link
+# text in the compiled app (main.dart.js), the bundled credits files and the
+# package licence texts (NOTICES cites creativecommons.org),
+# and nothing may point at Wikimedia's media server (no hotlinked images).
+LINK_HOSTS = re.compile(r'https?://[A-Za-z0-9.\-]*(?:wikipedia\.org|wikimedia\.org|creativecommons\.org)[^\s"\'`)]*')
+LINK_TEXT_FILES = re.compile(r'^(main\.dart\.js|assets/NOTICES|assets/assets/quartett/[a-z]+/credits\.json)$')
+HOTLINK = re.compile(r'upload\.wikimedia\.org')
+
 
 def main() -> int:
     build = sys.argv[1] if len(sys.argv) > 1 else 'build/web'
@@ -57,6 +68,11 @@ def main() -> int:
         need('__KLUNKI_BUILD_HASH__' not in f.read(), 'klunki_sw.js is not finalized (run pwa_finalize.py)')
     with open(os.path.join(build, 'assets', 'FontManifest.json'), encoding='utf-8') as f:
         need('"Roboto"' in f.read(), 'Roboto is not bundled (CanvasKit would fetch it from fonts.gstatic.com)')
+    # KLD-082: the bundled card photos are precached (offline cards).
+    photos = os.path.join(build, 'assets', 'assets', 'quartett')
+    if os.path.isdir(photos):
+        with open(os.path.join(build, 'klunki_sw.js'), encoding='utf-8') as f:
+            need('assets/assets/quartett/' in f.read(), 'klunki_sw.js does not precache the Quartett card photos')
 
     for root, dirs, names in os.walk(build):
         dirs.sort()
@@ -65,6 +81,12 @@ def main() -> int:
             rel = os.path.relpath(path, build).replace(os.sep, '/')
             with open(path, 'rb') as f:
                 text = f.read().decode('utf-8', errors='replace')
+            if HOTLINK.search(text):
+                errors.append(f'{rel}: hotlinks upload.wikimedia.org (bundle the image instead)')
+            if not LINK_TEXT_FILES.match(rel):
+                for url in LINK_HOSTS.findall(text):
+                    errors.append(f'{rel}: Wikipedia/Wikimedia/licence URL outside the link text: {url}')
+                    break
             if not HOSTS.search(text):
                 continue
             urls = URL.findall(text)

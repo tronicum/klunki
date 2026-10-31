@@ -66,6 +66,11 @@ dependencies:
   # camera-list APIs). Pinned: 0.12.2 (2026-10-27) is too fresh.
   camera: 0.12.1
 
+  # Opens the Wikipedia article and the image credits of a Quartett card
+  # (KLD-082) in the browser (web: a new tab). flutter.dev, BSD-3-Clause.
+  # Pinned: 6.3.3 (2026-10-02).
+  url_launcher: 6.3.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -109,6 +114,10 @@ flutter:
     # for LicenseRegistry (lib/app/third_party_licenses.dart).
     - assets/licenses/zxing-cpp/LICENSE
     - assets/licenses/libzint/LICENSE
+    # Quartett card photos from Wikimedia Commons (KLD-082): ~480 px JPEGs,
+    # credits.json = authors and licences (see docs/tasks/KLD-082-quartett-media.md,
+    # tool/fetch_card_media.py). Bundled so they work offline; never hotlinked.
+    - assets/quartett/rockets/
   fonts:
     - family: Roboto
       fonts:

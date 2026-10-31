@@ -115,10 +115,25 @@ def endonyms():
     return names
 
 
+def card_media_strings():
+    """Photo credits shown in every locale (KLD-082): authors and licence
+    names from assets/quartett/<deck>/credits.json (e.g. a Japanese author)."""
+    out = []
+    for p in sorted(glob.glob(os.path.join(KLUNKI, 'assets', 'quartett', '*', 'credits.json'))):
+        with open(p, encoding='utf-8') as f:
+            for card in json.load(f)['cards'].values():
+                img = card.get('image')
+                if img:
+                    out += [img['author'], img['license']]
+    return out
+
+
 def app_chars():
-    """code -> set of code points in that locale's ARB values; '_endonyms' too."""
+    """code -> set of code points in that locale's ARB values; '_endonyms'
+    and '_card_media' (photo credits) too."""
     out = {code: {ord(ch) for s in arb_strings(code) for ch in s} for code in arb_codes()}
     out['_endonyms'] = {ord(ch) for s in endonyms() for ch in s}
+    out['_card_media'] = {ord(ch) for s in card_media_strings() for ch in s}
     return out
 
 

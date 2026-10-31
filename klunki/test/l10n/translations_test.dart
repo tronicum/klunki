@@ -39,6 +39,9 @@ const sameAsEnglish = {
   'Trains',
   'Europe',
   'China',
+  // Photo credits (KLD-082): French spells these the same.
+  'Licence',
+  'Source',
 };
 
 Map<String, dynamic> _arb(String locale) =>

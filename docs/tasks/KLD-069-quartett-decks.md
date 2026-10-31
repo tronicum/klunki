@@ -82,8 +82,8 @@ view-only gallery.
 - **l10n**: 54 keys in one block at the end of each ARB (deck names, 24 set
   names, 14 stat labels, picker and gallery texts); de is the template, the
   other six are machine translations under the existing `@@x-review` marker.
-  SI units (kW, m, t, kN, km) are not translated; years and counts have no
-  unit. Card names (real vehicles) stay untranslated. The Noto Sans SC subset
+  SI units (kW, m, t, kN, km) are not translated; launch counts have no
+  unit (KLD-082: "Gebaut" has a localized unit, "Stk."/"units"). Card names (real vehicles) stay untranslated. The Noto Sans SC subset
   was rebuilt for the new zh characters.
 
 ## The decks
@@ -94,9 +94,9 @@ All four decks: 32 cards, 8 sets of 4. A stat id means the same in every deck
 | Deck | Sets A–H | Stats (↑ higher wins, ↓ lower wins) |
 |---|---|---|
 | `cars` Autos | Supersportwagen, Hypercars, Klassiker, Muscle Cars, Rallye-Legenden, Gran Turismo, Elektro, Kleine Flitzer | Leistung PS ↑, Höchstgeschwindigkeit km/h ↑, Hubraum cm³ ↑, Gewicht kg ↓, 0–100 km/h s ↓ |
-| `trains` Züge | ICE, Shinkansen, TGV, Europas Schnelle, Asien & Amerika, E-Loks, Dampf-Legenden, Güter-Riesen | Höchstgeschwindigkeit km/h ↑, Leistung kW ↑, Länge m ↑, Gewicht t ↓, Anfahrzugkraft kN ↑, In Betrieb seit ↑ |
-| `rockets` Raketen | Mondraketen, Wiederverwendbar, Europa, USA-Klassiker, Russland, China, Japan & Indien, Kleine Träger | Höhe m ↑, Startschub kN ↑, Nutzlast (LEO) t ↑, Startmasse t ↑, Starts ↑, Erstflug ↓ |
-| `planes` Flugzeuge | Großraumjets, Mittelstrecke, Überschall, Propeller-Klassiker, Frachtriesen, Business & Sport, Pioniere, Rekord-Exoten | Höchstgeschwindigkeit km/h ↑, Reichweite km ↑, Länge m ↑, Spannweite m ↑, Startgewicht t ↑, Erstflug ↓ |
+| `trains` Züge | ICE, Shinkansen, TGV, Europas Schnelle, Asien & Amerika, E-Loks, Dampf-Legenden, Güter-Riesen | Höchstgeschwindigkeit km/h ↑, Leistung kW ↑, Länge m ↑, Gewicht t ↓, Anfahrzugkraft kN ↑, Gebaut Stk. ↑ (KLD-082; was In Betrieb seit) |
+| `rockets` Raketen | Mondraketen, Wiederverwendbar, Europa, USA-Klassiker, Russland, China, Japan & Indien, Kleine Träger | Höhe m ↑, Startschub kN ↑, Nutzlast (LEO) t ↑, Startmasse t ↑, Starts ↑, Erfolgsquote % ↑ (KLD-082; was Erstflug) |
+| `planes` Flugzeuge | Großraumjets, Mittelstrecke, Überschall, Propeller-Klassiker, Frachtriesen, Business & Sport, Pioniere, Rekord-Exoten | Höchstgeschwindigkeit km/h ↑, Reichweite km ↑, Länge m ↑, Spannweite m ↑, Startgewicht t ↑, Gebaut Stk. ↑ (KLD-082; was Erstflug) |
 
 Cards (A1–H4 in set order):
 - **Trains:** ICE 1, ICE T, ICE 3, ICE 4 · Shinkansen 0, 300, N700S, E5 · TGV Sud-Est, TGV Atlantique, TGV Duplex, TGV V150 · Eurostar e320, AVE S-103, Frecciarossa 1000, Talgo 350 · Fuxing CR400AF, KTX-Sancheon, Shanghai Transrapid, Acela (Avelia Liberty) · Baureihe 103, Baureihe 101, SBB Re 460, Siemens Taurus ES64U4 · Flying Scotsman, Mallard, DR 18 201, Big Boy · SBB Krokodil, EMD SD70ACe, GE AC6000CW, Class 66
@@ -123,6 +123,12 @@ approximate. In particular:
 - **Planes:** maximum or maximum-cruise speed as commonly quoted; record
   aircraft show their record range (Rutan Voyager 42 212 km, Solar Impulse 2's
   longest leg); Wright Flyer "range" is its first flight (0.3 km).
+- **KLD-082 (user decision): the year stats were replaced**, "older/newer"
+  made a poor trump: trains and planes "Gebaut" (number built of the class /
+  type as named on the card), rockets "Erfolgsquote" (fully successful
+  launches in %, partial failures count as failures). Approximate,
+  unverified; the values and rules are listed in
+  `docs/tasks/KLD-082-quartett-media.md`.
 - **Cars:** unchanged from KLD-024.
 - Values are numbers only; the engine never derives anything from them, so a
   correction is a one-line data change (the replay of old games would change,
@@ -137,15 +143,16 @@ requires < 3 % per stat for every deck.
 | Deck | Ties per stat |
 |---|---|
 | cars | ps 0.8 %, kmh 2.2 %, ccm 2.2 % (the 5 electric cars at 0), kg 0.2 %, sec0to100 2.4 % |
-| trains | kmh 1.8 %, kw 2.0 % (four 8800 kW trainsets), lengthM 0 %, massT 0 %, tractiveKn 0.6 %, inService 1.0 % |
-| rockets | heightM 0.6 %, thrustKn 0.2 %, leoT 0 %, launchMassT 0.2 %, flights 1.8 %, firstFlight 0.8 % |
-| planes | kmh 0 %, rangeKm 0.8 %, lengthM 0 %, wingspanM 0 %, mtowT 0.2 %, firstFlight 0.2 % |
+| trains | kmh 1.8 %, kw 2.0 % (four 8800 kW trainsets), lengthM 0 %, massT 0 %, tractiveKn 0.6 %, built 0.2 % (KLD-082) |
+| rockets | heightM 0.6 %, thrustKn 0.2 %, leoT 0 %, launchMassT 0.2 %, flights 1.8 %, successPct 2.6 % (KLD-082) |
+| planes | kmh 0 %, rangeKm 0.8 %, lengthM 0 %, wingspanM 0 %, mtowT 0.2 %, built 2.2 % (KLD-082) |
 
 ## How to add a deck
 
 1. Engine: in `quartett_decks.dart` write `QuartettDeck _ships() => QuartettDeck.build(id: 'ships', name: 'Schiffe', stats: […], setNames: {'A': …}, rows: [('A1', 'Name', [v1, v2, …]), …])`
    with 32 rows in stat order; reuse a stat constant when the meaning is the
-   same (`_kmh`, `_lengthM`, `_firstFlight`), otherwise use a new id. Add it to
+   same (`_kmh`, `_lengthM`, `_built`), otherwise use a new id. Give a stat
+   its format (KLD-082): `decimals`, `fixedDecimals`, `grouped`, `isYear`, unit `%`. Add it to
    `QuartettDeck.all`. Note the data caveats in the comment above it.
 2. Run `dart test` in `packages/klunki_engine` (validation, tie rate < 3 %,
    full games) and `dart run tool/quartett_ties.dart`.

@@ -2193,10 +2193,6 @@
   "@quartettStatTractiveKn": {
     "description": "KLD-069 Quartett stat label: starting tractive effort in kN (trains)."
   },
-  "quartettStatInService": "In Betrieb seit",
-  "@quartettStatInService": {
-    "description": "KLD-069 Quartett stat label: year in service since (trains)."
-  },
   "quartettStatHeightM": "Höhe",
   "@quartettStatHeightM": {
     "description": "KLD-069 Quartett stat label: height in metres (rockets)."
@@ -2216,10 +2212,6 @@
   "quartettStatFlights": "Starts",
   "@quartettStatFlights": {
     "description": "KLD-069 Quartett stat label: number of launches (rockets)."
-  },
-  "quartettStatFirstFlight": "Erstflug",
-  "@quartettStatFirstFlight": {
-    "description": "KLD-069 Quartett stat label: year of the first flight, lower wins (rockets, planes)."
   },
   "quartettStatRangeKm": "Reichweite",
   "@quartettStatRangeKm": {
@@ -2309,5 +2301,73 @@
         "type": "String"
       }
     }
+  },
+  "quartettStatBuilt": "Gebaut",
+  "@quartettStatBuilt": {
+    "description": "KLD-082 Quartett stat label: number built of the type/class, higher wins (trains, planes)."
+  },
+  "quartettStatSuccessPct": "Erfolgsquote",
+  "@quartettStatSuccessPct": {
+    "description": "KLD-082 Quartett stat label: share of successful launches in percent, higher wins (rockets)."
+  },
+  "quartettUnitBuilt": "Stk.",
+  "@quartettUnitBuilt": {
+    "description": "KLD-082 unit after the number built, short (de \"Stk.\" = pieces), e.g. \"11.000 Stk.\"."
+  },
+  "quartettPhotoCredit": "Foto: {author}, {license}",
+  "@quartettPhotoCredit": {
+    "description": "KLD-082 credit line of a card photo; author = photographer/author from Wikimedia Commons, license = licence short name (e.g. \"CC BY-SA 4.0\"), both untranslated.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      },
+      "license": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettPhotoCreditTitle": "Bildnachweis",
+  "@quartettPhotoCreditTitle": {
+    "description": "KLD-082 title of the photo credit dialog of a Quartett card."
+  },
+  "quartettPhotoCreditTooltip": "Bildnachweis anzeigen",
+  "@quartettPhotoCreditTooltip": {
+    "description": "KLD-082 tooltip / screen-reader label of the small (i) button on a card photo."
+  },
+  "quartettPhotoModified": "Für die App verkleinert.",
+  "@quartettPhotoModified": {
+    "description": "KLD-082 credit dialog: the photo was scaled down for the app (an adaptation in licence terms)."
+  },
+  "quartettPhotoShareAlike": "Die verkleinerte Fassung steht unter derselben Lizenz.",
+  "@quartettPhotoShareAlike": {
+    "description": "KLD-082 credit dialog, share-alike licences only: the resized photo keeps the same licence."
+  },
+  "quartettPhotoLicense": "Lizenz",
+  "@quartettPhotoLicense": {
+    "description": "KLD-082 button: open the licence text (web page)."
+  },
+  "quartettPhotoSource": "Quelle",
+  "@quartettPhotoSource": {
+    "description": "KLD-082 button: open the photo page on Wikimedia Commons."
+  },
+  "quartettPhotoClose": "Schließen",
+  "@quartettPhotoClose": {
+    "description": "KLD-082 button: close the credit dialog."
+  },
+  "quartettWikipediaRead": "Auf Wikipedia lesen",
+  "@quartettWikipediaRead": {
+    "description": "KLD-082 button on the full-size card: open the Wikipedia article about the vehicle."
+  },
+  "quartettImageCreditsTitle": "Bildnachweise",
+  "@quartettImageCreditsTitle": {
+    "description": "KLD-082 title of the screen that lists the credits of all card photos."
+  },
+  "quartettImageCreditsIntro": "Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen. Sie sind in der App enthalten; nur die Links brauchen Internet.",
+  "@quartettImageCreditsIntro": {
+    "description": "KLD-082 intro text of the image credits screen."
+  },
+  "quartettLinkFailed": "Der Link konnte nicht geöffnet werden.",
+  "@quartettLinkFailed": {
+    "description": "KLD-082 snack bar when a web link could not be opened."
   }
 }

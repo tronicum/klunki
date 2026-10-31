@@ -103,13 +103,13 @@ String localizedStatLabel(AppLocalizations l10n, String statId) => switch (statI
       'lengthM' => l10n.quartettStatLengthM,
       'massT' => l10n.quartettStatMassT,
       'tractiveKn' => l10n.quartettStatTractiveKn,
-      'inService' => l10n.quartettStatInService,
+      'built' => l10n.quartettStatBuilt,
       'heightM' => l10n.quartettStatHeightM,
       'thrustKn' => l10n.quartettStatThrustKn,
       'leoT' => l10n.quartettStatLeoT,
       'launchMassT' => l10n.quartettStatLaunchMassT,
       'flights' => l10n.quartettStatFlights,
-      'firstFlight' => l10n.quartettStatFirstFlight,
+      'successPct' => l10n.quartettStatSuccessPct,
       'rangeKm' => l10n.quartettStatRangeKm,
       'wingspanM' => l10n.quartettStatWingspanM,
       'mtowT' => l10n.quartettStatMtowT,
@@ -117,14 +117,15 @@ String localizedStatLabel(AppLocalizations l10n, String statId) => switch (statI
     };
 
 /// Localized unit of a Quartett stat id (de "PS", en "hp"); the engine unit
-/// for the other ids (SI symbols like `kW`, `t`, `m` read the same in every
-/// language; years and counts have none).
+/// for the other ids (SI symbols like `kW`, `t`, `m` and `%` read the same in
+/// every language; launch counts have none).
 String localizedStatUnit(AppLocalizations l10n, String statId) => switch (statId) {
       'ps' => l10n.engineUnitPs,
       'kmh' => l10n.engineUnitKmh,
       'ccm' => l10n.engineUnitCcm,
       'kg' => l10n.engineUnitKg,
       'sec0to100' => l10n.engineUnitSec,
+      'built' => l10n.quartettUnitBuilt,
       _ => _anyStat(statId)?.unit ?? '',
     };
 

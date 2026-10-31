@@ -7,6 +7,8 @@ import '../../app/theme.dart';
 import '../engine_l10n.dart';
 import 'quartett_card.dart';
 import 'quartett_deck_picker.dart' show QuartettDeckPreview;
+import 'quartett_media.dart';
+import 'quartett_media_data.dart';
 import 'quartett_pictograms.dart';
 
 /// The view-only card gallery (KLD-069, "Karten ansehen"): browse the
@@ -16,7 +18,21 @@ import 'quartett_pictograms.dart';
 /// * [QuartettDeckGalleryScreen]: one deck, its 8 sets as sections (set
 ///   colour header) with 4 small cards each; "Top 5" per stat in the app bar.
 /// * [QuartettCardPagerScreen]: the full card (the in-game [QuartettCard]),
-///   swipe or step through the deck.
+///   swipe or step through the deck; with the photo credit ("ⓘ") and
+///   "Auf Wikipedia lesen" (KLD-082).
+/// * [QuartettImageCreditsScreen] ("Bildnachweise", app bar of the deck list
+///   and of a deck with photos): the credits of all card photos.
+
+/// App bar button that opens the image credits ([deck] = only that deck).
+Widget _creditsAction(BuildContext context, {String? deck}) => IconButton(
+      key: const Key('gallery-image-credits'),
+      tooltip: AppLocalizations.of(context).quartettImageCreditsTitle,
+      icon: const Icon(Icons.photo_library_outlined),
+      onPressed: () => Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (_) => QuartettImageCreditsScreen(deck: deck))),
+    );
+
+bool _deckHasPhotos(String deck) => quartettMediaData[deck]?.values.any((m) => m.image != null) ?? false;
 
 /// The list of decks.
 class QuartettGalleryScreen extends StatelessWidget {
@@ -27,7 +43,7 @@ class QuartettGalleryScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.quartettGalleryTitle)),
+      appBar: AppBar(title: Text(l10n.quartettGalleryTitle), actions: [_creditsAction(context)]),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -168,6 +184,7 @@ class QuartettDeckGalleryScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(localizedDeckName(l10n, deck.id)),
         actions: [
+          if (_deckHasPhotos(deck.id)) _creditsAction(context, deck: deck.id),
           PopupMenuButton<QuartettStat>(
             key: const Key('gallery-top-menu'),
             tooltip: l10n.quartettGalleryTopMenu,
@@ -326,6 +343,8 @@ class QuartettMiniCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (quartettMediaOf(card)?.image case final img?)
+                QuartettCardPhoto(key: Key('gallery-photo-${card.id}'), credit: img, height: 72),
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
                 child: Text(
@@ -398,7 +417,7 @@ class _QuartettCardPagerScreenState extends State<QuartettCardPagerScreen> {
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 420),
-                      child: QuartettCard(key: Key('gallery-full-${cards[i].id}'), card: cards[i]),
+                      child: QuartettCard(key: Key('gallery-full-${cards[i].id}'), card: cards[i], showLinks: true),
                     ),
                   ),
                 ),

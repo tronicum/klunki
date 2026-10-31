@@ -24,11 +24,56 @@ class QuartettStat {
 
   /// `true`: the larger value wins; `false`: the smaller value wins.
   final bool higherWins;
+
+  /// Most digits after the decimal point the values of this stat use
+  /// (0 = whole numbers). The display never shows more; [QuartettDeck.validate]
+  /// rejects values with more. Whole-number stats (years, counts, PS, kW, ...)
+  /// always print as integers, even on the web, where every number is a JS
+  /// double (`1999 is double` is true there: the "1999,0" bug, KLD-082).
+  final int decimals;
+
+  /// Always show exactly [decimals] digits ("7.0 s"); otherwise trailing
+  /// zeros are dropped ("70 m", "110.6 m").
+  final bool fixedDecimals;
+
+  /// A calendar year: bare digits, no unit, no decimals, never grouped
+  /// ("1990", not "1.990"). No deck uses a year since KLD-082 (years made a
+  /// poor "older/newer" trump), the format stays for future decks.
+  final bool isYear;
+
+  /// Large counts: the app groups thousands per locale ("11.000" in de).
+  /// [formatNumber] never groups (CLI, data).
+  final bool grouped;
+
+  /// A percentage (unit `%`): the app formats it per locale ("99 %" in de,
+  /// "99%" in en).
+  bool get isPercent => unit == '%';
+
   const QuartettStat(
       {required this.id,
       required this.label,
       required this.unit,
-      this.higherWins = true});
+      this.higherWins = true,
+      this.decimals = 0,
+      this.fixedDecimals = false,
+      this.isYear = false,
+      this.grouped = false})
+      : assert(!isYear || (decimals == 0 && !grouped)),
+        assert(decimals >= 0 && decimals <= 3);
+
+  /// [v] as plain ASCII digits with `.` as the decimal point and no grouping,
+  /// per [decimals] / [fixedDecimals], without unit. The app swaps in the
+  /// locale's decimal separator.
+  String formatNumber(num v) {
+    if (decimals == 0) return v.round().toString();
+    final s = v.toStringAsFixed(decimals);
+    if (fixedDecimals) return s;
+    var t = s;
+    while (t.endsWith('0')) {
+      t = t.substring(0, t.length - 1);
+    }
+    return t.endsWith('.') ? t.substring(0, t.length - 1) : t;
+  }
 
   /// Whether [x] beats [y] for this stat.
   bool beats(num x, num y) => higherWins ? x > y : x < y;
