@@ -4,8 +4,33 @@ import 'package:klunki/net/join_payload.dart';
 import 'package:klunki_net/klunki_net.dart' as net;
 
 void main() {
-  test('mirrored protocol version matches klunki_net', () {
+  test('mirrored protocol version and ports match klunki_net', () {
     expect(klunkiProtocolVersion, net.protocolVersion);
+    expect(klunkiDefaultPort, net.defaultTcpPort);
+    expect(klunkiDefaultWebSocketPort, net.defaultWebSocketPort);
+  });
+
+  group('WebSocket port w= (KLD-054)', () {
+    test('is formatted and parsed', () {
+      const p = JoinPayload(host: '192.168.1.20', name: 'iPad', gameId: 'muehle', wsPort: 4748);
+      expect(p.format(), 'klunki://join?h=192.168.1.20&p=4747&v=1&n=iPad&g=muehle&w=4748');
+      expect(JoinPayload.tryParse(p.format()), p);
+      expect(p.webSocketUri.toString(), 'ws://192.168.1.20:4748');
+      expect(JoinPayload.fromHostInfo(p.toHostInfo()), p);
+    });
+
+    test('is optional (old payloads still parse, no WebSocket URI)', () {
+      final p = JoinPayload.tryParse('klunki://join?h=10.1.2.3&p=4747&v=1')!;
+      expect(p.wsPort, isNull);
+      expect(p.webSocketUri, isNull);
+      expect(JoinPayload.tryParse('klunki://join?h=10.1.2.3&w=')!.wsPort, isNull);
+    });
+
+    test('a bad w makes the payload invalid', () {
+      for (final w in ['0', '65536', 'x', '-1']) {
+        expect(JoinPayload.tryParse('klunki://join?h=10.1.2.3&w=$w'), isNull, reason: w);
+      }
+    });
   });
 
   group('format', () {

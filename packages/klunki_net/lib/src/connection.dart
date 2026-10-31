@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'channel/channel.dart';
 import 'events.dart';
 
-/// One NDJSON connection: framing, validation of the envelope (`type`, `v`),
-/// keepalive (`ping`/`pong`), `bye`, `error` and timeout detection.
+/// One protocol connection over a [MessageChannel] (TCP NDJSON or
+/// WebSocket): validation of the envelope (`type`, `v`), keepalive
+/// (`ping`/`pong`), `bye`, `error` and timeout detection. Pure Dart, so it
+/// runs on the VM and in the browser.
 ///
 /// Everything else is handed to [onMessage]. A handler that throws
 /// [ProtocolException] makes the connection send `error` and close.
 /// [onClosed] is called exactly once.
 class Connection {
-  final Socket _socket;
+  final MessageChannel channel;
   final Duration timeout;
   final void Function(Map<String, dynamic> message) onMessage;
   final void Function(String reason, {bool timedOut}) onClosed;
@@ -22,22 +24,16 @@ class Connection {
   bool _closed = false;
 
   Connection(
-    this._socket, {
+    this.channel, {
     required Duration pingInterval,
     required this.timeout,
     required this.onMessage,
     required this.onClosed,
   }) {
-    _socket.done.catchError((_) {}); // errors surface through the read side
-    _sub = _socket
-        .cast<List<int>>()
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen(_onLine,
-            onError: (Object e) => e is FormatException
-                ? fail('malformed input (not UTF-8)')
-                : _finish('socket error: $e'),
-            onDone: () => _finish('connection closed'));
+    _sub = channel.messages.listen(_onLine,
+        onError: (Object e) =>
+            e is MalformedInput ? fail('malformed input (${e.what})') : _finish('socket error: $e'),
+        onDone: () => _finish('connection closed'));
     _timer = Timer.periodic(pingInterval, (_) => _tick());
   }
 
@@ -47,7 +43,7 @@ class Connection {
   void send(String type, [Map<String, dynamic> fields = const {}]) {
     if (_closed) return;
     try {
-      _socket.writeln(jsonEncode({'type': type, 'v': protocolVersion, ...fields}));
+      channel.send(jsonEncode({'type': type, 'v': protocolVersion, ...fields}));
     } catch (_) {
       _finish('write failed');
     }
@@ -113,8 +109,8 @@ class Connection {
     _closed = true;
     _timer.cancel();
     _sub.cancel();
-    // Flush pending output (e.g. the `error`/`bye` line), then drop the socket.
-    _socket.flush().catchError((_) {}).whenComplete(_socket.destroy);
+    // Flush pending output (e.g. the `error`/`bye` message), then close.
+    channel.close();
     onClosed(reason, timedOut: timedOut);
   }
 }

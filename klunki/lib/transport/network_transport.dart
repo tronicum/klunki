@@ -84,16 +84,19 @@ class NetworkTransport implements GameTransport {
 
   /// Starts hosting [config] on [port] (0 = ephemeral; read [port]). The host
   /// plays A, the guest B. [address] defaults to all IPv4 interfaces.
+  /// Browser guests join over WebSocket on [wsPort] (0 = ephemeral, read
+  /// [wsPort]; null = TCP only). Throws a `SocketException` if a port is taken.
   static Future<NetworkTransport> host(
     GameConfig config, {
     String name = 'Host',
     int port = 0,
+    int? wsPort = 0,
     Object? address,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final host = await KlunkiHost.start(config,
-        port: port, name: name, address: address, pingInterval: pingInterval, timeout: timeout);
+        port: port, wsPort: wsPort, name: name, address: address, pingInterval: pingInterval, timeout: timeout);
     return NetworkTransport._host(host);
   }
 
@@ -108,6 +111,21 @@ class NetworkTransport implements GameTransport {
     Duration timeout = const Duration(seconds: 10),
   }) async {
     final guest = await KlunkiGuest.connect(host, port,
+        name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+    return NetworkTransport._guest(guest);
+  }
+
+  /// Joins the host over WebSocket at [url] (`ws://host:wsPort`, e.g.
+  /// `JoinPayload.webSocketUri`). This is how the browser (PWA) joins; it
+  /// also works natively. Throws [NetException] if the handshake fails.
+  static Future<NetworkTransport> joinWebSocket(
+    Uri url, {
+    String name = 'Guest',
+    String? token,
+    Duration pingInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final guest = await KlunkiGuest.connectWebSocket(url,
         name: name, token: token, pingInterval: pingInterval, timeout: timeout);
     return NetworkTransport._guest(guest);
   }
@@ -212,8 +230,12 @@ class NetworkTransport implements GameTransport {
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
 
-  /// Host: the listening port.
+  /// Host: the listening TCP port.
   int? get port => _host?.port;
+
+  /// Host: the WebSocket port for browser guests (advertise it as `w=` in the
+  /// join payload and `ws` in the TXT record), or null if disabled.
+  int? get wsPort => _host?.wsPort;
 
   /// Guest: the rejoin token from the host (pass it to [join] to rejoin from
   /// a fresh transport).

@@ -1,5 +1,5 @@
 name: klunki_net
-description: Pure-Dart network play for Klunki (host-authoritative NDJSON over TCP). No Flutter dependency.
+description: Pure-Dart network play for Klunki (host-authoritative JSON over TCP and WebSocket). No Flutter dependency.
 version: 0.0.1
 publish_to: none
 

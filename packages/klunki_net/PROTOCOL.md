@@ -1,15 +1,48 @@
 # Klunki network protocol, version 1
 
-Two devices, one TCP connection. The **host** owns the authoritative engine and
-move log; the **guest** runs the same engine (from `GameConfig` via
-`createGame`) but applies only moves the host has accepted, in log order.
+Two devices, one connection (TCP or WebSocket). The **host** owns the
+authoritative engine and move log; the **guest** runs the same engine (from
+`GameConfig` via `createGame`) but applies only moves the host has accepted,
+in log order.
 
-## Framing
-- UTF-8 text, **one JSON object per line**, terminated by `\n`. Empty lines are ignored.
+## Transports and framing
+The messages and rules below are identical on both transports; only the
+framing differs. The host accepts both at the same time, on two ports.
+
+| transport | default port | framing | who uses it |
+|---|---|---|---|
+| TCP | 4747 (`defaultTcpPort`) | UTF-8 text, **one JSON object per line**, terminated by `\n`; empty lines are ignored | apps (iOS/Android), the `klunki` CLI |
+| WebSocket (`ws://host:port`, RFC 6455) | 4748 (`defaultWebSocketPort`) | **one JSON object per text frame**; a binary frame is a protocol error (`error "malformed input (binary frame)"`) | the browser PWA, `klunki join ws://…` |
+
 - Every message has `type` (string) and `v` (int, protocol version = `1`).
 - Anything else (invalid UTF-8, not JSON, not an object, no `type`, `v != 1`,
   an unknown or unexpected `type`, wrongly typed fields) is a protocol error:
   the receiver sends `error` and closes the connection.
+- The WebSocket port speaks plain HTTP/1.1 only for the upgrade: any request
+  without `Upgrade: websocket` gets `426 Upgrade Required`. Any path is
+  accepted; no subprotocol is negotiated. WebSocket-level ping/close frames
+  are left to the WebSocket stack; keepalive and `bye` are the protocol's own
+  messages, as on TCP.
+- Plain `ws://` (no TLS) on the local network: the PWA is served over plain
+  http on the LAN, and browsers allow `ws://` from an `http://` page.
+
+**Why a second port and not sniffing on one port.** Sniffing the first bytes
+(`GET ` = HTTP upgrade) would mean consuming bytes from a `dart:io` `Socket`
+and then handing the socket to `HttpServer` / `WebSocket.fromUpgradedSocket`.
+`dart:io` cannot "un-read" bytes, and a `Socket` stream can be listened to
+only once, so that needs a hand-written `Socket` wrapper that replays the
+sniffed prefix, or a hand-rolled HTTP upgrade parser. A second port uses
+`HttpServer.bind` + `WebSocketTransformer.upgrade` exactly as documented,
+keeps the TCP path byte-for-byte unchanged for existing apps, and costs one
+extra number that the join payload and mDNS record carry anyway (`w=`, `ws`).
+
+**Advertising the WebSocket port** (app side, `klunki/lib/net/`):
+- join payload / QR: optional `w` parameter,
+  `klunki://join?h=192.168.1.20&p=4747&v=1&n=iPad&g=muehle&w=4748`;
+- mDNS TXT record of `_klunki._tcp`: optional key `ws` (`"4748"`).
+
+Both are optional and ignored by older clients, so the payload stays backward
+compatible; a host without WebSocket support simply omits them.
 
 ## Messages
 
@@ -80,5 +113,12 @@ does not replay (`replay` returns null) is a divergence → `error`.
   and the whole move log, so a modified client could reconstruct the
   opponent's Quartett hand or Schiffe fleet. The UI never shows it; per-player
   views are post-PoC.
-- No encryption; the token only prevents accidental takeovers. Local Wi-Fi only.
-- One guest per host.
+- No encryption (`ws://`, not `wss://`); the token only prevents accidental
+  takeovers. Local Wi-Fi only. The WebSocket port does not check `Origin`, so
+  any web page the guest's browser opens could connect to a host it can
+  reach on the LAN; acceptable for the PoC (one guest, local network).
+- One guest per host, over either transport: a second guest gets
+  `error "session full"` whether it comes over TCP or WebSocket. A joined
+  guest may rejoin over the other transport with its token.
+- Browser ↔ browser play is not supported: a web page cannot listen for
+  connections, so one side must be a native host (app or CLI).

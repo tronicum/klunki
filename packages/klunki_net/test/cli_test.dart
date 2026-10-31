@@ -214,6 +214,33 @@ void main() {
     await proxy.close();
   });
 
+  test('join ws://: a terminal plays as a WebSocket guest (KLD-054)', () async {
+    final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
+    final wsUrl = (await host.waitFor(RegExp(r'WebSocket guests join at (ws://127\.0\.0\.1:\d+)')))[1]!;
+    final guest = Terminal('guest', ['join', wsUrl, '--name', 'Web']);
+    await host.waitFor('Web joined: you are X, Web is O.');
+    await guest.waitFor("Joined Ada's game: 4 Gewinnt on $wsUrl");
+    await host.waitFor('> ');
+    host.type('3');
+    await guest.waitFor('X drops into column 3');
+    await guest.waitFor('Your turn (O).');
+    guest.type('4');
+    await host.waitFor('O drops into column 4');
+    guest.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await guest.exitCode, 0);
+    expect(await host.exitCode, 0);
+  });
+
+  test('join ws:// to nothing reports the failure', () async {
+    final free = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+    final port = free.port;
+    await free.close();
+    final out = StringBuffer();
+    expect(await runCli(['join', 'ws://127.0.0.1:$port'], out: out, input: const Stream.empty()), 1);
+    expect(out.toString(), contains('Could not join ws://127.0.0.1:$port'));
+  });
+
   test('bad arguments print the usage text and exit 64', () async {
     for (final args in [
       <String>[],
@@ -222,6 +249,9 @@ void main() {
       ['host', 'connect4', '--port', 'x'],
       ['join'],
       ['join', '1.2.3.4', 'notaport'],
+      ['join', 'ws://1.2.3.4:4748', '4748'],
+      ['join', 'http://1.2.3.4:4748'],
+      ['join', '1.2.3.4', '--ws-port', '1'],
       ['frobnicate'],
     ]) {
       final err = StringBuffer();
