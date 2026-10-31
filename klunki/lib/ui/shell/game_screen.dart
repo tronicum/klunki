@@ -46,6 +46,12 @@ abstract interface class GameShell {
   /// Sets the hint line under the status line. Safe to call from `build`
   /// (the update is deferred to after the frame then).
   void setHint(String? text);
+
+  /// While [hold] is set, the result dialog of a finished game waits: the
+  /// board still has a final move to show (e.g. Quartett tricks queued
+  /// behind a reveal on a network device, KLD-089). Releasing it shows the
+  /// dialog. Safe to call from `build`.
+  void holdResult(bool hold);
 }
 
 /// The shared frame every game screen plugs into:
@@ -104,6 +110,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> implements GameShell {
   String? _hint;
   bool _resultShown = false;
+  bool _resultHeld = false;
   late GameTransport _transport;
 
   @override
@@ -125,6 +132,31 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   }
 
   @override
+  void holdResult(bool hold) {
+    if (hold == _resultHeld) return;
+    _resultHeld = hold;
+    if (!hold) _maybeShowResult();
+  }
+
+  /// Shows the result dialog after this frame if the game is over, the
+  /// dialog is not up yet and no board holds it back.
+  void _maybeShowResult() {
+    if (_resultShown || _resultHeld || !controller.game.isOver) return;
+    _resultShown = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (_resultHeld || !controller.game.isOver) {
+        // A board took hold during this frame (e.g. it revealed the final
+        // move): wait for it to let go.
+        _resultShown = false;
+        return;
+      }
+      _showResult();
+    });
+    SchedulerBinding.instance.ensureVisualUpdate();
+  }
+
+  @override
   void initState() {
     super.initState();
     _transport = controller.transport;
@@ -140,6 +172,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
       _transport = controller.transport;
       _hint = null;
       _resultShown = false;
+      _resultHeld = false;
     }
   }
 
@@ -158,14 +191,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         _hint = null;
       }
     });
-    final over = controller.game.isOver;
-    if (!over) {
+    if (!controller.game.isOver) {
       _resultShown = false;
-    } else if (!_resultShown) {
-      _resultShown = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _showResult();
-      });
+    } else {
+      _maybeShowResult();
     }
   }
 

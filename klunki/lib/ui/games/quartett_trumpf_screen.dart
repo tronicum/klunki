@@ -46,6 +46,10 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// grace pauses; tricks arriving meanwhile are queued and shown after it
 /// closes. The board keeps the last [quartettTrickHistoryLength] tricks.
 ///
+/// Game end (KLD-089): the shell's result dialog waits until the device has
+/// shown every trick (the final reveal is left with "Weiter" or, for the
+/// waiting player, when its grace runs out), see [GameShell.holdResult].
+///
 /// Keys: `qt-stat-<statId>` (stat rows of the active card), `qt-reveal`,
 /// `qt-continue`, `qt-grace`, `qt-grace-seconds`, `qt-queued-notice`,
 /// `qt-last-trick`, `qt-last-trick-overlay`, `qt-last-trick-close`.
@@ -402,6 +406,13 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     final reveal = _reveal;
     final choosing = reveal == null && c.canAct && game.topCard(game.currentPlayer) != null;
     final waiting = reveal == null && !game.isOver && _networked && !c.canAct;
+    // KLD-089 (network): after the final trick the result dialog waits until
+    // every trick this device still has to show (the one on screen and any
+    // queued behind it) is through; otherwise the last tricks would only
+    // play out under the modal dialog, unreadable and without a "Weiter".
+    // Hot-seat previews the final trick before it is submitted, so its
+    // result comes after the reveal anyway.
+    shell.holdResult(_networked && game.isOver && (reveal != null || _queue.isNotEmpty));
     shell.setHint(choosing
         ? l10n.quartettTrumpfHintPick
         : waiting
