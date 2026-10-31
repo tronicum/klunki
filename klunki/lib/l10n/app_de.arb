@@ -1460,11 +1460,11 @@
       }
     }
   },
-  "goSetupHint": "Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.",
+  "goSetupHint": "Tippe zwei Figuren an oder ziehe eine auf ein anderes Feld deiner vier Reihen, um sie zu tauschen. Dann „Fertig“.",
   "@goSetupHint": {
     "description": "GoStrategy setup hint line."
   },
-  "goSetupSelected": "{piece} gewählt – tippe eine zweite Figur zum Tauschen.",
+  "goSetupSelected": "{piece} gewählt – tippe ein anderes Feld deiner vier Reihen zum Tauschen.",
   "@goSetupSelected": {
     "description": "GoStrategy setup hint after the first piece of a swap was tapped. piece = piece name.",
     "placeholders": {
@@ -2309,5 +2309,9 @@
         "type": "String"
       }
     }
+  },
+  "goSetupInvalid": "Nur deine vier Reihen unten nehmen Figuren auf.",
+  "@goSetupInvalid": {
+    "description": "KLD-081 GoStrategy setup on the board: hint when a piece is dropped or placed outside the own four home rows."
   }
 }

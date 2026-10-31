@@ -10,6 +10,7 @@ import 'package:klunki/ui/games/gostrategy_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../shell/shell_test_utils.dart';
+import 'gostrategy_setup_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
 
 /// Hot-seat transport over a prepared [GoStrategyGame.position] (tests only:
@@ -53,7 +54,6 @@ class PositionTransport implements GameTransport {
 }
 
 Finder cell(int sq) => find.byKey(Key('go-cell-$sq'));
-Finder setupCell(int i) => find.byKey(Key('go-setup-$i'));
 GoSquareView squareOf(WidgetTester t, int sq) => t.widget<GoSquareView>(cell(sq));
 GoStrategyGame gameOf(GameController c) => c.game as GoStrategyGame;
 const reveal = Key('go-reveal');
@@ -84,11 +84,21 @@ double revealValue(WidgetTester tester) =>
             .listenable as Animation<double>)
         .value;
 
-/// The arrangement the setup editor shows, read from its tiles.
-List<GoPiece> shownSetup(WidgetTester tester) => [
-      for (var i = 0; i < 40; i++)
-        tester.widget<GoPieceTile>(find.descendant(of: setupCell(i), matching: find.byType(GoPieceTile))).piece!,
-    ];
+/// The pieces shown on [p]'s home squares (setup draft or board).
+Map<int, GoPiece> shown(WidgetTester tester, Player p) => shownPieces(tester, p, cell);
+
+/// The selection ring of [sq] is painted above the piece tile (a later
+/// child of the square's stack), not hidden underneath it (KLD-081).
+void expectSelectionOnTop(WidgetTester tester, int sq) {
+  final ring = find.descendant(of: cell(sq), matching: find.byKey(const Key('go-selected')));
+  expect(ring, findsOneWidget);
+  final stack = tester.widget<Stack>(find.descendant(of: cell(sq), matching: find.byType(Stack)).first);
+  int indexOf(Finder f) => stack.children.indexWhere((child) =>
+      find.descendant(of: find.byWidget(child), matching: f, matchRoot: true).evaluate().isNotEmpty);
+  expect(indexOf(find.byKey(const Key('go-selected'))), greaterThan(indexOf(find.byType(GoPieceTile))));
+  final ringSize = tester.getSize(ring);
+  expect(ringSize.width, greaterThanOrEqualTo(tester.getSize(find.descendant(of: cell(sq), matching: find.byType(GoPieceTile))).width));
+}
 
 /// Pumps a hot-seat game over [game] (a prepared position).
 Future<GameController> pumpPosition(WidgetTester tester, GoStrategyGame game, {bool reduceMotion = false}) async {
@@ -124,73 +134,141 @@ Future<void> setUpBoth(WidgetTester tester, GameController c) async {
 
 void main() {
   group('setup', () {
-    testWidgets('starts from a random setup with legend and counts; shuffle and swap; Fertig submits', (tester) async {
+    testWidgets('on the real board: random start, legend, shuffle, swap by taps; Fertig submits the squares',
+        (tester) async {
       phone(tester);
       final c = await pumpGame(tester, 'gostrategy');
       expect(find.text('Stelle deine Armee auf (X)'), findsOneWidget);
-      expect(find.text('Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.'), findsOneWidget);
+      expect(
+          find.text('Tippe zwei Figuren an oder ziehe eine auf ein anderes Feld deiner vier Reihen, um sie zu tauschen. '
+              'Dann „Fertig“.'),
+          findsOneWidget);
       expect(find.byKey(const Key('go-legend')), findsOneWidget);
       expect(find.text('Hauptmann ×4'), findsOneWidget);
       expect(find.text('Aufklärer ×8'), findsOneWidget);
       expect(find.text('Bombe ×6'), findsOneWidget);
       expect(find.textContaining('Nur Mineure entschärfen Bomben'), findsOneWidget);
 
-      // The initial arrangement is the seeded random setup of X.
-      final first = shownSetup(tester);
-      expect(first, GoStrategyGame.randomSetup(c.config.seed * 2));
+      // The whole board: 100 squares, the lakes, O's rows dimmed and empty.
+      expect(find.byKey(const Key('go-board')), findsOneWidget);
+      expect(find.byType(GoSquareView), findsNWidgets(100));
+      for (final l in GoStrategyGame.lakes) {
+        expect(squareOf(tester, l).cell.lake, isTrue);
+      }
+      for (var sq = 0; sq < 40; sq++) {
+        expect(squareOf(tester, sq).cell.isEmpty, isTrue);
+        expect(squareOf(tester, sq).dimmed, isTrue);
+      }
+      expect(squareOf(tester, 50).dimmed, isFalse);
 
-      // Shuffle gives another valid arrangement.
+      // The initial draft is X's seeded random setup, on its squares.
+      final first = shown(tester, Player.a);
+      expect(first, GoStrategyGame.setupToSquares(Player.a, GoStrategyGame.randomSetup(c.config.seed * 2)));
+
       await tapKey(tester, 'go-shuffle');
-      final shuffled = shownSetup(tester);
-      expect(GoStrategyGame.isValidSetup([for (final p in shuffled) p.id]), isTrue);
+      final shuffled = shown(tester, Player.a);
+      expect(GoStrategyGame.isValidSetup([for (final p in GoStrategyGame.setupFromSquares(Player.a, shuffled)) p.id]),
+          isTrue);
       expect(shuffled, isNot(first));
 
-      // Swap: tap index 0, then 39.
-      await tapOn(tester, setupCell(0));
-      expect(find.textContaining('gewählt – tippe eine zweite Figur'), findsOneWidget);
-      await tapOn(tester, setupCell(39));
-      final swapped = shownSetup(tester);
-      expect(swapped[0], shuffled[39]);
-      expect(swapped[39], shuffled[0]);
-      expect(swapped.sublist(1, 39), shuffled.sublist(1, 39));
-      // Tapping the same tile twice deselects (no swap).
-      await tapOn(tester, setupCell(5));
-      await tapOn(tester, setupCell(5));
-      expect(shownSetup(tester), swapped);
+      // Swap: tap 60 (front left), then 99 (back right).
+      await tapOn(tester, cell(60));
+      expect(squareOf(tester, 60).selected, isTrue);
+      expectSelectionOnTop(tester, 60);
+      expect(find.textContaining('gewählt – tippe ein anderes Feld deiner vier Reihen'), findsOneWidget);
+      await tapOn(tester, cell(99));
+      final swapped = shown(tester, Player.a);
+      expect(swapped[60], shuffled[99]);
+      expect(swapped[99], shuffled[60]);
+      expect({...swapped}..removeWhere((k, _) => k == 60 || k == 99), {...shuffled}..removeWhere((k, _) => k == 60 || k == 99));
+      // Tapping the same piece twice deselects (no swap).
+      await tapOn(tester, cell(65));
+      await tapOn(tester, cell(65));
+      expect(shown(tester, Player.a), swapped);
+
+      // Outside the own rows: refused, visibly, nothing changes.
+      await tapOn(tester, cell(70));
+      await tapOn(tester, cell(50));
+      expect(squareOf(tester, 50).refused, isTrue);
+      expect(find.descendant(of: cell(50), matching: find.byKey(const Key('go-refused'))), findsOneWidget);
+      expect(find.text('Nur deine vier Reihen unten nehmen Figuren auf.'), findsOneWidget);
+      await tapOn(tester, cell(20)); // O's rows
+      expect(squareOf(tester, 20).refused, isTrue);
+      expect(shown(tester, Player.a), swapped);
+      await tapOn(tester, cell(70)); // deselect
+      expect(squareOf(tester, 70).selected, isFalse);
 
       await tapKey(tester, 'go-done');
-      expect(c.moves.single.move, GoStrategyGame.setupMove(swapped));
+      expect(c.moves.single.move, GoStrategyGame.setupMove(GoStrategyGame.setupFromSquares(Player.a, swapped)));
       expect(describeGoStrategyMove(deL10n, c.moves.single), 'stellt die Armee auf');
-      // X's army sits on rows 6–9 in setup order.
       final truth = gameOf(c).board;
-      for (var i = 0; i < 40; i++) {
-        expect(truth[GoStrategyGame.setupSquare(Player.a, i)].piece, swapped[i]);
+      for (final e in swapped.entries) {
+        expect(truth[e.key].piece, e.value, reason: 'square ${e.key}');
       }
     });
 
-    testWidgets('hot-seat: the cover hides X\'s setup; O gets a fresh editor and sees nothing of X', (tester) async {
+    testWidgets('drag and drop: onto an own square swaps; outside the own rows is refused', (tester) async {
       phone(tester);
       final c = await pumpGame(tester, 'gostrategy');
-      final xSetup = shownSetup(tester);
+      final before = shown(tester, Player.a);
+      Future<void> drag(int from, int to) async {
+        final g = await tester.startGesture(tester.getCenter(cell(from)));
+        await tester.pump();
+        await g.moveBy(const Offset(0, -20)); // past the slop
+        await tester.pump();
+        await g.moveTo(tester.getCenter(cell(to)));
+        await tester.pump();
+        if (GoStrategyGame.isHome(Player.a, to)) {
+          expect(squareOf(tester, to).drop, isTrue, reason: 'a valid drop target lights up');
+        } else {
+          expect(squareOf(tester, to).refused, isTrue, reason: 'an invalid target shows red');
+        }
+        await g.up();
+        await tester.pump();
+        await tester.pump();
+      }
+
+      await drag(62, 97);
+      final after = shown(tester, Player.a);
+      expect(after[97], before[62]);
+      expect(after[62], before[97]);
+      // Onto the neutral rows, a lake and O's rows: refused, nothing moves.
+      await drag(63, 53 - 10); // 43 is a lake
+      await drag(63, 54);
+      await drag(63, 25);
+      expect(shown(tester, Player.a), after);
+      expect(gameOf(c).history, isEmpty);
+      await tapKey(tester, 'go-done');
+      expect(gameOf(c).board[97].piece, before[62]);
+    });
+
+    testWidgets('hot-seat: the cover hides X\'s setup; O gets its own board editor and sees nothing of X',
+        (tester) async {
+      phone(tester);
+      final c = await pumpGame(tester, 'gostrategy');
       await tapKey(tester, 'go-done');
       expect(c.needsHandover, isTrue);
       expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
       expect(find.byKey(const Key('go-cover-fight')), findsNothing, reason: 'no fight yet');
-      expect(setupCell(0).hitTestable(), findsNothing);
+      expect(cell(60).hitTestable(), findsNothing);
       await acknowledge(tester);
 
       expect(find.text('Stelle deine Armee auf (O)'), findsOneWidget);
-      expect(shownSetup(tester), GoStrategyGame.randomSetup(c.config.seed * 2 + 1));
-      // Only O's own (blue) tiles anywhere, no X piece.
+      expect(shown(tester, Player.b), GoStrategyGame.setupToSquares(Player.b, GoStrategyGame.randomSetup(c.config.seed * 2 + 1)));
+      // Only O's own (blue) tiles anywhere; X's rows are dimmed and empty.
       for (final t in tester.widgetList<GoPieceTile>(find.byType(GoPieceTile))) {
         expect(t.owner, Player.b);
       }
-      expect(xSetup, isNotEmpty);
+      for (final sq in GoStrategyGame.homeSquares(Player.a)) {
+        expect(squareOf(tester, sq).cell.isEmpty, isTrue);
+        expect(squareOf(tester, sq).dimmed, isTrue);
+      }
+      // O's board is turned: its own rows at the bottom.
+      expect(tester.getCenter(cell(0)).dy, greaterThan(tester.getCenter(cell(99)).dy));
 
       await tapKey(tester, 'go-done');
       expect(c.needsHandover, isTrue);
       await acknowledge(tester);
-      // X's turn: X's own pieces known, O's all hidden backs.
       expect(find.text('X ist am Zug'), findsOneWidget);
       for (final sq in GoStrategyGame.homeSquares(Player.b)) {
         final v = squareOf(tester, sq);
@@ -200,6 +278,86 @@ void main() {
       for (final sq in GoStrategyGame.homeSquares(Player.a)) {
         expect(squareOf(tester, sq).cell.piece, isNotNull);
       }
+    });
+
+    // KLD-081 regression: what the editor shows is where the pieces stand,
+    // for both players (O on the turned board).
+    testWidgets('hot-seat X and O: every piece stands on the same displayed square after Fertig', (tester) async {
+      phone(tester);
+      final c = await pumpGame(tester, 'gostrategy', seed: 21);
+      final setupShown = <Player, Map<int, GoPiece>>{};
+      final setupPos = <Player, Map<int, (int, int)>>{};
+      for (final p in Player.values) {
+        await arrangeMarks(tester, p, cell, (f) => tapOn(tester, f));
+        setupShown[p] = shown(tester, p);
+        setupPos[p] = displayed(tester, cell);
+        await tapKey(tester, 'go-done');
+        await acknowledge(tester);
+      }
+
+      // The recognisable pieces, as the owner placed them.
+      for (final p in Player.values) {
+        final m = markSquares(p);
+        expect(setupPos[p]![m.flag], (9, 0), reason: '${p.name} flag bottom left');
+        expect(setupPos[p]![m.bomb], (9, 1));
+        expect(setupPos[p]![m.scout], (6, 9));
+        expect(setupPos[p]![m.marshal], (6, 4));
+      }
+
+      // Engine squares: exactly the drafted squares.
+      final truth = gameOf(c).board;
+      for (final p in Player.values) {
+        for (final e in setupShown[p]!.entries) {
+          expect(truth[e.key], GoCell(owner: p, piece: e.value), reason: '${p.name} square ${e.key}');
+        }
+      }
+
+      Future<void> checkView(Player p) async {
+        expect(find.byKey(const Key('go-setup-title')), findsNothing);
+        final pos = displayed(tester, cell);
+        expect(pos, setupPos[p], reason: 'the same squares at the same places');
+        final now = shown(tester, p);
+        expect(now, setupShown[p], reason: '${p.name}: every piece on its square');
+        final m = markSquares(p);
+        expect(squareOf(tester, m.flag).cell.piece, GoPiece.flag);
+        expect(pos[m.flag], (9, 0));
+      }
+
+      // X's view now; then X moves, and O's (turned) view.
+      await checkView(Player.a);
+      final move = gameOf(c).legalMoves.firstWhere((m) => m['from'] != markSquares(Player.a).scout);
+      setupShown[Player.a]![move['to'] as int] = setupShown[Player.a]!.remove(move['from'] as int)!;
+      await tapOn(tester, cell(move['from'] as int));
+      await tapOn(tester, cell(move['to'] as int));
+      await acknowledge(tester);
+      expect(find.text('O ist am Zug'), findsOneWidget);
+      await checkView(Player.b);
+    });
+
+    testWidgets('O\'s board is turned by 180°: coordinates and squares mirror X\'s', (tester) async {
+      phone(tester);
+      await pumpGame(tester, 'gostrategy');
+      String label(String key) => tester.widget<Text>(find.byKey(Key(key))).data!;
+      // X: files a–j left to right, ranks 10 at the top, 1 at the bottom.
+      expect([for (var i = 0; i < 10; i++) label('go-file-$i')].join(), 'abcdefghij');
+      expect(label('go-rank-0'), '10');
+      expect(label('go-rank-9'), '1');
+      expect(displayed(tester, cell)[90], (9, 0));
+      await tapKey(tester, 'go-done');
+      await acknowledge(tester);
+      // O: the board turned, j–a and 1 at the top, 10 at the bottom.
+      expect([for (var i = 0; i < 10; i++) label('go-file-$i')].join(), 'jihgfedcba');
+      expect(label('go-rank-0'), '1');
+      expect(label('go-rank-9'), '10');
+      final pos = displayed(tester, cell);
+      expect(pos[9], (9, 0), reason: 'j10 is O\'s bottom-left corner');
+      expect(pos[0], (9, 9));
+      expect(pos[99], (0, 0));
+      for (var sq = 0; sq < 100; sq++) {
+        expect(pos[sq], (9 - GoStrategyGame.rowOf(sq), 9 - GoStrategyGame.colOf(sq)));
+      }
+      // The file under a square names it: O's bottom-left is "j", rank 10.
+      expect(goSquareName(9), 'j10');
     });
   });
 
@@ -248,6 +406,7 @@ void main() {
       expect(find.text('Tippe eine deiner Figuren an, dann ein markiertes Feld.'), findsOneWidget);
       await tapOn(tester, cell(64));
       expect(squareOf(tester, 64).selected, isTrue);
+      expectSelectionOnTop(tester, 64);
       final marked = {for (var sq = 0; sq < 100; sq++) if (squareOf(tester, sq).target) sq};
       expect(marked, gameOf(c).targetsFrom(64).toSet());
       expect(marked, {54, 74, 63, 65});
@@ -295,6 +454,59 @@ void main() {
       expect(marked, {80, 70, 60, 50, 40, 30, 91, 92, 93, 94, 95, 96, 97, 98});
       expect(find.descendant(of: cell(30), matching: find.byKey(const Key('go-target-attack'))), findsOneWidget);
       expect(find.descendant(of: cell(50), matching: find.byKey(const Key('go-target-dot'))), findsOneWidget);
+    });
+  });
+
+  // KLD-081: attacking hidden enemies works by taps (piece, then the enemy),
+  // for O on the turned board and for a scout at the end of a free line.
+  group('attacks on hidden pieces', () {
+    testWidgets('O attacks an adjacent hidden X piece on the turned board', (tester) async {
+      phone(tester);
+      final c = await pumpPosition(
+        tester,
+        GoStrategyGame.position({
+          35: (Player.b, GoPiece.colonel),
+          45: (Player.a, GoPiece.sergeant),
+          99: (Player.a, GoPiece.flag),
+          0: (Player.b, GoPiece.flag),
+          90: (Player.a, GoPiece.miner),
+        }, toMove: Player.b),
+      );
+      expect(tester.getCenter(cell(0)).dy, greaterThan(tester.getCenter(cell(99)).dy), reason: 'O\'s board is turned');
+      expect(squareOf(tester, 45).cell.hidden, isTrue);
+      await tapOn(tester, cell(35));
+      expect(squareOf(tester, 45).target, isTrue);
+      expect(find.descendant(of: cell(45), matching: find.byKey(const Key('go-target-attack'))), findsOneWidget);
+      await tapOn(tester, cell(45));
+      expect(c.moves.single.move, {'action': 'move', 'from': 35, 'to': 45});
+      final fight = GoFight.fromMove(c.moves.single)!;
+      expect((fight.attacker, fight.defender, fight.outcome), (GoPiece.colonel, GoPiece.sergeant, GoFightOutcome.attackerWins));
+      expect(gameOf(c).board[45], const GoCell(owner: Player.b, piece: GoPiece.colonel, revealed: true, moved: true));
+      expect(find.byKey(const Key('go-cover-fight')), findsOneWidget);
+      await acknowledge(tester);
+      expect(find.byKey(reveal), findsOneWidget);
+      await finishReveal(tester);
+      expect(squareOf(tester, 45).cell.piece, GoPiece.colonel, reason: 'X now knows the colonel');
+    });
+
+    testWidgets('a scout attacks a hidden piece at the end of a free line', (tester) async {
+      phone(tester);
+      final c = await pumpPosition(
+        tester,
+        GoStrategyGame.position({
+          90: (Player.a, GoPiece.scout),
+          99: (Player.a, GoPiece.flag),
+          30: (Player.b, GoPiece.spy),
+          9: (Player.b, GoPiece.flag),
+        }),
+      );
+      expect(squareOf(tester, 30).cell.hidden, isTrue);
+      await tapOn(tester, cell(90));
+      await tapOn(tester, cell(30));
+      expect(c.moves.single.move, {'action': 'move', 'from': 90, 'to': 30});
+      expect(GoFight.fromMove(c.moves.single)!.outcome, GoFightOutcome.attackerWins);
+      expect(gameOf(c).board[30].piece, GoPiece.scout);
+      expect(gameOf(c).board[90].isEmpty, isTrue);
     });
   });
 

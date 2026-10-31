@@ -241,8 +241,8 @@
   "goPieceFlag": "Bandera",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "Coloca tu ejército ({player})",
-  "goSetupHint": "Toca dos piezas para intercambiarlas y luego «Listo».",
-  "goSetupSelected": "{piece} elegido: toca otra pieza para intercambiar.",
+  "goSetupHint": "Toca dos piezas o arrastra una a otra casilla de tus cuatro filas para intercambiarlas. Luego «Listo».",
+  "goSetupSelected": "{piece} elegido: toca otra casilla de tus cuatro filas para intercambiar.",
   "goSetupShuffle": "Mezclar",
   "goSetupDone": "Listo",
   "goSetupFirst": "{player} coloca primero; mientras tanto puedes preparar.",
@@ -400,5 +400,6 @@
   "quartettGalleryNext": "Carta siguiente",
   "quartettGalleryTopMenu": "Top 5 por valor",
   "quartettGalleryTopTitle": "Los 5 mejores: {stat}",
-  "quartettCardSemantics": "Carta {id}: {name}, grupo {set}"
+  "quartettCardSemantics": "Carta {id}: {name}, grupo {set}",
+  "goSetupInvalid": "Solo tus cuatro filas de abajo admiten piezas."
 }

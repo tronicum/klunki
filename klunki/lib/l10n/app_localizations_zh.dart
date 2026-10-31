@@ -923,11 +923,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get goSetupHint => '点两个棋子即可交换，然后点“完成”。';
+  String get goSetupHint => '点两个棋子，或把一个棋子拖到你四行中的另一格，即可交换，然后点“完成”。';
 
   @override
   String goSetupSelected(String piece) {
-    return '已选$piece——再点一个棋子来交换。';
+    return '已选$piece——再点你四行中的另一格来交换。';
   }
 
   @override
@@ -1477,4 +1477,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return '卡牌 $id：$name，$set';
   }
+
+  @override
+  String get goSetupInvalid => '只有你下方的四行可以放棋子。';
 }

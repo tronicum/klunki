@@ -961,11 +961,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get goSetupHint =>
-      'Toca dos piezas para intercambiarlas y luego «Listo».';
+      'Toca dos piezas o arrastra una a otra casilla de tus cuatro filas para intercambiarlas. Luego «Listo».';
 
   @override
   String goSetupSelected(String piece) {
-    return '$piece elegido: toca otra pieza para intercambiar.';
+    return '$piece elegido: toca otra casilla de tus cuatro filas para intercambiar.';
   }
 
   @override
@@ -1532,4 +1532,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Carta $id: $name, grupo $set';
   }
+
+  @override
+  String get goSetupInvalid => 'Solo tus cuatro filas de abajo admiten piezas.';
 }

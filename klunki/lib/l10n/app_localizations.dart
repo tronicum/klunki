@@ -1551,13 +1551,13 @@ abstract class AppLocalizations {
   /// GoStrategy setup hint line.
   ///
   /// In de, this message translates to:
-  /// **'Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.'**
+  /// **'Tippe zwei Figuren an oder ziehe eine auf ein anderes Feld deiner vier Reihen, um sie zu tauschen. Dann „Fertig“.'**
   String get goSetupHint;
 
   /// GoStrategy setup hint after the first piece of a swap was tapped. piece = piece name.
   ///
   /// In de, this message translates to:
-  /// **'{piece} gewählt – tippe eine zweite Figur zum Tauschen.'**
+  /// **'{piece} gewählt – tippe ein anderes Feld deiner vier Reihen zum Tauschen.'**
   String goSetupSelected(String piece);
 
   /// GoStrategy setup button: new random setup.
@@ -2507,6 +2507,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Karte {id}: {name}, Set {set}'**
   String quartettCardSemantics(String id, String name, String set);
+
+  /// KLD-081 GoStrategy setup on the board: hint when a piece is dropped or placed outside the own four home rows.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur deine vier Reihen unten nehmen Figuren auf.'**
+  String get goSetupInvalid;
 }
 
 class _AppLocalizationsDelegate

@@ -240,8 +240,8 @@
   "goPieceFlag": "Flag",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "Set up your army ({player})",
-  "goSetupHint": "Tap two pieces to swap them, then “Done”.",
-  "goSetupSelected": "{piece} selected – tap a second piece to swap.",
+  "goSetupHint": "Tap two pieces, or drag one onto another square of your four rows, to swap them. Then “Done”.",
+  "goSetupSelected": "{piece} selected – tap another square of your four rows to swap.",
   "goSetupShuffle": "Shuffle",
   "goSetupDone": "Done",
   "goSetupFirst": "{player} sets up first – you can prepare meanwhile.",
@@ -399,5 +399,6 @@
   "quartettGalleryNext": "Next card",
   "quartettGalleryTopMenu": "Top 5 by stat",
   "quartettGalleryTopTitle": "Top 5: {stat}",
-  "quartettCardSemantics": "Card {id}: {name}, set {set}"
+  "quartettCardSemantics": "Card {id}: {name}, set {set}",
+  "goSetupInvalid": "Only your four rows at the bottom take pieces."
 }

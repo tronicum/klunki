@@ -241,8 +241,8 @@
   "goPieceFlag": "علم",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "رتّب جيشك ({player})",
-  "goSetupHint": "المس قطعتين لتبديلهما، ثم «تم».",
-  "goSetupSelected": "تم اختيار {piece} – المس قطعة ثانية للتبديل.",
+  "goSetupHint": "المس قطعتين أو اسحب قطعة إلى مربع آخر في صفوفك الأربعة لتبديلهما، ثم «تم».",
+  "goSetupSelected": "تم اختيار {piece} – المس مربعًا آخر في صفوفك الأربعة للتبديل.",
   "goSetupShuffle": "خلط من جديد",
   "goSetupDone": "تم",
   "goSetupFirst": "{player} يرتّب أولًا – يمكنك التحضير في الأثناء.",
@@ -400,5 +400,6 @@
   "quartettGalleryNext": "البطاقة التالية",
   "quartettGalleryTopMenu": "أفضل 5 حسب القيمة",
   "quartettGalleryTopTitle": "أفضل 5: {stat}",
-  "quartettCardSemantics": "البطاقة {id}: {name}، مجموعة {set}"
+  "quartettCardSemantics": "البطاقة {id}: {name}، مجموعة {set}",
+  "goSetupInvalid": "صفوفك الأربعة في الأسفل فقط تقبل القطع."
 }

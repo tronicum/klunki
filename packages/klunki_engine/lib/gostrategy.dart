@@ -179,6 +179,37 @@ class GoStrategyGame extends Game {
   /// The 40 home squares of [player], in setup order.
   static List<int> homeSquares(Player player) => [for (var i = 0; i < piecesPerPlayer; i++) setupSquare(player, i)];
 
+  /// Whether [square] is one of [player]'s 40 home squares (rows 6–9 for A,
+  /// 0–3 for B).
+  static bool isHome(Player player, int square) => setupIndexOf(player, square) != null;
+
+  /// Inverse of [setupSquare]: the setup index (0–39) of [square] for
+  /// [player], or null when it is not one of [player]'s home squares.
+  static int? setupIndexOf(Player player, int square) {
+    final i = player == Player.a ? square - 60 : 39 - square;
+    return i >= 0 && i < piecesPerPlayer ? i : null;
+  }
+
+  /// A setup in setup order ([setupMove] input) from a placement keyed by
+  /// board square (KLD-081): the UI edits squares, the engine maps them, so
+  /// what is shown is where the pieces stand. Throws [ArgumentError] unless
+  /// [placement] covers exactly [player]'s 40 home squares (piece counts are
+  /// checked by [setupError] when the move is applied).
+  static List<GoPiece> setupFromSquares(Player player, Map<int, GoPiece> placement) {
+    for (final sq in placement.keys) {
+      if (!isHome(player, sq)) throw ArgumentError.value(sq, 'placement', 'not a home square of ${player.name}');
+    }
+    if (placement.length != piecesPerPlayer) {
+      throw ArgumentError.value(placement.length, 'placement', 'need $piecesPerPlayer squares');
+    }
+    return List.unmodifiable([for (var i = 0; i < piecesPerPlayer; i++) placement[setupSquare(player, i)]!]);
+  }
+
+  /// Inverse of [setupFromSquares]: square → piece for a setup in setup
+  /// order (e.g. [randomSetup]).
+  static Map<int, GoPiece> setupToSquares(Player player, List<GoPiece> pieces) =>
+      {for (var i = 0; i < pieces.length && i < piecesPerPlayer; i++) setupSquare(player, i): pieces[i]};
+
   /// Moves (both players) without a fight before the game is a draw.
   final int noCaptureLimit;
 

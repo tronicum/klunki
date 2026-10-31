@@ -241,8 +241,8 @@
   "goPieceFlag": "پرچم",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "ارتشت را بچین ({player})",
-  "goSetupHint": "دو مهره را لمس کن تا جابه‌جا شوند، سپس «تمام».",
-  "goSetupSelected": "{piece} انتخاب شد – مهرهٔ دوم را برای جابه‌جایی لمس کن.",
+  "goSetupHint": "دو مهره را لمس کن یا یکی را روی خانهٔ دیگری از چهار ردیف خودت بکش تا جابه‌جا شوند، سپس «تمام».",
+  "goSetupSelected": "{piece} انتخاب شد – خانهٔ دیگری از چهار ردیف خودت را برای جابه‌جایی لمس کن.",
   "goSetupShuffle": "چیدمان تصادفی",
   "goSetupDone": "تمام",
   "goSetupFirst": "{player} اول می‌چیند – تو هم می‌توانی آماده شوی.",
@@ -400,5 +400,6 @@
   "quartettGalleryNext": "کارت بعدی",
   "quartettGalleryTopMenu": "5 برتر بر اساس مقدار",
   "quartettGalleryTopTitle": "5 برتر: {stat}",
-  "quartettCardSemantics": "کارت {id}: {name}، سری {set}"
+  "quartettCardSemantics": "کارت {id}: {name}، سری {set}",
+  "goSetupInvalid": "فقط چهار ردیف پایینِ خودت مهره می‌پذیرند."
 }

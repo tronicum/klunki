@@ -21,7 +21,7 @@ Player goViewer(GameController c) {
   return local.length == 1 ? local.single : c.game.currentPlayer;
 }
 
-/// The GoStrategy board (KLD-058b): the setup editor until the viewer's army
+/// The GoStrategy board (KLD-058b): the setup editor on the board (KLD-081) until the viewer's army
 /// stands, then the 10×10 board with the armies panel and the fight reveal.
 ///
 /// Renders only [GoStrategyGame.viewFor] of [goViewer] plus the public fight
@@ -45,9 +45,17 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
       if (s == AnimationStatus.completed && mounted) setState(() => _fight = null);
     });
 
-  /// Setup arrangement per player (setup order), kept while arranging.
-  final Map<Player, List<GoPiece>> _arrangement = {};
+  /// Setup draft per player, keyed by engine square (KLD-081): the editor
+  /// shows and edits squares on the real board; [GoStrategyGame.setupFromSquares]
+  /// turns the draft into the setup move. Kept while arranging, and after an
+  /// undo of the setup.
+  final Map<Player, Map<int, GoPiece>> _draft = {};
+
+  /// The square picked first for a swap (setup).
   int? _swapFirst;
+
+  /// A square that just refused a piece (outside the own four rows).
+  int? _rejected;
 
   int? _selected;
   List<int> _targets = const [];
@@ -87,8 +95,9 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
 
   void _reset() {
     _transport = controller.transport;
-    _arrangement.clear();
+    _draft.clear();
     _swapFirst = null;
+    _rejected = null;
     _selected = null;
     _targets = const [];
     _seen = controller.moves.length;
@@ -108,14 +117,12 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
         _selected = null;
         _targets = const [];
         _swapFirst = null;
+        _rejected = null;
         if (moves.length < _seen) {
-          // Undo: drop a running reveal; forget arrangements of players
-          // whose setup was taken back so they start fresh.
+          // Undo: drop a running reveal. A setup taken back returns to the
+          // editor with its draft as it was submitted.
           _fight = null;
           _reveal.stop();
-          for (final p in Player.values) {
-            if (!game.hasSetup(p)) _arrangement.remove(p);
-          }
         } else {
           _fight = GoFight.fromMove(moves.last);
           _fightStarted = false;
@@ -139,34 +146,65 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
 
   // ----------------------------------------------------------------- setup
 
-  List<GoPiece> _arrangementOf(Player p) => _arrangement.putIfAbsent(
+  /// [p]'s draft (square → piece), starting from the seeded random setup.
+  Map<int, GoPiece> _draftOf(Player p) => _draft.putIfAbsent(
         p,
-        () => List.of(GoStrategyGame.randomSetup(controller.config.seed * 2 + (p == Player.a ? 0 : 1))),
+        () => GoStrategyGame.setupToSquares(
+            p, GoStrategyGame.randomSetup(controller.config.seed * 2 + (p == Player.a ? 0 : 1))),
       );
 
   void _shuffle(Player p) => setState(() {
-        _arrangement[p] = List.of(GoStrategyGame.randomSetup(_rng.nextInt(1 << 31)));
+        _draft[p] = GoStrategyGame.setupToSquares(p, GoStrategyGame.randomSetup(_rng.nextInt(1 << 31)));
         _swapFirst = null;
+        _rejected = null;
       });
 
-  void _tapSetup(Player p, int i) => setState(() {
+  /// Moves the piece on [from] to [to], swapping with what stands there.
+  /// Only [p]'s home squares take pieces; anything else is refused (and
+  /// shown as such).
+  void _place(Player p, int from, int to) {
+    final draft = _draftOf(p);
+    if (!GoStrategyGame.isHome(p, to) || !draft.containsKey(from)) {
+      _rejected = to;
+      return;
+    }
+    _rejected = null;
+    if (from == to) return;
+    final moving = draft[from]!;
+    final there = draft[to];
+    if (there == null) {
+      draft.remove(from);
+    } else {
+      draft[from] = there;
+    }
+    draft[to] = moving;
+  }
+
+  void _tapSetup(Player p, int sq) => setState(() {
         final first = _swapFirst;
         if (first == null) {
-          _swapFirst = i;
-        } else if (first == i) {
+          _rejected = null;
+          if (_draftOf(p).containsKey(sq)) _swapFirst = sq;
+        } else if (first == sq) {
           _swapFirst = null;
         } else {
-          final list = _arrangementOf(p);
-          final t = list[first];
-          list[first] = list[i];
-          list[i] = t;
-          _swapFirst = null;
+          _place(p, first, sq);
+          if (_rejected == null) _swapFirst = null;
         }
       });
 
+  void _dropSetup(Player p, int from, int to) => setState(() {
+        _swapFirst = null;
+        _place(p, from, to);
+      });
+
+  bool _setupComplete(Player p) => _draftOf(p).length == GoStrategyGame.piecesPerPlayer;
+
   void _submitSetup(Player p) {
+    if (!_setupComplete(p)) return;
     _swapFirst = null;
-    controller.submit(GoStrategyGame.setupMove(_arrangementOf(p)));
+    _rejected = null;
+    controller.submit(GoStrategyGame.setupMove(GoStrategyGame.setupFromSquares(p, _draftOf(p))));
   }
 
   // ------------------------------------------------------------------ play
@@ -208,11 +246,14 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
     if (!g.hasSetup(me) && !g.isOver) {
       final mine = controller.canAct && g.currentPlayer == me;
       final first = _swapFirst;
-      shell.setHint(!mine
-          ? l10n.goSetupFirst(label(goOther(me)))
-          : first == null
-              ? l10n.goSetupHint
-              : l10n.goSetupSelected(goPieceName(l10n, _arrangementOf(me)[first])));
+      final picked = first == null ? null : _draftOf(me)[first];
+      shell.setHint(_rejected != null
+          ? l10n.goSetupInvalid
+          : !mine
+              ? l10n.goSetupFirst(label(goOther(me)))
+              : picked == null
+                  ? l10n.goSetupHint
+                  : l10n.goSetupSelected(goPieceName(l10n, picked)));
       return _Setup(state: this, me: me, canSubmit: mine, title: l10n.goSetupTitle(playerMark(me)));
     }
 
@@ -238,6 +279,13 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
 
 // ------------------------------------------------------------------ setup
 
+/// The setup editor on the real 10×10 board (KLD-081): same squares, same
+/// orientation as play ([GoBoardFrame], turned for O), the lakes and the
+/// neutral rows visible, the enemy's four rows dimmed and empty (their
+/// setup is never shown, also not in hot-seat). Only the own four rows take
+/// pieces: tap two pieces to swap them, or drag a piece onto another square
+/// of the own rows (swap). Cells keep the play keys `go-cell-<square>`, so
+/// what you see here is where the pieces will stand.
 class _Setup extends StatelessWidget {
   final _GoStrategyBoardState state;
   final Player me;
@@ -250,8 +298,8 @@ class _Setup extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final list = state._arrangementOf(me);
-    final palette = KlunkiPalette.of(context).gostrategy;
+    final draft = state._draftOf(me);
+    final complete = state._setupComplete(me);
 
     final buttons = Wrap(
       spacing: 8,
@@ -265,39 +313,50 @@ class _Setup extends StatelessWidget {
         ),
         FilledButton.icon(
           key: const Key('go-done'),
-          onPressed: canSubmit ? () => state._submitSetup(me) : null,
+          onPressed: canSubmit && complete ? () => state._submitSetup(me) : null,
           icon: const Icon(Icons.check),
           label: Text(l10n.goSetupDone),
         ),
       ],
     );
 
-    Widget grid(double width) {
-      final cell = width / GoStrategyGame.size;
-      return LtrBoard(
-        child: Container(
-          key: const Key('go-setup-grid'),
-          width: width,
-          height: cell * 4,
-          decoration: BoxDecoration(
-            color: palette.land,
-            border: Border.all(color: palette.edge, width: 1.5),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Column(
-            children: [
-              for (var row = 0; row < 4; row++)
-                Expanded(
-                  child: Row(
-                    children: [
-                      for (var col = 0; col < GoStrategyGame.size; col++)
-                        Expanded(child: _setupCell(context, list, row * GoStrategyGame.size + col, cell)),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
+    Widget square(int sq, double size) {
+      final piece = draft[sq];
+      final home = GoStrategyGame.isHome(me, sq);
+      final lake = GoStrategyGame.isLake(sq);
+      final cell = lake ? const GoCell(lake: true) : GoCell(owner: piece == null ? null : me, piece: piece);
+      final content = lake ? l10n.goCellLake : (piece == null ? l10n.goCellFree : goPieceLabel(l10n, piece));
+      return DragTarget<int>(
+        onWillAcceptWithDetails: (d) => home,
+        onAcceptWithDetails: (d) => state._dropSetup(me, d.data, sq),
+        builder: (context, accepted, rejected) {
+          final view = GoSquareView(
+            key: Key('go-cell-$sq'),
+            square: sq,
+            cell: cell,
+            viewer: me,
+            selected: state._swapFirst == sq,
+            target: false,
+            lastMove: false,
+            size: size,
+            dimmed: !lake && GoStrategyGame.isHome(goOther(me), sq),
+            drop: home && accepted.isNotEmpty,
+            refused: rejected.isNotEmpty || state._rejected == sq,
+            semanticLabel: l10n.goCellLabel(goSquareName(sq), content),
+            onTap: lake ? null : () => state._tapSetup(me, sq),
+          );
+          if (piece == null) return view;
+          return Draggable<int>(
+            data: sq,
+            dragAnchorStrategy: pointerDragAnchorStrategy,
+            feedback: Transform.translate(
+              offset: Offset(-size * 0.5, -size * 0.5),
+              child: GoPieceTile(owner: me, piece: piece, size: size * 0.95),
+            ),
+            childWhenDragging: Opacity(opacity: 0.35, child: view),
+            child: view,
+          );
+        },
       );
     }
 
@@ -329,62 +388,178 @@ class _Setup extends StatelessWidget {
     );
 
     return LayoutBuilder(builder: (context, box) {
-      final width = max(120.0, min(min(box.maxWidth - 24, 640.0), box.maxHeight * 0.9));
-      return Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 664),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(title, key: const Key('go-setup-title'), style: theme.textTheme.titleMedium),
-                const SizedBox(height: 6),
-                buttons,
-                const SizedBox(height: 10),
-                Center(child: grid(width)),
-                const SizedBox(height: 10),
-                Expanded(child: SingleChildScrollView(child: legend)),
-              ],
-            ),
+      final wide = box.maxWidth >= 720 && box.maxWidth > box.maxHeight;
+      final header = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(title, key: const Key('go-setup-title'), style: theme.textTheme.titleMedium),
+          const SizedBox(height: 6),
+          buttons,
+        ],
+      );
+      if (wide) {
+        final extent = min(box.maxHeight - 24, box.maxWidth - 340);
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Center(child: GoBoardFrame(flip: me == Player.b, extent: extent, square: square))),
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 300,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [header, const SizedBox(height: 12), legend],
+                  ),
+                ),
+              ),
+            ],
           ),
+        );
+      }
+      // Phone: header, the board as large as the space allows (as in play),
+      // the legend scrolling in what is left.
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: header),
+            const SizedBox(height: 8),
+            Expanded(
+              child: LayoutBuilder(builder: (context, rest) {
+                final extent = min(rest.maxWidth, max(rest.maxHeight - 56, min(rest.maxHeight, 120.0)));
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(child: GoBoardFrame(flip: me == Player.b, extent: extent, square: square)),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
+                        child: legend,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+            ),
+          ],
         ),
       );
     });
   }
+}
 
-  Widget _setupCell(BuildContext context, List<GoPiece> list, int i, double cell) {
+// ------------------------------------------------------------- board frame
+
+/// The 10×10 board with its coordinates, shared by setup and play
+/// (KLD-081), so both look and turn the same. [flip] turns it by 180° for O
+/// (own army at the bottom); the engine squares are untouched, [square]
+/// builds the widget for an engine square. Files a–j under the board and
+/// ranks 1–10 on its left turn with it (the names of [goSquareName]).
+/// [extent] is the whole size including the coordinate bands.
+class GoBoardFrame extends StatelessWidget {
+  final bool flip;
+  final double extent;
+  final Widget Function(int square, double size) square;
+
+  const GoBoardFrame({super.key, required this.flip, required this.extent, required this.square});
+
+  /// Width of the coordinate band for a frame of [extent].
+  static double bandFor(double extent) => (extent * 0.045).clamp(12.0, 20.0);
+
+  @override
+  Widget build(BuildContext context) {
     final palette = KlunkiPalette.of(context).gostrategy;
-    final l10n = AppLocalizations.of(context);
-    final selected = state._swapFirst == i;
-    final row = i ~/ GoStrategyGame.size, col = i % GoStrategyGame.size;
-    final sq = GoStrategyGame.setupSquare(me, i);
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: l10n.goCellLabel(goSquareName(sq), goPieceLabel(l10n, list[i])),
-      child: GestureDetector(
-        key: Key('go-setup-$i'),
-        behavior: HitTestBehavior.opaque,
-        onTap: () => state._tapSetup(me, i),
-        child: Container(
-          decoration: BoxDecoration(
-            color: (row + col).isEven ? palette.land : palette.landAlt,
-            border: Border.all(color: palette.line, width: 0.5),
-          ),
-          padding: EdgeInsets.all(cell * 0.06),
-          child: AnimatedScale(
-            scale: selected ? 1.08 : 1,
-            duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 120),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(cell * 0.2),
-                border: selected ? Border.all(color: palette.select, width: 3) : null,
+    final theme = Theme.of(context);
+    final band = bandFor(extent);
+    final side = extent - band - 4;
+    final cell = side / GoStrategyGame.size;
+    final style = theme.textTheme.labelSmall?.copyWith(
+      fontSize: (band * 0.62).clamp(9.0, 12.0),
+      color: theme.colorScheme.onSurfaceVariant,
+      fontWeight: FontWeight.w600,
+      height: 1,
+    );
+    int rowAt(int dr) => flip ? GoStrategyGame.size - 1 - dr : dr;
+    int colAt(int dc) => flip ? GoStrategyGame.size - 1 - dc : dc;
+
+    final board = Container(
+      key: const Key('go-board'),
+      width: side + 4,
+      height: side + 4,
+      decoration: BoxDecoration(
+        color: palette.edge,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 3))],
+      ),
+      padding: const EdgeInsets.all(2),
+      child: Column(
+        children: [
+          for (var dr = 0; dr < GoStrategyGame.size; dr++)
+            Expanded(
+              child: Row(
+                children: [
+                  for (var dc = 0; dc < GoStrategyGame.size; dc++)
+                    Expanded(child: square(GoStrategyGame.square(rowAt(dr), colAt(dc)), cell)),
+                ],
               ),
-              child: ExcludeSemantics(child: GoPieceTile(owner: me, piece: list[i], size: cell * 0.88)),
             ),
+        ],
+      ),
+    );
+
+    // A visual aid only: every square's semantics label already names it.
+    final ranks = ExcludeSemantics(
+      child: SizedBox(
+        width: band,
+        height: side + 4,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Column(
+            children: [
+              for (var dr = 0; dr < GoStrategyGame.size; dr++)
+                Expanded(
+                  child: Center(
+                    child: Text('${GoStrategyGame.size - rowAt(dr)}', key: Key('go-rank-$dr'), style: style),
+                  ),
+                ),
+            ],
           ),
+        ),
+      ),
+    );
+    final files = ExcludeSemantics(
+      child: SizedBox(
+        width: side + 4,
+        height: band,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Row(
+            children: [
+              for (var dc = 0; dc < GoStrategyGame.size; dc++)
+                Expanded(
+                  child: Center(
+                    child: Text(String.fromCharCode(0x61 + colAt(dc)), key: Key('go-file-$dc'), style: style),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return LtrBoard(
+      child: SizedBox(
+        width: side + 4 + band,
+        height: side + 4 + band,
+        child: Column(
+          children: [
+            Row(children: [ranks, board]),
+            Row(children: [SizedBox(width: band), files]),
+          ],
         ),
       ),
     );
@@ -399,6 +574,10 @@ class GoSquareView extends StatelessWidget {
   final GoCell cell;
   final Player viewer;
   final bool selected, target, lastMove;
+
+  /// Setup (KLD-081): the enemy's rows, dimmed; a valid drop under a
+  /// dragged piece; a square that refuses a piece (red).
+  final bool dimmed, drop, refused;
   final double size;
   final String semanticLabel;
   final VoidCallback? onTap;
@@ -411,6 +590,9 @@ class GoSquareView extends StatelessWidget {
     required this.selected,
     required this.target,
     required this.lastMove,
+    this.dimmed = false,
+    this.drop = false,
+    this.refused = false,
     required this.size,
     required this.semanticLabel,
     this.onTap,
@@ -427,19 +609,12 @@ class GoSquareView extends StatelessWidget {
     if (owner != null) {
       piece = Padding(
         padding: EdgeInsets.all(size * 0.07),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(size * 0.2),
-            border: selected ? Border.all(color: p.select, width: max(2, size * 0.08)) : null,
-            boxShadow: selected ? [BoxShadow(color: p.select.withValues(alpha: 0.6), blurRadius: size * 0.2)] : null,
-          ),
-          child: GoPieceTile(
-            owner: owner,
-            piece: cell.piece,
-            size: size * 0.86,
-            moved: cell.moved,
-            known: owner == viewer && cell.revealed,
-          ),
+        child: GoPieceTile(
+          owner: owner,
+          piece: cell.piece,
+          size: size * 0.86,
+          moved: cell.moved,
+          known: owner == viewer && cell.revealed,
         ),
       );
     }
@@ -467,7 +642,38 @@ class GoSquareView extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 if (lastMove) ColoredBox(color: p.lastMove),
+                if (dimmed) ColoredBox(key: const Key('go-dimmed'), color: Colors.black.withValues(alpha: 0.22)),
+                if (drop) ColoredBox(key: const Key('go-drop'), color: p.target.withValues(alpha: 0.35)),
                 ?piece,
+                // The selection on top of the piece (KLD-081: it used to sit
+                // underneath, hidden by the tile): a thick amber ring with a
+                // dark inner line and a glow, clear on red, blue and the land.
+                if (selected)
+                  IgnorePointer(
+                    child: Container(
+                      key: const Key('go-selected'),
+                      margin: EdgeInsets.all(size * 0.02),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(size * 0.2),
+                        border: Border.all(color: p.select, width: max(3, size * 0.11)),
+                        boxShadow: [BoxShadow(color: p.select.withValues(alpha: 0.7), blurRadius: size * 0.25)],
+                      ),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(size * 0.12),
+                          border: Border.all(color: Colors.black.withValues(alpha: 0.75), width: max(1, size * 0.03)),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (refused)
+                  Container(
+                    key: const Key('go-refused'),
+                    decoration: BoxDecoration(
+                      color: p.attack.withValues(alpha: 0.25),
+                      border: Border.all(color: p.attack, width: max(2, size * 0.07)),
+                    ),
+                  ),
                 if (target && !attack)
                   Center(
                     child: Container(
@@ -511,7 +717,6 @@ class _Play extends StatelessWidget {
     final view = g.viewFor(me);
     final l10n = AppLocalizations.of(context);
     final labels = PlayerLabelsScope.of(context);
-    final palette = KlunkiPalette.of(context).gostrategy;
     final flip = me == Player.b;
     final canAct = state.controller.canAct && g.phase == GoStrategyPhase.play;
     final targets = state._targets.toSet();
@@ -534,65 +739,26 @@ class _Play extends StatelessWidget {
       return l10n.goCellLabel(goSquareName(sq), content);
     }
 
-    Widget board(double side) {
-      final cell = side / GoStrategyGame.size;
-      return LtrBoard(
-        child: Container(
-          key: const Key('go-board'),
-          width: side + 4,
-          height: side + 4,
-          decoration: BoxDecoration(
-            color: palette.edge,
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 3))],
-          ),
-          padding: const EdgeInsets.all(2),
-          child: Column(
-            children: [
-              for (var dr = 0; dr < GoStrategyGame.size; dr++)
-                Expanded(
-                  child: Row(
-                    children: [
-                      for (var dc = 0; dc < GoStrategyGame.size; dc++)
-                        Expanded(
-                          child: Builder(builder: (context) {
-                            // Rendering only: O sees the board turned by 180°.
-                            final r = flip ? GoStrategyGame.size - 1 - dr : dr;
-                            final c = flip ? GoStrategyGame.size - 1 - dc : dc;
-                            final sq = GoStrategyGame.square(r, c);
-                            return GoSquareView(
-                              key: Key('go-cell-$sq'),
-                              square: sq,
-                              cell: view[sq],
-                              viewer: me,
-                              selected: state._selected == sq,
-                              target: targets.contains(sq),
-                              lastMove: last != null && (last.$1 == sq || last.$2 == sq),
-                              size: cell,
-                              semanticLabel: cellLabel(sq),
-                              onTap: canAct && !view[sq].lake ? () => state._tapSquare(me, view, sq) : null,
-                            );
-                          }),
-                        ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
+    Widget square(int sq, double size) => GoSquareView(
+          key: Key('go-cell-$sq'),
+          square: sq,
+          cell: view[sq],
+          viewer: me,
+          selected: state._selected == sq,
+          target: targets.contains(sq),
+          lastMove: last != null && (last.$1 == sq || last.$2 == sq),
+          size: size,
+          semanticLabel: cellLabel(sq),
+          onTap: canAct && !view[sq].lake ? () => state._tapSquare(me, view, sq) : null,
+        );
 
     final fight = state._fight;
-    Widget boardWithReveal(double side) => SizedBox.square(
-          dimension: side + 4,
-          child: Stack(
-            children: [
-              board(side),
-              if (fight != null)
-                Positioned.fill(child: _FightReveal(fight: fight, animation: state._reveal, onDismiss: state._dismissReveal)),
-            ],
-          ),
+    Widget boardWithReveal(double extent) => Stack(
+          children: [
+            GoBoardFrame(flip: flip, extent: extent, square: square),
+            if (fight != null)
+              Positioned.fill(child: _FightReveal(fight: fight, animation: state._reveal, onDismiss: state._dismissReveal)),
+          ],
         );
 
     final panel = _ArmyPanel(game: g, me: me);
@@ -600,7 +766,7 @@ class _Play extends StatelessWidget {
     return LayoutBuilder(builder: (context, box) {
       final wide = box.maxWidth >= 720 && box.maxWidth > box.maxHeight;
       if (wide) {
-        final side = min(box.maxHeight - 24, box.maxWidth - 340) - 4;
+        final side = min(box.maxHeight - 24, box.maxWidth - 340);
         return Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -613,7 +779,7 @@ class _Play extends StatelessWidget {
           ),
         );
       }
-      final side = min(box.maxWidth - 16, box.maxHeight * 0.68) - 4;
+      final side = min(box.maxWidth - 16, box.maxHeight * 0.68);
       return Padding(
         padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         child: Column(

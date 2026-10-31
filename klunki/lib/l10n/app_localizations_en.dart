@@ -950,11 +950,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get goSetupHint => 'Tap two pieces to swap them, then “Done”.';
+  String get goSetupHint =>
+      'Tap two pieces, or drag one onto another square of your four rows, to swap them. Then “Done”.';
 
   @override
   String goSetupSelected(String piece) {
-    return '$piece selected – tap a second piece to swap.';
+    return '$piece selected – tap another square of your four rows to swap.';
   }
 
   @override
@@ -1518,4 +1519,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Card $id: $name, set $set';
   }
+
+  @override
+  String get goSetupInvalid => 'Only your four rows at the bottom take pieces.';
 }
