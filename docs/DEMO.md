@@ -400,10 +400,23 @@ also serves the PWA. The host stays authoritative; the relay only forwards messa
    `http://<mac-ip>:8000/` → **Über WLAN spielen** → types the code under **Mit Raumcode beitreten** (case, spaces
    and dashes do not matter) → **Raum beitreten**. Both switch to the game.
 
-The PWA uses its own origin as the relay (`ws://<location.host>/relay`). If the PWA is served from somewhere
-else, "Erweitert: Relay-Adresse" takes another relay (`host:port`); the host's link then carries `&relay=…`.
-The iOS/Android apps can join a browser's room too: **Über WLAN spielen** → **Beitreten** → **Mit Raumcode
-beitreten** with the relay address (`<mac-ip>:8000`) filled in.
+The PWA uses its own origin as the relay (`ws://<location.host>/relay`). Hosting and joining share **one**
+relay setting, shown as the line "Relay: <mac-ip>:8000 · ändern" under **Über Relay spielen (Raumcode)** and on
+the host setup; "ändern" takes another relay (`host:port`, "Standard: …" goes back to the page's own), and the
+host's link then carries `&relay=…`. The iOS/Android apps can join a browser's room too: **Über WLAN spielen**
+→ **Beitreten** → type the code under **Mit Raumcode beitreten**; the first time the app asks for the relay
+address (`<mac-ip>:8000`) and remembers it. Or scan the host's QR code (next section).
+
+### Join by scanning (KLD-052)
+In the iOS/Android app: **Über WLAN spielen** → **Beitreten** → **QR-Code scannen** (camera icon). Point the
+camera at the QR code of either kind of host:
+- another app hosting on the Wi-Fi (its `klunki://join?…` code) → joins it directly;
+- a browser hosting through the relay (its `http://<mac-ip>:8000/?room=K7Q2M` code) → joins the room and
+  remembers the relay for the room-code field and later games.
+
+Any other QR code shows "Kein Klunki-Code" and the scanner keeps looking. The first scan asks for camera access;
+if it was denied, the scanner says so and "Code eintippen" goes back to the fields (allow the camera later in the
+system settings → Klunki). The PWA has no scan button: use the phone's camera app on the QR code instead.
 
 What the audience sees: the host's waiting screen with the code, then both browsers in the game with the
 connection bar ("Du (Ada, X) · Gegner: Bea (O)"); moves cross over instantly. If the host leaves, the guest sees
@@ -428,7 +441,7 @@ A browser can join a CLI host's room and vice versa.
 
 Troubleshooting:
 - "Kein Relay erreichbar unter …" = the page is not served by `klunki relay` (e.g. a plain python server):
-  start the relay as in step 1 and open the page from it, or enter the relay under "Erweitert".
+  start the relay as in step 1 and open the page from it, or set the relay with "ändern" on the relay line.
 - "Kein Raum mit dem Code …" = typo or the host is gone; rooms also expire after 10 minutes without traffic
   ("Der Raum ist abgelaufen").
 - "Raum … ist schon voll" = someone already joined (a guest whose Wi-Fi dropped can rejoin after about 10 s).

@@ -1541,6 +1541,108 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Oder mit einem Host-Gerät verbinden (App oder Terminal)'**
   String get webJoinDirectTitle;
+
+  /// Join tab (app): button that opens the camera to scan the host's QR code; also the scanner screen title.
+  ///
+  /// In de, this message translates to:
+  /// **'QR-Code scannen'**
+  String get qrScanButton;
+
+  /// Scanner screen: instruction below the viewfinder.
+  ///
+  /// In de, this message translates to:
+  /// **'Richte die Kamera auf den QR-Code des Gastgebers.'**
+  String get qrScanHint;
+
+  /// Scanner screen: the scanned QR code is not a Klunki join code; scanning continues.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Klunki-Code. Scanne den QR-Code, den das Spiel beim Hosten zeigt.'**
+  String get qrScanNotKlunki;
+
+  /// Scanner screen: tooltip of the torch button (torch is off).
+  ///
+  /// In de, this message translates to:
+  /// **'Licht einschalten'**
+  String get qrScanTorchOn;
+
+  /// Scanner screen: tooltip of the torch button (torch is on).
+  ///
+  /// In de, this message translates to:
+  /// **'Licht ausschalten'**
+  String get qrScanTorchOff;
+
+  /// Scanner screen: camera permission was denied.
+  ///
+  /// In de, this message translates to:
+  /// **'Klunki darf die Kamera nicht benutzen.'**
+  String get qrScanPermissionDenied;
+
+  /// Scanner screen: how to allow the camera again (system settings).
+  ///
+  /// In de, this message translates to:
+  /// **'Du kannst den Kamerazugriff für Klunki in den Einstellungen des Geräts erlauben.'**
+  String get qrScanPermissionHint;
+
+  /// Scanner screen: no camera or the camera could not be started.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Kamera ist nicht verfügbar.'**
+  String get qrScanUnavailable;
+
+  /// Scanner screen: button back to the join tab to type the code or address instead.
+  ///
+  /// In de, this message translates to:
+  /// **'Code eintippen'**
+  String get qrScanTypeInstead;
+
+  /// Join screens: heading of the group with "Spiel hosten" and "Mit Raumcode beitreten" (both go through the relay).
+  ///
+  /// In de, this message translates to:
+  /// **'Über Relay spielen (Raumcode)'**
+  String get relayGroupTitle;
+
+  /// Relay line: action that opens the relay address dialog (lower case, after "Relay: <address> ·").
+  ///
+  /// In de, this message translates to:
+  /// **'ändern'**
+  String get relayChange;
+
+  /// Relay line when no relay address is set (native app before the first relay).
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Relay eingerichtet – Adresse eingeben'**
+  String get relayNotSet;
+
+  /// Relay dialog: button back to the default relay (the page's own server); address = host:port.
+  ///
+  /// In de, this message translates to:
+  /// **'Standard: {address}'**
+  String relayUseDefault(String address);
+
+  /// Relay dialog: confirm button.
+  ///
+  /// In de, this message translates to:
+  /// **'Übernehmen'**
+  String get relaySave;
+
+  /// Room-code join: where the code comes from.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Raumcode kommt von einem Browser, der „Spiel hosten“ gewählt hat.'**
+  String get relayJoinIntro;
+
+  /// Join screens: heading of the secondary group that connects directly to a device that hosts itself (IP address).
+  ///
+  /// In de, this message translates to:
+  /// **'Direkt mit einem Gerät verbinden'**
+  String get joinDirectTitle;
+
+  /// Join screens: helper below joinDirectTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Für ein Handy, Tablet oder Terminal, das selbst hostet: Geräte-Adresse (IP) eingeben.'**
+  String get joinDirectHelper;
 }
 
 class _AppLocalizationsDelegate

@@ -56,6 +56,12 @@ dependencies:
   # Renders the join QR code (pure Flutter, no permissions; scanning = KLD-052).
   qr_flutter: ^4.1.0
 
+  # Scans a host's QR code to join (KLD-052). Pinned: 7.4.3 was published
+  # 2026-10-31, too fresh; 7.4.2 (2026-09-14) uses Apple Vision/AVFoundation
+  # on iOS (no MLKit pods) and links via SwiftPM. Not used on the web (its web
+  # decoders load from a CDN; the PWA hides the scan button).
+  mobile_scanner: 7.4.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -238,5 +238,22 @@
   "relayErrorLost": "The connection to the relay was lost.",
   "relayStartHint": "Browser vs browser needs a relay. Start it on a computer on the Wi-Fi and open Klunki from its address:",
   "relayRoomLost": "{reason} Start a new game.",
-  "webJoinDirectTitle": "Or connect to a host device (app or terminal)"
+  "webJoinDirectTitle": "Or connect to a host device (app or terminal)",
+  "qrScanButton": "Scan QR code",
+  "qrScanHint": "Point the camera at the host's QR code.",
+  "qrScanNotKlunki": "Not a Klunki code. Scan the QR code the game shows when hosting.",
+  "qrScanTorchOn": "Turn on light",
+  "qrScanTorchOff": "Turn off light",
+  "qrScanPermissionDenied": "Klunki is not allowed to use the camera.",
+  "qrScanPermissionHint": "You can allow camera access for Klunki in the device settings.",
+  "qrScanUnavailable": "The camera is not available.",
+  "qrScanTypeInstead": "Type the code",
+  "relayGroupTitle": "Play via relay (room code)",
+  "relayChange": "change",
+  "relayNotSet": "No relay set up – enter an address",
+  "relayUseDefault": "Default: {address}",
+  "relaySave": "Apply",
+  "relayJoinIntro": "The room code comes from a browser that chose “Host game”.",
+  "joinDirectTitle": "Connect directly to a device",
+  "joinDirectHelper": "For a phone, tablet or terminal that hosts itself: enter the device address (IP)."
 }

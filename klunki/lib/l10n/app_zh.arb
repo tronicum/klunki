@@ -239,5 +239,22 @@
   "relayErrorLost": "与中继的连接已断开。",
   "relayStartHint": "浏览器对战浏览器需要一个中继。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：",
   "relayRoomLost": "{reason}请开始新游戏。",
-  "webJoinDirectTitle": "或连接到主机设备（应用或终端）"
+  "webJoinDirectTitle": "或连接到主机设备（应用或终端）",
+  "qrScanButton": "扫描二维码",
+  "qrScanHint": "将摄像头对准主机的二维码。",
+  "qrScanNotKlunki": "不是 Klunki 二维码。请扫描游戏创建时显示的二维码。",
+  "qrScanTorchOn": "打开手电筒",
+  "qrScanTorchOff": "关闭手电筒",
+  "qrScanPermissionDenied": "Klunki 无权使用摄像头。",
+  "qrScanPermissionHint": "你可以在设备设置中允许 Klunki 使用摄像头。",
+  "qrScanUnavailable": "摄像头不可用。",
+  "qrScanTypeInstead": "输入代码",
+  "relayGroupTitle": "通过中继游戏（房间码）",
+  "relayChange": "更改",
+  "relayNotSet": "未设置中继，请输入地址",
+  "relayUseDefault": "默认：{address}",
+  "relaySave": "应用",
+  "relayJoinIntro": "房间码来自选择了“创建对局”的浏览器。",
+  "joinDirectTitle": "直接连接设备",
+  "joinDirectHelper": "适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。"
 }

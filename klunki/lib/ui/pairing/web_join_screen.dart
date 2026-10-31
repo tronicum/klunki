@@ -7,6 +7,7 @@ import 'package:klunki_net/guest_web.dart' show relayUriForPage;
 import '../../net/join_payload.dart';
 import '../../net/room_link.dart';
 import '../../net/web_join_target.dart';
+import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
@@ -14,6 +15,7 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'network_game_session.dart';
 import 'relay_host_screen.dart';
+import 'relay_line.dart';
 import 'room_join.dart';
 
 /// Joins the host's WebSocket endpoint [url] (`ws://host:port`).
@@ -43,6 +45,9 @@ class WebJoinDeps {
   /// opens, e.g. a host on another network).
   final Duration joinTimeout;
 
+  /// The relay setting shared by "Spiel hosten" and the room-code join.
+  final RelaySettings Function() relaySettings;
+
   const WebJoinDeps({
     required this.joinTransport,
     this.relayJoin = platformRelayJoin,
@@ -50,13 +55,17 @@ class WebJoinDeps {
     this.seed = newGameSeed,
     this.deviceName = _browser,
     this.joinTimeout = const Duration(seconds: 12),
+    this.relaySettings = RelaySettings.memory,
   });
 
   static String _browser() => webDefaultDeviceName;
 
   /// The real thing: `NetworkTransport.joinWebSocket`.
   factory WebJoinDeps.platform() =>
-      WebJoinDeps(joinTransport: (url, {required name}) => NetworkTransport.joinWebSocket(url, name: name));
+      WebJoinDeps(
+        joinTransport: (url, {required name}) => NetworkTransport.joinWebSocket(url, name: name),
+        relaySettings: RelaySettings.shared,
+      );
 }
 
 /// "Über WLAN spielen" in the browser (KLD-055): join-only. A web page can
@@ -107,6 +116,7 @@ class WebJoinScreen extends StatefulWidget {
 
 class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
   late final TextEditingController _address = TextEditingController(text: widget.initialInput ?? '');
+  late final RelaySettings _relaySettings = widget.deps.relaySettings();
   String? _addressError;
 
   /// The host being connected to (null: idle).
@@ -117,6 +127,17 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
   @override
   void initState() {
     super.initState();
+    // A `?room=` link names its relay (`&relay=`, else this page): it
+    // becomes the shared relay setting.
+    final room = widget.initialRoom;
+    if (room != null) {
+      final relay = room.relay;
+      if (relay == null || relay == _pageRelay) {
+        _relaySettings.reset();
+      } else {
+        _relaySettings.set(relay);
+      }
+    }
     if (widget.autoConnect && (widget.initialInput ?? '').trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await playerNameReady; // the first-run name dialog comes first
@@ -204,6 +225,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
         builder: (_) => RelayHostScreen(
           hostTransport: widget.deps.relayHost,
           defaultRelay: _pageRelay,
+          relaySettings: _relaySettings,
           pageUrl: widget.pageUrl,
           seed: widget.deps.seed,
           deviceName: widget.deps.deviceName,
@@ -227,8 +249,10 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     final target = WebJoinTarget.tryParse(_address.text);
     final game = target?.gameId;
     final directFirst = (widget.initialInput ?? '').trim().isNotEmpty;
-    // Browser vs browser through the relay (KLD-057b).
+    // Browser vs browser through the relay (KLD-057b): one group, one relay.
     final relay = <Widget>[
+      RelayGroupHeader(settings: _relaySettings, defaultRelay: _pageRelay, enabled: !busy),
+      const SizedBox(height: 12),
       FilledButton.tonalIcon(
         key: const Key('web-host'),
         onPressed: busy ? null : _host,
@@ -237,13 +261,13 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
       ),
       const SizedBox(height: 4),
       Text(l10n.relayHostIntro, style: theme.textTheme.bodySmall),
-      const Divider(height: 32),
+      const SizedBox(height: 24),
       RoomCodeJoin(
         joinTransport: widget.deps.relayJoin,
         joinTimeout: widget.deps.joinTimeout,
         defaultRelay: _pageRelay,
+        settings: _relaySettings,
         initialCode: widget.initialRoom?.code ?? widget.initialRoom?.raw,
-        initialRelay: widget.initialRoom?.relay,
         autoConnect: widget.initialRoom?.code != null,
         ready: playerNameReady,
         playerName: () => _deviceName,
@@ -251,9 +275,9 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
       ),
     ];
     final direct = <Widget>[
-      Text(l10n.webJoinDirectTitle, style: theme.textTheme.titleMedium),
-      const SizedBox(height: 8),
-      Text(l10n.webJoinIntro, key: const Key('web-join-intro')),
+      Text(l10n.joinDirectTitle, key: const Key('web-join-direct-title'), style: theme.textTheme.titleMedium),
+      const SizedBox(height: 4),
+      Text(l10n.joinDirectHelper, key: const Key('web-join-intro'), style: theme.textTheme.bodySmall),
       const SizedBox(height: 16),
       TextField(
         key: const Key('web-join-address'),

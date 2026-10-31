@@ -30,6 +30,8 @@
 	<array>
 		<string>_klunki._tcp</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Klunki nutzt die Kamera, um Spielcodes zu scannen.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Klunki sucht Mitspieler im selben WLAN und verbindet sich mit ihnen.</string>
 	<key>UIApplicationSceneManifest</key>
