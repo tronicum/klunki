@@ -45,7 +45,17 @@ enum GameEndReason {
   /// Draw: neither player can move.
   gostrategyBothBlocked('gostrategy.bothBlocked'),
   /// params: `moves` (the draw limit).
-  gostrategyMoveLimit('gostrategy.moveLimit');
+  gostrategyMoveLimit('gostrategy.moveLimit'),
+  /// The winner mated the loser (KLD-059).
+  chessCheckmate('chess.checkmate'),
+  /// Draw: the player to move has no legal move but is not in check.
+  chessStalemate('chess.stalemate'),
+  /// Draw: neither side can ever mate (e.g. K–K, K+B–K, K+N–K).
+  chessInsufficientMaterial('chess.insufficientMaterial'),
+  /// Draw: no capture or pawn move for `moves` (75) moves by each side.
+  chessSeventyFiveMoves('chess.seventyFiveMoves'),
+  /// Draw: the same position for the `times`-th (3rd) time.
+  chessThreefoldRepetition('chess.threefoldRepetition');
 
   final String code;
   const GameEndReason(this.code);

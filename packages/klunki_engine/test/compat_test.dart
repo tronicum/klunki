@@ -20,6 +20,7 @@ void main() {
     'quartett-sets/planes': (1, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
     'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
+    'chess': (1, 1, '5f2d81a850dc003d33424219c180126a'),
   };
 
   test('golden fingerprint per game and deck', () {
@@ -41,7 +42,7 @@ void main() {
   });
 
   test('unknown game or deck: no fingerprint', () {
-    expect(fingerprintOf(const GameConfig('chess')), isNull);
+    expect(fingerprintOf(const GameConfig('backgammon')), isNull);
     expect(fingerprintOf(const GameConfig('quartett-trumpf', deck: 'ships')), isNull);
   });
 

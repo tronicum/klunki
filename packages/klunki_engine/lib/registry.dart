@@ -1,3 +1,4 @@
+import 'chess.dart';
 import 'connect4.dart';
 import 'game.dart';
 import 'gostrategy.dart';
@@ -100,6 +101,9 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true, redaction: const SchiffeRedaction()),
   GameSpec('gostrategy', 'GoStrategy', (_, __) => GoStrategyGame(),
       hiddenInformation: true, redaction: const GoStrategyRedaction()),
+  // KLD-059 step 1: engine, CLI and debug console only; the app screen
+  // comes in step 2.
+  GameSpec('chess', 'Schach', (_, __) => ChessGame(), appReady: false),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

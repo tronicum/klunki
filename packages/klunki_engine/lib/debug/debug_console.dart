@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../chess.dart';
 import '../connect4.dart';
 import '../game.dart';
 import '../gostrategy.dart';
@@ -7,6 +8,7 @@ import '../muehle.dart';
 import '../quartett.dart';
 import '../schiffe.dart';
 
+import 'chess_text.dart';
 import 'connect4_text.dart';
 import 'gostrategy_text.dart';
 import 'muehle_text.dart';
@@ -26,6 +28,7 @@ class DebugConsole {
     'quartett-sets': QuartettSetsText.new,
     'schiffe': SchiffeText.new,
     'gostrategy': GoStrategyText.new,
+    'chess': ChessText.new,
   };
 
   /// A text adapter around an existing [game] (e.g. `createGame(GameConfig(id, seed: s))`
@@ -38,6 +41,7 @@ class DebugConsole {
         ('quartett-sets', QuartettGame g) when g.mode == QuartettMode.sets => QuartettSetsText.forGame(g),
         ('schiffe', SchiffeGame g) => SchiffeText(game: g),
         ('gostrategy', GoStrategyGame g) => GoStrategyText(game: g),
+        ('chess', ChessGame g) => ChessText(game: g),
         _ => throw ArgumentError.value(gameId, 'gameId', 'no text adapter for ${game.runtimeType}'),
       };
 
