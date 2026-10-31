@@ -18,6 +18,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <!-- Scanning the host's QR code (KLD-052, mobile_scanner 7.4.2). The plugin's
+         library manifest declares both as well; listed here so the requirement is
+         explicit. The camera is optional: without one the join tab still works by
+         typing the code or address. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="Klunki"
         android:name="${applicationName}"

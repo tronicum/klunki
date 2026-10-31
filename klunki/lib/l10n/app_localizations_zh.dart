@@ -962,4 +962,57 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webJoinDirectTitle => '或连接到主机设备（应用或终端）';
+
+  @override
+  String get qrScanButton => '扫描二维码';
+
+  @override
+  String get qrScanHint => '将摄像头对准主机的二维码。';
+
+  @override
+  String get qrScanNotKlunki => '不是 Klunki 二维码。请扫描游戏创建时显示的二维码。';
+
+  @override
+  String get qrScanTorchOn => '打开手电筒';
+
+  @override
+  String get qrScanTorchOff => '关闭手电筒';
+
+  @override
+  String get qrScanPermissionDenied => 'Klunki 无权使用摄像头。';
+
+  @override
+  String get qrScanPermissionHint => '你可以在设备设置中允许 Klunki 使用摄像头。';
+
+  @override
+  String get qrScanUnavailable => '摄像头不可用。';
+
+  @override
+  String get qrScanTypeInstead => '输入代码';
+
+  @override
+  String get relayGroupTitle => '通过中继游戏（房间码）';
+
+  @override
+  String get relayChange => '更改';
+
+  @override
+  String get relayNotSet => '未设置中继，请输入地址';
+
+  @override
+  String relayUseDefault(String address) {
+    return '默认：$address';
+  }
+
+  @override
+  String get relaySave => '应用';
+
+  @override
+  String get relayJoinIntro => '房间码来自选择了“创建对局”的浏览器。';
+
+  @override
+  String get joinDirectTitle => '直接连接设备';
+
+  @override
+  String get joinDirectHelper => '适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。';
 }

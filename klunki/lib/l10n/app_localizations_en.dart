@@ -991,4 +991,62 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webJoinDirectTitle =>
       'Or connect to a host device (app or terminal)';
+
+  @override
+  String get qrScanButton => 'Scan QR code';
+
+  @override
+  String get qrScanHint => 'Point the camera at the host\'s QR code.';
+
+  @override
+  String get qrScanNotKlunki =>
+      'Not a Klunki code. Scan the QR code the game shows when hosting.';
+
+  @override
+  String get qrScanTorchOn => 'Turn on light';
+
+  @override
+  String get qrScanTorchOff => 'Turn off light';
+
+  @override
+  String get qrScanPermissionDenied =>
+      'Klunki is not allowed to use the camera.';
+
+  @override
+  String get qrScanPermissionHint =>
+      'You can allow camera access for Klunki in the device settings.';
+
+  @override
+  String get qrScanUnavailable => 'The camera is not available.';
+
+  @override
+  String get qrScanTypeInstead => 'Type the code';
+
+  @override
+  String get relayGroupTitle => 'Play via relay (room code)';
+
+  @override
+  String get relayChange => 'change';
+
+  @override
+  String get relayNotSet => 'No relay set up – enter an address';
+
+  @override
+  String relayUseDefault(String address) {
+    return 'Default: $address';
+  }
+
+  @override
+  String get relaySave => 'Apply';
+
+  @override
+  String get relayJoinIntro =>
+      'The room code comes from a browser that chose “Host game”.';
+
+  @override
+  String get joinDirectTitle => 'Connect directly to a device';
+
+  @override
+  String get joinDirectHelper =>
+      'For a phone, tablet or terminal that hosts itself: enter the device address (IP).';
 }

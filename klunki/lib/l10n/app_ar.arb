@@ -253,5 +253,22 @@
   "relayErrorLost": "انقطع الاتصال بالمُرحِّل.",
   "relayStartHint": "يتطلب اللعب بين متصفحين مُرحِّلًا. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:",
   "relayRoomLost": "{reason} ابدأ لعبة جديدة.",
-  "webJoinDirectTitle": "أو اتصل بجهاز مضيف (تطبيق أو طرفية)"
+  "webJoinDirectTitle": "أو اتصل بجهاز مضيف (تطبيق أو طرفية)",
+  "qrScanButton": "مسح رمز QR",
+  "qrScanHint": "وجّه الكاميرا نحو رمز QR الخاص بالمضيف.",
+  "qrScanNotKlunki": "هذا ليس رمز Klunki. امسح رمز QR الذي تعرضه اللعبة عند الاستضافة.",
+  "qrScanTorchOn": "تشغيل الضوء",
+  "qrScanTorchOff": "إطفاء الضوء",
+  "qrScanPermissionDenied": "لا يُسمح لـ Klunki باستخدام الكاميرا.",
+  "qrScanPermissionHint": "يمكنك السماح لـ Klunki بالوصول إلى الكاميرا من إعدادات الجهاز.",
+  "qrScanUnavailable": "الكاميرا غير متاحة.",
+  "qrScanTypeInstead": "اكتب الرمز",
+  "relayGroupTitle": "اللعب عبر المُرحِّل (رمز الغرفة)",
+  "relayChange": "تغيير",
+  "relayNotSet": "لم يُضبط مُرحِّل – أدخل عنوانًا",
+  "relayUseDefault": "الافتراضي: {address}",
+  "relaySave": "تطبيق",
+  "relayJoinIntro": "يأتي رمز الغرفة من متصفح اختار «استضف اللعبة».",
+  "joinDirectTitle": "الاتصال مباشرة بجهاز",
+  "joinDirectHelper": "لهاتف أو جهاز لوحي أو طرفية تستضيف بنفسها: أدخل عنوان الجهاز (IP)."
 }

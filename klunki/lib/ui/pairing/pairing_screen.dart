@@ -12,6 +12,8 @@ import '../../net/discovery_factory.dart';
 import '../../net/join_payload.dart';
 import '../../net/join_qr.dart';
 import '../../net/local_ip.dart';
+import '../../net/scanned_join_code.dart';
+import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
@@ -19,6 +21,9 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
+import 'qr_scan_screen.dart';
+import 'qr_scanner_mobile.dart';
+import 'relay_line.dart';
 import 'room_join.dart';
 import 'web_join_screen.dart';
 
@@ -62,6 +67,14 @@ class PairingDeps {
   /// timeout; this also covers a hanging connect).
   final Duration joinTimeout;
 
+  /// The camera for "QR-Code scannen" in the join tab (KLD-052); null hides
+  /// the button.
+  final QrScannerFactory? qrScanner;
+
+  /// The relay setting of the room-code join (shared with the PWA's
+  /// "Spiel hosten" wording: one relay for everything).
+  final RelaySettings Function() relaySettings;
+
   const PairingDeps({
     required this.discovery,
     required this.hostTransport,
@@ -73,6 +86,8 @@ class PairingDeps {
     this.preferredPort = klunkiDefaultPort,
     this.preferredWsPort = klunkiDefaultWebSocketPort,
     this.joinTimeout = const Duration(seconds: 12),
+    this.qrScanner,
+    this.relaySettings = RelaySettings.memory,
   });
 
   /// The real thing: platform discovery, TCP on all interfaces.
@@ -86,6 +101,8 @@ class PairingDeps {
         // E2E test mode (--dart-define KLUNKI_E2E_*): fixed port and seed.
         seed: E2eMode.enabled ? () => E2eMode.seed : newGameSeed,
         preferredPort: E2eMode.enabled ? E2eMode.port : klunkiDefaultPort,
+        qrScanner: MobileQrScanner.new,
+        relaySettings: RelaySettings.shared,
       );
 }
 
@@ -496,6 +513,8 @@ class _JoinPanel extends StatefulWidget {
 
 class _JoinPanelState extends State<_JoinPanel> {
   final TextEditingController _manual = TextEditingController();
+  final GlobalKey<RoomCodeJoinState> _roomJoin = GlobalKey();
+  late final RelaySettings _relaySettings = widget.deps.relaySettings();
   StreamSubscription<List<KlunkiHostInfo>>? _browse;
   List<KlunkiHostInfo> _hosts = const [];
   String? _browseError;
@@ -579,6 +598,21 @@ class _JoinPanelState extends State<_JoinPanel> {
     widget.onConnected(transport);
   }
 
+  /// "QR-Code scannen" (KLD-052): a scanned code joins right away, the same
+  /// way as typing it.
+  Future<void> _scan(QrScannerFactory scanner) async {
+    final join = await scanJoinCode(context, scanner);
+    if (!mounted || join == null || _connecting != null) return;
+    switch (join) {
+      case ScannedDirectJoin(:final payload):
+        _manual.text = payload.address;
+        setState(() => _manualError = null);
+        _connect(payload.host, payload.port, payload.name ?? payload.address);
+      case ScannedRoomJoin(:final code, :final relay):
+        _roomJoin.currentState?.joinScanned(code, relay);
+    }
+  }
+
   void _cancelConnect() {
     _attempt++;
     setState(() => _connecting = null);
@@ -589,10 +623,45 @@ class _JoinPanelState extends State<_JoinPanel> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final busy = _connecting != null;
+    final scanner = widget.deps.qrScanner;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.pairingGamesOnNetwork, style: theme.textTheme.titleMedium),
+        // 1. A browser hosting through the relay (KLD-057b): the relay line
+        //    (an app has no page origin: the last used relay, else "enter one").
+        RelayGroupHeader(settings: _relaySettings, enabled: !busy),
+        const SizedBox(height: 12),
+        RoomCodeJoin(
+          key: _roomJoin,
+          joinTransport: widget.deps.relayJoin,
+          joinTimeout: widget.deps.joinTimeout,
+          settings: _relaySettings,
+          playerName: widget.deviceName,
+          onConnected: (t) {
+            _attempt++;
+            _browse?.cancel();
+            _browse = null;
+            widget.onConnected(t);
+          },
+        ),
+        // 2. Scanning handles both kinds of host QR code (KLD-052).
+        if (scanner != null) ...[
+          const Divider(height: 32),
+          FilledButton.tonalIcon(
+            key: const Key('pair-scan'),
+            onPressed: busy ? null : () => _scan(scanner),
+            icon: const Icon(Icons.qr_code_scanner),
+            label: Text(l10n.qrScanButton),
+          ),
+        ],
+        // 3. A device that hosts itself (app or terminal): discovered games
+        //    or its address.
+        const Divider(height: 32),
+        Text(l10n.joinDirectTitle, key: const Key('pair-direct-title'), style: theme.textTheme.titleMedium),
+        const SizedBox(height: 4),
+        Text(l10n.joinDirectHelper, style: theme.textTheme.bodySmall),
+        const SizedBox(height: 12),
+        Text(l10n.pairingGamesOnNetwork, style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         if (widget.discovery == null)
           Text(l10n.pairingNoDiscoveryJoin)
@@ -605,8 +674,8 @@ class _JoinPanelState extends State<_JoinPanel> {
             title: Text(l10n.pairingSearching),
           ),
         for (final h in _hosts) _hostTile(l10n, h, busy),
-        const SizedBox(height: 16),
-        Text(l10n.pairingOrEnterAddress, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 12),
+        Text(l10n.pairingOrEnterAddress, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
         TextField(
           key: const Key('pair-manual'),
@@ -645,20 +714,6 @@ class _JoinPanelState extends State<_JoinPanel> {
           const SizedBox(height: 16),
           Text(_error!, key: const Key('pair-join-error'), style: TextStyle(color: theme.colorScheme.error)),
         ],
-        // A browser hosting through the relay (KLD-057b): an app has no page
-        // origin, so the relay address is typed.
-        const Divider(height: 32),
-        RoomCodeJoin(
-          joinTransport: widget.deps.relayJoin,
-          joinTimeout: widget.deps.joinTimeout,
-          playerName: widget.deviceName,
-          onConnected: (t) {
-            _attempt++;
-            _browse?.cancel();
-            _browse = null;
-            widget.onConnected(t);
-          },
-        ),
       ],
     );
   }

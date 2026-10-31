@@ -1508,5 +1508,78 @@
   "webJoinDirectTitle": "Oder mit einem Host-Gerät verbinden (App oder Terminal)",
   "@webJoinDirectTitle": {
     "description": "Web join screen: heading of the direct address section (native host)."
+  },
+  "qrScanButton": "QR-Code scannen",
+  "@qrScanButton": {
+    "description": "Join tab (app): button that opens the camera to scan the host's QR code; also the scanner screen title."
+  },
+  "qrScanHint": "Richte die Kamera auf den QR-Code des Gastgebers.",
+  "@qrScanHint": {
+    "description": "Scanner screen: instruction below the viewfinder."
+  },
+  "qrScanNotKlunki": "Kein Klunki-Code. Scanne den QR-Code, den das Spiel beim Hosten zeigt.",
+  "@qrScanNotKlunki": {
+    "description": "Scanner screen: the scanned QR code is not a Klunki join code; scanning continues."
+  },
+  "qrScanTorchOn": "Licht einschalten",
+  "@qrScanTorchOn": {
+    "description": "Scanner screen: tooltip of the torch button (torch is off)."
+  },
+  "qrScanTorchOff": "Licht ausschalten",
+  "@qrScanTorchOff": {
+    "description": "Scanner screen: tooltip of the torch button (torch is on)."
+  },
+  "qrScanPermissionDenied": "Klunki darf die Kamera nicht benutzen.",
+  "@qrScanPermissionDenied": {
+    "description": "Scanner screen: camera permission was denied."
+  },
+  "qrScanPermissionHint": "Du kannst den Kamerazugriff für Klunki in den Einstellungen des Geräts erlauben.",
+  "@qrScanPermissionHint": {
+    "description": "Scanner screen: how to allow the camera again (system settings)."
+  },
+  "qrScanUnavailable": "Die Kamera ist nicht verfügbar.",
+  "@qrScanUnavailable": {
+    "description": "Scanner screen: no camera or the camera could not be started."
+  },
+  "qrScanTypeInstead": "Code eintippen",
+  "@qrScanTypeInstead": {
+    "description": "Scanner screen: button back to the join tab to type the code or address instead."
+  },
+  "relayGroupTitle": "Über Relay spielen (Raumcode)",
+  "@relayGroupTitle": {
+    "description": "Join screens: heading of the group with \"Spiel hosten\" and \"Mit Raumcode beitreten\" (both go through the relay)."
+  },
+  "relayChange": "ändern",
+  "@relayChange": {
+    "description": "Relay line: action that opens the relay address dialog (lower case, after \"Relay: <address> ·\")."
+  },
+  "relayNotSet": "Kein Relay eingerichtet – Adresse eingeben",
+  "@relayNotSet": {
+    "description": "Relay line when no relay address is set (native app before the first relay)."
+  },
+  "relayUseDefault": "Standard: {address}",
+  "@relayUseDefault": {
+    "description": "Relay dialog: button back to the default relay (the page's own server); address = host:port.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "relaySave": "Übernehmen",
+  "@relaySave": {
+    "description": "Relay dialog: confirm button."
+  },
+  "relayJoinIntro": "Der Raumcode kommt von einem Browser, der „Spiel hosten“ gewählt hat.",
+  "@relayJoinIntro": {
+    "description": "Room-code join: where the code comes from."
+  },
+  "joinDirectTitle": "Direkt mit einem Gerät verbinden",
+  "@joinDirectTitle": {
+    "description": "Join screens: heading of the secondary group that connects directly to a device that hosts itself (IP address)."
+  },
+  "joinDirectHelper": "Für ein Handy, Tablet oder Terminal, das selbst hostet: Geräte-Adresse (IP) eingeben.",
+  "@joinDirectHelper": {
+    "description": "Join screens: helper below joinDirectTitle."
   }
 }

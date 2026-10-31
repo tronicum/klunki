@@ -253,5 +253,22 @@
   "relayErrorLost": "اتصال به رله قطع شد.",
   "relayStartHint": "بازی مرورگر با مرورگر به رله نیاز دارد. آن را روی رایانه‌ای در Wi-Fi اجرا کن و Klunki را از نشانی آن باز کن:",
   "relayRoomLost": "{reason} یک بازی تازه شروع کن.",
-  "webJoinDirectTitle": "یا به دستگاه میزبان وصل شو (برنامه یا ترمینال)"
+  "webJoinDirectTitle": "یا به دستگاه میزبان وصل شو (برنامه یا ترمینال)",
+  "qrScanButton": "اسکن کد QR",
+  "qrScanHint": "دوربین را به سمت کد QR میزبان بگیر.",
+  "qrScanNotKlunki": "این کد Klunki نیست. کد QR را که بازی هنگام میزبانی نشان می‌دهد اسکن کن.",
+  "qrScanTorchOn": "روشن کردن چراغ",
+  "qrScanTorchOff": "خاموش کردن چراغ",
+  "qrScanPermissionDenied": "Klunki اجازهٔ استفاده از دوربین را ندارد.",
+  "qrScanPermissionHint": "می‌توانی دسترسی Klunki به دوربین را در تنظیمات دستگاه مجاز کنی.",
+  "qrScanUnavailable": "دوربین در دسترس نیست.",
+  "qrScanTypeInstead": "کد را وارد کن",
+  "relayGroupTitle": "بازی از طریق رله (کد اتاق)",
+  "relayChange": "تغییر",
+  "relayNotSet": "هیچ رله‌ای تنظیم نشده – نشانی را وارد کن",
+  "relayUseDefault": "پیش‌فرض: {address}",
+  "relaySave": "اعمال",
+  "relayJoinIntro": "کد اتاق از مرورگری می‌آید که «میزبانی بازی» را انتخاب کرده است.",
+  "joinDirectTitle": "اتصال مستقیم به یک دستگاه",
+  "joinDirectHelper": "برای گوشی، تبلت یا ترمینالی که خودش میزبان است: نشانی دستگاه (IP) را وارد کن."
 }

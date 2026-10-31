@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_net/guest_web.dart' show normalizeRoomCode, parseRelayUrl;
+import 'package:klunki_net/guest_web.dart' show normalizeRoomCode;
 
 import '../../net/room_link.dart';
+import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../ltr.dart';
 import 'relay_errors.dart';
+import 'relay_line.dart';
 
 /// Joins room [code] on the relay at [relay] (`ws://host:port/relay`).
 typedef RelayJoinTransportFactory = Future<NetworkTransport> Function(Uri relay, String code, {required String name});
@@ -17,24 +19,25 @@ typedef RelayJoinTransportFactory = Future<NetworkTransport> Function(Uri relay,
 Future<NetworkTransport> platformRelayJoin(Uri relay, String code, {required String name}) =>
     NetworkTransport.joinRelay(relay, code, name: name);
 
-/// "Mit Raumcode beitreten" (KLD-057b): a room-code field, the relay address
-/// (in the browser the page's own server, behind "Erweitert"; natively a
-/// visible field, since an app has no page origin), a join button, progress
-/// with cancel and friendly relay errors. Used by the web join screen and
-/// the app's join tab. Calls [onConnected] with the joined transport.
+/// "Mit Raumcode beitreten" (KLD-057b): a room-code field, a join button,
+/// progress with cancel and friendly relay errors. The relay is the shared
+/// [settings] (shown and changed by the [RelayLine] above it; in the browser
+/// [defaultRelay], the page's own server, until another one is chosen; with
+/// none at all, joining asks for one). Used by the web join screen and the
+/// app's join tab. Calls [onConnected] with the joined transport.
 class RoomCodeJoin extends StatefulWidget {
   final RelayJoinTransportFactory joinTransport;
   final Duration joinTimeout;
 
-  /// The relay to use when the address field is left as it is: the page's
-  /// own server in the browser, null natively (then the field is required).
+  /// The relay used while [settings] has none: the page's own server in the
+  /// browser, null natively.
   final Uri? defaultRelay;
+
+  /// The shared relay setting (also used by "Spiel hosten").
+  final RelaySettings settings;
 
   /// Prefills the code (`?room=`).
   final String? initialCode;
-
-  /// Prefills the relay address (`?room=…&relay=…`).
-  final Uri? initialRelay;
 
   /// Joins [initialCode] right away, after [ready] completes (the first-run
   /// name dialog).
@@ -51,27 +54,20 @@ class RoomCodeJoin extends StatefulWidget {
     required this.playerName,
     required this.onConnected,
     this.joinTimeout = const Duration(seconds: 12),
+    required this.settings,
     this.defaultRelay,
     this.initialCode,
-    this.initialRelay,
     this.autoConnect = false,
     this.ready,
   });
 
   @override
-  State<RoomCodeJoin> createState() => _RoomCodeJoinState();
+  State<RoomCodeJoin> createState() => RoomCodeJoinState();
 }
 
-class _RoomCodeJoinState extends State<RoomCodeJoin> {
+class RoomCodeJoinState extends State<RoomCodeJoin> {
   late final TextEditingController _code = TextEditingController(text: widget.initialCode ?? '');
-  late final TextEditingController _relay = TextEditingController(
-    text: switch (widget.initialRelay ?? widget.defaultRelay) {
-      final r? => relayAddressLabel(r),
-      null => '',
-    },
-  );
   String? _codeError;
-  String? _relayError;
 
   /// The grouped code being joined (null: idle).
   String? _joining;
@@ -94,27 +90,16 @@ class _RoomCodeJoinState extends State<RoomCodeJoin> {
   void dispose() {
     _attempt++; // a join still in flight is closed when it completes
     _code.dispose();
-    _relay.dispose();
     super.dispose();
   }
 
-  /// The relay address the field stands for; null if invalid.
-  Uri? _relayUri() {
-    final text = _relay.text.trim();
-    final fallback = widget.defaultRelay;
-    if (fallback != null && (text.isEmpty || text == relayAddressLabel(fallback))) return fallback;
-    return parseRelayUrl(text);
-  }
-
-  void _join() {
+  Future<void> _join() async {
     final l10n = AppLocalizations.of(context);
     final code = normalizeRoomCode(_code.text);
-    final relay = _relayUri();
-    setState(() {
-      _codeError = code == null ? l10n.relayCodeInvalid : null;
-      _relayError = relay == null ? l10n.relayAddressInvalid : null;
-    });
-    if (code == null || relay == null) return;
+    setState(() => _codeError = code == null ? l10n.relayCodeInvalid : null);
+    if (code == null) return;
+    final relay = await relayOrAsk(context, widget.settings, defaultRelay: widget.defaultRelay);
+    if (relay == null || !mounted) return;
     _connect(code, relay);
   }
 
@@ -161,6 +146,21 @@ class _RoomCodeJoinState extends State<RoomCodeJoin> {
     widget.onConnected(transport);
   }
 
+  /// Joins room [code] on [relay] as if typed (a scanned QR code,
+  /// KLD-052): fills the code, makes [relay] the shared relay setting (so it
+  /// stays for hosting and the next code), and connects.
+  void joinScanned(String code, Uri relay) {
+    if (_joining != null) return;
+    _code.text = formatRoomCode(code);
+    if (relay == widget.defaultRelay) {
+      widget.settings.reset();
+    } else {
+      widget.settings.set(relay);
+    }
+    setState(() => _codeError = null);
+    _connect(code, relay);
+  }
+
   void _cancel() {
     _attempt++;
     setState(() => _joining = null);
@@ -171,29 +171,13 @@ class _RoomCodeJoinState extends State<RoomCodeJoin> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final busy = _joining != null;
-    final relayField = TextField(
-      key: const Key('room-relay'),
-      controller: _relay,
-      enabled: !busy,
-      keyboardType: TextInputType.url,
-      textDirection: TextDirection.ltr,
-      autocorrect: false,
-      decoration: InputDecoration(
-        labelText: l10n.relayAddressLabel,
-        hintText: '192.168.1.20:4749',
-        helperText: l10n.relayAddressHelper,
-        helperMaxLines: 3,
-        errorText: _relayError,
-        errorMaxLines: 3,
-        border: const OutlineInputBorder(),
-      ),
-      onSubmitted: (_) => _join(),
-    );
     return Column(
       key: const Key('room-join'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.relayJoinTitle, style: theme.textTheme.titleMedium),
+        Text(l10n.relayJoinTitle, style: theme.textTheme.titleSmall),
+        const SizedBox(height: 4),
+        Text(l10n.relayJoinIntro, key: const Key('room-join-intro'), style: theme.textTheme.bodySmall),
         const SizedBox(height: 8),
         TextField(
           key: const Key('room-code'),
@@ -226,18 +210,6 @@ class _RoomCodeJoinState extends State<RoomCodeJoin> {
           textInputAction: TextInputAction.go,
           onSubmitted: (_) => _join(),
         ),
-        const SizedBox(height: 8),
-        if (widget.defaultRelay == null)
-          relayField
-        else
-          ExpansionTile(
-            key: const Key('room-advanced'),
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: const EdgeInsets.only(bottom: 8),
-            initiallyExpanded: widget.initialRelay != null && widget.initialRelay != widget.defaultRelay,
-            title: Text(l10n.relayAddressAdvanced, style: theme.textTheme.bodyMedium),
-            children: [const SizedBox(height: 4), relayField],
-          ),
         const SizedBox(height: 8),
         FilledButton.icon(
           key: const Key('room-join-button'),

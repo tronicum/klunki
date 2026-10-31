@@ -12,6 +12,7 @@ import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_qr.dart';
+import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
@@ -123,31 +124,82 @@ void main() {
       }
     });
 
-    testWidgets('advanced: another relay address; an invalid one is refused', (tester) async {
+    testWidgets('one visible relay line: "ändern" sets another relay; invalid refused; default resets',
+        (tester) async {
       await _setSize(tester, const Size(800, 1600));
       final r = _JoinRecorder();
-      await tester.pumpWidget(localizedApp(
-          WebJoinScreen(pageUrl: _page, deps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join))));
+      final settings = RelaySettings.memory();
+      await tester.pumpWidget(localizedApp(WebJoinScreen(
+          pageUrl: _page,
+          deps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join, relaySettings: () => settings))));
       await tester.pump();
-      await _tapVisible(tester, find.byKey(const Key('room-advanced')));
+      // No expanders, one relay line for hosting and joining.
+      expect(find.byType(ExpansionTile), findsNothing);
+      expect(find.byKey(const Key('relay-line')), findsOneWidget);
+      expect(find.text('Über Relay spielen (Raumcode)'), findsOneWidget);
+      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+
+      await _tapVisible(tester, find.byKey(const Key('relay-change')));
       await tester.pumpAndSettle();
-      expect(tester.widget<TextField>(find.byKey(const Key('room-relay'))).controller!.text, '192.168.1.5:8000');
-      await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
-      await tester.enterText(find.byKey(const Key('room-relay')), 'not a :: relay');
-      await _tapVisible(tester, find.byKey(const Key('room-join-button')));
+      expect(tester.widget<TextField>(find.byKey(const Key('relay-dialog-address'))).controller!.text,
+          '192.168.1.5:8000');
+      await tester.enterText(find.byKey(const Key('relay-dialog-address')), 'not a :: relay');
+      await tester.tap(find.byKey(const Key('relay-dialog-save')));
       await tester.pump();
       expect(find.textContaining('Ungültige Relay-Adresse'), findsOneWidget);
-      expect(r.calls, isEmpty);
-      await tester.enterText(find.byKey(const Key('room-relay')), '10.0.0.9:4749');
+      await tester.enterText(find.byKey(const Key('relay-dialog-address')), '10.0.0.9:4749');
+      await tester.tap(find.byKey(const Key('relay-dialog-save')));
+      await tester.pumpAndSettle();
+      expect(settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
+      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+
+      await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
       await tester.pump();
+      await tester.pump();
       expect(r.calls.single.$1, Uri.parse('ws://10.0.0.9:4749/relay'));
+
+      // "Standard: <page>" goes back to the page's own relay.
+      await _tapVisible(tester, find.byKey(const Key('relay-change')));
+      await tester.pumpAndSettle();
+      expect(find.text('Standard: 192.168.1.5:8000'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('relay-dialog-default')));
+      await tester.pumpAndSettle();
+      expect(settings.value, isNull);
+      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
     });
 
-    testWidgets('native join tab: the relay address is a visible, required field', (tester) async {
+    testWidgets('the host screen shows the same relay line and uses the shared relay', (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final hosts = <Uri>[];
+      final settings = RelaySettings.memory(Uri.parse('ws://10.0.0.9:4749/relay'));
+      await tester.pumpWidget(localizedApp(WebJoinScreen(
+          pageUrl: _page,
+          deps: WebJoinDeps(
+            joinTransport: _noJoin,
+            relaySettings: () => settings,
+            relayHost: (config, relay, {required name}) {
+              hosts.add(relay);
+              return Future.error(const NetException('cannot connect: nope'));
+            },
+          ))));
+      await tester.pump();
+      await _tapVisible(tester, find.byKey(const Key('web-host')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ExpansionTile), findsNothing);
+      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      await _tapVisible(tester, find.byKey(const Key('relay-host-start')));
+      await tester.pumpAndSettle();
+      expect(hosts.single, Uri.parse('ws://10.0.0.9:4749/relay'));
+      expect(find.text('Kein Relay erreichbar unter 10.0.0.9:4749.'), findsOneWidget);
+    });
+
+    testWidgets('native join tab: no relay yet → "Kein Relay eingerichtet", joining asks for one, then remembers it',
+        (tester) async {
       await _setSize(tester, const Size(800, 2000));
       final r = _JoinRecorder();
       final created = CreatedTransports();
+      final settings = RelaySettings.memory();
       final deps = PairingDeps(
         discovery: () => FakeDiscovery(),
         hostTransport: (config, {required name, required port, required wsPort}) => Future.error('unused'),
@@ -155,22 +207,33 @@ void main() {
         relayJoin: r.join,
         localAddresses: () async => const [],
         deviceName: () => 'Pixel',
+        relaySettings: () => settings,
       );
       await tester.pumpWidget(localizedApp(PairingScreen(deps: deps)));
       await tester.pump();
       await tester.tap(find.byIcon(Icons.login));
       await tester.pump();
-      expect(find.byKey(const Key('room-advanced')), findsNothing);
-      expect(find.byKey(const Key('room-relay')), findsOneWidget);
+      expect(find.byType(ExpansionTile), findsNothing);
+      expect(find.text('Kein Relay eingerichtet – Adresse eingeben'), findsOneWidget);
+      // The groups, in order: relay (room code) first, direct second.
+      final relayY = tester.getTopLeft(find.byKey(const Key('relay-group-title'))).dy;
+      final directY = tester.getTopLeft(find.byKey(const Key('pair-direct-title'))).dy;
+      expect(relayY, lessThan(directY));
+      expect(find.text('Direkt mit einem Gerät verbinden'), findsOneWidget);
+
       await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
       await tester.pump();
-      expect(find.textContaining('Ungültige Relay-Adresse'), findsOneWidget);
-      await tester.enterText(find.byKey(const Key('room-relay')), '192.168.1.20:4749');
-      await _tapVisible(tester, find.byKey(const Key('room-join-button')));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('relay-dialog-address')), findsOneWidget);
+      expect(find.byKey(const Key('relay-dialog-default')), findsNothing); // an app has no default
+      await tester.enterText(find.byKey(const Key('relay-dialog-address')), '192.168.1.20:4749');
+      await tester.tap(find.byKey(const Key('relay-dialog-save')));
       await tester.pump();
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       expect(r.calls.single, (Uri.parse('ws://192.168.1.20:4749/relay'), 'K7Q2M', 'Pixel'));
+      expect(settings.value, Uri.parse('ws://192.168.1.20:4749/relay'));
+      expect(find.text('Relay: 192.168.1.20:4749'), findsOneWidget);
       expect(find.byKey(const Key('room-error')), findsOneWidget);
       await unmountAndSettleSockets(tester, created);
     });
@@ -201,11 +264,12 @@ void main() {
       expect(find.byKey(const Key('room-error')), findsOneWidget);
     });
 
-    testWidgets('&relay= picks another relay', (tester) async {
+    testWidgets('&relay= picks another relay (and shows it on the relay line)', (tester) async {
       final r = await start(tester, 'room=K7Q2M&relay=10.0.0.9:4749');
       await tester.tap(find.byKey(const Key('player-name-ok')));
       await tester.pumpAndSettle();
       expect(r.calls.single.$1, Uri.parse('ws://10.0.0.9:4749/relay'));
+      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
     });
 
     testWidgets('an invalid code is prefilled but not joined', (tester) async {

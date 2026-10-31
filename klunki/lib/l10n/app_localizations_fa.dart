@@ -990,4 +990,62 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get webJoinDirectTitle =>
       'یا به دستگاه میزبان وصل شو (برنامه یا ترمینال)';
+
+  @override
+  String get qrScanButton => 'اسکن کد QR';
+
+  @override
+  String get qrScanHint => 'دوربین را به سمت کد QR میزبان بگیر.';
+
+  @override
+  String get qrScanNotKlunki =>
+      'این کد Klunki نیست. کد QR را که بازی هنگام میزبانی نشان می‌دهد اسکن کن.';
+
+  @override
+  String get qrScanTorchOn => 'روشن کردن چراغ';
+
+  @override
+  String get qrScanTorchOff => 'خاموش کردن چراغ';
+
+  @override
+  String get qrScanPermissionDenied =>
+      'Klunki اجازهٔ استفاده از دوربین را ندارد.';
+
+  @override
+  String get qrScanPermissionHint =>
+      'می‌توانی دسترسی Klunki به دوربین را در تنظیمات دستگاه مجاز کنی.';
+
+  @override
+  String get qrScanUnavailable => 'دوربین در دسترس نیست.';
+
+  @override
+  String get qrScanTypeInstead => 'کد را وارد کن';
+
+  @override
+  String get relayGroupTitle => 'بازی از طریق رله (کد اتاق)';
+
+  @override
+  String get relayChange => 'تغییر';
+
+  @override
+  String get relayNotSet => 'هیچ رله‌ای تنظیم نشده – نشانی را وارد کن';
+
+  @override
+  String relayUseDefault(String address) {
+    return 'پیش‌فرض: $address';
+  }
+
+  @override
+  String get relaySave => 'اعمال';
+
+  @override
+  String get relayJoinIntro =>
+      'کد اتاق از مرورگری می‌آید که «میزبانی بازی» را انتخاب کرده است.';
+
+  @override
+  String get joinDirectTitle => 'اتصال مستقیم به یک دستگاه';
+
+  @override
+  String get joinDirectHelper =>
+      'برای گوشی، تبلت یا ترمینالی که خودش میزبان است: نشانی دستگاه (IP) را وارد کن.';
 }

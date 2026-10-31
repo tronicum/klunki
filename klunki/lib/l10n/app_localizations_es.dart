@@ -1002,4 +1002,63 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get webJoinDirectTitle =>
       'O conectar con un dispositivo anfitrión (app o terminal)';
+
+  @override
+  String get qrScanButton => 'Escanear código QR';
+
+  @override
+  String get qrScanHint => 'Apunta la cámara al código QR del anfitrión.';
+
+  @override
+  String get qrScanNotKlunki =>
+      'No es un código de Klunki. Escanea el código QR que muestra el juego al crear una partida.';
+
+  @override
+  String get qrScanTorchOn => 'Encender la luz';
+
+  @override
+  String get qrScanTorchOff => 'Apagar la luz';
+
+  @override
+  String get qrScanPermissionDenied =>
+      'Klunki no tiene permiso para usar la cámara.';
+
+  @override
+  String get qrScanPermissionHint =>
+      'Puedes permitir el acceso a la cámara para Klunki en los ajustes del dispositivo.';
+
+  @override
+  String get qrScanUnavailable => 'La cámara no está disponible.';
+
+  @override
+  String get qrScanTypeInstead => 'Escribir el código';
+
+  @override
+  String get relayGroupTitle => 'Jugar mediante relé (código de sala)';
+
+  @override
+  String get relayChange => 'cambiar';
+
+  @override
+  String get relayNotSet =>
+      'No hay ningún relé configurado: introduce una dirección';
+
+  @override
+  String relayUseDefault(String address) {
+    return 'Predeterminado: $address';
+  }
+
+  @override
+  String get relaySave => 'Aplicar';
+
+  @override
+  String get relayJoinIntro =>
+      'El código de sala viene de un navegador que eligió «Crear partida».';
+
+  @override
+  String get joinDirectTitle => 'Conectar directamente con un dispositivo';
+
+  @override
+  String get joinDirectHelper =>
+      'Para un móvil, tableta o terminal que aloja la partida: introduce la dirección del dispositivo (IP).';
 }

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
-import 'package:klunki_net/guest_web.dart' show parseRelayUrl;
 
 import '../../net/join_qr.dart';
 import '../../net/room_link.dart';
+import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
@@ -15,6 +15,7 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'network_game_session.dart';
 import 'relay_errors.dart';
+import 'relay_line.dart';
 import 'room_join.dart';
 
 /// Hosts [config] through the relay at [relay] and completes once the relay
@@ -30,17 +31,22 @@ Future<NetworkTransport> platformRelayHost(GameConfig config, Uri relay, {requir
     NetworkTransport.hostRelay(config, relay, name: name);
 
 /// "Spiel hosten" through the relay (KLD-057b), the browser's way to host:
-/// pick a game, open a room on the relay ([defaultRelay] = the page's own
-/// server; "Erweitert" changes it), then wait with the room code (large,
+/// pick a game, open a room on the relay (the shared [relaySettings], shown
+/// as "Relay: … · ändern"; [defaultRelay] = the page's own server until
+/// another one is chosen), then wait with the room code (large,
 /// grouped `K7Q 2M`), a QR code and the `?room=` link. When the guest
 /// arrives the route is replaced by the same [NetworkGameSession] as in the
 /// apps. A page not served by a relay gets the "how to start one" hint.
 class RelayHostScreen extends StatefulWidget {
   final RelayHostTransportFactory hostTransport;
 
-  /// The relay used unless the address field is changed; null: the field
-  /// must be filled (natively).
+  /// The relay used while [relaySettings] has none (the page's own server);
+  /// null natively.
   final Uri? defaultRelay;
+
+  /// The shared relay setting (the same one as the room-code join); null:
+  /// a private in-memory one.
+  final RelaySettings? relaySettings;
 
   /// The page URL, for the join link (`<page>/?room=CODE`).
   final Uri? pageUrl;
@@ -58,6 +64,7 @@ class RelayHostScreen extends StatefulWidget {
     super.key,
     this.hostTransport = platformRelayHost,
     this.defaultRelay,
+    this.relaySettings,
     this.pageUrl,
     this.seed = newGameSeed,
     this.deviceName = _browser,
@@ -72,13 +79,7 @@ class RelayHostScreen extends StatefulWidget {
 
 class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField {
   String _gameId = appGameSpecs.first.id;
-  late final TextEditingController _relay = TextEditingController(
-    text: switch (widget.defaultRelay) {
-      final r? => relayAddressLabel(r),
-      null => '',
-    },
-  );
-  String? _relayError;
+  late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
   bool _showStartHint = false;
@@ -96,7 +97,6 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   @override
   void dispose() {
     _teardown();
-    _relay.dispose();
     super.dispose();
   }
 
@@ -107,22 +107,11 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     if (t != null && !_handedOver) t.close();
   }
 
-  Uri? _relayUri() {
-    final text = _relay.text.trim();
-    final fallback = widget.defaultRelay;
-    if (fallback != null && (text.isEmpty || text == relayAddressLabel(fallback))) return fallback;
-    return parseRelayUrl(text);
-  }
-
   Future<void> _start() async {
     final l10n = AppLocalizations.of(context);
-    final relay = _relayUri();
-    if (relay == null) {
-      setState(() => _relayError = l10n.relayAddressInvalid);
-      return;
-    }
+    final relay = await relayOrAsk(context, _settings, defaultRelay: widget.defaultRelay);
+    if (relay == null || !mounted) return;
     setState(() {
-      _relayError = null;
       _starting = true;
       _error = null;
       _showStartHint = false;
@@ -207,23 +196,6 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   List<Widget> _setup(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final relayField = TextField(
-      key: const Key('relay-host-address'),
-      controller: _relay,
-      enabled: !_starting,
-      keyboardType: TextInputType.url,
-      textDirection: TextDirection.ltr,
-      autocorrect: false,
-      decoration: InputDecoration(
-        labelText: l10n.relayAddressLabel,
-        hintText: '192.168.1.20:4749',
-        helperText: l10n.relayAddressHelper,
-        helperMaxLines: 3,
-        errorText: _relayError,
-        errorMaxLines: 3,
-        border: const OutlineInputBorder(),
-      ),
-    );
     return [
       playerNameField(key: const Key('relay-host-name'), enabled: !_starting),
       const SizedBox(height: 16),
@@ -246,16 +218,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         ),
       ),
       const SizedBox(height: 8),
-      if (widget.defaultRelay == null)
-        relayField
-      else
-        ExpansionTile(
-          key: const Key('relay-host-advanced'),
-          tilePadding: EdgeInsets.zero,
-          childrenPadding: const EdgeInsets.only(bottom: 8),
-          title: Text(l10n.relayAddressAdvanced, style: theme.textTheme.bodyMedium),
-          children: [const SizedBox(height: 4), relayField],
-        ),
+      RelayLine(settings: _settings, defaultRelay: widget.defaultRelay, enabled: !_starting),
       const SizedBox(height: 8),
       FilledButton.icon(
         key: const Key('relay-host-start'),
