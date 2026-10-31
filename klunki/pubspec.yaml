@@ -120,6 +120,7 @@ flutter:
     - assets/quartett/rockets/
     - assets/quartett/planes/
     - assets/quartett/trains/
+    - assets/quartett/cars/
   fonts:
     - family: Roboto
       fonts:

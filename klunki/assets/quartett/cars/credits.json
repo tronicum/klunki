@@ -1,0 +1,614 @@
+{
+  "deck": "cars",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Porsche 911 Turbo S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Porsche_992",
+        "en": "https://en.wikipedia.org/wiki/Porsche_911_(992)"
+      },
+      "image": {
+        "commonsTitle": "File:Porsche 992 Turbo S 1X7A0411.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Porsche_992_Turbo_S_1X7A0411.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Porsche_992_Turbo_S in Filderstadt",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33743
+      }
+    },
+    "A2": {
+      "name": "Ferrari F8 Tributo",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ferrari_F8",
+        "en": "https://en.wikipedia.org/wiki/Ferrari_F8"
+      },
+      "image": {
+        "commonsTitle": "File:Ferrari F8 Tributo DSC 7013.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ferrari_F8_Tributo_DSC_7013.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Ferrari F8 Tributo in Böblingen",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30280
+      }
+    },
+    "A3": {
+      "name": "Lamborghini Huracán EVO",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lamborghini_Hurac%C3%A1n",
+        "en": "https://en.wikipedia.org/wiki/Lamborghini_Hurac%C3%A1n"
+      },
+      "image": {
+        "commonsTitle": "File:Lamborghini Huracan Evo Genf 2019 1Y7A5452.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Lamborghini_Huracan_Evo_Genf_2019_1Y7A5452.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Lamborghini Huracan 2019",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31696
+      }
+    },
+    "A4": {
+      "name": "McLaren 720S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/McLaren_720S",
+        "en": "https://en.wikipedia.org/wiki/McLaren_720S"
+      },
+      "image": {
+        "commonsTitle": "File:McLaren 720S IMG 0933.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:McLaren_720S_IMG_0933.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "McLaren 720S",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33685
+      }
+    },
+    "B1": {
+      "name": "Bugatti Chiron",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bugatti_Chiron",
+        "en": "https://en.wikipedia.org/wiki/Bugatti_Chiron"
+      },
+      "image": {
+        "commonsTitle": "File:Bugatti Chiron 1.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bugatti_Chiron_1.jpg",
+        "author": "Calreyn88",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Bugatti Chiron",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31241
+      }
+    },
+    "B2": {
+      "name": "Koenigsegg Jesko",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Koenigsegg_Jesko",
+        "en": "https://en.wikipedia.org/wiki/Koenigsegg_Jesko"
+      },
+      "image": {
+        "commonsTitle": "File:Koenigsegg Jesko Auto Zuerich 2023 1X7A0924.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Koenigsegg_Jesko_Auto_Zuerich_2023_1X7A0924.jpg",
+        "author": "Alexander-93",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Koenigsegg Jesko at Auto Zürich 2023",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32945
+      }
+    },
+    "B3": {
+      "name": "Pagani Huayra",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Pagani_Huayra",
+        "en": "https://en.wikipedia.org/wiki/Pagani_Huayra"
+      },
+      "image": {
+        "commonsTitle": "File:Pagani Huayra.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Pagani_Huayra.jpg",
+        "author": "ian mcwilliams",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Pagani Huayra",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30825
+      }
+    },
+    "B4": {
+      "name": "Rimac Nevera",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Rimac_Nevera",
+        "en": "https://en.wikipedia.org/wiki/Rimac_Nevera"
+      },
+      "image": {
+        "commonsTitle": "File:Rimac Nevera.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Rimac_Nevera.jpg",
+        "author": "MrWalkr",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "A white Rimac Nevera taken at the Goodwood Festival of Speed 2021.",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32431
+      }
+    },
+    "C1": {
+      "name": "Mercedes 300 SL",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Mercedes-Benz_W_198",
+        "en": "https://en.wikipedia.org/wiki/Mercedes-Benz_300_SL"
+      },
+      "image": {
+        "commonsTitle": "File:Fox Classic Car Collection, 2008 (02).JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Fox_Classic_Car_Collection,_2008_(02).JPG",
+        "author": "Bahnfrend",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "A pair of Mercedes-Benz 300 SLs on display at the Fox Classic Car Collection, Docklands, Vic, Australia. At left is a 1957 300 SL Roadster, and at right a 1956 300 SL Gullwing.",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33447
+      }
+    },
+    "C2": {
+      "name": "Jaguar E-Type",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Jaguar_E-Type",
+        "en": "https://en.wikipedia.org/wiki/Jaguar_E-Type"
+      },
+      "image": {
+        "commonsTitle": "File:Jaguar E-Type Series 1 3.8 Litre 1961.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Jaguar_E-Type_Series_1_3.8_Litre_1961.jpg",
+        "author": "DeFacto",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "A 1961 Jaguar E-Type Series 1 3.8 Litre. This one is the first production open two-seater and is on permanent loan to the Jaguar Heritage Collection at the British Motor Museum. http://jaguarheritage.com/t/collection_012",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30743
+      }
+    },
+    "C3": {
+      "name": "Ferrari 250 GTO",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ferrari_250_GTO",
+        "en": "https://en.wikipedia.org/wiki/Ferrari_250_GTO"
+      },
+      "image": {
+        "commonsTitle": "File:1962 Ferrari 250 GTO SP25.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:1962_Ferrari_250_GTO_SP25.jpg",
+        "author": "MrWalkr",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "A 1962 Ferrari 250 GTO taken at Salon Prive 2025.",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 27271
+      }
+    },
+    "C4": {
+      "name": "Lamborghini Miura",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lamborghini_Miura",
+        "en": "https://en.wikipedia.org/wiki/Lamborghini_Miura"
+      },
+      "image": {
+        "commonsTitle": "File:1971 Lamborghini Miura P400 SV.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:1971_Lamborghini_Miura_P400_SV.jpg",
+        "author": "Chelsea Jay",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "1971 Lamborghini Miura P400 SV Taken at the Concours d'Elegance Hampton Court 2019",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30568
+      }
+    },
+    "D1": {
+      "name": "Ford Mustang Shelby GT500",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Shelby_Mustang",
+        "en": "https://en.wikipedia.org/wiki/Shelby_Mustang"
+      },
+      "image": {
+        "commonsTitle": "File:2020 Ford Mustang Shelby GT500 GT101.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2020_Ford_Mustang_Shelby_GT500_GT101.jpg",
+        "author": "MrWalkr",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "A 2020 Ford Mustang Shelby GT500 taken at GT101, Colchester, UK.",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33385
+      }
+    },
+    "D2": {
+      "name": "Dodge Challenger Hellcat",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Dodge_Challenger_SRT_Hellcat",
+        "en": "https://en.wikipedia.org/wiki/Dodge_Challenger"
+      },
+      "image": {
+        "commonsTitle": "File:2015 HellCat.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:2015_HellCat.JPG",
+        "author": "Hunttriumph1500",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "2015 Dodge HellCat Challenger",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29979
+      }
+    },
+    "D3": {
+      "name": "Chevrolet Camaro ZL1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Chevrolet_Camaro_(2015)",
+        "en": "https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation)"
+      },
+      "image": {
+        "commonsTitle": "File:Chevrolet Camaro ZL1 Sixth generation (54865460423).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Chevrolet_Camaro_ZL1_Sixth_generation_(54865460423).jpg",
+        "author": "Alexandre Prevot from Nancy, France",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Chevrolet Camaro ZL1 Sixth generation",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33086
+      }
+    },
+    "D4": {
+      "name": "Chevrolet Corvette Z06",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Chevrolet_Corvette_C8",
+        "en": "https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C8)"
+      },
+      "image": {
+        "commonsTitle": "File:2025 Chevrolet Corvette C8 Z06.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2025_Chevrolet_Corvette_C8_Z06.jpg",
+        "author": "Calreyn88",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Chevrolet Corvette",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29250
+      }
+    },
+    "E1": {
+      "name": "Lancia Delta Integrale",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lancia_Delta",
+        "en": "https://en.wikipedia.org/wiki/Lancia_Delta"
+      },
+      "image": {
+        "commonsTitle": "File:Lancia Delta Integrale Evo 2 IMG 9403.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Lancia_Delta_Integrale_Evo_2_IMG_9403.jpg",
+        "author": "Tony Harrison",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Lancia Delta Integrale Evo 2.",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28612
+      }
+    },
+    "E2": {
+      "name": "Audi Sport quattro",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Audi_Sport_quattro",
+        "en": "https://en.wikipedia.org/wiki/Audi_Quattro"
+      },
+      "image": {
+        "commonsTitle": "File:Audi Sport Quattro Classic-Days 2022 IMG 7075.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Audi_Sport_Quattro_Classic-Days_2022_IMG_7075.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Audi_Sport_Quattro at Classic Days 2022",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32970
+      }
+    },
+    "E3": {
+      "name": "Subaru Impreza WRX STI",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Subaru_Impreza",
+        "en": "https://en.wikipedia.org/wiki/Subaru_WRX"
+      },
+      "image": {
+        "commonsTitle": "File:3rd generation Subaru Impreza WRX STI.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:3rd_generation_Subaru_Impreza_WRX_STI.jpg",
+        "author": "TTTNIS",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Subaru Impreza",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33463
+      }
+    },
+    "E4": {
+      "name": "Mitsubishi Lancer Evo IX",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Mitsubishi_Lancer",
+        "en": "https://en.wikipedia.org/wiki/Mitsubishi_Lancer_Evolution"
+      },
+      "image": {
+        "commonsTitle": "File:Mitsubishi LANCER Evolution IX MR GSR (GH-CT9A) front.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Mitsubishi_LANCER_Evolution_IX_MR_GSR_(GH-CT9A)_front.jpg",
+        "author": "Tokumeigakarinoaoshima",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "GH-CT9A型三菱・ランサーエボリューションIX MR GSRをフロントから撮影。",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28997
+      }
+    },
+    "F1": {
+      "name": "Aston Martin DB11 V12",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Aston_Martin_DB11",
+        "en": "https://en.wikipedia.org/wiki/Aston_Martin_DB11"
+      },
+      "image": {
+        "commonsTitle": "File:The frontview of Aston Martin DB11 V12.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:The_frontview_of_Aston_Martin_DB11_V12.jpg",
+        "author": "Tokumeigakarinoaoshima",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "アストンマーティン・DB11 V12をフロントから撮影。",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30443
+      }
+    },
+    "F2": {
+      "name": "Bentley Continental GT",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bentley_Continental_GT",
+        "en": "https://en.wikipedia.org/wiki/Bentley_Continental_GT"
+      },
+      "image": {
+        "commonsTitle": "File:Bentley Continental GT First Edition (49919050697) (cropped) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bentley_Continental_GT_First_Edition_(49919050697)_(cropped)_(cropped).jpg",
+        "author": "Alexandre Prevot from Nancy, France",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "<a href=\"http://www.grand-est-supercars.com\" rel=\"noreferrer nofollow\">www.grand-est-supercars.com</a>",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32764
+      }
+    },
+    "F3": {
+      "name": "Mercedes-AMG GT R",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Mercedes-AMG_GT",
+        "en": "https://en.wikipedia.org/wiki/Mercedes-AMG_GT"
+      },
+      "image": {
+        "commonsTitle": "File:2020 Mercedes-Benz AMG GT R Premium - 3982cc 4.0 (585PS) Petrol - Brilliant Blue Magno - 03-2025, Front.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2020_Mercedes-Benz_AMG_GT_R_Premium_-_3982cc_4.0_(585PS)_Petrol_-_Brilliant_Blue_Magno_-_03-2025,_Front.jpg",
+        "author": "Harvey Bold",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "2020 Mercedes-Benz AMG GT R Premium - 3982cc 4.0 (585PS) Petrol - Brilliant Blue Magno",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28982
+      }
+    },
+    "F4": {
+      "name": "Nissan GT-R Nismo",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Nissan_GT-R",
+        "en": "https://en.wikipedia.org/wiki/Nissan_GT-R"
+      },
+      "image": {
+        "commonsTitle": "File:Nissan GT-R Nismo (R35), 2022, front.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Nissan_GT-R_Nismo_(R35),_2022,_front.jpg",
+        "author": "Kazyakuruma",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Nissan GT-R Nismo (R35), MY2022",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31218
+      }
+    },
+    "G1": {
+      "name": "Tesla Model S Plaid",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Tesla_Model_S",
+        "en": "https://en.wikipedia.org/wiki/Tesla_Model_S"
+      },
+      "image": {
+        "commonsTitle": "File:2023 Tesla Model S Plaid.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2023_Tesla_Model_S_Plaid.jpg",
+        "author": "Calreyn88",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "Tesla Model S",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29693
+      }
+    },
+    "G2": {
+      "name": "Porsche Taycan Turbo S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Porsche_Taycan",
+        "en": "https://en.wikipedia.org/wiki/Porsche_Taycan"
+      },
+      "image": {
+        "commonsTitle": "File:2020 Porsche Taycan Turbo S (21742).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2020_Porsche_Taycan_Turbo_S_(21742).jpg",
+        "author": "Calreyn88",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Porsche Taycan",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33162
+      }
+    },
+    "G3": {
+      "name": "Lucid Air Sapphire",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Lucid_Air",
+        "en": "https://en.wikipedia.org/wiki/Lucid_Air"
+      },
+      "image": {
+        "commonsTitle": "File:Lucid Air Sapphire GIMS 2024 1X7A2362.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Lucid_Air_Sapphire_GIMS_2024_1X7A2362.jpg",
+        "author": "Alexander-93",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Lucid Air Sapphire at GIMS 2024",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30788
+      }
+    },
+    "G4": {
+      "name": "Audi e-tron GT",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Audi_e-tron_GT",
+        "en": "https://en.wikipedia.org/wiki/Audi_e-tron_GT"
+      },
+      "image": {
+        "commonsTitle": "File:Audi e-tron GT IMG 5689.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Audi_e-tron_GT_IMG_5689.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Audi_e-tron_GT in Stuttgart-Vaihingen",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30132
+      }
+    },
+    "H1": {
+      "name": "Mini Cooper S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Mini_F56",
+        "en": "https://en.wikipedia.org/wiki/Mini_Hatch"
+      },
+      "image": {
+        "commonsTitle": "File:2018 Mini Hatch (F56) Cooper S IMG 4393.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2018_Mini_Hatch_(F56)_Cooper_S_IMG_4393.jpg",
+        "author": "Alexander Migl",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "2018_Mini_Hatch_(F56)_Cooper_S in Böblingen",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32750
+      }
+    },
+    "H2": {
+      "name": "VW Polo GTI",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/VW_Polo_VI",
+        "en": "https://en.wikipedia.org/wiki/Volkswagen_Polo"
+      },
+      "image": {
+        "commonsTitle": "File:VW Polo GTI (VI, Facelift) – f 30062024.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:VW_Polo_GTI_(VI,_Facelift)_%E2%80%93_f_30062024.jpg",
+        "author": "© M 93",
+        "license": "CC BY-SA 3.0 de",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "shareAlike": true,
+        "description": "VW Polo GTI (VI, Facelift)",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32886
+      }
+    },
+    "H3": {
+      "name": "Toyota GR Yaris",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Toyota_GR_Yaris",
+        "en": "https://en.wikipedia.org/wiki/Toyota_GR_Yaris"
+      },
+      "image": {
+        "commonsTitle": "File:Toyota GR Yaris (XP21) – f 03052021.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Toyota_GR_Yaris_(XP21)_%E2%80%93_f_03052021.jpg",
+        "author": "© M 93",
+        "license": "CC BY-SA 3.0 de",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "shareAlike": true,
+        "description": "Toyota GR Yaris (XP21)",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33444
+      }
+    },
+    "H4": {
+      "name": "Abarth 595 Competizione",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Fiat_500_(2007)",
+        "en": "https://en.wikipedia.org/wiki/Fiat_500_(2007)"
+      },
+      "image": {
+        "commonsTitle": "File:2020 Abarth 595 Competizione front.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2020_Abarth_595_Competizione_front.jpg",
+        "author": "LuvsMG481",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "2020 Abarth 595 Competizione in Rose Bay, NSW",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31623
+      }
+    }
+  }
+}

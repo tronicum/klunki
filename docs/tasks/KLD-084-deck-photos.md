@@ -3,7 +3,7 @@
 - **ID:** `KLD-084`
 - **Title:** The KLD-082 media pipeline (Wikipedia links, free-licence Wikimedia Commons photos, credits) applied to the other three Quartett decks
 - **Milestone:** M3 (content)
-- **Status:** planes ✅ · trains ✅ · cars open (one commit per deck)
+- **Status:** DONE · planes ✅ · trains ✅ · cars ✅ (one commit per deck); all 128 cards have a photo
 - **Depends on:** KLD-082 (pipeline, app UI, credit dialog, "Bildnachweise", PWA check)
 - **Touched paths (per deck):**
   - `klunki/tool/card_media/<deck>.json` (chosen Commons files, article titles, author overrides, notes)
@@ -11,6 +11,7 @@
   - `klunki/lib/ui/games/quartett_media_data.dart` (generated)
   - `klunki/test/ui/games/quartett_media_test.dart` (data tests run per deck)
   - `klunki/tool/fetch_card_media.py` (trains: optional per-deck `maxBytes`, quality steps 40/32)
+  - `docs/tasks/KLD-082-quartett-media.md` (status/next pointer)
 
 ## Goal
 
@@ -51,7 +52,10 @@ now runs for every deck in `_mediaDecks` (complete, allowed credits; JPEGs
 ≤ 40 KB, no stray files, **deck folder ≤ 1.2 MB**; Wikipedia URLs; generated
 Dart = `credits.json`; gallery photos and the "Bildnachweise" button).
 New: exactly the collected decks have media data and an asset folder;
-"Bildnachweise" lists every photo of every deck.
+"Bildnachweise" lists every photo of every deck; every deck gallery has
+the button and its screen lists only that deck (replaces "cars has no
+button"); the pictogram-only fallback now uses a card id without media
+(every real card has a photo).
 
 ## Planes
 
@@ -161,3 +165,66 @@ E2 KTX-Sancheon (English only).
 | H2 | EMD SD70ACe | [UP 1996 (1290120334).jpg](https://commons.wikimedia.org/wiki/File:UP_1996_(1290120334).jpg) | Bruce Fingerhood from Springfield, Oregon, US | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/EMD_SD70ACe) · [en](https://en.wikipedia.org/wiki/EMD_SD70_series) |
 | H3 | GE AC6000CW | [CSXT627.jpg](https://commons.wikimedia.org/wiki/File:CSXT627.jpg) | William Grimes at English Wikipedia | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/GE_AC6000CW) · [en](https://en.wikipedia.org/wiki/GE_AC6000CW) |
 | H4 | Class 66 | [66534 on container train.jpg](https://commons.wikimedia.org/wiki/File:66534_on_container_train.jpg) | Murgatroyd49 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/EMD_JT42CWR) · [en](https://en.wikipedia.org/wiki/British_Rail_Class_66) |
+
+## Cars
+
+32 of 32 cards have a photo, each of the card's variant where Commons
+has one (Turbo S, Huracán EVO, Shelby GT500 2020, Challenger Hellcat,
+Camaro ZL1 6th gen., Corvette C8 Z06, Delta Integrale Evo 2, Sport
+quattro, Impreza WRX STI 3rd gen., Lancer Evo IX, DB11 V12, Continental
+GT 3rd gen., AMG GT R, GT-R Nismo, Model S Plaid, Taycan Turbo S, Air
+Sapphire, Mini F56 Cooper S, Polo VI GTI facelift, 595 Competizione).
+Licences: CC BY-SA 4.0 23, CC0 3, CC BY-SA 2.0 2, CC BY-SA 3.0 de 2,
+CC BY 2.0 1, Public domain 1. Total (`maxBytes` 33 KB as trains): 32 JPEGs
+1 006 502 B (largest 33 743 B) + `credits.json` 24 230 B =
+**1 030 732 B**.
+
+Lead images replaced by a front view of the right variant on most cards
+(leads show a Carrera, a Huracán LP610, a 1965 GT350, a Challenger SRT8,
+a Camaro 2SS, a Lancia Delta LX, a 1985 Quattro, a 2022 WRX, a Lancer
+Evo X, a DB11 V8, a Model S 2016 …). Some Commons titles only came from
+a Commons search (D3, F1, G1, G2, D4, E4). No author overrides needed
+("© M 93" on H2/H3 is the author's own attribution line). German
+articles: D2 → Dodge Challenger SRT Hellcat, E2 → Audi Sport quattro,
+E3 → Subaru Impreza, H1 → Mini F56, H2 → VW Polo VI (more specific than
+the interlanguage link or none). General articles where Wikipedia has
+no variant article: A1 Porsche 992, A3 Huracán, D1 Shelby Mustang,
+D2 en Dodge Challenger, E1 Lancia Delta, E2 en Audi Quattro, E3 en
+Subaru WRX, E4 Lancer Evolution, F3 Mercedes-AMG GT, F4 Nissan GT-R,
+G1 Model S, G2 Taycan, G3 Lucid Air, H4 Fiat 500 (2007) (the en
+"Abarth 595" redirects there).
+
+| Card | Name | Commons file | Author | Licence | SA | Wikipedia |
+|---|---|---|---|---|---|---|
+| A1 | Porsche 911 Turbo S | [Porsche 992 Turbo S 1X7A0411.jpg](https://commons.wikimedia.org/wiki/File:Porsche_992_Turbo_S_1X7A0411.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Porsche_992) · [en](https://en.wikipedia.org/wiki/Porsche_911_(992)) |
+| A2 | Ferrari F8 Tributo | [Ferrari F8 Tributo DSC 7013.jpg](https://commons.wikimedia.org/wiki/File:Ferrari_F8_Tributo_DSC_7013.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Ferrari_F8) · [en](https://en.wikipedia.org/wiki/Ferrari_F8) |
+| A3 | Lamborghini Huracán EVO | [Lamborghini Huracan Evo Genf 2019 1Y7A5452.jpg](https://commons.wikimedia.org/wiki/File:Lamborghini_Huracan_Evo_Genf_2019_1Y7A5452.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Lamborghini_Hurac%C3%A1n) · [en](https://en.wikipedia.org/wiki/Lamborghini_Hurac%C3%A1n) |
+| A4 | McLaren 720S | [McLaren 720S IMG 0933.jpg](https://commons.wikimedia.org/wiki/File:McLaren_720S_IMG_0933.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/McLaren_720S) · [en](https://en.wikipedia.org/wiki/McLaren_720S) |
+| B1 | Bugatti Chiron | [Bugatti Chiron 1.jpg](https://commons.wikimedia.org/wiki/File:Bugatti_Chiron_1.jpg) | Calreyn88 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Bugatti_Chiron) · [en](https://en.wikipedia.org/wiki/Bugatti_Chiron) |
+| B2 | Koenigsegg Jesko | [Koenigsegg Jesko Auto Zuerich 2023 1X7A0924.jpg](https://commons.wikimedia.org/wiki/File:Koenigsegg_Jesko_Auto_Zuerich_2023_1X7A0924.jpg) | Alexander-93 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Koenigsegg_Jesko) · [en](https://en.wikipedia.org/wiki/Koenigsegg_Jesko) |
+| B3 | Pagani Huayra | [Pagani Huayra.jpg](https://commons.wikimedia.org/wiki/File:Pagani_Huayra.jpg) | ian mcwilliams | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/Pagani_Huayra) · [en](https://en.wikipedia.org/wiki/Pagani_Huayra) |
+| B4 | Rimac Nevera | [Rimac Nevera.jpg](https://commons.wikimedia.org/wiki/File:Rimac_Nevera.jpg) | MrWalkr | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Rimac_Nevera) · [en](https://en.wikipedia.org/wiki/Rimac_Nevera) |
+| C1 | Mercedes 300 SL | [Fox Classic Car Collection, 2008 (02).JPG](https://commons.wikimedia.org/wiki/File:Fox_Classic_Car_Collection,_2008_(02).JPG) | Bahnfrend | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Mercedes-Benz_W_198) · [en](https://en.wikipedia.org/wiki/Mercedes-Benz_300_SL) |
+| C2 | Jaguar E-Type | [Jaguar E-Type Series 1 3.8 Litre 1961.jpg](https://commons.wikimedia.org/wiki/File:Jaguar_E-Type_Series_1_3.8_Litre_1961.jpg) | DeFacto | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Jaguar_E-Type) · [en](https://en.wikipedia.org/wiki/Jaguar_E-Type) |
+| C3 | Ferrari 250 GTO | [1962 Ferrari 250 GTO SP25.jpg](https://commons.wikimedia.org/wiki/File:1962_Ferrari_250_GTO_SP25.jpg) | MrWalkr | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Ferrari_250_GTO) · [en](https://en.wikipedia.org/wiki/Ferrari_250_GTO) |
+| C4 | Lamborghini Miura | [1971 Lamborghini Miura P400 SV.jpg](https://commons.wikimedia.org/wiki/File:1971_Lamborghini_Miura_P400_SV.jpg) | Chelsea Jay | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Lamborghini_Miura) · [en](https://en.wikipedia.org/wiki/Lamborghini_Miura) |
+| D1 | Ford Mustang Shelby GT500 | [2020 Ford Mustang Shelby GT500 GT101.jpg](https://commons.wikimedia.org/wiki/File:2020_Ford_Mustang_Shelby_GT500_GT101.jpg) | MrWalkr | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Shelby_Mustang) · [en](https://en.wikipedia.org/wiki/Shelby_Mustang) |
+| D2 | Dodge Challenger Hellcat | [2015 HellCat.JPG](https://commons.wikimedia.org/wiki/File:2015_HellCat.JPG) | Hunttriumph1500 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Dodge_Challenger_SRT_Hellcat) · [en](https://en.wikipedia.org/wiki/Dodge_Challenger) |
+| D3 | Chevrolet Camaro ZL1 | [Chevrolet Camaro ZL1 Sixth generation (54865460423).jpg](https://commons.wikimedia.org/wiki/File:Chevrolet_Camaro_ZL1_Sixth_generation_(54865460423).jpg) | Alexandre Prevot from Nancy, France | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Chevrolet_Camaro_(2015)) · [en](https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation)) |
+| D4 | Chevrolet Corvette Z06 | [2025 Chevrolet Corvette C8 Z06.jpg](https://commons.wikimedia.org/wiki/File:2025_Chevrolet_Corvette_C8_Z06.jpg) | Calreyn88 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Chevrolet_Corvette_C8) · [en](https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C8)) |
+| E1 | Lancia Delta Integrale | [Lancia Delta Integrale Evo 2 IMG 9403.jpg](https://commons.wikimedia.org/wiki/File:Lancia_Delta_Integrale_Evo_2_IMG_9403.jpg) | Tony Harrison | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/Lancia_Delta) · [en](https://en.wikipedia.org/wiki/Lancia_Delta) |
+| E2 | Audi Sport quattro | [Audi Sport Quattro Classic-Days 2022 IMG 7075.jpg](https://commons.wikimedia.org/wiki/File:Audi_Sport_Quattro_Classic-Days_2022_IMG_7075.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Audi_Sport_quattro) · [en](https://en.wikipedia.org/wiki/Audi_Quattro) |
+| E3 | Subaru Impreza WRX STI | [3rd generation Subaru Impreza WRX STI.jpg](https://commons.wikimedia.org/wiki/File:3rd_generation_Subaru_Impreza_WRX_STI.jpg) | TTTNIS | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/Subaru_Impreza) · [en](https://en.wikipedia.org/wiki/Subaru_WRX) |
+| E4 | Mitsubishi Lancer Evo IX | [Mitsubishi LANCER Evolution IX MR GSR (GH-CT9A) front.jpg](https://commons.wikimedia.org/wiki/File:Mitsubishi_LANCER_Evolution_IX_MR_GSR_(GH-CT9A)_front.jpg) | Tokumeigakarinoaoshima | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Mitsubishi_Lancer) · [en](https://en.wikipedia.org/wiki/Mitsubishi_Lancer_Evolution) |
+| F1 | Aston Martin DB11 V12 | [The frontview of Aston Martin DB11 V12.jpg](https://commons.wikimedia.org/wiki/File:The_frontview_of_Aston_Martin_DB11_V12.jpg) | Tokumeigakarinoaoshima | [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.en) | – | [de](https://de.wikipedia.org/wiki/Aston_Martin_DB11) · [en](https://en.wikipedia.org/wiki/Aston_Martin_DB11) |
+| F2 | Bentley Continental GT | [Bentley Continental GT First Edition (49919050697) (cropped) (cropped).jpg](https://commons.wikimedia.org/wiki/File:Bentley_Continental_GT_First_Edition_(49919050697)_(cropped)_(cropped).jpg) | Alexandre Prevot from Nancy, France | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/Bentley_Continental_GT) · [en](https://en.wikipedia.org/wiki/Bentley_Continental_GT) |
+| F3 | Mercedes-AMG GT R | [2020 Mercedes-Benz AMG GT R Premium - 3982cc 4.0 (585PS) Petrol - Brilliant Blue Magno - 03-2025, Front.jpg](https://commons.wikimedia.org/wiki/File:2020_Mercedes-Benz_AMG_GT_R_Premium_-_3982cc_4.0_(585PS)_Petrol_-_Brilliant_Blue_Magno_-_03-2025,_Front.jpg) | Harvey Bold | [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.en) | – | [de](https://de.wikipedia.org/wiki/Mercedes-AMG_GT) · [en](https://en.wikipedia.org/wiki/Mercedes-AMG_GT) |
+| F4 | Nissan GT-R Nismo | [Nissan GT-R Nismo (R35), 2022, front.jpg](https://commons.wikimedia.org/wiki/File:Nissan_GT-R_Nismo_(R35),_2022,_front.jpg) | Kazyakuruma | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Nissan_GT-R) · [en](https://en.wikipedia.org/wiki/Nissan_GT-R) |
+| G1 | Tesla Model S Plaid | [2023 Tesla Model S Plaid.jpg](https://commons.wikimedia.org/wiki/File:2023_Tesla_Model_S_Plaid.jpg) | Calreyn88 | [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.en) | – | [de](https://de.wikipedia.org/wiki/Tesla_Model_S) · [en](https://en.wikipedia.org/wiki/Tesla_Model_S) |
+| G2 | Porsche Taycan Turbo S | [2020 Porsche Taycan Turbo S (21742).jpg](https://commons.wikimedia.org/wiki/File:2020_Porsche_Taycan_Turbo_S_(21742).jpg) | Calreyn88 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Porsche_Taycan) · [en](https://en.wikipedia.org/wiki/Porsche_Taycan) |
+| G3 | Lucid Air Sapphire | [Lucid Air Sapphire GIMS 2024 1X7A2362.jpg](https://commons.wikimedia.org/wiki/File:Lucid_Air_Sapphire_GIMS_2024_1X7A2362.jpg) | Alexander-93 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Lucid_Air) · [en](https://en.wikipedia.org/wiki/Lucid_Air) |
+| G4 | Audi e-tron GT | [Audi e-tron GT IMG 5689.jpg](https://commons.wikimedia.org/wiki/File:Audi_e-tron_GT_IMG_5689.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Audi_e-tron_GT) · [en](https://en.wikipedia.org/wiki/Audi_e-tron_GT) |
+| H1 | Mini Cooper S | [2018 Mini Hatch (F56) Cooper S IMG 4393.jpg](https://commons.wikimedia.org/wiki/File:2018_Mini_Hatch_(F56)_Cooper_S_IMG_4393.jpg) | Alexander Migl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Mini_F56) · [en](https://en.wikipedia.org/wiki/Mini_Hatch) |
+| H2 | VW Polo GTI | [VW Polo GTI (VI, Facelift) – f 30062024.jpg](https://commons.wikimedia.org/wiki/File:VW_Polo_GTI_(VI,_Facelift)_%E2%80%93_f_30062024.jpg) | © M 93 | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) | yes | [de](https://de.wikipedia.org/wiki/VW_Polo_VI) · [en](https://en.wikipedia.org/wiki/Volkswagen_Polo) |
+| H3 | Toyota GR Yaris | [Toyota GR Yaris (XP21) – f 03052021.jpg](https://commons.wikimedia.org/wiki/File:Toyota_GR_Yaris_(XP21)_%E2%80%93_f_03052021.jpg) | © M 93 | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) | yes | [de](https://de.wikipedia.org/wiki/Toyota_GR_Yaris) · [en](https://en.wikipedia.org/wiki/Toyota_GR_Yaris) |
+| H4 | Abarth 595 Competizione | [2020 Abarth 595 Competizione front.jpg](https://commons.wikimedia.org/wiki/File:2020_Abarth_595_Competizione_front.jpg) | LuvsMG481 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Fiat_500_(2007)) · [en](https://en.wikipedia.org/wiki/Fiat_500_(2007)) |

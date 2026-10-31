@@ -1,5 +1,5 @@
 // KLD-082: Wikipedia links and Commons photos on the Quartett cards (rockets
-// deck first): data and licence checks, the photo on the card, the credit
+// deck first, KLD-084 planes, trains, cars): data and licence checks, the photo on the card, the credit
 // dialog, the Wikipedia button and the image credits screen. Also the
 // number format fix (years and whole numbers never show a decimal; counts
 // grouped, percent per locale) and the new stats (built, success rate).
@@ -15,6 +15,7 @@ import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/games/quartett_media.dart';
 import 'package:klunki/ui/games/quartett_media_data.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
 import '../../l10n/glyph_coverage_test.dart' show cmapCodePoints, needsGlyph;
 import '../../l10n/l10n_test_utils.dart';
@@ -50,7 +51,7 @@ List<Uri> _fakeOpener({bool ok = true}) {
 
 /// Decks whose photos and links have been collected (KLD-082 rockets,
 /// KLD-084 the others); every other deck keeps its pictograms.
-const _mediaDecks = ['rockets', 'planes', 'trains'];
+const _mediaDecks = ['rockets', 'planes', 'trains', 'cars'];
 
 void main() {
   for (final deckId in _mediaDecks) {
@@ -234,7 +235,10 @@ void _widgetTests() {
     });
 
     testWidgets('a card without a photo keeps the drawn pictogram only', (tester) async {
-      final card = QuartettDeck.cars.cardById('A1')!;
+      // Every deck card has a photo since KLD-084: a card id without media.
+      final a1 = QuartettDeck.cars.cardById('A1')!;
+      final card = qe.Card(id: 'Z9', name: 'Ohne Foto', set: a1.set, deck: a1.deck, stats: a1.stats);
+      expect(quartettMediaOf(card), isNull);
       await tester.pumpWidget(
         localizedApp(
           Scaffold(
@@ -383,12 +387,20 @@ void _widgetTests() {
       expect(find.byKey(const Key('quartett-photo-credit')), findsOneWidget);
     });
 
-    testWidgets('the rocket deck gallery has a Bildnachweise button, decks without photos do not', (tester) async {
+    testWidgets('every deck gallery has a Bildnachweise button that lists only that deck', (tester) async {
       await _phone(tester);
-      await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: QuartettDeck.rockets)));
-      expect(find.byKey(const Key('gallery-image-credits')), findsOneWidget);
-      await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: QuartettDeck.cars)));
-      expect(find.byKey(const Key('gallery-image-credits')), findsNothing);
+      for (final deck in QuartettDeck.all) {
+        await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: deck)));
+        expect(find.byKey(const Key('gallery-image-credits')), findsOneWidget, reason: deck.id);
+        await tester.tap(find.byKey(const Key('gallery-image-credits')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(Key('quartett-credit-${deck.id}-A1')), findsOneWidget, reason: deck.id);
+        for (final other in QuartettDeck.all.where((d) => d != deck)) {
+          expect(find.byKey(Key('quartett-credit-${other.id}-A1')), findsNothing, reason: '${deck.id}/${other.id}');
+        }
+        tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+        await tester.pumpAndSettle();
+      }
     });
   });
 
