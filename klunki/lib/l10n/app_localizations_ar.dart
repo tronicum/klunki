@@ -49,6 +49,36 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuGameSchiffe => 'معركة السفن';
 
   @override
+  String get menuDescConnect4 =>
+      'أربع في صف واحد – أفقيًا أو عموديًا أو قطريًا.';
+
+  @override
+  String get menuDescMuehle => 'كوِّن صفوفًا من ثلاث واستولِ على قطع خصمك.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'قارنوا القيم – القيمة الأفضل تربح البطاقتين.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'اطلب البطاقات واجمع مجموعات كاملة من أربع.';
+
+  @override
+  String get menuDescSchiffe => 'أخفوا أساطيلكم وأطلقوا النار بالتناوب.';
+
+  @override
+  String get menuSectionHotSeat => 'لاعبان على جهاز واحد';
+
+  @override
+  String get menuSectionNetwork => 'بجهازين';
+
+  @override
+  String get menuNetworkSubtitle => 'استضف لعبة أو انضم إليها';
+
+  @override
+  String get menuHiddenInfo => 'بطاقات أو أسطول سري – تتبادلون الجهاز';
+
+  @override
   String shellToMove(String player) {
     return 'دور $player';
   }

@@ -49,6 +49,39 @@ class AppLocalizationsDe extends AppLocalizations {
   String get menuGameSchiffe => 'Schiffe versenken';
 
   @override
+  String get menuDescConnect4 =>
+      'Vier in einer Reihe – waagerecht, senkrecht oder schräg.';
+
+  @override
+  String get menuDescMuehle =>
+      'Bilde Dreierreihen und schlage gegnerische Steine.';
+
+  @override
+  String get menuDescQuartettTrumpf =>
+      'Vergleicht Werte – der bessere Wert gewinnt beide Karten.';
+
+  @override
+  String get menuDescQuartettSets =>
+      'Erfrage Karten und sammle vollständige Vierer-Sets.';
+
+  @override
+  String get menuDescSchiffe =>
+      'Versteckt eure Flotten und schießt abwechselnd.';
+
+  @override
+  String get menuSectionHotSeat => 'Zu zweit an einem Gerät';
+
+  @override
+  String get menuSectionNetwork => 'Mit zwei Geräten';
+
+  @override
+  String get menuNetworkSubtitle => 'Spiel hosten oder beitreten';
+
+  @override
+  String get menuHiddenInfo =>
+      'Geheime Karten oder Flotte – ihr reicht das Gerät weiter';
+
+  @override
   String shellToMove(String player) {
     return '$player ist am Zug';
   }

@@ -221,6 +221,9 @@ Future<void> setSize(WidgetTester tester, Size size) async {
 /// Plays a game opened from the menu to the end, auditing every position,
 /// the handover cover, the restart dialog and the history sheet on the way.
 Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
+  // The menu grid (KLD-062) can put a tile below the fold on small screens.
+  await tester.ensureVisible(find.byKey(Key('menu-$id')));
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(Key('menu-$id')));
   await tester.pumpAndSettle();
   audit.check(tester, '$id start');

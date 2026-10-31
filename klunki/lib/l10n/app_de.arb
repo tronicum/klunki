@@ -52,6 +52,42 @@
   "@menuGameSchiffe": {
     "description": "Game title: battleship-style game (generic name, no brand)."
   },
+  "menuDescConnect4": "Vier in einer Reihe – waagerecht, senkrecht oder schräg.",
+  "@menuDescConnect4": {
+    "description": "Menu tile one-liner for 4 Gewinnt (KLD-062)."
+  },
+  "menuDescMuehle": "Bilde Dreierreihen und schlage gegnerische Steine.",
+  "@menuDescMuehle": {
+    "description": "Menu tile one-liner for M\u00fchle (KLD-062)."
+  },
+  "menuDescQuartettTrumpf": "Vergleicht Werte – der bessere Wert gewinnt beide Karten.",
+  "@menuDescQuartettTrumpf": {
+    "description": "Menu tile one-liner for Quartett (Trumpf) (KLD-062)."
+  },
+  "menuDescQuartettSets": "Erfrage Karten und sammle vollständige Vierer-Sets.",
+  "@menuDescQuartettSets": {
+    "description": "Menu tile one-liner for Quartett (Sets) (KLD-062)."
+  },
+  "menuDescSchiffe": "Versteckt eure Flotten und schießt abwechselnd.",
+  "@menuDescSchiffe": {
+    "description": "Menu tile one-liner for Schiffe versenken (KLD-062)."
+  },
+  "menuSectionHotSeat": "Zu zweit an einem Gerät",
+  "@menuSectionHotSeat": {
+    "description": "Menu section header above the hot-seat game tiles (KLD-062)."
+  },
+  "menuSectionNetwork": "Mit zwei Geräten",
+  "@menuSectionNetwork": {
+    "description": "Menu section header above the network entry (KLD-062)."
+  },
+  "menuNetworkSubtitle": "Spiel hosten oder beitreten",
+  "@menuNetworkSubtitle": {
+    "description": "Subtitle of the network entry \"\u00dcber WLAN spielen\" (KLD-062)."
+  },
+  "menuHiddenInfo": "Geheime Karten oder Flotte – ihr reicht das Gerät weiter",
+  "@menuHiddenInfo": {
+    "description": "Tooltip/semantics of the eye-off badge on hidden-information game tiles (secret hand or fleet, the device is passed between turns) (KLD-062)."
+  },
   "shellToMove": "{player} ist am Zug",
   "@shellToMove": {
     "description": "Status line: whose turn it is. player = mark X or O.",
