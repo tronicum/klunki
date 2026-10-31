@@ -148,6 +148,7 @@ From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there)
 | ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
 | KLD-053 | Android release signing (keystore) instead of the debug keys. Gradle part done in KLD-070 (`key.properties` / `KLUNKI_KEYSTORE_*`, debug fallback); remaining: 🧑 creates the keystore, optional CI secrets | 🧑 chooses passwords, keeps the keystore |
+| KLD-082 | **Quartett media**: Wikipedia links (de/en) and free-licence Wikimedia Commons photos on the cards, credit dialog "ⓘ" and "Bildnachweise", `url_launcher`; reusable `klunki/tool/fetch_card_media.py`. **Rockets ✅** (32/32 photos, 1.09 MB); also the stat format fix ("1999,0") and the year stats replaced (Gebaut / Erfolgsquote). **Open: cars, trains, planes**. See `docs/tasks/KLD-082-quartett-media.md` | photos need a look per deck |
 | KLD-069b | More Quartett decks (follow-up to KLD-069): ships, animals, dinosaurs, planets; each = one `QuartettDeck.build` + ARB set names + a pictogram (see "How to add a deck" in `docs/tasks/KLD-069-quartett-decks.md`) | data needs a source check like the KLD-069 decks |
 
 ## Waves (what can run in parallel)

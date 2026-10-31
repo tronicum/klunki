@@ -1,0 +1,617 @@
+{
+  "deck": "rockets",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Saturn V",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Saturn_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Saturn_V"
+      },
+      "image": {
+        "commonsTitle": "File:Apollo 11 Launch - GPN-2000-000630.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Apollo_11_Launch_-_GPN-2000-000630.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The Apollo 11 Saturn V rocket launch vehicle lifts-off with astronauts Neil A. Armstrong, Michael Collins and Edwin E. Aldrin, Jr., at 9:32 a.m. EDT July 16, 1969, from Kennedy Space Center's Launch Complex Pad 39A.",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34278
+      }
+    },
+    "A2": {
+      "name": "Saturn IB",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Saturn_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Saturn_IB"
+      },
+      "image": {
+        "commonsTitle": "File:Saturn IB (AS-201) launch.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Saturn_IB_(AS-201)_launch.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35495
+      }
+    },
+    "A3": {
+      "name": "SLS Block 1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Space_Launch_System",
+        "en": "https://en.wikipedia.org/wiki/Space_Launch_System"
+      },
+      "image": {
+        "commonsTitle": "File:Artemis II launch (SLS MAF 20260401 ArtemisIILaunch 02) crop.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Artemis_II_launch_(SLS_MAF_20260401_ArtemisIILaunch_02)_crop.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Four astronauts aboard NASA’s Orion spacecraft atop the SLS (Space Launch System) rocket launch on the agency’s Artemis II test flight, Wednesday, April 1 from Launch Complex 39B at NASA’s Kennedy Space Center in Florida. Artemis II lifted off at 6:35 p.m. ET. Artemis II is the first crewed mission ",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34406
+      }
+    },
+    "A4": {
+      "name": "N1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/N1_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/N1_(rocket)"
+      },
+      "image": {
+        "commonsTitle": "File:N1 1M1 mockup on the launch pad at the Baikonur Cosmodrome in late 1967.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:N1_1M1_mockup_on_the_launch_pad_at_the_Baikonur_Cosmodrome_in_late_1967.jpg",
+        "author": "National Reconnaissance Office",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Н-1 1M1 mockup on the launch pad at the Baikonur Cosmodrome in late 1967.",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39725
+      }
+    },
+    "B1": {
+      "name": "Falcon 9",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Falcon_9",
+        "en": "https://en.wikipedia.org/wiki/Falcon_9"
+      },
+      "image": {
+        "commonsTitle": "File:SpaceX Demo-2 Launch (NHQ202005300044) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SpaceX_Demo-2_Launch_(NHQ202005300044)_(cropped).jpg",
+        "author": "Joel Kowsky",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A SpaceX Falcon 9 rocket carrying the company's Crew Dragon spacecraft is launched from Launch Complex 39A on NASA’s SpaceX Demo-2 mission to the International Space Station with NASA astronauts Robert Behnken and Douglas Hurley onboard, Saturday, May 30, 2020, at NASA’s Kennedy Space Center in Flor",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39971
+      }
+    },
+    "B2": {
+      "name": "Falcon Heavy",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Falcon_Heavy",
+        "en": "https://en.wikipedia.org/wiki/Falcon_Heavy"
+      },
+      "image": {
+        "commonsTitle": "File:Falcon Heavy Demo Mission (39337245145).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Falcon_Heavy_Demo_Mission_(39337245145).jpg",
+        "author": "SpaceX",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "Falcon Heavy Demo Mission",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38235
+      }
+    },
+    "B3": {
+      "name": "Starship",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Starship",
+        "en": "https://en.wikipedia.org/wiki/SpaceX_Starship"
+      },
+      "image": {
+        "commonsTitle": "File:SpaceX Starship ignition during IFT-5.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SpaceX_Starship_ignition_during_IFT-5.jpg",
+        "author": "Steve Jurvetson",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "SpaceX Starship ignition during its launch on IFT-5.",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39675
+      }
+    },
+    "B4": {
+      "name": "New Glenn",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/New_Glenn",
+        "en": "https://en.wikipedia.org/wiki/New_Glenn"
+      },
+      "image": {
+        "commonsTitle": "File:New Glenn - BlueBird 7 Launch (9628277) (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:New_Glenn_-_BlueBird_7_Launch_(9628277)_(cropped).jpg",
+        "author": "U.S. Space Force photo by Gwendolyn Kurzen",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A New Glenn rocket carrying the BlueBird 7 mission successfully launches from Space Launch Complex 36 at Cape Canaveral Space Force Station, Florida, on April 19, 2026. Following liftoff, New Glenn began its ascent carrying AST SpaceMobile’s BlueBird 7 satellite toward low Earth orbit. (U.S. Space F",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 27934
+      }
+    },
+    "C1": {
+      "name": "Ariane 5",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ariane_5",
+        "en": "https://en.wikipedia.org/wiki/Ariane_5"
+      },
+      "image": {
+        "commonsTitle": "File:Ariane 5 with James Webb Space Telescope Prelaunch (51773093465).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ariane_5_with_James_Webb_Space_Telescope_Prelaunch_(51773093465).jpg",
+        "author": "Chris Gunn",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Arianespace's Ariane 5 rocket with NASA’s James Webb Space Telescope onboard, is seen at the launch pad, Thursday, Dec. 23, 2021, at Europe’s Spaceport, the Guiana Space Center in Kourou, French Guiana. The James Webb Space Telescope (sometimes called JWST or Webb) is a large infrared telescope with",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40499
+      }
+    },
+    "C2": {
+      "name": "Ariane 6 (A64)",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ariane_6",
+        "en": "https://en.wikipedia.org/wiki/Ariane_6"
+      },
+      "image": {
+        "commonsTitle": "File:Ariane 6 on pad.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ariane_6_on_pad.jpg",
+        "author": "ESA",
+        "license": "CC BY-SA 3.0 igo",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/igo/deed.en",
+        "shareAlike": true,
+        "description": "Ariane 6 - test removal of Mobile Gantry at Europe's spaceport in French Guiana.",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40335
+      }
+    },
+    "C3": {
+      "name": "Vega C",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Vega_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Vega_C"
+      },
+      "image": {
+        "commonsTitle": "File:Maquette Vega C DSC 0020.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Maquette_Vega_C_DSC_0020.JPG",
+        "author": "Pline",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Maquette lanceur léger Vega C , Salon du Bourget 2015",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 18272
+      },
+      "note": "scale model; no free photo of a real Vega C on Commons (the free Licence Ouverte launch photo shows the rocket only tiny, ESA files are infographics)"
+    },
+    "C4": {
+      "name": "Ariane 4",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ariane_4",
+        "en": "https://en.wikipedia.org/wiki/Ariane_4"
+      },
+      "image": {
+        "commonsTitle": "File:Ariane42P rocket.png",
+        "source": "https://commons.wikimedia.org/wiki/File:Ariane42P_rocket.png",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Ariane 42P rocket with the TOPEX/Poseidon satellite (Kourou, August 10, 1992) (NASA)Original image caption: The Ariane 42P carrying the TOPEX/Poseidon spacecraft was launched from the European Space Agency's Guiana Space Center in Kourou, French Guiana, on August 10, 1992.",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36053
+      }
+    },
+    "D1": {
+      "name": "Atlas V",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Atlas_V",
+        "en": "https://en.wikipedia.org/wiki/Atlas_V"
+      },
+      "image": {
+        "commonsTitle": "File:Atlas V 551 launch with Juno.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Atlas_V_551_launch_with_Juno.jpg",
+        "author": "NASA/Tony Gray and Don Kight",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "CAPE CANAVERAL, Fla. -- Rising from fire and smoke, NASA's Juno planetary probe, enclosed in its payload fairing, launches atop a United Launch Alliance Atlas V rocket. Leaving from Space Launch Complex 41 on Cape Canaveral Air Force Station in Florida, the spacecraft will embark on a five-year jour",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29119
+      }
+    },
+    "D2": {
+      "name": "Delta IV Heavy",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Delta_IV",
+        "en": "https://en.wikipedia.org/wiki/Delta_IV_Heavy"
+      },
+      "image": {
+        "commonsTitle": "File:Delta IV Heavy on pad with Orion EFT-1 (KSC-2014-4686).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Delta_IV_Heavy_on_pad_with_Orion_EFT-1_(KSC-2014-4686).jpg",
+        "author": "Kim Shiflett",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The launch gantry is rolled back to reveal NASA's Orion spacecraft mounted atop a United Launch Alliance Delta IV Heavy rocket at Cape Canaveral Air Force Station's Space Launch Complex 37. Orion is NASA’s new spacecraft built to carry humans, designed to allow us to journey to destinations never be",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26037
+      }
+    },
+    "D3": {
+      "name": "Space Shuttle",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Space_Shuttle",
+        "en": "https://en.wikipedia.org/wiki/Space_Shuttle"
+      },
+      "image": {
+        "commonsTitle": "File:STS120LaunchHiRes-edit1.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:STS120LaunchHiRes-edit1.jpg",
+        "author": "NASA; edited by jjron (tilt corrected)",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The Space Shuttle Discovery and its seven-member STS-120 crew head toward Earth-orbit and a scheduled link-up with the International Space Station. Liftoff from Kennedy Space Center's launch pad 39A occurred at 11:38:19 a.m. (EDT). Onboard are astronauts Pam Melroy, commander; George Zamka, pilot; S",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36840
+      }
+    },
+    "D4": {
+      "name": "Titan IV B",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Titan_(Tr%C3%A4gerrakete)",
+        "en": "https://en.wikipedia.org/wiki/Titan_IV"
+      },
+      "image": {
+        "commonsTitle": "File:Titan4B on Launch Complex 40.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Titan4B_on_Launch_Complex_40.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Launch Complex 40: The second Titan IVB/Centaur (Model 401), with Cassini/Huygens on board. At Launch Complex 40 on Cape Canaveral Air Station, the Mobile Service Tower has been retracted away from the Titan IVB/Centaur carrying the Cassini spacecraft, marking a major milestone in the launch countdo",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38041
+      }
+    },
+    "E1": {
+      "name": "Sojus-U",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Sojus_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Soyuz-U"
+      },
+      "image": {
+        "commonsTitle": "File:Soyuz TM-31 launch.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Soyuz_TM-31_launch.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A Soyuz spacecraft lifts off from the Baikonur Cosmodrome at 10:53 a.m. Kazakhstan time. Onboard were Expedition One commander William M. (Bill) Shepherd, Soyuz commander Yuri P. Gidzenko and Sergei K. Krikalev, flight engineer.",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30335
+      }
+    },
+    "E2": {
+      "name": "Proton-M",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Proton_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Proton-M"
+      },
+      "image": {
+        "commonsTitle": "File:Night start of Proton-M rocket with Blagovest satellite 17.08.2017.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Night_start_of_Proton-M_rocket_with_Blagovest_satellite_17.08.2017.jpg",
+        "author": "Ministry of Defence of the Russian Federation (mil.ru)",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "Night start of Proton-M rocket with Blagovest satellite 17.08.2017",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40096
+      }
+    },
+    "E3": {
+      "name": "Angara A5",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Angara_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Angara_A5"
+      },
+      "image": {
+        "commonsTitle": "File:Launch of the Angara-A5 from the Plesetsk cosmodrome (2025-06-19) 05.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Launch_of_the_Angara-A5_from_the_Plesetsk_cosmodrome_(2025-06-19)_05.jpg",
+        "author": "Ministry of Defence of the Russian Federation (mil.ru)",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "On June 19, 2025, an Angara-A5 launch vehicle with spacecraft on board was launched from the Plesetsk cosmodrome in the interests of the Russian Ministry of Defense. After launch, the Angara-A5 heavy-class launch vehicle was escorted by means of the ground-based automated control system of the Main ",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35903
+      }
+    },
+    "E4": {
+      "name": "Energija",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Energia",
+        "en": "https://en.wikipedia.org/wiki/Energia"
+      },
+      "image": {
+        "commonsTitle": "File:Космодром Байконур, ракета Энергия в ангаре.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%BE%D1%81%D0%BC%D0%BE%D0%B4%D1%80%D0%BE%D0%BC_%D0%91%D0%B0%D0%B9%D0%BA%D0%BE%D0%BD%D1%83%D1%80,_%D1%80%D0%B0%D0%BA%D0%B5%D1%82%D0%B0_%D0%AD%D0%BD%D0%B5%D1%80%D0%B3%D0%B8%D1%8F_%D0%B2_%D0%B0%D0%BD%D0%B3%D0%B0%D1%80%D0%B5.jpg",
+        "author": "Nikolai Bulykin",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Energiya rocket carrier in a dynamics testing hangar at Baikonur Cosmodrome Site 253. Kyzylorda Region, Kazakhstan.",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34976
+      },
+      "note": "Energia test article in the Baikonur assembly hall; launch pictures on Commons are drawings"
+    },
+    "F1": {
+      "name": "Langer Marsch 5",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Langer_Marsch_5",
+        "en": "https://en.wikipedia.org/wiki/Long_March_5"
+      },
+      "image": {
+        "commonsTitle": "File:Launching Tianhe Core Module.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Launching_Tianhe_Core_Module.jpg",
+        "author": "China News Service",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "​天和号空间站核心舱发射升空",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33254
+      }
+    },
+    "F2": {
+      "name": "Langer Marsch 2F",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Langer_Marsch_2",
+        "en": "https://en.wikipedia.org/wiki/Long_March_2F"
+      },
+      "image": {
+        "commonsTitle": "File:LM2F-Y13.png",
+        "source": "https://commons.wikimedia.org/wiki/File:LM2F-Y13.png",
+        "author": "China News Service",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "The Long March 2F rocket carrying Shenzhou 13 spacecraft.",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37349
+      }
+    },
+    "F3": {
+      "name": "Langer Marsch 3B",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Langer_Marsch_3",
+        "en": "https://en.wikipedia.org/wiki/Long_March_3B"
+      },
+      "image": {
+        "commonsTitle": "File:The Launch of Long March 3B Rocket.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:The_Launch_of_Long_March_3B_Rocket.jpg",
+        "author": "AAxanderr",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The launch of Long March 3B Rocket, Xichang Satellite Center, China.",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31880
+      }
+    },
+    "F4": {
+      "name": "Langer Marsch 2C",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Langer_Marsch_2",
+        "en": "https://en.wikipedia.org/wiki/Long_March_2C"
+      },
+      "image": {
+        "commonsTitle": "File:CZ-2C rendering (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:CZ-2C_rendering_(cropped).jpg",
+        "author": "Shujianyang",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Rendering of CZ-2C with two types of payload fairings (3.35 m and 4.2 m diameters)",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 15745
+      },
+      "note": "3D rendering; no free launch photo on Commons"
+    },
+    "G1": {
+      "name": "H3",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/H3_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/H3_(rocket)"
+      },
+      "image": {
+        "commonsTitle": "File:H3 rocket launch.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:H3_rocket_launch.jpg",
+        "author": "U.S. Air Force (AF991)",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A joint delegation of U.S. and Japanese military and civilian representatives watch as a U.S. space domain awareness payload hosted on Japan's Quasi-Zenith Satellite 6 (QZS-6) successfully launched on a Japanese H-3 launch vehicle from the Yoshinobu Launch Complex at the Japan Aerospace Exploration ",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 23846
+      }
+    },
+    "G2": {
+      "name": "H-IIB",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/H-II",
+        "en": "https://en.wikipedia.org/wiki/H-IIB"
+      },
+      "image": {
+        "commonsTitle": "File:H-ⅡBロケット8号機.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:H-%E2%85%A1B%E3%83%AD%E3%82%B1%E3%83%83%E3%83%888%E5%8F%B7%E6%A9%9F.jpg",
+        "author": "Shinntarou",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "種子島宇宙センター竹崎射場より",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35577
+      }
+    },
+    "G3": {
+      "name": "PSLV",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Polar_Satellite_Launch_Vehicle",
+        "en": "https://en.wikipedia.org/wiki/Polar_Satellite_Launch_Vehicle"
+      },
+      "image": {
+        "commonsTitle": "File:PSLVC62.webp",
+        "source": "https://commons.wikimedia.org/wiki/File:PSLVC62.webp",
+        "author": "ISRO (Indian Space Research Organisation)",
+        "license": "GODL-India",
+        "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+        "shareAlike": false,
+        "description": "PSLV-C62 ready for flight",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37481
+      }
+    },
+    "G4": {
+      "name": "LVM3",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Launch_Vehicle_Mark_3",
+        "en": "https://en.wikipedia.org/wiki/LVM3"
+      },
+      "image": {
+        "commonsTitle": "File:LVM3 M6 with BlueBird-6 during Liftoff (3).webp",
+        "source": "https://commons.wikimedia.org/wiki/File:LVM3_M6_with_BlueBird-6_during_Liftoff_(3).webp",
+        "author": "ISRO (Indian Space Research Organisation)",
+        "license": "GODL-India",
+        "licenseUrl": "https://data.gov.in/sites/default/files/Gazette_Notification_OGDL.pdf",
+        "shareAlike": false,
+        "description": "LVM3 M6 with BlueBird-6 during Liftoff",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30163
+      }
+    },
+    "H1": {
+      "name": "Electron",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Electron_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Rocket_Lab_Electron"
+      },
+      "image": {
+        "commonsTitle": "File:Rocket Lab PREFIRE and Ice Launch (KSC-20240605-PH-RKL01 0005).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Rocket_Lab_PREFIRE_and_Ice_Launch_(KSC-20240605-PH-RKL01_0005).jpg",
+        "author": "NASA Kennedy Space Center / Rocket Lab",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Rocket Lab’s Electron rocket called “PREFIRE and Ice,” lifts off from Launch Complex 1 in Māhia, New Zealand at 3:15 p.m. NZST Wednesday, June 5, 2024 (11:15 p.m. EDT, Tuesday, June 4), on the second of two launches for NASA’s PREFIRE (Polar Radiant Energy in the Far-InfraRed Experiment). The PREFIR",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 26108
+      }
+    },
+    "H2": {
+      "name": "Pegasus XL",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Pegasus_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Northrop_Grumman_Pegasus"
+      },
+      "image": {
+        "commonsTitle": "File:Launch of Pegasus F43 from Stargazer (KSC-20161215-PH LAL02 0005).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Launch_of_Pegasus_F43_from_Stargazer_(KSC-20161215-PH_LAL02_0005).jpg",
+        "author": "NASA/Lori Losey",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "The Orbital ATK Pegasus XL rocket carrying NASA's Cyclone Global Navigation Satellite System, or CYGNSS, spacecraft is released and the first stage ignites at 8:37 a.m. EST. The rocket was released from the Orbital ATK L-1011 Stargazer aircraft flying over the Atlantic Ocean offshore from Daytona Be",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 17001
+      }
+    },
+    "H3": {
+      "name": "Firefly Alpha",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Firefly_Aerospace",
+        "en": "https://en.wikipedia.org/wiki/Firefly_Alpha"
+      },
+      "image": {
+        "commonsTitle": "File:Firefly Alpha 1st Flight.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Firefly_Alpha_1st_Flight.jpg",
+        "author": "JacobRendon",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Firefly Alpha lifting off the pad at Vandenberg Space Force Base on September 2, 2021",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36370
+      }
+    },
+    "H4": {
+      "name": "Epsilon",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Epsilon_(Rakete)",
+        "en": "https://en.wikipedia.org/wiki/Epsilon_(rocket)"
+      },
+      "image": {
+        "commonsTitle": "File:Epsilon rocket F2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Epsilon_rocket_F2.jpg",
+        "author": "海人",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "イプシロンロケット2号機によるジオスペース探査衛星「あらせ」(ERG)の打ち上げ。 宮原ロケット見学場より撮影。",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40575
+      }
+    }
+  }
+}

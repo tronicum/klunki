@@ -1460,9 +1460,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get quartettStatTractiveKn => 'Esfuerzo de tracción';
 
   @override
-  String get quartettStatInService => 'En servicio desde';
-
-  @override
   String get quartettStatHeightM => 'Altura';
 
   @override
@@ -1476,9 +1473,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get quartettStatFlights => 'Lanzamientos';
-
-  @override
-  String get quartettStatFirstFlight => 'Primer vuelo';
 
   @override
   String get quartettStatRangeKm => 'Alcance';
@@ -1532,6 +1526,55 @@ class AppLocalizationsEs extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Carta $id: $name, grupo $set';
   }
+
+  @override
+  String get quartettStatBuilt => 'Fabricados';
+
+  @override
+  String get quartettStatSuccessPct => 'Tasa de éxito';
+
+  @override
+  String get quartettUnitBuilt => 'uds.';
+
+  @override
+  String quartettPhotoCredit(String author, String license) {
+    return 'Foto: $author, $license';
+  }
+
+  @override
+  String get quartettPhotoCreditTitle => 'Crédito de la imagen';
+
+  @override
+  String get quartettPhotoCreditTooltip => 'Mostrar crédito de la imagen';
+
+  @override
+  String get quartettPhotoModified => 'Reducida para la app.';
+
+  @override
+  String get quartettPhotoShareAlike =>
+      'La versión reducida tiene la misma licencia.';
+
+  @override
+  String get quartettPhotoLicense => 'Licencia';
+
+  @override
+  String get quartettPhotoSource => 'Fuente';
+
+  @override
+  String get quartettPhotoClose => 'Cerrar';
+
+  @override
+  String get quartettWikipediaRead => 'Leer en Wikipedia';
+
+  @override
+  String get quartettImageCreditsTitle => 'Créditos de las imágenes';
+
+  @override
+  String get quartettImageCreditsIntro =>
+      'Las fotos proceden de Wikimedia Commons y tienen licencias libres. Están incluidas en la app; solo los enlaces necesitan internet.';
+
+  @override
+  String get quartettLinkFailed => 'No se pudo abrir el enlace.';
 
   @override
   String relayLoopbackHint(String host, String example, String mdnsExample) {

@@ -140,11 +140,15 @@ void main() {
   });
 
   test('Quartett values use Western digits in ar and fa (fa would default to Persian digits)', () {
-    final stat = QuartettDeck.cars.stats.first;
+    final stat = QuartettDeck.cars.statById('sec0to100')!; // one decimal
+    final ps = QuartettDeck.cars.stats.first; // whole numbers
     expect(formatQuartettValue(stat, 2.7, locale: 'fa'), '2.7 ${stat.unit}');
     expect(formatQuartettValue(stat, 2.7, locale: 'ar'), '2.7 ${stat.unit}');
-    expect(formatQuartettValue(stat, 650, locale: 'fa'), '650 ${stat.unit}');
+    expect(formatQuartettValue(ps, 650, locale: 'fa'), '650 ${ps.unit}');
     expect(formatQuartettValue(stat, 2.7), '2,7 ${stat.unit}');
+    final built = QuartettDeck.planes.statById('built')!; // grouped count (KLD-082)
+    expect(formatQuartettValue(built, 16000, locale: 'fa'), '16,000 ${built.unit}');
+    expect(formatQuartettValue(built, 16000, locale: 'ar'), '16,000 ${built.unit}');
   });
 
   testWidgets('pairing host in ar: IP:port text is laid out LTR', (tester) async {

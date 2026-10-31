@@ -26,6 +26,8 @@ import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/profile/quartett_deck_settings.dart';
 import 'package:klunki/ui/games/quartett_deck_picker.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
+import 'package:klunki/ui/games/quartett_media.dart';
+import 'package:klunki/ui/games/quartett_media_data.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart';
@@ -107,6 +109,20 @@ Future<void> _shot(WidgetTester tester, String name, {Duration settle = const Du
 }
 
 Widget _wrap(Widget app) => RepaintBoundary(key: _boundary, child: app);
+
+/// Decodes the bundled Quartett photos (KLD-082) outside the fake clock, so
+/// the shot shows them instead of an empty band.
+Future<void> _precachePhotos(WidgetTester tester) async {
+  final context = tester.element(find.byType(Scaffold).first);
+  await tester.runAsync(() async {
+    for (final deck in quartettMediaData.values) {
+      for (final m in deck.values) {
+        if (m.image case final img?) await precacheImage(AssetImage(img.asset), context);
+      }
+    }
+  });
+  await tester.pumpAndSettle();
+}
 
 String _tag(Size s, Brightness b) => '${s == phone ? 'phone' : 'tablet'}-${b.name}';
 
@@ -410,6 +426,43 @@ void main() {
     await tester.pump(const Duration(seconds: 6));
     await tester.runAsync(server.close);
   });
+
+  // KLD-082: rocket cards with Commons photos (gallery grid, full card) and
+  // the photo credit, phone light and dark.
+  for (final b in Brightness.values) {
+    final tag = _tag(phone, b);
+    testWidgets('kld082 deck rockets $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await tester.pumpWidget(_wrap(_themed(QuartettDeckGalleryScreen(deck: QuartettDeck.rockets))));
+      await _precachePhotos(tester);
+      await _shot(tester, 'kld082-deck-rockets-$tag');
+    });
+    for (final card in ['A1', 'B3', 'G3']) {
+      testWidgets('kld082 card rockets $card $tag', skip: skip != null, (tester) async {
+        await _setup(tester, phone, b);
+        final d = QuartettDeck.rockets;
+        await tester.pumpWidget(
+            _wrap(_themed(QuartettCardPagerScreen(deck: d, initialIndex: d.cards.indexOf(d.cardById(card)!)))));
+        await _precachePhotos(tester);
+        await _shot(tester, 'kld082-card-rockets-$card-$tag');
+      });
+    }
+    testWidgets('kld082 credit dialog $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      final d = QuartettDeck.rockets;
+      await tester.pumpWidget(_wrap(_themed(QuartettCardPagerScreen(deck: d, initialIndex: d.cards.indexOf(d.cardById('H4')!)))));
+      await _precachePhotos(tester);
+      await tester.tap(find.byKey(const Key('quartett-photo-info')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld082-credit-dialog-$tag');
+    });
+    testWidgets('kld082 image credits $tag', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      await tester.pumpWidget(_wrap(_themed(const QuartettImageCreditsScreen())));
+      await _precachePhotos(tester);
+      await _shot(tester, 'kld082-image-credits-$tag');
+    });
+  }
 
   testWidgets('menu ar', skip: skip != null, (tester) async {
     await _setup(tester, phone, Brightness.light);

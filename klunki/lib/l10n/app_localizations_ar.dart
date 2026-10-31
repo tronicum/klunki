@@ -1466,9 +1466,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quartettStatTractiveKn => 'قوة الجر';
 
   @override
-  String get quartettStatInService => 'في الخدمة منذ';
-
-  @override
   String get quartettStatHeightM => 'الارتفاع';
 
   @override
@@ -1482,9 +1479,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quartettStatFlights => 'عمليات الإطلاق';
-
-  @override
-  String get quartettStatFirstFlight => 'أول رحلة';
 
   @override
   String get quartettStatRangeKm => 'المدى';
@@ -1538,6 +1532,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'البطاقة $id: $name، مجموعة $set';
   }
+
+  @override
+  String get quartettStatBuilt => 'عدد المصنوع';
+
+  @override
+  String get quartettStatSuccessPct => 'نسبة النجاح';
+
+  @override
+  String get quartettUnitBuilt => 'وحدة';
+
+  @override
+  String quartettPhotoCredit(String author, String license) {
+    return 'صورة: $author، $license';
+  }
+
+  @override
+  String get quartettPhotoCreditTitle => 'مصدر الصورة';
+
+  @override
+  String get quartettPhotoCreditTooltip => 'عرض مصدر الصورة';
+
+  @override
+  String get quartettPhotoModified => 'تم تصغيرها للتطبيق.';
+
+  @override
+  String get quartettPhotoShareAlike => 'النسخة المصغرة تخضع للترخيص نفسه.';
+
+  @override
+  String get quartettPhotoLicense => 'الترخيص';
+
+  @override
+  String get quartettPhotoSource => 'المصدر';
+
+  @override
+  String get quartettPhotoClose => 'إغلاق';
+
+  @override
+  String get quartettWikipediaRead => 'اقرأ على ويكيبيديا';
+
+  @override
+  String get quartettImageCreditsTitle => 'مصادر الصور';
+
+  @override
+  String get quartettImageCreditsIntro =>
+      'الصور مأخوذة من ويكيميديا كومنز وتخضع لتراخيص حرة. وهي مضمنة في التطبيق؛ الروابط فقط تحتاج إلى الإنترنت.';
+
+  @override
+  String get quartettLinkFailed => 'تعذر فتح الرابط.';
 
   @override
   String relayLoopbackHint(String host, String example, String mdnsExample) {

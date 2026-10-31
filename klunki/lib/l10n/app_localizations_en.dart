@@ -1447,9 +1447,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quartettStatTractiveKn => 'Tractive effort';
 
   @override
-  String get quartettStatInService => 'In service since';
-
-  @override
   String get quartettStatHeightM => 'Height';
 
   @override
@@ -1463,9 +1460,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quartettStatFlights => 'Launches';
-
-  @override
-  String get quartettStatFirstFlight => 'First flight';
 
   @override
   String get quartettStatRangeKm => 'Range';
@@ -1519,6 +1513,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Card $id: $name, set $set';
   }
+
+  @override
+  String get quartettStatBuilt => 'Built';
+
+  @override
+  String get quartettStatSuccessPct => 'Success rate';
+
+  @override
+  String get quartettUnitBuilt => 'units';
+
+  @override
+  String quartettPhotoCredit(String author, String license) {
+    return 'Photo: $author, $license';
+  }
+
+  @override
+  String get quartettPhotoCreditTitle => 'Image credit';
+
+  @override
+  String get quartettPhotoCreditTooltip => 'Show image credit';
+
+  @override
+  String get quartettPhotoModified => 'Resized for the app.';
+
+  @override
+  String get quartettPhotoShareAlike =>
+      'The resized version is under the same licence.';
+
+  @override
+  String get quartettPhotoLicense => 'Licence';
+
+  @override
+  String get quartettPhotoSource => 'Source';
+
+  @override
+  String get quartettPhotoClose => 'Close';
+
+  @override
+  String get quartettWikipediaRead => 'Read on Wikipedia';
+
+  @override
+  String get quartettImageCreditsTitle => 'Image credits';
+
+  @override
+  String get quartettImageCreditsIntro =>
+      'The photos come from Wikimedia Commons and are under free licences. They are part of the app; only the links need the internet.';
+
+  @override
+  String get quartettLinkFailed => 'The link could not be opened.';
 
   @override
   String relayLoopbackHint(String host, String example, String mdnsExample) {

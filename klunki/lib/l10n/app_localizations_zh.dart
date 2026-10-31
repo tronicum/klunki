@@ -1405,9 +1405,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quartettStatTractiveKn => '起动牵引力';
 
   @override
-  String get quartettStatInService => '投入运营';
-
-  @override
   String get quartettStatHeightM => '高度';
 
   @override
@@ -1421,9 +1418,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get quartettStatFlights => '发射次数';
-
-  @override
-  String get quartettStatFirstFlight => '首飞';
 
   @override
   String get quartettStatRangeKm => '航程';
@@ -1477,6 +1471,54 @@ class AppLocalizationsZh extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return '卡牌 $id：$name，$set';
   }
+
+  @override
+  String get quartettStatBuilt => '建造数量';
+
+  @override
+  String get quartettStatSuccessPct => '成功率';
+
+  @override
+  String get quartettUnitBuilt => '台';
+
+  @override
+  String quartettPhotoCredit(String author, String license) {
+    return '照片：$author，$license';
+  }
+
+  @override
+  String get quartettPhotoCreditTitle => '图片来源';
+
+  @override
+  String get quartettPhotoCreditTooltip => '显示图片来源';
+
+  @override
+  String get quartettPhotoModified => '已为应用缩小。';
+
+  @override
+  String get quartettPhotoShareAlike => '缩小后的版本采用相同的许可证。';
+
+  @override
+  String get quartettPhotoLicense => '许可证';
+
+  @override
+  String get quartettPhotoSource => '来源';
+
+  @override
+  String get quartettPhotoClose => '关闭';
+
+  @override
+  String get quartettWikipediaRead => '在维基百科上阅读';
+
+  @override
+  String get quartettImageCreditsTitle => '图片来源列表';
+
+  @override
+  String get quartettImageCreditsIntro =>
+      '照片来自维基共享资源，采用自由许可证。它们已包含在应用中；只有链接需要联网。';
+
+  @override
+  String get quartettLinkFailed => '无法打开链接。';
 
   @override
   String relayLoopbackHint(String host, String example, String mdnsExample) {

@@ -1445,9 +1445,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get quartettStatTractiveKn => 'نیروی کشش';
 
   @override
-  String get quartettStatInService => 'در خدمت از';
-
-  @override
   String get quartettStatHeightM => 'ارتفاع';
 
   @override
@@ -1461,9 +1458,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get quartettStatFlights => 'پرتاب‌ها';
-
-  @override
-  String get quartettStatFirstFlight => 'نخستین پرواز';
 
   @override
   String get quartettStatRangeKm => 'برد';
@@ -1517,6 +1511,54 @@ class AppLocalizationsFa extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'کارت $id: $name، سری $set';
   }
+
+  @override
+  String get quartettStatBuilt => 'تعداد ساخت';
+
+  @override
+  String get quartettStatSuccessPct => 'نرخ موفقیت';
+
+  @override
+  String get quartettUnitBuilt => 'عدد';
+
+  @override
+  String quartettPhotoCredit(String author, String license) {
+    return 'عکس: $author، $license';
+  }
+
+  @override
+  String get quartettPhotoCreditTitle => 'منبع تصویر';
+
+  @override
+  String get quartettPhotoCreditTooltip => 'نمایش منبع تصویر';
+
+  @override
+  String get quartettPhotoModified => 'برای برنامه کوچک شده است.';
+
+  @override
+  String get quartettPhotoShareAlike => 'نسخهٔ کوچک‌شده تحت همان مجوز است.';
+
+  @override
+  String get quartettPhotoLicense => 'مجوز';
+
+  @override
+  String get quartettPhotoSource => 'منبع';
+
+  @override
+  String get quartettPhotoClose => 'بستن';
+
+  @override
+  String get quartettWikipediaRead => 'خواندن در ویکی‌پدیا';
+
+  @override
+  String get quartettImageCreditsTitle => 'منابع تصاویر';
+
+  @override
+  String get quartettImageCreditsIntro =>
+      'عکس‌ها از ویکی‌مدیا کامنز هستند و مجوز آزاد دارند. آن‌ها در برنامه گنجانده شده‌اند؛ فقط پیوندها به اینترنت نیاز دارند.';
+
+  @override
+  String get quartettLinkFailed => 'پیوند باز نشد.';
 
   @override
   String relayLoopbackHint(String host, String example, String mdnsExample) {

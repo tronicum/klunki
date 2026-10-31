@@ -181,9 +181,9 @@ void main() {
       expect(localizedStatLabel(enL10n, 'thrustKn'), 'Liftoff thrust');
     });
 
-    test('years and counts have no unit; values use Western digits', () {
-      final year = QuartettDeck.rockets.statById('firstFlight')!;
-      expect(formatQuartettValue(year, 1967, locale: 'fa', unit: ''), '1967');
+    test('launch counts have no unit; values use Western digits', () {
+      final flights = QuartettDeck.rockets.statById('flights')!;
+      expect(formatQuartettValue(flights, 786, locale: 'fa', unit: ''), '786');
       final len = QuartettDeck.trains.statById('lengthM')!;
       expect(formatQuartettValue(len, 200.8, locale: 'de'), '200,8 m');
       expect(formatQuartettValue(len, 200.8, locale: 'fa'), '200.8 m');

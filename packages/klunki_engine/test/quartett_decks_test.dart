@@ -146,4 +146,63 @@ void main() {
       expect(auto.current.game.isOver, isTrue);
     });
   });
+
+  group('number format per stat (KLD-082: no "1999,0")', () {
+    test('years and whole numbers print as integers, also from a double (the web runtime)', () {
+      for (final deck in QuartettDeck.all) {
+        for (final s in deck.stats) {
+          for (final c in deck.cards) {
+            final v = c.stats[s.id]!;
+            final text = s.formatNumber(v.toDouble());
+            expect(text, s.formatNumber(v), reason: '${deck.id} ${c.id} ${s.id}');
+            if (s.decimals == 0) expect(text, matches(RegExp(r'^[0-9]+$')), reason: '${deck.id} ${c.id} ${s.id}');
+            if (s.isYear) expect(text, matches(RegExp(r'^(18|19|20)[0-9]{2}$')), reason: '${deck.id} ${c.id}');
+            expect(num.parse(text), closeTo(v, 1e-9), reason: 'no value is rounded: ${deck.id} ${c.id} ${s.id}');
+          }
+        }
+      }
+    });
+
+    test('year stats have no unit (generic, no deck has one since KLD-082); decimals are trimmed unless fixed', () {
+      for (final deck in QuartettDeck.all) {
+        for (final s in deck.stats.where((s) => s.isYear)) {
+          expect(s.unit, isEmpty);
+          expect(s.decimals, 0);
+        }
+      }
+      final h = QuartettDeck.rockets.statById('heightM')!;
+      expect(h.formatNumber(110.6), '110.6');
+      expect(h.formatNumber(70.0), '70');
+      final sec = QuartettDeck.cars.statById('sec0to100')!;
+      expect(sec.formatNumber(7.0), '7.0');
+      expect(QuartettDeck.rockets.statById('leoT')!.formatNumber(0.45), '0.45');
+      const year = QuartettStat(id: 'year', label: 'Jahr', unit: '', isYear: true);
+      expect(year.formatNumber(1967.0), '1967');
+      expect(QuartettDeck.planes.statById('built')!.formatNumber(45000.0), '45000');
+      expect(QuartettDeck.rockets.statById('successPct')!.formatNumber(100.0), '100');
+      expect(QuartettDeck.rockets.statById('successPct')!.formatNumber(92.3), '92.3');
+    });
+
+    test('validate rejects more decimals than the stat allows and non-years', () {
+      QuartettDeck build(num v, num year) => QuartettDeck.build(
+            id: 'x',
+            name: 'X',
+            stats: const [
+              QuartettStat(id: 'a', label: 'A', unit: 'm'),
+              QuartettStat(id: 'b', label: 'B', unit: 'm'),
+              QuartettStat(id: 'c', label: 'C', unit: 'm'),
+              QuartettStat(id: 'd', label: 'D', unit: 'm', decimals: 1),
+              QuartettStat(id: 'y', label: 'Y', unit: '', isYear: true),
+            ],
+            setNames: {for (final l in 'ABCDEFGH'.split('')) l: l},
+            rows: [
+              for (final l in 'ABCDEFGH'.split(''))
+                for (var n = 1; n <= 4; n++) ('$l$n', '$l$n', [1, 2, 3, v, year]),
+            ],
+          );
+      expect(build(1.5, 1990).validate(), isEmpty);
+      expect(build(1.25, 1990).validate(), contains(contains('more than 1 decimals')));
+      expect(build(1.5, 990).validate(), contains(contains('is not a year')));
+    });
+  });
 }
