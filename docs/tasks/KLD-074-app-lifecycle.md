@@ -4,7 +4,7 @@
 - **Title:** Background/resume: auto-reconnect, relay grace period, host listener check
 - **Priority:** medium
 - **Status:** TODO (stub from `docs/REVIEW-2026-10.md`)
-- **Depends on:** KLD-069
+- **Depends on:** KLD-071
 - **Touched paths:** `klunki/lib/transport/network_transport.dart`, `klunki/lib/ui/pairing/network_game_session.dart`, `packages/klunki_net/lib/src/{guest,host,connection}.dart`, `packages/klunki_net/lib/src/relay/**`
 
 ## Goal

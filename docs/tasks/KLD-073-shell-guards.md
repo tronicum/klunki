@@ -1,6 +1,6 @@
-# KLD-071: Shell guards: leave confirmation, no undo in hidden games, start cover, tap guard
+# KLD-073: Shell guards: leave confirmation, no undo in hidden games, start cover, tap guard
 
-- **ID:** `KLD-071`
+- **ID:** `KLD-073`
 - **Title:** Shell guards: leave confirmation, no undo in hidden games, start cover, tap guard
 - **Priority:** high
 - **Status:** TODO (stub from `docs/REVIEW-2026-10.md`)

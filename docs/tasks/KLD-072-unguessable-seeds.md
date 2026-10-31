@@ -1,6 +1,6 @@
-# KLD-070: Unguessable hidden setups: secure seeds and an engine-owned PRNG
+# KLD-072: Unguessable hidden setups: secure seeds and an engine-owned PRNG
 
-- **ID:** `KLD-070`
+- **ID:** `KLD-072`
 - **Title:** Unguessable hidden setups: secure seeds and an engine-owned PRNG
 - **Priority:** high
 - **Status:** TODO (stub from `docs/REVIEW-2026-10.md`)

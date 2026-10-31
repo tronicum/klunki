@@ -4,7 +4,7 @@
 - **Title:** Pause and resume games (hot-seat auto-save, network resume)
 - **Priority:** long-term
 - **Status:** TODO (stub from `docs/REVIEW-2026-10.md`)
-- **Depends on:** KLD-069, KLD-070 (stable PRNG), KLD-074
+- **Depends on:** KLD-071, KLD-072 (stable PRNG), KLD-074
 - **Touched paths:** new `klunki/lib/saves/**`, `klunki/lib/ui/menu_screen.dart`, `packages/klunki_net/lib/src/{host,guest}.dart`, `packages/klunki_engine/lib/registry.dart`, `packages/klunki_net/PROTOCOL.md`
 
 ## Goal
@@ -29,7 +29,7 @@
   - A schema version and migrations. When the rules version changed and the log no longer replays, show "kann nicht fortgesetzt werden".
 - [ ] **Engine gaps:**
   - A `rulesVersion` per `GameSpec`.
-  - An engine-owned PRNG (KLD-070), so replays survive SDK updates.
+  - An engine-owned PRNG (KLD-072), so replays survive SDK updates.
   - Optionally, a cheap snapshot for very long games.
 - [ ] What helps today: the deterministic move log plus `GameConfig`. What blocks it today: tokens and salts that live only in memory, relay rooms that expire, and `Random(seed)` stability.
 

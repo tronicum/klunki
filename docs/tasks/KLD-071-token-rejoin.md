@@ -1,6 +1,6 @@
-# KLD-069: Rejoin only with the session token (no takeover by name)
+# KLD-071: Rejoin only with the session token (no takeover by name)
 
-- **ID:** `KLD-069`
+- **ID:** `KLD-071`
 - **Title:** Rejoin only with the session token (no takeover by name)
 - **Priority:** high
 - **Status:** TODO (stub from `docs/REVIEW-2026-10.md`)
