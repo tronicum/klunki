@@ -347,6 +347,41 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfNextPicker(String player) {
+    return '下一个由 $player 选择';
+  }
+
+  @override
+  String quartettTrumpfPicksAgain(String player) {
+    return '$player 再选一次';
+  }
+
+  @override
+  String quartettTrumpfContinuePicker(String player) {
+    return '继续 – $player 选择';
+  }
+
+  @override
+  String quartettTrumpfYouPickNext(String player) {
+    return '下一个由你选择（$player）';
+  }
+
+  @override
+  String quartettTrumpfTricksBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还有 $count 轮',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quartettTrumpfHandoverReason(String player) {
+    return '$player 赢得了这一轮';
+  }
+
+  @override
   String get quartettSetsHit => '有';
 
   @override

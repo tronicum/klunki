@@ -154,6 +154,20 @@ abstract class LiveUiAdapter {
   /// Returns a description, or null if it did nothing.
   Future<String?> fidget(WidgetTester tester, UiDevice device, Random rng) async => null;
 
+  /// Checks a turn result while [device] shows it (every observation, not
+  /// only the first), e.g. the status line next to it. [behind] is how many
+  /// newer turns the device already knows (queued behind the one shown);
+  /// -1 for a hot-seat preview that is not submitted yet.
+  void checkShown(WidgetTester tester, UiDevice device, TurnRecord shown, {required int behind}) {}
+
+  /// Hot-seat: checks the handover cover on screen against [c] (the
+  /// driver already checked that its headline names the player to move).
+  void checkCover(WidgetTester tester, UiDevice device, GameController c) {}
+
+  /// Hot-seat, after the game: [coversAt] lists the number of accepted moves
+  /// at each handover cover the device showed.
+  void checkCovers(List<int> coversAt, GameController c, String context) {}
+
   /// The authoritative turn list from an accepted move log.
   List<TurnRecord> engineTurns(GameController c);
 
@@ -245,6 +259,10 @@ void _observe(WidgetTester tester, LiveUiAdapter a, UiDevice d, _Watcher w, Live
     if (lag > 0) log.behind.putIfAbsent(d.name, () => []).add((index, known, line));
     log.add(d, r, context: '   [status: "$line"${lag > 0 ? ', $lag newer trick(s) already played' : ''}]');
   }
+  if (r != null) {
+    final shownIndex = (log.shown[d.name]?.length ?? 1) - 1;
+    a.checkShown(tester, d, r, behind: d.controller(tester).moves.length - shownIndex - 1);
+  }
   w.last = r;
 }
 
@@ -260,6 +278,7 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
   final d = UiDevice('hot-seat');
   final log = LiveUiLog('hot-seat $config');
   final w = _Watcher();
+  final coversAt = <int>[];
   for (var step = 0; step < maxSteps; step++) {
     _observe(tester, a, d, w, log, c.game, inSync: true);
     if (d.resultShown()) break;
@@ -268,6 +287,8 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
       log.note(d, 'cover "$cover"');
       expect(cover, deL10n.shellHandoverPass(playerMark(c.game.currentPlayer)),
           reason: '${log.label}: the handover cover names the player to move');
+      a.checkCover(tester, d, c);
+      coversAt.add(c.moves.length);
       await d.tapKey(tester, const Key('handover-continue'));
       continue;
     }
@@ -284,6 +305,7 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
   expect(c.game.isOver, isTrue, reason: '${log.label}: did not end in $maxSteps steps');
   log.engine = a.engineTurns(c);
   a.checkTurnRule(log.engine, log.label);
+  a.checkCovers(coversAt, c, log.label);
   log.expectComplete();
   return log;
 }

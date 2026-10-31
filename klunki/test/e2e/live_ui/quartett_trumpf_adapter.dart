@@ -56,10 +56,16 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     final reveal = d.on(find.byKey(_reveal));
     if (reveal.evaluate().isNotEmpty) {
       Finder inReveal(Finder f) => find.descendant(of: reveal, matching: f);
-      // "X wählt PS"
+      // "X wählt PS": exactly one such line (the cue "X wählt noch einmal"
+      // / "O wählt als Nächstes" names no stat), and it is the picked line.
       final texts = [for (final e in inReveal(find.byType(Text)).evaluate()) (e.widget as Text).data ?? ''];
-      final picks = [for (final t in texts) ?_picked.firstMatch(t)];
-      expect(picks, hasLength(1), reason: '${d.name}: one "… wählt …" line in the reveal: $texts');
+      final labels = {for (final s in g.deck.stats) localizedStatLabel(deL10n, s.id): s.id};
+      final picks = [
+        for (final t in texts)
+          if (_picked.firstMatch(t) case final m? when labels.containsKey(m.group(2))) m,
+      ];
+      expect(picks, hasLength(1), reason: '${d.name}: one "… wählt <stat>" line in the reveal: $texts');
+      expect(tester.widget<Text>(inReveal(find.byKey(const Key('qt-reveal-picked')))).data, picks.single.group(0));
       final picker = picks.single.group(1) == 'X' ? Player.a : Player.b;
       final label = picks.single.group(2)!;
       final stats = [for (final s in g.deck.stats) if (localizedStatLabel(deL10n, s.id) == label) s.id];
@@ -72,6 +78,19 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
         _ when headline == deL10n.quartettTrumpfTie => null,
         _ => throw TestFailure('${d.name}: unknown headline "$headline"'),
       };
+      // KLD-091: the cue names who picks next, and so does "Weiter".
+      final next = winner ?? picker;
+      final cue = tester.widget<Text>(inReveal(find.byKey(const Key('qt-next-picker')))).data!;
+      final pm = playerMark(picker);
+      if (winner == null) {
+        expect(_potAgain(cue, pm), isTrue, reason: '${d.name}: tie cue "$cue" says $pm picks again');
+      } else if (winner == picker) {
+        expect(cue, deL10n.quartettTrumpfPicksAgain(pm), reason: '${d.name}: the picker won');
+      } else {
+        expect(cue, deL10n.quartettTrumpfNextPicker(playerMark(winner)), reason: '${d.name}: the other player won');
+      }
+      final button = tester.widget<Text>(find.descendant(of: d.on(find.byKey(_cont)), matching: find.byType(Text))).data;
+      expect(button, deL10n.quartettTrumpfContinuePicker(playerMark(next)), reason: '${d.name}: "Weiter" names the next picker');
       // Both cards as revealed (X's card under qt-reveal-a).
       String cardId(String side) => tester.widget<QuartettCard>(inReveal(find.byKey(Key('qt-reveal-$side')))).card!.id;
       return TurnRecord(
@@ -100,6 +119,71 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       }
     }
     return null;
+  }
+
+  /// "Im Topf: n Karten – X wählt noch einmal" for some pot size n >= 2.
+  bool _potAgain(String cue, String mark) => [
+        for (var n = 2; n <= 64; n++) deL10n.quartettTrumpfPotAgain(n, mark),
+      ].contains(cue);
+
+  static const _badge = Key('shell-status-badge');
+
+  String _status(WidgetTester tester, UiDevice d) =>
+      tester.widget<Text>(d.on(find.byKey(const Key('shell-status')))).data!;
+
+  /// KLD-091, network: while newer tricks are queued behind the one shown,
+  /// the status line describes the shown one ("Anna (X) wählt als
+  /// Nächstes" / "Du wählst als Nächstes (O)") with "noch n Stiche";
+  /// otherwise it is the live status and there is no badge.
+  @override
+  void checkShown(WidgetTester tester, UiDevice d, TurnRecord shown, {required int behind}) {
+    final status = _status(tester, d);
+    final badge = d.on(find.descendant(of: find.byKey(_badge), matching: find.byType(Text)));
+    if (behind <= 0) {
+      expect(badge, findsNothing, reason: '${d.name}: no badge on the newest trick ($shown)');
+      final followsReveal = status.endsWith(deL10n.quartettTrumpfNextPicker('')) ||
+          Player.values.any((p) => status == deL10n.quartettTrumpfYouPickNext(playerMark(p)));
+      expect(followsReveal, isFalse, reason: '${d.name}: live status on the newest trick, got "$status"');
+      return;
+    }
+    expect(d.networked, isTrue, reason: '${d.name}: queued tricks only on a network device');
+    final next = shown.nextActor!;
+    final mark = playerMark(next);
+    if (next == d.me) {
+      expect(status, deL10n.quartettTrumpfYouPickNext(mark), reason: '${d.name}: status follows $shown');
+    } else {
+      expect(status, anyOf(deL10n.quartettTrumpfNextPicker(mark), endsWith(deL10n.quartettTrumpfNextPicker('($mark)'))),
+          reason: '${d.name}: status follows $shown ($behind behind)');
+    }
+    expect(tester.widget<Text>(badge).data, deL10n.quartettTrumpfTricksBehind(behind),
+        reason: '${d.name}: badge counts the $behind queued trick(s)');
+    queuedChecks++;
+  }
+
+  /// How often [checkShown] saw a trick with newer ones queued behind it.
+  int queuedChecks = 0;
+
+  /// Hot-seat (KLD-091): a cover only when the device changes hands, and it
+  /// says why: the player on turn won the last trick.
+  @override
+  void checkCover(WidgetTester tester, UiDevice d, GameController c) {
+    final next = c.game.currentPlayer;
+    final last = c.moves.last;
+    expect(last.player, isNot(next), reason: '${d.name}: a cover only when the other player picks');
+    expect((last.event.payload as Map)['trickWinner'], next.name);
+    expect(tester.widget<Text>(d.on(find.byKey(const Key('qt-handover-reason')))).data,
+        deL10n.quartettTrumpfHandoverReason(playerMark(next)), reason: '${d.name}: the cover says why');
+  }
+
+  /// Hot-seat: exactly one cover per change of picker (none on a winner
+  /// streak or a tie, none after the final trick).
+  @override
+  void checkCovers(List<int> coversAt, GameController c, String context) {
+    final m = c.moves;
+    expect(coversAt, [
+      for (var i = 0; i + 1 < m.length; i++)
+        if (m[i + 1].player != m[i].player) i + 1,
+    ], reason: '$context: covers at these move counts');
   }
 
   bool _blocked(UiDevice d) => d.dialogOpen || d.hasKey(const Key('handover-cover'));

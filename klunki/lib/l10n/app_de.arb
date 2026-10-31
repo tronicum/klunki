@@ -525,6 +525,60 @@
       }
     }
   },
+  "quartettTrumpfNextPicker": "{player} wählt als Nächstes",
+  "@quartettTrumpfNextPicker": {
+    "description": "Quartett (Trumpf) reveal and network status line: who picks after the trick shown, when that is not the picker (the winner). player = mark (reveal) or \"Ben (O)\" (status line).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfPicksAgain": "{player} wählt noch einmal",
+  "@quartettTrumpfPicksAgain": {
+    "description": "Quartett (Trumpf) reveal: the picker won the trick (or tied) and picks again. player = mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfContinuePicker": "Weiter – {player} wählt",
+  "@quartettTrumpfContinuePicker": {
+    "description": "Quartett (Trumpf): the \"Weiter\" button under a trick result, naming who picks next. player = mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfYouPickNext": "Du wählst als Nächstes ({player})",
+  "@quartettTrumpfYouPickNext": {
+    "description": "Quartett (Trumpf), network status line while an older trick is still shown: this device's player picks after it. player = mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfTricksBehind": "noch {count, plural, =1{1 Stich} other{{count} Stiche}}",
+  "@quartettTrumpfTricksBehind": {
+    "description": "Quartett (Trumpf), network: badge next to the status line while more tricks are queued behind the one shown (count >= 1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettTrumpfHandoverReason": "{player} hat den Stich gewonnen",
+  "@quartettTrumpfHandoverReason": {
+    "description": "Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = \"Ben (O)\" or the mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
   "quartettSetsHit": "Treffer",
   "@quartettSetsHit": {
     "description": "Ask result: the opponent had the card."

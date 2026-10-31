@@ -437,6 +437,100 @@ void main() {
     });
   });
 
+  group('status line follows the shown result (KLD-091)', () {
+    const badge = Key('shell-status-badge');
+    String status(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key('shell-status'))).data!;
+    String? badgeText(WidgetTester tester) {
+      final f = find.descendant(of: find.byKey(badge), matching: find.byType(Text));
+      return f.evaluate().isEmpty ? null : tester.widget<Text>(f).data;
+    }
+
+    /// A device for [me] with names, as in a real network game.
+    Future<(GameController, _DeviceTransport)> pumpNamed(WidgetTester tester, int seed, Player me) async {
+      final t = _DeviceTransport(seed, me, fullInformation: false);
+      final c = GameController(t);
+      addTearDown(c.dispose);
+      await tester.pumpWidget(localizedApp(PlayerLabelsScope(
+        labels: PlayerLabels(names: const {Player.a: 'Anna', Player.b: 'Ben'}, local: me),
+        child: buildGameScreen(c),
+      )));
+      await tester.pump();
+      return (c, t);
+    }
+
+    testWidgets('waiting player: "Anna (X) wählt als Nächstes" + "noch n Stiche" until the queue is empty',
+        (tester) async {
+      final (seed, s1, s2) = _twoTricks('a');
+      final (c, t) = await pumpNamed(tester, seed, Player.b);
+      await tester.pump();
+      expect(status(tester), 'Warte auf Anna (X)…');
+
+      t.remote(s1);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text(_picked('X', s1)), findsOneWidget);
+      expect(status(tester), 'Warte auf Anna (X)…', reason: 'the newest trick: live status');
+      expect(find.byKey(badge), findsNothing);
+
+      // X goes on twice while O still looks at the first trick.
+      t.remote(s2);
+      t.remote(s1);
+      await tester.pump();
+      await tester.pump();
+      expect(c.moves, hasLength(3));
+      expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'still the first trick');
+      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(badgeText(tester), 'noch 2 Stiche');
+
+      await _tap(tester, _cont);
+      expect(find.text(_picked('X', s2)), findsOneWidget);
+      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(badgeText(tester), 'noch 1 Stich');
+
+      await _tap(tester, _cont);
+      expect(find.byKey(_reveal), findsOneWidget, reason: 'the third trick');
+      expect(find.byKey(badge), findsNothing);
+      final live = c.game.currentPlayer == Player.b ? 'Du bist am Zug (O)' : 'Warte auf Anna (X)…';
+      expect(status(tester), live, reason: 'queue empty: live status again');
+    });
+
+    testWidgets('several tricks at once: "Du wählst als Nächstes (O)" while an older one is shown', (tester) async {
+      final (seed, s1, s2) = _twoTricks('b');
+      // X wins s1 and picks s2, which O wins; O's own pick arrives in the
+      // same batch (e.g. after a reconnect): the device shows s2 with O's
+      // pick still behind it.
+      final (c, t) = await pumpNamed(tester, seed, Player.b);
+      await tester.pump();
+      t.remote(s1);
+      t.remote(s2);
+      expect(t._inner.submitSync(_pickMove(s1)).isAccepted, isTrue);
+      await tester.pump();
+      await tester.pump();
+      expect(c.moves, hasLength(3));
+      expect(find.text(_picked('X', s1)), findsOneWidget);
+      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(badgeText(tester), 'noch 2 Stiche');
+      await _tap(tester, _cont);
+      expect(find.text(_picked('X', s2)), findsOneWidget);
+      expect(status(tester), 'Du wählst als Nächstes (O)');
+      expect(badgeText(tester), 'noch 1 Stich');
+      await _tap(tester, _cont);
+      expect(find.text(_picked('O', s1)), findsOneWidget);
+      expect(find.byKey(badge), findsNothing);
+    });
+
+    testWidgets('the next picker reads its result with the live status, no badge', (tester) async {
+      final (seed, s1, _) = _twoTricks('a');
+      await pumpNamed(tester, seed, Player.a);
+      await tester.pump();
+      await _tap(tester, _statKey(s1));
+      expect(find.byKey(_reveal), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data, 'X wählt noch einmal');
+      expect(status(tester), 'Du bist am Zug (X)');
+      expect(find.byKey(badge), findsNothing);
+    });
+  });
+
   group('game end (KLD-089): the result waits until every trick was shown', () {
     testWidgets('waiting player: the final tricks queued behind a reveal come before the result', (tester) async {
       // The last two tricks are picked by the same player, who wins the last

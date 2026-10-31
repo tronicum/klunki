@@ -16,6 +16,11 @@ Every trick each browser shows is logged (`tricks.log`). The run fails if:
 - a reveal is not the stat and card that was just tapped,
 - the table shows the wrong player's card, or the hot-seat cover names the
   wrong player,
+- (KLD-091) the cue ("O wählt als Nächstes" / "X wählt noch einmal") or the
+  button ("Weiter – O wählt") names the wrong player, a hot-seat cover
+  appears although the same player goes on (or is missing on a switch) or
+  gives the wrong reason, or on a network device the status line and the
+  "noch n Stiche" badge do not follow a reveal with tricks queued behind it,
 - the two network browsers did not show the same tricks in the same order
   (a skipped, duplicated or reordered trick),
 - no result dialog at the end.

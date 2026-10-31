@@ -62,5 +62,7 @@ void main() {
     final log = await playNetwork(tester, adapter, const GameConfig('quartett-trumpf', seed: 22, deck: 'rockets'),
         rng: Random(22), behaviour: const NetBehaviour(dawdle: 0.7, wait: 0.4, fidget: 0.15));
     log.printIfVerbose();
+    // KLD-091: the status line was checked against queued tricks too.
+    expect(adapter.queuedChecks, greaterThan(0));
   });
 }

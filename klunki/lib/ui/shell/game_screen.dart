@@ -52,6 +52,37 @@ abstract interface class GameShell {
   /// behind a reveal on a network device, KLD-089). Releasing it shows the
   /// dialog. Safe to call from `build`.
   void holdResult(bool hold);
+
+  /// Replaces the live status line while the board shows an older state
+  /// than the game is in (e.g. a queued Quartett trick on a network device,
+  /// KLD-091); null goes back to the live status. Safe to call from `build`
+  /// (the update is deferred to after the frame then).
+  void setStatusOverride(ShellStatus? status);
+}
+
+/// A status line set by the board instead of the live one, see
+/// [GameShell.setStatusOverride].
+@immutable
+class ShellStatus {
+  /// The text of the status line.
+  final String text;
+
+  /// Whose colour the turn pill and edge show; on a network device the pill
+  /// is "active" for the local player, "waiting" for the other one.
+  final Player player;
+
+  /// Optional small badge on the status pill (`shell-status-badge`), e.g.
+  /// "noch 2 Stiche".
+  final String? badge;
+
+  const ShellStatus({required this.text, required this.player, this.badge});
+
+  @override
+  bool operator ==(Object other) =>
+      other is ShellStatus && other.text == text && other.player == player && other.badge == badge;
+
+  @override
+  int get hashCode => Object.hash(text, player, badge);
 }
 
 /// The shared frame every game screen plugs into:
@@ -109,6 +140,7 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> implements GameShell {
   String? _hint;
+  ShellStatus? _statusOverride;
   bool _resultShown = false;
   bool _resultHeld = false;
   late GameTransport _transport;
@@ -128,6 +160,18 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
       });
     } else if (mounted) {
       setState(() => _hint = text);
+    }
+  }
+
+  @override
+  void setStatusOverride(ShellStatus? status) {
+    if (status == _statusOverride) return;
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted && status != _statusOverride) setState(() => _statusOverride = status);
+      });
+    } else if (mounted) {
+      setState(() => _statusOverride = status);
     }
   }
 
@@ -171,6 +215,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
       widget.controller.addListener(_onChange);
       _transport = controller.transport;
       _hint = null;
+      _statusOverride = null;
       _resultShown = false;
       _resultHeld = false;
     }
@@ -186,9 +231,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     if (!mounted) return;
     setState(() {
       if (!identical(_transport, controller.transport)) {
-        // Restarted: fresh game, fresh hint.
+        // Restarted: fresh game, fresh hint and status.
         _transport = controller.transport;
         _hint = null;
+        _statusOverride = null;
       }
     });
     if (!controller.game.isOver) {
@@ -392,13 +438,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final l10n = AppLocalizations.of(context);
     final accent = KlunkiPalette.of(context).accent(controller.spec.id);
     final game = controller.game;
-    final status = _status(context, l10n);
     final labels = PlayerLabelsScope.of(context);
+    final override = _statusOverride;
+    final status = override?.text ?? _status(context, l10n);
     // Null once the game is over: the winner (or none for a draw).
-    final turnPlayer = game.isOver ? game.result.winner : game.currentPlayer;
-    final mood = game.isOver
+    final turnPlayer = override?.player ?? (game.isOver ? game.result.winner : game.currentPlayer);
+    final mood = override == null && game.isOver
         ? (turnPlayer == null ? TurnMood.draw : TurnMood.won)
-        : (labels.local != null && !labels.isLocal(game.currentPlayer) ? TurnMood.waiting : TurnMood.active);
+        : (labels.local != null && !labels.isLocal(turnPlayer!) ? TurnMood.waiting : TurnMood.active);
     return _GameShellScope(
       shell: this,
       hint: _hint,
@@ -476,6 +523,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                                 mood: mood,
                                 network: labels.local != null,
                                 status: status,
+                                badge: override?.badge,
                               ),
                               // Hot-seat: both players with their colours (KLD-067).
                               if (labels.local == null)
@@ -621,12 +669,17 @@ class _TurnIndicator extends StatefulWidget {
   final bool network;
   final String status;
 
+  /// Optional badge pinned to the pill's top end corner (no layout change,
+  /// so nothing below moves under the player's finger).
+  final String? badge;
+
   const _TurnIndicator({
     required this.gameId,
     required this.player,
     required this.mood,
     required this.network,
     required this.status,
+    this.badge,
   });
 
   @override
@@ -693,9 +746,8 @@ class _TurnIndicatorState extends State<_TurnIndicator> with SingleTickerProvide
       color: ink,
       fontWeight: mood == TurnMood.active ? FontWeight.w700 : null,
     );
-    return ScaleTransition(
-      scale: _scale,
-      child: AnimatedContainer(
+    final badge = widget.badge;
+    final pill = AnimatedContainer(
         key: const Key('shell-turn'),
         duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250),
         curve: Curves.easeOut,
@@ -732,6 +784,44 @@ class _TurnIndicatorState extends State<_TurnIndicator> with SingleTickerProvide
             ),
           ],
         ),
+      );
+    return ScaleTransition(
+      scale: _scale,
+      child: badge == null
+          ? pill
+          : Stack(
+              clipBehavior: Clip.none,
+              children: [
+                pill,
+                PositionedDirectional(
+                  top: -10,
+                  end: -4,
+                  child: _StatusBadge(key: const Key('shell-status-badge'), text: badge),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+/// A small badge on the status pill, e.g. "noch 2 Stiche".
+class _StatusBadge extends StatelessWidget {
+  final String text;
+  const _StatusBadge({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.secondary,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.surface, width: 1.5),
+      ),
+      child: Text(
+        text,
+        style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSecondary, fontWeight: FontWeight.w700),
       ),
     );
   }

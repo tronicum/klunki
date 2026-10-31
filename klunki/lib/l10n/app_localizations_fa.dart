@@ -355,6 +355,42 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfNextPicker(String player) {
+    return 'انتخاب بعدی با $player';
+  }
+
+  @override
+  String quartettTrumpfPicksAgain(String player) {
+    return '$player دوباره انتخاب می‌کند';
+  }
+
+  @override
+  String quartettTrumpfContinuePicker(String player) {
+    return 'ادامه – $player انتخاب می‌کند';
+  }
+
+  @override
+  String quartettTrumpfYouPickNext(String player) {
+    return 'انتخاب بعدی با توست ($player)';
+  }
+
+  @override
+  String quartettTrumpfTricksBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count دست دیگر',
+      one: 'یک دست دیگر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quartettTrumpfHandoverReason(String player) {
+    return '$player این دست را برد';
+  }
+
+  @override
   String get quartettSetsHit => 'دارد';
 
   @override
