@@ -10,5 +10,6 @@ String localizedGameTitle(AppLocalizations l10n, String id, {required String fal
   'quartett-sets' => l10n.menuGameQuartettSets,
   'schiffe' => l10n.menuGameSchiffe,
   'gostrategy' => l10n.menuGameGoStrategy,
+  'chess' => l10n.menuGameChess,
   _ => fallback,
 };

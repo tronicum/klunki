@@ -3,7 +3,8 @@
 - **ID:** `KLD-059`
 - **Title:** Chess with the full standard rules (id `chess`)
 - **Milestone:** long-term games
-- **Status:** step 1 DONE (engine, text adapter, tests); steps 2–4 open, see "Step plan"
+- **Status:** step 1 DONE (engine, text adapter, tests), step 2 DONE (hot-seat board UI); steps 3–4 open, see
+  "Step plan"
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021)
 - **Touched paths (step 1):**
   - `packages/klunki_engine/lib/chess.dart` (new), `lib/debug/chess_text.dart` (new), `test/chess_test.dart` (new)
@@ -20,11 +21,12 @@ existing games (map moves, `GameEndReason` codes, history).
 
 ## Step plan
 1. **Engine (done).** Full FIDE rules, FEN, SAN, perft-tested; `ChessText` for the debug console and CLI.
-2. **Hot-seat board UI:** board with legal-move highlighting (`legalMovesFrom`), promotion picker, board flip
-   (and/or turn for the player to move), SAN move log in the history sheet, check highlight, localized end
-   reasons in 7 locales (replace the English fallback in `engine_l10n.dart`), menu tile; then `appReady: true`.
-3. **Network play:** already works on the protocol level (open information, the host replays moves; `klunki host
-   chess` in the CLI); app side: hosting/joining from the pairing screens, an e2e test.
+2. **Hot-seat board UI (done ✅).** See "Board UI (step 2)" below.
+3. **Network play (next):** already works on the protocol level (open information, the host replays moves;
+   `klunki host chess` in the CLI); app side: remove `chess` from `hotSeatOnlyGames` in
+   `klunki/lib/ui/shell/screen_registry.dart` (the host pickers of "Über WLAN spielen" and the relay host use
+   `networkGameSpecs`), check the guest's orientation (own side at the bottom, no auto-turn toggle, already in
+   the board) and the network status bar (it still shows the X/O marks), an e2e test over loopback.
 4. **Later:** clocks / time control, pause and resume (KLD-079: `fen` + move log), draw offer as a move, a simple
    computer opponent.
 
@@ -78,5 +80,33 @@ en passant (incl. the rank pin), promotion, check, Fool's and Scholar's mate, st
 round-trip and rejects, illegal moves without state change, SAN disambiguation, the text adapter and demo.
 The whole file runs in under a second (`dart test`), so no tag is needed.
 
+## Board UI (step 2)
+- **Files:** `klunki/lib/ui/games/chess_screen.dart`, `chess/chess_board.dart`, `chess/chess_pieces.dart`;
+  `ChessPalette` in `app/theme.dart` (board, pieces, highlights, turn colours, light and dark), menu entry in
+  `game_visuals.dart` / `game_illustrations.dart` / `game_titles.dart`, `GameSpec` now `appReady: true`.
+- **Pieces:** drawn in code (`ChessPiecePainter`, own Staunton-like paths in a 100 × 100 box, filled and
+  outlined, light inner lines on the black pieces), no font glyphs and no image assets. The bundled fonts
+  (Roboto, Noto Sans Arabic, the Noto Sans SC / Math subsets) do not cover U+2654–265F, so glyphs would make the
+  PWA fetch a fallback font (not allowed) and render as emoji on some platforms. No external piece set needed.
+- **Play:** tap an own piece (selection ring), its targets get a dot (quiet move) or a ring (capture, en passant
+  included); tap a target to move, anything else to deselect, or drag the piece. Castling is the king's
+  two-square step. A pawn reaching the last rank opens the promotion picker (Q/R/B/N in the mover's colour);
+  cancel leaves the pawn. Last move tinted, the king in check red plus a "Schach!" badge.
+- **Orientation:** hot-seat turns the board to the side to move (like GoStrategy); the auto-turn toggle keeps it
+  fixed with White at the bottom, the flip button turns it by 180° on top (state of the screen, not saved). A
+  network device would show its own side at the bottom.
+- **Shell:** `PlayerLabels.markNames`: chess shows "Weiß" / "Schwarz" instead of X / O in the status pill, the
+  result and resign dialogs and the history ("Anna (Weiß)" with names); the player token is the side's king.
+  Open information, so no handover cover. The history sheet lists SAN.
+- **Move list / captured:** SAN in English letters (`Nf3`, `O-O`), one wrapped list scrolled to the latest move;
+  captured pieces per side with the material lead ("+3"). Figurine notation would be possible with the painted
+  pieces (open question below).
+- **Tests:** `klunki/test/ui/games/chess_screen_test.dart` (selection and targets, capture, castling, en passant,
+  promotion choose and cancel, check highlight, Fool's mate, stalemate, resign, flip / auto-turn, drag-and-drop,
+  undo, Scholar's mate by taps at phone and tablet size with the board compared to the engine after every move);
+  chess added to the menu, resign, l10n coverage / RTL / translation tests; screenshot `chess-<size>-<theme>` in
+  `test/screenshots`.
+
 ## Open questions
-- Draw offer as a move (step 4)? SAN or figurine notation in the app's history sheet (step 2)?
+- Draw offer as a move (step 4)? Figurine notation (painted pieces) instead of SAN letters, or localized
+  letters (German K D T L S)? Persist the auto-turn / flip choice (no per-game settings yet)?

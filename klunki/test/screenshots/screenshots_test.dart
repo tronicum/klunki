@@ -198,6 +198,21 @@ void main() {
         });
       }
 
+      // KLD-059: chess after the "Fried Liver" attack: White's queen gives
+      // check (badge, red king square, last move), both sides have captured,
+      // the board is turned to Black, the king is selected with its targets.
+      testWidgets('chess $tag', skip: skip != null, (tester) async {
+        await _setup(tester, size, b);
+        final c = await _game(tester, 'chess', 0);
+        for (final m in ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1c4', 'g8f6', 'f3g5', 'd7d5', 'e4d5', 'f6d5', 'g5f7', 'e8f7', 'd1f3']) {
+          c.submit({'action': 'move', 'from': m.substring(0, 2), 'to': m.substring(2)});
+        }
+        await tester.pump();
+        await tester.tap(find.byKey(const Key('chess-sq-f7')));
+        await tester.pump();
+        await _shot(tester, 'chess-$tag');
+      });
+
       if (size == phone) {
         // KLD-068: placement with the whole fleet at random, one ship
         // selected (accent outline) and the harbour list.

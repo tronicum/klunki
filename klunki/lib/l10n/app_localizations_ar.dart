@@ -1670,4 +1670,81 @@ class AppLocalizationsAr extends AppLocalizations {
   String menuVersion(String version) {
     return 'الإصدار $version';
   }
+
+  @override
+  String get menuGameChess => 'شطرنج';
+
+  @override
+  String get menuDescChess => 'اللعبة الكلاسيكية: أوقِع ملك الخصم في كش مات.';
+
+  @override
+  String get chessWhite => 'الأبيض';
+
+  @override
+  String get chessBlack => 'الأسود';
+
+  @override
+  String get chessCheck => 'كش ملك!';
+
+  @override
+  String get chessHintSelect => 'المس قطعة لتحريكها.';
+
+  @override
+  String get chessHintTarget => 'المس مربعًا مُعلَّمًا.';
+
+  @override
+  String get chessPromotionTitle => 'ترقية البيدق إلى …';
+
+  @override
+  String get chessFlipBoard => 'اقلب الرقعة';
+
+  @override
+  String get chessAutoFlip => 'أدِر الرقعة نحو الطرف الذي عليه الدور';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square: فارغ';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square: $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'ملك';
+
+  @override
+  String get chessPieceQueen => 'وزير';
+
+  @override
+  String get chessPieceRook => 'رخ';
+
+  @override
+  String get chessPieceBishop => 'فيل';
+
+  @override
+  String get chessPieceKnight => 'حصان';
+
+  @override
+  String get chessPiecePawn => 'بيدق';
+
+  @override
+  String get engineReasonChessCheckmate => 'كش مات';
+
+  @override
+  String get engineReasonChessStalemate => 'تعادل بالجمود';
+
+  @override
+  String get engineReasonChessInsufficientMaterial => 'قطع غير كافية للكش مات';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves نقلة دون أسر أو تحريك بيدق';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return 'تكرار الوضع نفسه $times مرات';
+  }
 }

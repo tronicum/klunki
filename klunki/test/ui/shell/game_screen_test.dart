@@ -45,7 +45,8 @@ void main() {
                 of: find.byType(AppBar),
                 matching: find.text(spec.usesDeck ? '${spec.title} · Autos' : spec.title)),
             findsOneWidget);
-        expect(find.text('X ist am Zug'), findsOneWidget);
+        // Chess names the sides (KLD-059).
+        expect(find.text(spec.id == 'chess' ? 'Weiß ist am Zug' : 'X ist am Zug'), findsOneWidget);
         expect(controllerOf(tester).config.gameId, spec.id);
 
         await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip

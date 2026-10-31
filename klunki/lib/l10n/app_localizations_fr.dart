@@ -1667,4 +1667,83 @@ class AppLocalizationsFr extends AppLocalizations {
   String menuVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get menuGameChess => 'Échecs';
+
+  @override
+  String get menuDescChess =>
+      'Le classique : mets le roi adverse échec et mat.';
+
+  @override
+  String get chessWhite => 'Blancs';
+
+  @override
+  String get chessBlack => 'Noirs';
+
+  @override
+  String get chessCheck => 'Échec !';
+
+  @override
+  String get chessHintSelect => 'Touche une pièce pour la déplacer.';
+
+  @override
+  String get chessHintTarget => 'Touche une case en surbrillance.';
+
+  @override
+  String get chessPromotionTitle => 'Promouvoir le pion en …';
+
+  @override
+  String get chessFlipBoard => 'Tourner l’échiquier';
+
+  @override
+  String get chessAutoFlip => 'Tourner l’échiquier vers le camp au trait';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square : vide';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square : $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'Roi';
+
+  @override
+  String get chessPieceQueen => 'Dame';
+
+  @override
+  String get chessPieceRook => 'Tour';
+
+  @override
+  String get chessPieceBishop => 'Fou';
+
+  @override
+  String get chessPieceKnight => 'Cavalier';
+
+  @override
+  String get chessPiecePawn => 'Pion';
+
+  @override
+  String get engineReasonChessCheckmate => 'Échec et mat';
+
+  @override
+  String get engineReasonChessStalemate => 'Pat';
+
+  @override
+  String get engineReasonChessInsufficientMaterial =>
+      'Matériel insuffisant pour mater';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves coups sans prise ni coup de pion';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return 'Même position $times fois';
+  }
 }

@@ -95,7 +95,7 @@ void main() {
         expect(find.text(l10n.menuGameSchiffe), findsOneWidget);
       });
 
-      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy']) {
+      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess']) {
         testWidgets('$code: $id renders and plays to the result dialog without overflow', (tester) async {
           await phone(tester);
           await pumpGame(tester, id, locale: locale);

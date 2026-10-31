@@ -354,7 +354,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     }
     final p = game.currentPlayer;
     if (labels.local == null) return l10n.shellToMove(label(p));
-    return labels.isLocal(p) ? l10n.shellYourTurn(playerMark(p)) : l10n.shellWaitingFor(label(p));
+    return labels.isLocal(p) ? l10n.shellYourTurn(labels.mark(p)) : l10n.shellWaitingFor(label(p));
   }
 
   @override
@@ -515,7 +515,13 @@ class PlayerToken extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fill = playerColor(KlunkiPalette.of(context), gameId, player);
+    final palette = KlunkiPalette.of(context);
+    final icon = visualsOf(gameId).tokenIcon;
+    if (icon != null) {
+      // A game's own token (chess: the side's king on a light square).
+      return ExcludeSemantics(child: SizedBox.square(dimension: size, child: icon(context, player, size)));
+    }
+    final fill = playerColor(palette, gameId, player);
     return ExcludeSemantics(
       child: Container(
         width: size,

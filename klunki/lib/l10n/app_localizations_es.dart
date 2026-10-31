@@ -1665,4 +1665,82 @@ class AppLocalizationsEs extends AppLocalizations {
   String menuVersion(String version) {
     return 'Versión $version';
   }
+
+  @override
+  String get menuGameChess => 'Ajedrez';
+
+  @override
+  String get menuDescChess => 'El clásico: da jaque mate al rey rival.';
+
+  @override
+  String get chessWhite => 'Blancas';
+
+  @override
+  String get chessBlack => 'Negras';
+
+  @override
+  String get chessCheck => '¡Jaque!';
+
+  @override
+  String get chessHintSelect => 'Toca una pieza para moverla.';
+
+  @override
+  String get chessHintTarget => 'Toca una casilla marcada.';
+
+  @override
+  String get chessPromotionTitle => 'Coronar el peón como …';
+
+  @override
+  String get chessFlipBoard => 'Girar el tablero';
+
+  @override
+  String get chessAutoFlip => 'Girar el tablero hacia el bando que mueve';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square: vacía';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square: $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'Rey';
+
+  @override
+  String get chessPieceQueen => 'Dama';
+
+  @override
+  String get chessPieceRook => 'Torre';
+
+  @override
+  String get chessPieceBishop => 'Alfil';
+
+  @override
+  String get chessPieceKnight => 'Caballo';
+
+  @override
+  String get chessPiecePawn => 'Peón';
+
+  @override
+  String get engineReasonChessCheckmate => 'Jaque mate';
+
+  @override
+  String get engineReasonChessStalemate => 'Ahogado';
+
+  @override
+  String get engineReasonChessInsufficientMaterial =>
+      'Material insuficiente para dar mate';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves jugadas sin captura ni movimiento de peón';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return 'Misma posición $times veces';
+  }
 }

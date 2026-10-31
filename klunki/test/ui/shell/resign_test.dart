@@ -31,10 +31,12 @@ void main() {
     for (final id in appGameSpecs.map((s) => s.id)) {
       testWidgets('$id: the flag asks who resigns; O resigns on X\'s turn', (tester) async {
         final c = await pumpGame(tester, id);
+        // Chess names the sides "Weiß" / "Schwarz" instead of X / O (KLD-059).
+        final (x, o) = id == 'chess' ? ('Weiß', 'Schwarz') : ('X', 'O');
         expect(c.game.currentPlayer, Player.a);
         await _openResign(tester);
         expect(find.text('Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.'), findsOneWidget);
-        expect(find.text('X gibt auf'), findsOneWidget);
+        expect(find.text('$x gibt auf'), findsOneWidget);
         await tester.tap(find.byKey(const Key('resign-b')));
         await tester.pumpAndSettle();
 
@@ -42,12 +44,12 @@ void main() {
         expect(c.game.result.code, GameEndReason.commonResigned);
         expect(c.moves.single.move, {'action': 'resign', 'player': 'b'});
         expect(c.moves.single.player, Player.b);
-        expect(_inResult('X gewinnt!'), findsOneWidget);
-        expect(_inResult('O hat aufgegeben'), findsOneWidget);
+        expect(_inResult('$x gewinnt!'), findsOneWidget);
+        expect(_inResult('$o hat aufgegeben'), findsOneWidget);
         await tester.tap(find.text('Menü'));
         await tester.pumpAndSettle();
         expect(find.byKey(_resign), findsNothing, reason: 'no resign once the game is over');
-        expect(tester.widget<Text>(find.byKey(const Key('shell-status'))).data, 'X hat gewonnen');
+        expect(tester.widget<Text>(find.byKey(const Key('shell-status'))).data, '$x hat gewonnen');
       });
     }
 

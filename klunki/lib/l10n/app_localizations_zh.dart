@@ -1606,4 +1606,81 @@ class AppLocalizationsZh extends AppLocalizations {
   String menuVersion(String version) {
     return '版本 $version';
   }
+
+  @override
+  String get menuGameChess => '国际象棋';
+
+  @override
+  String get menuDescChess => '经典棋局：将死对方的王。';
+
+  @override
+  String get chessWhite => '白方';
+
+  @override
+  String get chessBlack => '黑方';
+
+  @override
+  String get chessCheck => '将军！';
+
+  @override
+  String get chessHintSelect => '点一个棋子来走棋。';
+
+  @override
+  String get chessHintTarget => '点一个标记的格子。';
+
+  @override
+  String get chessPromotionTitle => '兵升变为……';
+
+  @override
+  String get chessFlipBoard => '翻转棋盘';
+
+  @override
+  String get chessAutoFlip => '棋盘转向走棋一方';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square：空';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square：$piece（$side）';
+  }
+
+  @override
+  String get chessPieceKing => '王';
+
+  @override
+  String get chessPieceQueen => '后';
+
+  @override
+  String get chessPieceRook => '车';
+
+  @override
+  String get chessPieceBishop => '象';
+
+  @override
+  String get chessPieceKnight => '马';
+
+  @override
+  String get chessPiecePawn => '兵';
+
+  @override
+  String get engineReasonChessCheckmate => '将死';
+
+  @override
+  String get engineReasonChessStalemate => '逼和';
+
+  @override
+  String get engineReasonChessInsufficientMaterial => '子力不足，无法将死';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves回合没有吃子或走兵';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return '同一局面出现$times次';
+  }
 }

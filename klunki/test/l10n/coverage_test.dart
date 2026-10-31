@@ -36,7 +36,7 @@ import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
 import 'l10n_test_utils.dart';
 
-const gameIds = ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy'];
+const gameIds = ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess'];
 const sizes = [Size(390, 844), Size(360, 640)];
 
 /// Text that may be identical to English in every locale: the brand, player
