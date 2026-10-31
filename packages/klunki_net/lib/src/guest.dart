@@ -1,17 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'channel/channel.dart';
+import 'channel/platform.dart' as platform;
 import 'connection.dart';
 import 'events.dart';
 
 /// The joining side: runs its own engine but applies only moves the host
 /// accepted, in log order.
+///
+/// Two transports, same protocol: [connect] (TCP, NDJSON; needs `dart:io`)
+/// and [connectWebSocket] (`ws://`, one message per text frame; works on the
+/// VM and in the browser). This file does not import `dart:io`.
 class KlunkiGuest {
+  /// The host's address (for WebSocket: [webSocketUrl]'s host).
   final Object host;
+
+  /// The host's TCP port, or its WebSocket port for a WebSocket guest.
   final int port;
+
+  /// Set for a WebSocket guest: the `ws://` URL it (re)connects to.
+  final Uri? webSocketUrl;
   final String name;
   final Duration _pingInterval;
   final Duration _timeout;
@@ -28,10 +39,11 @@ class KlunkiGuest {
   Connection? _conn;
   bool _connected = false; // handshake done on the current connection
 
-  KlunkiGuest._(this.host, this.port, this.name, this._token, this._pingInterval, this._timeout);
+  KlunkiGuest._(this.host, this.port, this.webSocketUrl, this.name, this._token, this._pingInterval, this._timeout);
 
-  /// Connects to [host]:[port] and completes after the `welcome` snapshot was
-  /// replayed. Throws [NetException] if the handshake fails.
+  /// Connects over TCP to [host]:[port] and completes after the `welcome`
+  /// snapshot was replayed. Throws [NetException] if the handshake fails
+  /// (and always in a browser: use [connectWebSocket] there).
   static Future<KlunkiGuest> connect(
     Object host,
     int port, {
@@ -40,10 +52,36 @@ class KlunkiGuest {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final guest = KlunkiGuest._(host, port, name, token, pingInterval, timeout);
+    final guest = KlunkiGuest._(host, port, null, name, token, pingInterval, timeout);
     await guest._open();
     return guest;
   }
+
+  /// Connects over WebSocket to [url] (`ws://host:port`, e.g. from
+  /// [webSocketUri]) and completes after the `welcome` snapshot was
+  /// replayed. Works on the VM and in the browser (the PWA). Throws
+  /// [NetException] if the connection or the handshake fails, and
+  /// [ArgumentError] for a URL that is not `ws://` / `wss://`.
+  static Future<KlunkiGuest> connectWebSocket(
+    Uri url, {
+    String name = 'Guest',
+    String? token,
+    Duration pingInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    if ((url.scheme != 'ws' && url.scheme != 'wss') || url.host.isEmpty) {
+      throw ArgumentError.value(url, 'url', 'expected ws://host:port');
+    }
+    final guest = KlunkiGuest._(url.host, url.port, url, name, token, pingInterval, timeout);
+    await guest._open();
+    return guest;
+  }
+
+  /// `tcp` or `ws`.
+  String get transport => webSocketUrl == null ? 'tcp' : 'ws';
+
+  /// Where this guest connects: `host:port` or the `ws://` URL.
+  String get address => webSocketUrl?.toString() ?? '$host:$port';
 
   GameConfig get config => _config;
 
@@ -87,17 +125,14 @@ class KlunkiGuest {
 
   Future<void> _open() async {
     _conn?.close('reconnecting');
-    final Socket socket;
-    try {
-      socket = await Socket.connect(host, port, timeout: _timeout);
-    } on SocketException catch (e) {
-      throw NetException('cannot connect: ${e.message}');
-    }
+    final url = webSocketUrl;
+    final MessageChannel channel =
+        url != null ? await platform.connectWebSocket(url, _timeout) : await platform.connectTcp(host, port, _timeout);
     final welcome = Completer<void>();
     welcome.future.ignore(); // errors are rethrown by the await below
     late final Connection conn;
     conn = Connection(
-      socket,
+      channel,
       pingInterval: _pingInterval,
       timeout: _timeout,
       onMessage: (m) => _onMessage(conn, m, welcome),

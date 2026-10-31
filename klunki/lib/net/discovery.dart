@@ -22,6 +22,10 @@ abstract final class KlunkiTxt {
 
   /// Display name (the mDNS service name carries a uniqueness suffix).
   static const String name = 'name';
+
+  /// WebSocket port for browser guests (KLD-054), as decimal string; absent
+  /// when the host accepts TCP guests only. Old clients ignore it.
+  static const String wsPort = 'ws';
 }
 
 /// A Klunki host on the local network: what the host advertises and what a
@@ -45,20 +49,27 @@ class KlunkiHostInfo {
   /// Game id the host offers, if already chosen.
   final String? gameId;
 
+  /// WebSocket port of the session (browser guests join `ws://host:wsPort`),
+  /// if the host accepts WebSocket guests.
+  final int? wsPort;
+
   const KlunkiHostInfo({
     required this.name,
     required this.host,
     required this.port,
     required this.protocol,
     this.gameId,
+    this.wsPort,
   });
 
-  KlunkiHostInfo copyWith({String? name, String? host, int? port, int? protocol, String? gameId}) => KlunkiHostInfo(
+  KlunkiHostInfo copyWith({String? name, String? host, int? port, int? protocol, String? gameId, int? wsPort}) =>
+      KlunkiHostInfo(
         name: name ?? this.name,
         host: host ?? this.host,
         port: port ?? this.port,
         protocol: protocol ?? this.protocol,
         gameId: gameId ?? this.gameId,
+        wsPort: wsPort ?? this.wsPort,
       );
 
   @override
@@ -68,13 +79,15 @@ class KlunkiHostInfo {
       other.host == host &&
       other.port == port &&
       other.protocol == protocol &&
-      other.gameId == gameId;
+      other.gameId == gameId &&
+      other.wsPort == wsPort;
 
   @override
-  int get hashCode => Object.hash(name, host, port, protocol, gameId);
+  int get hashCode => Object.hash(name, host, port, protocol, gameId, wsPort);
 
   @override
-  String toString() => 'KlunkiHostInfo($name @ $host:$port, v$protocol${gameId == null ? '' : ', $gameId'})';
+  String toString() => 'KlunkiHostInfo($name @ $host:$port, v$protocol${gameId == null ? '' : ', $gameId'}'
+      '${wsPort == null ? '' : ', ws $wsPort'})';
 }
 
 /// Advertise this device as a Klunki host and/or browse for other hosts.
@@ -168,6 +181,7 @@ Map<String, String> klunkiTxtRecord(KlunkiHostInfo me) => {
       KlunkiTxt.protocol: '${me.protocol}',
       KlunkiTxt.name: me.name,
       if (me.gameId != null && me.gameId!.isNotEmpty) KlunkiTxt.game: me.gameId!,
+      if (me.wsPort != null) KlunkiTxt.wsPort: '${me.wsPort}',
     };
 
 /// Reads a discovered service back into a [KlunkiHostInfo]. [serviceName] is
@@ -181,11 +195,13 @@ KlunkiHostInfo hostInfoFromTxt({
 }) {
   final game = txt[KlunkiTxt.game];
   final name = txt[KlunkiTxt.name];
+  final ws = int.tryParse(txt[KlunkiTxt.wsPort] ?? '');
   return KlunkiHostInfo(
     name: name == null || name.isEmpty ? serviceName : name,
     host: host,
     port: port,
     protocol: int.tryParse(txt[KlunkiTxt.protocol] ?? '') ?? 0,
     gameId: game == null || game.isEmpty ? null : game,
+    wsPort: ws != null && ws >= 1 && ws <= 65535 ? ws : null,
   );
 }

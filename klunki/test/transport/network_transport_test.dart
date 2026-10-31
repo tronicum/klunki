@@ -269,4 +269,19 @@ void main() {
     guest.dispose();
     host.dispose();
   });
+
+  test('a WebSocket guest (the PWA path) plays a full game against a host (KLD-054)', () async {
+    final host = await _host(const GameConfig('muehle', seed: 2));
+    expect(host.wsPort, isNotNull);
+    final guest = await NetworkTransport.joinWebSocket(Uri(scheme: 'ws', host: _loopback.address, port: host.wsPort),
+        name: 'Web', pingInterval: const Duration(milliseconds: 50), timeout: const Duration(seconds: 2));
+    await _until(() => host.connection.value == NetConnectionState.connected);
+    expect(host.peerName, 'Web');
+    expect(guest.me, Player.b);
+    final hc = GameController(host), gc = GameController(guest);
+    await _playOut(hc, gc, Random(54));
+    _expectSameState(hc, gc);
+    gc.dispose();
+    hc.dispose();
+  });
 }

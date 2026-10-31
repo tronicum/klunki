@@ -106,6 +106,15 @@ void main() {
           host.copyWith(host: '10.0.0.2'));
     });
 
+    test('the WebSocket port travels as "ws" (KLD-054)', () {
+      const host = KlunkiHostInfo(name: 'iPad', host: '', port: 4747, protocol: 1, wsPort: 4748);
+      final txt = klunkiTxtRecord(host);
+      expect(txt, {'v': '1', 'name': 'iPad', 'ws': '4748'});
+      expect(hostInfoFromTxt(serviceName: 'iPad #1', host: '10.0.0.2', port: 4747, txt: txt),
+          host.copyWith(host: '10.0.0.2'));
+      expect(hostInfoFromTxt(serviceName: 's', host: 'h', port: 1, txt: {'ws': 'nope'}).wsPort, isNull);
+    });
+
     test('missing fields fall back', () {
       final info = hostInfoFromTxt(serviceName: 'svc', host: '10.0.0.2', port: 1, txt: {'v': 'x', 'game': ''});
       expect(info, const KlunkiHostInfo(name: 'svc', host: '10.0.0.2', port: 1, protocol: 0));

@@ -173,7 +173,9 @@ class MuehleMatch {
 
   /// Starts the session. By default the iPad hosts as X and the Pixel joins
   /// as O; [androidHosts] swaps the roles (the Pixel then hosts as O).
-  static Future<MuehleMatch> start({bool androidHosts = false, int seed = 2024}) async {
+  /// [webSocket]: the guest joins over WebSocket (the proxy then forwards to
+  /// the host's WebSocket port) instead of TCP.
+  static Future<MuehleMatch> start({bool androidHosts = false, int seed = 2024, bool webSocket = false}) async {
     const iosName = 'iPad (iOS)', androidName = 'Pixel (Android)';
     final host = await KlunkiHost.start(config,
         address: loopback,
@@ -181,21 +183,24 @@ class MuehleMatch {
         hostPlayer: androidHosts ? Player.b : Player.a,
         pingInterval: pingInterval,
         timeout: netTimeout);
-    final proxy = await WifiProxy.start(host.port, seed: seed);
+    final proxy = await WifiProxy.start(webSocket ? host.wsPort! : host.port, seed: seed);
     final hostDevice = androidHosts
         ? Device.host('Android', androidName, host)
         : Device.host('iOS', iosName, host);
     final guestName = androidHosts ? iosName : androidName;
-    final guest = await KlunkiGuest.connect(loopback, proxy.port,
-        name: guestName, pingInterval: pingInterval, timeout: netTimeout);
+    final guest = webSocket
+        ? await KlunkiGuest.connectWebSocket(webSocketUri(loopback.address, proxy.port),
+            name: guestName, pingInterval: pingInterval, timeout: netTimeout)
+        : await KlunkiGuest.connect(loopback, proxy.port,
+            name: guestName, pingInterval: pingInterval, timeout: netTimeout);
     final guestDevice = Device.guest(androidHosts ? 'iOS' : 'Android', guestName, guest);
     final match = androidHosts
         ? MuehleMatch._(guestDevice, hostDevice, proxy)
         : MuehleMatch._(hostDevice, guestDevice, proxy);
-    match.log('[net] ${hostDevice.name} hosts Mühle on 127.0.0.1:${host.port} as '
+    match.log('[net] ${hostDevice.name} hosts Mühle on 127.0.0.1:${host.port} (ws :${host.wsPort}) as '
         '${match.shadow.mark(hostDevice.player)}; Wi-Fi simulated by a proxy on :${proxy.port} '
         '(${proxy.minDelay.inMilliseconds}-${proxy.maxDelay.inMilliseconds} ms, seed $seed)');
-    match.log('[net] ${guestDevice.name} joined as ${match.shadow.mark(guestDevice.player)}, '
+    match.log('[net] ${guestDevice.name} joined over ${guest.transport} as ${match.shadow.mark(guestDevice.player)}, '
         'token ${guest.token!.substring(0, 6)}…');
     expect(guest.config, config);
     expect(match.ios.player, Player.a, reason: 'iOS plays X');

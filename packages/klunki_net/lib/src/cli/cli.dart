@@ -6,12 +6,16 @@ import 'dart:math';
 import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 
+import '../addresses.dart';
 import '../events.dart';
 import '../guest.dart';
 import '../host.dart';
 
-/// Port `host` listens on unless `--port` is given.
-const int defaultPort = 4747;
+/// TCP port `host` listens on unless `--port` is given.
+const int defaultPort = defaultTcpPort;
+
+/// WebSocket port `host` listens on unless `--ws-port` is given.
+const int defaultWsPort = defaultWebSocketPort;
 
 /// Exit code for bad arguments (`EX_USAGE`).
 const int usageExit = 64;
@@ -20,11 +24,14 @@ String get usage => '''
 Klunki over the network: two terminals play each other.
 
 Usage:
-  dart run klunki_net:klunki host <game> [--port N] [--seed S] [--name NAME]
+  dart run klunki_net:klunki host <game> [--port N] [--ws-port N] [--seed S] [--name NAME]
   dart run klunki_net:klunki join <ip>[:port] [port] [--name NAME]
+  dart run klunki_net:klunki join ws://<ip>[:port] [--name NAME]
 
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
-Default port: $defaultPort (host --port 0 picks a free one). The host plays X and moves first.
+Default ports: $defaultPort (TCP), $defaultWsPort (WebSocket, for browsers); 0 picks a free one
+(--port 0 alone frees both).
+The host accepts TCP and WebSocket guests. The host plays X and moves first.
 In the game: type a move on your turn; "board", "moves", "help", "quit".''';
 
 /// Runs the `klunki` network CLI. Returns the exit code.
@@ -53,16 +60,20 @@ Future<int> runCli(
 
   if (parsed.command == 'host') {
     final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
+    final port = parsed.port ?? defaultPort;
+    // `--port 0` without `--ws-port`: both ports are picked freely.
+    final wsPort = parsed.wsPort ?? (port == 0 ? 0 : defaultWsPort);
     final KlunkiHost host;
     try {
       host = await KlunkiHost.start(config,
-          port: parsed.port ?? defaultPort,
+          port: port,
+          wsPort: wsPort,
           name: parsed.name ?? 'Host',
           address: bindAddress,
           pingInterval: pingInterval,
           timeout: timeout);
     } on SocketException catch (e) {
-      out.writeln('Cannot listen on port ${parsed.port ?? defaultPort}: ${e.message}');
+      out.writeln('Cannot listen on port $port (TCP) / $wsPort (WebSocket): ${e.message}');
       return 1;
     }
     final title = specById(config.gameId)!.title;
@@ -75,46 +86,60 @@ Future<int> runCli(
       out.writeln('  dart run klunki_net:klunki join $ip ${host.port}'
           '${ip == InternetAddress.loopbackIPv4.address ? '   (same machine)' : ''}');
     }
+    if (host.wsPort case final wsPort?) {
+      out.writeln('Browsers and WebSocket guests join at ${ips.map((ip) => webSocketUri(ip, wsPort)).join(', ')}');
+    }
     return _Play.host(host, input, out).run();
   }
 
+  final ws = parsed.webSocket;
+  final where = ws?.toString() ?? '${parsed.target}:${parsed.port ?? defaultPort}';
   final KlunkiGuest guest;
   try {
-    guest = await KlunkiGuest.connect(parsed.target, parsed.port ?? defaultPort,
-        name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
+    guest = ws != null
+        ? await KlunkiGuest.connectWebSocket(ws,
+            name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout)
+        : await KlunkiGuest.connect(parsed.target, parsed.port ?? defaultPort,
+            name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
   } on NetException catch (e) {
-    out.writeln('Could not join ${parsed.target}:${parsed.port ?? defaultPort}: ${e.message}');
+    out.writeln('Could not join $where: ${e.message}');
     return 1;
   }
   final title = specById(guest.config.gameId)?.title ?? guest.config.gameId;
   out
-    ..writeln("Joined ${guest.hostName ?? 'the host'}'s game: $title on ${parsed.target}:${parsed.port ?? defaultPort}")
+    ..writeln("Joined ${guest.hostName ?? 'the host'}'s game: $title on $where")
     ..writeln('Game config: ${jsonEncode(guest.config.toJson())} (you play ${guest.me == Player.a ? 'X' : 'O'})');
   return _Play.guest(guest, input, out).run();
 }
 
 class _Args {
   final String command, target;
-  final int? port, seed;
+  final int? port, wsPort, seed;
   final String? name;
-  _Args(this.command, this.target, this.port, this.seed, this.name);
+
+  /// `join ws://…`: the WebSocket URL (then [target] / [port] are unused).
+  final Uri? webSocket;
+  _Args(this.command, this.target, this.port, this.seed, this.name, {this.wsPort, this.webSocket});
 }
 
 _Args? _parse(List<String> args) {
   if (args.isEmpty || (args.first != 'host' && args.first != 'join')) return null;
   final command = args.first;
   final positional = <String>[];
-  int? port, seed;
+  int? port, wsPort, seed;
   String? name;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if (a == '--port' || a == '--seed' || a == '--name') {
+    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name') {
       if (i + 1 >= args.length) return null;
       final v = args[++i];
       switch (a) {
         case '--port':
           port = int.tryParse(v);
           if (port == null || port < 0 || port > 65535) return null;
+        case '--ws-port':
+          wsPort = int.tryParse(v);
+          if (wsPort == null || wsPort < 0 || wsPort > 65535 || command != 'host') return null;
         case '--seed':
           seed = int.tryParse(v);
           if (seed == null || command != 'host') return null;
@@ -129,10 +154,19 @@ _Args? _parse(List<String> args) {
   }
   if (command == 'host') {
     if (positional.length != 1 || specById(positional.first) == null) return null;
-    return _Args(command, positional.first, port, seed, name);
+    return _Args(command, positional.first, port, seed, name, wsPort: wsPort);
   }
   if (positional.isEmpty || positional.length > 2) return null;
   var target = positional.first;
+  if (RegExp(r'^wss?://', caseSensitive: false).hasMatch(target)) {
+    // `ws://ip[:port]` (port defaults to the WebSocket port); no extra port.
+    final uri = Uri.tryParse(target);
+    if (uri == null || uri.host.isEmpty || positional.length > 1 || port != null) return null;
+    final url = uri.hasPort ? uri : uri.replace(port: defaultWsPort);
+    if (url.port < 1 || url.port > 65535) return null;
+    return _Args(command, url.host, url.port, null, name, webSocket: url);
+  }
+  if (target.contains('://')) return null;
   // `ip:port` (IPv4 or a host name; a bare IPv6 address has several colons).
   if (':'.allMatches(target).length == 1) {
     final p = int.tryParse(target.split(':').last);
@@ -347,7 +381,7 @@ class _Play {
     final guest = _guest!;
     _askingReconnect = false;
     _reconnecting = true;
-    _out.writeln('Reconnecting to ${guest.host}:${guest.port}…');
+    _out.writeln('Reconnecting to ${guest.address}…');
     try {
       await guest.reconnect();
       _reconnecting = false; // Resynced (emitted during reconnect) shows the turn

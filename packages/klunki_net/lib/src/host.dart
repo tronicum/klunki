@@ -1,22 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'channel/channel.dart';
+import 'channel/listener.dart';
+import 'channel/platform.dart';
 import 'connection.dart';
 import 'events.dart';
 
 /// The authoritative side of a session: owns the engine and the move log,
 /// listens for one guest and validates every move.
+///
+/// Guests connect over TCP (NDJSON, [port]) or WebSocket (one message per
+/// text frame, [wsPort]); both run the same protocol through the same code.
+/// Hosting needs `dart:io` ([start] fails in a browser).
 class KlunkiHost {
   final GameConfig config;
   final String name;
 
   /// The host's player; the guest plays the other one.
   final Player me;
-  final ServerSocket _server;
+  final HostListener _server;
   final Duration _pingInterval;
   final Duration _timeout;
   final _events = StreamController<NetEvent>.broadcast();
@@ -30,11 +36,14 @@ class KlunkiHost {
 
   KlunkiHost._(this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game);
 
-  /// Binds a TCP server ([port] 0 = ephemeral, read [port] afterwards).
+  /// Binds a TCP server on [port] and a WebSocket server on [wsPort] (0 =
+  /// ephemeral, read [port] / [wsPort] afterwards; [wsPort] null = TCP only).
+  /// Throws a `SocketException` if a port is taken (nothing stays bound).
   /// [moves] resumes a game from an earlier move log (must replay cleanly).
   static Future<KlunkiHost> start(
     GameConfig config, {
     int port = 0,
+    int? wsPort = 0,
     String name = 'Host',
     Player hostPlayer = Player.a,
     Object? address,
@@ -49,14 +58,19 @@ class KlunkiHost {
       if (game.applyMove(m) == null) throw ArgumentError.value(moves, 'moves', 'do not replay for $config');
       log.add(MoveAccepted(log.length, by, m));
     }
-    final server = await ServerSocket.bind(address ?? InternetAddress.anyIPv4, port);
+    final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
     final host = KlunkiHost._(config, name, hostPlayer, server, pingInterval, timeout, game);
     host._log.addAll(log);
-    server.listen(host._onSocket);
+    server.channels.listen(host._onChannel);
     return host;
   }
 
+  /// The TCP port (NDJSON guests: apps, the CLI).
   int get port => _server.port;
+
+  /// The WebSocket port (browser guests), or null if not enabled.
+  int? get wsPort => _server.wsPort;
+
   Player get guestPlayer => otherPlayer(me);
   Game get game => _game;
 
@@ -85,10 +99,10 @@ class KlunkiHost {
     await _events.close();
   }
 
-  void _onSocket(Socket socket) {
+  void _onChannel(MessageChannel channel) {
     late final Connection conn;
     conn = Connection(
-      socket,
+      channel,
       pingInterval: _pingInterval,
       timeout: _timeout,
       onMessage: (m) => _onMessage(conn, m),
