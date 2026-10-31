@@ -12,6 +12,7 @@ import '../guest.dart';
 import '../host.dart';
 import '../relay/relay_protocol.dart';
 import '../relay/relay_server.dart';
+import 'open_urls.dart';
 
 /// TCP port `host` listens on unless `--port` is given.
 const int defaultPort = defaultTcpPort;
@@ -326,6 +327,19 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
   if (web != null) {
     out.writeln('Serving the PWA from ${web.path}: ${ips.map((ip) => 'http://$ip:${relay.port}/').join(', ')}');
     out.writeln('In the browser: "Spiel hosten" uses this relay automatically; the guest enters the room code.');
+  }
+  // KLD-083: the addresses to open elsewhere (not localhost): LAN IPs and
+  // the Bonjour/mDNS name. Only when listening on every interface.
+  if (bindAddress == null) {
+    final lines = openOnOtherDevices(
+      port: relay.port,
+      lan: lanAddresses(await systemAddresses()),
+      mdns: systemMdnsName(),
+      web: web != null,
+    );
+    for (final l in lines) {
+      out.writeln(l);
+    }
   }
   out
     ..writeln('Terminals:')

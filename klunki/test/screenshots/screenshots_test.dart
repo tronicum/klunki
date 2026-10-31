@@ -7,6 +7,7 @@
 // so the PNGs show real text instead of the test font's boxes. Captures the
 // menu, every game mid-game, the result dialog and pairing in light and
 // dark at phone (390×844) and tablet (1180×820) size, plus Arabic.
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -27,8 +28,10 @@ import 'package:klunki/ui/games/quartett_deck_picker.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/relay_host_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:klunki_net/relay_server.dart';
 
 import '../ui/pairing/pairing_test_utils.dart';
 
@@ -347,6 +350,36 @@ void main() {
       await _shot(tester, 'kld069-trumpf-trains-$tag');
     });
   }
+
+  // KLD-083: "Spiel hosten" in a PWA opened as localhost: the notice under
+  // the QR and link, collapsed and with "Wie finde ich die Adresse?" open.
+  testWidgets('kld083 localhost waiting phone-light', skip: skip != null, (tester) async {
+    await _setup(tester, phone, Brightness.light);
+    final server = (await tester.runAsync(() => Zone.root.run(
+        () => RelayServer.start(port: 0, address: InternetAddress.loopbackIPv4, pingInterval: null))))!;
+    final created = CreatedTransports();
+    final page = Uri.parse('http://localhost:${server.port}/');
+    await tester.pumpWidget(_wrap(_themed(RelayHostScreen(
+      hostTransport: (config, r, {required name}) => relayHost(created, config, r, name: name),
+      defaultRelay: relayUriForPage(page),
+      pageUrl: page,
+      seed: () => 7,
+      deviceName: () => 'Anna',
+    ))));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('relay-host-start')));
+    await pumpUntil(tester, () => find.byKey(const Key('relay-host-waiting')).evaluate().isNotEmpty, what: 'waiting');
+    await tester.ensureVisible(find.byKey(const Key('relay-host-loopback')));
+    await _shot(tester, 'kld083-localhost-waiting-phone-light', settle: const Duration(milliseconds: 300));
+    debugDisableShadows = false;
+    await tester.tap(find.byKey(const Key('loopback-how')).first);
+    await tester.pump(const Duration(milliseconds: 400)); // a spinner: never settles
+    await tester.ensureVisible(find.byKey(const Key('loopback-how-relay')));
+    await _shot(tester, 'kld083-localhost-help-phone-light', settle: const Duration(milliseconds: 300));
+    await unmountAndSettleSockets(tester, created);
+    await tester.pump(const Duration(seconds: 6));
+    await tester.runAsync(server.close);
+  });
 
   testWidgets('menu ar', skip: skip != null, (tester) async {
     await _setup(tester, phone, Brightness.light);

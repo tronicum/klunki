@@ -1524,4 +1524,51 @@ class AppLocalizationsDe extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'Karte $id: $name, Set $set';
   }
+
+  @override
+  String relayLoopbackHint(String host, String example, String mdnsExample) {
+    return 'Hinweis: Andere Geräte können „$host“ nicht erreichen. Öffne die Seite über die WLAN-Adresse dieses Rechners (z. B. $example) oder seinen .local-Namen (z. B. $mdnsExample), damit Link und QR-Code auf anderen Geräten funktionieren.';
+  }
+
+  @override
+  String relayLoopbackShort(String host) {
+    return '„$host“ ist nur auf diesem Gerät erreichbar – andere Geräte brauchen die WLAN-Adresse oder den .local-Namen des Rechners.';
+  }
+
+  @override
+  String get loopbackHowTitle => 'Wie finde ich die Adresse?';
+
+  @override
+  String get loopbackHowMacSettings =>
+      'Systemeinstellungen › WLAN › Details … › IP-Adresse. Oder im Terminal:';
+
+  @override
+  String get loopbackHowMacMdns =>
+      'Der .local-Name steht unter Systemeinstellungen › Allgemein › Freigaben („Lokaler Hostname“).';
+
+  @override
+  String get loopbackHowWindowsSettings =>
+      'Einstellungen › Netzwerk und Internet › WLAN › Eigenschaften (IPv4-Adresse). Oder in der Eingabeaufforderung (cmd), „IPv4-Adresse“ des WLAN-Adapters:';
+
+  @override
+  String get loopbackHowWindowsMdns =>
+      'Der .local-Name ist unter Windows 10/11 <Computername>.local.';
+
+  @override
+  String get loopbackHowLinuxTerminal => 'Im Terminal:';
+
+  @override
+  String get loopbackHowLinuxSettings =>
+      'Oder Einstellungen › Netzwerk › WLAN › Details. Der .local-Name ist <Hostname>.local, wenn Avahi läuft.';
+
+  @override
+  String loopbackHowRelay(String command) {
+    return 'Tipp: Die Konsole von „$command“ zeigt diese Adressen beim Start an.';
+  }
+
+  @override
+  String get loopbackHowCopy => 'Befehl kopieren';
+
+  @override
+  String get loopbackHowCopied => 'Befehl kopiert';
 }

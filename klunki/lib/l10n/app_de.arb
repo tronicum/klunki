@@ -2309,5 +2309,74 @@
         "type": "String"
       }
     }
+  },
+  "relayLoopbackHint": "Hinweis: Andere Geräte können „{host}“ nicht erreichen. Öffne die Seite über die WLAN-Adresse dieses Rechners (z. B. {example}) oder seinen .local-Namen (z. B. {mdnsExample}), damit Link und QR-Code auf anderen Geräten funktionieren.",
+  "@relayLoopbackHint": {
+    "description": "KLD-083: host waiting screen in the browser when the page/relay is localhost (127.x, ::1, *.localhost). host = the loopback host (kept LTR); example = a generic LAN URL (http://192.168.x.x:8081), mdnsExample = a generic .local URL (both kept LTR).",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      },
+      "example": {
+        "type": "String"
+      },
+      "mdnsExample": {
+        "type": "String"
+      }
+    }
+  },
+  "relayLoopbackShort": "„{host}“ ist nur auf diesem Gerät erreichbar – andere Geräte brauchen die WLAN-Adresse oder den .local-Namen des Rechners.",
+  "@relayLoopbackShort": {
+    "description": "KLD-083: small warning under the relay line (and on the native waiting screen) when the relay address is localhost; host = the loopback host (kept LTR).",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "loopbackHowTitle": "Wie finde ich die Adresse?",
+  "@loopbackHowTitle": {
+    "description": "KLD-083: collapsible help in the localhost warning: how to find this computer's address."
+  },
+  "loopbackHowMacSettings": "Systemeinstellungen › WLAN › Details … › IP-Adresse. Oder im Terminal:",
+  "@loopbackHowMacSettings": {
+    "description": "KLD-083 help, macOS: where the Wi-Fi IP is shown (System Settings menu names as in the OS language); a terminal command follows (untranslated)."
+  },
+  "loopbackHowMacMdns": "Der .local-Name steht unter Systemeinstellungen › Allgemein › Freigaben („Lokaler Hostname“).",
+  "@loopbackHowMacMdns": {
+    "description": "KLD-083 help, macOS: where the .local name (Bonjour) is shown."
+  },
+  "loopbackHowWindowsSettings": "Einstellungen › Netzwerk und Internet › WLAN › Eigenschaften (IPv4-Adresse). Oder in der Eingabeaufforderung (cmd), „IPv4-Adresse“ des WLAN-Adapters:",
+  "@loopbackHowWindowsSettings": {
+    "description": "KLD-083 help, Windows: where the IPv4 address is shown; the command `ipconfig` follows."
+  },
+  "loopbackHowWindowsMdns": "Der .local-Name ist unter Windows 10/11 <Computername>.local.",
+  "@loopbackHowWindowsMdns": {
+    "description": "KLD-083 help, Windows: the .local name."
+  },
+  "loopbackHowLinuxTerminal": "Im Terminal:",
+  "@loopbackHowLinuxTerminal": {
+    "description": "KLD-083 help, Linux: label before the commands `hostname -I` / `ip -4 addr show`."
+  },
+  "loopbackHowLinuxSettings": "Oder Einstellungen › Netzwerk › WLAN › Details. Der .local-Name ist <Hostname>.local, wenn Avahi läuft.",
+  "@loopbackHowLinuxSettings": {
+    "description": "KLD-083 help, Linux: settings path and the .local name with Avahi."
+  },
+  "loopbackHowRelay": "Tipp: Die Konsole von „{command}“ zeigt diese Adressen beim Start an.",
+  "@loopbackHowRelay": {
+    "description": "KLD-083 help: the relay console prints the addresses; command = `klunki relay` (kept LTR).",
+    "placeholders": {
+      "command": {
+        "type": "String"
+      }
+    }
+  },
+  "loopbackHowCopy": "Befehl kopieren",
+  "@loopbackHowCopy": {
+    "description": "KLD-083: tooltip of the copy button next to a terminal command."
+  },
+  "loopbackHowCopied": "Befehl kopiert",
+  "@loopbackHowCopied": {
+    "description": "KLD-083: snackbar after copying a terminal command."
   }
 }

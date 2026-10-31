@@ -400,5 +400,17 @@
   "quartettGalleryNext": "Carta siguiente",
   "quartettGalleryTopMenu": "Top 5 por valor",
   "quartettGalleryTopTitle": "Los 5 mejores: {stat}",
-  "quartettCardSemantics": "Carta {id}: {name}, grupo {set}"
+  "quartettCardSemantics": "Carta {id}: {name}, grupo {set}",
+  "relayLoopbackHint": "Nota: otros dispositivos no pueden acceder a «{host}». Abre la página con la dirección wifi de este ordenador (p. ej. {example}) o su nombre .local (p. ej. {mdnsExample}) para que el enlace y el código QR funcionen en otros dispositivos.",
+  "relayLoopbackShort": "«{host}» solo funciona en este dispositivo: los demás necesitan la dirección wifi o el nombre .local de este ordenador.",
+  "loopbackHowTitle": "¿Cómo encuentro la dirección?",
+  "loopbackHowMacSettings": "Ajustes del Sistema › Wi-Fi › Detalles… › Dirección IP. O en Terminal:",
+  "loopbackHowMacMdns": "El nombre .local está en Ajustes del Sistema › General › Compartir («Nombre de host local»).",
+  "loopbackHowWindowsSettings": "Configuración › Red e Internet › Wi-Fi › propiedades (dirección IPv4). O en el símbolo del sistema (cmd), «Dirección IPv4» del adaptador wifi:",
+  "loopbackHowWindowsMdns": "En Windows 10/11 el nombre .local es <nombre del equipo>.local.",
+  "loopbackHowLinuxTerminal": "En un terminal:",
+  "loopbackHowLinuxSettings": "O Configuración › Red › Wi-Fi › detalles. El nombre .local es <nombre de host>.local si Avahi está activo.",
+  "loopbackHowRelay": "Consejo: la consola de «{command}» muestra estas direcciones al arrancar.",
+  "loopbackHowCopy": "Copiar comando",
+  "loopbackHowCopied": "Comando copiado"
 }

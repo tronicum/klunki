@@ -400,5 +400,17 @@
   "quartettGalleryNext": "کارت بعدی",
   "quartettGalleryTopMenu": "5 برتر بر اساس مقدار",
   "quartettGalleryTopTitle": "5 برتر: {stat}",
-  "quartettCardSemantics": "کارت {id}: {name}، سری {set}"
+  "quartettCardSemantics": "کارت {id}: {name}، سری {set}",
+  "relayLoopbackHint": "توجه: دستگاه‌های دیگر نمی‌توانند به «{host}» دسترسی داشته باشند. صفحه را از طریق نشانی وای‌فای این رایانه (مثلاً {example}) یا نام .local آن (مثلاً {mdnsExample}) باز کن تا پیوند و کد QR روی دستگاه‌های دیگر کار کند.",
+  "relayLoopbackShort": "«{host}» فقط روی همین دستگاه کار می‌کند – دستگاه‌های دیگر به نشانی وای‌فای یا نام .local این رایانه نیاز دارند.",
+  "loopbackHowTitle": "چطور نشانی را پیدا کنم؟",
+  "loopbackHowMacSettings": "تنظیمات سیستم › Wi-Fi › جزئیات… › نشانی IP. یا در ترمینال:",
+  "loopbackHowMacMdns": "نام .local در تنظیمات سیستم › عمومی › اشتراک‌گذاری («نام میزبان محلی») است.",
+  "loopbackHowWindowsSettings": "تنظیمات › شبکه و اینترنت › Wi-Fi › ویژگی‌ها (نشانی IPv4). یا در خط فرمان (cmd)، «نشانی IPv4» آداپتور Wi-Fi:",
+  "loopbackHowWindowsMdns": "در Windows 10/11 نام .local برابر <نام رایانه>.local است.",
+  "loopbackHowLinuxTerminal": "در ترمینال:",
+  "loopbackHowLinuxSettings": "یا تنظیمات › شبکه › Wi-Fi › جزئیات. اگر Avahi در حال اجرا باشد، نام .local برابر <نام میزبان>.local است.",
+  "loopbackHowRelay": "نکته: کنسول «{command}» این نشانی‌ها را هنگام شروع نشان می‌دهد.",
+  "loopbackHowCopy": "کپی فرمان",
+  "loopbackHowCopied": "فرمان کپی شد"
 }

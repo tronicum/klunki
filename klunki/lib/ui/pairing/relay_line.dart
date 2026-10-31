@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_net/guest_web.dart' show parseRelayUrl;
 
@@ -25,7 +26,7 @@ class RelayLine extends StatelessWidget {
       valueListenable: settings,
       builder: (context, _, _) {
         final relay = settings.relayFor(defaultRelay);
-        return Row(
+        final line = Row(
           key: const Key('relay-line'),
           children: [
             Icon(Icons.dns_outlined, size: 20, color: relay == null ? theme.colorScheme.error : null),
@@ -44,7 +45,156 @@ class RelayLine extends StatelessWidget {
             ),
           ],
         );
+        if (relay == null || !isLoopbackHost(relay.host)) return line;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            line,
+            LoopbackHint(host: relay.host, short: true, key: const Key('relay-line-loopback')),
+          ],
+        );
       },
+    );
+  }
+}
+
+/// KLD-083: the warning that other devices can't reach [host] (localhost,
+/// 127.x, ::1): [short] = one line ("only on this device", under the relay
+/// line and natively), otherwise the full hint with "open the page via this
+/// computer's Wi-Fi address (e.g. http://192.168.x.x:8081)". Only a warning:
+/// hosting on localhost stays allowed (two tabs on one machine).
+class LoopbackHint extends StatelessWidget {
+  final String host;
+  final bool short;
+
+  const LoopbackHint({super.key, required this.host, this.short = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final h = bidiLtr(context, host);
+    final text = short
+        ? l10n.relayLoopbackShort(h)
+        : l10n.relayLoopbackHint(
+            h, bidiLtr(context, loopbackHintExample), bidiLtr(context, loopbackHintMdnsExample));
+    final color = theme.colorScheme.error;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_amber_rounded, size: 18, color: color),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(text,
+                    key: const Key('loopback-text'), style: theme.textTheme.bodySmall?.copyWith(color: color)),
+              ),
+            ],
+          ),
+          const LoopbackAddressHelp(),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Wie finde ich die Adresse?" (KLD-083), collapsed: where macOS, Windows
+/// and Linux show the computer's Wi-Fi address and `.local` name, with the
+/// terminal commands (LTR, copyable).
+class LoopbackAddressHelp extends StatelessWidget {
+  const LoopbackAddressHelp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final small = theme.textTheme.bodySmall;
+    Widget os(String name) => Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Text(name, style: theme.textTheme.labelLarge),
+        );
+    Widget line(String s) => Padding(padding: const EdgeInsets.only(top: 2), child: Text(s, style: small));
+    return ExpansionTile(
+      key: const Key('loopback-how'),
+      dense: true,
+      tilePadding: EdgeInsetsDirectional.zero,
+      childrenPadding: const EdgeInsetsDirectional.only(start: 26, bottom: 8),
+      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      title: Text(l10n.loopbackHowTitle, style: theme.textTheme.bodyMedium),
+      children: [
+        os('macOS'),
+        line(l10n.loopbackHowMacSettings),
+        const _Command('ipconfig getifaddr en0'),
+        line(l10n.loopbackHowMacMdns),
+        os('Windows'),
+        line(l10n.loopbackHowWindowsSettings),
+        const _Command('ipconfig'),
+        line(l10n.loopbackHowWindowsMdns),
+        os('Linux'),
+        line(l10n.loopbackHowLinuxTerminal),
+        const _Command('hostname -I'),
+        const _Command('ip -4 addr show'),
+        line(l10n.loopbackHowLinuxSettings),
+        const SizedBox(height: 8),
+        Text(l10n.loopbackHowRelay(bidiLtr(context, 'klunki relay')),
+            key: const Key('loopback-how-relay'), style: small),
+      ],
+    );
+  }
+}
+
+/// A terminal command: monospace, left-to-right in every locale, selectable,
+/// with a copy button.
+class _Command extends StatelessWidget {
+  final String command;
+
+  const _Command(this.command);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    // The bundled font (no monospace font ships), in a tinted box.
+    return Row(
+      children: [
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: scheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: SelectableText(
+                command,
+                key: Key('loopback-cmd-$command'),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                textAlign: rtl ? TextAlign.right : TextAlign.left,
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          key: Key('loopback-copy-$command'),
+          icon: const Icon(Icons.copy, size: 18),
+          tooltip: l10n.loopbackHowCopy,
+          visualDensity: VisualDensity.compact,
+          onPressed: () async {
+            final messenger = ScaffoldMessenger.maybeOf(context);
+            final copied = l10n.loopbackHowCopied;
+            await Clipboard.setData(ClipboardData(text: command));
+            messenger?.showSnackBar(SnackBar(content: Text(copied)));
+          },
+        ),
+      ],
     );
   }
 }

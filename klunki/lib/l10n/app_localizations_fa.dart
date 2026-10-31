@@ -1516,4 +1516,51 @@ class AppLocalizationsFa extends AppLocalizations {
   String quartettCardSemantics(String id, String name, String set) {
     return 'کارت $id: $name، سری $set';
   }
+
+  @override
+  String relayLoopbackHint(String host, String example, String mdnsExample) {
+    return 'توجه: دستگاه‌های دیگر نمی‌توانند به «$host» دسترسی داشته باشند. صفحه را از طریق نشانی وای‌فای این رایانه (مثلاً $example) یا نام .local آن (مثلاً $mdnsExample) باز کن تا پیوند و کد QR روی دستگاه‌های دیگر کار کند.';
+  }
+
+  @override
+  String relayLoopbackShort(String host) {
+    return '«$host» فقط روی همین دستگاه کار می‌کند – دستگاه‌های دیگر به نشانی وای‌فای یا نام .local این رایانه نیاز دارند.';
+  }
+
+  @override
+  String get loopbackHowTitle => 'چطور نشانی را پیدا کنم؟';
+
+  @override
+  String get loopbackHowMacSettings =>
+      'تنظیمات سیستم › Wi-Fi › جزئیات… › نشانی IP. یا در ترمینال:';
+
+  @override
+  String get loopbackHowMacMdns =>
+      'نام .local در تنظیمات سیستم › عمومی › اشتراک‌گذاری («نام میزبان محلی») است.';
+
+  @override
+  String get loopbackHowWindowsSettings =>
+      'تنظیمات › شبکه و اینترنت › Wi-Fi › ویژگی‌ها (نشانی IPv4). یا در خط فرمان (cmd)، «نشانی IPv4» آداپتور Wi-Fi:';
+
+  @override
+  String get loopbackHowWindowsMdns =>
+      'در Windows 10/11 نام .local برابر <نام رایانه>.local است.';
+
+  @override
+  String get loopbackHowLinuxTerminal => 'در ترمینال:';
+
+  @override
+  String get loopbackHowLinuxSettings =>
+      'یا تنظیمات › شبکه › Wi-Fi › جزئیات. اگر Avahi در حال اجرا باشد، نام .local برابر <نام میزبان>.local است.';
+
+  @override
+  String loopbackHowRelay(String command) {
+    return 'نکته: کنسول «$command» این نشانی‌ها را هنگام شروع نشان می‌دهد.';
+  }
+
+  @override
+  String get loopbackHowCopy => 'کپی فرمان';
+
+  @override
+  String get loopbackHowCopied => 'فرمان کپی شد';
 }
