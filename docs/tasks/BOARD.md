@@ -46,6 +46,8 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-034 ✅ | Pairing screen: host (shows name, IP, QR) / join (list + manual entry), then start the chosen game over `NetworkTransport` | 021, 032, 033 | `klunki/lib/ui/pairing/**`, `klunki/test/ui/pairing/**`, `klunki/lib/ui/menu_screen.dart` | – |
 | KLD-035 (partial: manifest permissions + app label done; release build and device test pending) | Android networking for Android ↔ iOS: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
 | KLD-036 | Disconnect / reconnect UX ("opponent left", resume from snapshot). The basic leave/disconnect banner plus "Neu verbinden" already exist (KLD-034, `network_game_session.dart`) | 034 | `klunki/lib/ui/pairing/reconnect*`, `klunki/lib/transport/network_transport.dart`, `klunki/test/ui/pairing/reconnect*` | – |
+| KLD-054 ✅ | WebSocket transport in `packages/klunki_net` (io + browser channels, host listens on TCP and WS, web-compile test); app: `JoinPayload.wsPort`, `NetworkTransport.joinWebSocket`, `ws` mDNS TXT key (see `docs/tasks/KLD-054-websocket.md`) | 030, 032, 033 | `packages/klunki_net/**`, `klunki/lib/net/**`, `klunki/lib/transport/network_transport.dart`, `klunki/test/net/**`, `klunki/test/transport/**` | – |
+| KLD-055 🚧 | Browser join screen (PWA joins a host over WebSocket) — in progress | 054 | `klunki/lib/ui/pairing/**` (see card) | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
 
@@ -62,6 +64,7 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-037b ✅ | App-level e2e: two `GameController`s over `NetworkTransport` on loopback play Mühle to the end (`flutter test`) | 032 | `klunki/test/e2e/**` | – |
 | KLD-038a | Simulator e2e: iOS Simulator app hosts, Android emulator app joins via `10.0.2.2`; both play the Mühle demo script automatically (`integration_test` + `--dart-define` test mode with a fixed port) and compare final states; `tool/e2e_android_vs_ios.sh` prints PASS/FAIL. Existing AVD: `Medium_Phone_API_37.0` | 032, 037b, 🧑 Android cmdline-tools + licenses | `klunki/integration_test/**`, `tool/e2e_*`, `klunki/pubspec.yaml` (`integration_test` SDK dev dep only), small test-mode hook (path decided in the card) | 🧑 |
 | KLD-038b | The same on real devices: iPhone/iPad ↔ Android phone over Wi-Fi | 038a, 011, 012, 040, 035 | `tool/e2e_*` (device variant) | 🧑 |
+| KLD-038c 🚧 | Mobile integration tests on iOS simulators — in progress | 037b | `klunki/integration_test/**`, `tool/e2e_*` | – |
 
 ## i18n
 
@@ -73,8 +76,8 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | I18N-04 ✅ RTL + Arabic font offline; Chinese font offline still open | RTL polish for ar/fa (game boards stay LTR) + CJK/Arabic fonts bundled for the offline PWA | 02 | `klunki/lib/ui/**`, `klunki/pubspec.yaml` (fonts), `klunki/web/**` | – |
 | I18N-05 ✅ | Localize engine result reasons + Quartett set names, card names, stat labels/units + Schiffe ship names (covers KLD-028; leftovers from I18N-02) | 02 | `packages/klunki_engine/**` (reason codes), `klunki/lib/ui/**`, `klunki/lib/l10n/*.arb` | – |
 | I18N-06 ✅ | PWA language check: ARB key coverage + glyph coverage tests, `?lang=` URL hook in `LocaleController`, headless check script `klunki/tool/pwa_i18n_check.sh`, pairing-screen overflow fix | 03, 04 | `klunki/test/l10n/**`, `klunki/lib/l10n/locale_controller.dart`, `klunki/tool/pwa_i18n_check.*`, `klunki/lib/ui/pairing/pairing_screen.dart`, `docs/DEMO.md` | – |
-| I18N-07 | Chinese font offline for the PWA. Note: in Flutter 3.47.8 `fontFallbackBaseUrl` also controls the Roboto and Noto Sans SC fallback; a local `fonts/` base URL means mirroring all of them (see `docs/tasks/I18N-04-rtl.md`). Options: (a) bundle a subset Noto Sans SC asset covering the UI strings (< 1 MB), or (b) mirror Roboto plus the needed SC slices under `web/fonts/`. Measured (I18N-06): 284 distinct CJK characters in the UI strings, plus 简体中文 in the language picker in every locale | 03, 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**`, `klunki/tool/update_web_fonts.py` | 🧑 OK for the font download |
-| I18N-08 | Bundle Roboto (or a Latin subset) for the offline PWA. A first visit without internet shows no Latin text, and the 'X' inside ar/fa text is tofu. Arrows, dashes and ellipsis also come from the online fallback | 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**` | 🧑 OK for the font download |
+| I18N-07 ✅ | Chinese font offline for the PWA: bundled Noto Sans SC subset (Regular + Bold, OFL) covering the UI strings plus 简体中文, in the font fallback chain; strict glyph tests; `tool/update_web_fonts.py` regenerates the subset (see `docs/tasks/I18N-07-08-offline-fonts.md`) | 03, 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**`, `klunki/tool/update_web_fonts.py` | – |
+| I18N-08 ✅ | Bundled Roboto (Regular/Medium/Bold, OFL) plus a Noto Sans Math subset for arrows, dashes and ellipsis, so the offline PWA shows Latin text and the 'X' inside ar/fa text on a first visit without internet | 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**` | – |
 
 ## Backlog
 
