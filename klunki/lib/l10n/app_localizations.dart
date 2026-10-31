@@ -594,6 +594,30 @@ abstract class AppLocalizations {
   /// **'Im Topf: {count, plural, =1{1 Karte} other{{count} Karten}} – {player} wählt noch einmal'**
   String quartettTrumpfPotAgain(int count, String player);
 
+  /// Quartett (Trumpf), network: hint while the opponent picks a stat. player = "Ben (O)".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} wählt …'**
+  String quartettTrumpfHintWaiting(String player);
+
+  /// Quartett (Trumpf): button on the table that re-opens the result of the previous trick.
+  ///
+  /// In de, this message translates to:
+  /// **'Letzter Stich'**
+  String get quartettTrumpfLastTrick;
+
+  /// Quartett (Trumpf), network: countdown under the reveal before it moves on by itself.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter in {seconds} s'**
+  String quartettTrumpfGraceSeconds(int seconds);
+
+  /// Quartett (Trumpf), network: the opponent already picked the next stat; its result follows after the countdown.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat gewählt: {stat}'**
+  String quartettTrumpfQueuedPick(String player, String stat);
+
   /// Ask result: the opponent had the card.
   ///
   /// In de, this message translates to:

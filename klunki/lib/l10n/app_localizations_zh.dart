@@ -329,6 +329,24 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfHintWaiting(String player) {
+    return '$player 正在选择 …';
+  }
+
+  @override
+  String get quartettTrumpfLastTrick => '上一墩';
+
+  @override
+  String quartettTrumpfGraceSeconds(int seconds) {
+    return '$seconds 秒后继续';
+  }
+
+  @override
+  String quartettTrumpfQueuedPick(String player, String stat) {
+    return '$player 已选择：$stat';
+  }
+
+  @override
   String get quartettSetsHit => '有';
 
   @override

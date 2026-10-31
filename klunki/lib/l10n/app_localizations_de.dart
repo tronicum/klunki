@@ -340,6 +340,24 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfHintWaiting(String player) {
+    return '$player wählt …';
+  }
+
+  @override
+  String get quartettTrumpfLastTrick => 'Letzter Stich';
+
+  @override
+  String quartettTrumpfGraceSeconds(int seconds) {
+    return 'Weiter in $seconds s';
+  }
+
+  @override
+  String quartettTrumpfQueuedPick(String player, String stat) {
+    return '$player hat gewählt: $stat';
+  }
+
+  @override
   String get quartettSetsHit => 'Treffer';
 
   @override
