@@ -948,11 +948,12 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get goSetupHint => 'دو مهره را لمس کن تا جابه‌جا شوند، سپس «تمام».';
+  String get goSetupHint =>
+      'دو مهره را لمس کن یا یکی را روی خانهٔ دیگری از چهار ردیف خودت بکش تا جابه‌جا شوند، سپس «تمام».';
 
   @override
   String goSetupSelected(String piece) {
-    return '$piece انتخاب شد – مهرهٔ دوم را برای جابه‌جایی لمس کن.';
+    return '$piece انتخاب شد – خانهٔ دیگری از چهار ردیف خودت را برای جابه‌جایی لمس کن.';
   }
 
   @override
@@ -1563,4 +1564,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get loopbackHowCopied => 'فرمان کپی شد';
+
+  @override
+  String get goSetupInvalid => 'فقط چهار ردیف پایینِ خودت مهره می‌پذیرند.';
 }

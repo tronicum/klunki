@@ -964,11 +964,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get goSetupHint =>
-      'Touche deux pièces pour les échanger, puis « Terminé ».';
+      'Touche deux pièces ou fais-en glisser une sur une autre case de tes quatre rangées pour les échanger. Puis « Terminé ».';
 
   @override
   String goSetupSelected(String piece) {
-    return '$piece choisi – touche une deuxième pièce pour échanger.';
+    return '$piece choisi – touche une autre case de tes quatre rangées pour échanger.';
   }
 
   @override
@@ -1580,4 +1580,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get loopbackHowCopied => 'Commande copiée';
+
+  @override
+  String get goSetupInvalid =>
+      'Seules tes quatre rangées du bas acceptent des pièces.';
 }

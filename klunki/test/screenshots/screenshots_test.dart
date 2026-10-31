@@ -302,6 +302,36 @@ void main() {
     });
   }
 
+  // KLD-081: the setup on the real board for X and O, and the same armies
+  // on the play board after "Fertig" (phone light; O after one X move).
+  testWidgets('kld081 setup and board', skip: skip != null, (tester) async {
+    await _setup(tester, phone, Brightness.light);
+    final c = await _game(tester, 'gostrategy', 0);
+    Future<void> again(String name) async {
+      await _shot(tester, name);
+      debugDisableShadows = false; // [_shot] reset it
+    }
+
+    await tester.tap(find.byKey(const Key('go-cell-62')));
+    await tester.pump();
+    await again('kld081-setup-X-phone-light');
+    await tester.tap(find.byKey(const Key('go-cell-62')));
+    await tester.pump();
+    c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(c.config.seed * 2)));
+    c.acknowledgeHandover();
+    await tester.pump();
+    await again('kld081-setup-O-phone-light');
+    c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(c.config.seed * 2 + 1)));
+    c.acknowledgeHandover();
+    await tester.pump();
+    await again('kld081-board-X-phone-light');
+    final g = c.game as GoStrategyGame;
+    c.submit(g.legalMoves.first);
+    c.acknowledgeHandover();
+    await tester.pump();
+    await _shot(tester, 'kld081-board-O-phone-light');
+  });
+
   // KLD-069: a card of every deck, the card gallery and the deck picker,
   // phone light and dark.
   for (final b in Brightness.values) {

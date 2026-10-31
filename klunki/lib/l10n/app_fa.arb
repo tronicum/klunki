@@ -241,8 +241,8 @@
   "goPieceFlag": "پرچم",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "ارتشت را بچین ({player})",
-  "goSetupHint": "دو مهره را لمس کن تا جابه‌جا شوند، سپس «تمام».",
-  "goSetupSelected": "{piece} انتخاب شد – مهرهٔ دوم را برای جابه‌جایی لمس کن.",
+  "goSetupHint": "دو مهره را لمس کن یا یکی را روی خانهٔ دیگری از چهار ردیف خودت بکش تا جابه‌جا شوند، سپس «تمام».",
+  "goSetupSelected": "{piece} انتخاب شد – خانهٔ دیگری از چهار ردیف خودت را برای جابه‌جایی لمس کن.",
   "goSetupShuffle": "چیدمان تصادفی",
   "goSetupDone": "تمام",
   "goSetupFirst": "{player} اول می‌چیند – تو هم می‌توانی آماده شوی.",
@@ -412,5 +412,6 @@
   "loopbackHowLinuxSettings": "یا تنظیمات › شبکه › Wi-Fi › جزئیات. اگر Avahi در حال اجرا باشد، نام .local برابر <نام میزبان>.local است.",
   "loopbackHowRelay": "نکته: کنسول «{command}» این نشانی‌ها را هنگام شروع نشان می‌دهد.",
   "loopbackHowCopy": "کپی فرمان",
-  "loopbackHowCopied": "فرمان کپی شد"
+  "loopbackHowCopied": "فرمان کپی شد",
+  "goSetupInvalid": "فقط چهار ردیف پایینِ خودت مهره می‌پذیرند."
 }

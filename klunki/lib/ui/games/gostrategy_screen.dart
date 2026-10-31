@@ -6,7 +6,8 @@ import 'gostrategy/gostrategy_board.dart';
 import 'gostrategy/gostrategy_pieces.dart';
 
 /// GoStrategy screen (KLD-058b): the hidden-rank capture-the-flag game.
-/// Setup editor per player (shuffle, swap by tapping, "Fertig"), then the
+/// Setup per player on the real board (shuffle, swap by tapping or dragging,
+/// "Fertig"; KLD-081), then the
 /// 10×10 board turned so the own army is at the bottom, the armies panel and
 /// a short fight reveal. The board lives in `gostrategy/gostrategy_board.dart`.
 ///

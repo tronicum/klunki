@@ -955,11 +955,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get goSetupHint =>
-      'Tippe zwei Figuren an, um sie zu tauschen. Dann „Fertig“.';
+      'Tippe zwei Figuren an oder ziehe eine auf ein anderes Feld deiner vier Reihen, um sie zu tauschen. Dann „Fertig“.';
 
   @override
   String goSetupSelected(String piece) {
-    return '$piece gewählt – tippe eine zweite Figur zum Tauschen.';
+    return '$piece gewählt – tippe ein anderes Feld deiner vier Reihen zum Tauschen.';
   }
 
   @override
@@ -1571,4 +1571,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get loopbackHowCopied => 'Befehl kopiert';
+
+  @override
+  String get goSetupInvalid =>
+      'Nur deine vier Reihen unten nehmen Figuren auf.';
 }

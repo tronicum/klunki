@@ -240,8 +240,8 @@
   "goPieceFlag": "Flag",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "Set up your army ({player})",
-  "goSetupHint": "Tap two pieces to swap them, then “Done”.",
-  "goSetupSelected": "{piece} selected – tap a second piece to swap.",
+  "goSetupHint": "Tap two pieces, or drag one onto another square of your four rows, to swap them. Then “Done”.",
+  "goSetupSelected": "{piece} selected – tap another square of your four rows to swap.",
   "goSetupShuffle": "Shuffle",
   "goSetupDone": "Done",
   "goSetupFirst": "{player} sets up first – you can prepare meanwhile.",
@@ -411,5 +411,6 @@
   "loopbackHowLinuxSettings": "Or Settings › Network › Wi-Fi › details. The .local name is <hostname>.local if Avahi is running.",
   "loopbackHowRelay": "Tip: the “{command}” console prints these addresses when it starts.",
   "loopbackHowCopy": "Copy command",
-  "loopbackHowCopied": "Command copied"
+  "loopbackHowCopied": "Command copied",
+  "goSetupInvalid": "Only your four rows at the bottom take pieces."
 }

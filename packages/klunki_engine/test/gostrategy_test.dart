@@ -64,6 +64,66 @@ void main() {
         expect(GoStrategyGame.homeSquares(p).where(GoStrategyGame.isLake), isEmpty);
       }
     });
+
+    // KLD-081: the setup editor works on squares; the engine maps them.
+    test('setupIndexOf inverts setupSquare; isHome only on the own four rows', () {
+      for (final p in Player.values) {
+        for (var i = 0; i < 40; i++) {
+          expect(GoStrategyGame.setupIndexOf(p, GoStrategyGame.setupSquare(p, i)), i);
+        }
+      }
+      expect([for (var s = 0; s < 100; s++) if (GoStrategyGame.isHome(a, s)) s], [for (var s = 60; s < 100; s++) s]);
+      expect([for (var s = 0; s < 100; s++) if (GoStrategyGame.isHome(b, s)) s], [for (var s = 0; s < 40; s++) s]);
+      expect(GoStrategyGame.setupIndexOf(a, 59), isNull);
+      expect(GoStrategyGame.setupIndexOf(b, 40), isNull);
+      expect(GoStrategyGame.setupIndexOf(a, 100), isNull);
+      expect(GoStrategyGame.setupIndexOf(b, -1), isNull);
+    });
+
+    test('setupFromSquares: the piece placed on a square stands on that square', () {
+      for (final p in Player.values) {
+        final placement = GoStrategyGame.setupToSquares(p, GoStrategyGame.randomSetup(4));
+        // A recognisable arrangement: flag in the own back-left corner (as
+        // the owner sees it), a bomb next to it, a scout on the front right.
+        final corner = p == a ? sq(9, 0) : sq(0, 9);
+        final beside = p == a ? sq(9, 1) : sq(0, 8);
+        final front = p == a ? sq(6, 9) : sq(3, 0);
+        void swap(int x, int y) {
+          final t = placement[x]!;
+          placement[x] = placement[y]!;
+          placement[y] = t;
+        }
+
+        swap(corner, placement.entries.firstWhere((e) => e.value == GoPiece.flag).key);
+        if (placement[beside] != GoPiece.bomb) {
+          swap(beside, placement.entries.firstWhere((e) => e.value == GoPiece.bomb && e.key != beside).key);
+        }
+        if (placement[front] != GoPiece.scout) {
+          swap(front, placement.entries.firstWhere((e) => e.value == GoPiece.scout).key);
+        }
+        final list = GoStrategyGame.setupFromSquares(p, placement);
+        expect(GoStrategyGame.setupToSquares(p, list), placement);
+        final g = GoStrategyGame();
+        if (p == b) g.applyMove({'action': 'autosetup', 'seed': 1});
+        expect(g.applyMove(GoStrategyGame.setupMove(list)), isNotNull);
+        for (final e in placement.entries) {
+          expect(g.board[e.key], GoCell(owner: p, piece: e.value), reason: '${p.name} square ${e.key}');
+        }
+        expect(g.board[corner].piece, GoPiece.flag);
+        expect(g.board[beside].piece, GoPiece.bomb);
+        expect(g.board[front].piece, GoPiece.scout);
+      }
+    });
+
+    test('setupFromSquares rejects squares outside the home rows and incomplete placements', () {
+      final full = GoStrategyGame.setupToSquares(a, GoStrategyGame.randomSetup(2));
+      expect(() => GoStrategyGame.setupFromSquares(b, full), throwsArgumentError);
+      expect(() => GoStrategyGame.setupFromSquares(a, {...full}..remove(60)), throwsArgumentError);
+      expect(() => GoStrategyGame.setupFromSquares(a, {...full, 50: GoPiece.scout}), throwsArgumentError);
+      // The wire format is unchanged: setup order, 40 ids.
+      expect(GoStrategyGame.setupMove(GoStrategyGame.setupFromSquares(a, full)),
+          GoStrategyGame.setupMove(GoStrategyGame.randomSetup(2)));
+    });
   });
 
   group('setup', () {
@@ -318,6 +378,25 @@ void main() {
   });
 
   group('views', () {
+    // KLD-081: attacks onto hidden enemies are targets, also on the remote
+    // read-only view (where the enemy's kind is unknown).
+    test('targetsFrom includes adjacent hidden enemies, on the game and on the view', () {
+      final g = pos({
+        sq(6, 5): (a, GoPiece.captain),
+        sq(5, 5): (b, GoPiece.lieutenant),
+        sq(6, 4): (b, GoPiece.bomb),
+        sq(9, 0): (a, GoPiece.scout),
+        sq(2, 0): (b, GoPiece.flag),
+      });
+      expect(g.viewFor(a)[sq(5, 5)].hidden, isTrue);
+      expect(g.targetsFrom(sq(6, 5)).toSet(), {sq(5, 5), sq(6, 4), sq(7, 5), sq(6, 6)});
+      expect(g.targetsFrom(sq(9, 0)), contains(sq(2, 0)));
+      final v = const GoStrategyRedaction().fromView(g.viewJson(a)) as GoStrategyGame;
+      expect(v.targetsFrom(sq(6, 5)).toSet(), {sq(5, 5), sq(6, 4), sq(7, 5), sq(6, 6)});
+      expect(v.targetsFrom(sq(9, 0)), contains(sq(2, 0)));
+      expect(v.legalMoves, anyElement(equals(mv(sq(6, 5), sq(5, 5)))));
+    });
+
     test('viewFor hides unrevealed enemy pieces; board shows everything', () {
       final g = GoStrategyGame()
         ..applyMove({'action': 'autosetup', 'seed': 1})

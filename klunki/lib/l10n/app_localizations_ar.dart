@@ -974,11 +974,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get goSetupHint => 'المس قطعتين لتبديلهما، ثم «تم».';
+  String get goSetupHint =>
+      'المس قطعتين أو اسحب قطعة إلى مربع آخر في صفوفك الأربعة لتبديلهما، ثم «تم».';
 
   @override
   String goSetupSelected(String piece) {
-    return 'تم اختيار $piece – المس قطعة ثانية للتبديل.';
+    return 'تم اختيار $piece – المس مربعًا آخر في صفوفك الأربعة للتبديل.';
   }
 
   @override
@@ -1584,4 +1585,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loopbackHowCopied => 'تم نسخ الأمر';
+
+  @override
+  String get goSetupInvalid => 'صفوفك الأربعة في الأسفل فقط تقبل القطع.';
 }

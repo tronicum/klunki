@@ -241,8 +241,8 @@
   "goPieceFlag": "军旗",
   "goPieceRank": "{piece}（{rank}）",
   "goSetupTitle": "布阵（{player}）",
-  "goSetupHint": "点两个棋子即可交换，然后点“完成”。",
-  "goSetupSelected": "已选{piece}——再点一个棋子来交换。",
+  "goSetupHint": "点两个棋子，或把一个棋子拖到你四行中的另一格，即可交换，然后点“完成”。",
+  "goSetupSelected": "已选{piece}——再点你四行中的另一格来交换。",
   "goSetupShuffle": "随机重排",
   "goSetupDone": "完成",
   "goSetupFirst": "{player}先布阵——你可以先做准备。",
@@ -412,5 +412,6 @@
   "loopbackHowLinuxSettings": "或 设置 › 网络 › Wi-Fi › 详细信息。如果 Avahi 正在运行，.local 名称为 <主机名>.local。",
   "loopbackHowRelay": "提示：“{command}”控制台启动时会显示这些地址。",
   "loopbackHowCopy": "复制命令",
-  "loopbackHowCopied": "命令已复制"
+  "loopbackHowCopied": "命令已复制",
+  "goSetupInvalid": "只有你下方的四行可以放棋子。"
 }

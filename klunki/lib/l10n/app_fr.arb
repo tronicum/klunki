@@ -241,8 +241,8 @@
   "goPieceFlag": "Drapeau",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "Place ton armée ({player})",
-  "goSetupHint": "Touche deux pièces pour les échanger, puis « Terminé ».",
-  "goSetupSelected": "{piece} choisi – touche une deuxième pièce pour échanger.",
+  "goSetupHint": "Touche deux pièces ou fais-en glisser une sur une autre case de tes quatre rangées pour les échanger. Puis « Terminé ».",
+  "goSetupSelected": "{piece} choisi – touche une autre case de tes quatre rangées pour échanger.",
   "goSetupShuffle": "Mélanger",
   "goSetupDone": "Terminé",
   "goSetupFirst": "{player} se place en premier – tu peux déjà préparer.",
@@ -412,5 +412,6 @@
   "loopbackHowLinuxSettings": "Ou Paramètres › Réseau › Wi-Fi › détails. Le nom .local est <nom d’hôte>.local si Avahi est actif.",
   "loopbackHowRelay": "Astuce : la console de « {command} » affiche ces adresses au démarrage.",
   "loopbackHowCopy": "Copier la commande",
-  "loopbackHowCopied": "Commande copiée"
+  "loopbackHowCopied": "Commande copiée",
+  "goSetupInvalid": "Seules tes quatre rangées du bas acceptent des pièces."
 }

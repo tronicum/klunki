@@ -24,12 +24,14 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/klunki_net.dart' show Verification;
 
 import '../../l10n/l10n_test_utils.dart';
+import 'gostrategy_setup_utils.dart';
 
 const _hostKey = Key('device-host');
 const _guestKey = Key('device-guest');
 const _ping = Duration(milliseconds: 100);
-// Long: real-time keepalive timeouts must not fire during long fake-async pumps (KLD-070).
-const _timeout = Duration(seconds: 10);
+// Long: real-time keepalive timeouts must not fire during long fake-async pumps (KLD-070;
+// 30 s since KLD-081: arranging two setups by taps under the load of the full suite).
+const _timeout = Duration(seconds: 30);
 
 Finder _on(Key device, Finder f) => find.descendant(of: find.byKey(device), matching: f);
 Finder _cell(Key device, int sq) => _on(device, find.byKey(Key('go-cell-$sq')));
@@ -101,6 +103,25 @@ void main() {
     expect(tester.widget<ButtonStyleButton>(_on(_guestKey, find.byKey(const Key('go-done')))).onPressed, isNull);
     await _tap(tester, _on(_guestKey, find.byKey(const Key('go-shuffle'))));
 
+    // KLD-081: both arrange a recognisable setup on the board editor (the
+    // guest while X still arranges); remember what is shown where.
+    final devices = {Player.a: _hostKey, Player.b: _guestKey};
+    final setupShown = <Player, Map<int, GoPiece>>{};
+    final setupPos = <Player, Map<int, (int, int)>>{};
+    for (final p in Player.values) {
+      Finder cellOn(int sq) => _cell(devices[p]!, sq);
+      // Lets the real sockets run between the taps (keepalive, KLD-070).
+      await arrangeMarks(tester, p, cellOn, (f) async {
+        await _tap(tester, f);
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 5)));
+      });
+      setupShown[p] = shownPieces(tester, p, cellOn);
+      setupPos[p] = displayed(tester, cellOn);
+      final m = markSquares(p);
+      expect(setupPos[p]![m.flag], (9, 0), reason: '${p.name}: flag in the own bottom-left corner');
+      expect(setupPos[p]![m.scout], (6, 9));
+    }
+
     await _tap(tester, _on(_hostKey, find.byKey(const Key('go-done'))));
     await _until(tester, () => _controller(tester, _guestKey).moves.length == 1, 'guest receives X setup');
     expect(_on(_hostKey, find.text('Warte, bis Ben (O) aufgestellt hat …')), findsOneWidget);
@@ -113,6 +134,19 @@ void main() {
     }
     expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
     expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
+
+    // KLD-081: on each device every piece stands on the square and at the
+    // displayed place the editor showed; the host's engine agrees.
+    final truth = (_controller(tester, _hostKey).game as GoStrategyGame).board;
+    for (final p in Player.values) {
+      Finder cellOn(int sq) => _cell(devices[p]!, sq);
+      expect(displayed(tester, cellOn), setupPos[p], reason: '${p.name}: same squares at the same places');
+      expect(shownPieces(tester, p, cellOn), setupShown[p], reason: '${p.name}: every piece on its square');
+      for (final e in setupShown[p]!.entries) {
+        expect(truth[e.key], GoCell(owner: p, piece: e.value), reason: '${p.name} square ${e.key}');
+      }
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 5))); // keepalive
+    }
 
     // Orientation: each device has its own army at the bottom.
     expect(tester.getCenter(_cell(_hostKey, 99)).dy, greaterThan(tester.getCenter(_cell(_hostKey, 0)).dy));

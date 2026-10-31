@@ -241,8 +241,8 @@
   "goPieceFlag": "Bandera",
   "goPieceRank": "{piece} ({rank})",
   "goSetupTitle": "Coloca tu ejército ({player})",
-  "goSetupHint": "Toca dos piezas para intercambiarlas y luego «Listo».",
-  "goSetupSelected": "{piece} elegido: toca otra pieza para intercambiar.",
+  "goSetupHint": "Toca dos piezas o arrastra una a otra casilla de tus cuatro filas para intercambiarlas. Luego «Listo».",
+  "goSetupSelected": "{piece} elegido: toca otra casilla de tus cuatro filas para intercambiar.",
   "goSetupShuffle": "Mezclar",
   "goSetupDone": "Listo",
   "goSetupFirst": "{player} coloca primero; mientras tanto puedes preparar.",
@@ -412,5 +412,6 @@
   "loopbackHowLinuxSettings": "O Configuración › Red › Wi-Fi › detalles. El nombre .local es <nombre de host>.local si Avahi está activo.",
   "loopbackHowRelay": "Consejo: la consola de «{command}» muestra estas direcciones al arrancar.",
   "loopbackHowCopy": "Copiar comando",
-  "loopbackHowCopied": "Comando copiado"
+  "loopbackHowCopied": "Comando copiado",
+  "goSetupInvalid": "Solo tus cuatro filas de abajo admiten piezas."
 }
