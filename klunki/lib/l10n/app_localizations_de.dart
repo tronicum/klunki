@@ -737,6 +737,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairingReconnect => 'Neu verbinden';
 
   @override
+  String get networkVerificationFailed =>
+      'Spielverlauf konnte nicht bestätigt werden';
+
+  @override
   String get pairingReconnectFailed =>
       'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?';
 

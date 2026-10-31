@@ -11,6 +11,8 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
 import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
+import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
+import 'package:klunki/ui/games/schiffe_screen.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -164,7 +166,10 @@ void main() {
       await tester.tap(_on(mover, find.byKey(const Key('qt-stat-ps'))));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1)); // reveal animation
-      await tester.tap(_on(mover, find.byKey(const Key('qt-continue'))));
+      // The host previews the trick and submits on "Weiter"; the guest holds
+      // no deal (KLD-064), so its pick goes out at once and the accepted
+      // event reveals the trick.
+      if (mover == _hostKey) await tester.tap(_on(mover, find.byKey(const Key('qt-continue'))));
       await pumpUntil(
           tester,
           () =>
@@ -177,13 +182,67 @@ void main() {
         expect(cover(d), findsNothing, reason: 'round $round');
         expect(_controller(tester, d).needsHandover, isFalse);
       }
-      // The other device may be showing the trick reveal; dismiss it.
-      final reveal = _on(other, find.byKey(const Key('qt-continue')));
-      if (reveal.evaluate().isNotEmpty) {
-        await tester.pump(const Duration(seconds: 1));
-        await tester.tap(reveal);
-        await tester.pump();
+      // Devices may be showing the trick reveal; dismiss it.
+      for (final d in [mover, other]) {
+        final reveal = _on(d, find.byKey(const Key('qt-continue')));
+        if (reveal.evaluate().isNotEmpty) {
+          await tester.pump(const Duration(seconds: 1));
+          await tester.tap(reveal);
+          await tester.pump();
+        }
       }
     }
+  }, timeout: _timeout);
+
+  testWidgets('Schiffe over the network: the guest renders its board from the redacted view (KLD-064)',
+      (tester) async {
+    await _connect(tester, 'schiffe', SchiffeScreen);
+    SvLook look(Key d, String grid, int r, int c) =>
+        tester.widget<SchiffeCellView>(_on(d, find.byKey(Key('sv-$grid-$r-$c')))).look;
+
+    await tester.pump(const Duration(seconds: 1)); // route transitions
+    // X (host) places its fleet at random, then O (guest).
+    await tester.tap(_on(_hostKey, find.byKey(const Key('sv-random'))));
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 1, what: 'X fleet on the guest');
+    await tester.pump();
+    await tester.tap(_on(_guestKey, find.byKey(const Key('sv-random'))));
+    await pumpUntil(tester, () => _controller(tester, _hostKey).moves.length == 2, what: 'O fleet on the host');
+    await tester.pump();
+
+    final guestC = _controller(tester, _guestKey);
+    expect(guestC.transport.fullInformation, isFalse);
+    expect(guestC.game, isA<SchiffeView>(), reason: 'the guest holds a view, not the engine');
+    final truth = _controller(tester, _hostKey).game as SchiffeGame;
+    expect(guestC.moves.first.move, {'action': 'autoplace'}, reason: "X's seed never reaches the guest");
+
+    // The guest's own grid shows its own fleet; its target grid shows no
+    // trace of X's fleet.
+    final mine = truth.ownGrid(Player.b);
+    for (var r = 0; r < 10; r++) {
+      for (var c = 0; c < 10; c++) {
+        expect(look(_guestKey, 'own', r, c), mine[r][c] == SchiffeCell.ship ? SvLook.ship : SvLook.water);
+        expect(look(_guestKey, 'target', r, c), SvLook.water);
+      }
+    }
+
+    // X fires into the water of O's ocean: the guest's own grid shows the miss.
+    final water = [
+      for (var r = 0; r < 10; r++)
+        for (var c = 0; c < 10; c++)
+          if (mine[r][c] == SchiffeCell.empty) (r, c)
+    ].first;
+    await tester.tap(_on(_hostKey, find.byKey(Key('sv-target-${water.$1}-${water.$2}'))));
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 3, what: 'X shot on the guest');
+    await tester.pump();
+    expect(look(_guestKey, 'own', water.$1, water.$2), SvLook.miss);
+
+    // O fires at one of X's ship squares: the hit comes from the host's event.
+    final hostShip = truth.placements(Player.a).first.cells.first;
+    await tester.tap(_on(_guestKey, find.byKey(Key('sv-target-${hostShip[0]}-${hostShip[1]}'))));
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 4, what: 'O shot');
+    await tester.pump();
+    expect(look(_guestKey, 'target', hostShip[0], hostShip[1]), anyOf(SvLook.hit, SvLook.sunk));
+    expect((_controller(tester, _guestKey).moves.last.event.payload as Map)['result'], isNot('miss'));
+    expect(_on(_guestKey, find.byKey(const Key('net-verification-failed'))), findsNothing);
   }, timeout: _timeout);
 }

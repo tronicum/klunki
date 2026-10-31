@@ -142,14 +142,14 @@ machine translations under the files' `@@x-review` note).
 - The "keep or reshuffle" setup step is not built: undo (`undo` in the console) and `setup <other seed>` does the same.
 
 ## Network
-- Registered in `gameSpecs` as `GameSpec('gostrategy', 'GoStrategy', …, hiddenInformation: true, appReady: false)`.
-  The protocol is unchanged: `welcome` carries `GameConfig` (`{game: 'gostrategy', seed}`, the seed is unused
-  by this game) plus the move log; both sides replay it.
-- **Hidden information travels like in Schiffe versenken: it is not hidden on the wire.** Each side's setup is a
-  move in the shared log (`autosetup` seed or the full `setup` list), so both devices hold the complete
-  board, and a modified client could read the opponent's ranks. The UI/CLI only render `viewFor(me)`.
-  The CLI does not narrate the opponent's setup seed. Real secrecy would need per-player views or a
-  commit-reveal scheme (post-PoC, see `PROTOCOL.md` "Known limitations").
+- Registered in `gameSpecs` as `GameSpec('gostrategy', 'GoStrategy', …, hiddenInformation: true, appReady: false,
+  redaction: const GoStrategyRedaction())`.
+- **Since KLD-064 the host's setup never reaches the guest.** The guest gets `{action: setup}` instead of the
+  host's setup move, a commitment to it, and its own `GoStrategyView` (own pieces, owners, revealed kinds) after
+  every move; the host reveals the setup at the end and the guest replays the game to check it (see
+  `PROTOCOL.md`, "Hidden information", and `docs/tasks/KLD-064-hidden-info-secrecy.md`). The host, as
+  referee, still sees the guest's setup. KLD-058b builds the screen on `viewFor(me)` / `targetsFrom`, which a
+  `GoStrategyView` answers like the engine.
 
 ## The app until 058b
 `GameSpec.appReady == false` keeps GoStrategy out of the app: the menu, the pairing host list and the relay

@@ -63,7 +63,7 @@ class RawPeer {
 
   void line(String raw) => socket.writeln(raw);
   void send(String type, [Map<String, dynamic> fields = const {}]) =>
-      line(jsonEncode({'type': type, 'v': 1, ...fields}));
+      line(jsonEncode({'type': type, 'v': 2, ...fields}));
 
   /// Next message of [type] after the previous [next] result (others skipped).
   Future<Map<String, dynamic>> next(String type) async {

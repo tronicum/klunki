@@ -182,6 +182,7 @@
   "pairingWaitForRejoin": "{reason}. منتظر بازگشت او…",
   "pairingReconnecting": "اتصال دوباره…",
   "pairingReconnect": "اتصال دوباره",
+  "networkVerificationFailed": "تأیید روند بازی ممکن نشد",
   "pairingReconnectFailed": "اتصال دوباره ناموفق بود. آیا میزبان هنوز در بازی است؟",
   "pairingBrowserJoin": "پیوستن از مرورگر (نشانی را بنویس یا پیوند را جای‌گذاری کن):",
   "pairingCopyLink": "رونوشت پیوند",

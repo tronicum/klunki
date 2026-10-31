@@ -28,6 +28,9 @@ class HotSeatTransport implements GameTransport {
   Game get game => _game;
 
   @override
+  bool get fullInformation => true;
+
+  @override
   List<AcceptedMove> get moves => List.unmodifiable(_moves);
 
   @override

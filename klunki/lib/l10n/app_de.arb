@@ -1139,6 +1139,10 @@
   "@pairingReconnect": {
     "description": "Guest's button in the connection banner."
   },
+  "networkVerificationFailed": "Spielverlauf konnte nicht bestätigt werden",
+  "@networkVerificationFailed": {
+    "description": "Guest's banner after a hidden-information network game (KLD-064) when the host's revealed secrets do not match its commitments or the replayed game differs from what the host reported."
+  },
   "pairingReconnectFailed": "Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?",
   "@pairingReconnectFailed": {
     "description": "Error below the connection banner when reconnecting failed."

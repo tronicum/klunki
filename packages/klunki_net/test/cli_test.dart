@@ -166,6 +166,25 @@ void main() {
     expect(await guest.exitCode, 0);
   });
 
+  test('a full Quartett game over the CLI: the guest verifies the host\'s deal at the end (KLD-064)', () async {
+    final (host, guest) = await hostAndJoin(['quartett-trumpf', '--seed', '42']);
+    final sw = Stopwatch()..start();
+    while (!guest.text.contains('Game over.')) {
+      expect(sw.elapsed, lessThan(const Duration(seconds: 60)));
+      for (final t in [host, guest]) {
+        if (t.text.indexOf('Your turn', t._cursor) >= 0) {
+          await t.waitFor(RegExp(r'Your turn[^\n]*\n> ', multiLine: true));
+          t.type('1');
+        }
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+    }
+    await guest.waitFor("Verified: the host's hidden data matches its commitments");
+    expect(guest.text, isNot(contains('Could not verify')));
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
   test('Schiffe: the opponent\'s ship placements are not narrated', () async {
     final (host, guest) = await hostAndJoin(['schiffe']);
     await host.waitFor('> ');

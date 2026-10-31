@@ -182,6 +182,7 @@
   "pairingWaitForRejoin": "{reason}. En attente de son retour…",
   "pairingReconnecting": "Reconnexion…",
   "pairingReconnect": "Se reconnecter",
+  "networkVerificationFailed": "Le déroulement de la partie n'a pas pu être confirmé",
   "pairingReconnectFailed": "Échec de la reconnexion. L’hôte est-il encore dans la partie ?",
   "pairingBrowserJoin": "Rejoindre depuis un navigateur (saisir l’adresse ou coller le lien) :",
   "pairingCopyLink": "Copier le lien",

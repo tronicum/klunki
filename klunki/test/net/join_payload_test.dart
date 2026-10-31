@@ -13,14 +13,14 @@ void main() {
   group('WebSocket port w= (KLD-054)', () {
     test('is formatted and parsed', () {
       const p = JoinPayload(host: '192.168.1.20', name: 'iPad', gameId: 'muehle', wsPort: 4748);
-      expect(p.format(), 'klunki://join?h=192.168.1.20&p=4747&v=1&n=iPad&g=muehle&w=4748');
+      expect(p.format(), 'klunki://join?h=192.168.1.20&p=4747&v=2&n=iPad&g=muehle&w=4748');
       expect(JoinPayload.tryParse(p.format()), p);
       expect(p.webSocketUri.toString(), 'ws://192.168.1.20:4748');
       expect(JoinPayload.fromHostInfo(p.toHostInfo()), p);
     });
 
     test('is optional (old payloads still parse, no WebSocket URI)', () {
-      final p = JoinPayload.tryParse('klunki://join?h=10.1.2.3&p=4747&v=1')!;
+      final p = JoinPayload.tryParse('klunki://join?h=10.1.2.3&p=4747&v=2')!;
       expect(p.wsPort, isNull);
       expect(p.webSocketUri, isNull);
       expect(JoinPayload.tryParse('klunki://join?h=10.1.2.3&w=')!.wsPort, isNull);
@@ -36,12 +36,12 @@ void main() {
   group('format', () {
     test('canonical URI with all fields', () {
       const p = JoinPayload(host: '192.168.1.20', port: 47474, name: 'Stefans iPhone', gameId: 'muehle');
-      expect(p.format(), 'klunki://join?h=192.168.1.20&p=47474&v=1&n=Stefans+iPhone&g=muehle');
+      expect(p.format(), 'klunki://join?h=192.168.1.20&p=47474&v=2&n=Stefans+iPhone&g=muehle');
       expect(p.address, '192.168.1.20:47474');
     });
 
     test('omits empty optional fields', () {
-      expect(const JoinPayload(host: '10.0.0.5', name: '', gameId: '').format(), 'klunki://join?h=10.0.0.5&p=4747&v=1');
+      expect(const JoinPayload(host: '10.0.0.5', name: '', gameId: '').format(), 'klunki://join?h=10.0.0.5&p=4747&v=2');
     });
   });
 

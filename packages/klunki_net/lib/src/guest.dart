@@ -10,9 +10,17 @@ import 'events.dart';
 import 'names.dart';
 import 'relay/relay_client.dart';
 import 'relay/relay_protocol.dart';
+import 'secrecy/secrecy.dart';
 
 /// The joining side: runs its own engine but applies only moves the host
 /// accepted, in log order.
+///
+/// Hidden-information games (KLD-064, [redacted]): the guest runs no engine.
+/// It holds only its own view ([game] is a read-only view object such as a
+/// `SchiffeView`), redacted moves and events, and the host's commitments.
+/// When the game is over the host reveals its secrets and the guest replays
+/// the whole game to check it ([verification], [GameVerified] /
+/// [VerificationFailed]).
 ///
 /// Two transports, same protocol: [connect] (TCP, NDJSON; needs `dart:io`)
 /// and [connectWebSocket] (`ws://`, one message per text frame; works on the
@@ -48,6 +56,15 @@ class KlunkiGuest {
   String? _hostName;
   Connection? _conn;
   bool _connected = false; // handshake done on the current connection
+
+  // Hidden-information games only (KLD-064).
+  bool _redacted = false;
+  final List<RedactedStep> _steps = []; // parallel to _log
+  String _startViewHash = '';
+  String? _seedCommit;
+  final Map<int, Map<String, dynamic>> _sent = {}; // own moves by index, to check the echo
+  Verification _verification = Verification.notNeeded;
+  String? _verificationError;
 
   KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout,
       {this.roomCode})
@@ -138,13 +155,35 @@ class KlunkiGuest {
   Player get me => _me;
 
   /// The local engine. A fresh instance after a reconnect ([Resynced]).
+  /// For a [redacted] game: this player's read-only view, a fresh instance
+  /// after every move.
   Game get game => _game;
+
+  /// The accepted moves (redacted for a [redacted] game).
   List<Map<String, dynamic>> get moves => [for (final a in _log) a.move];
+
+  /// The accepted log with each move's event (redacted for a [redacted] game).
+  List<MoveAccepted> get entries => List.unmodifiable(_log);
+
+  /// True for a hidden-information game: the host sends only what this
+  /// player may see (KLD-064).
+  bool get redacted => _redacted;
+
+  /// State of the end-of-game check (always [Verification.notNeeded] for a
+  /// game without hidden information).
+  Verification get verification => _verification;
+
+  /// Why the check failed (English), when [verification] is
+  /// [Verification.failed].
+  String? get verificationError => _verificationError;
   String? get token => _token;
   /// The host's name from `hello` / `welcome`, sanitised
   /// ([sanitizePlayerName]; the host's mark if empty or missing).
   String? get hostName => _hostName;
   bool get connected => _connected;
+
+  /// The handshake / keepalive timeout this guest was created with.
+  Duration get timeout => _timeout;
 
   /// All session events, including [MoveAccepted] for both players' moves.
   Stream<NetEvent> get events => _events.stream;
@@ -160,6 +199,7 @@ class KlunkiGuest {
     final index = _log.length;
     final c = Completer<String?>();
     _waiting.putIfAbsent(index, () => []).add(c);
+    if (_redacted) _sent[index] = jsonSafe(move) as Map<String, dynamic>;
     conn.send('move', {'index': index, 'move': move});
     return c.future;
   }
@@ -227,7 +267,9 @@ class KlunkiGuest {
         _connected = true;
         welcome.complete();
       case 'accepted' when _connected:
-        _onAccepted(conn, m);
+        _redacted ? _onRedactedAccepted(conn, m) : _onAccepted(conn, m);
+      case 'reveal' when _connected && _redacted:
+        _onReveal(m);
       case 'rejected' when _connected:
         final index = m['index'] as int, reason = m['reason'] as String? ?? 'rejected';
         _complete(index, reason);
@@ -241,34 +283,29 @@ class KlunkiGuest {
   String? _onWelcome(Map<String, dynamic> m) {
     final config = GameConfig.fromJson(m['config'] as Map<String, dynamic>);
     final me = playerFromName(m['you']);
-    final snapshot = [for (final x in m['moves'] as List) x as Map<String, dynamic>];
     final hostName = m['host'];
     if (hostName is String) _hostName = sanitizePlayerName(hostName);
     _token = m['token'] as String? ?? _token;
     if (_joined && (config != _config || me != _me)) return 'reconnected to a different game';
-    if (specById(config.gameId) == null) return 'unknown game "${config.gameId}"';
-    // The host only ever extends its log, so ours must be a prefix of it.
-    if (snapshot.length < _log.length ||
-        Iterable.generate(_log.length).any((i) => jsonEncode(snapshot[i]) != jsonEncode(_log[i].move))) {
-      return 'diverged: local move log is not a prefix of the snapshot';
+    final spec = specById(config.gameId);
+    if (spec == null) return 'unknown game "${config.gameId}"';
+    final redaction = spec.redaction;
+    final redacted = m['redacted'] == true;
+    if (redacted != (redaction != null)) {
+      return redacted ? 'host redacted a game without hidden information' : 'host did not redact a hidden game';
     }
-    final game = createGame(config);
-    final entries = <MoveAccepted>[];
-    for (final move in snapshot) {
-      final by = game.currentPlayer;
-      if (game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>) == null) {
-        return 'diverged: snapshot does not replay';
-      }
-      entries.add(MoveAccepted(entries.length, by, move));
-    }
+    final (game, entries, error) = redaction == null ? _replaySnapshot(m, config) : _loadRedacted(m, redaction, me);
+    if (error != null) return error;
     final known = _joined ? _log.length : 0;
     _config = config;
     _me = me;
+    _redacted = redacted;
+    if (_verification == Verification.notNeeded && redacted) _verification = Verification.pending;
     if (_hostName == null || _hostName!.isEmpty) _hostName = markOf(otherPlayer(me));
-    _game = game;
+    _game = game!;
     _log
       ..clear()
-      ..addAll(entries);
+      ..addAll(entries!);
     if (_joined) {
       for (final e in entries.skip(known)) {
         _complete(e.index, e.player == _me ? null : 'not your turn');
@@ -280,22 +317,158 @@ class KlunkiGuest {
     return null;
   }
 
+  /// A full snapshot (`moves`): replay it on a fresh engine.
+  (Game?, List<MoveAccepted>?, String?) _replaySnapshot(Map<String, dynamic> m, GameConfig config) {
+    final snapshot = [for (final x in m['moves'] as List) x as Map<String, dynamic>];
+    // The host only ever extends its log, so ours must be a prefix of it.
+    if (snapshot.length < _log.length ||
+        Iterable.generate(_log.length).any((i) => jsonEncode(snapshot[i]) != jsonEncode(_log[i].move))) {
+      return (null, null, 'diverged: local move log is not a prefix of the snapshot');
+    }
+    final game = createGame(config);
+    final entries = <MoveAccepted>[];
+    for (final move in snapshot) {
+      final by = game.currentPlayer;
+      final event = game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>);
+      if (event == null) return (null, null, 'diverged: snapshot does not replay');
+      entries.add(MoveAccepted(entries.length, by, move, event: event));
+    }
+    return (game, entries, null);
+  }
+
+  /// A redacted snapshot (`log`, `view`, `start`, `seedCommit`): check it
+  /// against what we already know and load the view.
+  (Game?, List<MoveAccepted>?, String?) _loadRedacted(Map<String, dynamic> m, Redaction redaction, Player me) {
+    final steps = [for (final x in m['log'] as List) RedactedStep.fromJson(x as Map<String, dynamic>)];
+    final start = m['start'];
+    final seedCommit = m['seedCommit'];
+    final view = m['view'];
+    if (start is! String || view is! Map<String, dynamic>) throw const ProtocolException('welcome needs "start" and "view"');
+    if (redaction.secretSeed && seedCommit is! String) throw const ProtocolException('welcome needs "seedCommit"');
+    if (_joined) {
+      if (start != _startViewHash || seedCommit != _seedCommit) return (null, null, 'diverged: the game start changed');
+      if (steps.length < _steps.length ||
+          Iterable.generate(_steps.length).any((i) =>
+              canonicalJson(steps[i].toJson()) != canonicalJson(_steps[i].toJson()))) {
+        return (null, null, 'diverged: local move log is not a prefix of the snapshot');
+      }
+    }
+    if (viewHash(view) != (steps.isEmpty ? start : steps.last.viewHash)) {
+      return (null, null, 'diverged: the view does not match the log');
+    }
+    if (view['viewer'] != me.name) return (null, null, 'diverged: the view is not ours');
+    final Game game;
+    try {
+      game = redaction.fromView(view);
+    } on BadViewException catch (e) {
+      return (null, null, 'bad view: ${e.message}');
+    }
+    _steps
+      ..clear()
+      ..addAll(steps);
+    _startViewHash = start;
+    _seedCommit = seedCommit as String?;
+    return (
+      game,
+      [
+        for (var i = 0; i < steps.length; i++)
+          MoveAccepted(i, steps[i].player, steps[i].move, event: eventFromJson(steps[i].event)),
+      ],
+      null
+    );
+  }
+
   void _onAccepted(Connection conn, Map<String, dynamic> m) {
     final index = m['index'] as int;
     final player = playerFromName(m['player']);
     final move = m['move'] as Map<String, dynamic>;
     if (index < _log.length) return; // already applied (duplicate)
     if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
-    if (player != _game.currentPlayer || _game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>) == null) {
-      const error = 'diverged: accepted move does not apply locally';
-      conn.fail(error);
-      _emit(const NetError(error));
-      return;
-    }
-    final entry = MoveAccepted(index, player, move);
+    final event = player == _game.currentPlayer
+        ? _game.applyMove(jsonDecode(jsonEncode(move)) as Map<String, dynamic>)
+        : null;
+    if (event == null) return _diverged(conn, 'diverged: accepted move does not apply locally');
+    final entry = MoveAccepted(index, player, move, event: event);
     _log.add(entry);
     if (player == _me) _complete(index, null);
     _emit(entry);
+  }
+
+  /// `accepted` of a hidden-information game: a redacted move, its event,
+  /// our new view and (for a secret of the host) a commitment.
+  void _onRedactedAccepted(Connection conn, Map<String, dynamic> m) {
+    final index = m['index'] as int;
+    final player = playerFromName(m['player']);
+    final move = m['move'] as Map<String, dynamic>;
+    final event = m['event'] as Map<String, dynamic>;
+    final view = m['view'] as Map<String, dynamic>;
+    final commit = m['commit'];
+    if (commit != null && commit is! String) throw const ProtocolException('"commit" must be a string');
+    if (index < _log.length) return; // already applied (duplicate)
+    if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
+    if (player != _game.currentPlayer) return _diverged(conn, 'diverged: move reported for the wrong player');
+    if (player == _me) {
+      final sent = _sent.remove(index);
+      if (commit != null || (sent != null && canonicalJson(sent) != canonicalJson(move))) {
+        return _diverged(conn, 'diverged: the host changed our move');
+      }
+    }
+    if (view['viewer'] != _me.name) return _diverged(conn, 'diverged: the view is not ours');
+    final Game game;
+    try {
+      game = specById(_config.gameId)!.redaction!.fromView(view);
+    } on BadViewException catch (e) {
+      return _diverged(conn, 'bad view: ${e.message}');
+    }
+    _steps.add(RedactedStep(player, move, event, viewHash(view), commit as String?));
+    _game = game;
+    final entry = MoveAccepted(index, player, move, event: eventFromJson(event));
+    _log.add(entry);
+    if (player == _me) _complete(index, null);
+    _emit(entry);
+  }
+
+  /// `reveal`: the host's secrets after the game. Replays and checks the
+  /// whole game ([verifyRedactedGame]).
+  void _onReveal(Map<String, dynamic> m) {
+    if (!_game.isOver) throw const ProtocolException('reveal before the game is over');
+    String? error;
+    try {
+      final secrets = <int, RevealedMove>{};
+      for (final x in m['secrets'] as List) {
+        final e = x as Map<String, dynamic>;
+        final index = e['index'] as int;
+        if (secrets.containsKey(index)) throw FormatException('move $index revealed twice');
+        secrets[index] = RevealedMove(e['move'] as Map<String, dynamic>, e['salt'] as String);
+      }
+      final secretSeed = specById(_config.gameId)!.redaction!.secretSeed;
+      error = verifyRedactedGame(
+        gameId: _config.gameId,
+        me: _me,
+        seed: secretSeed ? m['seed'] as int : _config.seed,
+        seedSalt: secretSeed ? m['seedSalt'] as String : null,
+        seedCommit: _seedCommit,
+        startViewHash: _startViewHash,
+        steps: _steps,
+        secrets: secrets,
+      );
+    } catch (e) {
+      error = 'malformed reveal: $e';
+    }
+    if (error == null) {
+      _verification = Verification.verified;
+      _verificationError = null;
+      _emit(const GameVerified());
+    } else {
+      _verification = Verification.failed;
+      _verificationError = error;
+      _emit(VerificationFailed(error));
+    }
+  }
+
+  void _diverged(Connection conn, String error) {
+    conn.fail(error);
+    _emit(NetError(error));
   }
 
   void _complete(int index, String? reason) {

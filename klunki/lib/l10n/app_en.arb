@@ -181,6 +181,7 @@
   "pairingWaitForRejoin": "{reason}. Waiting for them to rejoin…",
   "pairingReconnecting": "Reconnecting…",
   "pairingReconnect": "Reconnect",
+  "networkVerificationFailed": "The game record could not be verified",
   "pairingReconnectFailed": "Reconnecting failed. Is the host still in the game?",
   "pairingBrowserJoin": "Join in a browser (type the address or paste the link):",
   "pairingCopyLink": "Copy link",

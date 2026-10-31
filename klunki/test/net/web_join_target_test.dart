@@ -33,11 +33,11 @@ void main() {
     });
 
     test('klunki:// link without w=: 4748 (not the TCP port)', () {
-      expect(WebJoinTarget.tryParse('klunki://join?h=10.0.0.7&p=4747&v=1')!.uri, _ws('10.0.0.7', 4748));
+      expect(WebJoinTarget.tryParse('klunki://join?h=10.0.0.7&p=4747&v=2')!.uri, _ws('10.0.0.7', 4748));
     });
 
     test('klunki:// link with another protocol version is refused', () {
-      expect(WebJoinTarget.tryParse('klunki://join?h=10.0.0.7&v=2&w=4748'), isNull);
+      expect(WebJoinTarget.tryParse('klunki://join?h=10.0.0.7&v=1&w=4748'), isNull);
     });
 
     test('ws:// URL as is (path dropped); without port: 4748', () {

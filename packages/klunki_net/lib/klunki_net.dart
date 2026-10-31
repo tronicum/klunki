@@ -25,7 +25,10 @@ export 'src/events.dart'
         MoveRejected,
         Resynced,
         NetError,
-        NetException;
+        NetException,
+        GameVerified,
+        VerificationFailed,
+        Verification;
 export 'src/guest.dart' show KlunkiGuest;
 export 'src/relay/relay_protocol.dart'
     show

@@ -743,6 +743,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pairingReconnect => 'Reconectar';
 
   @override
+  String get networkVerificationFailed =>
+      'No se pudo confirmar el desarrollo de la partida';
+
+  @override
   String get pairingReconnectFailed =>
       'Error al reconectar. ¿Sigue el anfitrión en la partida?';
 

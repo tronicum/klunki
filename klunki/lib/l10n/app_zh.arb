@@ -182,6 +182,7 @@
   "pairingWaitForRejoin": "{reason}。等待对方重新加入…",
   "pairingReconnecting": "正在重新连接…",
   "pairingReconnect": "重新连接",
+  "networkVerificationFailed": "无法确认对局记录",
   "pairingReconnectFailed": "重新连接失败。主机还在对局中吗？",
   "pairingBrowserJoin": "在浏览器中加入（输入地址或粘贴链接）：",
   "pairingCopyLink": "复制链接",

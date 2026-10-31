@@ -124,6 +124,10 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   late int _seenMoves;
   bool _submitting = false;
 
+  /// Our ask went out without a preview (network guest, KLD-064): show its
+  /// feedback from the accepted event.
+  bool _ownFeedback = false;
+
   GameController get c => widget.controller;
 
   @override
@@ -164,12 +168,16 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
       next = null; // restart or undo
       _submitting = false;
     } else if (moves.length > _seenMoves) {
-      if (_submitting) {
+      if (_submitting && !_ownFeedback) {
         _submitting = false; // our own ask, feedback already set
       } else {
-        // A move not made through this board (network): announce it publicly.
+        // A move not made through this board (network): announce it
+        // publicly; our own ask without a preview: as our own.
+        final own = _ownFeedback;
+        _submitting = false;
+        _ownFeedback = false;
         final m = moves.last;
-        next = _Feedback.fromPayload(m.player, m.event.payload, own: false);
+        next = _Feedback.fromPayload(m.player, m.event.payload, own: own);
       }
     }
     _sync();
@@ -195,9 +203,17 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final game = _game;
     if (game == null) return;
     final move = <String, dynamic>{'action': 'ask', 'card': cardId};
-    final copy = replay(c.config, c.moves.map((m) => m.move));
-    final event = copy?.applyMove(move);
-    if (copy == null || event == null) return;
+    final copy = c.previewCopy();
+    if (copy == null) {
+      // Network guest: the opponent's hand is not on this device. Submit;
+      // the accepted event gives the feedback.
+      setState(() => _feedback = null);
+      _ownFeedback = true;
+      _submit(move);
+      return;
+    }
+    final event = copy.applyMove(move);
+    if (event == null) return;
     final asker = game.currentPlayer;
     final passes = !copy.isOver && copy.currentPlayer != asker;
     if (passes) {
@@ -212,7 +228,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   void _submit(Map<String, dynamic> move) {
     _submitting = true;
     c.submit(move).then((r) {
-      if (!r.isAccepted && mounted) setState(() => _submitting = false);
+      if (!r.isAccepted && mounted) setState(() => _submitting = _ownFeedback = false);
     });
   }
 

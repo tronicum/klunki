@@ -714,6 +714,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingReconnect => '重新连接';
 
   @override
+  String get networkVerificationFailed => '无法确认对局记录';
+
+  @override
   String get pairingReconnectFailed => '重新连接失败。主机还在对局中吗？';
 
   @override

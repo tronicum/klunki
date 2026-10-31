@@ -759,6 +759,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingReconnect => 'إعادة الاتصال';
 
   @override
+  String get networkVerificationFailed => 'تعذّر تأكيد سجل اللعبة';
+
+  @override
   String get pairingReconnectFailed =>
       'فشلت إعادة الاتصال. هل المضيف ما زال في اللعبة؟';
 

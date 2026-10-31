@@ -182,6 +182,7 @@
   "pairingWaitForRejoin": "{reason}. Esperando a que vuelva…",
   "pairingReconnecting": "Reconectando…",
   "pairingReconnect": "Reconectar",
+  "networkVerificationFailed": "No se pudo confirmar el desarrollo de la partida",
   "pairingReconnectFailed": "Error al reconectar. ¿Sigue el anfitrión en la partida?",
   "pairingBrowserJoin": "Unirse desde un navegador (escribe la dirección o pega el enlace):",
   "pairingCopyLink": "Copiar enlace",

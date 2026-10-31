@@ -34,7 +34,7 @@ class RawWsPeer {
       RawWsPeer(await WebSocket.connect(webSocketUri(loopback.address, port).toString()));
 
   void frame(Object raw) => ws.add(raw);
-  void send(String type, [Map<String, dynamic> fields = const {}, int v = 1]) =>
+  void send(String type, [Map<String, dynamic> fields = const {}, int v = 2]) =>
       frame(jsonEncode({'type': type, 'v': v, ...fields}));
 
   Future<Map<String, dynamic>> next(String type) async {
@@ -153,29 +153,29 @@ void main() {
     test('handshake and moves: one JSON message per text frame', () async {
       final host = await startHost(const GameConfig('connect4'));
       final peer = await RawWsPeer.connect(host.wsPort!);
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
-      expect(await peer.next('hello'), {'type': 'hello', 'v': 1, 'role': 'host', 'name': 'Host', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
+      expect(await peer.next('hello'), {'type': 'hello', 'v': 2, 'role': 'host', 'name': 'Host', 'protocol': 2});
       final welcome = await peer.next('welcome');
       expect(welcome['config'], {'game': 'connect4', 'seed': 0});
       expect(welcome['you'], 'b');
       host.submitLocal({'col': 2});
-      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 1, 'index': 0, 'player': 'a', 'move': {'col': 2}});
+      expect(await peer.next('accepted'), {'type': 'accepted', 'v': 2, 'index': 0, 'player': 'a', 'move': {'col': 2}});
       peer.send('move', {'index': 1, 'move': {'col': 9}});
       expect((await peer.next('rejected'))['reason'], 'illegal move');
       await peer.ws.close();
       await host.close();
     });
 
-    test('protocol version mismatch: v != 1 and protocol != 1 are refused', () async {
+    test('protocol version mismatch: an old (v1) guest is refused with a clear error', () async {
       final host = await startHost(const GameConfig('connect4'));
-      final v2 = await RawWsPeer.connect(host.wsPort!);
-      v2.send('hello', {'role': 'guest', 'name': 'Future', 'protocol': 2}, 2);
-      expect((await v2.next('error'))['message'], 'unsupported protocol version 2 (expected 1)');
-      await until(() => v2.closed);
+      final v1 = await RawWsPeer.connect(host.wsPort!);
+      v1.send('hello', {'role': 'guest', 'name': 'Old', 'protocol': 1}, 1);
+      expect((await v1.next('error'))['message'], 'unsupported protocol version 1 (expected 2)');
+      await until(() => v1.closed);
 
       final p2 = await RawWsPeer.connect(host.wsPort!);
-      p2.send('hello', {'role': 'guest', 'name': 'Future', 'protocol': 2});
-      expect((await p2.next('error'))['message'], 'unsupported protocol 2');
+      p2.send('hello', {'role': 'guest', 'name': 'Old', 'protocol': 1});
+      expect((await p2.next('error'))['message'], 'unsupported protocol 1');
       await until(() => p2.closed);
       expect(host.guestConnected, isFalse);
 
@@ -191,10 +191,10 @@ void main() {
       fake.listen((req) async {
         final peer = RawWsPeer(await WebSocketTransformer.upgrade(req));
         await peer.next('hello');
-        peer.send('hello', {'role': 'host', 'name': 'Future', 'protocol': 2}, 2);
+        peer.send('hello', {'role': 'host', 'name': 'Old', 'protocol': 1}, 1);
       });
       await expectLater(joinWs(fake.port),
-          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('unsupported protocol version 2'))));
+          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('unsupported protocol version 1'))));
       await fake.close(force: true);
     });
 
@@ -230,7 +230,7 @@ void main() {
       final events = <NetEvent>[];
       host.events.listen(events.add);
       final peer = await RawWsPeer.connect(host.wsPort!); // never answers ping
-      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 1});
+      peer.send('hello', {'role': 'guest', 'name': 'Raw', 'protocol': 2});
       await peer.next('welcome');
       await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
       expect(events.whereType<PeerDisconnected>().single.timedOut, isTrue);
