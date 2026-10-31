@@ -31,8 +31,11 @@ class Connection {
     required this.onClosed,
   }) {
     _sub = channel.messages.listen(_onLine,
-        onError: (Object e) =>
-            e is MalformedInput ? fail('malformed input (${e.what})') : _finish('socket error: $e'),
+        onError: (Object e) => switch (e) {
+              MalformedInput(:final what) => fail('malformed input ($what)'),
+              NetException(:final message) => _finish(message), // e.g. a relay saying the room is gone
+              _ => _finish('socket error: $e'),
+            },
         onDone: () => _finish('connection closed'));
     _timer = Timer.periodic(pingInterval, (_) => _tick());
   }

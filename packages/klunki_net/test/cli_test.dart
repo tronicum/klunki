@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:klunki_engine/debug.dart';
+import 'package:klunki_net/relay_server.dart';
 import 'package:klunki_net/src/cli/cli.dart';
 import 'package:test/test.dart';
 
@@ -241,6 +242,50 @@ void main() {
     expect(out.toString(), contains('Could not join ws://127.0.0.1:$port'));
   });
 
+  test('relay: two terminals play through a relay room (KLD-057a)', () async {
+    final relay = await RelayServer.start(port: 0, address: InternetAddress.loopbackIPv4);
+    addTearDown(relay.close);
+    final url = 'ws://127.0.0.1:${relay.port}';
+    final host = Terminal('host', ['host', 'connect4', '--relay', url, '--name', 'Ada']);
+    final code = (await host.waitFor(RegExp(r'Room code: ([A-Z0-9]{5})')))[1]!;
+    await host.waitFor('Hosting 4 Gewinnt in relay room $code on $url/relay — waiting for a guest…');
+    await host.waitFor('join --relay $url/relay --room $code');
+    final guest = Terminal('guest', ['join', '--relay', '127.0.0.1:${relay.port}', '--room', code.toLowerCase(), '--name', 'Bea']);
+    await host.waitFor('Bea joined: you are X, Bea is O.');
+    await guest.waitFor("Joined Ada's game: 4 Gewinnt on room $code on $url/relay");
+    await host.waitFor('> ');
+    host.type('3');
+    await guest.waitFor('X drops into column 3');
+    guest.type('4');
+    await host.waitFor('O drops into column 4');
+    guest.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await guest.exitCode, 0);
+    expect(await host.exitCode, 0);
+  });
+
+  test('relay: a wrong room code is reported; the relay command starts and stops', () async {
+    final stop = Completer<void>();
+    final out = StringBuffer();
+    final relayExit = runCli(['relay', '--port', '0'],
+        out: out, bindAddress: InternetAddress.loopbackIPv4, relayStop: stop.future);
+    await until(() => out.toString().contains('Press Ctrl+C to stop.'));
+    final port = RegExp(r'listening on port (\d+): ws://127\.0\.0\.1:\1/relay').firstMatch(out.toString())![1]!;
+    final joinOut = StringBuffer();
+    expect(
+        await runCli(['join', '--relay', 'ws://127.0.0.1:$port', '--room', '22222'],
+            out: joinOut, input: const Stream.empty()),
+        1);
+    expect(joinOut.toString(), contains('Could not join room 22222 on ws://127.0.0.1:$port/relay: relay: no room with code 22222'));
+    stop.complete();
+    expect(await relayExit, 0);
+    expect(out.toString(), contains('Relay stopped.'));
+
+    final missing = StringBuffer();
+    expect(await runCli(['relay', '--port', '0', '--web', '/no/such/dir'], out: missing), 1);
+    expect(missing.toString(), contains('No such directory'));
+  });
+
   test('bad arguments print the usage text and exit 64', () async {
     for (final args in [
       <String>[],
@@ -253,6 +298,16 @@ void main() {
       ['join', 'http://1.2.3.4:4748'],
       ['join', '1.2.3.4', '--ws-port', '1'],
       ['frobnicate'],
+      ['relay', '--port'],
+      ['relay', '--port', 'x'],
+      ['relay', '--frob'],
+      ['host', 'connect4', '--relay', 'ftp://x'],
+      ['host', 'connect4', '--relay', 'ws://1.2.3.4', '--port', '1'],
+      ['host', 'connect4', '--room', 'K7Q2M'],
+      ['join', '--relay', 'ws://1.2.3.4'],
+      ['join', '--room', 'K7Q2M'],
+      ['join', '--relay', 'ws://1.2.3.4', '--room', 'K7Q2O'],
+      ['join', '--relay', 'ws://1.2.3.4', '--room', 'K7Q2M', '1.2.3.4'],
     ]) {
       final err = StringBuffer();
       expect(await runCli(args, err: err, out: err, input: const Stream.empty()), usageExit, reason: '$args');
@@ -265,4 +320,12 @@ void main() {
     expect(p.exitCode, usageExit);
     expect(p.stderr, contains('dart run klunki_net:klunki host <game>'));
   }, timeout: const Timeout(Duration(minutes: 2)));
+}
+
+Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5)}) async {
+  final sw = Stopwatch()..start();
+  while (!condition()) {
+    if (sw.elapsed > limit) throw TimeoutException('condition not met', limit);
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
 }

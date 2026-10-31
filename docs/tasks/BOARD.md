@@ -51,6 +51,8 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-054 ✅ | WebSocket transport in `packages/klunki_net` (io + browser channels, host listens on TCP and WS, web-compile test); app: `JoinPayload.wsPort`, `NetworkTransport.joinWebSocket`, `ws` mDNS TXT key (see `docs/tasks/KLD-054-websocket.md`) | 030, 032, 033 | `packages/klunki_net/**`, `klunki/lib/net/**`, `klunki/lib/transport/network_transport.dart`, `klunki/test/net/**`, `klunki/test/transport/**` | – |
 | KLD-055 ✅ | Browser join screen (PWA joins a host over WebSocket: paste a link or `?join=`, web pairing UI; see `docs/tasks/KLD-055-web-join.md`) | 054 | `klunki/lib/ui/pairing/**`, `klunki/lib/net/web_join_target.dart` | – |
 | KLD-056 ✅ | Player name/handle for multiplayer (persisted, first-run "Wie heißt du?" dialog, shown in status, connection bar, discovery, result) plus optional hot-seat names; see `docs/tasks/KLD-056-player-name.md` | 055 | `klunki/lib/profile/**`, `klunki/lib/ui/player_name_dialog.dart`, `klunki/lib/ui/shell/player_labels.dart`, `packages/klunki_net/lib/src/names.dart` | – |
+| KLD-057a ✅ | Relay with room codes for browser vs browser, network part: `klunki relay [--port N] [--web DIR]` (WebSocket `/relay` + static PWA serving), `KlunkiHost.startRelay` / `KlunkiGuest.connectRelay` (web-safe), CLI `host --relay` / `join --relay --room`; see `docs/tasks/KLD-057-relay-host.md` | 054, 056 | `packages/klunki_net/**`, `docs/DEMO.md` | – |
+| KLD-057b | UI: "Spiel hosten" button in the app/PWA (room code on screen, relay = page origin) + room-code join in the web join screen; see `docs/tasks/KLD-057-relay-host.md` | 057a, 055 | `klunki/lib/ui/pairing/**`, `klunki/lib/transport/network_transport.dart`, `klunki/lib/l10n/*.arb`, `klunki/test/**` | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
 
@@ -87,7 +89,7 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | ID | Task | Notes |
 |---|---|---|
 | KLD-050 | Lobby / game code over local Wi-Fi (code in mDNS TXT record) | after 033 |
-| KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable) | hosting + privacy review 🧑 |
+| KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable). The LAN relay exists since KLD-057a (`klunki relay`); what remains is internet hosting (TLS/`wss`, rate limits per IP, abuse review) | hosting + privacy review 🧑 |
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
 | ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |

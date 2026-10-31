@@ -24,6 +24,8 @@ void main() {
       final reached = _webImportGraph(Uri.parse(entry), packages);
       expect(reached, contains(Uri.parse('package:klunki_net/src/channel/platform_web.dart')));
       expect(reached, isNot(contains(Uri.parse('package:klunki_net/src/channel/platform_io.dart'))));
+      expect(reached, contains(Uri.parse('package:klunki_net/src/relay/relay_client.dart')));
+      expect(reached, isNot(contains(Uri.parse('package:klunki_net/src/relay/relay_server.dart'))));
       expect(reached.where((u) => u.toString() == 'dart:io' || u.toString().startsWith('package:flutter/')),
           isEmpty);
     });
@@ -38,6 +40,7 @@ void main() {
     final tmp = await Directory.systemTemp.createTemp('klunki_web_compile');
     addTearDown(() => tmp.delete(recursive: true));
     final entry = File('${tmp.path}/main.dart')..writeAsStringSync('''
+import 'package:klunki_engine/klunki_engine.dart' show GameConfig;
 import 'package:klunki_net/guest_web.dart';
 import 'package:klunki_net/klunki_net.dart' as full;
 
@@ -47,13 +50,26 @@ Future<void> main() async {
   guest.events.listen((e) => print(e));
   print(await guest.submit({'col': 3}));
   print(full.KlunkiHost.start); // the full library compiles for the web too
+
+  // Browser vs browser through a relay (KLD-057a): host a room, join a room.
+  final relay = relayUriForPage(Uri.base) ?? parseRelayUrl('192.168.1.20:8080')!;
+  final host = await full.KlunkiHost.startRelay(const GameConfig('connect4'), relay, name: 'Ada');
+  print(host.roomCode);
+  host.events.listen(print);
+  print(host.submitLocal({'col': 3}));
+  final relayGuest = await KlunkiGuest.connectRelay(relay, normalizeRoomCode('k7q2m')!, name: 'Bea');
+  print(relayGuest.hostName);
+  await relayGuest.close();
+  await host.close();
   await guest.close();
 }
 ''');
     final result = await Process.run(Platform.resolvedExecutable,
         ['compile', 'js', '--packages=${packages.file.path}', '-o', '${tmp.path}/out.js', entry.path]);
     expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
-    expect(File('${tmp.path}/out.js').readAsStringSync(), contains('WebSocket'));
+    final js = File('${tmp.path}/out.js').readAsStringSync();
+    expect(js, contains('WebSocket'));
+    expect(js, contains('relay.room'), reason: 'the relay client is compiled in');
   });
 }
 

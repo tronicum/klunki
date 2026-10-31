@@ -10,6 +10,8 @@ import '../addresses.dart';
 import '../events.dart';
 import '../guest.dart';
 import '../host.dart';
+import '../relay/relay_protocol.dart';
+import '../relay/relay_server.dart';
 
 /// TCP port `host` listens on unless `--port` is given.
 const int defaultPort = defaultTcpPort;
@@ -28,10 +30,20 @@ Usage:
   dart run klunki_net:klunki join <ip>[:port] [port] [--name NAME]
   dart run klunki_net:klunki join ws://<ip>[:port] [--name NAME]
 
+Through a relay (browser vs browser, or terminals that cannot reach each other):
+  dart run klunki_net:klunki relay [--port N] [--web DIR]
+  dart run klunki_net:klunki host <game> --relay ws://<relay>[:port] [--seed S] [--name NAME]
+  dart run klunki_net:klunki join --relay ws://<relay>[:port] --room CODE [--name NAME]
+
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
 Default ports: $defaultPort (TCP), $defaultWsPort (WebSocket, for browsers); 0 picks a free one
 (--port 0 alone frees both).
 The host accepts TCP and WebSocket guests. The host plays X and moves first.
+relay: pairs a host and a guest by a 5-character room code and forwards their
+messages (WebSocket at /relay, default port $defaultRelayPort). --web DIR also serves a
+built PWA (klunki/build/web), so browsers use the same address. Ctrl+C stops it.
+host --relay prints the room code; join --relay --room CODE joins that room
+(the code is case-insensitive). The relay address may omit the path (/relay).
 In the game: type a move on your turn; "board", "moves", "help", "quit".''';
 
 /// Runs the `klunki` network CLI. Returns the exit code.
@@ -39,7 +51,8 @@ In the game: type a move on your turn; "board", "moves", "help", "quit".''';
 /// [input] is the user's typed lines (default: stdin), [out] receives
 /// everything the user sees (default: stdout), [err] the usage text on bad
 /// arguments (default: stderr). [bindAddress] restricts where `host` listens
-/// (default: all IPv4 interfaces).
+/// (default: all IPv4 interfaces). [relayStop] ends `relay` (default:
+/// Ctrl+C / SIGTERM).
 Future<int> runCli(
   List<String> args, {
   Stream<String>? input,
@@ -48,15 +61,45 @@ Future<int> runCli(
   Object? bindAddress,
   Duration pingInterval = const Duration(seconds: 2),
   Duration timeout = const Duration(seconds: 10),
+  Future<void>? relayStop,
 }) async {
   out ??= stdout;
   err ??= stderr;
+  if (args.isNotEmpty && args.first == 'relay') {
+    final relayArgs = _parseRelay(args);
+    if (relayArgs == null) {
+      err.writeln(usage);
+      return usageExit;
+    }
+    return _runRelay(relayArgs, out, bindAddress, relayStop);
+  }
   final parsed = _parse(args);
   if (parsed == null) {
     err.writeln(usage);
     return usageExit;
   }
   input ??= stdin.transform(utf8.decoder).transform(const LineSplitter());
+
+  if (parsed.command == 'host' && parsed.relay != null) {
+    final relay = parsed.relay!;
+    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
+    final KlunkiHost host;
+    try {
+      host = await KlunkiHost.startRelay(config, relay,
+          name: parsed.name ?? 'Host', pingInterval: pingInterval, timeout: timeout);
+    } on NetException catch (e) {
+      out.writeln('Cannot open a room on the relay $relay: ${e.message}');
+      return 1;
+    }
+    final title = specById(config.gameId)!.title;
+    out
+      ..writeln('Room code: ${host.roomCode}')
+      ..writeln('Hosting $title in relay room ${host.roomCode} on $relay — waiting for a guest…')
+      ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
+      ..writeln('Join from another terminal with:')
+      ..writeln('  dart run klunki_net:klunki join --relay $relay --room ${host.roomCode}');
+    return _Play.host(host, input, out).run();
+  }
 
   if (parsed.command == 'host') {
     final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30));
@@ -93,14 +136,20 @@ Future<int> runCli(
   }
 
   final ws = parsed.webSocket;
-  final where = ws?.toString() ?? '${parsed.target}:${parsed.port ?? defaultPort}';
+  final relay = parsed.relay;
+  final where = relay != null
+      ? 'room ${parsed.room} on $relay'
+      : ws?.toString() ?? '${parsed.target}:${parsed.port ?? defaultPort}';
   final KlunkiGuest guest;
   try {
-    guest = ws != null
-        ? await KlunkiGuest.connectWebSocket(ws,
+    guest = relay != null
+        ? await KlunkiGuest.connectRelay(relay, parsed.room!,
             name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout)
-        : await KlunkiGuest.connect(parsed.target, parsed.port ?? defaultPort,
-            name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
+        : ws != null
+            ? await KlunkiGuest.connectWebSocket(ws,
+                name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout)
+            : await KlunkiGuest.connect(parsed.target, parsed.port ?? defaultPort,
+                name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
   } on NetException catch (e) {
     out.writeln('Could not join $where: ${e.message}');
     return 1;
@@ -119,7 +168,14 @@ class _Args {
 
   /// `join ws://…`: the WebSocket URL (then [target] / [port] are unused).
   final Uri? webSocket;
-  _Args(this.command, this.target, this.port, this.seed, this.name, {this.wsPort, this.webSocket});
+
+  /// `--relay`: the relay endpoint (`ws://host:port/relay`).
+  final Uri? relay;
+
+  /// `join --room`: the normalised room code.
+  final String? room;
+  _Args(this.command, this.target, this.port, this.seed, this.name,
+      {this.wsPort, this.webSocket, this.relay, this.room});
 }
 
 _Args? _parse(List<String> args) {
@@ -128,12 +184,20 @@ _Args? _parse(List<String> args) {
   final positional = <String>[];
   int? port, wsPort, seed;
   String? name;
+  Uri? relay;
+  String? room;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name') {
+    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room') {
       if (i + 1 >= args.length) return null;
       final v = args[++i];
       switch (a) {
+        case '--relay':
+          relay = parseRelayUrl(v);
+          if (relay == null) return null;
+        case '--room':
+          room = normalizeRoomCode(v);
+          if (room == null || command != 'join') return null;
         case '--port':
           port = int.tryParse(v);
           if (port == null || port < 0 || port > 65535) return null;
@@ -154,7 +218,13 @@ _Args? _parse(List<String> args) {
   }
   if (command == 'host') {
     if (positional.length != 1 || specById(positional.first) == null) return null;
-    return _Args(command, positional.first, port, seed, name, wsPort: wsPort);
+    if (relay != null && (port != null || wsPort != null)) return null;
+    return _Args(command, positional.first, port, seed, name, wsPort: wsPort, relay: relay);
+  }
+  if (relay != null || room != null) {
+    // `join --relay URL --room CODE`: both, and nothing else.
+    if (relay == null || room == null || positional.isNotEmpty || port != null) return null;
+    return _Args(command, relay.host, null, null, name, relay: relay, room: room);
   }
   if (positional.isEmpty || positional.length > 2) return null;
   var target = positional.first;
@@ -181,6 +251,83 @@ _Args? _parse(List<String> args) {
   }
   if (port != null && (port < 1 || port > 65535)) return null;
   return _Args(command, target, port, null, name);
+}
+
+class _RelayArgs {
+  final int port;
+  final String? web;
+  _RelayArgs(this.port, this.web);
+}
+
+_RelayArgs? _parseRelay(List<String> args) {
+  var port = defaultRelayPort;
+  String? web;
+  for (var i = 1; i < args.length; i++) {
+    final a = args[i];
+    if ((a != '--port' && a != '--web') || i + 1 >= args.length) return null;
+    final v = args[++i];
+    if (a == '--port') {
+      final p = int.tryParse(v);
+      if (p == null || p < 0 || p > 65535) return null;
+      port = p;
+    } else {
+      web = v;
+    }
+  }
+  return _RelayArgs(port, web);
+}
+
+Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Future<void>? stop) async {
+  Directory? web;
+  if (args.web case final dir?) {
+    web = Directory(dir);
+    if (!web.existsSync()) {
+      out.writeln('No such directory: $dir (build the PWA first: cd klunki && flutter build web)');
+      return 1;
+    }
+    if (!File('${web.path}/index.html').existsSync()) {
+      out.writeln('Warning: $dir has no index.html; is it a web build?');
+    }
+  }
+  final RelayServer relay;
+  try {
+    relay = await RelayServer.start(port: args.port, address: bindAddress, webRoot: web);
+  } on SocketException catch (e) {
+    out.writeln('Cannot listen on port ${args.port}: ${e.message}');
+    return 1;
+  }
+  final ips = await _addresses(bindAddress);
+  out.writeln('Klunki relay listening on port ${relay.port}: '
+      '${ips.map((ip) => 'ws://$ip:${relay.port}$relayPath').join(', ')}');
+  if (web != null) {
+    out.writeln('Serving the PWA from ${web.path}: ${ips.map((ip) => 'http://$ip:${relay.port}/').join(', ')}');
+    out.writeln('In the browser: "Spiel hosten" uses this relay automatically; the guest enters the room code.');
+  }
+  out
+    ..writeln('Terminals:')
+    ..writeln('  dart run klunki_net:klunki host connect4 --relay ws://${ips.first}:${relay.port}')
+    ..writeln('  dart run klunki_net:klunki join --relay ws://${ips.first}:${relay.port} --room CODE')
+    ..writeln('Press Ctrl+C to stop.');
+  await (stop ?? _interrupted());
+  await relay.close();
+  out.writeln('Relay stopped.');
+  return 0;
+}
+
+/// Completes on Ctrl+C (SIGINT) or SIGTERM.
+Future<void> _interrupted() {
+  final done = Completer<void>();
+  final subs = <StreamSubscription<ProcessSignal>>[];
+  void stop(ProcessSignal _) {
+    for (final s in subs) {
+      s.cancel();
+    }
+    if (!done.isCompleted) done.complete();
+  }
+
+  subs.add(ProcessSignal.sigint.watch().listen(stop));
+  if (!Platform.isWindows) subs.add(ProcessSignal.sigterm.watch().listen(stop));
+  return done.future;
 }
 
 /// Addresses a guest can use to reach this host: every non-loopback IPv4
@@ -289,6 +436,10 @@ class _Play {
         _showTurn();
       case NetError(:final message):
         _out.writeln('Network error: $message');
+        if (_host?.roomCode != null && message.startsWith('relay')) {
+          _out.writeln('The relay room is gone; the game cannot continue.');
+          _finish(1, 'relay room closed');
+        }
       case MoveRejected():
         break; // the guest's submit() reports it; the host has nothing to show
     }

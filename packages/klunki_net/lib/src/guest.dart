@@ -8,6 +8,8 @@ import 'channel/platform.dart' as platform;
 import 'connection.dart';
 import 'events.dart';
 import 'names.dart';
+import 'relay/relay_client.dart';
+import 'relay/relay_protocol.dart';
 
 /// The joining side: runs its own engine but applies only moves the host
 /// accepted, in log order.
@@ -22,8 +24,12 @@ class KlunkiGuest {
   /// The host's TCP port, or its WebSocket port for a WebSocket guest.
   final int port;
 
-  /// Set for a WebSocket guest: the `ws://` URL it (re)connects to.
+  /// Set for a WebSocket guest: the `ws://` URL it (re)connects to. For a
+  /// relay guest: the relay endpoint ([relayUrl]).
   final Uri? webSocketUrl;
+
+  /// Set for a relay guest ([connectRelay]): the room it (re)joins.
+  final String? roomCode;
 
   /// This guest's player name, sanitised ([sanitizePlayerName]; may be
   /// empty, the host then shows the guest's mark).
@@ -43,7 +49,8 @@ class KlunkiGuest {
   Connection? _conn;
   bool _connected = false; // handshake done on the current connection
 
-  KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout)
+  KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout,
+      {this.roomCode})
       : name = sanitizePlayerName(name);
 
   /// Connects over TCP to [host]:[port] and completes after the `welcome`
@@ -82,11 +89,48 @@ class KlunkiGuest {
     return guest;
   }
 
-  /// `tcp` or `ws`.
-  String get transport => webSocketUrl == null ? 'tcp' : 'ws';
+  /// Joins room [code] on the relay at [relayUrl] (`ws://host:port/relay`,
+  /// see `parseRelayUrl` / `relayUriForPage`) and completes after the
+  /// host's `welcome` snapshot was replayed; from then on it is the same
+  /// session as [connectWebSocket] (events, [submit], [reconnect] into the
+  /// same room while it is open). [code] is normalised
+  /// (`normalizeRoomCode`: case and dashes do not matter). Works on the VM
+  /// and in the browser.
+  ///
+  /// Throws [ArgumentError] for a malformed [code] or a [relayUrl] that is
+  /// not `ws://` / `wss://`, and [NetException] if the relay is unreachable
+  /// or refuses (message `relay: no room with code …` / `relay: room …
+  /// is full`) or the handshake fails.
+  static Future<KlunkiGuest> connectRelay(
+    Uri relayUrl,
+    String code, {
+    String name = 'Guest',
+    String? token,
+    Duration pingInterval = const Duration(seconds: 2),
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    if ((relayUrl.scheme != 'ws' && relayUrl.scheme != 'wss') || relayUrl.host.isEmpty) {
+      throw ArgumentError.value(relayUrl, 'relayUrl', 'expected ws://host:port/relay');
+    }
+    final room = normalizeRoomCode(code);
+    if (room == null) throw ArgumentError.value(code, 'code', 'not a room code');
+    final guest = KlunkiGuest._(relayUrl.host, relayUrl.port, relayUrl, name, token, pingInterval, timeout,
+        roomCode: room);
+    await guest._open();
+    return guest;
+  }
 
-  /// Where this guest connects: `host:port` or the `ws://` URL.
-  String get address => webSocketUrl?.toString() ?? '$host:$port';
+  /// `tcp`, `ws` or `relay`.
+  String get transport => roomCode != null ? 'relay' : (webSocketUrl == null ? 'tcp' : 'ws');
+
+  /// The relay endpoint of a relay guest, otherwise null.
+  Uri? get relayUrl => roomCode != null ? webSocketUrl : null;
+
+  /// Where this guest connects: `host:port`, the `ws://` URL, or
+  /// `room CODE on ws://…/relay`.
+  String get address => roomCode != null
+      ? 'room $roomCode on $webSocketUrl'
+      : webSocketUrl?.toString() ?? '$host:$port';
 
   GameConfig get config => _config;
 
@@ -133,8 +177,12 @@ class KlunkiGuest {
   Future<void> _open() async {
     _conn?.close('reconnecting');
     final url = webSocketUrl;
-    final MessageChannel channel =
-        url != null ? await platform.connectWebSocket(url, _timeout) : await platform.connectTcp(host, port, _timeout);
+    final room = roomCode;
+    final MessageChannel channel = room != null
+        ? await RelayGuestChannel.connect(url!, room, _timeout)
+        : url != null
+            ? await platform.connectWebSocket(url, _timeout)
+            : await platform.connectTcp(host, port, _timeout);
     final welcome = Completer<void>();
     welcome.future.ignore(); // errors are rethrown by the await below
     late final Connection conn;

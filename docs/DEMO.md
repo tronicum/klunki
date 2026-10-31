@@ -378,6 +378,37 @@ version with browser support, i.e. one that shows "Im Browser beitreten" / print
 On an https page the join screen warns up front. The service worker does not register over
 `http://<lan-ip>` (no secure context), so this mode needs the server reachable, not offline.
 
+### Browser gegen Browser über das Relay (KLD-057)
+Two browsers cannot connect to each other directly, so one computer on the Wi-Fi runs the **relay**, which
+also serves the PWA. The host stays authoritative; the relay only forwards messages (see
+`packages/klunki_net/PROTOCOL.md`, "Relay").
+
+1. Build the PWA and start relay + web server in one process (any free port; 8080 is just an example):
+   ```bash
+   cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py && cd ..
+   cd packages/klunki_net && dart run klunki_net:klunki relay --port 8080 --web ../../klunki/build/web
+   # prints: Klunki relay listening on port 8080: ws://<mac-ip>:8080/relay
+   #         Serving the PWA from …: http://<mac-ip>:8080/
+   ```
+2. **Once the UI exists (KLD-057b, open):** browser A opens `http://<mac-ip>:8080/` → **Spiel hosten** →
+   picks a game and shows a room code like `K7Q2M`; browser B opens the same address → enters the code →
+   joins. The PWA uses its own origin as the relay (`ws://<location.host>/relay`).
+3. **Today (CLI vs CLI through the relay):** in two more terminals
+   ```bash
+   cd packages/klunki_net
+   dart run klunki_net:klunki host connect4 --relay ws://127.0.0.1:8080 --name Ada
+   # prints: Room code: K7Q2M  and the join command
+   dart run klunki_net:klunki join --relay ws://127.0.0.1:8080 --room k7q2m --name Bea
+   ```
+   The code is case-insensitive; the relay address may omit `/relay`. Without `--port`, the relay uses 4749.
+
+What to check: the host terminal prints "Bea joined", moves cross over in both directions; quitting the
+host closes the room ("Opponent left"). Stop the relay with Ctrl+C.
+
+Troubleshooting: "relay: no room with code …" = typo or the host is gone (rooms also expire after
+10 minutes without traffic); "relay: room … is full" = someone already joined (a guest whose Wi-Fi dropped
+can rejoin after about 10 s). Use `http://`, not https, and keep the relay reachable (same Wi-Fi).
+
 ---
 
 ## General troubleshooting reference

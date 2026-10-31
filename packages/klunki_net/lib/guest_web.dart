@@ -1,5 +1,6 @@
 /// The guest side of Klunki network play, for the browser (the PWA): join a
-/// native host (app or `klunki host` CLI) over WebSocket on the local network.
+/// native host (app or `klunki host` CLI) over WebSocket on the local network,
+/// or a room on a relay ([KlunkiGuest.connectRelay]; browser vs browser).
 ///
 ///     final guest = await KlunkiGuest.connectWebSocket(
 ///         webSocketUri('192.168.1.20', defaultWebSocketPort), name: 'Bea');
@@ -21,3 +22,12 @@ export 'src/events.dart'
         NetError,
         NetException;
 export 'src/guest.dart' show KlunkiGuest;
+export 'src/relay/relay_protocol.dart'
+    show
+        relayPath,
+        defaultRelayPort,
+        roomCodeLength,
+        roomCodeAlphabet,
+        normalizeRoomCode,
+        parseRelayUrl,
+        relayUriForPage;

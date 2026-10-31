@@ -133,6 +133,80 @@ receives a fresh `welcome`, checks that its own log is a prefix of `moves`
 `replay(config, moves)` and continues. A non-prefix log or a snapshot that
 does not replay (`replay` returns null) is a divergence → `error`.
 
+## Relay (KLD-057a): browser vs browser
+
+A web page cannot listen for connections, so two browsers meet through a
+**relay** (`klunki relay`, `package:klunki_net/relay_server.dart`). The relay
+pairs one host and one guest by a short **room code** and forwards their
+messages **unchanged**. It runs no game logic: the host stays authoritative
+and runs the same session code as on a direct connection, and everything in
+"Messages" and "Rules" above applies end to end.
+
+```
+host (browser A)                relay                     guest (browser B)
+  │ WS /relay?create  ───────────►│
+  │◄── {"t":"relay.room","code":"K7Q2M"}
+  │                               │◄────────── WS /relay?join=k7q2m
+  │◄── {"t":"relay.peer"}         │
+  │◄─────────── hello ────────────┼─────────── hello (guest → host)
+  │──── hello, welcome, … ────────┼──────────►  (forwarded byte for byte)
+```
+
+**Endpoint.** One WebSocket path, `/relay`, on the relay's port (default
+4749, `defaultRelayPort`; `klunki relay --port N`). One message per text
+frame, as on the WebSocket transport. A plain HTTP request to `/relay` gets
+`426 Upgrade Required`. With `--web DIR` the same server serves the built PWA
+on every other path, so a PWA served by the relay finds it at
+`ws://<location.host>/relay` (`relayUriForPage(Uri.base)`).
+
+| query | who | effect |
+|---|---|---|
+| `?create` | host | opens a room; the relay answers `relay.room` |
+| `?join=CODE` | guest | joins room `CODE` (case-insensitive; spaces and dashes ignored) |
+
+**Control messages.** Relay control messages are JSON objects with a `t` key
+(never `type`) whose value starts with `relay.`; game messages always have
+`type`, so the two cannot be confused. They are only exchanged between the
+relay and a client, never forwarded.
+
+| `t` | direction | fields | meaning |
+|---|---|---|---|
+| `relay.room` | relay → host | `code` | the room exists; show `code` to the user |
+| `relay.peer` | relay → host | – | a guest joined; its game messages follow |
+| `relay.left` | relay → host | `reason` | the guest's connection ended; the room stays open, a guest may join again with the same code (reconnect with the token, as usual) |
+| `relay.closed` | relay → host, guest | `reason` | the room is gone (`host left`, `room expired (idle)`, `host broke the relay rules`, `relay shutting down`); the relay closes the connection right after |
+| `relay.error` | relay → anyone | `message` | refused or rule broken: `no room with code …`, `room … is full`, `too many rooms, try again later`, `bad request: …`, `line too long (max N characters)`, `binary frames are not relayed`, `relay control messages are not allowed from a guest`; the relay closes that connection right after |
+| `relay.kick` | host → relay | – | drop the current guest (the host session closed it, e.g. after `error "session full"`); lines sent before it are delivered first; no `relay.left` follows |
+
+**Rules.**
+- **Codes:** 5 characters from `23456789ABCDEFGHJKMNPQRSTUVWXYZ` (no 0/O, 1/I/L;
+  31^5 ≈ 28.6 million codes), random (`Random.secure`), unique among open rooms.
+- **One guest per room.** A second guest gets `relay.error "room CODE is full"`.
+  A guest whose connection silently died keeps its slot until the host session
+  notices (keepalive timeout, 10 s) and kicks it, or the relay's WebSocket ping
+  (every 20 s) detects it; then the guest can rejoin.
+- **Guest leaves** (close, network loss, rule broken): the host gets
+  `relay.left`, its session reports `PeerDisconnected`, the room stays open.
+- **Host leaves:** the room is closed; the guest gets `relay.closed "host left"`
+  and is disconnected. A polite host sends `bye` first, which is forwarded.
+- **Idle expiry:** a room in which no frame was forwarded for 10 minutes
+  (`idleTimeout`) is closed with `relay.closed "room expired (idle)"`. A
+  running game never idles: keepalive `ping`s pass every 2 s.
+- **Limits:** frames up to 256 Ki characters (`maxLineLength`); at most 500
+  open rooms (`maxRooms`); text frames only. A guest breaking a rule loses
+  its own connection; a host breaking one closes the room.
+- The relay keeps no logs, names or addresses beyond the open connections.
+
+**Clients** (web-safe, in `package:klunki_net/klunki_net.dart`):
+- `KlunkiHost.startRelay(config, relayUrl, name: …)` connects with `?create`,
+  completes with `host.roomCode` set, and treats every `relay.peer` as a new
+  guest connection for the unchanged host session; closing that connection
+  sends `relay.kick`. A lost room surfaces as `NetError("relay: …")`.
+- `KlunkiGuest.connectRelay(relayUrl, code, name: …)` connects with
+  `?join=CODE`; `relay.error` / `relay.closed` end the connection with the
+  reason (`NetException("relay: no room with code …")`). `reconnect()` rejoins
+  the same room.
+
 ## Known limitations (accepted for the PoC)
 - **Hidden information is not hidden on the wire.** `welcome` carries the seed
   and the whole move log, so a modified client could reconstruct the
@@ -145,5 +219,7 @@ does not replay (`replay` returns null) is a divergence → `error`.
 - One guest per host, over either transport: a second guest gets
   `error "session full"` whether it comes over TCP or WebSocket. A joined
   guest may rejoin over the other transport with its token.
-- Browser ↔ browser play is not supported: a web page cannot listen for
-  connections, so one side must be a native host (app or CLI).
+- Browser ↔ browser play needs a relay (see "Relay"): a web page cannot
+  listen for connections. The relay sees all messages in clear text (`ws://`)
+  and does not authenticate anyone: whoever knows the room code can take the
+  guest slot while it is free. Meant for a relay on the local network.
