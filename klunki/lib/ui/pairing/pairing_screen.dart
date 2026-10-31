@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../app/test_mode.dart';
 import '../../net/discovery.dart';
 import '../../net/discovery_factory.dart';
 import '../../net/join_payload.dart';
@@ -75,6 +76,9 @@ class PairingDeps {
         joinTransport: (host, port, {required name}) => NetworkTransport.join(host, port, name: name),
         localAddresses: localIPv4Addresses,
         deviceName: defaultDeviceName,
+        // E2E test mode (--dart-define KLUNKI_E2E_*): fixed port and seed.
+        seed: E2eMode.enabled ? () => E2eMode.seed : newGameSeed,
+        preferredPort: E2eMode.enabled ? E2eMode.port : klunkiDefaultPort,
       );
 }
 

@@ -14,6 +14,11 @@
     + one line in `klunki/lib/main.dart`); write the decision into this card and into `docs/tasks/BOARD.md` before coding
   - `docs/tasks/KLD-038a-simulator-e2e.md`
 
+> **Update (KLD-038c):** the hook exists: `klunki/lib/app/test_mode.dart` (`E2eMode`), used by `PairingDeps.platform()`
+> (fixed port + seed). The test is `klunki/integration_test/network_test.dart` (it drives the real pairing UI rather than
+> bypassing it), and `tool/e2e_android_vs_ios.sh` is written; it stops with `BLOCKED` until the 🧑 steps below are done.
+> The iOS-only variant `tool/e2e_ios_sims.sh` passes. See `KLD-038c-mobile-integration-tests.md`.
+
 ## Goal
 `tool/e2e_android_vs_ios.sh` boots an iPhone simulator and the Android emulator, starts the app on both in a test mode,
 the iOS app hosts Mühle on a fixed port, the Android app joins via `10.0.2.2` (the emulator's alias for the Mac's loopback),

@@ -37,6 +37,8 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 
 ## P3 — iPhone ↔ iPad over Wi-Fi
 
+Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pending (KLD-012, 040).
+
 | ID | Task | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|
 | KLD-030 ✅ | `packages/klunki_net` (pure Dart): NDJSON protocol (`hello`, `welcome` {config, moves, token}, `move`, `accepted`, `rejected`, `ping`/`pong`, `bye`; no separate `snapshot`), host-authoritative TCP session, replay from seed + move list, loopback tests | – | `packages/klunki_net/**` | – |
@@ -63,9 +65,9 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 |---|---|---|---|---|
 | KLD-037a ✅ | Protocol-level Mühle e2e: "iOS" host vs "Android" guest over TCP (pure Dart), incl. reconnect and swapped roles | 030 | `packages/klunki_net/test/e2e_*` | – |
 | KLD-037b ✅ | App-level e2e: two `GameController`s over `NetworkTransport` on loopback play Mühle to the end (`flutter test`) | 032 | `klunki/test/e2e/**` | – |
-| KLD-038a | Simulator e2e: iOS Simulator app hosts, Android emulator app joins via `10.0.2.2`; both play the Mühle demo script automatically (`integration_test` + `--dart-define` test mode with a fixed port) and compare final states; `tool/e2e_android_vs_ios.sh` prints PASS/FAIL. Existing AVD: `Medium_Phone_API_37.0` | 032, 037b, 🧑 Android cmdline-tools + licenses | `klunki/integration_test/**`, `tool/e2e_*`, `klunki/pubspec.yaml` (`integration_test` SDK dev dep only), small test-mode hook (path decided in the card) | 🧑 |
+| KLD-038a | Simulator e2e: iOS Simulator app hosts, Android emulator app joins via `10.0.2.2`; both play the Mühle demo script automatically (`integration_test` + `--dart-define` test mode with a fixed port) and compare final states; `tool/e2e_android_vs_ios.sh` prints PASS/FAIL. Existing AVD: `Medium_Phone_API_37.0`. Script `tool/e2e_android_vs_ios.sh` and test mode are prepared (KLD-038c); blocked on 🧑 Android cmdline-tools + licenses | 032, 037b, 🧑 Android cmdline-tools + licenses | `klunki/integration_test/**`, `tool/e2e_*`, `klunki/pubspec.yaml` (`integration_test` SDK dev dep only), small test-mode hook (path decided in the card) | 🧑 |
 | KLD-038b | The same on real devices: iPhone/iPad ↔ Android phone over Wi-Fi | 038a, 011, 012, 040, 035 | `tool/e2e_*` (device variant) | 🧑 |
-| KLD-038c 🚧 | Mobile integration tests on iOS simulators — in progress | 037b | `klunki/integration_test/**`, `tool/e2e_*` | – |
+| KLD-038c ✅ | Mobile integration tests on iOS simulators: `integration_test/app_test.dart` (menu, all five games hot-seat, language picker, plugins) PASS on iPhone 18 Pro and iPad Pro 11-inch; `tool/e2e_ios_sims.sh` iPhone hosts ↔ iPad joins Mühle PASS via address and via mDNS (`--mdns`); test mode `lib/app/test_mode.dart` (see card) | 037b | `klunki/integration_test/**`, `tool/e2e_*` | – |
 
 ## i18n
 
