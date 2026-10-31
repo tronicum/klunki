@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,10 +40,19 @@ class LocaleController extends ValueNotifier<Locale?> {
   /// Loads the saved choice. Pass [prefs] to inject an instance; otherwise
   /// [SharedPreferences.getInstance] is used (tests can seed it with
   /// `SharedPreferences.setMockInitialValues`).
-  static Future<LocaleController> load({SharedPreferences? prefs}) async {
+  ///
+  /// On the web, a `?lang=xx` query parameter in the page URL ([pageUrl],
+  /// default [Uri.base]) overrides the saved choice for this session without
+  /// persisting it (debug/test hook, used by `tool/pwa_i18n_check.sh`).
+  static Future<LocaleController> load({SharedPreferences? prefs, Uri? pageUrl}) async {
     final p = prefs ?? await SharedPreferences.getInstance();
-    return LocaleController._(p, parseTag(p.getString(prefsKey)));
+    final url = pageUrl ?? (kIsWeb ? Uri.base : null);
+    final override = parseTag(url?.queryParameters[langQueryParameter]);
+    return LocaleController._(p, override ?? parseTag(p.getString(prefsKey)));
   }
+
+  /// URL query parameter that overrides the language on the web (`?lang=fr`).
+  static const String langQueryParameter = 'lang';
 
   /// Sets and persists the language; `null` = system.
   Future<void> setLocale(Locale? locale) async {
