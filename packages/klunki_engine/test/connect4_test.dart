@@ -86,6 +86,10 @@ void main() {
       final g = Connect4Game();
       expect(g.applyMove({'col': -1}), isNull);
       expect(g.applyMove({'col': 7}), isNull);
+      // Malformed moves are rejected, not a TypeError (KLD-070, strict-casts).
+      expect(g.applyMove({'col': '3'}), isNull);
+      expect(g.applyMove({'col': null}), isNull);
+      expect(g.applyMove(<String, dynamic>{}), isNull);
       expect(g.history, isEmpty);
       expect(g.currentPlayer, Player.a);
       expect(g.result.winner, isNull);

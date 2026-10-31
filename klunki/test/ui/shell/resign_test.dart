@@ -10,7 +10,7 @@ import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
-import '../../e2e/e2e_support.dart' show loopback, pingInterval, netTimeout, until;
+import '../../e2e/e2e_support.dart' show loopback, pingInterval, widgetNetTimeout, until;
 import '../../l10n/l10n_test_utils.dart';
 import 'shell_test_utils.dart';
 
@@ -123,9 +123,9 @@ void main() {
 
     final (host, guest) = (await tester.runAsync(() async {
       final host = await NetworkTransport.host(const GameConfig('connect4'),
-          name: 'Ada', address: loopback, pingInterval: pingInterval, timeout: netTimeout);
+          name: 'Ada', address: loopback, pingInterval: pingInterval, timeout: widgetNetTimeout);
       final guest = await NetworkTransport.join(loopback, host.port!,
-          name: 'Bea', pingInterval: pingInterval, timeout: netTimeout);
+          name: 'Bea', pingInterval: pingInterval, timeout: widgetNetTimeout);
       await until(() => host.connection.value == NetConnectionState.connected, what: 'host sees the guest');
       return (host, guest);
     }))!;

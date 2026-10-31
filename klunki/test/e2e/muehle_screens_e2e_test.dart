@@ -45,8 +45,8 @@ Future<_Devices> _pumpBoth(WidgetTester tester) async {
   addTearDown(tester.view.reset);
 
   final devices = (await tester.runAsync(() async {
-    final ios = await AppStack.host();
-    final android = await AppStack.join(ios.transport.port!);
+    final ios = await AppStack.host(timeout: widgetNetTimeout);
+    final android = await AppStack.join(ios.transport.port!, timeout: widgetNetTimeout);
     await until(() => ios.online, what: 'host sees the guest');
     return _Devices(ios, android);
   }))!;

@@ -28,7 +28,8 @@ import '../../l10n/l10n_test_utils.dart';
 const _hostKey = Key('device-host');
 const _guestKey = Key('device-guest');
 const _ping = Duration(milliseconds: 100);
-const _timeout = Duration(seconds: 2);
+// Long: real-time keepalive timeouts must not fire during long fake-async pumps (KLD-070).
+const _timeout = Duration(seconds: 10);
 
 Finder _on(Key device, Finder f) => find.descendant(of: find.byKey(device), matching: f);
 Finder _cell(Key device, int sq) => _on(device, find.byKey(Key('go-cell-$sq')));

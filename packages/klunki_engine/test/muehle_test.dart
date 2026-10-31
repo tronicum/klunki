@@ -185,7 +185,7 @@ void main() {
       expect(g.applyMove(mv('m2-14')), isNull); // opponent's piece
       expect(g.history.length, 18);
       for (final m in g.legalMoves) {
-        expect(MuehleGame.adjacency[m['from']], contains(m['to']));
+        expect(MuehleGame.adjacency[m['from'] as int], contains(m['to']));
       }
       expect(g.applyMove(mv('m9-10')), isNotNull);
       expect(g.board[9], isNull);
@@ -227,7 +227,7 @@ void main() {
       // B has more than 3 pieces and still moves adjacently only.
       expect(g.phaseOf(Player.b), MuehlePhase.moving);
       for (final m in g.legalMoves) {
-        expect(MuehleGame.adjacency[m['from']], contains(m['to']));
+        expect(MuehleGame.adjacency[m['from'] as int], contains(m['to']));
       }
     });
   });

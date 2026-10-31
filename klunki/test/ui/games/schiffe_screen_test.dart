@@ -623,7 +623,7 @@ void main() {
       tester.view.physicalSize = const Size(1600, 1000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      const ping = Duration(milliseconds: 100), timeout = Duration(seconds: 2);
+      const ping = Duration(milliseconds: 100), timeout = Duration(seconds: 10); // KLD-070: no keepalive cuts in long pumps
       final (host, guest) = (await tester.runAsync(() async {
         final h = await NetworkTransport.host(const GameConfig('schiffe', seed: 3),
             name: 'Anna', address: InternetAddress.loopbackIPv4, wsPort: null, pingInterval: ping, timeout: timeout);

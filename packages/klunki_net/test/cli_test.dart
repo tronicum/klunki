@@ -70,7 +70,7 @@ class Proxy {
       proxy._sockets.addAll([client, upstream]);
       for (final (from, to) in [(client, upstream), (upstream, client)]) {
         from.listen(to.add, onError: (_) {}, onDone: () => to.destroy());
-        to.done.catchError((_) {});
+        unawaited(to.done.catchError((_) {}));
       }
     });
     return proxy;

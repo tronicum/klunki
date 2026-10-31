@@ -322,7 +322,7 @@ class KlunkiGuest {
     final snapshot = [for (final x in m['moves'] as List) x as Map<String, dynamic>];
     // The host only ever extends its log, so ours must be a prefix of it.
     if (snapshot.length < _log.length ||
-        Iterable.generate(_log.length).any((i) => jsonEncode(snapshot[i]) != jsonEncode(_log[i].move))) {
+        Iterable<int>.generate(_log.length).any((i) => jsonEncode(snapshot[i]) != jsonEncode(_log[i].move))) {
       return (null, null, 'diverged: local move log is not a prefix of the snapshot');
     }
     final game = createGame(config);
@@ -348,7 +348,7 @@ class KlunkiGuest {
     if (_joined) {
       if (start != _startViewHash || seedCommit != _seedCommit) return (null, null, 'diverged: the game start changed');
       if (steps.length < _steps.length ||
-          Iterable.generate(_steps.length).any((i) =>
+          Iterable<int>.generate(_steps.length).any((i) =>
               canonicalJson(steps[i].toJson()) != canonicalJson(_steps[i].toJson()))) {
         return (null, null, 'diverged: local move log is not a prefix of the snapshot');
       }

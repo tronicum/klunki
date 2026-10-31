@@ -115,19 +115,24 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 
 ## Review 2026-10
 
-From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there). All open. Renumbered on merge (the review's 069–072 collided with KLD-069 Quartett decks and KLD-070 CI); its resign × secrecy card is ✅ done in the KLD-065 merge `a6bc0ab`.
+From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there). All open. Renumbered on merge (the review's 069–072 collided with KLD-069 Quartett decks and KLD-070 CI; its CI card is a note on the KLD-070 row under Infrastructure); its resign × secrecy card is ✅ done in the KLD-065 merge `a6bc0ab`.
 
 | ID | Task | Priority | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|---|
 | KLD-071 | Rejoin only with the session token: no guest-seat takeover by name (`host.dart:220`); the guest saves its token; the host confirms a rejoin with a lost token | high | – | `packages/klunki_net/lib/src/host.dart`, `PROTOCOL.md`, `klunki/lib/transport/**`, `klunki/lib/ui/pairing/**` | – |
 | KLD-073 | Shell guards: leave confirmation (`PopScope`), no undo in hidden-information hot-seat games, a start cover, a tap guard on the cover | high | 065 merged | `klunki/lib/ui/shell/**`, `klunki/lib/game/game_controller.dart`, `klunki/lib/ui/pairing/network_game_session.dart` | – |
-| KLD-070 | CI (in progress elsewhere). Review note (REVIEW T1/T4/C8): GitHub Actions running `dart test`/`dart analyze` in both packages, `flutter analyze`/`flutter test`, `flutter build web --release` + `pwa_finalize.py`, a font-subset and an unused-ARB-key check; stricter lints (strict-casts/inference/raw-types, `unawaited_futures`, `cancel_subscriptions`, `close_sinks`, `avoid_dynamic_calls`, `only_throw_errors`); loopback widget tests with a large `netTimeout` | high | – | `.github/workflows/**`, `analysis_options.yaml` ×3, `klunki/test/ui/pairing/pairing_test_utils.dart` | 🧑 CI runner |
 | KLD-072 | Unguessable hidden setups: 128-bit secure seeds or explicit layouts, and an engine-owned PRNG (also stable replays) | high | 065 merged | `packages/klunki_engine/lib/**`, `klunki/lib/ui/shell/game_screen.dart`, `klunki/lib/ui/games/schiffe/**`, CLI | – |
 | KLD-075 | Links and QR codes don't silently save another relay; confirm before auto-connect | medium | – | `klunki/lib/ui/pairing/**`, `klunki/lib/profile/relay_settings.dart` | – |
 | KLD-074 | App background/resume: guest auto-reconnect, relay room grace period, host listener check | medium | 071 | `klunki/lib/transport/**`, `packages/klunki_net/lib/src/**` | 🧑 device check |
 | KLD-076 | Release basics: icons, launch screens, signing, About/licences, Info.plist l10n, encryption key, PWA update prompt | medium | 053, 012, 066 | `klunki/ios/Runner/**` (never pbxproj/xcscheme/Main.storyboard), `klunki/android/**`, `klunki/web/**` | 🧑 licence, keys, team |
 | KLD-077 | Accessibility pass: Four in a Row and mill semantics, announcements, keyboard on the web, contrast, battleship target size | medium | 068, 058b | `klunki/lib/ui/**`, `klunki/lib/app/theme.dart` | – |
 | KLD-078 | Game modules (one registration point per game), typed `NetErrorCode`, pairing controller deduplication, i18n cleanup (unused keys, plurals, generic title instead of "4 Gewinnt") | medium | 058b merged | `klunki/lib/ui/**`, `packages/klunki_net/lib/src/events.dart`, `klunki/lib/l10n/**` | – |
+
+## Infrastructure
+
+| ID | Task | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|
+| KLD-070 ✅ | GitHub Actions: `ci.yml` (engine/net `dart analyze --fatal-infos` + `dart test`, app gen-l10n check + `flutter analyze` + `flutter test`; push main + PRs) and `build.yml` (PWA build + finalize + no-CDN-URL check → artifact `klunki-pwa`; Android release APK, debug-signed unless `KEYSTORE_*` secrets → `klunki-android-apk`; iOS `--no-codesign` compile check on manual runs only; Pages deploy disabled). Flutter 3.47.8 pinned, actions SHA-pinned. Release signing from `key.properties` / env with debug fallback. Moderate lints (`strict-casts`, `cancel_subscriptions`, `unawaited_futures` in the packages). Flaky loopback widget tests fixed (2 s keepalive vs long synchronous pumps → 10 s in widget tests). `docs/BUILDING.md`. **Android CI build unverified until first run on GitHub.** See `docs/tasks/KLD-070-ci.md`. Review 2026-10 note (its CI card, T1/T4/C8), still open: `flutter build web` + `pwa_finalize.py` in CI is done; open are a font-subset currency check, an unused-ARB-key check, and the stricter lint set (`strict-inference`, `strict-raw-types`, `close_sinks`, `avoid_dynamic_calls`, `only_throw_errors`; about 190 findings on a trial run) | – | `.github/workflows/**`, `klunki/android/app/build.gradle.kts`, `klunki/tool/check_pwa_external_urls.py`, `**/analysis_options.yaml`, `klunki/test/{ui/pairing/pairing_test_utils,e2e/e2e_support,e2e/muehle_screens_e2e_test,ui/shell/resign_test}.dart`, `docs/BUILDING.md`, `README.md` | 🧑 push; optional signing secrets |
 
 ## Backlog
 
@@ -138,7 +143,7 @@ From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there)
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
 | ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
-| KLD-053 | Android release signing (keystore) instead of the debug keys | 🧑 chooses passwords, keeps the keystore |
+| KLD-053 | Android release signing (keystore) instead of the debug keys. Gradle part done in KLD-070 (`key.properties` / `KLUNKI_KEYSTORE_*`, debug fallback); remaining: 🧑 creates the keystore, optional CI secrets | 🧑 chooses passwords, keeps the keystore |
 
 ## Waves (what can run in parallel)
 

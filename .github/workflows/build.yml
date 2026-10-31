@@ -1,0 +1,162 @@
+# Klunki builds (KLD-070): PWA and Android APK as downloadable artifacts, an
+# iOS compile check on demand. NO deployment: nothing is published to GitHub
+# Pages or a store (that needs the owner's OK; see the disabled `pages` job).
+#
+# Flutter is pinned like in ci.yml (3.47.8 stable, Dart 3.13.7).
+# Every action is pinned to a commit SHA (tag in the comment).
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.8'
+
+jobs:
+  pwa:
+    name: PWA (flutter build web)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: klunki
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: flutter pub get
+      # The documented steps (README.md, docs/DEMO.md, docs/BUILDING.md):
+      # build, then fill the offline service worker's build hash and precache list.
+      - run: flutter build web --release
+      - run: python3 -I build/web/pwa_finalize.py
+      # The PWA must start offline: no CanvasKit/fonts/scripts from
+      # jsdelivr, unpkg, gstatic or googleapis. Allows only the engine's
+      # overridden default URLs (see the script's docstring).
+      - name: No external URLs in the build
+        run: python3 -I tool/check_pwa_external_urls.py build/web
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: klunki-pwa
+          path: klunki/build/web
+          if-no-files-found: error
+          retention-days: 30
+
+  android:
+    name: Android APK (flutter build apk)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: klunki
+    env:
+      # Optional real signing (KLD-053). Without these repository secrets the
+      # release APK is signed with the debug key (see android/app/build.gradle.kts).
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KLUNKI_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KLUNKI_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
+      KLUNKI_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # AGP 9.1 / Gradle 9.3.1 / Kotlin 2.4 need JDK 17 or newer; Flutter's
+      # template compiles for Java 17.
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      # The ubuntu runner image ships an Android SDK (ANDROID_HOME) with
+      # cmdline-tools; AGP downloads missing platforms/NDK itself once the
+      # licences are accepted.
+      - name: Accept Android SDK licences
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+      # android/gradle.properties asks for an 8 GB Gradle heap (Flutter
+      # template); private-repo runners have 7 GB RAM. The user-level
+      # gradle.properties overrides the project's.
+      - name: Gradle memory for the runner
+        run: |
+          mkdir -p ~/.gradle
+          echo 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError' >> ~/.gradle/gradle.properties
+      - name: Release keystore (only if the secrets exist)
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/klunki-release.jks"
+            echo "KLUNKI_KEYSTORE_FILE=$RUNNER_TEMP/klunki-release.jks" >> "$GITHUB_ENV"
+            echo "Signing with the release keystore from the repository secrets."
+          else
+            echo "::notice::No KEYSTORE_BASE64 secret: the APK is signed with the debug key (fine for testing, not for a store)."
+          fi
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: klunki-android-apk
+          path: klunki/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  ios:
+    # macOS minutes cost 10x on a private repo: manual runs only.
+    if: github.event_name == 'workflow_dispatch'
+    name: iOS compile check (no codesign)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: klunki
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: xcodebuild -version
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+
+  # Disabled on purpose: publishing the PWA (GitHub Pages) needs the owner's
+  # OK, and Pages on a private repo needs a paid plan. To enable: set the
+  # repository's Pages source to "GitHub Actions", remove `if: false`.
+  # Note: Pages serves https, and browsers block ws:// from https pages, so a
+  # Pages-hosted PWA can only use a wss:// relay (see docs/BUILDING.md).
+  pages:
+    if: false
+    needs: pwa
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: klunki-pwa
+          path: web
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: web
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -4,5 +4,12 @@ analyzer:
     - android/**
     - ios/**
     - web/**
+  # KLD-070: moderate tightening that keeps the build green. Stricter rules
+  # (strict-inference, strict-raw-types, discarded_futures, avoid_dynamic_calls,
+  # ...) are a follow-up, see docs/tasks/KLD-070-ci.md.
+  language:
+    strict-casts: true
 include: package:flutter_lints/flutter.yaml
-# Klunki uses the default lint set; tighten per-package later.
+linter:
+  rules:
+    - cancel_subscriptions

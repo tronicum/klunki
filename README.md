@@ -1,21 +1,19 @@
 # Klunki
 
-Cross-platform casual game app (**iOS, Android, PWA**) for classic brain-teaser
-games:
+Cross-platform casual game app (**iOS, Android, PWA**) for classic two-player games, played on one device
+(hot-seat), over the local Wi-Fi, or browser vs browser through a small relay:
 
 - **4 Gewinnt** (Four in a Row)
 - **Mühle** (Nine Men's Morris)
-- **Quartett** (collect-the-four / superlative card game)
+- **Quartett** (superlative card game) in two variants: **Trumpf** and **Sets**
 - **Schiffe versenken** (sink-the-fleet guessing game)
+- **GoStrategy** (hidden-rank capture-the-flag; engine and terminal only so far)
 
-Built with **Flutter** — one codebase compiles to Android, iOS and the web
-(PWA). No Node.js.
+Built with **Flutter**: one codebase compiles to Android, iOS and the web (PWA). No Node.js.
 
-## Play modes (roadmap)
-
-1. **Hot-seat** (1 device, hand the phone to the opponent) — first PoC.
-2. **Local network** (2 phones on the same Wi-Fi, over IP) — second PoC.
-3. **Bluetooth** — later.
+**Docs:** [Building it yourself](docs/BUILDING.md) (toolchains, Android, iOS/Xcode, PWA, CI) ·
+[Demo runbook](docs/DEMO.md) · [Network protocol](packages/klunki_net/PROTOCOL.md) ·
+[Architecture](docs/ARCHITECTURE.md) · [Task board](docs/tasks/BOARD.md)
 
 ## Layout
 
@@ -29,13 +27,16 @@ klunki/
 │           ├── muehle.dart        # Mühle engine
 │           └── quartett.dart      # Quartett engine
 │       └── test/                # dart test for the engine (runs without Android SDK)
+│   └── klunki_net/      # pure-Dart networking: TCP/WebSocket host + guest, relay, CLI (PROTOCOL.md)
 ├── klunki/                    # the Flutter app (UI + transport layer on top of engine)
 │   └── lib/
 │       ├── main.dart
 │       ├── app/               # routing, theme
 │       ├── ui/                # game screens (board, cards)
 │       └── transport/         # hot-seat vs network abstraction (same engine)
+├── .github/workflows/         # CI: analyze + test (ci.yml), PWA/APK builds (build.yml)
 └── docs/
+    ├── BUILDING.md            # build it yourself: toolchains, Android, iOS, PWA, CI
     ├── ARCHITECTURE.md        # how the pieces fit
     ├── ROADMAP.md             # milestones
     └── tasks/                 # agent-ready task cards (pick one up, run it)
@@ -66,7 +67,8 @@ flutter test test/e2e
 flutter build web --release && python3 build/web/pwa_finalize.py
 ```
 
-See `docs/ROADMAP.md` for milestones and `docs/tasks/` for agent-executable cards.
+See [`docs/BUILDING.md`](docs/BUILDING.md) for the full build guide, `docs/ROADMAP.md` for milestones and
+`docs/tasks/` for agent-executable cards.
 
 ## License
 
