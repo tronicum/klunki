@@ -28,6 +28,12 @@ final _specs = <_Spec>[
     {'action': 'place', 'ship': 0, 'row': 0, 'col': 8, 'dir': 'h'},
     {'action': 'place', 'ship': 1, 'row': 0, 'col': 0, 'dir': 'h'},
   ]),
+  // A full setup in one move, so the turn passes to B.
+  _Spec('GoStrategyGame', GoStrategyGame.new, {'action': 'autosetup', 'seed': 1}, [
+    {'action': 'move', 'from': 60, 'to': 50},
+    {'action': 'setup', 'pieces': ['flag']},
+    {'action': 'autosetup', 'seed': 'x'},
+  ]),
 ];
 
 void main() {

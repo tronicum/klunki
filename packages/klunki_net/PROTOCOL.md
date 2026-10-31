@@ -210,7 +210,7 @@ relay and a client, never forwarded.
 ## Known limitations (accepted for the PoC)
 - **Hidden information is not hidden on the wire.** `welcome` carries the seed
   and the whole move log, so a modified client could reconstruct the
-  opponent's Quartett hand or Schiffe fleet. The UI never shows it; per-player
+  opponent's Quartett hand, Schiffe fleet or GoStrategy setup (setups are moves in the log). The UI never shows it; per-player
   views are post-PoC.
 - No encryption (`ws://`, not `wss://`); the token only prevents accidental
   takeovers. Local Wi-Fi only. The WebSocket port does not check `Origin`, so

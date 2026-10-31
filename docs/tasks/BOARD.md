@@ -84,6 +84,21 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | I18N-07 ✅ | Chinese font offline for the PWA: bundled Noto Sans SC subset (Regular + Bold, OFL) covering the UI strings plus 简体中文, in the font fallback chain; strict glyph tests; `tool/update_web_fonts.py` regenerates the subset (see `docs/tasks/I18N-07-08-offline-fonts.md`) | 03, 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**`, `klunki/tool/update_web_fonts.py` | – |
 | I18N-08 ✅ | Bundled Roboto (Regular/Medium/Bold, OFL) plus a Noto Sans Math subset for arrows, dashes and ellipsis, so the offline PWA shows Latin text and the 'X' inside ar/fa text on a first visit without internet | 04 | `klunki/assets/fonts/**`, `klunki/pubspec.yaml` (fonts), `klunki/lib/app/fonts.dart`, `klunki/web/**` | – |
 
+## New games
+
+| ID | Task | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|
+| KLD-058a ✅ | **GoStrategy** (hidden-rank capture-the-flag, id `gostrategy`): engine (setup phase, per-player views, fights, two-square rule, move limit), `GoStrategyText` for the CLI/demo, registered for `klunki host gostrategy`; hidden from the app (`appReady: false`) until 058b; see `docs/tasks/KLD-058-gostrategy.md` | – | `packages/klunki_engine/**`, `packages/klunki_net/lib/src/cli/cli.dart`, `klunki/lib/ui/engine_l10n.dart`, `klunki/lib/l10n/**`, `klunki/lib/ui/shell/screen_registry.dart` | – |
+| KLD-058b | GoStrategy screen: setup (shuffle, swap, done), board from `viewFor(me)`, tap piece → `targetsFrom`, fight reveal animation, handover; set `appReady: true` (API in the card) | 058a, 021 | `klunki/lib/ui/games/gostrategy*`, `klunki/lib/ui/shell/screen_registry.dart`, `klunki/lib/ui/game_titles.dart`, `klunki/lib/l10n/**`, `klunki/test/ui/games/gostrategy*` | – |
+
+## Long-term games
+
+| ID | Task | Notes |
+|---|---|---|
+| KLD-059 | **Schach** (chess, id `chess`): standard rules incl. castling, en passant, promotion, check/mate/stalemate, draw rules; see `docs/tasks/KLD-059-chess.md` | 2 players, fits the current protocol |
+| KLD-060 | **Immobilien-Spiel** (property-trading dice game, working title, id `property`): dice, buying/rent/houses, cards, bankruptcy; see `docs/tasks/KLD-060-property-game.md` | large; 2–n players needs protocol/lobby work |
+| KLD-061 | **Hotelspiel** (hotel-building dice game, working title, id `hotel`): hotel lots on a track, buildings + extras, permit die, overnight fees, bankruptcy; see `docs/tasks/KLD-061-hotel-game.md` | shares a possible "board-economy" core with 060; 2–4 players needs protocol/lobby work |
+
 ## Backlog
 
 | ID | Task | Notes |

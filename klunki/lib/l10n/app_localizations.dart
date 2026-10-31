@@ -1272,6 +1272,36 @@ abstract class AppLocalizations {
   /// **'Alle Schiffe versenkt'**
   String get engineReasonSchiffeAllSunk;
 
+  /// Result reason (GoStrategy): the winner captured the enemy flag.
+  ///
+  /// In de, this message translates to:
+  /// **'Flagge erobert'**
+  String get engineReasonGostrategyFlagCaptured;
+
+  /// Result reason (GoStrategy): the loser had no legal move on their turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Gegner hat keinen Zug mehr'**
+  String get engineReasonGostrategyNoMoves;
+
+  /// Result reason (GoStrategy): draw, neither player can move.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Seite kann ziehen'**
+  String get engineReasonGostrategyBothBlocked;
+
+  /// Result reason (GoStrategy): draw after the move limit without a fight.
+  ///
+  /// In de, this message translates to:
+  /// **'{moves} Züge ohne Kampf'**
+  String engineReasonGostrategyMoveLimit(int moves);
+
+  /// Shown instead of a game screen when a network game uses a game the app cannot show yet (e.g. a CLI host plays GoStrategy).
+  ///
+  /// In de, this message translates to:
+  /// **'{game} gibt es in der App noch nicht.'**
+  String gameNotInApp(String game);
+
   /// Quartett set name, set A.
   ///
   /// In de, this message translates to:

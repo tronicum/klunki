@@ -24,6 +24,10 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code, [Map<String
     GameEndReason.quartettAllQuartetsEqual => l10n.engineReasonQuartettAllQuartetsEqual(p('a'), p('b')),
     GameEndReason.quartettMostQuartets => l10n.engineReasonQuartettMostQuartets(p('a'), p('b')),
     GameEndReason.schiffeAllSunk => l10n.engineReasonSchiffeAllSunk,
+    GameEndReason.gostrategyFlagCaptured => l10n.engineReasonGostrategyFlagCaptured,
+    GameEndReason.gostrategyNoMoves => l10n.engineReasonGostrategyNoMoves,
+    GameEndReason.gostrategyBothBlocked => l10n.engineReasonGostrategyBothBlocked,
+    GameEndReason.gostrategyMoveLimit => l10n.engineReasonGostrategyMoveLimit(p('moves')),
   };
 }
 

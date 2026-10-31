@@ -1233,6 +1233,36 @@
   "@engineReasonSchiffeAllSunk": {
     "description": "Result reason (Schiffe versenken): the whole fleet is sunk."
   },
+  "engineReasonGostrategyFlagCaptured": "Flagge erobert",
+  "@engineReasonGostrategyFlagCaptured": {
+    "description": "Result reason (GoStrategy): the winner captured the enemy flag."
+  },
+  "engineReasonGostrategyNoMoves": "Gegner hat keinen Zug mehr",
+  "@engineReasonGostrategyNoMoves": {
+    "description": "Result reason (GoStrategy): the loser had no legal move on their turn."
+  },
+  "engineReasonGostrategyBothBlocked": "Keine Seite kann ziehen",
+  "@engineReasonGostrategyBothBlocked": {
+    "description": "Result reason (GoStrategy): draw, neither player can move."
+  },
+  "engineReasonGostrategyMoveLimit": "{moves} Züge ohne Kampf",
+  "@engineReasonGostrategyMoveLimit": {
+    "description": "Result reason (GoStrategy): draw after the move limit without a fight.",
+    "placeholders": {
+      "moves": {
+        "type": "int"
+      }
+    }
+  },
+  "gameNotInApp": "{game} gibt es in der App noch nicht.",
+  "@gameNotInApp": {
+    "description": "Shown instead of a game screen when a network game uses a game the app cannot show yet (e.g. a CLI host plays GoStrategy).",
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
   "engineSetA": "Supersportwagen",
   "@engineSetA": {
     "description": "Quartett set name, set A."

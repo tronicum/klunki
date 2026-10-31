@@ -116,6 +116,33 @@ void main() {
       await host.close();
     });
 
+    test('GoStrategy: setups and a move travel in order; views agree on both sides', () async {
+      const config = GameConfig('gostrategy', seed: 3);
+      expect(GameConfig.fromJson(jsonDecode(jsonEncode(config.toJson())) as Map<String, dynamic>), config);
+      final host = await startHost(config);
+      final guest = await joinHost(host.port);
+      final setup = GoStrategyGame.setupMove(GoStrategyGame.randomSetup(7));
+      expect(host.submitLocal(setup), isNull);
+      await until(() => guest.moves.length == 1);
+      expect(await guest.submit({'action': 'setup', 'pieces': ['flag']}), 'illegal move');
+      expect(await guest.submit({'action': 'autosetup', 'seed': 8}), isNull);
+      final hg = host.game as GoStrategyGame, gg = guest.game as GoStrategyGame;
+      expect(hg.phase, GoStrategyPhase.play);
+      expect(host.submitLocal({'action': 'move', 'from': 60, 'to': 50}), isNull);
+      await until(() => guest.moves.length == 3);
+
+      expect(jsonEncode(guest.moves), jsonEncode(host.moves));
+      expect([for (final h in gg.history) h['player']], [Player.a, Player.b, Player.a]);
+      expect(gg.currentPlayer, Player.b);
+      expect(gg.viewFor(Player.b), hg.viewFor(Player.b));
+      expect(gg.viewFor(Player.a), hg.viewFor(Player.a));
+      // The guest's own view hides X's ranks (the full log is on the wire,
+      // see PROTOCOL.md "Known limitations").
+      expect(gg.viewFor(Player.b)[99].hidden, isTrue);
+      await guest.close();
+      await host.close();
+    });
+
     test('out-of-turn and illegal moves are rejected without state change', () async {
       final host = await startHost(const GameConfig('connect4'));
       final guest = await joinHost(host.port);
