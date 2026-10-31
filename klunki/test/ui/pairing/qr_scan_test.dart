@@ -12,6 +12,7 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/qr_scan_screen.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart';
+import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
 
@@ -56,6 +57,7 @@ class _Calls {
   final List<FakeQrScanner> scanners = [];
   QrCameraState initial = const QrCameraState(status: QrCameraStatus.running);
   final RelaySettings settings = RelaySettings.memory();
+  Object? relayError; // fail relay joins with this (null: stay connecting)
   FakeQrScanner get scanner => scanners.last;
 }
 
@@ -68,7 +70,8 @@ PairingDeps _deps(_Calls calls, {bool scan = true}) => PairingDeps(
       },
       relayJoin: (relay, code, {required name}) {
         calls.relay.add((relay, code, name));
-        return Completer<NetworkTransport>().future;
+        final error = calls.relayError;
+        return error != null ? Future.error(error) : Completer<NetworkTransport>().future;
       },
       localAddresses: () async => const [],
       deviceName: () => 'Pixel',
@@ -185,7 +188,7 @@ void main() {
     await _drain(tester);
   });
 
-  testWidgets('a room link joins the room and remembers the relay address', (tester) async {
+  testWidgets('a room link joins the room through its relay without saving it (KLD-075)', (tester) async {
     final calls = _Calls();
     await _openJoinTab(tester, _deps(calls));
     await _openScanner(tester);
@@ -197,20 +200,42 @@ void main() {
     expect(calls.direct, isEmpty);
     expect(find.byKey(const Key('room-progress')), findsOneWidget);
     expect(tester.widget<TextField>(find.byKey(const Key('room-code'))).controller!.text, 'K7Q 2M');
-    expect(calls.settings.value, Uri.parse('ws://192.168.1.5:8000/relay'));
-    expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+    expect(calls.settings.value, isNull);
+    expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
+    expect(find.byKey(const Key('relay-line-unset')), findsOneWidget);
+    // An app has no page origin: no foreign-relay warning.
+    expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
     await _drain(tester);
   });
 
-  testWidgets('a room link with &relay= uses that relay', (tester) async {
-    final calls = _Calls();
+  testWidgets('a scanned &relay= is used once; "Als Standard speichern" keeps it (KLD-075)', (tester) async {
+    final saved = Uri.parse('ws://192.168.1.20:4749/relay');
+    final calls = _Calls()
+      ..relayError = const NetException('relay: no room with code ABCDE')
+      ..settings.value = saved;
     await _openJoinTab(tester, _deps(calls));
     await _openScanner(tester);
     calls.scanner.emit('http://192.168.1.5:8000/?room=ABCDE&relay=10.0.0.9%3A4749');
     await _settle(tester);
     expect(calls.relay, [(Uri.parse('ws://10.0.0.9:4749/relay'), 'ABCDE', 'Pixel')]);
+    expect(calls.settings.value, saved);
+    expect(find.text('Relay: 192.168.1.20:4749'), findsOneWidget);
+    expect(find.text('Relay aus Link: 10.0.0.9:4749'), findsOneWidget);
+    expect(find.byKey(const Key('room-error')), findsOneWidget);
+
+    // A retry by hand still goes to the link's relay.
+    await tester.ensureVisible(find.byKey(const Key('room-join-button')));
+    await tester.tap(find.byKey(const Key('room-join-button')));
+    await _settle(tester);
+    expect(calls.relay.last.$1, Uri.parse('ws://10.0.0.9:4749/relay'));
+    expect(calls.settings.value, saved);
+
+    await tester.ensureVisible(find.byKey(const Key('room-link-relay-save')));
+    await tester.tap(find.byKey(const Key('room-link-relay-save')));
+    await _settle(tester);
     expect(calls.settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
     expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+    expect(find.byKey(const Key('room-link-relay')), findsNothing);
     await _drain(tester);
   });
 

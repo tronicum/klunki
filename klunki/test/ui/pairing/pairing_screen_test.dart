@@ -11,6 +11,7 @@ import 'package:klunki/net/join_qr.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
 import 'pairing_test_utils.dart';
@@ -210,6 +211,27 @@ void main() {
       expect(find.byKey(const Key('pair-join-error')), findsOneWidget);
       expect(find.textContaining('Verbindung zu Bob fehlgeschlagen'), findsOneWidget);
       expect(find.textContaining('selben WLAN'), findsOneWidget);
+    });
+
+    testWidgets('KLD-071: a host whose seat is taken says "Platz belegt"', (tester) async {
+      await _openPairing(
+        tester,
+        testDeps(
+          discovery: FakeDiscovery(),
+          created: CreatedTransports(),
+          joinTransport: (host, port, {required name}) =>
+              Future.error(const NetException('peer error: session full')),
+        ),
+      );
+      await tester.tap(find.text('Beitreten'));
+      await tester.pump();
+      await tester.enterText(find.byKey(const Key('pair-manual')), '192.168.1.20');
+      await tester.tap(find.byKey(const Key('pair-manual-connect')));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(const Key('pair-join-error')), findsOneWidget);
+      expect(find.textContaining('Platz belegt'), findsOneWidget);
+      expect(find.textContaining('selben WLAN'), findsNothing);
     });
 
     testWidgets('a hanging connect times out with the hint text', (tester) async {

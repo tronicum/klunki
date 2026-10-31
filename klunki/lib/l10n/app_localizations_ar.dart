@@ -1263,6 +1263,25 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String relayFromLink(String address) {
+    return 'المرحّل من الرابط: $address';
+  }
+
+  @override
+  String get relayLinkSaveDefault => 'حفظ كافتراضي';
+
+  @override
+  String get relayLinkUseSaved => 'استخدام المرحّل المحفوظ';
+
+  @override
+  String get relayLinkForeign =>
+      'تنبيه: هذا الرابط يشير إلى مرحّل آخر، وليس إلى خادم هذه الصفحة. انضم فقط إذا كنت تثق بالمرسل: المرحّل الغريب يرى كل النقلات.';
+
+  @override
+  String get pairingSeatTaken =>
+      'المقعد مشغول: هناك من يلعب هذه المباراة بالفعل. يمكن فقط لمن انضم أولاً أن يعود.';
+
+  @override
   String get webJoinDirectTitle => 'أو اتصل بجهاز مضيف (تطبيق أو طرفية)';
 
   @override

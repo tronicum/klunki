@@ -1920,6 +1920,31 @@
       }
     }
   },
+  "relayFromLink": "Relay aus Link: {address}",
+  "@relayFromLink": {
+    "description": "KLD-075 room join: the relay a ?room= link or scanned room QR names, used for this join only (not saved); address = host:port.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "relayLinkSaveDefault": "Als Standard speichern",
+  "@relayLinkSaveDefault": {
+    "description": "KLD-075 room join: button that saves the link's relay as the default relay setting."
+  },
+  "relayLinkUseSaved": "Gespeichertes Relay verwenden",
+  "@relayLinkUseSaved": {
+    "description": "KLD-075 room join: button that ignores the link's relay and goes back to the saved/default relay."
+  },
+  "relayLinkForeign": "Achtung: Dieser Link führt zu einem fremden Relay, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremdes Relay sieht alle Spielzüge.",
+  "@relayLinkForeign": {
+    "description": "KLD-075 PWA: warning when a ?room= link names a relay other than the page's own server (possible phishing/abuse)."
+  },
+  "pairingSeatTaken": "Platz belegt: In diesem Spiel spielt schon jemand. Nur wer zuerst beigetreten ist, kann wieder einsteigen.",
+  "@pairingSeatTaken": {
+    "description": "KLD-071: joining failed because the host's seat is taken (\"session full\"): only the original guest (with its session token) can rejoin."
+  },
   "webJoinDirectTitle": "Oder mit einem Host-Gerät verbinden (App oder Terminal)",
   "@webJoinDirectTitle": {
     "description": "Web join screen: heading of the direct address section (native host)."

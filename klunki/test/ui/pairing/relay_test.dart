@@ -102,6 +102,9 @@ void main() {
       await tester.pump();
       final cases = <Object, String>{
         const NetException('relay: room K7Q2M is full'): 'Raum K7Q 2M ist schon voll: Dort spielen bereits zwei.',
+        // KLD-071: the host refuses anyone without the guest's session token.
+        const NetException('peer error: session full'):
+            'Platz belegt: In diesem Spiel spielt schon jemand. Nur wer zuerst beigetreten ist, kann wieder einsteigen.',
         const NetException('relay: host left'): 'Der Host hat den Raum verlassen. Das Spiel ist beendet.',
         const NetException('relay: room expired (idle)'): 'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).',
         const NetException('cannot connect: cannot open ws://192.168.1.5:8000/relay?join=K7Q2M'):
@@ -240,12 +243,13 @@ void main() {
   });
 
   group('?room= at startup', () {
-    Future<_JoinRecorder> start(WidgetTester tester, String query) async {
+    Future<_JoinRecorder> start(WidgetTester tester, String query, {RelaySettings? settings}) async {
       final r = _JoinRecorder();
+      final relaySettings = settings ?? RelaySettings.memory();
       await tester.pumpWidget(KlunkiApp(
         localeController: LocaleController.memory(testLocale),
         pageUrl: Uri.parse('http://192.168.1.5:8000/?$query'),
-        webJoinDeps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join),
+        webJoinDeps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join, relaySettings: () => relaySettings),
       ));
       await tester.pump(); // post-frame: push
       await tester.pumpAndSettle();
@@ -264,11 +268,62 @@ void main() {
       expect(find.byKey(const Key('room-error')), findsOneWidget);
     });
 
-    testWidgets('&relay= picks another relay (and shows it on the relay line)', (tester) async {
-      final r = await start(tester, 'room=K7Q2M&relay=10.0.0.9:4749');
+    testWidgets('KLD-075: a foreign &relay= is shown with a warning, not saved, and joins only on tap',
+        (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final settings = RelaySettings.memory();
+      final r = await start(tester, 'room=K7Q2M&relay=10.0.0.9:4749', settings: settings);
       await tester.tap(find.byKey(const Key('player-name-ok')));
       await tester.pumpAndSettle();
+      // No automatic join to a relay that is not this page's server.
+      expect(r.calls, isEmpty);
+      expect(find.text('Relay aus Link: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.byKey(const Key('room-link-relay-foreign')), findsOneWidget);
+      expect(find.textContaining('fremden Relay'), findsOneWidget);
+      // The saved setting and the relay line are unchanged.
+      expect(settings.value, isNull);
+      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+
+      await _tapVisible(tester, find.byKey(const Key('room-join-button')));
+      await tester.pumpAndSettle();
       expect(r.calls.single.$1, Uri.parse('ws://10.0.0.9:4749/relay'));
+      expect(settings.value, isNull);
+
+      // Only "Als Standard speichern" makes it the default.
+      await _tapVisible(tester, find.byKey(const Key('room-link-relay-save')));
+      await tester.pumpAndSettle();
+      expect(settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
+      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.byKey(const Key('room-link-relay')), findsNothing);
+    });
+
+    testWidgets('KLD-075: "Gespeichertes Relay verwenden" drops the link relay', (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final settings = RelaySettings.memory();
+      final r = await start(tester, 'room=K7Q2M&relay=10.0.0.9:4749', settings: settings);
+      await tester.tap(find.byKey(const Key('player-name-ok')));
+      await tester.pumpAndSettle();
+      await _tapVisible(tester, find.byKey(const Key('room-link-relay-drop')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('room-link-relay')), findsNothing);
+      await _tapVisible(tester, find.byKey(const Key('room-join-button')));
+      await tester.pumpAndSettle();
+      expect(r.calls.single.$1, _pageRelay);
+      expect(settings.value, isNull);
+    });
+
+    testWidgets('KLD-075: a link to this page joins it once, the saved relay stays', (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final saved = Uri.parse('ws://10.0.0.9:4749/relay');
+      final settings = RelaySettings.memory(saved);
+      final r = await start(tester, 'room=K7Q2M', settings: settings);
+      await tester.tap(find.byKey(const Key('player-name-ok')));
+      await tester.pumpAndSettle();
+      // The page's own relay is not foreign: joined right away, no warning.
+      expect(r.calls.single.$1, _pageRelay);
+      expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
+      expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
+      expect(settings.value, saved);
       expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
     });
 

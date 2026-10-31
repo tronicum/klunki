@@ -47,6 +47,7 @@ class KlunkiHost {
 
   Connection? _guest; // the connection that completed the handshake
   final Set<Connection> _pending = {}; // connected, no hello yet
+  final Map<Connection, Timer> _helloDeadlines = {}; // pending ones without hello are dropped
   String? _guestName;
   String? _token; // set once a guest has joined; required to rejoin
 
@@ -180,6 +181,10 @@ class KlunkiHost {
     for (final c in _pending.toList()) {
       c.close(reason);
     }
+    for (final t in _helloDeadlines.values) {
+      t.cancel();
+    }
+    _helloDeadlines.clear();
     await _server.close();
     await _events.close();
   }
@@ -194,6 +199,12 @@ class KlunkiHost {
       onClosed: (reason, {timedOut = false}) => _onClosed(conn, reason, timedOut),
     );
     _pending.add(conn);
+    // A connection that never says hello must not hold a relay room's guest
+    // slot (the relay refuses further joins while it is attached).
+    _helloDeadlines[conn] = Timer(_timeout, () {
+      _helloDeadlines.remove(conn);
+      if (_pending.contains(conn)) conn.fail('no hello within ${_timeout.inMilliseconds} ms');
+    });
   }
 
   void _onMessage(Connection conn, Map<String, dynamic> m) {
@@ -215,12 +226,15 @@ class KlunkiHost {
     // Untrusted input: sanitised like a typed name, the guest's mark as fallback.
     final raw = m['name'];
     final name = playerNameOr(raw is String ? raw : null, guestPlayer);
-    final token = m['token'] as String?;
+    final token = m['token'];
     final reconnect = _token != null;
-    if (reconnect && token != _token && name != _guestName) {
+    // KLD-071: once a guest has joined, its seat is reclaimed only with the
+    // session token (never by name: names and marks are public).
+    if (reconnect && !(token is String && _sameToken(token, _token!))) {
       return conn.fail('session full');
     }
     _pending.remove(conn);
+    _helloDeadlines.remove(conn)?.cancel();
     final old = _guest;
     _guest = conn;
     old?.close('replaced by a new connection');
@@ -363,6 +377,7 @@ class KlunkiHost {
 
   void _onClosed(Connection conn, String reason, bool timedOut) {
     _pending.remove(conn);
+    _helloDeadlines.remove(conn)?.cancel();
     if (conn != _guest) return;
     _guest = null;
     _emit(PeerDisconnected(reason, timedOut: timedOut));
@@ -383,6 +398,16 @@ class KlunkiHost {
       'view': _lastGuestView,
       if (step.commit != null) 'commit': step.commit,
     };
+  }
+
+  /// Compares two tokens in time independent of where they differ.
+  static bool _sameToken(String a, String b) {
+    if (a.length != b.length) return false;
+    var diff = 0;
+    for (var i = 0; i < a.length; i++) {
+      diff |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return diff == 0;
   }
 
   static String _newToken() {

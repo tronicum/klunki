@@ -2004,6 +2004,36 @@ abstract class AppLocalizations {
   /// **'{reason} Starte ein neues Spiel.'**
   String relayRoomLost(String reason);
 
+  /// KLD-075 room join: the relay a ?room= link or scanned room QR names, used for this join only (not saved); address = host:port.
+  ///
+  /// In de, this message translates to:
+  /// **'Relay aus Link: {address}'**
+  String relayFromLink(String address);
+
+  /// KLD-075 room join: button that saves the link's relay as the default relay setting.
+  ///
+  /// In de, this message translates to:
+  /// **'Als Standard speichern'**
+  String get relayLinkSaveDefault;
+
+  /// KLD-075 room join: button that ignores the link's relay and goes back to the saved/default relay.
+  ///
+  /// In de, this message translates to:
+  /// **'Gespeichertes Relay verwenden'**
+  String get relayLinkUseSaved;
+
+  /// KLD-075 PWA: warning when a ?room= link names a relay other than the page's own server (possible phishing/abuse).
+  ///
+  /// In de, this message translates to:
+  /// **'Achtung: Dieser Link führt zu einem fremden Relay, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremdes Relay sieht alle Spielzüge.'**
+  String get relayLinkForeign;
+
+  /// KLD-071: joining failed because the host's seat is taken ("session full"): only the original guest (with its session token) can rejoin.
+  ///
+  /// In de, this message translates to:
+  /// **'Platz belegt: In diesem Spiel spielt schon jemand. Nur wer zuerst beigetreten ist, kann wieder einsteigen.'**
+  String get pairingSeatTaken;
+
   /// Web join screen: heading of the direct address section (native host).
   ///
   /// In de, this message translates to:

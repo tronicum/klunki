@@ -115,14 +115,14 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 
 ## Review 2026-10
 
-From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there). All open. Renumbered on merge (the review's 069–072 collided with KLD-069 Quartett decks and KLD-070 CI; its CI card is a note on the KLD-070 row under Infrastructure); its resign × secrecy card is ✅ done in the KLD-065 merge `a6bc0ab`.
+From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there). Open unless marked ✅. Renumbered on merge (the review's 069–072 collided with KLD-069 Quartett decks and KLD-070 CI; its CI card is a note on the KLD-070 row under Infrastructure); its resign × secrecy card is ✅ done in the KLD-065 merge `a6bc0ab`.
 
 | ID | Task | Priority | Depends on | Touched paths | 🧑 |
 |---|---|---|---|---|---|
-| KLD-071 | Rejoin only with the session token: no guest-seat takeover by name (`host.dart:220`); the guest saves its token; the host confirms a rejoin with a lost token | high | – | `packages/klunki_net/lib/src/host.dart`, `PROTOCOL.md`, `klunki/lib/transport/**`, `klunki/lib/ui/pairing/**` | – |
+| KLD-071 ✅ | Rejoin only with the session token (review S1): no name fallback, constant-time compare, hello deadline; clear "Platz belegt" in the app and CLI. See `docs/tasks/KLD-071-rejoin-token.md` | 🔴 | – | `packages/klunki_net/lib/src/{host,cli/cli}.dart`, `PROTOCOL.md`, `klunki/lib/ui/pairing/{relay_errors,pairing_screen,web_join_screen}.dart`, `klunki/lib/l10n/**` | – |
 | KLD-073 | Shell guards: leave confirmation (`PopScope`), no undo in hidden-information hot-seat games, a start cover, a tap guard on the cover | high | 065 merged | `klunki/lib/ui/shell/**`, `klunki/lib/game/game_controller.dart`, `klunki/lib/ui/pairing/network_game_session.dart` | – |
 | KLD-072 | Unguessable hidden setups: 128-bit secure seeds or explicit layouts, and an engine-owned PRNG (also stable replays) | high | 065 merged | `packages/klunki_engine/lib/**`, `klunki/lib/ui/shell/game_screen.dart`, `klunki/lib/ui/games/schiffe/**`, CLI | – |
-| KLD-075 | Links and QR codes don't silently save another relay; confirm before auto-connect | medium | – | `klunki/lib/ui/pairing/**`, `klunki/lib/profile/relay_settings.dart` | – |
+| KLD-075 ✅ | Links and QR codes no longer silently replace the saved relay (review S3): "Relay aus Link: …" for that join only, "Als Standard speichern", foreign-relay warning in the PWA. See `docs/tasks/KLD-075-relay-links.md` | 🟠 | – | `klunki/lib/ui/pairing/{room_join,web_join_screen}.dart`, `klunki/lib/l10n/**` | – |
 | KLD-074 | App background/resume: guest auto-reconnect, relay room grace period, host listener check | medium | 071 | `klunki/lib/transport/**`, `packages/klunki_net/lib/src/**` | 🧑 device check |
 | KLD-076 | Release basics: icons, launch screens, signing, About/licences, Info.plist l10n, encryption key, PWA update prompt | medium | 053, 012, 066 | `klunki/ios/Runner/**` (never pbxproj/xcscheme/Main.storyboard), `klunki/android/**`, `klunki/web/**` | 🧑 licence, keys, team |
 | KLD-077 | Accessibility pass: Four in a Row and mill semantics, announcements, keyboard on the web, contrast, battleship target size | medium | 068, 058b | `klunki/lib/ui/**`, `klunki/lib/app/theme.dart` | – |

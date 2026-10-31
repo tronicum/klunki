@@ -154,6 +154,11 @@ Future<int> runCli(
                 name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout);
   } on NetException catch (e) {
     out.writeln('Could not join $where: ${e.message}');
+    if (e.message.contains('session full')) {
+      // KLD-071: a seat is only reclaimed with its session token, which a
+      // new terminal does not have.
+      out.writeln('The seat is taken: only the player who joined first can rejoin this game.');
+    }
     return 1;
   }
   final title = specById(guest.config.gameId)?.title ?? guest.config.gameId;

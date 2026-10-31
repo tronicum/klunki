@@ -1241,6 +1241,25 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String relayFromLink(String address) {
+    return 'Relay from link: $address';
+  }
+
+  @override
+  String get relayLinkSaveDefault => 'Save as default';
+
+  @override
+  String get relayLinkUseSaved => 'Use saved relay';
+
+  @override
+  String get relayLinkForeign =>
+      'Caution: this link points to a different relay, not to this page\'s server. Only join if you trust the sender: a foreign relay sees every move.';
+
+  @override
+  String get pairingSeatTaken =>
+      'Seat taken: someone is already playing in this game. Only the player who joined first can rejoin.';
+
+  @override
   String get webJoinDirectTitle =>
       'Or connect to a host device (app or terminal)';
 

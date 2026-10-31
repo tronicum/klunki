@@ -23,6 +23,7 @@ import 'device_name.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
+import 'relay_errors.dart';
 import 'relay_line.dart';
 import 'room_join.dart';
 import 'web_join_screen.dart';
@@ -588,7 +589,9 @@ class _JoinPanelState extends State<_JoinPanel> {
       setState(() {
         _connecting = null;
         // The hints go with every failed join.
-        _error = '${l10n.pairingJoinFailed(label, '$failure')}\n${l10n.pairingJoinHints}';
+        _error = failure != null && isSeatTaken(failure)
+            ? l10n.pairingSeatTaken
+            : '${l10n.pairingJoinFailed(label, '$failure')}\n${l10n.pairingJoinHints}';
       });
       return;
     }

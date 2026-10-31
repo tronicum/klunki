@@ -1239,6 +1239,25 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String relayFromLink(String address) {
+    return 'رله از پیوند: $address';
+  }
+
+  @override
+  String get relayLinkSaveDefault => 'ذخیره به‌عنوان پیش‌فرض';
+
+  @override
+  String get relayLinkUseSaved => 'استفاده از رله ذخیره‌شده';
+
+  @override
+  String get relayLinkForeign =>
+      'توجه: این پیوند به رله دیگری اشاره می‌کند، نه به سرور این صفحه. فقط اگر به فرستنده اعتماد داری بپیوند: رله بیگانه همه حرکت‌ها را می‌بیند.';
+
+  @override
+  String get pairingSeatTaken =>
+      'جا پر است: کسی از قبل این بازی را بازی می‌کند. فقط کسی که اول پیوسته می‌تواند دوباره وارد شود.';
+
+  @override
   String get webJoinDirectTitle =>
       'یا به دستگاه میزبان وصل شو (برنامه یا ترمینال)';
 

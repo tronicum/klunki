@@ -109,9 +109,12 @@ player name too.
 
 **Handshake.** The guest sends `hello`; the host answers `hello` + `welcome`.
 The host chooses the players (default host = A, guest = B). The first guest to
-join gets a random `token`. Later connections are let in only with that token
-or the same (cleaned) `name`; they replace a stale connection of the same guest. Anyone
-else gets `error "session full"`.
+join gets a random `token`. Later connections are let in **only with that
+token** (compared in constant time; KLD-071), whatever their `name`: names and
+the default mark are public, so they never reclaim the seat. A connection with
+the token replaces a stale connection of the same guest. Anyone else gets
+`error "session full"` and the connected guest is not disturbed. A connection
+that sends no `hello` within the host's handshake timeout is closed.
 
 **Moves.** For `move {index, move}` the host checks, in order:
 
@@ -353,8 +356,11 @@ relay and a client, never forwarded.
 - A redacted snapshot grows by about 120 bytes per move (plus the current
   view); very long GoStrategy games through a relay could approach the
   relay's 256 Ki frame limit after roughly 2000 moves.
-- No encryption (`ws://`, not `wss://`); the token only prevents accidental
-  takeovers. Local Wi-Fi only. The WebSocket port does not check `Origin`, so
+- No encryption (`ws://`, not `wss://`). The token (16 random bytes from
+  `Random.secure`) is the only proof of the guest seat (KLD-071): a guest that
+  loses it (e.g. a new app instance or terminal) cannot rejoin and gets
+  `session full` ("Platz belegt" in the app). Whoever can read the traffic
+  (same Wi-Fi without encryption, the relay operator) can read the token too. Local Wi-Fi only. The WebSocket port does not check `Origin`, so
   any web page the guest's browser opens could connect to a host it can
   reach on the LAN; acceptable for the PoC (one guest, local network).
 - One guest per host, over either transport: a second guest gets
@@ -362,5 +368,12 @@ relay and a client, never forwarded.
   guest may rejoin over the other transport with its token.
 - Browser ↔ browser play needs a relay (see "Relay"): a web page cannot
   listen for connections. The relay sees all messages in clear text (`ws://`)
-  and does not authenticate anyone: whoever knows the room code can take the
-  guest slot while it is free. Meant for a relay on the local network.
+  and does not authenticate anyone, but the host does: whoever knows the room
+  code can occupy the free guest slot only until the host refuses its `hello`
+  without the token (`session full`, then `relay.kick`), so it can neither
+  take a disconnected guest's seat nor see that guest's view. Meant for a relay
+  on the local network.
+- A `?room=…&relay=…` link or a scanned room QR code names a relay; the apps
+  use it for that join only and save it as the default only when the player
+  confirms ("Als Standard speichern", KLD-075). The PWA warns about a relay
+  other than the page's own server and does not join it without a tap.
