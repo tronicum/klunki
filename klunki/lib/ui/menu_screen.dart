@@ -5,13 +5,43 @@ import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
+import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 /// The game-selection menu: every game in `gameSpecs` order. Tapping one
 /// starts a hot-seat game with a fresh random seed (see [openGame]).
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
+///
+/// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
+/// browser join screen on top of the menu and connects right away, so "back"
+/// from there lands in the menu.
+class MenuScreen extends StatefulWidget {
+  final String? initialJoinLink;
+  final Uri? pageUrl;
+
+  /// Test hook for the `?join=` flow (default: the real WebSocket join).
+  final WebJoinDeps? webJoinDeps;
+
+  const MenuScreen({super.key, this.initialJoinLink, this.pageUrl, this.webJoinDeps});
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final link = widget.initialJoinLink;
+    if (link != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => webJoinScreenFor(link, pageUrl: widget.pageUrl, deps: widget.webJoinDeps),
+        ));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +69,7 @@ class MenuScreen extends StatelessWidget {
                       onTap: () => openGame(context, spec.id),
                     ),
                   ),
-                // Network play needs sockets: hidden on web (KLD-034).
+                // Native: host or join (KLD-034); web: join a native host (KLD-055).
                 if (pairingScreenBuilder case final pairing?)
                   Card(
                     key: const Key('menu-network'),

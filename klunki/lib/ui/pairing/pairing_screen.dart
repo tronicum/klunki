@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -16,10 +17,12 @@ import '../ltr.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import 'device_name.dart';
 import 'network_game_session.dart';
+import 'web_join_screen.dart';
 
-/// Starts a host session for [config] on [port] (0 = any free port).
+/// Starts a host session for [config] on TCP [port] and WebSocket [wsPort]
+/// (browser guests, KLD-055); 0 = any free port.
 typedef HostTransportFactory = Future<NetworkTransport> Function(GameConfig config,
-    {required String name, required int port});
+    {required String name, required int port, required int wsPort});
 
 /// Joins the host at [host]:[port].
 typedef JoinTransportFactory = Future<NetworkTransport> Function(String host, int port, {required String name});
@@ -45,6 +48,9 @@ class PairingDeps {
   /// Port tried first; if it is busy the host falls back to port 0.
   final int preferredPort;
 
+  /// WebSocket port (browser guests) tried first; falls back to 0 likewise.
+  final int preferredWsPort;
+
   /// Upper bound for a join attempt (the transport has its own handshake
   /// timeout; this also covers a hanging connect).
   final Duration joinTimeout;
@@ -57,14 +63,15 @@ class PairingDeps {
     required this.deviceName,
     this.seed = newGameSeed,
     this.preferredPort = klunkiDefaultPort,
+    this.preferredWsPort = klunkiDefaultWebSocketPort,
     this.joinTimeout = const Duration(seconds: 12),
   });
 
   /// The real thing: platform discovery, TCP on all interfaces.
   factory PairingDeps.platform() => PairingDeps(
         discovery: createDiscovery,
-        hostTransport: (config, {required name, required port}) =>
-            NetworkTransport.host(config, name: name, port: port),
+        hostTransport: (config, {required name, required port, required wsPort}) =>
+            NetworkTransport.host(config, name: name, port: port, wsPort: wsPort),
         joinTransport: (host, port, {required name}) => NetworkTransport.join(host, port, name: name),
         localAddresses: localIPv4Addresses,
         deviceName: defaultDeviceName,
@@ -113,12 +120,8 @@ class _PairingScreenState extends State<PairingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    if (kIsWeb) {
-      return Scaffold(
-        appBar: AppBar(title: Text(l10n.pairingTitle)),
-        body: Center(child: Text(l10n.pairingWebUnavailable)),
-      );
-    }
+    // A page can neither host nor browse mDNS: join-only (KLD-055).
+    if (kIsWeb) return WebJoinScreen(pageUrl: Uri.base);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pairingTitle)),
       body: SafeArea(
@@ -237,13 +240,7 @@ class _HostPanelState extends State<_HostPanel> {
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
-      try {
-        transport = await deps.hostTransport(config, name: name, port: deps.preferredPort);
-      } catch (_) {
-        if (deps.preferredPort == 0) rethrow;
-        // Port busy (e.g. a second Klunki on this machine): any free port.
-        transport = await deps.hostTransport(config, name: name, port: 0);
-      }
+      transport = await _bind(deps, config, name);
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -281,6 +278,7 @@ class _HostPanelState extends State<_HostPanel> {
           port: transport.port!,
           protocol: klunkiProtocolVersion,
           gameId: _gameId,
+          wsPort: transport.wsPort,
         ));
       } catch (e) {
         _advertised = false;
@@ -290,6 +288,22 @@ class _HostPanelState extends State<_HostPanel> {
       setState(() => _advertiseError = AppLocalizations.of(context).pairingNoDiscoveryHost);
     }
     _onConnection(); // the guest may already be there
+  }
+
+  /// Binds the preferred TCP and WebSocket ports; a busy one falls back to
+  /// any free port (e.g. a second Klunki on this machine), keeping the other
+  /// preferred port if it is free. Rethrows the last failure.
+  static Future<NetworkTransport> _bind(PairingDeps deps, GameConfig config, String name) async {
+    final p = deps.preferredPort, w = deps.preferredWsPort;
+    final attempts = <(int, int)>{(p, w), (p, 0), (0, w), (0, 0)}.toList();
+    for (var i = 0;; i++) {
+      final (port, wsPort) = attempts[i];
+      try {
+        return await deps.hostTransport(config, name: name, port: port, wsPort: wsPort);
+      } catch (_) {
+        if (i == attempts.length - 1) rethrow;
+      }
+    }
   }
 
   void _onConnection() {
@@ -307,6 +321,13 @@ class _HostPanelState extends State<_HostPanel> {
       _addresses = const [];
       _advertiseError = null;
     });
+  }
+
+  Future<void> _copyLink(String link) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final copied = AppLocalizations.of(context).pairingLinkCopied;
+    await Clipboard.setData(ClipboardData(text: link));
+    messenger?.showSnackBar(SnackBar(content: Text(copied)));
   }
 
   @override
@@ -362,17 +383,20 @@ class _HostPanelState extends State<_HostPanel> {
     final port = t.port!;
     final title = localizedGameTitle(l10n, _gameId, fallback: specById(_gameId)?.title ?? _gameId);
     final qrHost = _addresses.isEmpty ? null : _addresses[_qrIndex.clamp(0, _addresses.length - 1)];
+    final wsPort = t.wsPort;
+    final payload =
+        qrHost == null ? null : JoinPayload(host: qrHost, port: port, name: _name, gameId: _gameId, wsPort: wsPort);
     return Column(
       key: const Key('pair-host-waiting'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(l10n.pairingHosting(_name, title), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
         const SizedBox(height: 12),
-        if (qrHost != null)
+        if (payload != null)
           Center(
             child: JoinQrCode(
               key: const Key('pair-qr'),
-              payload: JoinPayload(host: qrHost, port: port, name: _name, gameId: _gameId),
+              payload: payload,
               size: 180,
             ),
           )
@@ -393,6 +417,30 @@ class _HostPanelState extends State<_HostPanel> {
             subtitle: i == 0 ? Text(l10n.pairingProbablyWifi) : null,
             onTap: () => setState(() => _qrIndex = i),
           ),
+        // Browser guests (KLD-055): the PWA cannot scan or browse, so show
+        // the WebSocket address and the link to paste.
+        if (payload != null && wsPort != null) ...[
+          const SizedBox(height: 8),
+          Text(l10n.pairingBrowserJoin, style: theme.textTheme.labelLarge),
+          ListTile(
+            key: const Key('pair-browser'),
+            dense: true,
+            leading: const Icon(Icons.public),
+            title: LtrText('$qrHost:$wsPort', key: const Key('pair-browser-address')),
+            subtitle: SelectableText(
+              payload.format(),
+              key: const Key('pair-link'),
+              textDirection: TextDirection.ltr,
+              style: theme.textTheme.bodySmall,
+            ),
+            trailing: IconButton(
+              key: const Key('pair-link-copy'),
+              icon: const Icon(Icons.copy),
+              tooltip: l10n.pairingCopyLink,
+              onPressed: () => _copyLink(payload.format()),
+            ),
+          ),
+        ],
         if (_advertiseError != null)
           Padding(
             padding: const EdgeInsets.only(top: 4),

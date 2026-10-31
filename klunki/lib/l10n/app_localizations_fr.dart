@@ -546,10 +546,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pairingTitle => 'Jouer en Wi-Fi';
 
   @override
-  String get pairingWebUnavailable =>
-      'Le jeu en réseau n’est pas disponible dans le navigateur';
-
-  @override
   String get pairingDeviceName => 'Nom de l’appareil';
 
   @override
@@ -678,6 +674,40 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'Échec de la reconnexion. L’hôte est-il encore dans la partie ?';
+
+  @override
+  String get pairingBrowserJoin =>
+      'Rejoindre depuis un navigateur (saisir l’adresse ou coller le lien) :';
+
+  @override
+  String get pairingCopyLink => 'Copier le lien';
+
+  @override
+  String get pairingLinkCopied => 'Lien copié';
+
+  @override
+  String get webJoinIntro =>
+      'Rejoins dans le navigateur une partie hébergée par un iPhone, un iPad, un appareil Android ou le terminal (klunki host). L’hôte affiche l’adresse et le lien sous « Rejoindre depuis un navigateur ».';
+
+  @override
+  String get webJoinHttpsWarning =>
+      'Cette page est ouverte en https. Depuis là, les navigateurs bloquent les connexions ws:// vers le réseau local. Ouvre Klunki en http://.';
+
+  @override
+  String get webJoinAddressLabel => 'IP, IP:port, lien ws:// ou klunki://';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return 'Le port est le port navigateur (WebSocket) de l’hôte ; sans port : $port.';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      'Adresse invalide. Exemple : 192.168.1.20, 192.168.1.20:4748 ou klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      'Conseils : cet appareil est-il sur le même Wi-Fi que l’hôte ? Les réseaux invités bloquent souvent les connexions entre appareils. La page doit être ouverte en http://, pas en https://. L’hôte doit utiliser une version de Klunki compatible avec les navigateurs (elle affiche « Rejoindre depuis un navigateur »).';
 
   @override
   String get engineReasonConnect4FourInARow => 'Quatre alignés';

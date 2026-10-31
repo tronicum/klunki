@@ -53,7 +53,14 @@ void main() {
       expect(find.text('Warte auf Mitspieler…'), findsOneWidget);
 
       final qr = tester.widget<JoinQrCode>(find.byType(JoinQrCode));
-      expect(qr.payload, JoinPayload(host: '192.168.0.10', port: port, name: 'Stefans iPhone', gameId: 'muehle'));
+      final wsPort = created.hosts.single.wsPort!;
+      expect(wsPort, isNot(port));
+      expect(qr.payload,
+          JoinPayload(host: '192.168.0.10', port: port, name: 'Stefans iPhone', gameId: 'muehle', wsPort: wsPort));
+      expect(qr.payload.format(), contains('w=$wsPort'));
+      // Browser guests: the WebSocket address and the copyable link.
+      expect(find.text('192.168.0.10:$wsPort'), findsOneWidget);
+      expect(tester.widget<SelectableText>(find.byKey(const Key('pair-link'))).data, qr.payload.format());
 
       // Tapping the second address puts it in the QR code.
       await tester.tap(find.byKey(const Key('pair-address-1')));
@@ -65,6 +72,7 @@ void main() {
       expect(ad.port, port);
       expect(ad.gameId, 'muehle');
       expect(ad.protocol, klunkiProtocolVersion);
+      expect(ad.wsPort, wsPort);
       expect(created.hosts.single.config.seed, 7);
 
       await unmountAndSettleSockets(tester, created);
@@ -79,12 +87,12 @@ void main() {
           discovery: discovery,
           created: created,
           preferredPort: klunkiDefaultPort,
-          hostTransport: (config, {required name, required port}) {
+          hostTransport: (config, {required name, required port, required wsPort}) {
             if (port == klunkiDefaultPort) {
               created.hostPorts.add(port);
               return Future.error(const SocketLikeError('address in use'));
             }
-            return loopbackHost(created, config, name: name, port: port);
+            return loopbackHost(created, config, name: name, port: port, wsPort: wsPort);
           },
         ),
       );

@@ -527,9 +527,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingTitle => '通过 Wi-Fi 对战';
 
   @override
-  String get pairingWebUnavailable => '浏览器中无法进行联网对战';
-
-  @override
   String get pairingDeviceName => '设备名称';
 
   @override
@@ -652,6 +649,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairingReconnectFailed => '重新连接失败。主机还在对局中吗？';
+
+  @override
+  String get pairingBrowserJoin => '在浏览器中加入（输入地址或粘贴链接）：';
+
+  @override
+  String get pairingCopyLink => '复制链接';
+
+  @override
+  String get pairingLinkCopied => '链接已复制';
+
+  @override
+  String get webJoinIntro =>
+      '在浏览器中加入由 iPhone、iPad、Android 设备或终端（klunki host）主持的游戏。主机会在“在浏览器中加入”下显示地址和链接。';
+
+  @override
+  String get webJoinHttpsWarning =>
+      '此页面是通过 https 打开的。浏览器会阻止从这里到本地网络的 ws:// 连接。请通过 http:// 打开 Klunki。';
+
+  @override
+  String get webJoinAddressLabel => 'IP、IP:端口、ws:// 或 klunki:// 链接';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return '端口是主机的浏览器端口（WebSocket）；未填写时为 $port。';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      '地址无效。例如：192.168.1.20、192.168.1.20:4748 或 klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      '提示：此设备与主机是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。页面必须通过 http:// 打开，而不是 https://。主机必须运行支持浏览器的 Klunki 版本（会显示“在浏览器中加入”）。';
 
   @override
   String get engineReasonConnect4FourInARow => '四子连线';

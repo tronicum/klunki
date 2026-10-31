@@ -291,7 +291,7 @@ Then (labels: see demo 3):
 
 ## 5. PWA (web, offline) ⏳ (KLD-010)
 
-The web build is **hot-seat only** (browsers can't open TCP sockets; network play on the web needs the internet relay, KLD-051).
+The web build plays hot-seat, and it can **join** a game hosted by the iOS/Android app or the `klunki` CLI over WebSocket on the LAN (KLD-054/055, see "Browser spielt gegen iPhone/Terminal" below). A browser cannot host, and browser ↔ browser play is not possible.
 
 ### Prerequisites
 - [ ] KLD-010 DONE (Klunki branding in `manifest.json`/`index.html`, custom offline service worker).
@@ -332,6 +332,36 @@ klunki/tool/pwa_i18n_check.sh http://localhost:8080/ /tmp/pwa-i18n offline      
 It prints `PASS`/`FAIL` per locale (FAIL = app did not boot, or an external request while offline) and writes
 `<locale>-menu.png`, `-picker.png`, `-game.png` plus `report.json`. Look at the PNGs for □ boxes or missing text.
 A single locale in the browser: `http://localhost:8080/?lang=fr` (not saved).
+
+### Browser spielt gegen iPhone/Terminal (KLD-055)
+The PWA joins a **native host** (iPhone/iPad/Android app or the `klunki` CLI) over `ws://` on the same Wi-Fi.
+The host listens on TCP 4747 (apps, CLI) and WebSocket 4748 (browsers); a busy port falls back to a free one.
+
+1. Serve the PWA over **http** on the LAN (not https: browsers block `ws://` from https pages):
+   ```bash
+   cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py
+   python3 -m http.server 8080 --bind 0.0.0.0 --directory build/web   # laptop: http://<mac-ip>:8080/
+   ```
+2. Start a host, either
+   - **iPhone/iPad/Android:** Menu → **Über WLAN spielen** → **Hosten** → pick a game. Under
+     "Im Browser beitreten" it shows `IP:wsPort` and the `klunki://join?…&w=<wsPort>` link (copy button), or
+   - **Terminal:** `cd packages/klunki_net && dart run klunki_net:klunki host connect4` (prints
+     `Browsers and WebSocket guests join at ws://<ip>:4748`).
+3. In the browser: Menu → **Über WLAN spielen** (join-only: no host tab, no search list) → type `IP`
+   (WebSocket port 4748), `IP:port` (the port is the **WebSocket** port), `ws://ip:port`, or paste the
+   `klunki://` link → **Verbinden**. Device name defaults to "Browser".
+4. Shortcut for links/QR codes: `http://<pwa>/?join=<urlencoded klunki:// link>` opens the join screen and
+   connects right away, e.g.
+   `http://192.168.1.5:8080/?join=klunki%3A%2F%2Fjoin%3Fh%3D192.168.1.20%26p%3D4747%26w%3D4748`.
+
+What the audience sees: the browser switches to the game with the connection bar
+("Du bist O · Gegner: …"); moves cross over instantly; if the host leaves, the browser shows the banner
+with **Neu verbinden**.
+
+Troubleshooting: the join error always lists the hints (same Wi-Fi, http not https, host needs a Klunki
+version with browser support, i.e. one that shows "Im Browser beitreten" / prints a `ws://` line).
+On an https page the join screen warns up front. The service worker does not register over
+`http://<lan-ip>` (no secure context), so this mode needs the server reachable, not offline.
 
 ---
 

@@ -538,10 +538,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairingTitle => 'Play over Wi-Fi';
 
   @override
-  String get pairingWebUnavailable =>
-      'Network play is not available in the browser';
-
-  @override
   String get pairingDeviceName => 'Device name';
 
   @override
@@ -669,6 +665,40 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'Reconnecting failed. Is the host still in the game?';
+
+  @override
+  String get pairingBrowserJoin =>
+      'Join in a browser (type the address or paste the link):';
+
+  @override
+  String get pairingCopyLink => 'Copy link';
+
+  @override
+  String get pairingLinkCopied => 'Link copied';
+
+  @override
+  String get webJoinIntro =>
+      'Join a game in the browser that an iPhone, iPad, Android device or the terminal (klunki host) is hosting. The host shows the address and link under “Join in a browser”.';
+
+  @override
+  String get webJoinHttpsWarning =>
+      'This page was opened over https. From there, browsers block ws:// connections to the local network. Open Klunki over http://.';
+
+  @override
+  String get webJoinAddressLabel => 'IP, IP:port, ws:// or klunki:// link';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return 'The port is the host\'s browser port (WebSocket); without one, $port.';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      'Invalid address. Example: 192.168.1.20, 192.168.1.20:4748 or klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      'Tips: Is this device on the same Wi-Fi as the host? Guest networks often block connections between devices. The page must be opened over http://, not https://. The host must run a Klunki version with browser support (it shows “Join in a browser”).';
 
   @override
   String get engineReasonConnect4FourInARow => 'Four in a row';
