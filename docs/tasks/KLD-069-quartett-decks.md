@@ -43,7 +43,8 @@ view-only gallery.
 - `QuartettGame.viewJson` carries `deck`; `QuartettView.fromJson` resolves
   the cards in that deck (absent = cars, unknown = `BadViewException`).
 - Debug console / text mode: `DebugConsole(gameId, seed, deck)`,
-  `new quartett-trumpf trains`, `dart run klunki_engine:klunki quartett-sets --deck rockets`;
+  `new quartett-trumpf trains`, `dart run packages/klunki_engine/bin/klunki.dart quartett-sets --deck rockets`
+  (from the repo root; inside the package, `dart run klunki_engine:klunki …` works too);
   the title shows the deck when it is not cars ("Quartett (Sets) – Raketen").
 
 ### Network (`packages/klunki_net`)

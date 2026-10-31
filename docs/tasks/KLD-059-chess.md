@@ -65,7 +65,8 @@ existing games (map moves, `GameEndReason` codes, history).
   from `to` for en passant), `enPassant`, `castle` (`'kingside'`/`'queenside'`/null), `promotion`, `check`, `mate`.
 
 ## Text adapter
-`ChessText` (`dart run klunki_engine:klunki chess`): board with White in upper case at the bottom; input in long
+`ChessText` (from the repo root: `dart run packages/klunki_engine/bin/klunki.dart chess`; inside
+`packages/klunki_engine`, `dart run klunki_engine:klunki chess` works too): board with White in upper case at the bottom; input in long
 algebraic (`e2e4`, `e2-e4`, `e7e8q`) or SAN (`Nf3`, `exd5`, `O-O`/`0-0`, `e8=Q`, check marks optional);
 players are called White/Black. `autoMove`: a mate in one, else the most valuable capture or a queen promotion,
 else a random move. `demo chess` replays a famous short game from 1858 (queenside castling, back-rank mate).
