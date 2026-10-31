@@ -545,10 +545,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pairingTitle => 'Jugar por wifi';
 
   @override
-  String get pairingWebUnavailable =>
-      'El juego en red no está disponible en el navegador';
-
-  @override
   String get pairingDeviceName => 'Nombre del dispositivo';
 
   @override
@@ -676,6 +672,40 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'Error al reconectar. ¿Sigue el anfitrión en la partida?';
+
+  @override
+  String get pairingBrowserJoin =>
+      'Unirse desde un navegador (escribe la dirección o pega el enlace):';
+
+  @override
+  String get pairingCopyLink => 'Copiar enlace';
+
+  @override
+  String get pairingLinkCopied => 'Enlace copiado';
+
+  @override
+  String get webJoinIntro =>
+      'Únete desde el navegador a una partida alojada en un iPhone, iPad, dispositivo Android o en la terminal (klunki host). El anfitrión muestra la dirección y el enlace en «Unirse desde un navegador».';
+
+  @override
+  String get webJoinHttpsWarning =>
+      'Esta página se abrió con https. Desde ahí, los navegadores bloquean las conexiones ws:// a la red local. Abre Klunki con http://.';
+
+  @override
+  String get webJoinAddressLabel => 'IP, IP:puerto, enlace ws:// o klunki://';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return 'El puerto es el puerto de navegador (WebSocket) del anfitrión; sin puerto: $port.';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      'Dirección no válida. Ejemplo: 192.168.1.20, 192.168.1.20:4748 o klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      'Consejos: ¿está este dispositivo en el mismo wifi que el anfitrión? Las redes de invitados suelen bloquear las conexiones entre dispositivos. La página debe abrirse con http://, no con https://. El anfitrión debe usar una versión de Klunki compatible con navegadores (muestra «Unirse desde un navegador»).';
 
   @override
   String get engineReasonConnect4FourInARow => 'Cuatro en raya';

@@ -47,7 +47,8 @@ Legend: 🧑 = needs the user (confirmation, device, account, GUI step).
 | KLD-035 (partial: manifest permissions + app label done; release build and device test pending) | Android networking for Android ↔ iOS: multicast lock + Wi-Fi/nearby permissions for discovery, release-build networking check | 011, 033 | `klunki/android/**` | 🧑 |
 | KLD-036 | Disconnect / reconnect UX ("opponent left", resume from snapshot). The basic leave/disconnect banner plus "Neu verbinden" already exist (KLD-034, `network_game_session.dart`) | 034 | `klunki/lib/ui/pairing/reconnect*`, `klunki/lib/transport/network_transport.dart`, `klunki/test/ui/pairing/reconnect*` | – |
 | KLD-054 ✅ | WebSocket transport in `packages/klunki_net` (io + browser channels, host listens on TCP and WS, web-compile test); app: `JoinPayload.wsPort`, `NetworkTransport.joinWebSocket`, `ws` mDNS TXT key (see `docs/tasks/KLD-054-websocket.md`) | 030, 032, 033 | `packages/klunki_net/**`, `klunki/lib/net/**`, `klunki/lib/transport/network_transport.dart`, `klunki/test/net/**`, `klunki/test/transport/**` | – |
-| KLD-055 🚧 | Browser join screen (PWA joins a host over WebSocket) — in progress | 054 | `klunki/lib/ui/pairing/**` (see card) | – |
+| KLD-055 ✅ | Browser join screen (PWA joins a host over WebSocket: paste a link or `?join=`, web pairing UI; see `docs/tasks/KLD-055-web-join.md`) | 054 | `klunki/lib/ui/pairing/**`, `klunki/lib/net/web_join_target.dart` | – |
+| KLD-056 🚧 | Player name/handle for multiplayer (persisted, shown in status, connection bar, discovery, result) — in progress | 055 | (see card) | – |
 
 ## P4 — Android ↔ iOS (end of PoC)
 

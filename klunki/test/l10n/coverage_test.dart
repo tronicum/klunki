@@ -20,6 +20,7 @@ import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/web_join_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 
@@ -332,6 +333,36 @@ void main() {
           audit.check(tester, 'pairing join (invalid address)');
 
           await unmountAndSettleSockets(tester, created);
+          audit.expectClean();
+        });
+
+        testWidgets('browser join screen at $at (KLD-055)', (tester) async {
+          await setSize(tester, size);
+          final audit = Audit(locale, size);
+          await tester.pumpWidget(localizedApp(
+            WebJoinScreen(
+              deps: WebJoinDeps(joinTransport: (url, {required name}) => Future.error(StateError('refused'))),
+              pageUrl: Uri.parse('https://example.org/'), // shows the https warning too
+            ),
+            locale: locale,
+          ));
+          await tester.pump();
+          audit.check(tester, 'web join');
+          // Submit from the keyboard: the connect button may be outside the
+          // lazily built list on small screens.
+          await tester.enterText(find.byKey(const Key('web-join-address')), 'not an address');
+          await tester.testTextInput.receiveAction(TextInputAction.go);
+          await tester.pump();
+          audit.check(tester, 'web join (invalid address)');
+          await tester.enterText(
+              find.byKey(const Key('web-join-address')), 'klunki://join?h=192.168.0.20&p=4747&n=iPad&g=connect4&w=4748');
+          await tester.testTextInput.receiveAction(TextInputAction.go);
+          await tester.pump();
+          await tester.pump();
+          await tester.dragUntilVisible(
+              find.byKey(const Key('web-join-error')), find.byKey(const Key('web-join')), const Offset(0, -200));
+          await tester.pump();
+          audit.check(tester, 'web join (failed)');
           audit.expectClean();
         });
       }

@@ -538,9 +538,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pairingTitle => 'بازی از طریق Wi-Fi';
 
   @override
-  String get pairingWebUnavailable => 'بازی شبکه‌ای در مرورگر در دسترس نیست';
-
-  @override
   String get pairingDeviceName => 'نام دستگاه';
 
   @override
@@ -668,6 +665,40 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get pairingReconnectFailed =>
       'اتصال دوباره ناموفق بود. آیا میزبان هنوز در بازی است؟';
+
+  @override
+  String get pairingBrowserJoin =>
+      'پیوستن از مرورگر (نشانی را بنویس یا پیوند را جای‌گذاری کن):';
+
+  @override
+  String get pairingCopyLink => 'رونوشت پیوند';
+
+  @override
+  String get pairingLinkCopied => 'پیوند رونوشت شد';
+
+  @override
+  String get webJoinIntro =>
+      'در مرورگر به بازی‌ای بپیوند که یک iPhone، iPad، دستگاه Android یا ترمینال (klunki host) میزبان آن است. میزبان نشانی و پیوند را زیر «پیوستن از مرورگر» نشان می‌دهد.';
+
+  @override
+  String get webJoinHttpsWarning =>
+      'این صفحه با https باز شده است. از آنجا مرورگرها اتصال ws:// به شبکهٔ محلی را مسدود می‌کنند. Klunki را با http:// باز کن.';
+
+  @override
+  String get webJoinAddressLabel => 'IP، IP:پورت، پیوند ws:// یا klunki://';
+
+  @override
+  String webJoinAddressHelper(int port) {
+    return 'پورت، پورت مرورگر (WebSocket) میزبان است؛ بدون آن: $port.';
+  }
+
+  @override
+  String get webJoinInvalidAddress =>
+      'نشانی نامعتبر. نمونه: 192.168.1.20، 192.168.1.20:4748 یا klunki://join?h=…';
+
+  @override
+  String get webJoinHints =>
+      'نکته‌ها: آیا این دستگاه با میزبان روی یک Wi-Fi است؟ شبکه‌های مهمان اغلب اتصال بین دستگاه‌ها را مسدود می‌کنند. صفحه باید با http:// باز شود، نه https://. روی میزبان باید نسخه‌ای از Klunki با پشتیبانی از مرورگر اجرا شود (که «پیوستن از مرورگر» را نشان می‌دهد).';
 
   @override
   String get engineReasonConnect4FourInARow => 'چهار در یک ردیف';
