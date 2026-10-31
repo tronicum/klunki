@@ -12,7 +12,7 @@ void main() {
       final codes = GameEndReason.values.map((r) => r.code).toList();
       expect(codes.toSet(), hasLength(codes.length));
       for (final r in GameEndReason.values) {
-        expect(r.code, matches(RegExp(r'^(connect4|muehle|quartett|schiffe)\.[a-z][A-Za-z0-9]*$')));
+        expect(r.code, matches(RegExp(r'^(connect4|muehle|quartett|schiffe|gostrategy)\.[a-z][A-Za-z0-9]*$')));
         expect(GameEndReason.fromCode(r.code), r);
       }
       expect(GameEndReason.fromCode('nope.nope'), isNull);

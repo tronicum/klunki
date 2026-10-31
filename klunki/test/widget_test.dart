@@ -3,14 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:klunki_engine/klunki_engine.dart' show gameSpecs;
+import 'package:klunki_engine/klunki_engine.dart' show appGameSpecs;
 import 'l10n/l10n_test_utils.dart';
 
 void main() {
   testWidgets('Klunki app shows its menu', (WidgetTester tester) async {
     await tester.pumpWidget(klunkiApp());
 
-    for (final spec in gameSpecs) {
+    for (final spec in appGameSpecs) {
       expect(find.text(spec.title), findsOneWidget);
     }
   });

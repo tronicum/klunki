@@ -209,7 +209,7 @@ class _HostPanel extends StatefulWidget {
 }
 
 class _HostPanelState extends State<_HostPanel> {
-  String _gameId = gameSpecs.first.id;
+  String _gameId = appGameSpecs.first.id;
   bool _starting = false;
   String? _error;
 
@@ -361,7 +361,7 @@ class _HostPanelState extends State<_HostPanel> {
           },
           child: Column(
             children: [
-              for (final spec in gameSpecs)
+              for (final spec in appGameSpecs)
                 RadioListTile<String>(
                   key: Key('pair-game-${spec.id}'),
                   value: spec.id,

@@ -797,6 +797,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => 'Tous les navires coulés';
 
   @override
+  String get engineReasonGostrategyFlagCaptured => 'Drapeau capturé';
+
+  @override
+  String get engineReasonGostrategyNoMoves =>
+      'L’adversaire n’a plus aucun coup';
+
+  @override
+  String get engineReasonGostrategyBothBlocked => 'Aucun camp ne peut jouer';
+
+  @override
+  String engineReasonGostrategyMoveLimit(int moves) {
+    return '$moves coups sans combat';
+  }
+
+  @override
+  String gameNotInApp(String game) {
+    return '$game n’est pas encore disponible dans l’application.';
+  }
+
+  @override
   String get engineSetA => 'Supersportives';
 
   @override

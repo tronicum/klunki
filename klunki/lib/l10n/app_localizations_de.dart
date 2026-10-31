@@ -789,6 +789,25 @@ class AppLocalizationsDe extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => 'Alle Schiffe versenkt';
 
   @override
+  String get engineReasonGostrategyFlagCaptured => 'Flagge erobert';
+
+  @override
+  String get engineReasonGostrategyNoMoves => 'Gegner hat keinen Zug mehr';
+
+  @override
+  String get engineReasonGostrategyBothBlocked => 'Keine Seite kann ziehen';
+
+  @override
+  String engineReasonGostrategyMoveLimit(int moves) {
+    return '$moves Züge ohne Kampf';
+  }
+
+  @override
+  String gameNotInApp(String game) {
+    return '$game gibt es in der App noch nicht.';
+  }
+
+  @override
   String get engineSetA => 'Supersportwagen';
 
   @override

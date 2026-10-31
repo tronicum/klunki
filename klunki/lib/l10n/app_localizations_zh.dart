@@ -769,6 +769,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => '所有舰船已被击沉';
 
   @override
+  String get engineReasonGostrategyFlagCaptured => '军旗被夺';
+
+  @override
+  String get engineReasonGostrategyNoMoves => '对手已无棋可走';
+
+  @override
+  String get engineReasonGostrategyBothBlocked => '双方都无法移动';
+
+  @override
+  String engineReasonGostrategyMoveLimit(int moves) {
+    return '$moves 步内无交战';
+  }
+
+  @override
+  String gameNotInApp(String game) {
+    return '应用中暂未提供$game。';
+  }
+
+  @override
   String get engineSetA => '超级跑车';
 
   @override

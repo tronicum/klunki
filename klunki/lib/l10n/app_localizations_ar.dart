@@ -813,6 +813,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get engineReasonSchiffeAllSunk => 'غرقت كل السفن';
 
   @override
+  String get engineReasonGostrategyFlagCaptured => 'تم الاستيلاء على العلم';
+
+  @override
+  String get engineReasonGostrategyNoMoves => 'لم تعد للخصم أي حركة';
+
+  @override
+  String get engineReasonGostrategyBothBlocked => 'لا يستطيع أي طرف التحرك';
+
+  @override
+  String engineReasonGostrategyMoveLimit(int moves) {
+    return '$moves حركة بلا قتال';
+  }
+
+  @override
+  String gameNotInApp(String game) {
+    return '$game غير متاح في التطبيق بعد.';
+  }
+
+  @override
   String get engineSetA => 'سيارات فائقة';
 
   @override

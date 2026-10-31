@@ -183,6 +183,25 @@ void main() {
     expect(await host.exitCode, 0);
   });
 
+  test('GoStrategy: host and guest set up and fight; the setup seed stays private', () async {
+    final (host, guest) = await hostAndJoin(['gostrategy']);
+    await host.waitFor('> ');
+    host.type('setup 3');
+    await host.waitFor('X sets up their army at random (seed 3).');
+    await guest.waitFor('X has set up their army.');
+    await guest.waitFor('Your turn (O).');
+    expect(guest.text, isNot(contains('seed 3')));
+    expect(guest.text, contains('X?'), reason: "X's pieces render hidden for O");
+    guest.type('setup 4');
+    await guest.waitFor('O sets up their army at random (seed 4).');
+    await host.waitFor('O has set up their army. Both armies are ready: X moves first.');
+    await host.waitFor('Your turn (X).');
+    expect(host.text, isNot(contains('seed 4')));
+    guest.type('quit');
+    await host.waitFor('Opponent left (guest left).');
+    expect(await host.exitCode, 0);
+  });
+
   test('a dropped connection is reported and the guest reconnects', () async {
     final host = Terminal('host', ['host', 'connect4', '--port', '0', '--name', 'Ada']);
     final port = int.parse((await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting')))[1]!);

@@ -11,18 +11,27 @@ import 'shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
 
 void main() {
-  test('every game in gameSpecs has a screen', () {
-    expect(gameScreens.keys.toSet(), {for (final s in gameSpecs) s.id});
+  test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
+    expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id});
+    expect(gameSpecs.where((s) => !s.appReady).map((s) => s.id), contains('gostrategy'));
+  });
+
+  testWidgets('a game without a screen (GoStrategy) is not in the menu and shows a placeholder', (tester) async {
+    await tester.pumpWidget(klunkiApp());
+    expect(find.text('GoStrategy'), findsNothing);
+    await pumpGame(tester, 'gostrategy');
+    expect(find.byType(GameNotInAppScreen), findsOneWidget);
+    expect(find.text('GoStrategy gibt es in der App noch nicht.'), findsOneWidget);
   });
 
   group('menu', () {
     testWidgets('lists all games in registry order and opens each', (tester) async {
       await tester.pumpWidget(klunkiApp());
-      final tops = [for (final s in gameSpecs) tester.getTopLeft(find.text(s.title)).dy];
+      final tops = [for (final s in appGameSpecs) tester.getTopLeft(find.text(s.title)).dy];
       expect(tops, [...tops]..sort());
       expect(find.text('Debug-Konsole'), findsOneWidget);
 
-      for (final spec in gameSpecs) {
+      for (final spec in appGameSpecs) {
         await tester.tap(find.text(spec.title));
         await tester.pumpAndSettle();
         expect(find.byType(GameScreen), findsOneWidget);

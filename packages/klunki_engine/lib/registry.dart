@@ -1,5 +1,6 @@
 import 'connect4.dart';
 import 'game.dart';
+import 'gostrategy.dart';
 import 'muehle.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
@@ -35,8 +36,13 @@ class GameSpec {
   final String id;
   final String title;
   final bool hiddenInformation;
+
+  /// False while the Flutter app has no screen for this game yet: the game
+  /// runs in the engine, the CLI and over the network, but the app hides it
+  /// (see [appGameSpecs]).
+  final bool appReady;
   final Game Function(int seed) _create;
-  const GameSpec(this.id, this.title, this._create, {this.hiddenInformation = false});
+  const GameSpec(this.id, this.title, this._create, {this.hiddenInformation = false, this.appReady = true});
 
   Game create([int seed = 0]) => _create(seed);
 }
@@ -51,7 +57,13 @@ final List<GameSpec> gameSpecs = [
   GameSpec('quartett-sets', 'Quartett (Sets)', (s) => QuartettGame(QuartettMode.sets, seed: s, handSize: 8),
       hiddenInformation: true),
   GameSpec('schiffe', 'Schiffe versenken', (_) => SchiffeGame(), hiddenInformation: true),
+  // Engine + CLI only until its app screen exists (KLD-058b).
+  GameSpec('gostrategy', 'GoStrategy', (_) => GoStrategyGame(), hiddenInformation: true, appReady: false),
 ];
+
+/// The games the Flutter app offers (menu, hosting): [gameSpecs] with a
+/// screen.
+List<GameSpec> get appGameSpecs => [for (final s in gameSpecs) if (s.appReady) s];
 
 GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
 
