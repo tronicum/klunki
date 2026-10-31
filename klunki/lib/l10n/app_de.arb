@@ -58,7 +58,7 @@
   },
   "menuDescMuehle": "Bilde Dreierreihen und schlage gegnerische Steine.",
   "@menuDescMuehle": {
-    "description": "Menu tile one-liner for M\u00fchle (KLD-062)."
+    "description": "Menu tile one-liner for Mühle (KLD-062)."
   },
   "menuDescQuartettTrumpf": "Vergleicht Werte – der bessere Wert gewinnt beide Karten.",
   "@menuDescQuartettTrumpf": {
@@ -82,7 +82,7 @@
   },
   "menuNetworkSubtitle": "Spiel hosten oder beitreten",
   "@menuNetworkSubtitle": {
-    "description": "Subtitle of the network entry \"\u00dcber WLAN spielen\" (KLD-062)."
+    "description": "Subtitle of the network entry \"Über WLAN spielen\" (KLD-062)."
   },
   "menuHiddenInfo": "Geheime Karten oder Flotte – ihr reicht das Gerät weiter",
   "@menuHiddenInfo": {
@@ -2064,5 +2064,250 @@
   "engineReasonCommonYouResigned": "Du hast aufgegeben",
   "@engineReasonCommonYouResigned": {
     "description": "Result reason on the device of the player who resigned (network game)."
+  },
+  "quartettDeckCars": "Autos",
+  "@quartettDeckCars": {
+    "description": "KLD-069 Quartett deck name: cars."
+  },
+  "quartettDeckTrains": "Züge",
+  "@quartettDeckTrains": {
+    "description": "KLD-069 Quartett deck name: trains."
+  },
+  "quartettDeckRockets": "Raketen",
+  "@quartettDeckRockets": {
+    "description": "KLD-069 Quartett deck name: rockets (launch vehicles)."
+  },
+  "quartettDeckPlanes": "Flugzeuge",
+  "@quartettDeckPlanes": {
+    "description": "KLD-069 Quartett deck name: planes."
+  },
+  "quartettSetTrainsA": "ICE",
+  "@quartettSetTrainsA": {
+    "description": "KLD-069 Quartett set name, trains deck, set A: German high-speed trains (brand name, keep)."
+  },
+  "quartettSetTrainsB": "Shinkansen",
+  "@quartettSetTrainsB": {
+    "description": "KLD-069 Quartett set name, trains deck, set B: Japanese high-speed trains."
+  },
+  "quartettSetTrainsC": "TGV",
+  "@quartettSetTrainsC": {
+    "description": "KLD-069 Quartett set name, trains deck, set C: French high-speed trains (brand name, keep)."
+  },
+  "quartettSetTrainsD": "Europas Schnelle",
+  "@quartettSetTrainsD": {
+    "description": "KLD-069 Quartett set name, trains deck, set D: European high-speed trains."
+  },
+  "quartettSetTrainsE": "Asien & Amerika",
+  "@quartettSetTrainsE": {
+    "description": "KLD-069 Quartett set name, trains deck, set E: High-speed trains from Asia and America."
+  },
+  "quartettSetTrainsF": "E-Loks",
+  "@quartettSetTrainsF": {
+    "description": "KLD-069 Quartett set name, trains deck, set F: Electric locomotives."
+  },
+  "quartettSetTrainsG": "Dampf-Legenden",
+  "@quartettSetTrainsG": {
+    "description": "KLD-069 Quartett set name, trains deck, set G: Famous steam locomotives."
+  },
+  "quartettSetTrainsH": "Güter-Riesen",
+  "@quartettSetTrainsH": {
+    "description": "KLD-069 Quartett set name, trains deck, set H: Heavy freight locomotives."
+  },
+  "quartettSetRocketsA": "Mondraketen",
+  "@quartettSetRocketsA": {
+    "description": "KLD-069 Quartett set name, rockets deck, set A: Moon rockets."
+  },
+  "quartettSetRocketsB": "Wiederverwendbar",
+  "@quartettSetRocketsB": {
+    "description": "KLD-069 Quartett set name, rockets deck, set B: Rockets with reusable boosters."
+  },
+  "quartettSetRocketsC": "Europa",
+  "@quartettSetRocketsC": {
+    "description": "KLD-069 Quartett set name, rockets deck, set C: European rockets."
+  },
+  "quartettSetRocketsD": "USA-Klassiker",
+  "@quartettSetRocketsD": {
+    "description": "KLD-069 Quartett set name, rockets deck, set D: Classic US rockets."
+  },
+  "quartettSetRocketsE": "Russland",
+  "@quartettSetRocketsE": {
+    "description": "KLD-069 Quartett set name, rockets deck, set E: Russian/Soviet rockets."
+  },
+  "quartettSetRocketsF": "China",
+  "@quartettSetRocketsF": {
+    "description": "KLD-069 Quartett set name, rockets deck, set F: Chinese rockets."
+  },
+  "quartettSetRocketsG": "Japan & Indien",
+  "@quartettSetRocketsG": {
+    "description": "KLD-069 Quartett set name, rockets deck, set G: Japanese and Indian rockets."
+  },
+  "quartettSetRocketsH": "Kleine Träger",
+  "@quartettSetRocketsH": {
+    "description": "KLD-069 Quartett set name, rockets deck, set H: Small launch vehicles."
+  },
+  "quartettSetPlanesA": "Großraumjets",
+  "@quartettSetPlanesA": {
+    "description": "KLD-069 Quartett set name, planes deck, set A: Wide-body airliners."
+  },
+  "quartettSetPlanesB": "Mittelstrecke",
+  "@quartettSetPlanesB": {
+    "description": "KLD-069 Quartett set name, planes deck, set B: Narrow-body medium-haul airliners."
+  },
+  "quartettSetPlanesC": "Überschall",
+  "@quartettSetPlanesC": {
+    "description": "KLD-069 Quartett set name, planes deck, set C: Supersonic aircraft."
+  },
+  "quartettSetPlanesD": "Propeller-Klassiker",
+  "@quartettSetPlanesD": {
+    "description": "KLD-069 Quartett set name, planes deck, set D: Propeller aircraft."
+  },
+  "quartettSetPlanesE": "Frachtriesen",
+  "@quartettSetPlanesE": {
+    "description": "KLD-069 Quartett set name, planes deck, set E: Giant cargo aircraft."
+  },
+  "quartettSetPlanesF": "Business & Sport",
+  "@quartettSetPlanesF": {
+    "description": "KLD-069 Quartett set name, planes deck, set F: Business jets and light aircraft."
+  },
+  "quartettSetPlanesG": "Pioniere",
+  "@quartettSetPlanesG": {
+    "description": "KLD-069 Quartett set name, planes deck, set G: Pioneer aircraft (1903–1927)."
+  },
+  "quartettSetPlanesH": "Rekord-Exoten",
+  "@quartettSetPlanesH": {
+    "description": "KLD-069 Quartett set name, planes deck, set H: Unusual record aircraft."
+  },
+  "quartettStatKw": "Leistung",
+  "@quartettStatKw": {
+    "description": "KLD-069 Quartett stat label: power in kW (trains)."
+  },
+  "quartettStatLengthM": "Länge",
+  "@quartettStatLengthM": {
+    "description": "KLD-069 Quartett stat label: length in metres (trains, planes)."
+  },
+  "quartettStatMassT": "Gewicht",
+  "@quartettStatMassT": {
+    "description": "KLD-069 Quartett stat label: weight in tonnes, lower wins (trains)."
+  },
+  "quartettStatTractiveKn": "Anfahrzugkraft",
+  "@quartettStatTractiveKn": {
+    "description": "KLD-069 Quartett stat label: starting tractive effort in kN (trains)."
+  },
+  "quartettStatInService": "In Betrieb seit",
+  "@quartettStatInService": {
+    "description": "KLD-069 Quartett stat label: year in service since (trains)."
+  },
+  "quartettStatHeightM": "Höhe",
+  "@quartettStatHeightM": {
+    "description": "KLD-069 Quartett stat label: height in metres (rockets)."
+  },
+  "quartettStatThrustKn": "Startschub",
+  "@quartettStatThrustKn": {
+    "description": "KLD-069 Quartett stat label: liftoff thrust in kN (rockets)."
+  },
+  "quartettStatLeoT": "Nutzlast (LEO)",
+  "@quartettStatLeoT": {
+    "description": "KLD-069 Quartett stat label: payload to low Earth orbit in tonnes (rockets)."
+  },
+  "quartettStatLaunchMassT": "Startmasse",
+  "@quartettStatLaunchMassT": {
+    "description": "KLD-069 Quartett stat label: launch mass in tonnes (rockets)."
+  },
+  "quartettStatFlights": "Starts",
+  "@quartettStatFlights": {
+    "description": "KLD-069 Quartett stat label: number of launches (rockets)."
+  },
+  "quartettStatFirstFlight": "Erstflug",
+  "@quartettStatFirstFlight": {
+    "description": "KLD-069 Quartett stat label: year of the first flight, lower wins (rockets, planes)."
+  },
+  "quartettStatRangeKm": "Reichweite",
+  "@quartettStatRangeKm": {
+    "description": "KLD-069 Quartett stat label: range in km (planes)."
+  },
+  "quartettStatWingspanM": "Spannweite",
+  "@quartettStatWingspanM": {
+    "description": "KLD-069 Quartett stat label: wingspan in metres (planes)."
+  },
+  "quartettStatMtowT": "Startgewicht",
+  "@quartettStatMtowT": {
+    "description": "KLD-069 Quartett stat label: maximum take-off weight in tonnes (planes)."
+  },
+  "quartettDeckPickerTitle": "Kartendeck wählen",
+  "@quartettDeckPickerTitle": {
+    "description": "KLD-069 deck picker title (before a Quartett game)."
+  },
+  "quartettDeckLabel": "Kartendeck",
+  "@quartettDeckLabel": {
+    "description": "KLD-069 heading of the deck choice in the network host setup."
+  },
+  "quartettDeckSets": "{sets} Sets à 4 Karten",
+  "@quartettDeckSets": {
+    "description": "KLD-069 deck info line: number of sets of 4 cards.",
+    "placeholders": {
+      "sets": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettDeckPlay": "Spielen",
+  "@quartettDeckPlay": {
+    "description": "KLD-069 deck picker button: start the game."
+  },
+  "quartettGalleryOpen": "Karten ansehen",
+  "@quartettGalleryOpen": {
+    "description": "KLD-069 button/link: open the view-only card gallery."
+  },
+  "quartettGalleryTitle": "Quartett-Karten",
+  "@quartettGalleryTitle": {
+    "description": "KLD-069 card gallery title (list of decks)."
+  },
+  "quartettGalleryCardOf": "Karte {index} von {total}",
+  "@quartettGalleryCardOf": {
+    "description": "KLD-069 full-size card view title: position in the deck.",
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettGalleryPrevious": "Vorherige Karte",
+  "@quartettGalleryPrevious": {
+    "description": "KLD-069 full-size card view: button for the previous card."
+  },
+  "quartettGalleryNext": "Nächste Karte",
+  "@quartettGalleryNext": {
+    "description": "KLD-069 full-size card view: button for the next card."
+  },
+  "quartettGalleryTopMenu": "Top 5 nach Wert",
+  "@quartettGalleryTopMenu": {
+    "description": "KLD-069 deck gallery: menu to show the best 5 cards of a stat."
+  },
+  "quartettGalleryTopTitle": "Top 5: {stat}",
+  "@quartettGalleryTopTitle": {
+    "description": "KLD-069 deck gallery: title of the best-5 list; stat = stat label.",
+    "placeholders": {
+      "stat": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettCardSemantics": "Karte {id}: {name}, Set {set}",
+  "@quartettCardSemantics": {
+    "description": "KLD-069 screen-reader label of a small card in the gallery; id e.g. B3, name = vehicle name, set = set name.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "set": {
+        "type": "String"
+      }
+    }
   }
 }

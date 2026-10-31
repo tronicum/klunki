@@ -9,6 +9,7 @@ import '../../transport/game_transport.dart';
 import '../../app/theme.dart';
 import '../shell/game_screen.dart';
 import 'quartett_card.dart';
+import 'quartett_deck_picker.dart' show quartettScreenTitle;
 
 /// Quartett (Trumpf) / Auto-Quartett screen.
 ///
@@ -48,6 +49,7 @@ class QuartettTrumpfScreen extends StatelessWidget {
     return GameScreen(
       controller: controller,
       describeMove: describeMove,
+      title: quartettScreenTitle(context, controller),
       boardBuilder: (context, controller) => _QuartettTrumpfBoard(controller: controller),
     );
   }
@@ -80,12 +82,12 @@ class _Trick {
     required this.pending,
   });
 
-  static _Trick? fromPayload(Player picker, Object? payload, Map<String, dynamic>? pending) {
+  static _Trick? fromPayload(QuartettDeck deck, Player picker, Object? payload, Map<String, dynamic>? pending) {
     if (payload is! Map) return null;
-    final stat = QuartettGame.statById('${payload['stat']}');
+    final stat = deck.statById('${payload['stat']}');
     final cards = payload['cards'], values = payload['values'];
     if (stat == null || cards is! Map || values is! Map) return null;
-    final a = QuartettGame.cardById('${cards['a']}'), b = QuartettGame.cardById('${cards['b']}');
+    final a = deck.cardById('${cards['a']}'), b = deck.cardById('${cards['b']}');
     if (a == null || b == null) return null;
     final w = payload['trickWinner'];
     return _Trick(
@@ -168,7 +170,8 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
         _submitting = false;
         _revealOwn = false;
         final m = moves.last;
-        next = _Trick.fromPayload(m.player, m.event.payload, null);
+        final game = _game;
+        next = game == null ? null : _Trick.fromPayload(game.deck, m.player, m.event.payload, null);
       }
     }
     _sync();
@@ -197,7 +200,9 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
       return;
     }
     final event = copy.applyMove(move);
-    final trick = event == null ? null : _Trick.fromPayload(c.game.currentPlayer, event.payload, move);
+    final trick = event == null || copy is! QuartettGame
+        ? null
+        : _Trick.fromPayload(copy.deck, c.game.currentPlayer, event.payload, move);
     if (trick != null) setState(() => _reveal = trick);
   }
 
@@ -295,6 +300,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> {
           caption(l10n.quartettTrumpfOpponentStack(playerMark(opp))),
           QuartettCard.back(
             key: const Key('qt-opponent-stack'),
+            deck: game.deck.id,
             label: playerMark(opp),
             count: game.stackSize(opp),
             dense: true,

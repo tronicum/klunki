@@ -4,13 +4,17 @@ import '../game.dart';
 import '../quartett.dart';
 import 'text_game.dart';
 
+/// " – Züge" for a deck other than the default cars (KLD-069).
+String _deckSuffix(QuartettGame g) => g.deck.id == QuartettDeck.defaultId ? '' : ' – ${g.deck.name}';
+
 String _player(String key) => key == 'a' ? 'X' : 'O';
 
 String _value(QuartettStat s, num v) => '${v is double ? v.toStringAsFixed(1) : v} ${s.unit}';
 
 /// Quartett (Trumpf): the Trumpf mode that compares stats. Shows only the top card of the player to move.
 class QuartettTrumpfText extends TextGame {
-  QuartettTrumpfText([this.seed = 0]) : game = QuartettGame(QuartettMode.trumpf, seed: seed);
+  QuartettTrumpfText([this.seed = 0, QuartettDeck? deck])
+      : game = QuartettGame(QuartettMode.trumpf, seed: seed, deck: deck);
 
   /// Wraps an existing engine instance (e.g. one built from a network `GameConfig`).
   QuartettTrumpfText.forGame(this.game) : seed = game.seed;
@@ -22,13 +26,13 @@ class QuartettTrumpfText extends TextGame {
   @override
   String get id => 'quartett-trumpf';
   @override
-  String get title => 'Quartett (Trumpf)';
+  String get title => 'Quartett (Trumpf)${_deckSuffix(game)}';
   @override
   String get moveHelp => '<stat>   pick a stat of your top card: '
-      '${[for (final (i, s) in QuartettGame.stats.indexed) '${i + 1}/${s.id}'].join(', ')}';
+      '${[for (final (i, s) in game.stats.indexed) '${i + 1}/${s.id}'].join(', ')}';
 
   @override
-  QuartettTrumpfText restart() => QuartettTrumpfText(seed);
+  QuartettTrumpfText restart() => QuartettTrumpfText(seed, game.deck);
 
   @override
   String render() {
@@ -40,8 +44,8 @@ class QuartettTrumpfText extends TextGame {
     if (card != null && !game.isOver) {
       b
         ..writeln()
-        ..writeln("${mark(me)}'s top card: ${card.id} ${card.name} (${QuartettGame.setNames[card.set]})");
-      for (final (i, s) in QuartettGame.stats.indexed) {
+        ..writeln("${mark(me)}'s top card: ${card.id} ${card.name} (${game.setNames[card.set]})");
+      for (final (i, s) in game.stats.indexed) {
         b.writeln('  ${i + 1} ${s.id.padRight(9)} ${s.label.padRight(22)} '
             '${_value(s, card.stats[s.id]!).padLeft(10)}  ${s.higherWins ? 'higher wins' : 'lower wins'}');
       }
@@ -53,9 +57,9 @@ class QuartettTrumpfText extends TextGame {
   Map<String, dynamic>? parse(String input) {
     final s = input.trim().toLowerCase();
     final n = int.tryParse(s);
-    final stat = n != null && n >= 1 && n <= QuartettGame.stats.length
-        ? QuartettGame.stats[n - 1].id
-        : QuartettGame.stats.map((x) => x.id).where((id) => id == s).firstOrNull;
+    final stat = n != null && n >= 1 && n <= game.stats.length
+        ? game.stats[n - 1].id
+        : game.stats.map((x) => x.id).where((id) => id == s).firstOrNull;
     return stat == null ? null : {'action': 'pick', 'stat': stat};
   }
 
@@ -68,10 +72,10 @@ class QuartettTrumpfText extends TextGame {
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map;
-    final stat = QuartettGame.statById(p['stat'] as String)!;
+    final stat = game.statById(p['stat'] as String)!;
     final cards = p['cards'] as Map, values = p['values'] as Map;
     String side(String k) =>
-        "${_player(k)}'s ${QuartettGame.cardById(cards[k] as String)!.name} (${_value(stat, values[k] as num)})";
+        "${_player(k)}'s ${game.cardById(cards[k] as String)!.name} (${_value(stat, values[k] as num)})";
     final me = mark(mover);
     final first = mover == Player.a ? 'a' : 'b', second = first == 'a' ? 'b' : 'a';
     var s = '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
@@ -90,10 +94,10 @@ class QuartettTrumpfText extends TextGame {
     final card = game.topCard(game.currentPlayer)!;
     double rank(QuartettStat s) {
       final v = card.stats[s.id]!;
-      return QuartettGame.deck.where((c) => s.beats(v, c.stats[s.id]!)).length / QuartettGame.deck.length;
+      return game.cards.where((c) => s.beats(v, c.stats[s.id]!)).length / game.cards.length;
     }
 
-    final best = QuartettGame.stats.reduce((a, b) => rank(a) >= rank(b) ? a : b);
+    final best = game.stats.reduce((a, b) => rank(a) >= rank(b) ? a : b);
     return {'action': 'pick', 'stat': best.id};
   }
 
@@ -105,8 +109,8 @@ class QuartettTrumpfText extends TextGame {
 /// dealt and two players every ask would hit (see quartett.dart), so the
 /// Go-Fish pile is what makes misses, and therefore a contest, possible.
 class QuartettSetsText extends TextGame {
-  QuartettSetsText([this.seed = 0, this.handSize = 8])
-      : game = QuartettGame(QuartettMode.sets, seed: seed, handSize: handSize);
+  QuartettSetsText([this.seed = 0, this.handSize = 8, QuartettDeck? deck])
+      : game = QuartettGame(QuartettMode.sets, seed: seed, handSize: handSize, deck: deck);
 
   /// Wraps an existing engine instance (e.g. one built from a network `GameConfig`).
   QuartettSetsText.forGame(this.game)
@@ -121,13 +125,13 @@ class QuartettSetsText extends TextGame {
   @override
   String get id => 'quartett-sets';
   @override
-  String get title => 'Quartett (Sets)';
+  String get title => 'Quartett (Sets)${_deckSuffix(game)}';
   @override
   String get moveHelp => '<card id>   ask your opponent for a card, e.g. "B3" '
       '(you must hold a card of that set but not the card itself)';
 
   @override
-  QuartettSetsText restart() => QuartettSetsText(seed, handSize);
+  QuartettSetsText restart() => QuartettSetsText(seed, handSize, game.deck);
 
   @override
   String render() {
@@ -148,7 +152,7 @@ class QuartettSetsText extends TextGame {
         (bySet[c.set] ??= []).add(c);
       }
       for (final MapEntry(key: set, value: cards) in bySet.entries) {
-        b.writeln('  $set ${QuartettGame.setNames[set]!.padRight(16)} ${cards.map((c) => '${c.id} ${c.name}').join(', ')}');
+        b.writeln('  $set ${game.setNames[set]!.padRight(16)} ${cards.map((c) => '${c.id} ${c.name}').join(', ')}');
       }
     }
     return b.toString().trimRight();
@@ -157,7 +161,7 @@ class QuartettSetsText extends TextGame {
   @override
   Map<String, dynamic>? parse(String input) {
     final id = input.trim().toUpperCase();
-    return QuartettGame.cardById(id) == null ? null : {'action': 'ask', 'card': id};
+    return game.cardById(id) == null ? null : {'action': 'ask', 'card': id};
   }
 
   @override
@@ -170,7 +174,7 @@ class QuartettSetsText extends TextGame {
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map;
     final me = mark(mover), opp = _player(p['from'] as String);
-    final card = QuartettGame.cardById(p['card'] as String)!;
+    final card = game.cardById(p['card'] as String)!;
     var s = '$me asks $opp for ${card.id} (${card.name}): ';
     if (p['hit'] == true) {
       s += '$opp has it and hands it over.';
@@ -178,7 +182,7 @@ class QuartettSetsText extends TextGame {
       s += "$opp doesn't have it.${p['drew'] != null ? ' $me draws a card from the pile.' : ''}";
     }
     if (p['quartet'] case final String set) {
-      s += ' $me completes quartet $set (${QuartettGame.setNames[set]})!';
+      s += ' $me completes quartet $set (${game.setNames[set]})!';
     }
     if (event.winner != null) return '$s ${mark(event.winner)} wins: ${game.result.reason}.';
     if (event.draw) return '$s Draw: ${game.result.reason}.';

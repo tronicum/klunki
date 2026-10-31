@@ -1354,4 +1354,174 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get engineReasonCommonYouResigned => 'Du hast aufgegeben';
+
+  @override
+  String get quartettDeckCars => 'Autos';
+
+  @override
+  String get quartettDeckTrains => 'Züge';
+
+  @override
+  String get quartettDeckRockets => 'Raketen';
+
+  @override
+  String get quartettDeckPlanes => 'Flugzeuge';
+
+  @override
+  String get quartettSetTrainsA => 'ICE';
+
+  @override
+  String get quartettSetTrainsB => 'Shinkansen';
+
+  @override
+  String get quartettSetTrainsC => 'TGV';
+
+  @override
+  String get quartettSetTrainsD => 'Europas Schnelle';
+
+  @override
+  String get quartettSetTrainsE => 'Asien & Amerika';
+
+  @override
+  String get quartettSetTrainsF => 'E-Loks';
+
+  @override
+  String get quartettSetTrainsG => 'Dampf-Legenden';
+
+  @override
+  String get quartettSetTrainsH => 'Güter-Riesen';
+
+  @override
+  String get quartettSetRocketsA => 'Mondraketen';
+
+  @override
+  String get quartettSetRocketsB => 'Wiederverwendbar';
+
+  @override
+  String get quartettSetRocketsC => 'Europa';
+
+  @override
+  String get quartettSetRocketsD => 'USA-Klassiker';
+
+  @override
+  String get quartettSetRocketsE => 'Russland';
+
+  @override
+  String get quartettSetRocketsF => 'China';
+
+  @override
+  String get quartettSetRocketsG => 'Japan & Indien';
+
+  @override
+  String get quartettSetRocketsH => 'Kleine Träger';
+
+  @override
+  String get quartettSetPlanesA => 'Großraumjets';
+
+  @override
+  String get quartettSetPlanesB => 'Mittelstrecke';
+
+  @override
+  String get quartettSetPlanesC => 'Überschall';
+
+  @override
+  String get quartettSetPlanesD => 'Propeller-Klassiker';
+
+  @override
+  String get quartettSetPlanesE => 'Frachtriesen';
+
+  @override
+  String get quartettSetPlanesF => 'Business & Sport';
+
+  @override
+  String get quartettSetPlanesG => 'Pioniere';
+
+  @override
+  String get quartettSetPlanesH => 'Rekord-Exoten';
+
+  @override
+  String get quartettStatKw => 'Leistung';
+
+  @override
+  String get quartettStatLengthM => 'Länge';
+
+  @override
+  String get quartettStatMassT => 'Gewicht';
+
+  @override
+  String get quartettStatTractiveKn => 'Anfahrzugkraft';
+
+  @override
+  String get quartettStatInService => 'In Betrieb seit';
+
+  @override
+  String get quartettStatHeightM => 'Höhe';
+
+  @override
+  String get quartettStatThrustKn => 'Startschub';
+
+  @override
+  String get quartettStatLeoT => 'Nutzlast (LEO)';
+
+  @override
+  String get quartettStatLaunchMassT => 'Startmasse';
+
+  @override
+  String get quartettStatFlights => 'Starts';
+
+  @override
+  String get quartettStatFirstFlight => 'Erstflug';
+
+  @override
+  String get quartettStatRangeKm => 'Reichweite';
+
+  @override
+  String get quartettStatWingspanM => 'Spannweite';
+
+  @override
+  String get quartettStatMtowT => 'Startgewicht';
+
+  @override
+  String get quartettDeckPickerTitle => 'Kartendeck wählen';
+
+  @override
+  String get quartettDeckLabel => 'Kartendeck';
+
+  @override
+  String quartettDeckSets(int sets) {
+    return '$sets Sets à 4 Karten';
+  }
+
+  @override
+  String get quartettDeckPlay => 'Spielen';
+
+  @override
+  String get quartettGalleryOpen => 'Karten ansehen';
+
+  @override
+  String get quartettGalleryTitle => 'Quartett-Karten';
+
+  @override
+  String quartettGalleryCardOf(int index, int total) {
+    return 'Karte $index von $total';
+  }
+
+  @override
+  String get quartettGalleryPrevious => 'Vorherige Karte';
+
+  @override
+  String get quartettGalleryNext => 'Nächste Karte';
+
+  @override
+  String get quartettGalleryTopMenu => 'Top 5 nach Wert';
+
+  @override
+  String quartettGalleryTopTitle(String stat) {
+    return 'Top 5: $stat';
+  }
+
+  @override
+  String quartettCardSemantics(String id, String name, String set) {
+    return 'Karte $id: $name, Set $set';
+  }
 }

@@ -20,7 +20,7 @@ QuartettGame fresh(int seed) => QuartettGame(QuartettMode.trumpf, seed: seed);
   for (var seed = 1; seed < 5000; seed++) {
     final g = fresh(seed);
     final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
-    for (final s in QuartettGame.stats) {
+    for (final s in QuartettDeck.cars.stats) {
       if (test(s, a.stats[s.id]!, b.stats[s.id]!)) return (seed, s);
     }
   }
@@ -47,8 +47,8 @@ void main() {
 
     expect(find.text(top.id), findsOneWidget);
     expect(find.text(top.name), findsOneWidget);
-    expect(find.text(QuartettGame.setNames[top.set]!), findsOneWidget);
-    for (final s in QuartettGame.stats) {
+    expect(find.text(QuartettDeck.cars.setNames[top.set]!), findsOneWidget);
+    for (final s in QuartettDeck.cars.stats) {
       final row = find.byKey(statKey(s.id));
       expect(row, findsOneWidget);
       expect(find.descendant(of: row, matching: find.text(s.label)), findsOneWidget);
@@ -166,7 +166,7 @@ void main() {
       } else if (find.byKey(cont).evaluate().isNotEmpty) {
         await tester.tap(find.byKey(cont));
       } else {
-        final s = QuartettGame.stats[i % QuartettGame.stats.length];
+        final s = QuartettDeck.cars.stats[i % QuartettDeck.cars.stats.length];
         await tester.ensureVisible(find.byKey(statKey(s.id)));
         await tester.tap(find.byKey(statKey(s.id)));
       }

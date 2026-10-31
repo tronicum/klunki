@@ -10,6 +10,7 @@ import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
+import 'package:klunki/ui/games/quartett_sets_screen.dart';
 import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
 import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/ui/games/schiffe_screen.dart';
@@ -34,7 +35,7 @@ class _Pair {
 
 /// Pumps both apps, hosts [gameId] on the left, joins from the right via
 /// the discovered host, and waits until both show [screen].
-Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen) async {
+Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen, {String? deck}) async {
   tester.view.physicalSize = const Size(1800, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -58,6 +59,10 @@ Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen) async {
   await tester.pumpAndSettle();
   await tester.tap(_on(_hostKey, find.byKey(Key('pair-game-$gameId'))));
   await tester.pump();
+  if (deck != null) {
+    await tester.tap(_on(_hostKey, find.byKey(Key('pair-deck-$deck'))));
+    await tester.pump();
+  }
   await tester.tap(_on(_hostKey, find.byKey(const Key('pair-host-start'))));
   await pumpUntil(tester, () => _has(_hostKey, find.text('Warte auf Mitspieler…')), what: 'host waits');
   final port = created.hosts.single.port!;
@@ -203,6 +208,23 @@ void main() {
         }
       }
     }
+  }, timeout: _timeout);
+
+  testWidgets('Quartett with a deck (KLD-069): the host picks rockets, the guest plays the rocket deck',
+      (tester) async {
+    await _connect(tester, 'quartett-sets', QuartettSetsScreen, deck: 'rockets');
+    for (final d in [_hostKey, _guestKey]) {
+      final c = _controller(tester, d);
+      expect(c.config.deck, 'rockets');
+      final game = c.game as QuartettGame;
+      expect(game.deck.id, 'rockets');
+      expect(_on(d, find.text('Quartett (Sets) · Raketen')), findsOneWidget, reason: 'app bar names the deck');
+    }
+    final guest = _controller(tester, _guestKey).game as QuartettGame;
+    final own = guest.handOf(Player.b);
+    expect(own, isNotEmpty);
+    expect(own.every((c) => c.deck == 'rockets'), isTrue);
+    expect(_on(_guestKey, find.text(own.first.name)), findsWidgets, reason: 'the guest shows its rocket cards');
   }, timeout: _timeout);
 
   testWidgets('Schiffe over the network: the guest renders its board from the redacted view (KLD-064)',

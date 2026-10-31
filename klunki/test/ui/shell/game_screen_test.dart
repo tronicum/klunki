@@ -34,8 +34,17 @@ void main() {
       for (final spec in appGameSpecs) {
         await tester.tap(find.text(spec.title));
         await tester.pumpAndSettle();
+        if (spec.usesDeck) {
+          // Quartett asks for the deck first (KLD-069); the title names it.
+          await tester.tap(find.byKey(const Key('quartett-deck-play')));
+          await tester.pumpAndSettle();
+        }
         expect(find.byType(GameScreen), findsOneWidget);
-        expect(find.descendant(of: find.byType(AppBar), matching: find.text(spec.title)), findsOneWidget);
+        expect(
+            find.descendant(
+                of: find.byType(AppBar),
+                matching: find.text(spec.usesDeck ? '${spec.title} · Autos' : spec.title)),
+            findsOneWidget);
         expect(find.text('X ist am Zug'), findsOneWidget);
         expect(controllerOf(tester).config.gameId, spec.id);
 

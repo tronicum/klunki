@@ -1362,4 +1362,174 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get engineReasonCommonYouResigned => 'Te has rendido';
+
+  @override
+  String get quartettDeckCars => 'Coches';
+
+  @override
+  String get quartettDeckTrains => 'Trenes';
+
+  @override
+  String get quartettDeckRockets => 'Cohetes';
+
+  @override
+  String get quartettDeckPlanes => 'Aviones';
+
+  @override
+  String get quartettSetTrainsA => 'ICE';
+
+  @override
+  String get quartettSetTrainsB => 'Shinkansen';
+
+  @override
+  String get quartettSetTrainsC => 'TGV';
+
+  @override
+  String get quartettSetTrainsD => 'Los rápidos de Europa';
+
+  @override
+  String get quartettSetTrainsE => 'Asia y América';
+
+  @override
+  String get quartettSetTrainsF => 'Locomotoras eléctricas';
+
+  @override
+  String get quartettSetTrainsG => 'Leyendas del vapor';
+
+  @override
+  String get quartettSetTrainsH => 'Gigantes de carga';
+
+  @override
+  String get quartettSetRocketsA => 'Cohetes lunares';
+
+  @override
+  String get quartettSetRocketsB => 'Reutilizables';
+
+  @override
+  String get quartettSetRocketsC => 'Europa';
+
+  @override
+  String get quartettSetRocketsD => 'Clásicos de EE. UU.';
+
+  @override
+  String get quartettSetRocketsE => 'Rusia';
+
+  @override
+  String get quartettSetRocketsF => 'China';
+
+  @override
+  String get quartettSetRocketsG => 'Japón e India';
+
+  @override
+  String get quartettSetRocketsH => 'Lanzadores pequeños';
+
+  @override
+  String get quartettSetPlanesA => 'Fuselaje ancho';
+
+  @override
+  String get quartettSetPlanesB => 'Medio radio';
+
+  @override
+  String get quartettSetPlanesC => 'Supersónicos';
+
+  @override
+  String get quartettSetPlanesD => 'Clásicos de hélice';
+
+  @override
+  String get quartettSetPlanesE => 'Gigantes del aire';
+
+  @override
+  String get quartettSetPlanesF => 'Negocios y deporte';
+
+  @override
+  String get quartettSetPlanesG => 'Pioneros';
+
+  @override
+  String get quartettSetPlanesH => 'Rarezas récord';
+
+  @override
+  String get quartettStatKw => 'Potencia';
+
+  @override
+  String get quartettStatLengthM => 'Longitud';
+
+  @override
+  String get quartettStatMassT => 'Peso';
+
+  @override
+  String get quartettStatTractiveKn => 'Esfuerzo de tracción';
+
+  @override
+  String get quartettStatInService => 'En servicio desde';
+
+  @override
+  String get quartettStatHeightM => 'Altura';
+
+  @override
+  String get quartettStatThrustKn => 'Empuje al despegue';
+
+  @override
+  String get quartettStatLeoT => 'Carga útil (LEO)';
+
+  @override
+  String get quartettStatLaunchMassT => 'Masa al lanzamiento';
+
+  @override
+  String get quartettStatFlights => 'Lanzamientos';
+
+  @override
+  String get quartettStatFirstFlight => 'Primer vuelo';
+
+  @override
+  String get quartettStatRangeKm => 'Alcance';
+
+  @override
+  String get quartettStatWingspanM => 'Envergadura';
+
+  @override
+  String get quartettStatMtowT => 'Peso al despegue';
+
+  @override
+  String get quartettDeckPickerTitle => 'Elige una baraja';
+
+  @override
+  String get quartettDeckLabel => 'Baraja';
+
+  @override
+  String quartettDeckSets(int sets) {
+    return '$sets grupos de 4 cartas';
+  }
+
+  @override
+  String get quartettDeckPlay => 'Jugar';
+
+  @override
+  String get quartettGalleryOpen => 'Ver las cartas';
+
+  @override
+  String get quartettGalleryTitle => 'Cartas del Quartett';
+
+  @override
+  String quartettGalleryCardOf(int index, int total) {
+    return 'Carta $index de $total';
+  }
+
+  @override
+  String get quartettGalleryPrevious => 'Carta anterior';
+
+  @override
+  String get quartettGalleryNext => 'Carta siguiente';
+
+  @override
+  String get quartettGalleryTopMenu => 'Top 5 por valor';
+
+  @override
+  String quartettGalleryTopTitle(String stat) {
+    return 'Los 5 mejores: $stat';
+  }
+
+  @override
+  String quartettCardSemantics(String id, String name, String set) {
+    return 'Carta $id: $name, grupo $set';
+  }
 }

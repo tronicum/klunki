@@ -286,6 +286,8 @@ void main() {
       await tester.pumpWidget(_app(hotSeat: hotSeat));
       await tester.tap(find.byKey(const Key('menu-quartett-trumpf')));
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('quartett-deck-play'))); // deck picker (KLD-069)
+      await tester.pumpAndSettle();
       await playUntilHandover(tester);
       expect(find.text('Gib das Gerät an Ben (O) weiter'), findsOneWidget);
       expect(find.text('Ich bin Ben (O) – weiter'), findsOneWidget);

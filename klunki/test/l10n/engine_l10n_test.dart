@@ -62,11 +62,11 @@ void main() {
   group('Quartett and Schiffe ids', () {
     test('every set letter, stat id and fleet length has its own key (no fallback)', () {
       for (final l10n in [deL10n, enL10n]) {
-        final sets = [for (final s in QuartettGame.setNames.keys) localizedSetName(l10n, s)];
-        expect(sets.toSet(), hasLength(QuartettGame.setNames.length));
-        final labels = [for (final s in QuartettGame.stats) localizedStatLabel(l10n, s.id)];
-        expect(labels.toSet(), hasLength(QuartettGame.stats.length));
-        for (final s in QuartettGame.stats) {
+        final sets = [for (final s in QuartettDeck.cars.setNames.keys) localizedSetName(l10n, s)];
+        expect(sets.toSet(), hasLength(QuartettDeck.cars.setNames.length));
+        final labels = [for (final s in QuartettDeck.cars.stats) localizedStatLabel(l10n, s.id)];
+        expect(labels.toSet(), hasLength(QuartettDeck.cars.stats.length));
+        for (final s in QuartettDeck.cars.stats) {
           expect(localizedStatUnit(l10n, s.id), isNotEmpty);
         }
         final ships = {for (final len in SchiffeGame.defaultFleet) localizedShipName(l10n, len)};
@@ -74,10 +74,10 @@ void main() {
         expect(ships, isNot(contains(l10n.engineShipOther)));
       }
       // German texts match the engine's own names.
-      for (final e in QuartettGame.setNames.entries) {
+      for (final e in QuartettDeck.cars.setNames.entries) {
         expect(localizedSetName(deL10n, e.key), e.value);
       }
-      for (final s in QuartettGame.stats) {
+      for (final s in QuartettDeck.cars.stats) {
         expect(localizedStatLabel(deL10n, s.id), s.label);
         expect(localizedStatUnit(deL10n, s.id), s.unit);
       }
@@ -96,7 +96,7 @@ void main() {
   });
 
   testWidgets('a Quartett card in en shows English stat labels, units and set name', (tester) async {
-    final card = QuartettGame.cardById('A1')!;
+    final card = QuartettDeck.cars.cardById('A1')!;
     await tester.pumpWidget(localizedApp(
         Scaffold(body: SingleChildScrollView(child: SizedBox(width: 320, child: QuartettCard(card: card)))),
         locale: const Locale('en')));

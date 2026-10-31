@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:klunki_engine/debug.dart';
+import 'package:klunki_engine/klunki_engine.dart' show QuartettDeck;
 import 'package:klunki_net/relay_server.dart';
 import 'package:klunki_net/src/cli/cli.dart';
 import 'package:test/test.dart';
@@ -181,6 +182,20 @@ void main() {
     }
     await guest.waitFor("Verified: the host's hidden data matches its commitments");
     expect(guest.text, isNot(contains('Could not verify')));
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
+  test('--deck trains: the host plays the train deck and the guest gets it with the config (KLD-069)', () async {
+    final (host, guest) = await hostAndJoin(['quartett-sets', '--seed', '42', '--deck', 'trains']);
+    expect(host.text, contains('Hosting Quartett (Sets) – Züge'));
+    expect(host.text, contains('"deck":"trains"'));
+    await host.waitFor(QuartettSetsText(42, 8, QuartettDeck.trains).render());
+    expect(guest.text, contains("Joined Ada's game: Quartett (Sets) – Züge"));
+    expect(guest.text, contains('"deck":"trains"'));
+    expect(guest.text, isNot(contains('"seed":42')), reason: 'the seed stays secret');
+    host.type('quit');
+    await guest.waitFor('Opponent left (host left).');
     expect(await host.exitCode, 0);
     expect(await guest.exitCode, 0);
   });
@@ -404,6 +419,10 @@ void main() {
       ['join', '--room', 'K7Q2M'],
       ['join', '--relay', 'ws://1.2.3.4', '--room', 'K7Q2O'],
       ['join', '--relay', 'ws://1.2.3.4', '--room', 'K7Q2M', '1.2.3.4'],
+      ['host', 'quartett-trumpf', '--deck', 'boats'],
+      ['host', 'quartett-trumpf', '--deck'],
+      ['host', 'connect4', '--deck', 'trains'],
+      ['join', '1.2.3.4', '--deck', 'trains'],
     ]) {
       final err = StringBuffer();
       expect(await runCli(args, err: err, out: err, input: const Stream.empty()), usageExit, reason: '$args');

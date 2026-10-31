@@ -7,10 +7,12 @@ import '../game_titles.dart';
 import '../games/connect4_screen.dart';
 import '../games/gostrategy_screen.dart';
 import '../games/muehle_screen.dart';
+import '../games/quartett_deck_picker.dart';
 import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
 import '../../profile/player_name_controller.dart';
+import '../../profile/quartett_deck_settings.dart';
 import 'game_screen.dart';
 
 /// Builds the screen widget for a game; the screen renders a [GameScreen].
@@ -57,13 +59,22 @@ class GameNotInAppScreen extends StatelessWidget {
   }
 }
 
-/// Starts a hot-seat game of [gameId] (random seed unless given) and pushes
-/// its screen. The controller lives as long as the route and is disposed
-/// when it is popped.
-Future<void> openGame(BuildContext context, String gameId, {int? seed}) {
+/// Starts a hot-seat game of [gameId] (random seed unless given; [deck] for
+/// Quartett, KLD-069) and pushes its screen. The controller lives as long as
+/// the route and is disposed when it is popped.
+Future<void> openGame(BuildContext context, String gameId, {int? seed, String? deck}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (_) => GameSession(config: GameConfig(gameId, seed: seed ?? newGameSeed())),
+    builder: (_) => GameSession(config: GameConfig(gameId, seed: seed ?? newGameSeed(), deck: deck)),
   ));
+}
+
+/// The menu's way into a game: Quartett first asks for the deck
+/// (KLD-069, [showQuartettDeckPicker]); other games start right away.
+Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
+  if (specById(gameId)?.usesDeck != true) return openGame(context, gameId);
+  final deck = await showQuartettDeckPicker(context, settings: deckSettings);
+  if (deck == null || !context.mounted) return;
+  return openGame(context, gameId, deck: deck);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

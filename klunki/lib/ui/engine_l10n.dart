@@ -43,40 +43,89 @@ String localizedResultReason(AppLocalizations l10n, GameResult result, {String F
   return code == null ? result.reason : localizedEndReason(l10n, code, result.params, playerLabel);
 }
 
-/// Localized name of a Quartett set letter `A`–`H`; the engine's name (or the
-/// letter) for anything else.
-String localizedSetName(AppLocalizations l10n, String set) => switch (set) {
-      'A' => l10n.engineSetA,
-      'B' => l10n.engineSetB,
-      'C' => l10n.engineSetC,
-      'D' => l10n.engineSetD,
-      'E' => l10n.engineSetE,
-      'F' => l10n.engineSetF,
-      'G' => l10n.engineSetG,
-      'H' => l10n.engineSetH,
-      _ => QuartettGame.setNames[set] ?? set,
+/// Localized name of a Quartett set letter `A`–`H` of [deck] (KLD-069;
+/// default: the car deck); the engine's name (or the letter) for anything
+/// else.
+String localizedSetName(AppLocalizations l10n, String set, [String deck = QuartettDeck.defaultId]) {
+  final i = set.length == 1 ? 'ABCDEFGH'.indexOf(set) : -1;
+  final names = switch (deck) {
+    'cars' => [
+        l10n.engineSetA, l10n.engineSetB, l10n.engineSetC, l10n.engineSetD,
+        l10n.engineSetE, l10n.engineSetF, l10n.engineSetG, l10n.engineSetH,
+      ],
+    'trains' => [
+        l10n.quartettSetTrainsA, l10n.quartettSetTrainsB, l10n.quartettSetTrainsC, l10n.quartettSetTrainsD,
+        l10n.quartettSetTrainsE, l10n.quartettSetTrainsF, l10n.quartettSetTrainsG, l10n.quartettSetTrainsH,
+      ],
+    'rockets' => [
+        l10n.quartettSetRocketsA, l10n.quartettSetRocketsB, l10n.quartettSetRocketsC, l10n.quartettSetRocketsD,
+        l10n.quartettSetRocketsE, l10n.quartettSetRocketsF, l10n.quartettSetRocketsG, l10n.quartettSetRocketsH,
+      ],
+    'planes' => [
+        l10n.quartettSetPlanesA, l10n.quartettSetPlanesB, l10n.quartettSetPlanesC, l10n.quartettSetPlanesD,
+        l10n.quartettSetPlanesE, l10n.quartettSetPlanesF, l10n.quartettSetPlanesG, l10n.quartettSetPlanesH,
+      ],
+    _ => null,
+  };
+  if (names != null && i >= 0) return names[i];
+  return QuartettDeck.byId(deck)?.setNames[set] ?? set;
+}
+
+/// Localized name of a Quartett deck id (KLD-069); the engine's name (or the
+/// id) for unknown ids.
+String localizedDeckName(AppLocalizations l10n, String deck) => switch (deck) {
+      'cars' => l10n.quartettDeckCars,
+      'trains' => l10n.quartettDeckTrains,
+      'rockets' => l10n.quartettDeckRockets,
+      'planes' => l10n.quartettDeckPlanes,
+      _ => QuartettDeck.byId(deck)?.name ?? deck,
     };
 
-/// Localized label of a Quartett stat id; the engine label (or the id) for
-/// unknown ids.
+/// The engine's stat with [statId] in any deck (a stat id means the same in
+/// every deck), or null.
+QuartettStat? _anyStat(String statId) {
+  for (final d in QuartettDeck.all) {
+    final s = d.statById(statId);
+    if (s != null) return s;
+  }
+  return null;
+}
+
+/// Localized label of a Quartett stat id (any deck); the engine label (or the
+/// id) for unknown ids.
 String localizedStatLabel(AppLocalizations l10n, String statId) => switch (statId) {
       'ps' => l10n.engineStatPs,
       'kmh' => l10n.engineStatKmh,
       'ccm' => l10n.engineStatCcm,
       'kg' => l10n.engineStatKg,
       'sec0to100' => l10n.engineStatSec0to100,
-      _ => QuartettGame.statById(statId)?.label ?? statId,
+      'kw' => l10n.quartettStatKw,
+      'lengthM' => l10n.quartettStatLengthM,
+      'massT' => l10n.quartettStatMassT,
+      'tractiveKn' => l10n.quartettStatTractiveKn,
+      'inService' => l10n.quartettStatInService,
+      'heightM' => l10n.quartettStatHeightM,
+      'thrustKn' => l10n.quartettStatThrustKn,
+      'leoT' => l10n.quartettStatLeoT,
+      'launchMassT' => l10n.quartettStatLaunchMassT,
+      'flights' => l10n.quartettStatFlights,
+      'firstFlight' => l10n.quartettStatFirstFlight,
+      'rangeKm' => l10n.quartettStatRangeKm,
+      'wingspanM' => l10n.quartettStatWingspanM,
+      'mtowT' => l10n.quartettStatMtowT,
+      _ => _anyStat(statId)?.label ?? statId,
     };
 
 /// Localized unit of a Quartett stat id (de "PS", en "hp"); the engine unit
-/// for unknown ids.
+/// for the other ids (SI symbols like `kW`, `t`, `m` read the same in every
+/// language; years and counts have none).
 String localizedStatUnit(AppLocalizations l10n, String statId) => switch (statId) {
       'ps' => l10n.engineUnitPs,
       'kmh' => l10n.engineUnitKmh,
       'ccm' => l10n.engineUnitCcm,
       'kg' => l10n.engineUnitKg,
       'sec0to100' => l10n.engineUnitSec,
-      _ => QuartettGame.statById(statId)?.unit ?? '',
+      _ => _anyStat(statId)?.unit ?? '',
     };
 
 /// Localized ship name by length (Schiffe versenken fleet 5, 4, 3, 3, 2, 2).

@@ -96,7 +96,7 @@ class GameController extends ChangeNotifier {
   /// Starts a fresh game of the same kind, with the same [seed] unless one is
   /// given. Disposes the old transport.
   void restart({int? seed}) {
-    final next = GameConfig(config.gameId, seed: seed ?? config.seed);
+    final next = config.copyWith(seed: seed);
     _detach();
     _transport.dispose();
     _transport = _transportFactory(next);

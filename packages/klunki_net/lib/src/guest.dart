@@ -287,8 +287,9 @@ class KlunkiGuest {
     if (hostName is String) _hostName = sanitizePlayerName(hostName);
     _token = m['token'] as String? ?? _token;
     if (_joined && (config != _config || me != _me)) return 'reconnected to a different game';
-    final spec = specById(config.gameId);
-    if (spec == null) return 'unknown game "${config.gameId}"';
+    final problem = configProblem(config);
+    if (problem != null) return problem;
+    final spec = specById(config.gameId)!;
     final redaction = spec.redaction;
     final redacted = m['redacted'] == true;
     if (redacted != (redaction != null)) {
@@ -444,6 +445,7 @@ class KlunkiGuest {
       final secretSeed = specById(_config.gameId)!.redaction!.secretSeed;
       error = verifyRedactedGame(
         gameId: _config.gameId,
+        deck: _config.deck,
         me: _me,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,

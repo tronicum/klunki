@@ -8,6 +8,7 @@ import '../../transport/game_transport.dart';
 import '../../app/theme.dart';
 import '../shell/game_screen.dart';
 import 'quartett_card.dart';
+import 'quartett_deck_picker.dart' show quartettScreenTitle;
 
 /// Quartett (Sets) screen: classic Quartett, ask the opponent for cards and
 /// collect complete sets.
@@ -44,14 +45,16 @@ class QuartettSetsScreen extends StatelessWidget {
 
   /// History text for an ask: "fragt nach B3: Treffer" (the shell prefixes the
   /// player). Never names a drawn card.
-  static String describeMove(AppLocalizations l10n, AcceptedMove m) {
+  ///
+  /// [deck] names the quartet's set (KLD-069; default: the car deck).
+  static String describeMove(AppLocalizations l10n, AcceptedMove m, [String deck = QuartettDeck.defaultId]) {
     final p = m.event.payload;
     final card = m.move['card'];
     final hit = p is Map && p['hit'] == true;
     final quartet = p is Map ? p['quartet'] : null;
     final result = hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss;
     return quartet is String
-        ? l10n.quartettSetsMoveAskQuartet('$card', result, quartettSetName(l10n, quartet))
+        ? l10n.quartettSetsMoveAskQuartet('$card', result, quartettSetName(l10n, quartet, deck))
         : l10n.quartettSetsMoveAsk('$card', result);
   }
 
@@ -59,7 +62,8 @@ class QuartettSetsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return GameScreen(
       controller: controller,
-      describeMove: describeMove,
+      describeMove: (l10n, m) => describeMove(l10n, m, (controller.game as QuartettGame).deck.id),
+      title: quartettScreenTitle(context, controller),
       boardBuilder: (context, controller) => _QuartettSetsBoard(controller: controller),
     );
   }
@@ -91,7 +95,7 @@ class _Feedback {
     required this.own,
   });
 
-  static _Feedback? fromPayload(Player asker, Object? payload,
+  static _Feedback? fromPayload(QuartettDeck deck, Player asker, Object? payload,
       {required bool own, Map<String, dynamic>? pending}) {
     if (payload is! Map) return null;
     final card = payload['card'];
@@ -103,7 +107,7 @@ class _Feedback {
       card: card,
       hit: payload['hit'] == true,
       quartet: quartet is String ? quartet : null,
-      drew: own && drew is String ? QuartettGame.cardById(drew) : null,
+      drew: own && drew is String ? deck.cardById(drew) : null,
       pending: pending,
       own: own,
     );
@@ -177,7 +181,8 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
         _submitting = false;
         _ownFeedback = false;
         final m = moves.last;
-        next = _Feedback.fromPayload(m.player, m.event.payload, own: own);
+        final game = _game;
+        next = game == null ? null : _Feedback.fromPayload(game.deck, m.player, m.event.payload, own: own);
       }
     }
     _sync();
@@ -188,6 +193,9 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final g = c.game;
     return g is QuartettGame ? g : null;
   }
+
+  /// The id of the deck in play (KLD-069).
+  String get _deckId => _game?.deck.id ?? QuartettDeck.defaultId;
 
   /// Whose hand this device shows: the single local player, or (hot-seat) the
   /// player to move.
@@ -218,10 +226,10 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final passes = !copy.isOver && copy.currentPlayer != asker;
     if (passes) {
       // Miss: show the outcome (and the drawn card) before the handover.
-      setState(() => _feedback = _Feedback.fromPayload(asker, event.payload, own: true, pending: move));
+      setState(() => _feedback = _Feedback.fromPayload(game.deck, asker, event.payload, own: true, pending: move));
       return;
     }
-    setState(() => _feedback = _Feedback.fromPayload(asker, event.payload, own: true));
+    setState(() => _feedback = _Feedback.fromPayload(game.deck, asker, event.payload, own: true));
     _submit(move);
   }
 
@@ -347,7 +355,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
       child: Text(
-        '$set ${quartettSetName(AppLocalizations.of(context), set)}',
+        '$set ${quartettSetName(AppLocalizations.of(context), set, _deckId)}',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.white),
       ),
     );
@@ -400,7 +408,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          l10n.quartettSetsQuartetLaid(quartettSetName(l10n, q)),
+                          l10n.quartettSetsQuartetLaid(quartettSetName(l10n, q, _deckId)),
                           key: const Key('qs-quartet-text'),
                           style: theme.textTheme.titleSmall
                               ?.copyWith(color: KlunkiPalette.of(context).quartett.setText(q), fontWeight: FontWeight.bold),
@@ -441,7 +449,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final hand = game.handOf(viewer);
     final l10n = AppLocalizations.of(context);
     final held = {for (final card in hand) card.id};
-    final sets = [for (final s in QuartettGame.setNames.keys) if (hand.any((card) => card.set == s)) s];
+    final sets = [for (final s in game.setNames.keys) if (hand.any((card) => card.set == s)) s];
     final askable = _canAsk && viewer == game.currentPlayer
         ? {for (final m in game.legalMoves) m['card'] as String}
         : const <String>{};
@@ -458,7 +466,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   Widget _setGroup(BuildContext context, String set, Set<String> held, Set<String> askable) {
     final theme = Theme.of(context);
     final color = KlunkiPalette.of(context).quartett.setText(set);
-    final slots = [for (final card in QuartettGame.deck) if (card.set == set) card];
+    final slots = (_game?.deck ?? QuartettDeck.cars).cardsOf(set);
     final have = slots.where((card) => held.contains(card.id)).length;
     return Padding(
       key: Key('qs-set-$set'),
@@ -472,7 +480,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
-                  '$set ${quartettSetName(AppLocalizations.of(context), set)}',
+                  '$set ${quartettSetName(AppLocalizations.of(context), set, _deckId)}',
                   style: theme.textTheme.titleSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
                 ),
               ),
