@@ -101,6 +101,7 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-059 | **Schach** (chess, id `chess`): standard rules incl. castling, en passant, promotion, check/mate/stalemate, draw rules; see `docs/tasks/KLD-059-chess.md` | 2 players, fits the current protocol |
 | KLD-060 | **Immobilien-Spiel** (property-trading dice game, working title, id `property`): dice, buying/rent/houses, cards, bankruptcy; see `docs/tasks/KLD-060-property-game.md` | large; 2–n players needs protocol/lobby work |
 | KLD-061 | **Hotelspiel** (hotel-building dice game, working title, id `hotel`): hotel lots on a track, buildings + extras, permit die, overnight fees, bankruptcy; see `docs/tasks/KLD-061-hotel-game.md` | shares a possible "board-economy" core with 060; 2–4 players needs protocol/lobby work |
+| KLD-079 | **Pause and resume games**: hot-seat auto-save after each move and on app background, plus a "Fortsetzen" list in the menu. Network resume: the host hosts the saved log again with the same token (relay: a resumable room secret); the KLD-064 salts and secrets are saved; versioned saves (`rulesVersion`), with `shared_preferences`, files or IndexedDB. See `docs/tasks/KLD-079-pause-resume.md` | after 069, 070 (stable PRNG), 074; important for 059–061 |
 
 ## Look & feel
 
@@ -112,12 +113,29 @@ Milestone: iPhone ↔ iPad verified on simulators (KLD-038c); real devices pendi
 | KLD-066 | Start/welcome screen "Klunki – deine Spielesammlung für die Hosentasche" (wordmark, tagline, playful intro animation, reduced motion), later also native launch screen and PWA splash; see `docs/tasks/KLD-066-start-screen.md` | medium-low | 062 | `klunki/lib/ui/start_screen.dart`, `klunki/lib/l10n/**`, later `klunki/web/**`, launch assets | 🧑 for native launch assets |
 | KLD-068 ✅ | Better Schiffe placement: local editable layout, "Zufällig" sets the whole fleet, then select (tap), move (drag or tap a cell), rotate (tap again or "Drehen" ↻ with orientation), remove to the harbour, "Zurücksetzen"; live green/red footprint, red flash + shake + hint on invalid moves; "Fertig" submits the usual `place` moves (protocol and KLD-064 redaction unchanged); network guest can arrange early. See `docs/tasks/KLD-068-schiffe-placement.md` | medium | 026, 062, 064 | `klunki/lib/ui/games/schiffe/**`, `packages/klunki_engine/lib/schiffe.dart` (layout helpers), `klunki/lib/l10n/**` (15 `schiffe*` keys after `schiffeMoveFire`) | – |
 
+## Review 2026-10
+
+From `docs/REVIEW-2026-10.md`, in order of value per effort (the "Top 10" there). All open.
+
+| ID | Task | Priority | Depends on | Touched paths | 🧑 |
+|---|---|---|---|---|---|
+| KLD-069 | Rejoin only with the session token: no guest-seat takeover by name (`host.dart:220`); the guest saves its token; the host confirms a rejoin with a lost token | high | – | `packages/klunki_net/lib/src/host.dart`, `PROTOCOL.md`, `klunki/lib/transport/**`, `klunki/lib/ui/pairing/**` | – |
+| KLD-073 | Resign in hidden-information network games: views carry `resignedBy`, `playerOf` in guest and host, PROTOCOL v2 text, regenerate the zh subset (part of the KLD-065 merge) | high | 065, 064 | `packages/klunki_engine/lib/{game,*_view}.dart`, `packages/klunki_net/lib/src/{host,guest}.dart` | – |
+| KLD-071 | Shell guards: leave confirmation (`PopScope`), no undo in hidden-information hot-seat games, a start cover, a tap guard on the cover | high | 065 merged | `klunki/lib/ui/shell/**`, `klunki/lib/game/game_controller.dart`, `klunki/lib/ui/pairing/network_game_session.dart` | – |
+| KLD-072 | Minimal CI, stricter lints, loopback tests without flakes (`netTimeout`) | high | – | `.github/workflows/**`, `analysis_options.yaml` ×3, `klunki/test/ui/pairing/pairing_test_utils.dart` | 🧑 CI runner |
+| KLD-070 | Unguessable hidden setups: 128-bit secure seeds or explicit layouts, and an engine-owned PRNG (also stable replays) | high | 065 merged | `packages/klunki_engine/lib/**`, `klunki/lib/ui/shell/game_screen.dart`, `klunki/lib/ui/games/schiffe/**`, CLI | – |
+| KLD-075 | Links and QR codes don't silently save another relay; confirm before auto-connect | medium | – | `klunki/lib/ui/pairing/**`, `klunki/lib/profile/relay_settings.dart` | – |
+| KLD-074 | App background/resume: guest auto-reconnect, relay room grace period, host listener check | medium | 069 | `klunki/lib/transport/**`, `packages/klunki_net/lib/src/**` | 🧑 device check |
+| KLD-076 | Release basics: icons, launch screens, signing, About/licences, Info.plist l10n, encryption key, PWA update prompt | medium | 053, 012, 066 | `klunki/ios/Runner/**` (never pbxproj/xcscheme/Main.storyboard), `klunki/android/**`, `klunki/web/**` | 🧑 licence, keys, team |
+| KLD-077 | Accessibility pass: Four in a Row and mill semantics, announcements, keyboard on the web, contrast, battleship target size | medium | 068, 058b | `klunki/lib/ui/**`, `klunki/lib/app/theme.dart` | – |
+| KLD-078 | Game modules (one registration point per game), typed `NetErrorCode`, pairing controller deduplication, i18n cleanup (unused keys, plurals, generic title instead of "4 Gewinnt") | medium | 058b merged | `klunki/lib/ui/**`, `packages/klunki_net/lib/src/events.dart`, `klunki/lib/l10n/**` | – |
+
 ## Backlog
 
 | ID | Task | Notes |
 |---|---|---|
 | KLD-050 | Lobby / game code over local Wi-Fi (code in mDNS TXT record) | after 033 |
-| KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable). The LAN relay exists since KLD-057a (`klunki relay`); what remains is internet hosting (TLS/`wss`, rate limits per IP, abuse review) | hosting + privacy review 🧑 |
+| KLD-051 | Internet lobby/relay (code → session, WebSocket relay; makes PWA networkable). The LAN relay exists since KLD-057a (`klunki relay`); what remains is internet hosting (TLS/`wss`, rate limits per IP, abuse review). REVIEW-2026-10 S4 adds: per-IP caps on rooms, sockets and joins, 6–7 character codes, an absolute room lifetime, an `Origin` allow-list and a frame cap; fix KLD-069 first | hosting + privacy review 🧑 |
 | KLD-027 | Rename the engine's `Card` to `QuartettCard` (clashes with Flutter's `Card`; today every Flutter file needs `hide Card`) | after the screen wave (022–026), touches many files |
 | ~~KLD-028~~ | German result reasons in the UI (engine reasons are English, e.g. "four in a row") | superseded by I18N-05 ✅ |
 | KLD-029 | Quartett handover after the trick reveal even when the same player continues (the opponent watched the reveal) | after 024 |
