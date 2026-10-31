@@ -17,6 +17,8 @@ Input: klunki/tool/card_media/<deck>.json, checked in:
     "" = no image on purpose (the card keeps its drawn pictogram).
     Every file's licence is read from Commons (extmetadata) and must be free
     (see licence_ok); a non-free or local (fair-use) file is skipped.
+  * optional top-level "maxBytes": cap per photo for this deck (default
+    40 KB), to keep a deck of detailed photos at about 1.1 MB.
 
 Output (idempotent; only changed files are rewritten):
   * klunki/assets/quartett/<deck>/<cardId>.jpg  - ~480 px long side, JPEG
@@ -263,20 +265,22 @@ def credit_of(info, author=None):
     }
 
 
-def resize(src, dest):
-    """~480 px long side JPEG <= MAX_BYTES via sips (no extra tools)."""
+def resize(src, dest, max_bytes=MAX_BYTES):
+    """~480 px long side JPEG <= max_bytes via sips (no extra tools)."""
     sips = shutil.which('sips')
     if not sips:
         raise RuntimeError('sips not found (macOS); no image converter available')
-    for q in (80, 72, 64, 56, 48):
+    # 40 and 32 only for very detailed photos (KLD-084: a few train
+    # photos); earlier outputs never reach them, so they stay byte-identical.
+    for q in (80, 72, 64, 56, 48, 40, 32):
         tmp = dest + '.tmp.jpg'
         subprocess.run([sips, '-s', 'format', 'jpeg', '-s', 'formatOptions', str(q), '-Z', str(LONG_SIDE),
                         src, '--out', tmp], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        if os.path.getsize(tmp) <= MAX_BYTES:
+        if os.path.getsize(tmp) <= max_bytes:
             os.replace(tmp, dest)
             return q
         os.remove(tmp)
-    raise RuntimeError('cannot get %s under %d bytes' % (dest, MAX_BYTES))
+    raise RuntimeError('cannot get %s under %d bytes' % (dest, max_bytes))
 
 
 def _write_if_changed(path, text):
@@ -314,6 +318,9 @@ def build(deck_def):
     deck = deck_def['deck']
     out_dir = os.path.join(ASSET_DIR, deck)
     os.makedirs(out_dir, exist_ok=True)
+    # Optional per-deck cap per photo (KLD-084): wide, detailed photos (trains)
+    # would otherwise all sit at 40 KB and push the deck past ~1.1 MB.
+    max_bytes = int(deck_def.get('maxBytes', MAX_BYTES))
     cards = {}
     for cid, c in sorted(deck_def['cards'].items()):
         en = article('en', c['en']) if c.get('en') else None
@@ -350,8 +357,10 @@ def build(deck_def):
             dest = os.path.join(out_dir, name)
             stamp = os.path.join(CACHE, 'stamps', deck, cid + '.txt')
             sig = hashlib.sha256(data).hexdigest() + ' %d' % LONG_SIDE
+            if max_bytes != MAX_BYTES:
+                sig += ' max%d' % max_bytes
             if not (os.path.isfile(dest) and os.path.isfile(stamp) and open(stamp).read() == sig):
-                resize(orig, dest)
+                resize(orig, dest, max_bytes)
                 os.makedirs(os.path.dirname(stamp), exist_ok=True)
                 with open(stamp, 'w') as fh:
                     fh.write(sig)

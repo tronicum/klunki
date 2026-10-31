@@ -119,6 +119,7 @@ flutter:
     # tool/fetch_card_media.py). Bundled so they work offline; never hotlinked.
     - assets/quartett/rockets/
     - assets/quartett/planes/
+    - assets/quartett/trains/
   fonts:
     - family: Roboto
       fonts:

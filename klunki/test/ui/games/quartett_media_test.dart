@@ -50,7 +50,7 @@ List<Uri> _fakeOpener({bool ok = true}) {
 
 /// Decks whose photos and links have been collected (KLD-082 rockets,
 /// KLD-084 the others); every other deck keeps its pictograms.
-const _mediaDecks = ['rockets', 'planes'];
+const _mediaDecks = ['rockets', 'planes', 'trains'];
 
 void main() {
   for (final deckId in _mediaDecks) {

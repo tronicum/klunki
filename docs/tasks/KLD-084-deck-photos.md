@@ -3,13 +3,14 @@
 - **ID:** `KLD-084`
 - **Title:** The KLD-082 media pipeline (Wikipedia links, free-licence Wikimedia Commons photos, credits) applied to the other three Quartett decks
 - **Milestone:** M3 (content)
-- **Status:** planes ✅ · trains open · cars open (one commit per deck)
+- **Status:** planes ✅ · trains ✅ · cars open (one commit per deck)
 - **Depends on:** KLD-082 (pipeline, app UI, credit dialog, "Bildnachweise", PWA check)
 - **Touched paths (per deck):**
   - `klunki/tool/card_media/<deck>.json` (chosen Commons files, article titles, author overrides, notes)
   - `klunki/assets/quartett/<deck>/**` (JPEGs + `credits.json`), `klunki/pubspec.yaml` (asset folder)
   - `klunki/lib/ui/games/quartett_media_data.dart` (generated)
   - `klunki/test/ui/games/quartett_media_test.dart` (data tests run per deck)
+  - `klunki/tool/fetch_card_media.py` (trains: optional per-deck `maxBytes`, quality steps 40/32)
 
 ## Goal
 
@@ -34,6 +35,14 @@ changed: the card, gallery and credit screens are generic since KLD-082.
    `credits.json` and the Dart data; every JPEG looked at.
 4. `- assets/quartett/<deck>/` in `pubspec.yaml`; `_mediaDecks` in
    `quartett_media_test.dart`; `python3 -I klunki/tool/update_web_fonts.py subset`.
+
+### Tool changes (trains)
+- Wide, detailed train photos all landed at the 40 KB cap (deck 1.23 MB).
+  `<deck>.json` may now set `"maxBytes"` (trains: 33 792 = 33 KB) to keep
+  the deck at about 1 MB. The stamp includes the cap only when it differs
+  from the default, so rockets/planes are not re-encoded.
+- Two lower JPEG quality steps (40, 32) after 48, reached only when 48 is
+  still too big; earlier decks never reach them (outputs unchanged).
 
 ## Tests
 
@@ -97,3 +106,58 @@ article (no separate one).
 | H2 | Hughes H-4 Hercules | [H-4 Hercules 2.jpg](https://commons.wikimedia.org/wiki/File:H-4_Hercules_2.jpg) | SDASM Archives | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/Hughes_H-4) · [en](https://en.wikipedia.org/wiki/Hughes_H-4_Hercules) |
 | H3 | Stratolaunch Roc | [230113- Stratolaunch Talon Photo Chase-091.jpg](https://commons.wikimedia.org/wiki/File:230113-_Stratolaunch_Talon_Photo_Chase-091.jpg) | Eva Folsom | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Scaled_Composites_Stratolaunch) · [en](https://en.wikipedia.org/wiki/Scaled_Composites_Stratolaunch) |
 | H4 | Rutan Voyager | [Voyager aircraft return from non-stop trip around the world (EC87-0029-02).jpg](https://commons.wikimedia.org/wiki/File:Voyager_aircraft_return_from_non-stop_trip_around_the_world_(EC87-0029-02).jpg) | NASA Armstrong Flight Research Center / NASA/Thomas Harrop | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/Rutan_Voyager) · [en](https://en.wikipedia.org/wiki/Rutan_Voyager) |
+
+## Trains
+
+32 of 32 cards have a photo. Licences: CC BY-SA 4.0 11, CC BY 2.0 6,
+CC BY-SA 2.0 5, CC BY-SA 3.0 4, Public domain 4 (Union Pacific / AAR
+1941, own-work releases), CC BY-SA 2.5 1, CC BY 4.0 1. Total: 32 JPEGs
+972 420 B (largest 33 621 B, cap 33 KB) + `credits.json` 26 088 B =
+**998 508 B**.
+
+Choices other than the article's lead image: B1 (the lead, 1200 px and very
+detailed, did not fit 40 KB at quality 48; a public-domain 1989 photo), D1, E3,
+F1, G1 (the de lead: a sharper or newer photo), F4 an ÖBB 1216 = ES64U4
+(the en EuroSprinter lead shows a 1016 = ES64U2), H3 an AC6000CW (CSX 627;
+the en lead shows a Dash 9-44CW). Author overrides: A3 (user name
+removed), D2 (URL removed), G3 (Commons gives an upload counter; the
+user is Urmelbeauftragter), G4. German articles: F4 → ÖBB 1216, G2 →
+LNER-Klasse A4, H2 → EMD SD70ACe, H4 → EMD JT42CWR (= Class 66), all
+without an interlanguage link from the en article. No German article:
+B3 N700S, C2 TGV Atlantique (only the general "TGV"), E1 CR400AF,
+E2 KTX-Sancheon (English only).
+
+| Card | Name | Commons file | Author | Licence | SA | Wikipedia |
+|---|---|---|---|---|---|---|
+| A1 | ICE 1 | [DB ICE1 401 590 (52508715939).jpg](https://commons.wikimedia.org/wiki/File:DB_ICE1_401_590_(52508715939).jpg) | Nelso Silva from Porto, Portugal | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/ICE_1) · [en](https://en.wikipedia.org/wiki/ICE_1) |
+| A2 | ICE T | [ICE-T Neigung.jpg](https://commons.wikimedia.org/wiki/File:ICE-T_Neigung.jpg) | Sebastian Terfloth | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) | yes | [de](https://de.wikipedia.org/wiki/ICE_T) · [en](https://en.wikipedia.org/wiki/ICE_T) |
+| A3 | ICE 3 | [ICE 3 Oberhaider-Wald-Tunnel.jpg](https://commons.wikimedia.org/wiki/File:ICE_3_Oberhaider-Wald-Tunnel.jpg) | Sebastian Terfloth | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | yes | [de](https://de.wikipedia.org/wiki/ICE_3) · [en](https://en.wikipedia.org/wiki/ICE_3) |
+| A4 | ICE 4 | [Düsseldorf Rath DB 9003 omleiding 2 (52219697326).jpg](https://commons.wikimedia.org/wiki/File:D%C3%BCsseldorf_Rath_DB_9003_omleiding_2_(52219697326).jpg) | Rob Dammers | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/ICE_4) · [en](https://en.wikipedia.org/wiki/ICE_4) |
+| B1 | Shinkansen 0 | [Shinkansen type 0 Hikari 19890506a.jpg](https://commons.wikimedia.org/wiki/File:Shinkansen_type_0_Hikari_19890506a.jpg) | Cassiopeia sweet | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/Shinkansen-Baureihe_0) · [en](https://en.wikipedia.org/wiki/0_Series_Shinkansen) |
+| B2 | Shinkansen 300 | [JR Central Shinkansen 300.jpg](https://commons.wikimedia.org/wiki/File:JR_Central_Shinkansen_300.jpg) | Sui-setz | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/Shinkansen-Baureihe_300) · [en](https://en.wikipedia.org/wiki/300_Series_Shinkansen) |
+| B3 | Shinkansen N700S | [JR Series-N700S-J30 Nozomi-4.jpg](https://commons.wikimedia.org/wiki/File:JR_Series-N700S-J30_Nozomi-4.jpg) | MaedaAkihiko | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [en](https://en.wikipedia.org/wiki/N700S_Series_Shinkansen) |
+| B4 | Shinkansen E5 | [Series-E5-U15 Yamabiko-50.jpg](https://commons.wikimedia.org/wiki/File:Series-E5-U15_Yamabiko-50.jpg) | MaedaAkihiko | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Shinkansen-Baureihe_E5) · [en](https://en.wikipedia.org/wiki/E5_and_H5_Series_Shinkansen) |
+| C1 | TGV Sud-Est | [TGV Train à Grande Vitesse.jpg](https://commons.wikimedia.org/wiki/File:TGV_Train_%C3%A0_Grande_Vitesse.jpg) | joost j. bakker from ijmuiden, the netherlands | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/TGV_Sud-Est) · [en](https://en.wikipedia.org/wiki/SNCF_TGV_Sud-Est) |
+| C2 | TGV Atlantique | [TGV Atlantique n361 en gare de Nantes.jpg](https://commons.wikimedia.org/wiki/File:TGV_Atlantique_n361_en_gare_de_Nantes.jpg) | Neimedia_ | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [en](https://en.wikipedia.org/wiki/SNCF_TGV_Atlantique) |
+| C3 | TGV Duplex | [Gare du Vert de Maisons DSC 1168 (49644441936).jpg](https://commons.wikimedia.org/wiki/File:Gare_du_Vert_de_Maisons_DSC_1168_(49644441936).jpg) | Cheng-en Cheng from Taichung City, Taiwan | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/TGV_Duplex) · [en](https://en.wikipedia.org/wiki/TGV_Duplex) |
+| C4 | TGV V150 | [TGV World Speed Record 574 km per hour.jpg](https://commons.wikimedia.org/wiki/File:TGV_World_Speed_Record_574_km_per_hour.jpg) | Alain Stoll | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/V150) · [en](https://en.wikipedia.org/wiki/Project_V150) |
+| D1 | Eurostar e320 | [Eurostar Class 374 on HS1 (cropped).jpg](https://commons.wikimedia.org/wiki/File:Eurostar_Class_374_on_HS1_(cropped).jpg) | Kabelleger / David Gubler | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/Eurostar_320) · [en](https://en.wikipedia.org/wiki/British_Rail_Class_374) |
+| D2 | AVE S-103 | [RENFE Class 103 Vinaixa.jpg](https://commons.wikimedia.org/wiki/File:RENFE_Class_103_Vinaixa.jpg) | Kabelleger / David Gubler | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | yes | [de](https://de.wikipedia.org/wiki/RENFE-Baureihe_103) · [en](https://en.wikipedia.org/wiki/Renfe_Class_103) |
+| D3 | Frecciarossa 1000 | [FS Trenitalia ETR400 15 (50832499597).jpg](https://commons.wikimedia.org/wiki/File:FS_Trenitalia_ETR400_15_(50832499597).jpg) | Nelso Silva from Porto, Portugal | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/FS_Frecciarossa_1000) · [en](https://en.wikipedia.org/wiki/Frecciarossa_1000) |
+| D4 | Talgo 350 | [S-102 Trainset.jpg](https://commons.wikimedia.org/wiki/File:S-102_Trainset.jpg) | Samson Ng . D201@EAL | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/RENFE-Baureihe_102) · [en](https://en.wikipedia.org/wiki/Renfe_Class_102) |
+| E1 | Fuxing CR400AF | [CR400AF-2031 at Shoupakou (20180506093817).jpg](https://commons.wikimedia.org/wiki/File:CR400AF-2031_at_Shoupakou_(20180506093817).jpg) | N509FZ | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [en](https://en.wikipedia.org/wiki/China_Railway_CR400AF) |
+| E2 | KTX-Sancheon | [KTX-Sancheon.jpg](https://commons.wikimedia.org/wiki/File:KTX-Sancheon.jpg) | Minseong Kim | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [en](https://en.wikipedia.org/wiki/KTX-Sancheon) |
+| E3 | Shanghai Transrapid | [Transrapid Shanghai 2012.jpg](https://commons.wikimedia.org/wiki/File:Transrapid_Shanghai_2012.jpg) | Max Talbot-Minkin | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/Transrapid_Shanghai) · [en](https://en.wikipedia.org/wiki/Shanghai_maglev_train) |
+| E4 | Acela (Avelia Liberty) | [Amtrak Avelia Liberty on its inaugural revenue run (cropped).jpg](https://commons.wikimedia.org/wiki/File:Amtrak_Avelia_Liberty_on_its_inaugural_revenue_run_(cropped).jpg) | RedPottery18 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | – | [de](https://de.wikipedia.org/wiki/Avelia_Liberty) · [en](https://en.wikipedia.org/wiki/Avelia_Liberty) |
+| F1 | Baureihe 103 | [103 184 DB nahe Ostermünchen - Bayern (1) (cropped).JPG](https://commons.wikimedia.org/wiki/File:103_184_DB_nahe_Osterm%C3%BCnchen_-_Bayern_(1)_(cropped).JPG) | Steffs88 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/DB-Baureihe_103) · [en](https://en.wikipedia.org/wiki/DB_Class_103) |
+| F2 | Baureihe 101 | [DB 101 135 EC8 Zürich-Hamburg Altona (50125682973).jpg](https://commons.wikimedia.org/wiki/File:DB_101_135_EC8_Z%C3%BCrich-Hamburg_Altona_(50125682973).jpg) | Rob Dammers | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/DB-Baureihe_101) · [en](https://en.wikipedia.org/wiki/DB_Class_101) |
+| F3 | SBB Re 460 | [SBB CFF FFS Re 460 014-4 (16486409645).jpg](https://commons.wikimedia.org/wiki/File:SBB_CFF_FFS_Re_460_014-4_(16486409645).jpg) | Markus Eigenheer from Genève | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | yes | [de](https://de.wikipedia.org/wiki/SBB_Re_460) · [en](https://en.wikipedia.org/wiki/SBB_Re_460) |
+| F4 | Siemens Taurus ES64U4 | [ÖBB Italia - Eurocity 80 by Bhf Sankt Jodok - Austria.jpg](https://commons.wikimedia.org/wiki/File:%C3%96BB_Italia_-_Eurocity_80_by_Bhf_Sankt_Jodok_-_Austria.jpg) | Frans Berkelaar | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/%C3%96BB_1216) · [en](https://en.wikipedia.org/wiki/EuroSprinter) |
+| G1 | Flying Scotsman | [A3 60103 Flying Scotsman at Locomotion on 30 July 2018.jpg](https://commons.wikimedia.org/wiki/File:A3_60103_Flying_Scotsman_at_Locomotion_on_30_July_2018.jpg) | GrafLukas | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/LNER_A3_4472_Flying_Scotsman) · [en](https://en.wikipedia.org/wiki/LNER_Class_A3_4472_Flying_Scotsman) |
+| G2 | Mallard | [Number 4468 Mallard in York.jpg](https://commons.wikimedia.org/wiki/File:Number_4468_Mallard_in_York.jpg) | PTG Dudva | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | yes | [de](https://de.wikipedia.org/wiki/LNER-Klasse_A4) · [en](https://en.wikipedia.org/wiki/LNER_Class_A4_4468_Mallard) |
+| G3 | DR 18 201 | [18201 Hersbruck 30062007 Wasser.JPG](https://commons.wikimedia.org/wiki/File:18201_Hersbruck_30062007_Wasser.JPG) | Urmelbeauftragter | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | yes | [de](https://de.wikipedia.org/wiki/DR_18_201) · [en](https://en.wikipedia.org/wiki/DR_18_201) |
+| G4 | Big Boy | [Union Pacific Big Boy 4000 1941.JPG](https://commons.wikimedia.org/wiki/File:Union_Pacific_Big_Boy_4000_1941.JPG) | Union Pacific Railroad / Association of American Railroads | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/UP-Klasse_4000) · [en](https://en.wikipedia.org/wiki/Union_Pacific_Big_Boy) |
+| H1 | SBB Krokodil | [Krokodil Verkehrshaus.jpg](https://commons.wikimedia.org/wiki/File:Krokodil_Verkehrshaus.jpg) | Nnd | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/SBB_Ce_6%2F8_II) · [en](https://en.wikipedia.org/wiki/SBB_Ce_6%2F8_II) |
+| H2 | EMD SD70ACe | [UP 1996 (1290120334).jpg](https://commons.wikimedia.org/wiki/File:UP_1996_(1290120334).jpg) | Bruce Fingerhood from Springfield, Oregon, US | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | – | [de](https://de.wikipedia.org/wiki/EMD_SD70ACe) · [en](https://en.wikipedia.org/wiki/EMD_SD70_series) |
+| H3 | GE AC6000CW | [CSXT627.jpg](https://commons.wikimedia.org/wiki/File:CSXT627.jpg) | William Grimes at English Wikipedia | [Public domain](https://creativecommons.org/publicdomain/mark/1.0/) | – | [de](https://de.wikipedia.org/wiki/GE_AC6000CW) · [en](https://en.wikipedia.org/wiki/GE_AC6000CW) |
+| H4 | Class 66 | [66534 on container train.jpg](https://commons.wikimedia.org/wiki/File:66534_on_container_train.jpg) | Murgatroyd49 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | yes | [de](https://de.wikipedia.org/wiki/EMD_JT42CWR) · [en](https://en.wikipedia.org/wiki/British_Rail_Class_66) |

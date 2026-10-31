@@ -1,0 +1,611 @@
+{
+  "deck": "trains",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "ICE 1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/ICE_1",
+        "en": "https://en.wikipedia.org/wiki/ICE_1"
+      },
+      "image": {
+        "commonsTitle": "File:DB ICE1 401 590 (52508715939).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:DB_ICE1_401_590_(52508715939).jpg",
+        "author": "Nelso Silva from Porto, Portugal",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "DB ICE 1 trainset with the ICE 707 Hamburg-Altona to München Hbf via Berlin Hbf seen near Dersenow. <a href=\"https://photrain.net/photos/photo/13412\" rel=\"noreferrer nofollow\">photrain.net/photos/photo/13412</a>",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 27284
+      }
+    },
+    "A2": {
+      "name": "ICE T",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/ICE_T",
+        "en": "https://en.wikipedia.org/wiki/ICE_T"
+      },
+      "image": {
+        "commonsTitle": "File:ICE-T Neigung.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:ICE-T_Neigung.jpg",
+        "author": "Sebastian Terfloth",
+        "license": "CC BY-SA 2.5",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+        "shareAlike": true,
+        "description": "An ICE T (\"T\" for tilting, DB class 411) leaves a curve. Note the different inclinations of the cars.",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30964
+      }
+    },
+    "A3": {
+      "name": "ICE 3",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/ICE_3",
+        "en": "https://en.wikipedia.org/wiki/ICE_3"
+      },
+      "image": {
+        "commonsTitle": "File:ICE 3 Oberhaider-Wald-Tunnel.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:ICE_3_Oberhaider-Wald-Tunnel.jpg",
+        "author": "Sebastian Terfloth",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "An ICE 3 high speed train on the Cologne–Frankfurt high-speed rail line, near the Oberhaider Wald Tunnel",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31044
+      }
+    },
+    "A4": {
+      "name": "ICE 4",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/ICE_4",
+        "en": "https://en.wikipedia.org/wiki/ICE_4"
+      },
+      "image": {
+        "commonsTitle": "File:Düsseldorf Rath DB 9003 omleiding 2 (52219697326).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:D%C3%BCsseldorf_Rath_DB_9003_omleiding_2_(52219697326).jpg",
+        "author": "Rob Dammers",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Op 12 juli was het chaotisch op het Fernverkehr-spoor tussen Duisburg en Düsseldorf. Hierdoor werden veel passagierstreinen omgeleid via Lintorf, over het goederenspoor. Een mooie gelegenheid om diverse ICE uitvoeringen op de foto te zetten, waaronder DB 9003 ICE 1059 van Köln Hbf naar Berlin Ostbah",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30050
+      }
+    },
+    "B1": {
+      "name": "Shinkansen 0",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Shinkansen-Baureihe_0",
+        "en": "https://en.wikipedia.org/wiki/0_Series_Shinkansen"
+      },
+      "image": {
+        "commonsTitle": "File:Shinkansen type 0 Hikari 19890506a.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Shinkansen_type_0_Hikari_19890506a.jpg",
+        "author": "Cassiopeia sweet",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "An 0 series shinkansen \"NH\" set passing through Odawara Station on a Hikari service",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 27400
+      },
+      "note": "the en lead image (1200 px, very detailed) did not fit 40 KB at quality 48; a public-domain 1989 photo instead"
+    },
+    "B2": {
+      "name": "Shinkansen 300",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Shinkansen-Baureihe_300",
+        "en": "https://en.wikipedia.org/wiki/300_Series_Shinkansen"
+      },
+      "image": {
+        "commonsTitle": "File:JR Central Shinkansen 300.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:JR_Central_Shinkansen_300.jpg",
+        "author": "Sui-setz",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A JR Central 300 series shinkansen set between Hamamatsu and Toyohashi on the Tokaido Shinkansen",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33441
+      }
+    },
+    "B3": {
+      "name": "Shinkansen N700S",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/N700S_Series_Shinkansen"
+      },
+      "image": {
+        "commonsTitle": "File:JR Series-N700S-J30 Nozomi-4.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:JR_Series-N700S-J30_Nozomi-4.jpg",
+        "author": "MaedaAkihiko",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "\"Nozomi\" No. 4 bound for Tokyo by JR Tokai N700S series J30 formation running between Okayama Station and Aioi Station on the Sanyo Shinkansen",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30070
+      }
+    },
+    "B4": {
+      "name": "Shinkansen E5",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Shinkansen-Baureihe_E5",
+        "en": "https://en.wikipedia.org/wiki/E5_and_H5_Series_Shinkansen"
+      },
+      "image": {
+        "commonsTitle": "File:Series-E5-U15 Yamabiko-50.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Series-E5-U15_Yamabiko-50.jpg",
+        "author": "MaedaAkihiko",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "\"Yamabiko\" No. 50 bound for Tokyo by E5 series U15 organization entering Omiya station of Tohoku Shinkansen",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28982
+      }
+    },
+    "C1": {
+      "name": "TGV Sud-Est",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/TGV_Sud-Est",
+        "en": "https://en.wikipedia.org/wiki/SNCF_TGV_Sud-Est"
+      },
+      "image": {
+        "commonsTitle": "File:TGV Train à Grande Vitesse.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:TGV_Train_%C3%A0_Grande_Vitesse.jpg",
+        "author": "joost j. bakker from ijmuiden, the netherlands",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "France July 1984 , the TGV on its way from Paris towards Dijon",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31112
+      }
+    },
+    "C2": {
+      "name": "TGV Atlantique",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/SNCF_TGV_Atlantique"
+      },
+      "image": {
+        "commonsTitle": "File:TGV Atlantique n361 en gare de Nantes.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:TGV_Atlantique_n361_en_gare_de_Nantes.jpg",
+        "author": "Neimedia_",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Picture of a \"TGV Atlantique\" in \"Nantes\" train station, with its new livery, at the colors of \"TGV Inoui\", the brand new SNCF product. All the remaining \"Atlantique\" trains will be renoved.",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29641
+      }
+    },
+    "C3": {
+      "name": "TGV Duplex",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/TGV_Duplex",
+        "en": "https://en.wikipedia.org/wiki/TGV_Duplex"
+      },
+      "image": {
+        "commonsTitle": "File:Gare du Vert de Maisons DSC 1168 (49644441936).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Gare_du_Vert_de_Maisons_DSC_1168_(49644441936).jpg",
+        "author": "Cheng-en Cheng from Taichung City, Taiwan",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "DSC_1168",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31064
+      }
+    },
+    "C4": {
+      "name": "TGV V150",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/V150",
+        "en": "https://en.wikipedia.org/wiki/Project_V150"
+      },
+      "image": {
+        "commonsTitle": "File:TGV World Speed Record 574 km per hour.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:TGV_World_Speed_Record_574_km_per_hour.jpg",
+        "author": "Alain Stoll",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Special TGV 4402 \"V150\" running at 574 kilometres per hour at kilometre 192 of the high-speed line \"Est européenne\" as it establishes a new world speed record on 3 April 2007 near Le Chemin, Marne, France.",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32977
+      }
+    },
+    "D1": {
+      "name": "Eurostar e320",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Eurostar_320",
+        "en": "https://en.wikipedia.org/wiki/British_Rail_Class_374"
+      },
+      "image": {
+        "commonsTitle": "File:Eurostar Class 374 on HS1 (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Eurostar_Class_374_on_HS1_(cropped).jpg",
+        "author": "Kabelleger / David Gubler",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "New Eurostar class 374 trainset formed of units 4008/4007, based on the Siemens Velaro series, on HS1, near Sellindge, UK",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 27467
+      }
+    },
+    "D2": {
+      "name": "AVE S-103",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/RENFE-Baureihe_103",
+        "en": "https://en.wikipedia.org/wiki/Renfe_Class_103"
+      },
+      "image": {
+        "commonsTitle": "File:RENFE Class 103 Vinaixa.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:RENFE_Class_103_Vinaixa.jpg",
+        "author": "Kabelleger / David Gubler",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "RENFE's AVE 394 Barcelona - Sevilla passes us at about 300 km/h on the LAV (Línea de alta velocidad) Barcelona - Madrid. Picture taken near Vinaixa, Spain.",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28108
+      }
+    },
+    "D3": {
+      "name": "Frecciarossa 1000",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/FS_Frecciarossa_1000",
+        "en": "https://en.wikipedia.org/wiki/Frecciarossa_1000"
+      },
+      "image": {
+        "commonsTitle": "File:FS Trenitalia ETR400 15 (50832499597).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:FS_Trenitalia_ETR400_15_(50832499597).jpg",
+        "author": "Nelso Silva from Porto, Portugal",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Frecciarossa 1000 (Zefiro 300 Bombardier Transportation and AnsaldoBreda) at Roma Tiburtina station. <a href=\"https://www.photrain.net/photos/photo/9119\" rel=\"noreferrer nofollow\">www.photrain.net/photos/photo/9119</a>",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28522
+      }
+    },
+    "D4": {
+      "name": "Talgo 350",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/RENFE-Baureihe_102",
+        "en": "https://en.wikipedia.org/wiki/Renfe_Class_102"
+      },
+      "image": {
+        "commonsTitle": "File:S-102 Trainset.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:S-102_Trainset.jpg",
+        "author": "Samson Ng . D201@EAL",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Renfe",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32989
+      }
+    },
+    "E1": {
+      "name": "Fuxing CR400AF",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/China_Railway_CR400AF"
+      },
+      "image": {
+        "commonsTitle": "File:CR400AF-2031 at Shoupakou (20180506093817).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:CR400AF-2031_at_Shoupakou_(20180506093817).jpg",
+        "author": "N509FZ",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "【伝説から神話へ -NONGFUSUO…AT LAST-】0G66 from depot.",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29859
+      }
+    },
+    "E2": {
+      "name": "KTX-Sancheon",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/KTX-Sancheon"
+      },
+      "image": {
+        "commonsTitle": "File:KTX-Sancheon.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:KTX-Sancheon.jpg",
+        "author": "Minseong Kim",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "KTX-Sancheon #07",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32389
+      }
+    },
+    "E3": {
+      "name": "Shanghai Transrapid",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Transrapid_Shanghai",
+        "en": "https://en.wikipedia.org/wiki/Shanghai_maglev_train"
+      },
+      "image": {
+        "commonsTitle": "File:Transrapid Shanghai 2012.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Transrapid_Shanghai_2012.jpg",
+        "author": "Max Talbot-Minkin",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Ein Fahrzeug des Transrapid Shanghai an der Longyang Road Station (2012)",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28538
+      }
+    },
+    "E4": {
+      "name": "Acela (Avelia Liberty)",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Avelia_Liberty",
+        "en": "https://en.wikipedia.org/wiki/Avelia_Liberty"
+      },
+      "image": {
+        "commonsTitle": "File:Amtrak Avelia Liberty on its inaugural revenue run (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Amtrak_Avelia_Liberty_on_its_inaugural_revenue_run_(cropped).jpg",
+        "author": "RedPottery18",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "Amtrak NextGen Acela on its first run",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33569
+      }
+    },
+    "F1": {
+      "name": "Baureihe 103",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/DB-Baureihe_103",
+        "en": "https://en.wikipedia.org/wiki/DB_Class_103"
+      },
+      "image": {
+        "commonsTitle": "File:103 184 DB nahe Ostermünchen - Bayern (1) (cropped).JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:103_184_DB_nahe_Osterm%C3%BCnchen_-_Bayern_(1)_(cropped).JPG",
+        "author": "Steffs88",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "103 184 near Ostermünchen, Bavaria",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30054
+      }
+    },
+    "F2": {
+      "name": "Baureihe 101",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/DB-Baureihe_101",
+        "en": "https://en.wikipedia.org/wiki/DB_Class_101"
+      },
+      "image": {
+        "commonsTitle": "File:DB 101 135 EC8 Zürich-Hamburg Altona (50125682973).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:DB_101_135_EC8_Z%C3%BCrich-Hamburg_Altona_(50125682973).jpg",
+        "author": "Rob Dammers",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Vanwege omleidingen reed ook het Fernverkehr via de rechter Rijnoever. Zo kon bij Bonn Oberkassel DB 101 135 met de EC8, bestaande uit SBB rijtuigen, met als tweede een panoramarijtuig, van Zürich naar Hamburg Altona, worden vastgelegd.",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31853
+      }
+    },
+    "F3": {
+      "name": "SBB Re 460",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/SBB_Re_460",
+        "en": "https://en.wikipedia.org/wiki/SBB_Re_460"
+      },
+      "image": {
+        "commonsTitle": "File:SBB CFF FFS Re 460 014-4 (16486409645).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SBB_CFF_FFS_Re_460_014-4_(16486409645).jpg",
+        "author": "Markus Eigenheer from Genève",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Lausanne 09.02.2015",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29634
+      }
+    },
+    "F4": {
+      "name": "Siemens Taurus ES64U4",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/%C3%96BB_1216",
+        "en": "https://en.wikipedia.org/wiki/EuroSprinter"
+      },
+      "image": {
+        "commonsTitle": "File:ÖBB Italia - Eurocity 80 by Bhf Sankt Jodok - Austria.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:%C3%96BB_Italia_-_Eurocity_80_by_Bhf_Sankt_Jodok_-_Austria.jpg",
+        "author": "Frans Berkelaar",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "ÖBB Eurocity 80 passing St. Jodok halt on the Brenner railway",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 29624
+      }
+    },
+    "G1": {
+      "name": "Flying Scotsman",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/LNER_A3_4472_Flying_Scotsman",
+        "en": "https://en.wikipedia.org/wiki/LNER_Class_A3_4472_Flying_Scotsman"
+      },
+      "image": {
+        "commonsTitle": "File:A3 60103 Flying Scotsman at Locomotion on 30 July 2018.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:A3_60103_Flying_Scotsman_at_Locomotion_on_30_July_2018.jpg",
+        "author": "GrafLukas",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Nigel Gresley's A3 \"Flying Scotsman (LNER 4472, BR 60103) wearing BR livery (around 1959) at Locomotion (Shildon) on 30 July 2018 under steam, hauling a single coach and a brake van",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28045
+      }
+    },
+    "G2": {
+      "name": "Mallard",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/LNER-Klasse_A4",
+        "en": "https://en.wikipedia.org/wiki/LNER_Class_A4_4468_Mallard"
+      },
+      "image": {
+        "commonsTitle": "File:Number 4468 Mallard in York.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Number_4468_Mallard_in_York.jpg",
+        "author": "PTG Dudva",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "The famous speed record holding steam locomotive No. 4468 Mallard at the National Railway Museum in York. Having been a long term static exhibit here a few yards away inside the Great Hall, she is pictured here outside in the summer sun, on one of the two turntable access sidings on the north side o",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33621
+      }
+    },
+    "G3": {
+      "name": "DR 18 201",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/DR_18_201",
+        "en": "https://en.wikipedia.org/wiki/DR_18_201"
+      },
+      "image": {
+        "commonsTitle": "File:18201 Hersbruck 30062007 Wasser.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:18201_Hersbruck_30062007_Wasser.JPG",
+        "author": "Urmelbeauftragter",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "fastest operating steam locomotive of the world 18201 in Hersbruck, Germany, June 30th, 2007",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 28418
+      }
+    },
+    "G4": {
+      "name": "Big Boy",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/UP-Klasse_4000",
+        "en": "https://en.wikipedia.org/wiki/Union_Pacific_Big_Boy"
+      },
+      "image": {
+        "commonsTitle": "File:Union Pacific Big Boy 4000 1941.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Union_Pacific_Big_Boy_4000_1941.JPG",
+        "author": "Union Pacific Railroad / Association of American Railroads",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Photo of Union Pacific \"Big Boy\" locomotive #4000 in 1941.",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31807
+      }
+    },
+    "H1": {
+      "name": "SBB Krokodil",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/SBB_Ce_6%2F8_II",
+        "en": "https://en.wikipedia.org/wiki/SBB_Ce_6%2F8_II"
+      },
+      "image": {
+        "commonsTitle": "File:Krokodil Verkehrshaus.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Krokodil_Verkehrshaus.jpg",
+        "author": "Nnd",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Die elektrische Güterzugslokomotive Be 6/8 II Nr. 13254 im Verkehrshaus der Schweiz in Luzern.",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31547
+      }
+    },
+    "H2": {
+      "name": "EMD SD70ACe",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/EMD_SD70ACe",
+        "en": "https://en.wikipedia.org/wiki/EMD_SD70_series"
+      },
+      "image": {
+        "commonsTitle": "File:UP 1996 (1290120334).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:UP_1996_(1290120334).jpg",
+        "author": "Bruce Fingerhood from Springfield, Oregon, US",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "The Union Pacific Railroad has painted some of their newest locomotives to honor the heritage of the lines they have taken over. The units are numbered according to the year of the takeover. Today the 1996, the SP heritage unit, was in Eugene.",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 31211
+      }
+    },
+    "H3": {
+      "name": "GE AC6000CW",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/GE_AC6000CW",
+        "en": "https://en.wikipedia.org/wiki/GE_AC6000CW"
+      },
+      "image": {
+        "commonsTitle": "File:CSXT627.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:CSXT627.jpg",
+        "author": "William Grimes at English Wikipedia",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Photo by William Grimes Licensing This image is watermarked to give credit to the photographer, just as an artist signs there work!",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30264
+      }
+    },
+    "H4": {
+      "name": "Class 66",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/EMD_JT42CWR",
+        "en": "https://en.wikipedia.org/wiki/British_Rail_Class_66"
+      },
+      "image": {
+        "commonsTitle": "File:66534 on container train.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:66534_on_container_train.jpg",
+        "author": "Murgatroyd49",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Freightliner liveried Class 66, 66534 OOCL Express with down container train approaching Eastleigh",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 30872
+      }
+    }
+  }
+}
