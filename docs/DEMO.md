@@ -220,6 +220,21 @@ cd klunki && flutter test test/e2e
 ```
 Prefix either one with `KLUNKI_E2E_VERBOSE=1` to print every move, e.g. `KLUNKI_E2E_VERBOSE=1 flutter test test/e2e`.
 
+### Automated tests on simulators (KLD-038c)
+The real app on iOS simulators (headless is fine; Simulator.app isn't needed). `export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` first.
+```bash
+cd klunki
+# one device: menu, all five games hot-seat to the result dialog, language picker + restart, plugins (~1 min after the build)
+flutter test integration_test/app_test.dart -d <sim-id>
+#   + screenshots: --dart-define=KLUNKI_SCREENSHOT_DIR=$PWD/build/e2e_screenshots/iphone --dart-define=KLUNKI_SCREENSHOT_PREFIX=iphone
+# two simulators: iPhone 18 Pro hosts Mühle, iPad Pro 11-inch (M5) joins by 127.0.0.1, both tap the scripted game → PASS/FAIL
+../tool/e2e_ios_sims.sh            # --mdns: the iPad joins via the discovery list instead; --help for options
+```
+- Logs and screenshots of the two-simulator run: `klunki/build/e2e/` (`host.log`, `guest.log`, `screenshots/`).
+- `tool/e2e_android_vs_ios.sh` (iOS host vs Android emulator guest via `10.0.2.2`) is ready but stops with `BLOCKED` until
+  🧑 the Android cmdline-tools and licenses are installed (KLD-011/038a).
+- `flutter test` (unit/widget) never runs `integration_test/`.
+
 ### Commands
 ```bash
 cd klunki
