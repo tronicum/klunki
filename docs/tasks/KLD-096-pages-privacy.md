@@ -140,7 +140,8 @@ Nothing must be fixed before the repo is public.
   browser. Needs hosting, rate limits and a privacy review (the relay would then process IP addresses of
   strangers; the policy's "we run no relay" would change).
 - Optional history rewrite for the `.dart_tool` blobs (see the audit).
-- A link to the privacy page from inside the app (About/licences), if App Review asks for it.
+- ~~A link to the privacy page from inside the app (About/licences), if App Review asks for it.~~ Done in KLD-102
+  (menu → "Über Klunki").
 
 ## Verification
 

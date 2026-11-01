@@ -1,0 +1,310 @@
+{
+ "de": [
+  {
+   "t": "h1",
+   "x": "Datenschutzerklärung für Klunki"
+  },
+  {
+   "t": "meta",
+   "x": "Stand: 1. November 2026"
+  },
+  {
+   "t": "p",
+   "x": "Klunki ist eine Spielesammlung für zwei Personen (z. B. 4 Gewinnt, Mühle, Quartett, Schiffe versenken) als App für iPhone, iPad und Android sowie als Web-App (PWA) im Browser. Diese Erklärung beschreibt, welche Daten dabei verarbeitet werden."
+  },
+  {
+   "t": "h2",
+   "x": "Kurz gesagt"
+  },
+  {
+   "t": "li",
+   "x": "Kein Konto, keine Anmeldung."
+  },
+  {
+   "t": "li",
+   "x": "Keine Werbung, keine Analyse, kein Tracking, keine Absturzberichte an uns."
+  },
+  {
+   "t": "li",
+   "x": "Keine Software-Bibliotheken von Drittanbietern, die Daten sammeln."
+  },
+  {
+   "t": "li",
+   "x": "Wir betreiben keinen Server für das Spiel und erhalten keine Daten von dir."
+  },
+  {
+   "t": "h2",
+   "x": "Verantwortlicher und Kontakt"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin"
+  },
+  {
+   "t": "p",
+   "x": "E-Mail: contact@tronicum.com · Impressum"
+  },
+  {
+   "t": "h2",
+   "x": "Was auf deinem Gerät gespeichert wird"
+  },
+  {
+   "t": "p",
+   "x": "Klunki speichert nur Einstellungen, und zwar ausschließlich lokal auf deinem Gerät (in der App bzw. im Speicher des Browsers für diese Website):"
+  },
+  {
+   "t": "li",
+   "x": "dein Spielername und die zuletzt verwendeten Namen für Spiele auf einem Gerät,"
+  },
+  {
+   "t": "li",
+   "x": "die gewählte Sprache,"
+  },
+  {
+   "t": "li",
+   "x": "die Adresse eines Relays, falls du eins eingetragen hast,"
+  },
+  {
+   "t": "li",
+   "x": "das zuletzt gewählte Quartett-Deck."
+  },
+  {
+   "t": "p",
+   "x": "Diese Daten verlassen dein Gerät nicht (mit Ausnahme des Spielernamens, siehe unten). Du löschst sie, indem du die App deinstallierst bzw. die Website-Daten im Browser löschst. Die Web-App legt außerdem ihre eigenen Dateien im Browser-Cache ab, damit sie offline funktioniert."
+  },
+  {
+   "t": "h2",
+   "x": "Spielername"
+  },
+  {
+   "t": "p",
+   "x": "Den Namen gibst du selbst ein. In der App kann er mit dem Gerätenamen vorausgefüllt sein; du kannst ihn jederzeit ändern. Der Name wird nur bei einem Spiel über das Netzwerk an das Gerät deiner Mitspielerin bzw. deines Mitspielers übertragen, entweder direkt im lokalen Netzwerk oder über ein Relay (siehe unten). Wenn du in der App ein Spiel im WLAN hostest, werden dein Name und das gewählte Spiel im lokalen Netzwerk angekündigt (Bonjour/mDNS), damit andere Geräte das Spiel finden. Das können alle Geräte in diesem Netzwerk sehen, solange du hostest."
+  },
+  {
+   "t": "h2",
+   "x": "Spielen über das Netzwerk"
+  },
+  {
+   "t": "p",
+   "x": "Bei einem Netzwerkspiel tauschen die beiden Geräte Spielnachrichten aus: Spielernamen, Spielauswahl, Züge, eine zufällige Sitzungskennung zum Wiederverbinden und die App-Version (damit beide Geräte zueinander passen)."
+  },
+  {
+   "t": "li",
+   "x": "Direkt im lokalen Netzwerk: Die Geräte verbinden sich unmittelbar miteinander. Es ist kein Server beteiligt."
+  },
+  {
+   "t": "li",
+   "x": "Über ein Relay: Ein Relay ist ein kleines Programm, das die Spielenden selbst betreiben, z. B. auf einem Computer im eigenen WLAN (klunki relay). Wir betreiben kein Relay. Das Relay verbindet zwei Geräte über einen kurzen Raumcode und leitet die Spielnachrichten nur weiter. Es speichert sie nicht und schreibt keine Protokolle (weder Nachrichteninhalte noch IP-Adressen noch Raumcodes). Technisch bedingt kennt es die IP-Adressen der verbundenen Geräte, solange die Verbindung besteht. Ein Raum wird gelöscht, wenn der Host ihn verlässt oder er 10 Minuten lang nicht benutzt wird. Nutzt du ein Relay, das jemand anderes betreibt, ist diese Person dafür verantwortlich."
+  },
+  {
+   "t": "h2",
+   "x": "Zugriff auf das lokale Netzwerk"
+  },
+  {
+   "t": "p",
+   "x": "Die App fragt nach Zugriff auf das lokale Netzwerk. Er wird nur verwendet, um Spiele im WLAN zu finden und anzukündigen (Bonjour/mDNS) und um direkt mit dem anderen Gerät zu spielen. Für nichts anderes."
+  },
+  {
+   "t": "h2",
+   "x": "Kamera"
+  },
+  {
+   "t": "p",
+   "x": "Die App nutzt die Kamera nur, wenn du einen QR-Code scannst, um einem Spiel beizutreten. Das Bild wird auf dem Gerät ausgewertet und weder gespeichert noch übertragen. Die Web-App nutzt die Kamera nicht."
+  },
+  {
+   "t": "h2",
+   "x": "Kartenfotos und Links"
+  },
+  {
+   "t": "p",
+   "x": "Die Fotos auf den Quartett-Karten stammen von Wikimedia Commons und sind in der App enthalten; die Bildnachweise stehen in der App. Zur Laufzeit wird nichts nachgeladen. Links zu Wikipedia, Wikimedia Commons oder Lizenztexten öffnen sich nur, wenn du sie antippst, in deinem Browser; dort gelten die Datenschutzregeln dieser Websites."
+  },
+  {
+   "t": "h2",
+   "x": "Web-App (PWA) und diese Website"
+  },
+  {
+   "t": "p",
+   "x": "Die Web-App und diese Seite sind statische Dateien, die über GitHub Pages ausgeliefert werden. Schriften und Programmteile sind enthalten und werden nicht von anderen Servern geladen. GitHub kann beim Abruf technische Daten wie deine IP-Adresse protokollieren; siehe die Datenschutzerklärung von GitHub. Wird die Web-App von einem Relay im eigenen Netzwerk ausgeliefert, ist GitHub nicht beteiligt."
+  },
+  {
+   "t": "h2",
+   "x": "Kinder"
+  },
+  {
+   "t": "p",
+   "x": "Klunki erhebt keine personenbezogenen Daten für uns, auch nicht von Kindern."
+  },
+  {
+   "t": "h2",
+   "x": "Deine Rechte"
+  },
+  {
+   "t": "p",
+   "x": "Da wir keine Daten über dich erhalten oder speichern, können wir dazu keine Auskunft geben und nichts löschen. Die lokal gespeicherten Einstellungen hast du selbst in der Hand (siehe oben). Bei Fragen schreib uns an die oben genannte Adresse."
+  },
+  {
+   "t": "h2",
+   "x": "Änderungen"
+  },
+  {
+   "t": "p",
+   "x": "Ändert sich, wie Klunki mit Daten umgeht, aktualisieren wir diese Seite und das Datum oben."
+  }
+ ],
+ "en": [
+  {
+   "t": "h1",
+   "x": "Privacy Policy for Klunki"
+  },
+  {
+   "t": "meta",
+   "x": "Last updated: 1 November 2026"
+  },
+  {
+   "t": "p",
+   "x": "Klunki is a collection of two-player games (e.g. Four in a Row, Nine Men's Morris, Quartett and a battleship-style game) as an app for iPhone, iPad and Android and as a web app (PWA) in the browser. This policy explains which data is processed."
+  },
+  {
+   "t": "h2",
+   "x": "In short"
+  },
+  {
+   "t": "li",
+   "x": "No account, no sign-in."
+  },
+  {
+   "t": "li",
+   "x": "No ads, no analytics, no tracking, no crash reports sent to us."
+  },
+  {
+   "t": "li",
+   "x": "No third-party software libraries that collect data."
+  },
+  {
+   "t": "li",
+   "x": "We run no server for the game and receive no data from you."
+  },
+  {
+   "t": "h2",
+   "x": "Controller and contact"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin"
+  },
+  {
+   "t": "p",
+   "x": "Email: contact@tronicum.com · Legal notice (Impressum)"
+  },
+  {
+   "t": "h2",
+   "x": "What is stored on your device"
+  },
+  {
+   "t": "p",
+   "x": "Klunki only stores settings, and only locally on your device (in the app, or in the browser's storage for this website):"
+  },
+  {
+   "t": "li",
+   "x": "your player name and the names last used for games on one device,"
+  },
+  {
+   "t": "li",
+   "x": "the chosen language,"
+  },
+  {
+   "t": "li",
+   "x": "the address of a relay, if you entered one,"
+  },
+  {
+   "t": "li",
+   "x": "the last chosen Quartett deck."
+  },
+  {
+   "t": "p",
+   "x": "This data does not leave your device (except the player name, see below). You delete it by uninstalling the app or clearing the website data in your browser. The web app also keeps its own files in the browser cache so it works offline."
+  },
+  {
+   "t": "h2",
+   "x": "Player name"
+  },
+  {
+   "t": "p",
+   "x": "You type the name yourself. In the app it may be pre-filled with the device name; you can change it at any time. The name is only sent to the other player's device in a network game, either directly on the local network or through a relay (see below). When you host a game over Wi-Fi in the app, your name and the chosen game are announced on the local network (Bonjour/mDNS) so other devices can find the game. Every device on that network can see this while you are hosting."
+  },
+  {
+   "t": "h2",
+   "x": "Playing over the network"
+  },
+  {
+   "t": "p",
+   "x": "In a network game the two devices exchange game messages: player names, the game chosen, moves, a random session identifier for reconnecting, and the app version (so both devices are compatible)."
+  },
+  {
+   "t": "li",
+   "x": "Directly on the local network: the devices connect to each other. No server is involved."
+  },
+  {
+   "t": "li",
+   "x": "Through a relay: a relay is a small program that the players run themselves, e.g. on a computer on their own Wi-Fi (klunki relay). We do not run a relay. The relay pairs two devices by a short room code and only passes the game messages on. It does not store them and writes no logs (no message contents, no IP addresses, no room codes). For technical reasons it knows the IP addresses of the connected devices while the connection is open. A room is deleted when the host leaves or after 10 minutes without use. If you use a relay run by someone else, that person is responsible for it."
+  },
+  {
+   "t": "h2",
+   "x": "Local network access"
+  },
+  {
+   "t": "p",
+   "x": "The app asks for local network access. It is used only to find and announce games on the Wi-Fi (Bonjour/mDNS) and to play directly with the other device. Nothing else."
+  },
+  {
+   "t": "h2",
+   "x": "Camera"
+  },
+  {
+   "t": "p",
+   "x": "The app uses the camera only when you scan a QR code to join a game. The image is processed on the device and is neither stored nor sent anywhere. The web app does not use the camera."
+  },
+  {
+   "t": "h2",
+   "x": "Card photos and links"
+  },
+  {
+   "t": "p",
+   "x": "The photos on the Quartett cards come from Wikimedia Commons and are bundled with the app; the credits are shown in the app. Nothing is downloaded at runtime. Links to Wikipedia, Wikimedia Commons or licence texts open in your browser only when you tap them; those websites' privacy policies apply there."
+  },
+  {
+   "t": "h2",
+   "x": "Web app (PWA) and this website"
+  },
+  {
+   "t": "p",
+   "x": "The web app and this page are static files served by GitHub Pages. Fonts and code are bundled and are not loaded from other servers. GitHub may log technical data such as your IP address when you visit; see the GitHub General Privacy Statement. When the web app is served by a relay on your own network, GitHub is not involved."
+  },
+  {
+   "t": "h2",
+   "x": "Children"
+  },
+  {
+   "t": "p",
+   "x": "Klunki collects no personal data for us, including from children."
+  },
+  {
+   "t": "h2",
+   "x": "Your rights"
+  },
+  {
+   "t": "p",
+   "x": "As we do not receive or store any data about you, there is nothing for us to disclose or delete. The settings stored on your device are under your control (see above). If you have questions, write to the address above."
+  },
+  {
+   "t": "h2",
+   "x": "Changes"
+  },
+  {
+   "t": "p",
+   "x": "If the way Klunki handles data changes, we will update this page and the date above."
+  }
+ ]
+}

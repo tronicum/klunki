@@ -1685,6 +1685,35 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get aboutTitle => 'Über Klunki';
+
+  @override
+  String get aboutPrivacy => 'Datenschutz';
+
+  @override
+  String get aboutImpressum => 'Impressum';
+
+  @override
+  String get aboutSupport => 'Support';
+
+  @override
+  String get aboutLicense =>
+      'Klunki ist freie Software unter der GNU AGPL 3.0.';
+
+  @override
+  String get aboutSourceCode => 'Quellcode';
+
+  @override
+  String get aboutLicenses => 'Open-Source-Lizenzen';
+
+  @override
+  String get aboutOpenInBrowser => 'Im Browser öffnen';
+
+  @override
+  String get aboutPrivacyOffline =>
+      'Diese Fassung ist in der App gespeichert, damit du sie auch ohne Internet lesen kannst. Maßgeblich ist die Seite im Web:';
+
+  @override
   String get menuGameChess => 'Schach';
 
   @override

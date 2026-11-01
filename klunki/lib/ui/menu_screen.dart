@@ -4,6 +4,7 @@ import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/net/room_link.dart';
+import 'package:klunki/ui/about_screen.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
 import 'package:klunki/ui/game_visuals.dart';
@@ -157,10 +158,24 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
+                    // KLD-102: "Über Klunki" (privacy policy, Impressum,
+                    // support, licences) right above the version line: out
+                    // of the way of the games, where people look for it.
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24),
+                      child: Center(
+                        child: TextButton.icon(
+                          key: const Key('menu-about'),
+                          icon: const Icon(Icons.info_outline, size: 18),
+                          label: Text(l10n.aboutTitle),
+                          onPressed: () => openAboutScreen(context),
+                        ),
+                      ),
+                    ),
                     // KLD-085: version, build, protocol and game data, to
                     // compare two devices by eye when they cannot play together.
                     Padding(
-                      padding: const EdgeInsets.only(top: 24),
+                      padding: const EdgeInsets.only(top: 4),
                       child: Text(
                         l10n.menuVersion(bidiLtr(context, appVersionLine)),
                         key: const Key('menu-version'),

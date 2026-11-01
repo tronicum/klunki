@@ -114,6 +114,9 @@ flutter:
     # for LicenseRegistry (lib/app/third_party_licenses.dart).
     - assets/licenses/zxing-cpp/LICENSE
     - assets/licenses/libzint/LICENSE
+    # The privacy policy as text, readable offline in "Über Klunki" (KLD-102);
+    # exported from site/privacy/index.html by site/export_privacy_text.py.
+    - assets/legal/privacy.json
     # Quartett card photos from Wikimedia Commons (KLD-082): ~480 px JPEGs,
     # credits.json = authors and licences (see docs/tasks/KLD-082-quartett-media.md,
     # tool/fetch_card_media.py). Bundled so they work offline; never hotlinked.

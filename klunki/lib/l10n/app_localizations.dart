@@ -2742,6 +2742,60 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String menuVersion(String version);
 
+  /// KLD-102: menu footer button and title of the About screen (version, privacy, Impressum, support, licences).
+  ///
+  /// In de, this message translates to:
+  /// **'Über Klunki'**
+  String get aboutTitle;
+
+  /// KLD-102: About screen link to the privacy policy (opens the copy stored in the app).
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz'**
+  String get aboutPrivacy;
+
+  /// KLD-102: About screen link to the Impressum (German legal notice, the word stays recognisable).
+  ///
+  /// In de, this message translates to:
+  /// **'Impressum'**
+  String get aboutImpressum;
+
+  /// KLD-102: About screen link to the support page (help and contact).
+  ///
+  /// In de, this message translates to:
+  /// **'Support'**
+  String get aboutSupport;
+
+  /// KLD-102: About screen licence line; also the legalese on the licence page.
+  ///
+  /// In de, this message translates to:
+  /// **'Klunki ist freie Software unter der GNU AGPL 3.0.'**
+  String get aboutLicense;
+
+  /// KLD-102: About screen link to the source code on GitHub.
+  ///
+  /// In de, this message translates to:
+  /// **'Quellcode'**
+  String get aboutSourceCode;
+
+  /// KLD-102: About screen button that opens the list of open source licences (Flutter licence page).
+  ///
+  /// In de, this message translates to:
+  /// **'Open-Source-Lizenzen'**
+  String get aboutLicenses;
+
+  /// KLD-102: privacy screen action: open the web page in the browser.
+  ///
+  /// In de, this message translates to:
+  /// **'Im Browser öffnen'**
+  String get aboutOpenInBrowser;
+
+  /// KLD-102: privacy screen note above the stored text; the web address follows. The text itself is German or (all other languages) English.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Fassung ist in der App gespeichert, damit du sie auch ohne Internet lesen kannst. Maßgeblich ist die Seite im Web:'**
+  String get aboutPrivacyOffline;
+
   /// Game title: chess (KLD-059).
   ///
   /// In de, this message translates to:
