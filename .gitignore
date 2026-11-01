@@ -24,3 +24,6 @@
 # Claude Code local state
 .claude/settings.local.json
 .claude/worktrees/
+
+# Persona review scratch output (.github/scripts/*.sh, review.yml)
+/tmp/

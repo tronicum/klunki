@@ -292,6 +292,9 @@ SHA.
 | `ci.yml` | push to `main`, every pull request | **engine** (`dart analyze --fatal-infos`, `dart test`), **net** (same, including the dart2js web compile test), **app** (l10n up to date, `flutter analyze`, `flutter test`) |
 | `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK and app bundle → artifacts `klunki-android-apk`, `klunki-android-aab`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
 
+Persona reviews (`claude.yml`, `review.yml`) and the manual Renovate run (`renovate.yml`) are described in
+[`REVIEWS.md`](REVIEWS.md), including the secrets they need.
+
 All jobs run on ubuntu, except iOS (macOS, only on manual runs because macOS minutes are expensive in a private
 repo). Nothing goes to a store. GitHub Pages is deployed only when enabled (§7.1).
 
