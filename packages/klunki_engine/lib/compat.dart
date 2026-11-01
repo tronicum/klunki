@@ -25,6 +25,7 @@ import 'dart:convert';
 import 'quartett.dart';
 import 'registry.dart';
 import 'sha256.dart';
+import 'word_tiles.dart';
 
 /// What two peers compare for one game (and deck).
 class GameFingerprint {
@@ -77,9 +78,15 @@ GameFingerprint? fingerprintOf(GameConfig config) {
 }
 
 /// [GameFingerprint.content] for game [gameId] played with [deck] (null for
-/// a game without a deck).
+/// a game without a deck). The word tile game adds its tile sets and premium
+/// layout ([WordTilesGame.gameplayData], KLD-094).
 String contentHash(String gameId, QuartettDeck? deck) {
-  final data = jsonEncode(['game', gameId, if (deck != null) deckGameplayData(deck)]);
+  final data = jsonEncode([
+    'game',
+    gameId,
+    if (deck != null) deckGameplayData(deck),
+    if (gameId == 'wordtiles') WordTilesGame.gameplayData(),
+  ]);
   return sha256Hex('klunki-content-v1\n$data').substring(0, 32);
 }
 

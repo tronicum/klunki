@@ -55,7 +55,14 @@ enum GameEndReason {
   /// Draw: no capture or pawn move for `moves` (75) moves by each side.
   chessSeventyFiveMoves('chess.seventyFiveMoves'),
   /// Draw: the same position for the `times`-th (3rd) time.
-  chessThreefoldRepetition('chess.threefoldRepetition');
+  chessThreefoldRepetition('chess.threefoldRepetition'),
+  /// Word tiles (KLD-094): a player used up the last tiles with the bag
+  /// empty; the others' rack values went to them. params: `a`, `b` (final
+  /// scores).
+  wordtilesPlayedOut('wordtiles.playedOut'),
+  /// Word tiles: `turns` consecutive scoreless turns; every rack value was
+  /// subtracted. params: `turns`, `a`, `b` (final scores).
+  wordtilesScoreless('wordtiles.scorelessTurns');
 
   final String code;
   const GameEndReason(this.code);

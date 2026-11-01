@@ -6,6 +6,7 @@ import 'muehle.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
 import 'secrecy.dart';
+import 'word_tiles.dart';
 
 /// Everything needed to (re)create the same game on every device: a game id
 /// plus the seed for games with shuffled or random setup. Together with the
@@ -104,6 +105,10 @@ final List<GameSpec> gameSpecs = [
   // KLD-059: hot-seat in the app since step 2; the app offers it for
   // network play from step 3 (see `networkGameSpecs` in the app).
   GameSpec('chess', 'Schach', (_, __) => ChessGame()),
+  // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
+  // the title is a working title until the user picks a name.
+  GameSpec('wordtiles', 'Wortleger', (s, _) => WordTilesGame(seed: s),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

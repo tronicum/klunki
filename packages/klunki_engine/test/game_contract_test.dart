@@ -41,6 +41,14 @@ final _specs = <_Spec>[
     {'action': 'move', 'from': 'e2', 'to': 'e4', 'promotion': 'q'},
     {'from': 'e2', 'to': 'e4'},
   ]),
+  _Spec('WordTilesGame', WordTilesGame.new, {'action': 'pass'}, [
+    {'action': 'place', 'tiles': []},
+    {'action': 'place', 'tiles': [{'row': 0, 'col': 0, 'tile': '?', 'letter': 'A'}]},
+    {'action': 'exchange', 'tiles': ['#']},
+    {'action': 'challenge'},
+    {'action': 'accept'},
+    {'action': 'pass', 'x': 1},
+  ]),
 ];
 
 void main() {
