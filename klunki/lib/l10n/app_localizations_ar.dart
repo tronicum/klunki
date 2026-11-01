@@ -2048,6 +2048,66 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesPremiumTripleWord => 'ك×3';
 
   @override
+  String get wordtilesOptionTiles => 'الحروف';
+
+  @override
+  String get wordtilesOptionDictionary => 'التحقق من القاموس';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'يُبحث عن كل كلمة توضع. إن لم تكن في القاموس تقرّرون معًا: سحبها أو قبولها رغم ذلك.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'بدون قاموس تحكمون بأنفسكم: يمكن الاعتراض على كلمة.';
+
+  @override
+  String get wordtilesOptionsNext => 'التالي';
+
+  @override
+  String get wordtilesDictLoading => 'جارٍ تحميل القاموس…';
+
+  @override
+  String get wordtilesDictLoadFailed => 'تعذّر تحميل القاموس.';
+
+  @override
+  String get wordtilesUnknownTitle => 'ليست في القاموس';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '«$words» ليست في القاموس.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'يمكنكم سحب الحروف. إن اتفقتم على أنها تُحسب رغم ذلك فاقبلوها.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'سحب';
+
+  @override
+  String get wordtilesUnknownAllow => 'اقبل رغم ذلك';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words مقابل $score نقطة (مقبولة: $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'مقعد التجربة';
+
+  @override
+  String get wordtilesBenchClear => 'إعادة كل الحروف من المقعد';
+
+  @override
+  String get wordtilesBenchHint => 'اسحب الحروف إلى هنا لتجرّب كلمات.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'وُضعت كل البلاطات، النتيجة النهائية $a : $b';
   }

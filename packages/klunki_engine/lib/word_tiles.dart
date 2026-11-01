@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'game.dart';
 import 'secrecy.dart';
@@ -23,6 +25,11 @@ part 'word_tiles_view.dart';
 /// * `{'action': 'exchange', 'tiles': ['Q', '?']}`: swap rack tiles with the
 ///   bag (only while the bag holds at least [rackSize] tiles).
 /// * `{'action': 'pass'}`.
+///   In [WordCheck.dictionary] a placement may carry `'allow': ['XYZ', …]`:
+///   formed words the list does not know that the players agreed to let
+///   stand anyway (a house rule, "Trotzdem zulassen"); every other formed
+///   word must be in the list. The words are kept in the log
+///   ([WordTilesTurn.allowed]).
 /// * `{'action': 'challenge'}` / `{'action': 'accept'}`: challenge mode only,
 ///   see [WordCheck.challenge].
 /// * resign: the common `{'action': 'resign', 'player': 'a'|'b'}`.
@@ -40,7 +47,10 @@ enum WordCheck {
   challenge,
 
   /// Every word a placement forms must pass [WordTilesGame.validator]; a
-  /// placement with an unknown word is refused like any illegal move.
+  /// placement with an unknown word is refused like any illegal move,
+  /// unless the move names that word in `allow` (the players agreed to let
+  /// it stand, KLD-094 step 4). No challenges: the check at "Legen"
+  /// replaces them.
   dictionary,
 }
 
@@ -84,6 +94,108 @@ class WordListValidator extends WordValidator {
   @override
   bool isWord(String word) => _words.contains(word);
   int get length => _words.length;
+}
+
+/// A large word list kept as one block of UTF-8 bytes (KLD-094 step 4: the
+/// bundled lists, 190 k – 590 k words): one normalized word per line, sorted
+/// by byte (= code point) order, as `klunki/tool/build_word_lists.py` writes
+/// it. Lookup is a binary search over the line starts (~20 compares), so the
+/// memory is the text plus 4 bytes per word, no string per word.
+class SortedWordListValidator extends WordValidator {
+  final Uint8List _bytes;
+  final Int32List _starts;
+
+  SortedWordListValidator._(this._bytes, this._starts);
+
+  /// Indexes [bytes] (UTF-8, a line feed after every word, sorted). Throws
+  /// [FormatException] if the lines are not strictly ascending.
+  factory SortedWordListValidator.fromUtf8(Uint8List bytes) {
+    var n = 0;
+    for (final b in bytes) {
+      if (b == 0x0a) n++;
+    }
+    final open = bytes.isNotEmpty && bytes.last != 0x0a;
+    if (open) n++;
+    final starts = Int32List(n + 1);
+    var line = 0;
+    for (var i = 0; i < bytes.length; i++) {
+      if (bytes[i] == 0x0a) starts[++line] = i + 1;
+    }
+    if (open) starts[n] = bytes.length + 1;
+    final v = SortedWordListValidator._(bytes, starts);
+    for (var k = 1; k < n; k++) {
+      if (v._compareLines(k - 1, k) >= 0) throw FormatException('word list not sorted at line ${k + 1}');
+    }
+    return v;
+  }
+
+  /// Number of words.
+  int get length => _starts.length - 1;
+
+  int _end(int k) => _starts[k + 1] - 1;
+
+  int _compareLines(int a, int b) {
+    var i = _starts[a], j = _starts[b];
+    final ea = _end(a), eb = _end(b);
+    while (i < ea && j < eb) {
+      final d = _bytes[i++] - _bytes[j++];
+      if (d != 0) return d;
+    }
+    return (ea - i) - (eb - j);
+  }
+
+  int _compareTo(int k, List<int> w) {
+    var i = _starts[k];
+    final e = _end(k);
+    var j = 0;
+    while (i < e && j < w.length) {
+      final d = _bytes[i++] - w[j++];
+      if (d != 0) return d;
+    }
+    return (e - i) - (w.length - j);
+  }
+
+  @override
+  bool isWord(String word) {
+    if (word.isEmpty) return false;
+    final w = utf8.encode(word);
+    var lo = 0, hi = length - 1;
+    while (lo <= hi) {
+      final mid = (lo + hi) >> 1;
+      final c = _compareTo(mid, w);
+      if (c == 0) return true;
+      if (c < 0) {
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    return false;
+  }
+}
+
+/// The word lists the app has loaded, per tile set id (KLD-094 step 4). A
+/// [GameConfig] with `dictionary` on creates its game with the list
+/// registered for its tile set; the app loads and registers it before it
+/// starts such a game (the engine never reads files).
+class WordLists {
+  WordLists._();
+  static final Map<String, WordValidator> _lists = {};
+
+  /// Which list a build ships per tile set: part of the compat fingerprint
+  /// ([WordTilesGame.gameplayData]), so builds with different lists do not
+  /// play a dictionary game together. Change it together with the asset.
+  static const Map<String, String> revisions = {
+    'de': 'enz/german-wordlist@1071d87',
+    'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80',
+  };
+
+  static void register(String tileSetId, WordValidator list) => _lists[tileSetId] = list;
+  static WordValidator? of(String tileSetId) => _lists[tileSetId];
+  static bool has(String tileSetId) => _lists.containsKey(tileSetId);
+
+  /// Tests only.
+  static void clear() => _lists.clear();
 }
 
 /// The letters of one language: how many tiles of each and what they score.
@@ -286,11 +398,15 @@ class WordTilesTurn {
   /// For a placement: withdrawn after a challenge. For a challenge: it
   /// succeeded.
   final bool withdrawn;
-  const WordTilesTurn(this.seat, this.action,
-      {this.words = const [], this.score = 0, this.count = 0, this.withdrawn = false});
 
-  WordTilesTurn copyWith({bool? withdrawn}) =>
-      WordTilesTurn(seat, action, words: words, score: score, count: count, withdrawn: withdrawn ?? this.withdrawn);
+  /// For a placement in [WordCheck.dictionary]: the words the list does not
+  /// know that the players let stand ("Trotzdem zulassen").
+  final List<String> allowed;
+  const WordTilesTurn(this.seat, this.action,
+      {this.words = const [], this.score = 0, this.count = 0, this.withdrawn = false, this.allowed = const []});
+
+  WordTilesTurn copyWith({bool? withdrawn}) => WordTilesTurn(seat, action,
+      words: words, score: score, count: count, withdrawn: withdrawn ?? this.withdrawn, allowed: allowed);
 
   Map<String, dynamic> toJson() => {
         'seat': seat,
@@ -299,6 +415,7 @@ class WordTilesTurn {
         if (score != 0) 'score': score,
         if (count != 0) 'count': count,
         if (withdrawn) 'withdrawn': true,
+        if (allowed.isNotEmpty) 'allowed': allowed,
       };
 
   static WordTilesTurn fromJson(Object? j) {
@@ -307,7 +424,8 @@ class WordTilesTurn {
         words: [for (final w in (j['words'] as List? ?? const [])) w as String],
         score: j['score'] as int? ?? 0,
         count: j['count'] as int? ?? 0,
-        withdrawn: j['withdrawn'] == true);
+        withdrawn: j['withdrawn'] == true,
+        allowed: [for (final w in (j['allowed'] as List? ?? const [])) w as String]);
   }
 }
 
@@ -368,6 +486,7 @@ class WordTilesGame extends Game {
         [for (final p in _premiums) p.index].join(),
         rackSize,
         bingoBonus,
+        [for (final e in WordLists.revisions.entries) '${e.key}=${e.value}'],
       ];
 
   /// The premium of the square at [row], [col].
@@ -586,7 +705,11 @@ class WordTilesGame extends Game {
   /// Checks a `place` [move] for the seat to move, without changing
   /// anything: the error, or the words and the score it would make. The UI
   /// uses it for a live score preview and to explain a refused placement.
-  PlacementCheck checkPlacement(Map<String, dynamic> move) {
+  ///
+  /// [checkWords] false skips the word list: the preview must not tell the
+  /// player whether a word is in the list before "Legen" (that would be an
+  /// indirect dictionary); [unknownWords] answers it at "Legen".
+  PlacementCheck checkPlacement(Map<String, dynamic> move, {bool checkWords = true}) {
     if (isOver || _endPending) return const PlacementCheck.error(PlacementError.notNow);
     final tiles = _parseTiles(move['tiles']);
     if (tiles == null) return const PlacementCheck.error(PlacementError.malformed);
@@ -671,12 +794,45 @@ class WordTilesGame extends Game {
       if (cross != null) words.add(cross);
     }
     if (words.isEmpty) return const PlacementCheck.error(PlacementError.firstTooShort);
-    if (check == WordCheck.dictionary && words.any((w) => !validator!.isWord(w.word))) {
-      return const PlacementCheck.error(PlacementError.unknownWord);
+    if (checkWords && check == WordCheck.dictionary) {
+      final allow = _allowOf(move);
+      if (allow == null) return const PlacementCheck.error(PlacementError.malformed);
+      final unknown = {for (final w in words) if (!validator!.isWord(w.word)) w.word};
+      // Every unknown word must be allowed, and only unknown words may be.
+      if (!allow.every(unknown.contains)) return const PlacementCheck.error(PlacementError.malformed);
+      if (!unknown.every(allow.contains)) return const PlacementCheck.error(PlacementError.unknownWord);
+    } else if (move.containsKey('allow') && check != WordCheck.dictionary) {
+      return const PlacementCheck.error(PlacementError.malformed);
     }
     final bingo = tiles.length == rackSize;
     final score = words.fold(0, (a, w) => a + w.score) + (bingo ? bingoBonus : 0);
     return PlacementCheck(tiles, words, score, bingo);
+  }
+
+  /// The `allow` list of a placement (empty when absent); null if malformed
+  /// (not a non-empty list of distinct strings).
+  Set<String>? _allowOf(Map<String, dynamic> move) {
+    if (!move.containsKey('allow')) return const {};
+    final raw = move['allow'];
+    if (raw is! List || raw.isEmpty || raw.any((w) => w is! String)) return null;
+    final set = raw.cast<String>().toSet();
+    return set.length == raw.length ? set : null;
+  }
+
+  /// The words of the placement [move] that the word list does not know
+  /// (dictionary mode; empty otherwise, or when the placement does not fit),
+  /// in board order without repeats. The UI asks this at "Legen" and lets
+  /// the players take the tiles back or allow the words (`allow`).
+  List<String> unknownWords(Map<String, dynamic> move) {
+    final v = validator;
+    if (check != WordCheck.dictionary || v == null) return const [];
+    final c = checkPlacement({'action': 'place', 'tiles': move['tiles']}, checkWords: false);
+    if (!c.ok) return const [];
+    final out = <String>[];
+    for (final w in c.words) {
+      if (!v.isWord(w.word) && !out.contains(w.word)) out.add(w.word);
+    }
+    return out;
   }
 
   bool _filled(int r, int c) => r >= 0 && r < size && c >= 0 && c < size && _board[r * size + c] != null;
@@ -698,9 +854,10 @@ class WordTilesGame extends Game {
   }
 
   GameEvent? _place(Map<String, dynamic> move) {
-    if (move.length != 2) return null;
+    if (move.length != (move.containsKey('allow') ? 3 : 2)) return null;
     final c = checkPlacement(move);
     if (!c.ok) return null;
+    final allowed = [for (final w in (move['allow'] as List? ?? const [])) w as String];
     final seat = _seat;
     final rackBefore = List<String>.of(_racks[seat]);
     final scorelessBefore = _scoreless;
@@ -712,7 +869,7 @@ class WordTilesGame extends Game {
     final drawn = _draw(seat, rackSize - _racks[seat].length);
     _scoreless = c.score == 0 ? _scoreless + 1 : 0;
     final words = [for (final w in c.words) w.word];
-    _turns.add(WordTilesTurn(seat, 'place', words: words, score: c.score, count: c.tiles.length));
+    _turns.add(WordTilesTurn(seat, 'place', words: words, score: c.score, count: c.tiles.length, allowed: allowed));
     _open = check == WordCheck.challenge
         ? _OpenPlacement(seat, c.tiles, words, c.score, rackBefore, drawn, scorelessBefore, _turns.length - 1)
         : null;
@@ -734,6 +891,7 @@ class WordTilesGame extends Game {
       'score': c.score,
       'bingo': c.bingo,
       'drew': drawn,
+      if (allowed.isNotEmpty) 'allowed': allowed,
     });
   }
 
@@ -883,8 +1041,11 @@ class WordTilesGame extends Game {
   // --- moves for players and tests ---
 
   /// A move map for [tiles].
-  static Map<String, dynamic> placeMove(List<PlacedTile> tiles) =>
-      {'action': 'place', 'tiles': [for (final t in tiles) t.toJson()]};
+  static Map<String, dynamic> placeMove(List<PlacedTile> tiles, {List<String> allow = const []}) => {
+        'action': 'place',
+        'tiles': [for (final t in tiles) t.toJson()],
+        if (allow.isNotEmpty) 'allow': allow,
+      };
 
   /// A sample of legal moves for the seat to move, in a fixed order (not
   /// every placement: that set is huge): `challenge` / `accept` when open;

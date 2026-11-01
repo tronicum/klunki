@@ -2016,6 +2016,67 @@ class AppLocalizationsFa extends AppLocalizations {
   String get wordtilesPremiumTripleWord => 'و×3';
 
   @override
+  String get wordtilesOptionTiles => 'حروف';
+
+  @override
+  String get wordtilesOptionDictionary => 'بررسی با واژه‌نامه';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'هر واژه‌ای که گذاشته شود در واژه‌نامه جست‌وجو می‌شود. اگر نبود، با هم تصمیم می‌گیرید: پس گرفتن یا پذیرفتن به‌هرحال.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'بدون واژه‌نامه خودتان داوری می‌کنید: می‌توان به یک واژه اعتراض کرد.';
+
+  @override
+  String get wordtilesOptionsNext => 'بعدی';
+
+  @override
+  String get wordtilesDictLoading => 'در حال بارگذاری واژه‌نامه…';
+
+  @override
+  String get wordtilesDictLoadFailed => 'واژه‌نامه بارگذاری نشد.';
+
+  @override
+  String get wordtilesUnknownTitle => 'در واژه‌نامه نیست';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '«$words» در واژه‌نامه نیست.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'می‌توانید حرف‌ها را پس بگیرید. اگر هر دو موافقید که به‌هرحال حساب شود، بپذیرید.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'پس گرفتن';
+
+  @override
+  String get wordtilesUnknownAllow => 'به‌هرحال بپذیر';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words با $score امتیاز (پذیرفته: $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'نیمکت تمرین';
+
+  @override
+  String get wordtilesBenchClear => 'برگرداندن همه حرف‌ها از نیمکت';
+
+  @override
+  String get wordtilesBenchHint =>
+      'حرف‌ها را اینجا بکشید تا واژه‌ها را امتحان کنید.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'همهٔ کاشی‌ها گذاشته شد، نتیجهٔ نهایی $a : $b';
   }

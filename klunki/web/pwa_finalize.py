@@ -30,6 +30,10 @@ EXCLUDE_FROM_PRECACHE = EXCLUDE_FROM_HASH | {
 # Static pages published next to the app (KLD-096, GitHub Pages): not part of
 # the app, the service worker leaves them alone (klunki_sw.js STATIC_PAGES).
 STATIC_PAGES = ('privacy/', 'support/', 'impressum/')
+# Loaded on demand only (KLD-094: the Wortgewandt word lists, ~1.9 MB gzip):
+# not precached; the worker caches them on first use (cache-first fetch).
+# Their LICENSE / SOURCE.txt stay precached (the licence page reads them).
+ON_DEMAND = ('assets/assets/wordlists/de/words.txt.gz', 'assets/assets/wordlists/en/words.txt.gz')
 
 
 def main() -> int:
@@ -61,6 +65,7 @@ def main() -> int:
         rel for rel in files
         if rel not in EXCLUDE_FROM_PRECACHE
         and not rel.startswith('canvaskit/')
+        and rel not in ON_DEMAND
         and not rel.startswith(STATIC_PAGES)
         and not rel.endswith('.symbols')
     ]

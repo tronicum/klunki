@@ -295,7 +295,19 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('menu-preview-wordtiles')));
     await tester.tap(find.byKey(const Key('menu-preview-wordtiles')));
     await tester.pumpAndSettle();
+    // KLD-094 step 4: the start options first (word list off here: the
+    // loading is tested in wordtiles_dictionary_bench_test.dart).
+    expect(find.byKey(const Key('wordtiles-options')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('wordtiles-dict')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('wordtiles-options-next')));
+    await tester.pumpAndSettle();
+    if (find.byKey(const Key('hot-seat-names-ok')).evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
+      await tester.pumpAndSettle();
+    }
     expect(find.byType(WordTilesScreen), findsOneWidget);
+    expect(controllerOf(tester).config.dictionary, isFalse);
     expect(find.descendant(of: find.byType(AppBar), matching: find.text('Wortgewandt')), findsOneWidget);
     expect(controllerOf(tester).config.gameId, 'wordtiles');
     expect(find.byType(GameScreen), findsOneWidget);

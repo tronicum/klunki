@@ -1,0 +1,23 @@
+Wortgewandt word list, German (tile set "de"), KLD-094 step 4
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, upper case, sorted by code point)
+Words:     590,558 (2-15 letters)
+Size:      6,927,600 bytes raw, 1,444,610 bytes gzip
+sha256:    fa8ab81c96e5eb075fb3f3fe1e639a7f81196c8d9e4458abae8d2eb4c070c0b8  words.txt.gz
+
+Source:    enz/german-wordlist, https://github.com/enz/german-wordlist
+           file "words" at commit 1071d87d9535b57b80ec076c699f2578a28ee9dc (2026-09-13, "Added 'Sub' (Duden Online)")
+           https://raw.githubusercontent.com/enz/german-wordlist/1071d87d9535b57b80ec076c699f2578a28ee9dc/words
+           685,829 lines, sha256 20095928ca70974fb5d86e44f10181cee16e2831b0d4b1a4ddd12c261aebc5e9
+Licence:   CC0 1.0 Universal (public domain dedication); full text in LICENSE (the project's COPYING file).
+           No attribution is required; we credit the project anyway (app licence page, README, docs/legal).
+Fetched:   2026-11-02 with curl, approved by the maintainer (KLD-094 step 4).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py de <download dir>
+  * normalized like the engine's TileSet.normalize: ß -> SS, upper case (STRASSE, FÜSSE);
+  * kept: words of 2-15 letters that the German tile set can spell (A-Z, Ä, Ö, Ü);
+    dropped: longer words and words with other letters (accents such as Abbé, Ångström);
+  * the source has no names, places or abbreviations by its own rules (its README), so nothing else is dropped.
+Check:     python3 -I tool/build_word_lists.py check
+           (inflected forms: HÄUSER, LIEF, GINGEN, SCHÖNSTEN, BÄUME, ÄRGERTEN are in).

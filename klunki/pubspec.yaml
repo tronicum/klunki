@@ -127,6 +127,12 @@ flutter:
     - assets/quartett/planes/
     - assets/quartett/trains/
     - assets/quartett/cars/
+    # Wortgewandt word lists (KLD-094 step 4): gzip, loaded on demand when a
+    # game with "Wörterbuch prüfen" starts (lib/ui/games/wordtiles/word_list_loader.dart);
+    # SOURCE.txt = source, commit, licence, filters; LICENSE for LicenseRegistry.
+    # Built by tool/build_word_lists.py. Not precached by the PWA (pwa_finalize.py).
+    - assets/wordlists/de/
+    - assets/wordlists/en/
   fonts:
     - family: Roboto
       fonts:

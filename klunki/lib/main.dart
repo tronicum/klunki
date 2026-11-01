@@ -9,6 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   registerFontLicenses();
   registerNativeLicenses();
+  registerWordListLicenses();
   final localeController = await LocaleController.load();
   final playerNameController = await PlayerNameController.load();
   final hotSeatNames = await HotSeatNamesController.load();

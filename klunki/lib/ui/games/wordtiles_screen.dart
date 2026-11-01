@@ -67,6 +67,9 @@ String describeWordTilesMove(AppLocalizations l10n, AcceptedMove m) {
           if (w is Map && w['word'] is String) w['word'] as String else if (w is String) w,
       ];
   return switch (m.move['action']) {
+    // KLD-094 step 4: words the players let stand although the list lacks them.
+    'place' when words(p['allowed']).isNotEmpty => l10n.wordtilesMovePlaceAllowed(
+        words(p['words']).join(', '), p['score'] as int? ?? 0, words(p['allowed']).join(', ')),
     'place' => l10n.wordtilesMovePlace(words(p['words']).join(', '), p['score'] as int? ?? 0),
     'exchange' => l10n.wordtilesMoveExchange(p['count'] as int? ?? 0),
     'pass' => l10n.wordtilesMovePass,

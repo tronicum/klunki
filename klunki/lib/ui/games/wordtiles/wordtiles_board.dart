@@ -28,10 +28,26 @@ import 'wordtiles_tiles.dart';
 ///   out after the move; pinch-zoom and panning work any time.
 /// * **Swap and pass:** "Tauschen" turns the rack into a picker (needs at
 ///   least [WordTilesGame.rackSize] tiles in the bag); "Passen" passes.
-/// * **Challenge mode:** after another player's placement the player to move
-///   sees it ringed on the board plus "Anzweifeln" / "Annehmen" (a
-///   placement, swap or pass accepts it too). Without a word list the
-///   challenger's call is final (the confirmation says so).
+/// * **Challenge mode** (no word list): after another player's placement the
+///   player to move sees it ringed on the board plus "Anzweifeln" /
+///   "Annehmen" (a placement, swap or pass accepts it too). The challenger's
+///   call is final (the confirmation says so).
+/// * **Word list** ("Wörterbuch prüfen", KLD-094 step 4,
+///   [WordCheck.dictionary]): nothing tells whether a word is in the list
+///   before "Legen" (no hint, no ✓/✗: that would be an indirect dictionary).
+///   At "Legen" every formed word is looked up; unknown ones open a notice
+///   (`wordtiles-unknown`) with "Zurücknehmen" (tiles back to the rack, the
+///   turn goes on) and "Trotzdem zulassen" (both players agree; the move
+///   carries `allow`, the history says "zugelassen: …"). No challenges then.
+/// * **Bänkchen** (the bench, KLD-094 step 4): [benchRows] private practice
+///   rows of [benchSlots] slots between the rack and the actions, collapsible
+///   ("Bänkchen ▾"). Drag rack tiles in, move them between slots, drag them
+///   back to the rack or straight onto the board (or tap a tile, then a
+///   slot). Each row shows the base score of its words (letter points; the
+///   premium squares count only on the board) and nothing else. The tiles are
+///   still rack tiles: the engine's rack is unchanged, the bench is an
+///   arrangement kept per player across turns and the handover cover (which
+///   hides it like the rack).
 /// * Hot-seat: the shell's handover cover hides the rack between turns
 ///   (`GameSpec.hiddenInformation`); the board resets its pending tiles when
 ///   the turn changes.
@@ -47,7 +63,12 @@ import 'wordtiles_tiles.dart';
 /// `wordtiles-preview`, `wordtiles-error`, `wordtiles-last-turn`,
 /// `wordtiles-open`, `wordtiles-score-<seat>`, `wordtiles-penalty-<seat>`,
 /// `wordtiles-bag`, `wordtiles-viewer`; the blank picker's
-/// `wordtiles-blank-<letter>`.
+/// `wordtiles-blank-<letter>`; the bench's `wordtiles-bench`,
+/// `wordtiles-bench-toggle`, `wordtiles-bench-clear`,
+/// `wordtiles-bench-<row>-<slot>`, `wordtiles-bench-score-<row>` (a tile on
+/// the bench keeps its `wordtiles-rack-<rack index>`); the unknown-word
+/// notice's `wordtiles-unknown`, `wordtiles-unknown-withdraw`,
+/// `wordtiles-unknown-allow`.
 class WordTilesBoard extends StatefulWidget {
   final GameController controller;
 
@@ -56,6 +77,10 @@ class WordTilesBoard extends StatefulWidget {
   /// Below this square size (logical pixels, unzoomed) the board zooms in
   /// on the first tile laid.
   static const double autoZoomBelow = 30;
+
+  /// Practice rows of the bench and slots per row.
+  static const int benchRows = 2;
+  static const int benchSlots = 9;
 
   @override
   State<WordTilesBoard> createState() => _WordTilesBoardState();
@@ -69,11 +94,13 @@ class _Pending {
   const _Pending(this.rackIndex, this.tile, this.letter);
 }
 
-/// What is dragged: a rack tile, or a pending tile from [square].
+/// What is dragged: a rack tile, a pending tile from [square], or a bench
+/// tile from [slot].
 class _Drag {
   final int rackIndex;
   final int? square;
-  const _Drag(this.rackIndex, [this.square]);
+  final (int, int)? slot;
+  const _Drag(this.rackIndex, [this.square, this.slot]);
 }
 
 const int _n = WordTilesGame.size;
@@ -95,6 +122,19 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   late GameTransport _transport;
   int _seen = 0;
   bool _busy = false;
+
+  /// The bench of the seat on screen: a rack index per slot.
+  List<List<int?>> _bench = _emptyBench();
+
+  /// Every seat's bench as letters (tiles), kept across turns, the cover
+  /// and undo; matched to the rack again at each turn ([_loadBench]).
+  final Map<int, List<List<String?>>> _benchSaved = {};
+
+  /// Bench open or collapsed; null = by screen size.
+  bool? _benchOpen;
+
+  static List<List<int?>> _emptyBench() =>
+      List.generate(WordTilesBoard.benchRows, (_) => List<int?>.filled(WordTilesBoard.benchSlots, null));
 
   final TransformationController _zoom = TransformationController();
   late final AnimationController _zoomAnim =
@@ -136,6 +176,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       widget.controller.addListener(_onChange);
       _transport = controller.transport;
       _seen = controller.moves.length;
+      _benchSaved.clear();
       _resetTurn();
     }
   }
@@ -152,6 +193,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (!mounted) return;
     setState(() {
       if (!identical(_transport, controller.transport) || controller.moves.length != _seen) {
+        if (!identical(_transport, controller.transport)) _benchSaved.clear(); // a new game
         _transport = controller.transport;
         _seen = controller.moves.length;
         _resetTurn();
@@ -168,8 +210,131 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     _notice = null;
     _busy = false;
     _order = List.generate(_rack.length, (i) => i);
+    _loadBench();
     _zoomAnim.stop();
     _zoom.value = Matrix4.identity();
+  }
+
+  // ------------------------------------------------------------ bench
+
+  /// Puts the saved bench of the seat on screen back onto its current rack:
+  /// each saved tile takes a rack tile with the same letter that is still
+  /// free; tiles that left the rack (laid, swapped) drop out.
+  void _loadBench() {
+    final rack = _rack;
+    final used = <int>{};
+    final saved = _benchSaved[_seat];
+    _bench = _emptyBench();
+    if (saved == null) return;
+    for (var r = 0; r < _bench.length && r < saved.length; r++) {
+      for (var s = 0; s < _bench[r].length && s < saved[r].length; s++) {
+        final t = saved[r][s];
+        if (t == null) continue;
+        for (var i = 0; i < rack.length; i++) {
+          if (rack[i] == t && used.add(i)) {
+            _bench[r][s] = i;
+            break;
+          }
+        }
+      }
+    }
+    _saveBench();
+  }
+
+  void _saveBench() {
+    final rack = _rack;
+    _benchSaved[_seat] = [
+      for (final row in _bench) [for (final i in row) i == null || i >= rack.length ? null : rack[i]],
+    ];
+  }
+
+  Set<int> get _onBench => {for (final row in _bench) for (final i in row) ?i};
+
+  (int, int)? _slotOf(int rackIndex) {
+    for (var r = 0; r < _bench.length; r++) {
+      final s = _bench[r].indexOf(rackIndex);
+      if (s >= 0) return (r, s);
+    }
+    return null;
+  }
+
+  void _removeFromBench(int rackIndex) {
+    final at = _slotOf(rackIndex);
+    if (at != null) _bench[at.$1][at.$2] = null;
+  }
+
+  /// The bench may change: the player on screen is on turn (hot-seat: the
+  /// player behind the cover), not while picking tiles to swap.
+  bool get _benchActive => _myTurn && !_exchanging;
+
+  /// Puts [rackIndex] (from the rack, the board or another slot) into
+  /// [slot]; a tile already there moves to where the new one came from (a
+  /// slot), else back to the rack.
+  void _toBench(int rackIndex, (int, int) slot, {int? fromSquare}) {
+    if (!_benchActive) return;
+    setState(() {
+      if (fromSquare != null) _pending.remove(fromSquare);
+      final from = _slotOf(rackIndex);
+      final occupant = _bench[slot.$1][slot.$2];
+      _removeFromBench(rackIndex);
+      _bench[slot.$1][slot.$2] = rackIndex;
+      if (occupant != null && occupant != rackIndex && from != null) _bench[from.$1][from.$2] = occupant;
+      _selected = null;
+      _tried = false;
+      _notice = null;
+      _saveBench();
+    });
+  }
+
+  void _benchToRack(int rackIndex) {
+    setState(() {
+      _removeFromBench(rackIndex);
+      _saveBench();
+    });
+  }
+
+  void _clearBench() {
+    setState(() {
+      _bench = _emptyBench();
+      _selected = null;
+      _saveBench();
+    });
+  }
+
+  void _tapSlot((int, int) slot) {
+    final occupant = _bench[slot.$1][slot.$2];
+    if (occupant != null) {
+      _tapRack(occupant);
+      return;
+    }
+    final sel = _selected;
+    if (sel != null && !_exchanging) _toBench(sel, slot);
+  }
+
+  /// The words of a bench row (runs of 2+ tiles) and their base score:
+  /// letter points only (a blank shows "?" and scores 0).
+  ({List<String> words, int score}) _benchWords(int row) {
+    final rack = _rack;
+    final words = <String>[];
+    var score = 0;
+    final run = <String>[];
+    void flush() {
+      if (run.length >= 2) {
+        words.add(run.map((t) => t == TileSet.blank ? '?' : t).join());
+        score += run.fold(0, (a, t) => a + game.tileSet.pointsOf(t));
+      }
+      run.clear();
+    }
+
+    for (final i in _bench[row]) {
+      if (i == null || i >= rack.length) {
+        flush();
+      } else {
+        run.add(rack[i]);
+      }
+    }
+    flush();
+    return (words: words, score: score);
   }
 
   // ------------------------------------------------------------ placing
@@ -202,6 +367,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     setState(() {
       _pending.removeWhere((_, p) => p.rackIndex == rackIndex);
       _pending[sq] = _Pending(rackIndex, tile, shown);
+      _removeFromBench(rackIndex);
+      _saveBench();
       _selected = null;
       _tried = false;
       _notice = null;
@@ -284,14 +451,65 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (!r.isAccepted) setState(() => _busy = false);
   }
 
-  void _play() {
+  Future<void> _play() async {
     if (_pending.isEmpty || !_canLay) return;
-    final move = WordTilesGame.placeMove(_placed);
-    if (!game.checkPlacement(move).ok) {
+    final placed = _placed;
+    final move = WordTilesGame.placeMove(placed);
+    if (!game.checkPlacement(move, checkWords: false).ok) {
       setState(() => _tried = true);
       return;
     }
-    _submit(move);
+    // KLD-094 step 4: the word list is asked only now, at "Legen".
+    final unknown = game.unknownWords(move);
+    if (unknown.isEmpty) {
+      _submit(move);
+      return;
+    }
+    final seen = _seen;
+    final allow = await _askUnknown(unknown);
+    if (!mounted || seen != _seen) return;
+    if (allow) {
+      _submit(WordTilesGame.placeMove(placed, allow: unknown));
+    } else {
+      _recallAll();
+    }
+  }
+
+  /// "„XYZ“ steht nicht im Wörterbuch." – "Zurücknehmen" (false) or
+  /// "Trotzdem zulassen" (true): one joint decision, both players are at the
+  /// device (over the network the other player will have to agree, step 3).
+  Future<bool> _askUnknown(List<String> words) async {
+    final l10n = AppLocalizations.of(context);
+    final allow = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        key: const Key('wordtiles-unknown'),
+        title: Text(l10n.wordtilesUnknownTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.wordtilesUnknownBody(wordList(ctx, words), words.length),
+                style: Theme.of(ctx).textTheme.bodyLarge),
+            const SizedBox(height: 12),
+            Text(l10n.wordtilesUnknownAsk),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: const Key('wordtiles-unknown-allow'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.wordtilesUnknownAllow),
+          ),
+          FilledButton(
+            key: const Key('wordtiles-unknown-withdraw'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.wordtilesUnknownWithdraw),
+          ),
+        ],
+      ),
+    );
+    return allow == true;
   }
 
   void _pass() {
@@ -472,6 +690,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           _previewLine(context, l10n),
           const SizedBox(height: 4),
           LayoutBuilder(builder: (context, rackBox) => _rackView(context, min(rackBox.maxWidth, 420.0))),
+          LayoutBuilder(
+            builder: (context, benchBox) =>
+                _benchView(context, l10n, min(benchBox.maxWidth, 420.0), _benchOpen ?? (wide || box.maxHeight >= 560)),
+          ),
           const SizedBox(height: 6),
           _actions(context, l10n),
           const SizedBox(height: 6),
@@ -670,7 +892,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       text = notice;
       error = true;
     } else if (_pending.isNotEmpty) {
-      final check = game.checkPlacement(WordTilesGame.placeMove(_placed));
+      // Never the word list here (see the class docs): only "Legen" asks it.
+      final check = game.checkPlacement(WordTilesGame.placeMove(_placed), checkWords: false);
       if (check.ok) {
         final words = wordList(context, [for (final w in check.words) w.word]);
         text = check.bingo
@@ -864,14 +1087,22 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final rack = _rack;
     if (_order.length != rack.length) _order = List.generate(rack.length, (i) => i);
     final laid = {for (final p in _pending.values) p.rackIndex};
-    final shown = [for (final i in _order) if (!laid.contains(i)) i];
+    final bench = _onBench;
+    final shown = [for (final i in _order) if (!laid.contains(i) && !bench.contains(i)) i];
     const gap = 6.0;
     // Padding (6 + 6) and border (1 + 1) of the rack, plus a little air.
     final size = min(54.0, (width - 18 - gap * (WordTilesGame.rackSize - 1)) / WordTilesGame.rackSize);
     final active = _myTurn && !game.endPending;
     return DragTarget<_Drag>(
-      onWillAcceptWithDetails: (d) => d.data.square != null,
-      onAcceptWithDetails: (d) => _takeBack(d.data.square!),
+      onWillAcceptWithDetails: (d) => d.data.square != null || d.data.slot != null,
+      onAcceptWithDetails: (d) {
+        final sq = d.data.square;
+        if (sq != null) {
+          _takeBack(sq);
+        } else {
+          _benchToRack(d.data.rackIndex);
+        }
+      },
       builder: (context, candidates, _) => Container(
         key: const Key('wordtiles-rack'),
         height: size + 16,
@@ -897,7 +1128,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     );
   }
 
-  Widget _rackTile(BuildContext context, WordTilesColors c, List<String> rack, int i, double size, bool active) {
+  Widget _rackTile(BuildContext context, WordTilesColors c, List<String> rack, int i, double size, bool active,
+      {(int, int)? slot}) {
     final tile = rack[i];
     final blank = tile == TileSet.blank;
     final selected = _exchanging ? _swap.contains(i) : _selected == i;
@@ -918,13 +1150,136 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       key: Key('wordtiles-rack-$i'),
       onTap: active ? () => _tapRack(i) : null,
       child: Draggable<_Drag>(
-        data: _Drag(i),
+        data: _Drag(i, null, slot),
         maxSimultaneousDrags: active && !_exchanging ? 1 : 0,
         feedback: _feedback(context, blank ? '' : tile, tile, size * 1.1),
         childWhenDragging: Opacity(opacity: 0.3, child: face),
         onDragStarted: () => setState(() => _selected = null),
         child: lifted,
       ),
+    );
+  }
+
+  /// The bench: a header to open / collapse it and, when open, the practice
+  /// rows with their base scores.
+  Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open) {
+    final theme = Theme.of(context);
+    final c = WordTilesColors.of(context);
+    final rack = _rack;
+    final hasTiles = _onBench.isNotEmpty;
+    const compact = VisualDensity(horizontal: -4, vertical: -4);
+    final header = Row(
+      children: [
+        Semantics(
+          expanded: open,
+          child: TextButton.icon(
+            key: const Key('wordtiles-bench-toggle'),
+            style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
+            icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
+            label: Text(l10n.wordtilesBench),
+            onPressed: () => setState(() => _benchOpen = !open),
+          ),
+        ),
+        const Spacer(),
+        if (open && hasTiles)
+          IconButton(
+            key: const Key('wordtiles-bench-clear'),
+            tooltip: l10n.wordtilesBenchClear,
+            visualDensity: compact,
+            iconSize: 20,
+            icon: const Icon(Icons.vertical_align_bottom),
+            onPressed: _benchActive ? _clearBench : null,
+          ),
+      ],
+    );
+    if (!open) return KeyedSubtree(key: const Key('wordtiles-bench'), child: header);
+    const gap = 4.0;
+    const scoreWidth = 34.0;
+    const slots = WordTilesBoard.benchSlots;
+    final size = min(44.0, (width - 12 - scoreWidth - gap * slots) / slots);
+    final active = _benchActive;
+    Widget slotView(int r, int s) {
+      final i = _bench[r][s];
+      return DragTarget<_Drag>(
+        key: Key('wordtiles-bench-$r-$s'),
+        onWillAcceptWithDetails: (d) => active && !(d.data.slot == (r, s)),
+        onAcceptWithDetails: (d) => _toBench(d.data.rackIndex, (r, s), fromSquare: d.data.square),
+        builder: (context, candidates, _) => GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: active ? () => _tapSlot((r, s)) : null,
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: candidates.isNotEmpty ? c.select.withValues(alpha: 0.3) : c.board.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(size * 0.14),
+              border: Border.all(color: c.tileEdge.withValues(alpha: 0.35)),
+            ),
+            child: i == null || i >= rack.length
+                ? null
+                : _rackTile(context, c, rack, i, size, _myTurn && !game.endPending || _exchanging, slot: (r, s)),
+          ),
+        ),
+      );
+    }
+
+    Widget row(int r) {
+      final w = _benchWords(r);
+      return Padding(
+        padding: const EdgeInsets.only(top: gap),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            for (var s = 0; s < slots; s++) ...[if (s > 0) const SizedBox(width: gap), slotView(r, s)],
+            SizedBox(
+              width: scoreWidth,
+              child: w.words.isEmpty
+                  ? null
+                  : Semantics(
+                      label: l10n.wordtilesPreview(w.words.join(', '), w.score),
+                      excludeSemantics: true,
+                      child: Text(
+                        '${w.score}',
+                        key: Key('wordtiles-bench-score-$r'),
+                        textAlign: TextAlign.end,
+                        textDirection: TextDirection.ltr,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      key: const Key('wordtiles-bench'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        header,
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(mainAxisSize: MainAxisSize.min, children: [for (var r = 0; r < _bench.length; r++) row(r)]),
+              if (!hasTiles)
+                IgnorePointer(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: scoreWidth),
+                    child: Text(
+                      l10n.wordtilesBenchHint,
+                      textAlign: TextAlign.center,
+                      textDirection: Directionality.of(context),
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -1044,7 +1399,9 @@ String placementErrorText(AppLocalizations l10n, PlacementError e) => switch (e)
 /// One turn of the public log, without the player ("HAUS, AUS für 14
 /// Punkte", "2 Steine getauscht", …).
 String describeWordTilesTurn(BuildContext context, AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
-      'place' => l10n.wordtilesMovePlace(wordList(context, t.words), t.score),
+      'place' => t.allowed.isEmpty
+          ? l10n.wordtilesMovePlace(wordList(context, t.words), t.score)
+          : l10n.wordtilesMovePlaceAllowed(wordList(context, t.words), t.score, wordList(context, t.allowed)),
       'exchange' => l10n.wordtilesMoveExchange(t.count),
       'pass' => l10n.wordtilesMovePass,
       'challenge' => t.withdrawn ? l10n.wordtilesMoveChallengeWithdrawn(wordList(context, t.words)) : l10n.wordtilesMoveChallengeFailed,

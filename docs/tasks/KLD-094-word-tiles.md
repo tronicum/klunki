@@ -4,7 +4,9 @@
 - **Title:** A crossword-style letter tile game (id `wordtiles`)
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
-  (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); steps 3–5 open, see "Step plan"
+  (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); step 4 DONE for
+  hot-seat (word lists de + en, check at "Legen" with "Trotzdem zulassen", tile language per game, the bench
+  "Bänkchen"); step 3 (network) and 5 open, see "Step plan"; 3–4 players assessed (see "3–4 players on one device")
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -258,6 +260,133 @@ host's reveal verified by the guest.
   turn checked in the result dialog). Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_shots_test.dart`.
 - **Open UX questions (🧑):** see "Open questions" 9–13.
 
+## Step 4 (word lists, check at "Legen", bench): what was built
+Approved by the maintainer 2026-11-02 (German and English; downloads limited to the two sources below).
+
+- **Touched paths:** engine `lib/word_tiles.dart` (`SortedWordListValidator`, `WordLists`, `allow`,
+  `unknownWords`, `checkPlacement(checkWords:)`, `WordTilesTurn.allowed`), `lib/registry.dart` (`GameConfig.tiles` /
+  `.dictionary`, `GameSpec.createFrom`, rules 2), tests `word_lists_test.dart`, `compat_test.dart`; app
+  `assets/wordlists/{de,en}/` (new), `tool/build_word_lists.py` (new), `lib/ui/games/wordtiles/{word_list_loader,
+  gunzip_io,gunzip_web,wordtiles_options}.dart` (new), `wordtiles_board.dart`, `wordtiles_screen.dart`,
+  `lib/ui/shell/screen_registry.dart` (`openGame` / `openGameFromMenu`), `lib/ui/menu_screen.dart` (preview button
+  through `openGameFromMenu`), `lib/app/third_party_licenses.dart`, `lib/main.dart`, `pubspec.yaml`,
+  `web/pwa_finalize.py`, ARB files, tests `wordtiles_dictionary_bench_test.dart`, `wordtiles_screen_test.dart`,
+  `screenshots/wordtiles_shots_test.dart`; `README.md`, `docs/legal/third-party-data.md` (new), `AGENTS.md` (games
+  table), BOARD.md.
+
+**Sources and licences** (details, commits, hashes, filters: `klunki/assets/wordlists/{de,en}/SOURCE.txt`; licence
+texts next to them as `LICENSE`, shown on the app's licence page via `registerWordListLicenses` in
+`lib/app/third_party_licenses.dart`):
+
+| | Source | Commit | Licence | Words (2–15 letters) | Raw / gzip |
+|---|---|---|---|---|---|
+| de | enz/german-wordlist `words` (685,829 lines) | `1071d87` (2026-09-13) | CC0-1.0 | 590,558 | 6.93 MB / 1.44 MB |
+| en | English Speller Database (ESDB, formerly SCOWL) `data/scowl-pre.txt`, size ≤ 80 | `1e5b7d3` (2026-06-24) | MIT-like (Kevin Atkinson; main notice only: no size > 80, no AU data) | 190,787 | 1.94 MB / 0.50 MB |
+
+- **en size 80, not 70:** 70 has 130,169 words and lacks typical word-game words (ZA, QAT, ZAX); 80 is "the strange
+  and unusual words people like to use in word games" (ESDB README). The project's GitHub releases only carry
+  Hunspell/Aspell dictionaries, so we parse the database text `scowl-pre.txt` ourselves (no make, no project
+  scripts run); the small corrections the project's build applies on top (`data/fixes`, `extra`, …) are therefore
+  missing. Dropped: offensive-* / vulgar-* groups (61), proper nouns / abbreviations (upper case in the source, name
+  classes, `<abbr>`), prefixes / suffixes / contractions, uncommon (`-`) and misspelt (`x`) variants, AU-only data,
+  and vowel-less unit symbols that ENABLE does not list (CM, KG, ML; HM, SH, BRR, TSK stay). US + GB + CA spellings.
+  ENABLE (the fallback) was not needed.
+- **de:** the list has no names, places or abbreviations by its own rules; we only normalize (ß → SS, upper case)
+  and drop words over 15 letters or with letters our tiles lack (accents: Abbé, Ångström). **Inflected forms are in:**
+  HÄUSER, LIEF, GINGEN, SCHÖNSTEN, BÄUME, ÄRGERTEN, FÜSSE (checked by `tool/build_word_lists.py check` and the app test).
+- **Tool:** `klunki/tool/build_word_lists.py` (stdlib only, `python3 -I`, reproducible: gzip mtime 0, sorted by code
+  point). The raw downloads stay outside the repo.
+
+**Assets and loading:** `assets/wordlists/<id>/words.txt.gz`, one normalized word per line, sorted. Loaded on demand
+by `WordListLoader.ensure` (`lib/ui/games/wordtiles/word_list_loader.dart`) only when a game with "Wörterbuch
+prüfen" starts (a "Wörterbuch wird geladen …" dialog), once per app run. Decompression: natively `dart:io` `gzip` in
+a background isolate (`compute`); on the web the browser's `DecompressionStream('gzip')` through `dart:js_interop`
+(SDK, no package; `package:archive` is only a transitive dependency, so not used). A response the server already
+un-gzipped is detected by the magic bytes. **PWA:** `web/pwa_finalize.py` no longer precaches the two
+`words.txt.gz` (≈ 1.9 MB; their `LICENSE` / `SOURCE.txt` stay precached for the licence page); the service worker caches them cache-first on first use, so a game with the
+list works offline once it was loaded online.
+
+**Lookup:** `SortedWordListValidator` (engine): the UTF-8 bytes plus an `Int32List` of line starts (4 bytes per
+word, no string per word: ≈ 9.3 MB for de), binary search (~20 compares). Measured on the desktop (Apple Silicon,
+AOT exe; JIT in parentheses): de gunzip 11 ms + index/sort check 30 ms = **≈ 42 ms** (50 ms), en ≈ 13 ms (15 ms),
+a lookup 0.1 µs; the app path in the test VM including `compute` and the asset bundle: de 113 ms, en 17 ms.
+Estimate for a mid-range phone (3–5× slower): de 150–300 ms, en < 100 ms, in the background isolate; on the web
+(main thread, JS) roughly 0.2–0.5 s desktop and up to ~1 s on a phone, plus the 1.4 MB download the first time.
+
+**Engine** (`word_tiles.dart`, `registry.dart`; `rulesVersion` 2 for `wordtiles`, compat golden updated):
+- `GameConfig.tiles` (`tiles`, tile set id, null = de) and `GameConfig.dictionary` (`dict`, written only when on):
+  public config, old configs read as before. `createGame` takes the list from `WordLists` (registered by the app;
+  `configProblem` reports a missing one). `WordLists.revisions` (list id + commit per language) is part of the
+  fingerprint data, so builds with different lists will refuse a network dictionary game.
+- **With a list: the check at "Legen" replaces the challenge** (the maintainer's model): `WordCheck.dictionary`. A
+  placement with words the list lacks is refused unless the move names exactly those words in `allow`
+  (`{'action': 'place', 'tiles': […], 'allow': ['BAU']}`), the players' joint "Trotzdem zulassen". The event and the
+  public turn log carry `allowed` (`WordTilesTurn.allowed`, in the view too). No challenge step in this mode.
+  `unknownWords(move)` answers the UI at "Legen"; `checkPlacement(move, checkWords: false)` is the preview, which
+  never consults the list. Network later: the guest's placement with `allow` needs the opponent's consent first
+  (a confirm round trip before the host applies it); the move format already records it.
+- **Without a list:** challenge mode unchanged (the challenger's call is final). The engine's "challenge decided by
+  a validator" path stays (tested: a valid word stands and the challenger loses the turn) but the app no longer
+  uses it.
+- Not done (hot-seat only for now): `klunki_net` rebuilds configs field by field (`guest.dart`
+  `verifyRedactedGame`, `secrecy.dart`), so `tiles` / `dict` must be passed through there in step 3.
+
+**App:**
+- **Start options** (`wordtiles_options.dart`, before "Wer spielt?"; the debug "Vorschau: Wortgewandt" now goes
+  through `openGameFromMenu`): tile language Deutsch / English (endonyms; default from the app language: de →
+  German, every other language → English), "Wörterbuch prüfen" (on by default when a list exists for that
+  language) with a one-line explanation of both modes.
+- **Check at "Legen":** unknown words → "„BAU“ steht nicht im Wörterbuch." + "Ihr könnt die Steine zurücknehmen.
+  Seid ihr euch einig, dass es trotzdem zählt, lasst es zu." with **"Zurücknehmen"** (tiles back on the rack, no
+  penalty, same turn) and **"Trotzdem zulassen"** (placement counts; history: "BAU für 8 Punkte (zugelassen: BAU)").
+  No ✓/✗ anywhere before "Legen" (the maintainer: an indirect dictionary is cheating). No per-device house-rule word
+  list (dropped by the maintainer: every "Trotzdem zulassen" is an ad-hoc decision).
+- **Bänkchen** (bench): 2 practice rows × 9 slots between the rack and the actions, collapsible ("Bänkchen ▾",
+  collapsed by default when the board area is under 560 px high, e.g. a 375 × 667 iPhone; open on larger phones and
+  tablets). Drag rack tiles in (or tap a tile, then a slot), move them between slots (a tile in the way swaps or
+  goes back to the rack), drag them back to the rack, or lay them straight from the bench on the board (drag, or
+  tap + square). Each row shows the **base score** of its words (runs of 2+ tiles, letter points only: premium
+  squares count only on the board) and nothing about whether it is a word. "Alle Steine vom Bänkchen zurück" clears
+  it. The bench is UI state only: the engine rack is unchanged; each player's arrangement is kept as letters per
+  seat and matched to the rack again every turn (laid or swapped tiles drop out), across the handover cover (which
+  hides it with the rack, `Offstage`) and undo; a new game clears it.
+- 16 new ARB keys in 7 locales (zh written with characters already in the font subset).
+
+**Tests:** engine `test/word_lists_test.dart` (sorted list lookup incl. umlauts, SS, first/last word, no final line
+feed, unsorted refused; check at "Legen": known word, unknown refused, `allow` exactly the unknown words, refused in
+challenge mode, survives the view; config JSON / tile set / list registration / fingerprint); app
+`test/ui/games/wordtiles_dictionary_bench_test.dart` (known word without a notice and no challenge, "Zurücknehmen",
+"Trotzdem zulassen" + history, start options de/en and the default language, bench: tap and drag in/out, between
+slots, score, clear, laying from the bench, private per player behind the cover and back next turn, collapsing,
+375 × 667 fit; the bundled lists loaded through the real loader: inflections, umlauts, SS, en words, no proper nouns /
+unit symbols). Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_shots_test.dart --plain-name
+kld094-step4` (iPhone SE 375 × 667, iPhone Max 430 × 932, iPad portrait and landscape: empty bench, a word with its
+score, tiles laid, the unknown-word notice, the cover after "Trotzdem zulassen", the history; start options de / en).
+
+**Still open:** recalibrate the tile sets on the lists' letter frequencies (step 1 plan; a rules + compat bump),
+network (step 3), the 🧑 UX review before `appReady`.
+
+## 3–4 players on one device (assessment, not built)
+The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
+assumes two:
+- **Engine interface:** `enum Player { a, b }`; `GameResult.winner` is one `Player`; `Game.currentPlayer`,
+  `playerOf(move)`, `resignMove(player)` and `WordTilesGame.playerOfSeat` (null beyond seat 1) are 2-player.
+- **Shell (`game_screen.dart`):** the turn pill and turn edge colour by `Player`; `_PlayersLegend` loops over
+  `Player.values`; the result dialog shows one winner token or "draw" (no ranking, no shared win of 2 of 3); resign
+  asks "who?" over `Player.values` and names "the other" as winner; `PlayerLabels` / `PlayerToken` map `Player` to
+  name, colour and symbol.
+- **Names:** `HotSeatNames(x, o)` with two prefs keys; "Wer spielt?" has two fields; `defaultPlayerName` A/B only.
+- **Handover cover:** fine as is (it names the player to move), once `currentPlayer` can be seat 2–3.
+- **Transport/controller:** `HotSeatTransport.localPlayers = {a, b}`; `GameController` compares `Player`s.
+- **Board:** already loops over `playerCount` (score bar, last turn); the bench is per seat.
+
+**Effort:** a Wortgewandt-only mode that bypasses `Player` (seat ints inside the word screen, its own names
+dialog with 2–4 fields, its own score/result sheet, the shell's pill and legend hidden for it) is about 2–3 days but
+duplicates shell logic and has to be undone later; the protocol stays 2-player either way. Widening `Player` to
+seats in KLD-088 (engine interface, results with ranking, shell legend/pill/result/resign, names store, protocol
+and fingerprint) is ~1–2 weeks across all games, after which Wortgewandt needs about a day (lift `playerOfSeat`'s
+limit, a player-count option). **Recommendation: wait for KLD-088.**
+
 ## Step plan
 1. **Engine (done).** This card.
 2. **Hot-seat UI:** board (premium colours of our own, not any product's), rack below with drag-to-board and
@@ -267,7 +396,7 @@ host's reveal verified by the guest.
    illustration; `appReady: true`.
 3. **Network:** the redaction is ready and tested at engine/net level; app: host pickers, the guest's rack from
    its view, the challenge buttons over the network, an e2e test.
-4. **Dictionary per language (🧑 approval first):** download and filter the approved list(s), build a compact
+4. **Dictionary per language (done for hot-seat, see "Step 4"; tile recalibration still open):** download and filter the approved list(s), build a compact
    asset per language, a lazy loader, `WordListValidator` on a sorted list (or DAWG); mode picker ("Anzweifeln" /
    "Wörterbuch"); recalibrate the tile sets on the list's letter frequencies (rules + compat bump).
 5. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
@@ -275,16 +404,14 @@ host's reveal verified by the guest.
 
 ## Open questions (🧑)
 1. ~~**Name**~~: decided, **Wortgewandt** (see "Naming and IP").
-2. **Word list for German:** OK to download enz/german-wordlist (CC0) for a check of coverage and size? English
-   SCOWL 70 (or ENABLE)?
+2. ~~**Word list**~~: approved 2026-11-02 (de enz/german-wordlist, en ESDB/SCOWL; size 80 chosen, see "Step 4").
 3. **Challenge without a list:** should the challenger's call be final (current), or should the placer be able to
    insist (then a tie-break, e.g. the word stands and the challenger loses the turn)?
-4. **Unsuccessful challenge penalty** (with a list): lose the turn (current) or a point penalty?
+4. ~~**Unsuccessful challenge penalty**~~ (with a list): moot, with a list the check at "Legen" replaces the challenge (maintainer, 2026-11-02).
 5. **Who may challenge with 3–4 players:** only the next player (current) or anyone?
 6. **Exchange threshold:** at least 7 tiles in the bag (current) or at least as many as exchanged?
 7. **Layout:** keep the layout above, or tune after playing it in step 2?
-8. **Tile language per game:** follow the app locale, or pick it when starting a game (a German family may want
-   English tiles for practice)?
+8. ~~**Tile language per game**~~: picked at game start, default from the app language (step 4).
 9. **Score bar vs shell legend:** the shell's player legend (top right) and the score bar both show the names; drop the
    names from the score bar (token + score only) to save a line on phones?
 10. **Premium labels:** "2W / 3W / 2B / 3B" (de) on the squares, colour-coded; enough, or a legend / long-press help?

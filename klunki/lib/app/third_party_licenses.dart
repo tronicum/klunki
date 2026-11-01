@@ -26,3 +26,27 @@ void registerNativeLicenses({bool web = kIsWeb}) {
     }
   });
 }
+
+/// The word lists of Wortgewandt (KLD-094 step 4), on every platform: the
+/// German list (enz/german-wordlist, CC0-1.0) and the English list (English
+/// Speller Database / SCOWL by Kevin Atkinson, MIT-like; its notice asks to
+/// appear in the documentation). Sources, commits and filters:
+/// `assets/wordlists/*/SOURCE.txt`.
+const Map<String, String> wordListLicenseAssets = {
+  'Wortgewandt word list (de): enz/german-wordlist': 'assets/wordlists/de/LICENSE',
+  'Wortgewandt word list (en): English Speller Database (SCOWL)': 'assets/wordlists/en/LICENSE',
+};
+
+bool _wordListsRegistered = false;
+
+/// Adds [wordListLicenseAssets] to the app's license page. Idempotent.
+void registerWordListLicenses() {
+  if (_wordListsRegistered) return;
+  _wordListsRegistered = true;
+  LicenseRegistry.addLicense(() async* {
+    for (final e in wordListLicenseAssets.entries) {
+      final text = await rootBundle.loadString(e.value);
+      yield LicenseEntryWithLineBreaks([e.key], text);
+    }
+  });
+}

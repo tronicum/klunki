@@ -2042,6 +2042,69 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wordtilesPremiumTripleWord => '3M';
 
   @override
+  String get wordtilesOptionTiles => 'Lettres';
+
+  @override
+  String get wordtilesOptionDictionary => 'Vérifier dans le dictionnaire';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'Chaque mot posé est vérifié. S’il n’y est pas, vous décidez ensemble : le reprendre ou l’accepter quand même.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'Sans dictionnaire, vous jugez vous-mêmes : un mot peut être contesté.';
+
+  @override
+  String get wordtilesOptionsNext => 'Suivant';
+
+  @override
+  String get wordtilesDictLoading => 'Chargement du dictionnaire…';
+
+  @override
+  String get wordtilesDictLoadFailed =>
+      'Impossible de charger le dictionnaire.';
+
+  @override
+  String get wordtilesUnknownTitle => 'Pas dans le dictionnaire';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '« $words » ne sont pas dans le dictionnaire.',
+      one: '« $words » n’est pas dans le dictionnaire.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'Vous pouvez reprendre les lettres. Si vous êtes d’accord pour qu’il compte quand même, acceptez-le.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'Reprendre';
+
+  @override
+  String get wordtilesUnknownAllow => 'Accepter quand même';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words pour $score points (accepté : $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'Banc d’essai';
+
+  @override
+  String get wordtilesBenchClear => 'Remettre toutes les lettres du banc';
+
+  @override
+  String get wordtilesBenchHint =>
+      'Glisse des lettres ici pour essayer des mots.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Toutes les tuiles posées, score final $a : $b';
   }

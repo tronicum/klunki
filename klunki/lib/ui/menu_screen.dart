@@ -192,7 +192,7 @@ class _MenuScreenState extends State<MenuScreen> {
                             icon: const Icon(Icons.science_outlined, size: 18),
                             label: Text(l10n.menuPreviewGame(
                                 localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id))),
-                            onPressed: () => openGame(context, id),
+                            onPressed: () => _launch(() => openGameFromMenu(context, id)),
                           ),
                         ),
                     // KLD-102: "Über Klunki" (privacy policy, Impressum,
