@@ -167,6 +167,11 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     final l10n = AppLocalizations.of(context);
     final attempt = ++_attempt;
     final label = target.label;
+    if (browserBlocksWebSocket(pageUrl: widget.pageUrl, target: target.uri)) {
+      // KLD-096: the browser would refuse ws:// from this https page.
+      setState(() => _error = l10n.webJoinHttpsWarning);
+      return;
+    }
     setState(() {
       _connecting = label;
       _error = null;
@@ -274,6 +279,7 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
         ready: playerNameReady,
         playerName: () => _deviceName,
         onConnected: _openGame,
+        pageUrl: widget.pageUrl,
       ),
     ];
     final direct = <Widget>[

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Klunki – Impressum / Legal notice</title>
+  <!-- KLD-096: plain static page, no external resources. Published by the
+       `pages` job in .github/workflows/build.yml at <pages-url>/impressum/. -->
+  <style>
+    :root { --fg: #1f2937; --bg: #ffffff; --muted: #4b5563; --accent: #4338ca; --rule: #d1d5db; }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg: #e5e7eb; --bg: #111827; --muted: #9ca3af; --accent: #a5b4fc; --rule: #374151; }
+    }
+    html { background: var(--bg); color: var(--fg); }
+    body {
+      margin: 0 auto; max-width: 46rem; padding: 1.5rem 1rem 3rem;
+      font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .25rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 .5rem; }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    nav { margin: .5rem 0 1rem; }
+    nav a { margin-right: 1rem; }
+    hr { border: 0; border-top: 1px solid var(--rule); margin: 3rem 0; }
+    address { font-style: normal; margin: 0 0 .5rem; }
+  </style>
+</head>
+<body>
+<nav aria-label="Klunki">
+  <a href="../">Klunki</a>
+  <a href="../support/">Support</a>
+  <a href="../privacy/">Datenschutz / Privacy</a>
+  <a href="./" aria-current="page">Impressum</a>
+</nav>
+<nav aria-label="Sprache / Language">
+  <a href="#de" hreflang="de" lang="de">Deutsch</a>
+  <a href="#en" hreflang="en" lang="en">English</a>
+</nav>
+
+<main>
+<article id="de" lang="de">
+  <h1>Impressum</h1>
+
+  <h2>Angaben gemäß § 5 DDG</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin
+  </address>
+
+  <h2>Kontakt</h2>
+  <p>E-Mail: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a></p>
+
+
+  <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin
+  </address>
+
+  <p><a href="../privacy/#de">Datenschutzerklärung</a> · <a href="../support/#de">Support</a></p>
+</article>
+
+<hr>
+
+<article id="en" lang="en">
+  <h1>Legal notice (Impressum)</h1>
+
+  <h2>Information according to § 5 DDG (German Digital Services Act)</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin<br>
+    Germany
+  </address>
+
+  <h2>Contact</h2>
+  <p>Email: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a></p>
+
+
+  <h2>Responsible for the content according to § 18 (2) MStV</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin<br>
+    Germany
+  </address>
+
+  <p><a href="../privacy/#en">Privacy policy</a> · <a href="../support/#en">Support</a></p>
+</article>
+</main>
+</body>
+</html>

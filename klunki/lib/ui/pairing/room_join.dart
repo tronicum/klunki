@@ -59,6 +59,11 @@ class RoomCodeJoin extends StatefulWidget {
   final String Function() playerName;
   final void Function(NetworkTransport transport) onConnected;
 
+  /// The browser page (null natively): an `https:` page cannot reach a
+  /// `ws://` relay (KLD-096), so such a join fails right away with a clear
+  /// message.
+  final Uri? pageUrl;
+
   const RoomCodeJoin({
     super.key,
     required this.joinTransport,
@@ -71,6 +76,7 @@ class RoomCodeJoin extends StatefulWidget {
     this.linkRelay,
     this.autoConnect = false,
     this.ready,
+    this.pageUrl,
   });
 
   @override
@@ -133,6 +139,13 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
 
   Future<void> _connect(String code, Uri relay) async {
     if (_joining != null) return;
+    if (browserBlocksWebSocket(pageUrl: widget.pageUrl, target: relay)) {
+      setState(() {
+        _error = AppLocalizations.of(context).webJoinHttpsWarning;
+        _showStartHint = false;
+      });
+      return;
+    }
     final attempt = ++_attempt;
     setState(() {
       _joining = formatRoomCode(code);

@@ -214,7 +214,7 @@
   "pairingCopyLink": "رونوشت پیوند",
   "pairingLinkCopied": "پیوند رونوشت شد",
   "webJoinIntro": "در مرورگر به بازی‌ای بپیوند که یک iPhone، iPad، دستگاه Android یا ترمینال (klunki host) میزبان آن است. میزبان نشانی و پیوند را زیر «پیوستن از مرورگر» نشان می‌دهد.",
-  "webJoinHttpsWarning": "این صفحه با https باز شده است. از آنجا مرورگرها اتصال ws:// به شبکهٔ محلی را مسدود می‌کنند. Klunki را با http:// باز کن.",
+  "webJoinHttpsWarning": "در مرورگر با https، Klunki فقط به رله‌های امن (wss://) دسترسی دارد – از اپ یا نسخهٔ http محلی استفاده کن.",
   "webJoinAddressLabel": "IP، IP:پورت، پیوند ws:// یا klunki://",
   "webJoinAddressHelper": "پورت، پورت مرورگر (WebSocket) میزبان است؛ بدون آن: {port}.",
   "webJoinInvalidAddress": "نشانی نامعتبر. نمونه: 192.168.1.20، 192.168.1.20:4748 یا klunki://join?h=…",

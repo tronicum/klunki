@@ -10,6 +10,7 @@ import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
+import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
@@ -144,6 +145,47 @@ void main() {
       await _pumpScreen(
           tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join), pageUrl: Uri.parse('https://x.example/')));
       expect(find.byKey(const Key('web-join-https')), findsOneWidget);
+      expect(find.textContaining('nur sichere Relays (wss://)'), findsOneWidget);
+    });
+
+    testWidgets('KLD-096: an https page does not try ws:// to the LAN and says why', (tester) async {
+      final r = _Recorder();
+      await _pumpScreen(tester,
+          WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join), pageUrl: Uri.parse('https://x.example/klunki/')));
+      await _enterAndConnect(tester, '10.0.0.7');
+      expect(r.calls, isEmpty);
+      expect(find.byKey(const Key('web-join-progress')), findsNothing);
+      expect(tester.widget<Text>(find.byKey(const Key('web-join-error'))).data!, contains('nur sichere Relays (wss://)'));
+      // Loopback is allowed by browsers even from https.
+      await _enterAndConnect(tester, 'ws://localhost:4748');
+      expect(r.calls.single.$1, _ws('localhost', 4748));
+    });
+
+    testWidgets('KLD-096: an https page does not join a ws:// relay by room code and says why', (tester) async {
+      final r = _Recorder();
+      var relayJoins = 0;
+      final settings = RelaySettings.memory()..set(Uri.parse('ws://192.168.1.20:8081/relay'));
+      await _pumpScreen(
+        tester,
+        WebJoinScreen(
+          deps: WebJoinDeps(
+            joinTransport: r.join,
+            relayJoin: (relay, code, {required name}) {
+              relayJoins++;
+              return Future.error(StateError('unused'));
+            },
+            relaySettings: () => settings,
+          ),
+          pageUrl: Uri.parse('https://x.example/klunki/'),
+        ),
+      );
+      await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
+      await tester.ensureVisible(find.byKey(const Key('room-join-button')));
+      await tester.tap(find.byKey(const Key('room-join-button')));
+      await tester.pump();
+      expect(relayJoins, 0);
+      expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data!, contains('nur sichere Relays (wss://)'));
+      expect(find.byKey(const Key('room-start-hint')), findsNothing);
     });
   });
 

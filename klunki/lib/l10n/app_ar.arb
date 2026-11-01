@@ -214,7 +214,7 @@
   "pairingCopyLink": "نسخ الرابط",
   "pairingLinkCopied": "تم نسخ الرابط",
   "webJoinIntro": "انضم من المتصفح إلى لعبة يستضيفها iPhone أو iPad أو جهاز Android أو الطرفية (klunki host). يعرض المضيف العنوان والرابط تحت «الانضمام من متصفح».",
-  "webJoinHttpsWarning": "فُتحت هذه الصفحة عبر https. من هناك تحظر المتصفحات اتصالات ws:// بالشبكة المحلية. افتح Klunki عبر http://.",
+  "webJoinHttpsWarning": "في المتصفح عبر https لا يصل Klunki إلا إلى مُرحِّلات آمنة (wss://) – استخدم التطبيق أو نسخة http المحلية.",
   "webJoinAddressLabel": "IP أو IP:منفذ أو رابط ws:// أو klunki://",
   "webJoinAddressHelper": "المنفذ هو منفذ المتصفح (WebSocket) لدى المضيف؛ بدونه: {port}.",
   "webJoinInvalidAddress": "عنوان غير صالح. مثال: 192.168.1.20 أو 192.168.1.20:4748 أو klunki://join?h=…",

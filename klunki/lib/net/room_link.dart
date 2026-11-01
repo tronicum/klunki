@@ -114,6 +114,13 @@ bool isLoopbackHost(String host) {
 
 final RegExp _loopbackV4 = RegExp(r'^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$');
 
+/// Whether a browser page at [pageUrl] cannot open the WebSocket [target]
+/// (KLD-096): an `https:` page (e.g. the PWA on GitHub Pages) may only open
+/// `wss://`, browsers block `ws://` there as mixed content, except to a
+/// loopback host. False natively (no [pageUrl]) and for `http:` pages.
+bool browserBlocksWebSocket({required Uri? pageUrl, required Uri target}) =>
+    pageUrl != null && pageUrl.scheme == 'https' && target.scheme == 'ws' && !isLoopbackHost(target.host);
+
 /// The loopback host in the room link for [relay] (see [roomJoinLink]), or
 /// null when other devices can reach it: the page's host in the browser,
 /// else the relay's host (which is also in the link, as host or `&relay=`).

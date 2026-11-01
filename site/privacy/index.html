@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Klunki – Datenschutzerklärung / Privacy Policy</title>
+  <!-- KLD-096: plain static page, no external resources (no fonts, scripts
+       or images from other hosts). Published by the `pages` job in
+       .github/workflows/build.yml at <pages-url>/privacy/. -->
+  <style>
+    :root { --fg: #1f2937; --bg: #ffffff; --muted: #4b5563; --accent: #4338ca; --rule: #d1d5db; }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg: #e5e7eb; --bg: #111827; --muted: #9ca3af; --accent: #a5b4fc; --rule: #374151; }
+    }
+    html { background: var(--bg); color: var(--fg); }
+    body {
+      margin: 0 auto; max-width: 46rem; padding: 1.5rem 1rem 3rem;
+      font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .25rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 .5rem; }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 .25rem; }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    nav { margin: .5rem 0 1.5rem; }
+    nav a { margin-right: 1rem; }
+    .meta { color: var(--muted); margin: 0; }
+    hr { border: 0; border-top: 1px solid var(--rule); margin: 3rem 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .95em; }
+    ul { padding-left: 1.25rem; }
+    address { font-style: normal; margin: 0 0 .5rem; }
+  </style>
+</head>
+<body>
+<nav aria-label="Klunki">
+  <a href="../">Klunki</a>
+  <a href="../support/">Support</a>
+  <a href="./" aria-current="page">Datenschutz / Privacy</a>
+  <a href="../impressum/">Impressum</a>
+</nav>
+<nav aria-label="Sprache / Language">
+  <a href="#de" hreflang="de" lang="de">Deutsch</a>
+  <a href="#en" hreflang="en" lang="en">English</a>
+</nav>
+
+<main>
+<article id="de" lang="de">
+  <h1>Datenschutzerklärung für Klunki</h1>
+  <p class="meta">Stand: 1. November 2026</p>
+
+  <p>Klunki ist eine Spielesammlung für zwei Personen (z. B. 4 Gewinnt, Mühle, Quartett, Schiffe versenken) als
+    App für iPhone, iPad und Android sowie als Web-App (PWA) im Browser. Diese Erklärung beschreibt, welche Daten
+    dabei verarbeitet werden.</p>
+
+  <h2>Kurz gesagt</h2>
+  <ul>
+    <li>Kein Konto, keine Anmeldung.</li>
+    <li>Keine Werbung, keine Analyse, kein Tracking, keine Absturzberichte an uns.</li>
+    <li>Keine Software-Bibliotheken von Drittanbietern, die Daten sammeln.</li>
+    <li>Wir betreiben keinen Server für das Spiel und erhalten keine Daten von dir.</li>
+  </ul>
+
+  <h2>Verantwortlicher und Kontakt</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin
+  </address>
+  <p>E-Mail: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a> · <a href="../impressum/#de">Impressum</a></p>
+
+  <h2>Was auf deinem Gerät gespeichert wird</h2>
+  <p>Klunki speichert nur Einstellungen, und zwar ausschließlich lokal auf deinem Gerät (in der App bzw. im
+    Speicher des Browsers für diese Website):</p>
+  <ul>
+    <li>dein Spielername und die zuletzt verwendeten Namen für Spiele auf einem Gerät,</li>
+    <li>die gewählte Sprache,</li>
+    <li>die Adresse eines Relays, falls du eins eingetragen hast,</li>
+    <li>das zuletzt gewählte Quartett-Deck.</li>
+  </ul>
+  <p>Diese Daten verlassen dein Gerät nicht (mit Ausnahme des Spielernamens, siehe unten). Du löschst sie, indem du
+    die App deinstallierst bzw. die Website-Daten im Browser löschst. Die Web-App legt außerdem ihre eigenen Dateien
+    im Browser-Cache ab, damit sie offline funktioniert.</p>
+
+  <h2>Spielername</h2>
+  <p>Den Namen gibst du selbst ein. In der App kann er mit dem Gerätenamen vorausgefüllt sein; du kannst ihn
+    jederzeit ändern. Der Name wird nur bei einem Spiel über das Netzwerk an das Gerät deiner Mitspielerin bzw.
+    deines Mitspielers übertragen, entweder direkt im lokalen Netzwerk oder über ein Relay (siehe unten). Wenn du in
+    der App ein Spiel im WLAN hostest, werden dein Name und das gewählte Spiel im lokalen Netzwerk angekündigt
+    (Bonjour/mDNS), damit andere Geräte das Spiel finden. Das können alle Geräte in diesem Netzwerk sehen, solange du
+    hostest.</p>
+
+  <h2>Spielen über das Netzwerk</h2>
+  <p>Bei einem Netzwerkspiel tauschen die beiden Geräte Spielnachrichten aus: Spielernamen, Spielauswahl, Züge, eine
+    zufällige Sitzungskennung zum Wiederverbinden und die App-Version (damit beide Geräte zueinander passen).</p>
+  <ul>
+    <li><strong>Direkt im lokalen Netzwerk:</strong> Die Geräte verbinden sich unmittelbar miteinander. Es ist kein
+      Server beteiligt.</li>
+    <li><strong>Über ein Relay:</strong> Ein Relay ist ein kleines Programm, das die Spielenden selbst betreiben,
+      z. B. auf einem Computer im eigenen WLAN (<code>klunki relay</code>). Wir betreiben kein Relay. Das Relay
+      verbindet zwei Geräte über einen kurzen Raumcode und leitet die Spielnachrichten nur weiter. Es speichert sie
+      nicht und schreibt keine Protokolle (weder Nachrichteninhalte noch IP-Adressen noch Raumcodes). Technisch
+      bedingt kennt es die IP-Adressen der verbundenen Geräte, solange die Verbindung besteht. Ein Raum wird gelöscht,
+      wenn der Host ihn verlässt oder er 10 Minuten lang nicht benutzt wird. Nutzt du ein Relay, das jemand anderes
+      betreibt, ist diese Person dafür verantwortlich.</li>
+  </ul>
+
+  <h2>Zugriff auf das lokale Netzwerk</h2>
+  <p>Die App fragt nach Zugriff auf das lokale Netzwerk. Er wird nur verwendet, um Spiele im WLAN zu finden und
+    anzukündigen (Bonjour/mDNS) und um direkt mit dem anderen Gerät zu spielen. Für nichts anderes.</p>
+
+  <h2>Kamera</h2>
+  <p>Die App nutzt die Kamera nur, wenn du einen QR-Code scannst, um einem Spiel beizutreten. Das Bild wird auf dem
+    Gerät ausgewertet und weder gespeichert noch übertragen. Die Web-App nutzt die Kamera nicht.</p>
+
+  <h2>Kartenfotos und Links</h2>
+  <p>Die Fotos auf den Quartett-Karten stammen von Wikimedia Commons und sind in der App enthalten; die
+    Bildnachweise stehen in der App. Zur Laufzeit wird nichts nachgeladen. Links zu Wikipedia, Wikimedia Commons
+    oder Lizenztexten öffnen sich nur, wenn du sie antippst, in deinem Browser; dort gelten die Datenschutzregeln
+    dieser Websites.</p>
+
+  <h2>Web-App (PWA) und diese Website</h2>
+  <p>Die Web-App und diese Seite sind statische Dateien, die über GitHub Pages ausgeliefert werden. Schriften und
+    Programmteile sind enthalten und werden nicht von anderen Servern geladen. GitHub kann beim Abruf technische
+    Daten wie deine IP-Adresse protokollieren; siehe die
+    <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.
+    Wird die Web-App von einem Relay im eigenen Netzwerk ausgeliefert, ist GitHub nicht beteiligt.</p>
+
+  <h2>Kinder</h2>
+  <p>Klunki erhebt keine personenbezogenen Daten für uns, auch nicht von Kindern.</p>
+
+  <h2>Deine Rechte</h2>
+  <p>Da wir keine Daten über dich erhalten oder speichern, können wir dazu keine Auskunft geben und nichts löschen.
+    Die lokal gespeicherten Einstellungen hast du selbst in der Hand (siehe oben). Bei Fragen schreib uns an die
+    oben genannte Adresse.</p>
+
+  <h2>Änderungen</h2>
+  <p>Ändert sich, wie Klunki mit Daten umgeht, aktualisieren wir diese Seite und das Datum oben.</p>
+</article>
+
+<hr>
+
+<article id="en" lang="en">
+  <h1>Privacy Policy for Klunki</h1>
+  <p class="meta">Last updated: 1 November 2026</p>
+
+  <p>Klunki is a collection of two-player games (e.g. Four in a Row, Nine Men's Morris, Quartett and a
+    battleship-style game) as an app for iPhone, iPad and Android and as a web app (PWA) in the browser. This policy
+    explains which data is processed.</p>
+
+  <h2>In short</h2>
+  <ul>
+    <li>No account, no sign-in.</li>
+    <li>No ads, no analytics, no tracking, no crash reports sent to us.</li>
+    <li>No third-party software libraries that collect data.</li>
+    <li>We run no server for the game and receive no data from you.</li>
+  </ul>
+
+  <h2>Controller and contact</h2>
+  <address>
+    Stefan Sels<br>
+    c/o tronicum networx GmbH<br>
+    Markgrafendamm 4<br>
+    10245 Berlin
+  </address>
+  <p>Email: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a> · <a href="../impressum/#en">Legal notice (Impressum)</a></p>
+
+  <h2>What is stored on your device</h2>
+  <p>Klunki only stores settings, and only locally on your device (in the app, or in the browser's storage for this
+    website):</p>
+  <ul>
+    <li>your player name and the names last used for games on one device,</li>
+    <li>the chosen language,</li>
+    <li>the address of a relay, if you entered one,</li>
+    <li>the last chosen Quartett deck.</li>
+  </ul>
+  <p>This data does not leave your device (except the player name, see below). You delete it by uninstalling the app
+    or clearing the website data in your browser. The web app also keeps its own files in the browser cache so it
+    works offline.</p>
+
+  <h2>Player name</h2>
+  <p>You type the name yourself. In the app it may be pre-filled with the device name; you can change it at any time.
+    The name is only sent to the other player's device in a network game, either directly on the local network or
+    through a relay (see below). When you host a game over Wi-Fi in the app, your name and the chosen game are
+    announced on the local network (Bonjour/mDNS) so other devices can find the game. Every device on that network can
+    see this while you are hosting.</p>
+
+  <h2>Playing over the network</h2>
+  <p>In a network game the two devices exchange game messages: player names, the game chosen, moves, a random session
+    identifier for reconnecting, and the app version (so both devices are compatible).</p>
+  <ul>
+    <li><strong>Directly on the local network:</strong> the devices connect to each other. No server is
+      involved.</li>
+    <li><strong>Through a relay:</strong> a relay is a small program that the players run themselves, e.g. on a
+      computer on their own Wi-Fi (<code>klunki relay</code>). We do not run a relay. The relay pairs two devices by a
+      short room code and only passes the game messages on. It does not store them and writes no logs (no message
+      contents, no IP addresses, no room codes). For technical reasons it knows the IP addresses of the connected
+      devices while the connection is open. A room is deleted when the host leaves or after 10 minutes without use. If
+      you use a relay run by someone else, that person is responsible for it.</li>
+  </ul>
+
+  <h2>Local network access</h2>
+  <p>The app asks for local network access. It is used only to find and announce games on the Wi-Fi (Bonjour/mDNS)
+    and to play directly with the other device. Nothing else.</p>
+
+  <h2>Camera</h2>
+  <p>The app uses the camera only when you scan a QR code to join a game. The image is processed on the device and
+    is neither stored nor sent anywhere. The web app does not use the camera.</p>
+
+  <h2>Card photos and links</h2>
+  <p>The photos on the Quartett cards come from Wikimedia Commons and are bundled with the app; the credits are shown
+    in the app. Nothing is downloaded at runtime. Links to Wikipedia, Wikimedia Commons or licence texts open in your
+    browser only when you tap them; those websites' privacy policies apply there.</p>
+
+  <h2>Web app (PWA) and this website</h2>
+  <p>The web app and this page are static files served by GitHub Pages. Fonts and code are bundled and are not
+    loaded from other servers. GitHub may log technical data such as your IP address when you visit; see the
+    <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub General Privacy Statement</a>.
+    When the web app is served by a relay on your own network, GitHub is not involved.</p>
+
+  <h2>Children</h2>
+  <p>Klunki collects no personal data for us, including from children.</p>
+
+  <h2>Your rights</h2>
+  <p>As we do not receive or store any data about you, there is nothing for us to disclose or delete. The settings
+    stored on your device are under your control (see above). If you have questions, write to the address above.</p>
+
+  <h2>Changes</h2>
+  <p>If the way Klunki handles data changes, we will update this page and the date above.</p>
+</article>
+</main>
+</body>
+</html>

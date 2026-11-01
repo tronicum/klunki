@@ -213,7 +213,7 @@
   "pairingCopyLink": "Copy link",
   "pairingLinkCopied": "Link copied",
   "webJoinIntro": "Join a game in the browser that an iPhone, iPad, Android device or the terminal (klunki host) is hosting. The host shows the address and link under “Join in a browser”.",
-  "webJoinHttpsWarning": "This page was opened over https. From there, browsers block ws:// connections to the local network. Open Klunki over http://.",
+  "webJoinHttpsWarning": "In a browser over https, Klunki can only reach secure relays (wss://) – use the app or the local http version.",
   "webJoinAddressLabel": "IP, IP:port, ws:// or klunki:// link",
   "webJoinAddressHelper": "The port is the host's browser port (WebSocket); without one, {port}.",
   "webJoinInvalidAddress": "Invalid address. Example: 192.168.1.20, 192.168.1.20:4748 or klunki://join?h=…",

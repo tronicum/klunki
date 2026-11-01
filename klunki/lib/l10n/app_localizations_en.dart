@@ -865,7 +865,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'This page was opened over https. From there, browsers block ws:// connections to the local network. Open Klunki over http://.';
+      'In a browser over https, Klunki can only reach secure relays (wss://) – use the app or the local http version.';
 
   @override
   String get webJoinAddressLabel => 'IP, IP:port, ws:// or klunki:// link';

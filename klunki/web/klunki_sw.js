@@ -1,8 +1,11 @@
 // Klunki offline service worker (KLD-010).
 //
-// Registered by index.html as `klunki_sw.js` (scope `./`). Flutter's own
-// `flutter_service_worker.js` is a deprecated, self-unregistering cleanup
-// worker; web/flutter_bootstrap.js makes sure flutter.js never registers it.
+// Registered by index.html as `klunki_sw.js` (scope `./`, so it works at the
+// site root as served by `klunki relay --web` and under a sub-path such as
+// GitHub Pages' `/klunki/`: every URL here is relative to the scope).
+// Flutter's own `flutter_service_worker.js` is a deprecated, self-unregistering
+// cleanup worker; web/flutter_bootstrap.js makes sure flutter.js never
+// registers it.
 //
 // Two modes:
 //  * finalized (after `python3 build/web/pwa_finalize.py`, see the KLD-010
@@ -53,9 +56,22 @@ const NEVER_CACHE = /(?:klunki_sw\.js|flutter_service_worker\.js|\.symbols|pwa_f
 const scopeUrl = new URL(self.registration.scope);
 const toUrl = (path) => new URL(path, scopeUrl).href;
 
+// Static pages published next to the app (KLD-096: GitHub Pages serves the
+// privacy policy, support page and Impressum at <scope>privacy/ etc.). Not
+// part of the app: never answered with the app shell, never cached; the
+// browser loads them normally.
+const STATIC_PAGES = ['privacy', 'support', 'impressum'];
+
+function isStaticPage(url) {
+  if (url.origin !== scopeUrl.origin || !url.href.startsWith(scopeUrl.href)) return false;
+  const rel = url.pathname.slice(scopeUrl.pathname.length);
+  return STATIC_PAGES.some((dir) => rel === dir || rel.startsWith(dir + '/'));
+}
+
 function isCacheable(url) {
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return false;
   if (NEVER_CACHE.test(url.pathname)) return false;
+  if (isStaticPage(url)) return false;
   if (url.origin === scopeUrl.origin) return url.href.startsWith(scopeUrl.href);
   return CACHEABLE_HOSTS.has(url.hostname);
 }
