@@ -125,7 +125,7 @@ final List<GameSpec> gameSpecs = [
   GameSpec('chess', 'Schach', (_, __) => ChessGame()),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
   // the title is a working title until the user picks a name.
-  GameSpec('wordtiles', 'Wortleger', (s, _) => WordTilesGame(seed: s),
+  GameSpec('wordtiles', 'Wortleger', (c, _) => WordTilesGame(seed: c.seed),
       hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false),
 ];
 
