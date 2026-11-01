@@ -169,7 +169,11 @@ void main() {
           if (view.mode == QuartettMode.trumpf) {
             expect(view.topCard(Player.a), isNull);
             expect(view.stackOf(Player.a), isEmpty);
-            expect(view.stackOf(Player.b), [if (host.topCard(Player.b) case final top?) top]);
+            expect(view.chosenCard(Player.a), isNull, reason: "the host's choice (KLD-100)");
+            expect(view.chosenCard(Player.b), host.chosenCard(Player.b));
+            // KLD-100: with 3 or fewer cards the guest sees its whole stack.
+            expect(view.stackOf(Player.b),
+                host.choosesCard(Player.b) ? host.stackOf(Player.b) : [if (host.topCard(Player.b) case final top?) top]);
           } else {
             expect(view.handOf(Player.a).every((c) => c.id == '?'), isTrue);
             expect(view.handOf(Player.a).length, host.handOf(Player.a).length);
@@ -181,9 +185,24 @@ void main() {
         expect((welcome['config'] as Map).containsKey('seed'), isFalse);
         expect(welcome['seedCommit'], isA<String>());
         checkGuest();
-        await _playOut(t, Random(4), check: checkGuest, every: 10);
+        await _playOut(t, Random(4), check: checkGuest, every: id == 'quartett-trumpf' ? 1 : 10);
         expect(t.guest.verification, Verification.verified);
         expect(t.reveal!['seed'], 123456);
+        if (id == 'quartett-trumpf') {
+          // KLD-100 (on by default): both sides chose cards; the host's
+          // choices reached the guest without the card and were committed.
+          final chooses = [
+            for (final (i, m) in t.host.moves.indexed)
+              if (m['action'] == 'choose') i
+          ];
+          expect(chooses, isNotEmpty);
+          for (final i in chooses) {
+            final ack = t.beforeReveal.firstWhere((m) => m['type'] == 'accepted' && m['index'] == i);
+            final mine = ack['player'] == t.guest.me.name;
+            expect(ack['move'], mine ? t.host.moves[i] : {'action': 'choose'});
+            expect(ack.containsKey('commit'), !mine);
+          }
+        }
         await t.close();
       });
     }

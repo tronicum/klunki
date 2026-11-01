@@ -599,6 +599,40 @@
       }
     }
   },
+  "quartettTrumpfChooseOwn": "Du hast nur noch {count} Karten – wähle eine aus.",
+  "@quartettTrumpfChooseOwn": {
+    "description": "Quartett (Trumpf), KLD-100 house rule: hint for a player with 2–3 cards left who chooses which card to play (all their cards are shown face-up). count = number of cards (2 or 3).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quartettTrumpfChooseDefend": "{player} spielt {stat}. Wähle deine Karte.",
+  "@quartettTrumpfChooseDefend": {
+    "description": "Quartett (Trumpf), KLD-100: hint (and hot-seat handover cover) for the defender with 2–3 cards: the opponent announced a stat, now the defender chooses which of their cards to play. player = \"Ben (O)\" or the mark; stat = stat label.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "stat": {
+        "type": "String"
+      }
+    }
+  },
+  "quartettTrumpfMoveChoose": "wählt eine Karte",
+  "@quartettTrumpfMoveChoose": {
+    "description": "History text: a player chose which card to play (KLD-100). Never names the card."
+  },
+  "quartettTrumpfHintDefending": "{player} wählt eine Karte …",
+  "@quartettTrumpfHintDefending": {
+    "description": "Quartett (Trumpf), network, KLD-100: hint while the opponent (2–3 cards) chooses their card for the announced stat. player = name or mark.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
   "quartettSetsHit": "Treffer",
   "@quartettSetsHit": {
     "description": "Ask result: the opponent had the card."

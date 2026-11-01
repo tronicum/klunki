@@ -151,6 +151,15 @@ void _sameForViewer(Game game, Game view, Player viewer) {
       expect(v.handOf(opp).length, g.handOf(opp).length);
       expect(v.stockSize, g.stockSize);
       expect(v.quartetsOf(opp), g.quartetsOf(opp));
+      // KLD-100: a low viewer knows its stack and its choice, never the
+      // opponent's.
+      expect(v.picker, g.picker);
+      expect(v.announcedStat, g.announcedStat);
+      expect(v.chosenCard(viewer), g.chosenCard(viewer));
+      expect(v.chosenCard(opp), isNull);
+      expect(v.choosesCard(viewer), g.choosesCard(viewer));
+      if (g.choosesCard(viewer)) expect(v.stackOf(viewer), g.stackOf(viewer));
+      expect(v.stackOf(opp), isEmpty);
     case (GoStrategyGame g, GoStrategyGame v):
       expect(v.phase, g.phase);
       expect(v.viewFor(viewer), g.viewFor(viewer));

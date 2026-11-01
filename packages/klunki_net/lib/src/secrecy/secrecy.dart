@@ -75,6 +75,7 @@ Map<String, dynamic> _copy(Map<String, dynamic> m) => jsonDecode(jsonEncode(m)) 
 String? verifyRedactedGame({
   required String gameId,
   String? deck,
+  bool pickLowCards = true,
   required Player me,
   required int seed,
   required String startViewHash,
@@ -109,7 +110,7 @@ String? verifyRedactedGame({
 
   final Game game;
   try {
-    game = createGame(GameConfig(gameId, seed: seed, deck: deck));
+    game = createGame(GameConfig(gameId, seed: seed, deck: deck, pickLowCards: pickLowCards));
   } catch (e) {
     return 'cannot create the game: $e';
   }

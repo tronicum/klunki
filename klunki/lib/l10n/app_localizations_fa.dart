@@ -402,6 +402,24 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfChooseOwn(int count) {
+    return 'فقط $count کارت برایت مانده – یکی را انتخاب کن.';
+  }
+
+  @override
+  String quartettTrumpfChooseDefend(String player, String stat) {
+    return '$player $stat را بازی می‌کند. کارتت را انتخاب کن.';
+  }
+
+  @override
+  String get quartettTrumpfMoveChoose => 'یک کارت انتخاب می‌کند';
+
+  @override
+  String quartettTrumpfHintDefending(String player) {
+    return '$player یک کارت انتخاب می‌کند …';
+  }
+
+  @override
   String get quartettSetsHit => 'دارد';
 
   @override

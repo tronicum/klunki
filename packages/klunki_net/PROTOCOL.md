@@ -278,6 +278,7 @@ host only; the host's answers to it carry nothing of the host's own data.
   | Schiffe | `{action: autoplace, seed}` | `{action: autoplace}` |
   | GoStrategy | `{action: setup, pieces}` / `{action: autosetup, seed}` | `{action: setup}` |
   | Quartett | `pick` / `ask` | unchanged (public) |
+  | Quartett (Trumpf, KLD-100) | `choose` (card) | `{"action": "choose"}` (the card shows in the round's payload) |
 
 - `event`: `{winner?, draw?, payload}`, the engine's event as the guest may
   see it (`Redaction.redactPayload`). Shot results, fights (both ranks) and
@@ -290,7 +291,7 @@ host only; the host's answers to it carry nothing of the host's own data.
   |---|---|---|
   | Schiffe | own fleet, shots at the guest, shot results on the host's ocean, the host's ship counts | any host ship square that was not hit |
   | GoStrategy | own pieces, owner of every piece, kinds of revealed pieces, `moved` flags, counters, remaining pieces per kind (public) | the kind of an unrevealed host piece |
-  | Quartett (Trumpf) | own top card, stack sizes, pot, tricks | the host's cards, the order of any stack, the seed |
+  | Quartett (Trumpf) | own top card (with 2–3 cards: own whole stack and own choice, KLD-100), stack sizes, pot, tricks, an announced stat | the host's cards and choice, the order of any stack, the seed |
   | Quartett (Sets) | own hand, hand sizes, stock size, laid-down quartets | the host's hand, the stock, the seed |
 
   The guest turns it into a read-only game object (`Redaction.fromView`:

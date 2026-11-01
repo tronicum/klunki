@@ -394,6 +394,24 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfChooseOwn(int count) {
+    return '你只剩 $count 张牌了 – 选一张。';
+  }
+
+  @override
+  String quartettTrumpfChooseDefend(String player, String stat) {
+    return '$player 选了 $stat。选择你的牌。';
+  }
+
+  @override
+  String get quartettTrumpfMoveChoose => '选择一张牌';
+
+  @override
+  String quartettTrumpfHintDefending(String player) {
+    return '$player 正在选牌 …';
+  }
+
+  @override
   String get quartettSetsHit => '有';
 
   @override

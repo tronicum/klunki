@@ -501,6 +501,7 @@ class KlunkiGuest {
       error = verifyRedactedGame(
         gameId: _config.gameId,
         deck: _config.deck,
+        pickLowCards: _config.pickLowCards,
         me: _me,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,

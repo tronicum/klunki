@@ -684,6 +684,30 @@ abstract class AppLocalizations {
   /// **'{player} hat die Runde gewonnen'**
   String quartettTrumpfHandoverReason(String player);
 
+  /// Quartett (Trumpf), KLD-100 house rule: hint for a player with 2–3 cards left who chooses which card to play (all their cards are shown face-up). count = number of cards (2 or 3).
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast nur noch {count} Karten – wähle eine aus.'**
+  String quartettTrumpfChooseOwn(int count);
+
+  /// Quartett (Trumpf), KLD-100: hint (and hot-seat handover cover) for the defender with 2–3 cards: the opponent announced a stat, now the defender chooses which of their cards to play. player = "Ben (O)" or the mark; stat = stat label.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} spielt {stat}. Wähle deine Karte.'**
+  String quartettTrumpfChooseDefend(String player, String stat);
+
+  /// History text: a player chose which card to play (KLD-100). Never names the card.
+  ///
+  /// In de, this message translates to:
+  /// **'wählt eine Karte'**
+  String get quartettTrumpfMoveChoose;
+
+  /// Quartett (Trumpf), network, KLD-100: hint while the opponent (2–3 cards) chooses their card for the announced stat. player = name or mark.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} wählt eine Karte …'**
+  String quartettTrumpfHintDefending(String player);
+
   /// Ask result: the opponent had the card.
   ///
   /// In de, this message translates to:
