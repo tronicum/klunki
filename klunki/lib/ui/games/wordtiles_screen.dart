@@ -33,7 +33,7 @@ class WordTilesScreen extends StatelessWidget {
   }
 }
 
-/// The last turn as a line ("Anna (X): HAUS für 14 Punkte"), for the
+/// The last turn as a line ("Anna: HAUS für 14 Punkte"), for the
 /// handover cover. Public information only.
 class WordTilesLastTurn extends StatelessWidget {
   final GameController controller;

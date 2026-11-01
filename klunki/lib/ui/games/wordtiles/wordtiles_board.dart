@@ -521,7 +521,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final penalties = g.rackPenalties;
     Widget seat(int s) {
       final p = WordTilesGame.playerOfSeat(s);
-      final name = p == null ? '${s + 1}' : (labels.nameOf(p) ?? labels.mark(p));
+      final name = p == null ? '${s + 1}' : labels.name(l10n, p);
       final label = p == null ? name : labels.label(context, l10n, p);
       final on = !g.isOver && g.currentSeat == s;
       final pen = penalties[s];

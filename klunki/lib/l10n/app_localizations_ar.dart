@@ -1934,7 +1934,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String wordtilesOpenPlacement(String player, String words, int score) {
-    return 'وضع $player $words مقابل $score نقطة.';
+    return 'من $player: $words مقابل $score نقطة.';
   }
 
   @override
@@ -1948,7 +1948,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String wordtilesChallengeBodyFree(String player) {
-    return 'بدون قاموس يُحسم الأمر برأيك: يسترجع $player البلاطات ولا يحصل على نقاط. ثم يأتي دورك.';
+    return 'بدون قاموس يُحسم الأمر برأيك: تعود البلاطات إلى $player بلا نقاط. ثم يأتي دورك.';
   }
 
   @override
@@ -1957,7 +1957,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String wordtilesEndPending(String player) {
-    return 'وضع $player كل بلاطاته. إذا قبلت، تنتهي اللعبة.';
+    return 'لم تبقَ بلاطات لدى $player. إذا قبلت، تنتهي اللعبة.';
   }
 
   @override

@@ -455,13 +455,13 @@ void main() {
       expect(t.parse('9'), isNull);
       expect(t.moveHelp, contains('choose the card'));
       final m = t.parse('${cards.length}')!;
-      expect(t.narrate(me, m, g.applyMove(m)!), '${t.mark(me)} chooses a card.');
+      expect(t.narrate(me, m, g.applyMove(m)!), '${t.playerName(me)} chooses a card.');
       expect(t.format(m), cards.last.id);
       expect(t.format({'action': 'choose'}), 'a card');
       expect(t.render(), contains("chosen card: ${cards.last.id}"));
       expect(t.parse('1'), pick(g.stats.first.id));
       final e = g.applyMove(pick('ps'))!;
-      expect(t.narrate(me, pick('ps'), e), startsWith('${t.mark(me)} picks Leistung:'));
+      expect(t.narrate(me, pick('ps'), e), startsWith('${t.playerName(me)} picks Leistung:'));
 
       final d =
           findGame((g) => g.currentPlayer == g.picker && !g.choosesCard(g.picker) && g.choosesCard(other(g.picker)));
@@ -469,12 +469,12 @@ void main() {
       final picker = d.picker;
       final a = d.applyMove(pick('kg'))!;
       expect(td.narrate(picker, pick('kg'), a),
-          '${td.mark(picker)} picks Gewicht – ${td.mark(other(picker))} chooses a card.');
+          '${td.playerName(picker)} picks Gewicht – ${td.playerName(other(picker))} chooses a card.');
       expect(td.render(),
-          contains('${td.mark(picker)} picks Gewicht (lower wins). ${td.mark(other(picker))}, choose your card:'));
+          contains('${td.playerName(picker)} picks Gewicht (lower wins). ${td.playerName(other(picker))}, choose your card:'));
       final c = td.parse('1')!;
       final r = d.applyMove(c)!;
-      expect(td.narrate(other(picker), c, r), startsWith('${td.mark(other(picker))} chooses: ${td.mark(picker)}'));
+      expect(td.narrate(other(picker), c, r), startsWith('${td.playerName(other(picker))} chooses: ${td.playerName(picker)}'));
     });
 
     test('restart keeps the rule setting; the console plays it', () {

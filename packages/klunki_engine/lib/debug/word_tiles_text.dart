@@ -52,7 +52,12 @@ class WordTilesText extends TextGame {
     return b.toString().trimRight();
   }
 
-  String _seatMark(int seat) => mark(WordTilesGame.playerOfSeat(seat)) == '.' ? 'P${seat + 1}' : mark(WordTilesGame.playerOfSeat(seat));
+  /// The seat as the texts name it: the player's name ("Anna"), or "P3"
+  /// for a seat without a two-player identity.
+  String _seatMark(int seat) {
+    final p = WordTilesGame.playerOfSeat(seat);
+    return p == null ? 'P${seat + 1}' : playerName(p);
+  }
 
   static final _place = RegExp(r'^(?:([a-o])(\d{1,2})|(\d{1,2})([a-o]))\s+(\S+)$');
 

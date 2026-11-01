@@ -585,8 +585,8 @@ void main() {
       expect(text.parse('exchange QX?'), {'action': 'exchange', 'tiles': ['Q', 'X', '?']});
       expect(text.parse('challenge'), challenge);
       expect(text.parse('z9 HAUS'), isNull);
-      expect(text.render(), contains('O rack: O H R E N S T'));
-      expect(text.render(), contains('X\'s BÄR can be challenged.'));
+      expect(text.render(), contains('Ben rack: O H R E N S T'));
+      expect(text.render(), contains('Anna\'s BÄR can be challenged.'));
     });
 
     test('debug console plays a whole game to a known end', () {

@@ -21,7 +21,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../l10n/l10n_test_utils.dart';
 import 'live_ui_driver.dart';
 
-/// The text of [t] as the screen shows it (German, marks only).
+/// The text of [t] as the screen shows it (German, default names Anna / Ben).
 String turnText(AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
       'place' => l10n.wordtilesMovePlace(t.words.join(', '), t.score),
       'exchange' => l10n.wordtilesMoveExchange(t.count),
@@ -39,12 +39,12 @@ class WordTilesAdapter extends LiveUiAdapter {
   /// How often each kind of turn was tapped (the test checks the mix).
   final Map<String, int> tapped = {};
 
-  final _line = RegExp(r'^(X|O): (.+)$');
-  final _open = RegExp(r'^(X|O) legte (.+) für (-?\d+) Punkte\.$');
+  final _line = RegExp(r'^(Anna|Ben): (.+)$');
+  final _open = RegExp(r'^(Anna|Ben) legte (.+) für (-?\d+) Punkte\.$');
 
-  TurnRecord _record(String mark, String text) => TurnRecord(
+  TurnRecord _record(String name, String text) => TurnRecord(
         index: 0,
-        actor: mark == 'X' ? Player.a : Player.b,
+        actor: name == 'Anna' ? Player.a : Player.b,
         action: 'turn',
         outcome: text,
         detail: '',

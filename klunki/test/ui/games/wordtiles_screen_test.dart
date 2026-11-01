@@ -94,7 +94,7 @@ void main() {
     expect(g.rackOf(0), hasLength(7), reason: 'drew back up to 7');
     // Hot-seat: the cover hides B's rack and shows the public last turn.
     expect(find.byKey(handoverContinue), findsOneWidget);
-    expect(_text(tester, const Key('wordtiles-cover-turn')), 'X: HAUS für 8 Punkte');
+    expect(_text(tester, const Key('wordtiles-cover-turn')), 'Anna: HAUS für 8 Punkte');
     await _continue(tester);
     expect(find.byKey(handoverContinue), findsNothing);
     expect(find.descendant(of: find.byKey(const Key('wordtiles-score-0')), matching: find.text('8')), findsOneWidget);
@@ -168,12 +168,12 @@ void main() {
     await _tap(tester, find.byKey(_play));
     await _continue(tester);
     expect(find.byKey(const Key('wordtiles-open')), findsOneWidget);
-    expect(find.text('X legte HAUS für 8 Punkte.'), findsOneWidget);
+    expect(find.text('Anna legte HAUS für 8 Punkte.'), findsOneWidget);
     expect(find.text('Nimm das Wort an oder zweifle es an.'), findsOneWidget);
 
     await _tap(tester, find.byKey(const Key('wordtiles-challenge')));
     expect(find.byKey(const Key('wordtiles-challenge-dialog')), findsOneWidget);
-    expect(find.textContaining('Ohne Wörterbuch zählt dein Einwand: X nimmt'), findsOneWidget);
+    expect(find.textContaining('Ohne Wörterbuch zählt dein Einwand: Anna nimmt'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('wordtiles-challenge-confirm')));
     await tester.pumpAndSettle();
     final g = _game(c);
@@ -181,7 +181,7 @@ void main() {
     expect(g.scoreOf(0), 0);
     expect(g.currentSeat, 1, reason: 'the challenger plays on');
     expect(find.byKey(handoverContinue), findsNothing, reason: 'same player, no cover');
-    expect(_text(tester, const Key('wordtiles-last-turn')), 'O: angezweifelt: HAUS zurückgenommen');
+    expect(_text(tester, const Key('wordtiles-last-turn')), 'Ben: angezweifelt: HAUS zurückgenommen');
     expect(find.byKey(const Key('wordtiles-open')), findsNothing);
   });
 
@@ -192,7 +192,7 @@ void main() {
     await _tap(tester, find.byKey(_play));
     await _continue(tester);
     await _tap(tester, find.byKey(const Key('wordtiles-accept')));
-    expect(_text(tester, const Key('wordtiles-last-turn')), 'O: angenommen');
+    expect(_text(tester, const Key('wordtiles-last-turn')), 'Ben: angenommen');
 
     // Swap two tiles.
     await _tap(tester, find.byKey(const Key('wordtiles-exchange')));
@@ -202,15 +202,15 @@ void main() {
     expect(find.text('2 tauschen'), findsOneWidget);
     await _tap(tester, find.byKey(const Key('wordtiles-exchange-confirm')));
     expect(_game(c).currentSeat, 0);
-    expect(_text(tester, const Key('wordtiles-cover-turn')), 'O: 2 Steine getauscht');
+    expect(_text(tester, const Key('wordtiles-cover-turn')), 'Ben: 2 Steine getauscht');
     await _continue(tester);
     await _tap(tester, find.byKey(const Key('wordtiles-pass')));
     await _continue(tester);
-    expect(_text(tester, const Key('wordtiles-last-turn')), 'X: gepasst');
+    expect(_text(tester, const Key('wordtiles-last-turn')), 'Anna: gepasst');
 
     await _tap(tester, find.byKey(const Key('shell-history')));
     await tester.pumpAndSettle();
-    for (final line in ['X: HA für 4 Punkte', 'O: angenommen', 'O: 2 Steine getauscht', 'X: gepasst']) {
+    for (final line in ['Anna: HA für 4 Punkte', 'Ben: angenommen', 'Ben: 2 Steine getauscht', 'Anna: gepasst']) {
       expect(find.descendant(of: find.byKey(const Key('history-sheet')), matching: find.text(line)), findsOneWidget,
           reason: line);
     }
@@ -239,7 +239,7 @@ void main() {
     // A: H A U S E N ? = 1+1+1+1+1+1+0 = 6; B: T O R E N D I = 1+2+1+1+1+1+1 = 8.
     expect(g.scores, [-6, -8]);
     expect(find.byKey(resultDialog), findsOneWidget);
-    expect(find.text('X gewinnt!'), findsOneWidget);
+    expect(find.text('Anna gewinnt!'), findsOneWidget);
     expect(_text(tester, const Key('result-reason')), '6 Züge ohne Punkte, Endstand -6 : -8');
     expect(_text(tester, const Key('wordtiles-penalty-1')), '(−8)');
   });
