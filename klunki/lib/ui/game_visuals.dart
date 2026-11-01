@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' show Player;
+import 'package:klunki_engine/klunki_engine.dart' show ChessPiece, ChessPieceType, Player;
 
 import '../app/theme.dart';
 import 'game_illustrations.dart';
+import 'games/chess/chess_pieces.dart';
 
 /// Per-game visuals (KLD-062): menu illustration, one-line description and
 /// the player token colours shown in the shell's turn indicator. The accent
@@ -31,7 +32,12 @@ class GameVisuals {
   /// player B [KlunkiPalette.secondPlayer].
   final Color? Function(KlunkiPalette palette, Player player)? token;
 
-  const GameVisuals({required this.illustration, this.description, this.token});
+  /// The game's own player token (null = a disc in [token]'s colour with
+  /// the mark). Chess: the side's king, so "Weiß" / "Schwarz" need no
+  /// letter in the token.
+  final Widget Function(BuildContext context, Player player, double size)? tokenIcon;
+
+  const GameVisuals({required this.illustration, this.description, this.token, this.tokenIcon});
 
   static final fallback = GameVisuals(
     illustration: (p) => DefaultGameIllustration(p, p.defaultAccent.color),
@@ -67,7 +73,29 @@ final Map<String, GameVisuals> gameVisuals = {
     description: (l) => l.menuDescGoStrategy,
     token: (p, player) => p.gostrategy.army(player == Player.a),
   ),
+  'chess': GameVisuals(
+    illustration: ChessIllustration.new,
+    description: (l) => l.menuDescChess,
+    token: (p, player) => player == Player.a ? p.chess.whiteToken : p.chess.blackToken,
+    tokenIcon: _chessToken,
+  ),
 };
+
+/// Chess token: the side's king on a light square disc.
+Widget _chessToken(BuildContext context, Player player, double size) {
+  final c = KlunkiPalette.of(context).chess;
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: c.lightSquare,
+      border: Border.all(color: Colors.black26, width: size * 0.08),
+      boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
+    ),
+    child: ChessPieceIcon(piece: ChessPiece(player, ChessPieceType.king), size: size),
+  );
+}
 
 GameVisuals visualsOf(String gameId) => gameVisuals[gameId] ?? GameVisuals.fallback;
 

@@ -33,13 +33,11 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.gostrategyNoMoves => l10n.engineReasonGostrategyNoMoves,
     GameEndReason.gostrategyBothBlocked => l10n.engineReasonGostrategyBothBlocked,
     GameEndReason.gostrategyMoveLimit => l10n.engineReasonGostrategyMoveLimit(p('moves')),
-    // KLD-059 step 1 (engine only): chess has no app screen yet, so its
-    // reasons stay English until step 2 adds the localized strings.
-    GameEndReason.chessCheckmate => 'checkmate',
-    GameEndReason.chessStalemate => 'stalemate',
-    GameEndReason.chessInsufficientMaterial => 'insufficient material',
-    GameEndReason.chessSeventyFiveMoves => '${p('moves')} moves without capture or pawn move',
-    GameEndReason.chessThreefoldRepetition => 'threefold repetition',
+    GameEndReason.chessCheckmate => l10n.engineReasonChessCheckmate,
+    GameEndReason.chessStalemate => l10n.engineReasonChessStalemate,
+    GameEndReason.chessInsufficientMaterial => l10n.engineReasonChessInsufficientMaterial,
+    GameEndReason.chessSeventyFiveMoves => l10n.engineReasonChessSeventyFiveMoves(p('moves')),
+    GameEndReason.chessThreefoldRepetition => l10n.engineReasonChessThreefoldRepetition(p('times')),
   };
 }
 

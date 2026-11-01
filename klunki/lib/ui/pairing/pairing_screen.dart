@@ -20,6 +20,7 @@ import '../game_titles.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
+import '../shell/screen_registry.dart' show networkGameSpecs;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import 'device_name.dart';
 import 'network_game_session.dart';
@@ -236,7 +237,7 @@ class _HostPanel extends StatefulWidget {
 }
 
 class _HostPanelState extends State<_HostPanel> {
-  String _gameId = appGameSpecs.first.id;
+  String _gameId = networkGameSpecs.first.id;
   late final QuartettDeckSettings _deckSettings = widget.deps.quartettDecks();
   late String _deck = _deckSettings.value;
 
@@ -393,7 +394,7 @@ class _HostPanelState extends State<_HostPanel> {
           },
           child: Column(
             children: [
-              for (final spec in appGameSpecs)
+              for (final spec in networkGameSpecs)
                 RadioListTile<String>(
                   key: Key('pair-game-${spec.id}'),
                   value: spec.id,

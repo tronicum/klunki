@@ -1658,4 +1658,83 @@ class AppLocalizationsDe extends AppLocalizations {
   String menuVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get menuGameChess => 'Schach';
+
+  @override
+  String get menuDescChess =>
+      'Der Klassiker: setze den gegnerischen König matt.';
+
+  @override
+  String get chessWhite => 'Weiß';
+
+  @override
+  String get chessBlack => 'Schwarz';
+
+  @override
+  String get chessCheck => 'Schach!';
+
+  @override
+  String get chessHintSelect => 'Tippe eine Figur an, um sie zu ziehen.';
+
+  @override
+  String get chessHintTarget => 'Tippe ein markiertes Feld an.';
+
+  @override
+  String get chessPromotionTitle => 'Bauer umwandeln in …';
+
+  @override
+  String get chessFlipBoard => 'Brett drehen';
+
+  @override
+  String get chessAutoFlip => 'Brett zur Seite am Zug drehen';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square: leer';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square: $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'König';
+
+  @override
+  String get chessPieceQueen => 'Dame';
+
+  @override
+  String get chessPieceRook => 'Turm';
+
+  @override
+  String get chessPieceBishop => 'Läufer';
+
+  @override
+  String get chessPieceKnight => 'Springer';
+
+  @override
+  String get chessPiecePawn => 'Bauer';
+
+  @override
+  String get engineReasonChessCheckmate => 'Schachmatt';
+
+  @override
+  String get engineReasonChessStalemate => 'Patt';
+
+  @override
+  String get engineReasonChessInsufficientMaterial =>
+      'Zu wenig Material zum Mattsetzen';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves Züge ohne Schlagen oder Bauernzug';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return '$times-mal dieselbe Stellung';
+  }
 }

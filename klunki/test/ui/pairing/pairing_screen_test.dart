@@ -11,6 +11,8 @@ import 'package:klunki/net/join_qr.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/shell/screen_registry.dart' show networkGameSpecs;
+import 'package:klunki_engine/klunki_engine.dart' show appGameSpecs;
 import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -38,6 +40,16 @@ Finder _address(int i, String text) =>
 
 void main() {
   group('host', () {
+    // KLD-059: chess is hot-seat only until its network step (step 3).
+    testWidgets('offers every network game but not chess yet', (tester) async {
+      await _openPairing(tester, testDeps(discovery: FakeDiscovery(), created: CreatedTransports(), name: 'Annas Tablet'));
+      expect(find.byKey(const Key('pair-game-muehle')), findsOneWidget);
+      expect(find.byKey(const Key('pair-game-gostrategy')), findsOneWidget);
+      expect(find.byKey(const Key('pair-game-chess')), findsNothing);
+      expect(networkGameSpecs.map((s) => s.id), isNot(contains('chess')));
+      expect(appGameSpecs.map((s) => s.id), contains('chess'));
+    });
+
     testWidgets('shows name, every address with the real port and the QR; advertises', (tester) async {
       final discovery = FakeDiscovery();
       final created = CreatedTransports();

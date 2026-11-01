@@ -4,6 +4,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../game/game_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../game_titles.dart';
+import '../games/chess_screen.dart';
 import '../games/connect4_screen.dart';
 import '../games/gostrategy_screen.dart';
 import '../games/muehle_screen.dart';
@@ -27,7 +28,21 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'quartett-sets': (c) => QuartettSetsScreen(controller: c),
   'schiffe': (c) => SchiffeScreen(controller: c),
   'gostrategy': (c) => GoStrategyScreen(controller: c),
+  'chess': (c) => ChessScreen(controller: c),
 };
+
+/// Games the app plays in hot-seat only for now: hidden from the host
+/// pickers of "Über WLAN spielen" and the relay host (KLD-059: chess network
+/// play is step 3). A guest joining a host that plays one still gets its
+/// screen.
+const Set<String> hotSeatOnlyGames = {'chess'};
+
+/// The games the app offers to host over the network: [appGameSpecs]
+/// without [hotSeatOnlyGames].
+List<GameSpec> get networkGameSpecs => [
+      for (final s in appGameSpecs)
+        if (!hotSeatOnlyGames.contains(s.id)) s,
+    ];
 
 /// The screen for [controller]'s game.
 Widget buildGameScreen(GameController controller) {

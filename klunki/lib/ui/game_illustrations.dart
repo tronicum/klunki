@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'package:klunki_engine/klunki_engine.dart' show ChessPieceType;
+
 import '../app/theme.dart';
+import 'games/chess/chess_pieces.dart';
 
 /// Small drawn menu illustrations (KLD-062), one per game. All colours come
 /// from the [KlunkiPalette]; everything is drawn in code (no image assets).
@@ -337,6 +340,54 @@ class GoStrategyIllustration extends CustomPainter {
 
   @override
   bool shouldRepaint(GoStrategyIllustration old) => old.palette != palette;
+}
+
+/// Chess (KLD-059): a corner of the board with a white knight and a black
+/// king, drawn with the game's own pieces ([ChessPiecePainter]).
+class ChessIllustration extends CustomPainter {
+  final KlunkiPalette palette;
+  const ChessIllustration(this.palette);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = palette.chess;
+    final r = _square(size);
+    const n = 3;
+    final cell = r.width / n;
+    final rr = RRect.fromRectAndRadius(r, Radius.circular(cell * 0.2));
+    canvas.drawRRect(rr.shift(Offset(0, cell * 0.08)), _fill(Colors.black.withValues(alpha: 0.18)));
+    canvas.save();
+    canvas.clipRRect(rr);
+    for (var row = 0; row < n; row++) {
+      for (var c = 0; c < n; c++) {
+        canvas.drawRect(
+          Rect.fromLTWH(r.left + c * cell, r.top + row * cell, cell, cell),
+          _fill((row + c).isEven ? p.lightSquare : p.darkSquare),
+        );
+      }
+    }
+    canvas.restore();
+    canvas.drawRRect(
+        rr,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1, cell * 0.06)
+          ..color = p.edge);
+
+    void piece(ChessPieceType type, bool white, double col, double row, double scale) {
+      final s = cell * scale;
+      canvas.save();
+      canvas.translate(r.left + col * cell + (cell - s) / 2, r.top + row * cell + (cell - s) / 2);
+      ChessPiecePainter(type: type, white: white, colors: p).paint(canvas, Size.square(s));
+      canvas.restore();
+    }
+
+    piece(ChessPieceType.king, false, 1.6, 0.35, 1.5);
+    piece(ChessPieceType.knight, true, 0.45, 1.4, 1.35);
+  }
+
+  @override
+  bool shouldRepaint(ChessIllustration old) => old.palette != palette;
 }
 
 /// Fallback for games without their own illustration: a die.

@@ -16,15 +16,26 @@ import '../ltr.dart';
 ///
 /// The mark stays visible next to every name ("Anna (X)"): it is what maps
 /// a player to colours and pieces on the board.
+///
+/// * [markNames]: a game's own words for the marks (chess, KLD-059: "Weiß" /
+///   "Schwarz" instead of X / O); see [withMarkNames].
 @immutable
 class PlayerLabels {
-  const PlayerLabels({this.names = const {}, this.local});
+  const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}});
 
   /// Marks only, no local player: hot-seat without names.
   static const PlayerLabels marks = PlayerLabels();
 
   final Map<Player, String> names;
   final Player? local;
+  final Map<Player, String> markNames;
+
+  /// These labels with the marks shown as [marks] (e.g. "Weiß" / "Schwarz").
+  PlayerLabels withMarkNames(Map<Player, String> marks) => PlayerLabels(names: names, local: local, markNames: marks);
+
+  /// The mark of [p] as shown in texts: the game's [markNames] word, else
+  /// [markOf].
+  String mark(Player p) => markNames[p] ?? markOf(p);
 
   /// The player mark, as everywhere in the UI: A is "X", B is "O".
   static String markOf(Player p) => p == Player.a ? 'X' : 'O';
@@ -39,7 +50,7 @@ class PlayerLabels {
   /// "Anna (X)" (the name bidi-isolated where needed, see [bidiName]) or "X".
   String label(BuildContext context, AppLocalizations l10n, Player p) {
     final n = nameOf(p);
-    return n == null ? markOf(p) : l10n.playerLabel(bidiName(context, n), markOf(p));
+    return n == null ? mark(p) : l10n.playerLabel(bidiName(context, n), mark(p));
   }
 
   @override
@@ -47,10 +58,16 @@ class PlayerLabels {
       other is PlayerLabels &&
       other.local == local &&
       other.names.length == names.length &&
-      names.entries.every((e) => other.names[e.key] == e.value);
+      names.entries.every((e) => other.names[e.key] == e.value) &&
+      other.markNames.length == markNames.length &&
+      markNames.entries.every((e) => other.markNames[e.key] == e.value);
 
   @override
-  int get hashCode => Object.hash(local, Object.hashAllUnordered(names.entries.map((e) => Object.hash(e.key, e.value))));
+  int get hashCode => Object.hash(
+        local,
+        Object.hashAllUnordered(names.entries.map((e) => Object.hash(e.key, e.value))),
+        Object.hashAllUnordered(markNames.entries.map((e) => Object.hash(e.key, e.value))),
+      );
 }
 
 /// Provides [PlayerLabels] to the game shell below it.

@@ -278,6 +278,43 @@ class GoStrategyPalette {
   Color army(bool playerA) => playerA ? red : blue;
 }
 
+/// Chess board and piece colours (KLD-059). The board keeps its classic
+/// wood tones in both themes (a little darker in dark), so white and black
+/// pieces read the same everywhere.
+@immutable
+class ChessPalette {
+  /// Light and dark squares, board edge, coordinates on the edge band.
+  final Color lightSquare, darkSquare, edge;
+
+  /// Piece fill and outline per side; [blackDetail] draws the inner lines
+  /// of the black pieces (light on dark).
+  final Color whiteFill, whiteLine, blackFill, blackLine, blackDetail;
+
+  /// Turn colours (status pill, turn edge): White and Black.
+  final Color whiteToken, blackToken;
+
+  /// Selection ring, legal-move dots / capture rings, last-move tint, the
+  /// king in check.
+  final Color select, target, lastMove, check;
+
+  const ChessPalette({
+    required this.lightSquare,
+    required this.darkSquare,
+    required this.edge,
+    required this.whiteFill,
+    required this.whiteLine,
+    required this.blackFill,
+    required this.blackLine,
+    required this.blackDetail,
+    required this.whiteToken,
+    required this.blackToken,
+    required this.select,
+    required this.target,
+    required this.lastMove,
+    required this.check,
+  });
+}
+
 /// The board/game colours of the app, as a [ThemeExtension].
 @immutable
 class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
@@ -307,6 +344,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
   final SchiffePalette schiffe;
   final QuartettPalette quartett;
   final GoStrategyPalette gostrategy;
+  final ChessPalette chess;
 
   const KlunkiPalette({
     required this.background,
@@ -324,6 +362,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
     required this.schiffe,
     required this.quartett,
     required this.gostrategy,
+    required this.chess,
   });
 
   /// The palette of the current theme; the classic preset when the theme
@@ -360,6 +399,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       'quartett-sets': GameAccent(Color(0xFF6E3C96), Color(0xFFEADCF5)),
       'schiffe': GameAccent(Color(0xFF00707A), Color(0xFFCCEDEF)),
       'gostrategy': GameAccent(Color(0xFF4E6B2F), Color(0xFFDDE8C8)),
+      'chess': GameAccent(Color(0xFF5B4636), Color(0xFFEADFD3)),
     },
     defaultAccent: GameAccent(Color(0xFF5D5A52), Color(0xFFE8E2D6)),
     networkAccent: GameAccent(Color(0xFF8C4A00), Color(0xFFFFE0C2)),
@@ -428,6 +468,22 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       attack: Color(0xFFD50000),
       lastMove: Color(0x557A6638),
     ),
+    chess: ChessPalette(
+      lightSquare: Color(0xFFF0D9B5),
+      darkSquare: Color(0xFFB58863),
+      edge: Color(0xFF6B4A2E),
+      whiteFill: Color(0xFFFFFDF7),
+      whiteLine: Color(0xFF26211C),
+      blackFill: Color(0xFF26211C),
+      blackLine: Color(0xFF0E0C0A),
+      blackDetail: Color(0xFFE8DFD0),
+      whiteToken: Color(0xFFF7F3EA),
+      blackToken: Color(0xFF2B2B2E),
+      select: Color(0xFFFFB300),
+      target: Color(0xFF2E7D32),
+      lastMove: Color(0x80E5C534),
+      check: Color(0xFFE53935),
+    ),
   );
 
   static const classicDark = KlunkiPalette(
@@ -443,6 +499,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       'quartett-sets': GameAccent(Color(0xFF5E3382), Color(0xFF33243F)),
       'schiffe': GameAccent(Color(0xFF00636B), Color(0xFF18363A)),
       'gostrategy': GameAccent(Color(0xFF3F5726), Color(0xFF2A3320)),
+      'chess': GameAccent(Color(0xFF4E3B2D), Color(0xFF342A22)),
     },
     defaultAccent: GameAccent(Color(0xFF4F4B44), Color(0xFF34302B)),
     networkAccent: GameAccent(Color(0xFF7A4100), Color(0xFF3F2C1A)),
@@ -511,6 +568,22 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
       target: Color(0xFF81C784),
       attack: Color(0xFFFF5252),
       lastMove: Color(0x66FFF3D6),
+    ),
+    chess: ChessPalette(
+      lightSquare: Color(0xFFD9C29C),
+      darkSquare: Color(0xFF9C7350),
+      edge: Color(0xFF4A3320),
+      whiteFill: Color(0xFFFFFDF7),
+      whiteLine: Color(0xFF26211C),
+      blackFill: Color(0xFF26211C),
+      blackLine: Color(0xFF0E0C0A),
+      blackDetail: Color(0xFFE8DFD0),
+      whiteToken: Color(0xFFF7F3EA),
+      blackToken: Color(0xFF3A3A3E),
+      select: Color(0xFFFFC233),
+      target: Color(0xFF1B5E20),
+      lastMove: Color(0x80E5C534),
+      check: Color(0xFFFF5252),
     ),
   );
 

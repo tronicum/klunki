@@ -15,6 +15,7 @@ import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
+import '../shell/screen_registry.dart' show networkGameSpecs;
 import 'network_game_session.dart';
 import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
@@ -85,7 +86,7 @@ class RelayHostScreen extends StatefulWidget {
 }
 
 class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField {
-  String _gameId = appGameSpecs.first.id;
+  String _gameId = networkGameSpecs.first.id;
   late final QuartettDeckSettings _deckSettings = widget.deckSettings ?? QuartettDeckSettings.memory();
   late String _deck = _deckSettings.value;
 
@@ -220,7 +221,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         },
         child: Column(
           children: [
-            for (final spec in appGameSpecs)
+            for (final spec in networkGameSpecs)
               RadioListTile<String>(
                 key: Key('relay-game-${spec.id}'),
                 value: spec.id,

@@ -101,9 +101,9 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true, redaction: const SchiffeRedaction()),
   GameSpec('gostrategy', 'GoStrategy', (_, __) => GoStrategyGame(),
       hiddenInformation: true, redaction: const GoStrategyRedaction()),
-  // KLD-059 step 1: engine, CLI and debug console only; the app screen
-  // comes in step 2.
-  GameSpec('chess', 'Schach', (_, __) => ChessGame(), appReady: false),
+  // KLD-059: hot-seat in the app since step 2; the app offers it for
+  // network play from step 3 (see `networkGameSpecs` in the app).
+  GameSpec('chess', 'Schach', (_, __) => ChessGame()),
 ];
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

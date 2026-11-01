@@ -1649,4 +1649,82 @@ class AppLocalizationsFa extends AppLocalizations {
   String menuVersion(String version) {
     return 'نسخه $version';
   }
+
+  @override
+  String get menuGameChess => 'شطرنج';
+
+  @override
+  String get menuDescChess => 'بازی کلاسیک: شاه حریف را مات کن.';
+
+  @override
+  String get chessWhite => 'سفید';
+
+  @override
+  String get chessBlack => 'سیاه';
+
+  @override
+  String get chessCheck => 'کیش!';
+
+  @override
+  String get chessHintSelect => 'روی یک مهره بزن تا آن را حرکت دهی.';
+
+  @override
+  String get chessHintTarget => 'روی یک خانهٔ علامت‌دار بزن.';
+
+  @override
+  String get chessPromotionTitle => 'ارتقای پیاده به …';
+
+  @override
+  String get chessFlipBoard => 'چرخاندن صفحه';
+
+  @override
+  String get chessAutoFlip => 'چرخاندن صفحه به سمت نوبت';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square: خالی';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square: $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'شاه';
+
+  @override
+  String get chessPieceQueen => 'وزیر';
+
+  @override
+  String get chessPieceRook => 'رخ';
+
+  @override
+  String get chessPieceBishop => 'فیل';
+
+  @override
+  String get chessPieceKnight => 'اسب';
+
+  @override
+  String get chessPiecePawn => 'پیاده';
+
+  @override
+  String get engineReasonChessCheckmate => 'کیش و مات';
+
+  @override
+  String get engineReasonChessStalemate => 'پات';
+
+  @override
+  String get engineReasonChessInsufficientMaterial =>
+      'مهرهٔ کافی برای مات وجود ندارد';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves حرکت بدون گرفتن مهره یا حرکت پیاده';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return 'تکرار یک وضعیت $times بار';
+  }
 }

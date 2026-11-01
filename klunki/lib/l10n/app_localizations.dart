@@ -2717,6 +2717,144 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Version {version}'**
   String menuVersion(String version);
+
+  /// Game title: chess (KLD-059).
+  ///
+  /// In de, this message translates to:
+  /// **'Schach'**
+  String get menuGameChess;
+
+  /// Menu tile one-liner for chess (KLD-059).
+  ///
+  /// In de, this message translates to:
+  /// **'Der Klassiker: setze den gegnerischen König matt.'**
+  String get menuDescChess;
+
+  /// Chess: the side name of player A (moves first), used instead of the mark X in the status line, result and resign dialog ("Weiß ist am Zug", "Anna (Weiß)").
+  ///
+  /// In de, this message translates to:
+  /// **'Weiß'**
+  String get chessWhite;
+
+  /// Chess: the side name of player B, used instead of the mark O.
+  ///
+  /// In de, this message translates to:
+  /// **'Schwarz'**
+  String get chessBlack;
+
+  /// Chess: badge while the side to move is in check.
+  ///
+  /// In de, this message translates to:
+  /// **'Schach!'**
+  String get chessCheck;
+
+  /// Chess hint: nothing selected yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe eine Figur an, um sie zu ziehen.'**
+  String get chessHintSelect;
+
+  /// Chess hint: a piece is selected, its legal targets are marked.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe ein markiertes Feld an.'**
+  String get chessHintTarget;
+
+  /// Chess: title of the promotion picker (queen, rook, bishop, knight).
+  ///
+  /// In de, this message translates to:
+  /// **'Bauer umwandeln in …'**
+  String get chessPromotionTitle;
+
+  /// Chess: tooltip of the button that turns the board by 180 degrees.
+  ///
+  /// In de, this message translates to:
+  /// **'Brett drehen'**
+  String get chessFlipBoard;
+
+  /// Chess: tooltip of the toggle that turns the board to the side to move after every move (hot-seat).
+  ///
+  /// In de, this message translates to:
+  /// **'Brett zur Seite am Zug drehen'**
+  String get chessAutoFlip;
+
+  /// Chess: screen reader label of an empty square; square = "e4".
+  ///
+  /// In de, this message translates to:
+  /// **'{square}: leer'**
+  String chessSquareEmpty(String square);
+
+  /// Chess: screen reader label of an occupied square; square = "e4", piece = piece name, side = White/Black.
+  ///
+  /// In de, this message translates to:
+  /// **'{square}: {piece} ({side})'**
+  String chessSquarePiece(String square, String piece, String side);
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'König'**
+  String get chessPieceKing;
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'Dame'**
+  String get chessPieceQueen;
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'Turm'**
+  String get chessPieceRook;
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'Läufer'**
+  String get chessPieceBishop;
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'Springer'**
+  String get chessPieceKnight;
+
+  /// Chess piece name.
+  ///
+  /// In de, this message translates to:
+  /// **'Bauer'**
+  String get chessPiecePawn;
+
+  /// Result reason (chess): checkmate.
+  ///
+  /// In de, this message translates to:
+  /// **'Schachmatt'**
+  String get engineReasonChessCheckmate;
+
+  /// Result reason (chess): draw, the side to move has no legal move and is not in check.
+  ///
+  /// In de, this message translates to:
+  /// **'Patt'**
+  String get engineReasonChessStalemate;
+
+  /// Result reason (chess): draw, neither side can checkmate any more.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu wenig Material zum Mattsetzen'**
+  String get engineReasonChessInsufficientMaterial;
+
+  /// Result reason (chess): draw by the 75-move rule (moves = 75).
+  ///
+  /// In de, this message translates to:
+  /// **'{moves} Züge ohne Schlagen oder Bauernzug'**
+  String engineReasonChessSeventyFiveMoves(int moves);
+
+  /// Result reason (chess): draw, the same position occurred for the third time (times = 3).
+  ///
+  /// In de, this message translates to:
+  /// **'{times}-mal dieselbe Stellung'**
+  String engineReasonChessThreefoldRepetition(int times);
 }
 
 class _AppLocalizationsDelegate

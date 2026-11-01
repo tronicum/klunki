@@ -2508,5 +2508,127 @@
         "example": "1.0.0+1 · abc1234 · P3 · ba13a678"
       }
     }
+  },
+  "menuGameChess": "Schach",
+  "@menuGameChess": {
+    "description": "Game title: chess (KLD-059)."
+  },
+  "menuDescChess": "Der Klassiker: setze den gegnerischen König matt.",
+  "@menuDescChess": {
+    "description": "Menu tile one-liner for chess (KLD-059)."
+  },
+  "chessWhite": "Weiß",
+  "@chessWhite": {
+    "description": "Chess: the side name of player A (moves first), used instead of the mark X in the status line, result and resign dialog (\"Weiß ist am Zug\", \"Anna (Weiß)\")."
+  },
+  "chessBlack": "Schwarz",
+  "@chessBlack": {
+    "description": "Chess: the side name of player B, used instead of the mark O."
+  },
+  "chessCheck": "Schach!",
+  "@chessCheck": {
+    "description": "Chess: badge while the side to move is in check."
+  },
+  "chessHintSelect": "Tippe eine Figur an, um sie zu ziehen.",
+  "@chessHintSelect": {
+    "description": "Chess hint: nothing selected yet."
+  },
+  "chessHintTarget": "Tippe ein markiertes Feld an.",
+  "@chessHintTarget": {
+    "description": "Chess hint: a piece is selected, its legal targets are marked."
+  },
+  "chessPromotionTitle": "Bauer umwandeln in …",
+  "@chessPromotionTitle": {
+    "description": "Chess: title of the promotion picker (queen, rook, bishop, knight)."
+  },
+  "chessFlipBoard": "Brett drehen",
+  "@chessFlipBoard": {
+    "description": "Chess: tooltip of the button that turns the board by 180 degrees."
+  },
+  "chessAutoFlip": "Brett zur Seite am Zug drehen",
+  "@chessAutoFlip": {
+    "description": "Chess: tooltip of the toggle that turns the board to the side to move after every move (hot-seat)."
+  },
+  "chessSquareEmpty": "{square}: leer",
+  "@chessSquareEmpty": {
+    "description": "Chess: screen reader label of an empty square; square = \"e4\".",
+    "placeholders": {
+      "square": {
+        "type": "String",
+        "example": "e4"
+      }
+    }
+  },
+  "chessSquarePiece": "{square}: {piece} ({side})",
+  "@chessSquarePiece": {
+    "description": "Chess: screen reader label of an occupied square; square = \"e4\", piece = piece name, side = White/Black.",
+    "placeholders": {
+      "square": {
+        "type": "String",
+        "example": "e4"
+      },
+      "piece": {
+        "type": "String",
+        "example": "Dame"
+      },
+      "side": {
+        "type": "String",
+        "example": "Weiß"
+      }
+    }
+  },
+  "chessPieceKing": "König",
+  "@chessPieceKing": {
+    "description": "Chess piece name."
+  },
+  "chessPieceQueen": "Dame",
+  "@chessPieceQueen": {
+    "description": "Chess piece name."
+  },
+  "chessPieceRook": "Turm",
+  "@chessPieceRook": {
+    "description": "Chess piece name."
+  },
+  "chessPieceBishop": "Läufer",
+  "@chessPieceBishop": {
+    "description": "Chess piece name."
+  },
+  "chessPieceKnight": "Springer",
+  "@chessPieceKnight": {
+    "description": "Chess piece name."
+  },
+  "chessPiecePawn": "Bauer",
+  "@chessPiecePawn": {
+    "description": "Chess piece name."
+  },
+  "engineReasonChessCheckmate": "Schachmatt",
+  "@engineReasonChessCheckmate": {
+    "description": "Result reason (chess): checkmate."
+  },
+  "engineReasonChessStalemate": "Patt",
+  "@engineReasonChessStalemate": {
+    "description": "Result reason (chess): draw, the side to move has no legal move and is not in check."
+  },
+  "engineReasonChessInsufficientMaterial": "Zu wenig Material zum Mattsetzen",
+  "@engineReasonChessInsufficientMaterial": {
+    "description": "Result reason (chess): draw, neither side can checkmate any more."
+  },
+  "engineReasonChessSeventyFiveMoves": "{moves} Züge ohne Schlagen oder Bauernzug",
+  "@engineReasonChessSeventyFiveMoves": {
+    "description": "Result reason (chess): draw by the 75-move rule (moves = 75).",
+    "placeholders": {
+      "moves": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonChessThreefoldRepetition": "{times}-mal dieselbe Stellung",
+  "@engineReasonChessThreefoldRepetition": {
+    "description": "Result reason (chess): draw, the same position occurred for the third time (times = 3).",
+    "placeholders": {
+      "times": {
+        "type": "int"
+      }
+    }
   }
 }

@@ -1652,4 +1652,82 @@ class AppLocalizationsEn extends AppLocalizations {
   String menuVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get menuGameChess => 'Chess';
+
+  @override
+  String get menuDescChess => 'The classic: checkmate the opposing king.';
+
+  @override
+  String get chessWhite => 'White';
+
+  @override
+  String get chessBlack => 'Black';
+
+  @override
+  String get chessCheck => 'Check!';
+
+  @override
+  String get chessHintSelect => 'Tap a piece to move it.';
+
+  @override
+  String get chessHintTarget => 'Tap a highlighted square.';
+
+  @override
+  String get chessPromotionTitle => 'Promote pawn to …';
+
+  @override
+  String get chessFlipBoard => 'Flip board';
+
+  @override
+  String get chessAutoFlip => 'Turn the board to the side to move';
+
+  @override
+  String chessSquareEmpty(String square) {
+    return '$square: empty';
+  }
+
+  @override
+  String chessSquarePiece(String square, String piece, String side) {
+    return '$square: $piece ($side)';
+  }
+
+  @override
+  String get chessPieceKing => 'King';
+
+  @override
+  String get chessPieceQueen => 'Queen';
+
+  @override
+  String get chessPieceRook => 'Rook';
+
+  @override
+  String get chessPieceBishop => 'Bishop';
+
+  @override
+  String get chessPieceKnight => 'Knight';
+
+  @override
+  String get chessPiecePawn => 'Pawn';
+
+  @override
+  String get engineReasonChessCheckmate => 'Checkmate';
+
+  @override
+  String get engineReasonChessStalemate => 'Stalemate';
+
+  @override
+  String get engineReasonChessInsufficientMaterial =>
+      'Not enough material to checkmate';
+
+  @override
+  String engineReasonChessSeventyFiveMoves(int moves) {
+    return '$moves moves without a capture or pawn move';
+  }
+
+  @override
+  String engineReasonChessThreefoldRepetition(int times) {
+    return 'Same position $times times';
+  }
 }
