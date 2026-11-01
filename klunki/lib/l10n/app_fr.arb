@@ -171,6 +171,8 @@
   "schiffeDoneLeft": "{count, plural, =1{encore 1 navire} other{encore {count} navires}}",
   "schiffePreviewSemantics": "Aperçu : {ship}, {orientation}. Touche pour le tourner.",
   "schiffePreviewLeft": "{count, plural, =1{le dernier de ce type} other{encore {count} de ce type}}",
+  "schiffeInvalidTouch": "Les navires ne doivent pas se toucher, même par un coin – laisse une case libre entre eux.",
+  "schiffeInvalidOffBoard": "Ne rentre pas sur le plateau.",
   "schiffeShipSunk": "{ship} coulé",
   "debugConsoleTitle": "Console de débogage",
   "debugUndo": "undo",

@@ -63,3 +63,17 @@ rules-version or protocol change.
 ## Maintainer decisions (review 1)
 - Tip once per install; keep one-tap placement (no confirm tap); every turn around the middle; the smaller
   board on a 375×667 phone is fine; hints at most 2 lines; no gap around the board on tall phones.
+
+## Review 2 (follow-up)
+- **Idle cue:** after 4 s without input the next ship in the dock pulses three times (slight scale + glow), the
+  preview box glows, and while the sea is still empty its edge glows too; then calm, again every 8 s. Any
+  touch stops it; none once a placed ship is selected or the fleet is complete. Reduced motion: no pulse, the
+  next ship in the dock keeps a thicker static outline.
+- **Why it does not fit:** the engine forbids any contact, diagonals included (`SchiffeGame._fits` checks the
+  3×3 neighbourhood). Placing, moving or dragging onto such a spot now says "Schiffe dürfen sich nicht
+  berühren, auch nicht über Eck – lass ein Feld Abstand." and flashes the touched cells of the other ship
+  red too; off the board: "Passt nicht aufs Spielfeld.". The reason shows as a red banner over the sea (top
+  or bottom edge, away from the red cells) for 2.6 s and stays in the hint line until the next action; the red
+  cells stay as long as the banner. A failed turn keeps "Drehen geht hier nicht – zu wenig Platz." and marks
+  the touched cells as well. zh says "must not be adjacent, leave one cell between" (the characters for
+  "diagonal/corner" are not in the bundled subset).

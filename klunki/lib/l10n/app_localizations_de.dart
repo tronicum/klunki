@@ -720,6 +720,13 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get schiffeInvalidTouch =>
+      'Schiffe dürfen sich nicht berühren, auch nicht über Eck – lass ein Feld Abstand.';
+
+  @override
+  String get schiffeInvalidOffBoard => 'Passt nicht aufs Spielfeld.';
+
+  @override
   String schiffeShipSunk(String ship) {
     return '$ship versenkt';
   }

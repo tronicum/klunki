@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/gestures.dart';
@@ -48,7 +49,7 @@ class SchiffeSetup extends StatefulWidget {
   State<SchiffeSetup> createState() => _SchiffeSetupState();
 }
 
-class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderStateMixin {
+class _SchiffeSetupState extends State<SchiffeSetup> with TickerProviderStateMixin {
   final Random _rng = Random();
   SchiffeDraft? _draft;
 
@@ -90,10 +91,65 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
   /// Successful turns of a placed ship (spins the ↻ badge).
   int _spins = 0;
 
-  late final AnimationController _fx = AnimationController(vsync: this, duration: const Duration(milliseconds: 450))
+  /// The shake after an invalid action.
+  late final AnimationController _fx = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+
+  /// How long the reason banner and the red cells stay (KLD-107).
+  static const reasonDuration = Duration(milliseconds: 2600);
+
+  /// Reason banner over the board after an invalid action (KLD-107), at the
+  /// top or bottom edge (away from the red cells); null when none.
+  String? _reason;
+  bool _reasonTop = false;
+  late final AnimationController _reasonFx = AnimationController(vsync: this, duration: reasonDuration)
     ..addStatusListener((s) {
-      if (s == AnimationStatus.completed && mounted) setState(() => _flash = const {});
+      if (s == AnimationStatus.completed && mounted) {
+        setState(() {
+          _flash = const {};
+          _reason = null;
+        });
+      }
     });
+
+  /// Idle cue (KLD-107): after [idleDelay] without input the next ship in
+  /// the dock and the preview pulse three times (the sea's edge too while
+  /// it is still empty), then again every [idleRepeat]. Not with reduced
+  /// motion (a static highlight instead), not once the fleet is complete.
+  static const idleDelay = Duration(seconds: 4);
+  static const idleRepeat = Duration(seconds: 8);
+  Timer? _idle;
+  late final AnimationController _cue = AnimationController(vsync: this, duration: const Duration(milliseconds: 2400))
+    ..addStatusListener((s) {
+      if (s == AnimationStatus.completed && mounted) {
+        _cue.value = 0;
+        _idle?.cancel();
+        _idle = Timer(idleRepeat, _onIdle);
+      }
+    });
+
+  /// Pulse strength 0..1 of the idle cue right now.
+  double get _cuePulse => _cue.isAnimating ? sin(_cue.value * pi * 3).abs() : 0;
+
+  /// Input: stop the cue and start counting the idle time again.
+  void _poke() {
+    _idle?.cancel();
+    if (_cue.isAnimating) _cue.value = 0;
+    _idle = Timer(idleDelay, _onIdle);
+  }
+
+  void _onIdle() {
+    if (!mounted || !_editable || reduceMotion(context) || _dragShip != null || _down != null) return;
+    final d = _draft;
+    final a = d == null ? null : _active(d);
+    if (a == null || d![a] != null) return; // complete, or a placed ship selected
+    _cue.forward(from: 0);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _poke();
+  }
 
   GameController get controller => widget.controller;
   SchiffeGame get game => controller.game as SchiffeGame;
@@ -101,6 +157,9 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
 
   @override
   void dispose() {
+    _idle?.cancel();
+    _cue.dispose();
+    _reasonFx.dispose();
     _fx.dispose();
     super.dispose();
   }
@@ -132,15 +191,43 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     _message = null;
     _submitFailed = false;
     _coach = null;
+    _poke();
   }
 
+  /// Flashes [cells] red (with the shake), names the reason in the hint
+  /// line and in a banner over the board for [reasonDuration].
   void _invalid(Iterable<List<int>> cells, String message) {
     _flash = {
       for (final c in cells)
         if (c[0] >= 0 && c[1] >= 0 && c[0] < SchiffeGame.size && c[1] < SchiffeGame.size) c[0] * SchiffeGame.size + c[1],
     };
     _message = message;
+    _reason = message;
+    final rows = [for (final i in _flash) i ~/ SchiffeGame.size];
+    _reasonTop = rows.isNotEmpty && rows.reduce((a, b) => a + b) / rows.length >= SchiffeGame.size / 2;
     _fx.forward(from: 0);
+    _reasonFx.forward(from: 0);
+    _poke();
+  }
+
+  /// Cells of the other ships that [p] (for ship [s]) would touch or cover,
+  /// diagonals included (the engine's rule: no contact at all).
+  List<List<int>> _conflicts(SchiffeDraft d, int s, ShipPlacement p) => [
+        for (var j = 0; j < d.fleet.length; j++)
+          if (j != s && d[j] != null)
+            for (final o in d[j]!.cells)
+              if (p.cells.any((c) => (c[0] - o[0]).abs() <= 1 && (c[1] - o[1]).abs() <= 1)) o,
+      ];
+
+  /// Ship [s] does not fit at [p]: off the board, or touching another ship
+  /// (whose cells flash too).
+  void _invalidPlace(int s, ShipPlacement p, AppLocalizations l10n) {
+    final off = p.cells.any((c) => !_onBoard((c[0], c[1])));
+    final near = off ? const <List<int>>[] : _conflicts(_draft!, s, p);
+    _invalid(
+      [...p.cells, ...near],
+      off ? l10n.schiffeInvalidOffBoard : (near.isNotEmpty ? l10n.schiffeInvalidTouch : l10n.schiffeInvalidPlace),
+    );
   }
 
   /// A tap on cell ([r], [c]) (pointer or screen reader).
@@ -172,7 +259,8 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
       _ok();
       _spins++;
     } else {
-      _invalid(d[s]!.rotated(pivot: SchiffeDraft.middle(d.fleet[s])).cells, l10n.schiffeInvalidRotate);
+      final turned = d[s]!.rotated(pivot: SchiffeDraft.middle(d.fleet[s]));
+      _invalid([...turned.cells, ..._conflicts(d, s, turned)], l10n.schiffeInvalidRotate);
     }
   }
 
@@ -191,7 +279,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
         if (SeenTips.shared.markFirst(SeenTips.schiffeMove)) _coach = a;
       }
     } else {
-      _invalid(p.cells, l10n.schiffeInvalidPlace);
+      _invalidPlace(a, p, l10n);
     }
   }
 
@@ -262,6 +350,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final cell = _rawCell(p, unit);
     final d = _draft!;
     final s = _onBoard(cell) ? d.shipAt(cell.$1, cell.$2) : null;
+    _poke();
     setState(() {
       _coach = null;
       _down = cell;
@@ -292,7 +381,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
         if (d.place(s, p)) {
           _ok();
         } else {
-          _invalid(p.cells, l10n.schiffeInvalidPlace);
+          _invalidPlace(s, p, l10n);
         }
       } else if (_onBoard(cell)) {
         _tapCell(cell.$1, cell.$2, l10n);
@@ -360,6 +449,32 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     return l10n.schiffeHintReady;
   }
 
+  /// [child] pulsing (scale and glow) with the idle cue when [on]; with
+  /// [still] only the glow (or nothing; reduced motion).
+  Widget _cued(bool on, Color accent, bool still, Widget child, {Key key = const Key('sv-cue')}) {
+    if (!on) return child;
+    return AnimatedBuilder(
+      animation: _cue,
+      child: child,
+      builder: (context, child) {
+        final p = _cuePulse;
+        return Transform.scale(
+          key: key,
+          scale: still ? 1 : 1 + 0.07 * p,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                if (p > 0) BoxShadow(color: accent.withValues(alpha: 0.55 * p), blurRadius: 12 * p, spreadRadius: 2 * p),
+              ],
+            ),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final d = _syncDraft();
@@ -376,6 +491,8 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final opp = me == Player.a ? Player.b : Player.a;
     final active = editable ? _active(d) : null;
     final activePlaced = active != null && d[active] != null;
+    final nextUnplaced = editable && active != null && !activePlaced ? active : null;
+    final staticCue = reduceMotion(context);
     String shipLabel(int i) => l10n.schiffeShipWithLength(localizedShipName(l10n, d.fleet[i]), d.fleet[i]);
 
     GameScreen.of(context).setHint(_hint(l10n, d, active, activePlaced, canAct, opp, shipLabel));
@@ -402,6 +519,33 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
           _RotateBadge(ship: selectedShip, unit: unit, color: accent, spins: _spins),
         if (coachShip != null && editable && selectedShip == null && !dragging)
           _CoachBubble(ship: coachShip, unit: unit, text: l10n.schiffeCoachTap),
+        // The empty sea invites the first tap (part of the idle cue).
+        if (editable && d.placedCount == 0)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _cue,
+                builder: (context, _) => _cuePulse == 0
+                    ? const SizedBox.shrink()
+                    : DecoratedBox(
+                        key: const Key('sv-sea-cue'),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: accent.withValues(alpha: 0.75 * _cuePulse), width: 4),
+                          color: accent.withValues(alpha: 0.08 * _cuePulse),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        if (_reason != null)
+          _ReasonBanner(
+            key: const Key('sv-reason'),
+            text: _reason!,
+            top: _reasonTop,
+            fade: _reasonFx,
+            direction: Directionality.of(context), // the board itself is LTR
+          ),
       ],
       cellBuilder: (r, c) {
         final i = r * SchiffeGame.size + c;
@@ -483,7 +627,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
         );
     Widget title(double previewSize) => Row(
           children: [
-            previewBox(previewSize),
+            _cued(nextUnplaced != null, accent, true, previewBox(previewSize), key: const Key('sv-preview-cue')),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -595,8 +739,13 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     );
 
     // ---- harbour (all ships; placed ones ticked)
-    Widget trayItem(int i, {required bool dense}) => _TrayItem(
+    Widget trayItem(int i, {required bool dense}) => _cued(
+          i == nextUnplaced,
+          accent,
+          staticCue,
+          _TrayItem(
           key: Key('sv-fleet-$i'),
+          emphasis: i == nextUnplaced && staticCue,
           length: d.fleet[i],
           label: shipLabel(i),
           placed: d.isPlaced(i),
@@ -606,6 +755,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
           selectedLabel: l10n.schiffeSelected,
           placedLabel: l10n.schiffeShipPlaced(localizedShipName(l10n, d.fleet[i]), d.fleet[i]),
           onTap: editable && !d.isLocked(i) ? () => _select(i) : null,
+        ),
         );
 
     return LayoutBuilder(
@@ -717,6 +867,10 @@ class _TrayItem extends StatelessWidget {
   final int length;
   final String label, placedLabel, selectedLabel;
   final bool placed, selected, dense;
+
+  /// Stronger static outline for the next ship (the idle cue with reduced
+  /// motion, KLD-107).
+  final bool emphasis;
   final Color accent;
   final VoidCallback? onTap;
 
@@ -730,6 +884,7 @@ class _TrayItem extends StatelessWidget {
     required this.selected,
     required this.dense,
     required this.accent,
+    this.emphasis = false,
     this.onTap,
   });
 
@@ -808,7 +963,7 @@ class _TrayItem extends StatelessWidget {
           color: selected ? accent.withValues(alpha: 0.16) : scheme.surfaceContainerHighest.withValues(alpha: 0.6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: selected ? accent : Colors.transparent, width: 2),
+            side: BorderSide(color: selected ? accent : Colors.transparent, width: emphasis ? 3.5 : 2),
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
@@ -1048,6 +1203,76 @@ class _CoachBubble extends StatelessWidget {
       child: IgnorePointer(
         child: ExcludeSemantics(
           child: Align(alignment: Alignment.centerLeft, widthFactor: 1, child: bubble),
+        ),
+      ),
+    );
+  }
+}
+
+/// The reason after an invalid placement or turn (KLD-107): a banner over
+/// the top or bottom edge of the sea, fading out at the end of [fade]. A
+/// picture only: the hint line (a live region) says the same.
+class _ReasonBanner extends StatelessWidget {
+  final String text;
+  final bool top;
+  final Animation<double> fade;
+  final TextDirection direction;
+
+  const _ReasonBanner({
+    super.key,
+    required this.text,
+    required this.top,
+    required this.fade,
+    required this.direction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Positioned(
+      left: 6,
+      right: 6,
+      top: top ? 6 : null,
+      bottom: top ? null : 6,
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: AnimatedBuilder(
+            animation: fade,
+            builder: (context, child) =>
+                Opacity(opacity: fade.value < 0.85 ? 1 : ((1 - fade.value) / 0.15).clamp(0.0, 1.0), child: child),
+            child: Directionality(
+              textDirection: direction,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.errorContainer,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: scheme.error, width: 1.5),
+                  boxShadow: const [BoxShadow(color: Color(0x44000000), blurRadius: 4, offset: Offset(0, 2))],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  child: Row(
+                    children: [
+                      Icon(Icons.block, size: 16, color: scheme.onErrorContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          text,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: scheme.onErrorContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );

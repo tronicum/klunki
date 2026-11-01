@@ -1107,6 +1107,14 @@
       }
     }
   },
+  "schiffeInvalidTouch": "Schiffe dürfen sich nicht berühren, auch nicht über Eck – lass ein Feld Abstand.",
+  "@schiffeInvalidTouch": {
+    "description": "KLD-107. Schiffe setup: reason after a placement, move or turn that would touch or cover another ship. The rule: no contact at all, not even diagonally (corner to corner); one free cell between ships."
+  },
+  "schiffeInvalidOffBoard": "Passt nicht aufs Spielfeld.",
+  "@schiffeInvalidOffBoard": {
+    "description": "KLD-107. Schiffe setup: reason after a placement or move that would stick out of the 10×10 board."
+  },
   "schiffeShipSunk": "{ship} versenkt",
   "@schiffeShipSunk": {
     "description": "Shot result: which ship was sunk (name from the engine).",

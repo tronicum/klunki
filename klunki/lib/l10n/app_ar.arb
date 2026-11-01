@@ -171,6 +171,8 @@
   "schiffeDoneLeft": "{count, plural, zero{لم تبقَ سفن} one{بقيت سفينة واحدة} two{بقيت سفينتان} few{بقيت {count} سفن} many{بقيت {count} سفينة} other{بقيت {count} سفينة}}",
   "schiffePreviewSemantics": "معاينة: {ship}، {orientation}. انقر لتدويرها.",
   "schiffePreviewLeft": "{count, plural, zero{لم يبقَ شيء من هذا النوع} one{الأخيرة من هذا النوع} two{بقيت اثنتان من هذا النوع} few{بقيت {count} من هذا النوع} many{بقيت {count} من هذا النوع} other{بقيت {count} من هذا النوع}}",
+  "schiffeInvalidTouch": "يجب ألا تتلامس السفن ولو عند الزوايا – اترك خانة فارغة بينها.",
+  "schiffeInvalidOffBoard": "لا تتسع داخل اللوحة.",
   "schiffeShipSunk": "غرقت {ship}",
   "debugConsoleTitle": "وحدة تصحيح الأخطاء",
   "debugUndo": "undo",

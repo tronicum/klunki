@@ -697,6 +697,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get schiffeInvalidTouch => '舰船之间不能相邻，中间要空出一格。';
+
+  @override
+  String get schiffeInvalidOffBoard => '放不下，超出海面了。';
+
+  @override
   String schiffeShipSunk(String ship) {
     return '$ship被击沉';
   }

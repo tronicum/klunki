@@ -171,6 +171,8 @@
   "schiffeDoneLeft": "{count, plural, =1{یک کشتی مانده} other{{count} کشتی مانده}}",
   "schiffePreviewSemantics": "پیش‌نمایش: {ship}، {orientation}. بزن تا بچرخد.",
   "schiffePreviewLeft": "{count, plural, =1{آخرین از این نوع} other{{count} تا از این نوع مانده}}",
+  "schiffeInvalidTouch": "کشتی‌ها نباید به هم بچسبند، حتی از گوشه – یک خانهٔ خالی بینشان بگذار.",
+  "schiffeInvalidOffBoard": "در صفحه جا نمی‌شود.",
   "schiffeShipSunk": "{ship} غرق شد",
   "debugConsoleTitle": "کنسول اشکال‌زدایی",
   "debugUndo": "undo",

@@ -171,6 +171,8 @@
   "schiffeDoneLeft": "{count, plural, other{还有 {count} 艘}}",
   "schiffePreviewSemantics": "{ship}，{orientation}。点击可转向。",
   "schiffePreviewLeft": "{count, plural, other{这样的还剩 {count} 艘}}",
+  "schiffeInvalidTouch": "舰船之间不能相邻，中间要空出一格。",
+  "schiffeInvalidOffBoard": "放不下，超出海面了。",
   "schiffeShipSunk": "{ship}被击沉",
   "debugConsoleTitle": "调试控制台",
   "debugUndo": "undo",

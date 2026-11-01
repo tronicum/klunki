@@ -170,6 +170,8 @@
   "schiffeDoneLeft": "{count, plural, =1{1 ship left} other{{count} ships left}}",
   "schiffePreviewSemantics": "Preview: {ship}, {orientation}. Tap to turn it.",
   "schiffePreviewLeft": "{count, plural, =1{the last of its kind} other{{count} of this kind left}}",
+  "schiffeInvalidTouch": "Ships must not touch, not even at the corners – leave one free cell between them.",
+  "schiffeInvalidOffBoard": "Does not fit on the board.",
   "schiffeShipSunk": "{ship} sunk",
   "debugConsoleTitle": "Debug console",
   "debugUndo": "undo",
