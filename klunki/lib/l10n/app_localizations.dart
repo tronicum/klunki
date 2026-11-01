@@ -837,7 +837,7 @@ abstract class AppLocalizations {
   /// Hint during fleet placement.
   ///
   /// In de, this message translates to:
-  /// **'Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. Schiffe dürfen sich nicht berühren.'**
+  /// **'Tippe aufs Meer, um das Schiff zu setzen.'**
   String get schiffeHintSetup;
 
   /// Hint when the game is over.
@@ -1053,13 +1053,13 @@ abstract class AppLocalizations {
   /// KLD-068. Schiffe setup hint while a placed ship is selected; ship = e.g. "Kreuzer (4)".
   ///
   /// In de, this message translates to:
-  /// **'{ship} ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.'**
+  /// **'{ship} ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.'**
   String schiffeHintSelected(String ship);
 
   /// KLD-068. Schiffe setup hint when all ships are placed.
   ///
   /// In de, this message translates to:
-  /// **'Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.'**
+  /// **'Flotte steht. Schiff antippen zum Verschieben oder Drehen – oder „Fertig“.'**
   String get schiffeHintReady;
 
   /// KLD-068. Schiffe network setup hint while the opponent still places: the own fleet can be arranged already.
@@ -1097,6 +1097,36 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Hafen'**
   String get schiffeHarbour;
+
+  /// KLD-107. Schiffe setup hint once a ship is on the board and none is selected: how to place the next one and that placed ships can be moved and turned.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.'**
+  String get schiffeHintSetupMore;
+
+  /// KLD-107. Schiffe setup: small one-time tip bubble next to the first placed ship (very short).
+  ///
+  /// In de, this message translates to:
+  /// **'Antippen: verschieben oder drehen'**
+  String get schiffeCoachTap;
+
+  /// KLD-107. Schiffe setup: second line of the disabled "Fertig" button: how many ships are still in the harbour.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{noch 1 Schiff} other{noch {count} Schiffe}}'**
+  String schiffeDoneLeft(int count);
+
+  /// KLD-107. Schiffe setup: screen-reader label of the next-ship preview box (tapping it turns the ship); ship = e.g. "Kreuzer (4)", orientation = schiffeHorizontal/schiffeVertical.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau: {ship}, {orientation}. Tippen dreht es.'**
+  String schiffePreviewSemantics(String ship, String orientation);
+
+  /// KLD-107. Schiffe setup: screen-reader text of the "×2" badge on the preview: how many ships of this kind are still in the harbour (including this one).
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{das letzte dieser Art} other{noch {count} dieser Art}}'**
+  String schiffePreviewLeft(int count);
 
   /// Shot result: which ship was sunk (name from the engine).
   ///

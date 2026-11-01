@@ -798,7 +798,7 @@
   "@quartettSetsMissingSlot": {
     "description": "Missing card slot that cannot be asked for right now."
   },
-  "schiffeHintSetup": "Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. Schiffe dürfen sich nicht berühren.",
+  "schiffeHintSetup": "Tippe aufs Meer, um das Schiff zu setzen.",
   "@schiffeHintSetup": {
     "description": "Hint during fleet placement."
   },
@@ -1027,7 +1027,7 @@
       }
     }
   },
-  "schiffeHintSelected": "{ship} ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.",
+  "schiffeHintSelected": "{ship} ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.",
   "@schiffeHintSelected": {
     "description": "KLD-068. Schiffe setup hint while a placed ship is selected; ship = e.g. \"Kreuzer (4)\".",
     "placeholders": {
@@ -1036,7 +1036,7 @@
       }
     }
   },
-  "schiffeHintReady": "Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.",
+  "schiffeHintReady": "Flotte steht. Schiff antippen zum Verschieben oder Drehen – oder „Fertig“.",
   "@schiffeHintReady": {
     "description": "KLD-068. Schiffe setup hint when all ships are placed."
   },
@@ -1068,6 +1068,44 @@
   "schiffeHarbour": "Hafen",
   "@schiffeHarbour": {
     "description": "KLD-068. Schiffe setup: heading of the list of ships (placed and still in the harbour)."
+  },
+  "schiffeHintSetupMore": "Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.",
+  "@schiffeHintSetupMore": {
+    "description": "KLD-107. Schiffe setup hint once a ship is on the board and none is selected: how to place the next one and that placed ships can be moved and turned."
+  },
+  "schiffeCoachTap": "Antippen: verschieben oder drehen",
+  "@schiffeCoachTap": {
+    "description": "KLD-107. Schiffe setup: small one-time tip bubble next to the first placed ship (very short)."
+  },
+  "schiffeDoneLeft": "{count, plural, =1{noch 1 Schiff} other{noch {count} Schiffe}}",
+  "@schiffeDoneLeft": {
+    "description": "KLD-107. Schiffe setup: second line of the disabled \"Fertig\" button: how many ships are still in the harbour.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "schiffePreviewSemantics": "Vorschau: {ship}, {orientation}. Tippen dreht es.",
+  "@schiffePreviewSemantics": {
+    "description": "KLD-107. Schiffe setup: screen-reader label of the next-ship preview box (tapping it turns the ship); ship = e.g. \"Kreuzer (4)\", orientation = schiffeHorizontal/schiffeVertical.",
+    "placeholders": {
+      "ship": {
+        "type": "String"
+      },
+      "orientation": {
+        "type": "String"
+      }
+    }
+  },
+  "schiffePreviewLeft": "{count, plural, =1{das letzte dieser Art} other{noch {count} dieser Art}}",
+  "@schiffePreviewLeft": {
+    "description": "KLD-107. Schiffe setup: screen-reader text of the \"×2\" badge on the preview: how many ships of this kind are still in the harbour (including this one).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "schiffeShipSunk": "{ship} versenkt",
   "@schiffeShipSunk": {

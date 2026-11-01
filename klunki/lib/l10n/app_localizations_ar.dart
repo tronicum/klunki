@@ -537,8 +537,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quartettSetsMissingSlot => 'ناقصة';
 
   @override
-  String get schiffeHintSetup =>
-      'التوزيع: انقر على البحر (أو اسحب وأفلت) لوضع السفينة. يجب ألا تتلامس السفن.';
+  String get schiffeHintSetup => 'انقر على البحر لوضع السفينة.';
 
   @override
   String get schiffeHintAllSunk => 'غرقت كل السفن.';
@@ -680,12 +679,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return 'تم اختيار $ship: انقر على خانة أو اسحب السفينة لنقلها. انقر عليها مرة أخرى أو على «تدوير» لتدويرها.';
+    return 'تم اختيار $ship: اسحب للنقل، وانقر مرة أخرى للتدوير.';
   }
 
   @override
   String get schiffeHintReady =>
-      'الأسطول جاهز. انقر على سفينة لتغييرها، أو على «تم».';
+      'الأسطول جاهز. انقر على سفينة لنقلها أو تدويرها، أو على «تم».';
 
   @override
   String schiffeHintEarly(String player) {
@@ -708,6 +707,48 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'الميناء';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'انقر على البحر للسفينة التالية. انقر على سفينة لنقلها أو تدويرها.';
+
+  @override
+  String get schiffeCoachTap => 'انقر عليها: نقل أو تدوير';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقيت $count سفينة',
+      many: 'بقيت $count سفينة',
+      few: 'بقيت $count سفن',
+      two: 'بقيت سفينتان',
+      one: 'بقيت سفينة واحدة',
+      zero: 'لم تبقَ سفن',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'معاينة: $ship، $orientation. انقر لتدويرها.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقيت $count من هذا النوع',
+      many: 'بقيت $count من هذا النوع',
+      few: 'بقيت $count من هذا النوع',
+      two: 'بقيت اثنتان من هذا النوع',
+      one: 'الأخيرة من هذا النوع',
+      zero: 'لم يبقَ شيء من هذا النوع',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

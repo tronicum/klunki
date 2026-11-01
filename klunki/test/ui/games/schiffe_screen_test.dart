@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/schiffe/schiffe_describe.dart';
@@ -12,6 +14,7 @@ import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/klunki_net.dart' show Verification;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../shell/shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
@@ -293,9 +296,16 @@ void main() {
       await tapCell(tester, 4, 4); // again: turn around E5 → C5–G5
       expect(shipCells(tester), column(4, 2, 5));
       expect(find.text('Vertikal'), findsOneWidget, reason: 'the button shows the selected ship');
-      await tapKey(tester, 'sv-rotate'); // around the first cell C5 → C5–C9
-      expect(shipCells(tester), row(2, 4, 5));
+      await tapKey(tester, 'sv-rotate'); // around the middle E5 → E3–E7
+      expect(shipCells(tester), row(4, 2, 5));
       expect(find.text('Horizontal'), findsOneWidget);
+      // A tap on any cell of the selected ship turns it around its middle too
+      // (KLD-107): E3 tapped, still E5 → C5–G5.
+      await tapCell(tester, 4, 2);
+      expect(shipCells(tester), column(4, 2, 5));
+      await tapCell(tester, 2, 4); // C5 → back to E3–E7
+      expect(shipCells(tester), row(4, 2, 5));
+      await tester.pump(const Duration(seconds: 1));
 
       // Schlachtschiff back to A1–A5, Kreuzer at C1–C4 underneath: the
       // Schlachtschiff cannot turn (down it touches, up it leaves the board).
@@ -307,9 +317,9 @@ void main() {
       await tapKey(tester, 'sv-rotate');
       expect(shipCells(tester), {...row(0, 0, 5), ...row(2, 0, 4)}, reason: 'unchanged');
       expect(hint(tester), 'Drehen geht hier nicht – zu wenig Platz.');
-      expect(cellOf(tester, own(1, 0)).preview, SvPreview.invalid);
+      expect(cellOf(tester, own(1, 2)).preview, SvPreview.invalid, reason: 'where the turn around A3 would go');
       await tester.pump(const Duration(seconds: 1));
-      expect(cellOf(tester, own(1, 0)).preview, isNull);
+      expect(cellOf(tester, own(1, 2)).preview, isNull);
       // Tapping it again (it is selected) is refused the same way.
       await tapCell(tester, 0, 3);
       expect(shipCells(tester), {...row(0, 0, 5), ...row(2, 0, 4)});
@@ -401,6 +411,147 @@ void main() {
       expect(find.bySemanticsLabel('A3 Schlachtschiff (5), ausgewählt'), findsOneWidget);
       expect(find.bySemanticsLabel('Drehen, aktuell Horizontal'), findsOneWidget);
       handle.dispose();
+    });
+
+    // KLD-107: the next-ship preview, the dock, the ↻ badge and the tip.
+    double previewTurns(WidgetTester tester) =>
+        tester.widget<AnimatedRotation>(find.byKey(const Key('sv-preview-ship'))).turns;
+
+    testWidgets('the preview shows the next ship in its orientation; "Drehen" and a tap on it turn it',
+        (tester) async {
+      await pumpGame(tester, 'schiffe');
+      expect(find.byKey(const Key('sv-preview')), findsOneWidget);
+      expect(find.text('Schlachtschiff (5)'), findsWidgets);
+      expect(previewTurns(tester), 0, reason: 'horizontal');
+      expect(find.byKey(const Key('sv-preview-left')), findsNothing, reason: 'only one Schlachtschiff');
+
+      await tapKey(tester, 'sv-rotate');
+      expect(previewTurns(tester), 0.25, reason: 'a quarter turn: vertical');
+      expect(find.text('Vertikal'), findsOneWidget);
+      // The turn is animated (not with reduced motion).
+      final ship = find.descendant(of: find.byKey(const Key('sv-preview-ship')), matching: find.byType(Row)).first;
+      Matrix4 transform() =>
+          (tester.renderObject(find.ancestor(of: ship, matching: find.byType(RotationTransition)).first)
+                  as RenderTransform)
+              .getTransformTo(null);
+      await tester.pump(const Duration(seconds: 1));
+      final settled = transform();
+
+      // Tapping the preview turns it on: half a turn, horizontal again.
+      await tapKey(tester, 'sv-preview');
+      expect(previewTurns(tester), 0.5);
+      expect(find.text('Horizontal'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(transform(), isNot(settled), reason: 'mid-turn');
+      await tester.pump(const Duration(seconds: 1));
+
+      // Placed horizontally; the Kreuzer is next (no ×), then the Zerstörer (×2).
+      await tapCell(tester, 0, 0);
+      expect(shipCells(tester), row(0, 0, 5));
+      expect(find.text('Kreuzer (4)'), findsWidgets);
+      expect(previewTurns(tester), 0, reason: 'another ship: no animation from the old one');
+      await tapCell(tester, 2, 0);
+      expect(find.text('Zerstörer (3)'), findsWidgets);
+      expect(find.text('×2'), findsOneWidget);
+      // "Fertig" says why it is still off.
+      expect(doneEnabled(tester), isFalse);
+      expect(find.text('noch 4 Schiffe'), findsOneWidget);
+      await tapKey(tester, 'sv-random');
+      expect(find.byKey(const Key('sv-done-left')), findsNothing);
+      expect(find.text('Flotte komplett'), findsOneWidget);
+    });
+
+    testWidgets('the dock: tapping a ship in the harbour makes it the next one', (tester) async {
+      await pumpGame(tester, 'schiffe');
+      await tapKey(tester, 'sv-fleet-4');
+      expect(find.text('U-Boot (2)'), findsWidgets);
+      expect(find.text('×2'), findsOneWidget);
+      await tapCell(tester, 9, 0);
+      expect(shipCells(tester), row(9, 0, 2));
+      expect(find.text('Schlachtschiff (5)'), findsWidgets, reason: 'back to the first ship in the harbour');
+      expect(find.text('×2'), findsNothing);
+      expect(find.text('noch 5 Schiffe'), findsOneWidget);
+    });
+
+    testWidgets('first placed ship: a one-time tip; selected: a ↻ badge that turns it in place, moves with it',
+        (tester) async {
+      SeenTips.debugReset(); // a fresh install
+      await pumpGame(tester, 'schiffe');
+      await tapCell(tester, 4, 2); // Schlachtschiff E3–E7
+      expect(find.byKey(const Key('sv-coach')), findsOneWidget);
+      expect(find.text('Antippen: verschieben oder drehen'), findsOneWidget);
+      expect(hint(tester), 'Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.');
+      expect(SeenTips.shared.has(SeenTips.schiffeMove), isTrue);
+      expect(find.byKey(const Key('sv-rotate-badge')), findsNothing, reason: 'only on the selected ship');
+
+      await tapCell(tester, 4, 6); // select it
+      expect(find.byKey(const Key('sv-coach')), findsNothing);
+      expect(hint(tester), 'Schlachtschiff (5) ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.');
+      final badge = find.byKey(const Key('sv-rotate-badge'));
+      expect(badge, findsOneWidget);
+      expect(tester.getCenter(badge), offsetMoreOrLessEquals(tester.getCenter(own(4, 4)), epsilon: 1),
+          reason: 'on the middle cell');
+      expect(tester.widget<AnimatedRotation>(badge).turns, 0);
+
+      // A tap on the badge turns the ship around its middle: C5–G5.
+      await tester.tapAt(tester.getCenter(badge));
+      await tester.pump();
+      expect(shipCells(tester), column(4, 2, 5));
+      expect(tester.widget<AnimatedRotation>(badge).turns, 0.25);
+      expect(previewTurns(tester), 0.25, reason: 'the preview shows the selected ship');
+      await tester.pump(const Duration(seconds: 1));
+
+      // Moving it (tap a free cell): the badge follows.
+      await tapCell(tester, 3, 8);
+      expect(shipCells(tester), column(8, 3, 5));
+      expect(tester.getCenter(badge), offsetMoreOrLessEquals(tester.getCenter(own(5, 8)), epsilon: 1));
+
+      // The tip does not come back for the next ship.
+      await tapKey(tester, 'sv-fleet-1');
+      await tapCell(tester, 0, 0);
+      expect(shipCells(tester), {...column(8, 3, 5), ...row(0, 0, 4)});
+      expect(find.byKey(const Key('sv-coach')), findsNothing);
+
+      // Once per install, not per player or game: a new game shows no tip.
+      await pumpGame(tester, 'schiffe');
+      await tapCell(tester, 4, 2);
+      expect(shipCells(tester), row(4, 2, 5));
+      expect(find.byKey(const Key('sv-coach')), findsNothing);
+    });
+
+    test('seen tips: stored per device, loaded at start', () async {
+      SharedPreferences.setMockInitialValues({SeenTips.prefsKey: [SeenTips.schiffeMove]});
+      SeenTips.debugReset(loaded: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(SeenTips.shared.has(SeenTips.schiffeMove), isTrue);
+      SharedPreferences.setMockInitialValues({});
+      SeenTips.debugReset(loaded: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(SeenTips.shared.markFirst(SeenTips.schiffeMove), isTrue);
+      expect(SeenTips.shared.markFirst(SeenTips.schiffeMove), isFalse);
+      await Future<void>.delayed(Duration.zero);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList(SeenTips.prefsKey), [SeenTips.schiffeMove]);
+      SeenTips.debugReset();
+    });
+
+    testWidgets('↻ on a ship without room: unchanged, shake and the reason', (tester) async {
+      await pumpGame(tester, 'schiffe');
+      double shift() => tester.widget<Transform>(find.byKey(const Key('sv-shake'))).transform.getTranslation().x;
+      await tapCell(tester, 0, 0); // Schlachtschiff A1–A5
+      await tapCell(tester, 2, 0); // Kreuzer C1–C4
+      await tapCell(tester, 0, 1); // select the Schlachtschiff
+      final badge = find.byKey(const Key('sv-rotate-badge'));
+      await tester.tapAt(tester.getCenter(badge));
+      await tester.pump();
+      await tester.pump();
+      expect(shipCells(tester), {...row(0, 0, 5), ...row(2, 0, 4)});
+      expect(hint(tester), 'Drehen geht hier nicht – zu wenig Platz.');
+      expect(tester.widget<AnimatedRotation>(badge).turns, 0, reason: 'no spin when nothing turned');
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(shift(), isNot(0));
+      await tester.pump(const Duration(seconds: 1));
+      expect(shift(), 0);
     });
 
     testWidgets('phone portrait: the setup fits, buttons and harbour items are at least 48 px', (tester) async {

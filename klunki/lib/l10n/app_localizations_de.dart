@@ -517,8 +517,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quartettSetsMissingSlot => 'fehlt';
 
   @override
-  String get schiffeHintSetup =>
-      'Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. Schiffe dürfen sich nicht berühren.';
+  String get schiffeHintSetup => 'Tippe aufs Meer, um das Schiff zu setzen.';
 
   @override
   String get schiffeHintAllSunk => 'Alle Schiffe versenkt.';
@@ -657,12 +656,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.';
+    return '$ship ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.';
   }
 
   @override
   String get schiffeHintReady =>
-      'Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.';
+      'Flotte steht. Schiff antippen zum Verschieben oder Drehen – oder „Fertig“.';
 
   @override
   String schiffeHintEarly(String player) {
@@ -685,6 +684,40 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'Hafen';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.';
+
+  @override
+  String get schiffeCoachTap => 'Antippen: verschieben oder drehen';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count Schiffe',
+      one: 'noch 1 Schiff',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'Vorschau: $ship, $orientation. Tippen dreht es.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count dieser Art',
+      one: 'das letzte dieser Art',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

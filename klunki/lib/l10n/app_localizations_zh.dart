@@ -503,7 +503,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quartettSetsMissingSlot => '缺少';
 
   @override
-  String get schiffeHintSetup => '布阵：点击海面（或拖动后松开）放置舰船。舰船之间不能相邻。';
+  String get schiffeHintSetup => '点击海面放置舰船。';
 
   @override
   String get schiffeHintAllSunk => '所有舰船已被击沉。';
@@ -639,11 +639,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '已选中$ship：点击格子或拖动舰船来移动。再点一次或点“旋转”可转向。';
+    return '已选中$ship：拖动来移动，再点一次转向。';
   }
 
   @override
-  String get schiffeHintReady => '舰队已就位。点击舰船可修改，或点“完成”。';
+  String get schiffeHintReady => '舰队已就位。点击舰船可移动或转向，或点“完成”。';
 
   @override
   String schiffeHintEarly(String player) {
@@ -664,6 +664,37 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get schiffeHarbour => '港口';
+
+  @override
+  String get schiffeHintSetupMore => '点击海面放置下一艘。点击舰船可移动或转向。';
+
+  @override
+  String get schiffeCoachTap => '点它：移动或转向';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还有 $count 艘',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return '$ship，$orientation。点击可转向。';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '这样的还剩 $count 艘',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {
