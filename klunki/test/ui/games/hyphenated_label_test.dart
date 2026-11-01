@@ -8,6 +8,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/fonts.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/engine_l10n.dart';
@@ -40,8 +41,13 @@ Future<void> _loadFonts() async {
   await family('NotoSansSC', ['assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf']);
 }
 
+// The web font setup (Roboto + the bundled fallbacks): since KLD-093 only the
+// web build uses it, and tests run as non-web, so without this Arabic, Persian
+// and Chinese labels would be measured with the test font. Android/iOS use the
+// system fonts, which tests cannot load; the bundled fonts are the closest
+// stand-in with real glyph widths.
 Widget _app(Widget home, Locale locale) => MaterialApp(
-  theme: KlunkiTheme.light,
+  theme: withAppFonts(KlunkiTheme.light, web: true),
   locale: locale,
   localizationsDelegates: const [
     AppLocalizations.delegate,
