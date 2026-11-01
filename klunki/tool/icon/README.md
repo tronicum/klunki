@@ -143,8 +143,8 @@ The test writes, per concept:
   then with an iOS rounded-square mask and an Android circle mask, on a light
   and a dark home screen.
 
-Nothing is installed and no app icon is replaced. Step 2 (all platform sizes)
-is described in `docs/tasks/KLD-097-app-icon.md`.
+The render test only writes into `KLUNKI_ICON_OUT`. The app icon in use is
+**c5-final-d4**, applied with the export below (KLD-097 step 2).
 
 ## Exporting all app sizes (step 2)
 
