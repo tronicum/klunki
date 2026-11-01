@@ -1378,8 +1378,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shellResignBody(String player) {
-    return 'The game ends now and $player wins.';
+    return 'The game ends for both of you – $player wins.';
   }
+
+  @override
+  String get shellLeaveTitle => 'Leave the game?';
+
+  @override
+  String get shellLeaveBody =>
+      'The connection will be closed and the game ends for both of you.';
+
+  @override
+  String get shellLeave => 'Leave';
 
   @override
   String get shellResignWho =>

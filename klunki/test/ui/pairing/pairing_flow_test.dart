@@ -152,6 +152,10 @@ void main() {
     final guestTransport = pair.created.guests.single;
     await tester.tap(_on(_guestKey, find.byType(BackButton)));
     await tester.pumpAndSettle();
+    // KLD-099: leaving a running network game asks first.
+    expect(_on(_guestKey, find.text('Spiel verlassen?')), findsOneWidget);
+    await tester.tap(_on(_guestKey, find.byKey(const Key('leave-confirm'))));
+    await tester.pumpAndSettle();
     expect(_has(_guestKey, find.byType(Connect4Screen)), isFalse);
     expect(_has(_guestKey, find.byKey(const Key('open-pairing'))), isTrue, reason: 'back on the launcher');
     expect(guestTransport.connection.value, NetConnectionState.closed);
@@ -162,6 +166,8 @@ void main() {
 
     // The host leaves too: its transport is closed.
     await tester.tap(_on(_hostKey, find.byType(BackButton)));
+    await tester.pumpAndSettle();
+    await tester.tap(_on(_hostKey, find.byKey(const Key('leave-confirm'))));
     await tester.pumpAndSettle();
     expect(pair.created.hosts.single.connection.value, NetConnectionState.closed);
   }, timeout: _timeout);

@@ -160,7 +160,7 @@ void main() {
     expect(host.game.currentPlayer, Player.a);
     await tester.tap(on(guestKey, find.byKey(_resign)));
     await tester.pumpAndSettle();
-    expect(on(guestKey, find.text('Die Partie endet sofort, Ada (X) gewinnt.')), findsOneWidget);
+    expect(on(guestKey, find.text('Das Spiel endet für beide – Ada (X) gewinnt.')), findsOneWidget);
     expect(on(guestKey, find.byKey(const Key('resign-a'))), findsNothing, reason: 'one local player: no choice');
     await tester.tap(on(guestKey, find.byKey(const Key('resign-confirm'))));
     await tester.runAsync(() => until(() => host.moves.length == 1 && guest.moves.length == 1, what: 'resign travels'));

@@ -1337,8 +1337,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String shellResignBody(String player) {
-    return '对局立即结束，$player 获胜。';
+    return '对局对双方都结束，$player 获胜。';
   }
+
+  @override
+  String get shellLeaveTitle => '离开对局？';
+
+  @override
+  String get shellLeaveBody => '连接将断开，对局对双方都结束。';
+
+  @override
+  String get shellLeave => '离开';
 
   @override
   String get shellResignWho => '谁认输？对局立即结束，另一方获胜。';
