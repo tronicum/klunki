@@ -8,6 +8,7 @@ import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
 import 'package:klunki/net/join_qr.dart';
+import 'package:klunki/profile/room_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
@@ -20,13 +21,25 @@ import 'pairing_test_utils.dart';
 
 const _timeout = Timeout(Duration(seconds: 30));
 
-Future<void> _openPairing(WidgetTester tester, PairingDeps deps) async {
+Future<void> _openPairing(WidgetTester tester, PairingDeps deps, {bool join = false}) async {
   tester.view.physicalSize = const Size(800, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(launcherApp(deps));
-  await tester.tap(find.byKey(const Key('open-pairing')));
-  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(Key(join ? 'open-join' : 'open-pairing')));
+  // No settle on the join screen: the "searching" spinner never stops.
+  if (join) {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+  } else {
+    await tester.pumpAndSettle();
+  }
+}
+
+/// "Raum beitreten" → "Erweitert" → the typed address.
+Future<void> _openJoinAdvanced(WidgetTester tester, PairingDeps deps) async {
+  await _openPairing(tester, deps, join: true);
+  await openAdvanced(tester, 'pair-join-advanced');
 }
 
 Future<void> _startHosting(WidgetTester tester) async {
@@ -35,8 +48,12 @@ Future<void> _startHosting(WidgetTester tester) async {
       what: 'host waiting view');
 }
 
-Finder _address(int i, String text) =>
-    find.descendant(of: find.byKey(Key('pair-address-$i')), matching: find.text(text));
+/// An address of the waiting room (KLD-098: under "Erweitert", also found
+/// while collapsed).
+Finder _address(int i, String text) => find.descendant(
+    of: find.byKey(Key('pair-address-$i'), skipOffstage: false),
+    matching: find.text(text, skipOffstage: false),
+    skipOffstage: false);
 
 void main() {
   group('host', () {
@@ -60,7 +77,11 @@ void main() {
       await _startHosting(tester);
 
       final port = created.hosts.single.port!;
-      expect(find.text('Stefans iPhone hostet Mühle'), findsOneWidget);
+      expect(find.text('Raum von Stefans iPhone: Mühle'), findsOneWidget);
+      expect(find.textContaining('scannen diesen QR-Code'), findsOneWidget);
+      // KLD-098: addresses and the browser link are under "Erweitert".
+      expect(find.byKey(const Key('pair-address-0')), findsNothing);
+      await openAdvanced(tester, 'pair-waiting-advanced');
       expect(_address(0, '192.168.0.10:$port'), findsOneWidget);
       expect(_address(1, '10.0.0.7:$port'), findsOneWidget);
       expect(find.text('Warte auf Mitspieler…'), findsOneWidget);
@@ -156,17 +177,16 @@ void main() {
     testWidgets('lists discovered hosts with name, game and IP', (tester) async {
       final discovery = FakeDiscovery();
       final created = CreatedTransports();
-      await _openPairing(tester, testDeps(discovery: discovery, created: created));
-      await tester.tap(find.text('Beitreten'));
-      await tester.pump();
-      expect(find.text('Suche nach Spielen…'), findsOneWidget);
+      await _openPairing(tester, testDeps(discovery: discovery, created: created), join: true);
+      expect(find.text('Räume in der Nähe'), findsOneWidget);
+      expect(find.text('Suche nach Räumen…'), findsOneWidget);
 
       discovery.addHost(const KlunkiHostInfo(
           name: 'Stefans iPad', host: '192.168.0.20', port: 4747, protocol: klunkiProtocolVersion, gameId: 'connect4'));
       discovery.addHost(const KlunkiHostInfo(name: 'Altes Handy', host: '192.168.0.30', port: 5000, protocol: 99));
       await tester.pump();
 
-      expect(find.text('Stefans iPad hostet 4 Gewinnt'), findsOneWidget);
+      expect(find.text('Raum von Stefans iPad: 4 Gewinnt'), findsOneWidget);
       expect(find.text('192.168.0.20:4747'), findsOneWidget);
       expect(find.text('Altes Handy'), findsOneWidget);
       expect(find.text('192.168.0.30:5000 · andere Klunki-Version'), findsOneWidget);
@@ -186,7 +206,7 @@ void main() {
       final discovery = FakeDiscovery();
       final created = CreatedTransports();
       final calls = <(String, int)>[];
-      await _openPairing(
+      await _openJoinAdvanced(
         tester,
         testDeps(
           discovery: discovery,
@@ -197,8 +217,6 @@ void main() {
           },
         ),
       );
-      await tester.tap(find.text('Beitreten'));
-      await tester.pump();
 
       Future<void> submit(String text) async {
         await tester.enterText(find.byKey(const Key('pair-manual')), text);
@@ -226,7 +244,7 @@ void main() {
     });
 
     testWidgets('KLD-071: a host whose seat is taken says "Platz belegt"', (tester) async {
-      await _openPairing(
+      await _openJoinAdvanced(
         tester,
         testDeps(
           discovery: FakeDiscovery(),
@@ -235,8 +253,6 @@ void main() {
               Future.error(const NetException('peer error: session full')),
         ),
       );
-      await tester.tap(find.text('Beitreten'));
-      await tester.pump();
       await tester.enterText(find.byKey(const Key('pair-manual')), '192.168.1.20');
       await tester.tap(find.byKey(const Key('pair-manual-connect')));
       await tester.pump();
@@ -250,7 +266,7 @@ void main() {
       final discovery = FakeDiscovery();
       final created = CreatedTransports();
       final never = Completer<NetworkTransport>();
-      await _openPairing(
+      await _openJoinAdvanced(
         tester,
         testDeps(
           discovery: discovery,
@@ -259,8 +275,6 @@ void main() {
           joinTransport: (host, port, {required name}) => never.future,
         ),
       );
-      await tester.tap(find.text('Beitreten'));
-      await tester.pump();
       await tester.enterText(find.byKey(const Key('pair-manual')), '192.168.1.20');
       await tester.tap(find.byKey(const Key('pair-manual-connect')));
       await tester.pump();
@@ -290,23 +304,63 @@ void main() {
       PairingScreen(deps: testDeps(discovery: FakeDiscovery(), created: created)),
       locale: const Locale('en'),
     ));
-    expect(find.text('Play over Wi-Fi'), findsOneWidget);
+    expect(find.text('Start a room'), findsNWidgets(2)); // title and button
     expect(find.text('Your name'), findsOneWidget);
-    expect(find.text('Host game'), findsOneWidget);
     expect(find.text('Four in a Row'), findsOneWidget);
-    await tester.tap(find.text('Join'));
+    expect(find.text('Advanced'), findsOneWidget);
+    await tester.pumpWidget(localizedApp(
+      PairingScreen(key: const ValueKey('join'), deps: testDeps(discovery: FakeDiscovery(), created: created), mode: RoomMode.join),
+      locale: const Locale('en'),
+    ));
     await tester.pump();
-    expect(find.text('Searching for games…'), findsOneWidget);
-    expect(find.text('Or enter an address'), findsOneWidget);
+    expect(find.text('Join a room'), findsNWidgets(2));
+    expect(find.text('Type the room code'), findsOneWidget);
+    expect(find.text('Rooms nearby'), findsOneWidget);
+    expect(find.text('Looking for rooms…'), findsOneWidget);
     await unmountAndSettleSockets(tester, created);
   });
 
-  testWidgets('menu has "Über WLAN spielen" (not web)', (tester) async {
+  // KLD-098: no "host" wording; two equal room buttons in the menu.
+  testWidgets('menu: "Mit anderen Geräten spielen" with "Raum starten" and "Raum beitreten" (not web)',
+      (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     // The full app (pinned to German): the menu's LanguageButton needs the
     // localization delegates.
     await tester.pumpWidget(klunkiApp());
-    expect(find.byKey(const Key('menu-network')), findsOneWidget);
-    expect(find.text('Über WLAN spielen'), findsOneWidget);
+    expect(find.text('Mit anderen Geräten spielen'), findsOneWidget);
+    final start = find.byKey(const Key('menu-room-start'));
+    final join = find.byKey(const Key('menu-room-join'));
+    expect(find.descendant(of: start, matching: find.text('Raum starten')), findsOneWidget);
+    expect(find.descendant(of: start, matching: find.text('Andere kommen mit dem Raumcode dazu')), findsOneWidget);
+    expect(find.descendant(of: join, matching: find.text('Raum beitreten')), findsOneWidget);
+    expect(find.descendant(of: join, matching: find.text('Code scannen oder eintippen')), findsOneWidget);
+    expect(tester.getSize(start), tester.getSize(join));
+    expect(find.textContaining('host'), findsNothing);
+    expect(find.textContaining('Host'), findsNothing);
+  });
+
+  group('KLD-098 room on this device or through the relay', () {
+    testWidgets('default: on this device; the relay switch is under "Erweitert" and remembered', (tester) async {
+      final created = CreatedTransports();
+      final rooms = RoomSettings.memory();
+      await _openPairing(tester, testDeps(discovery: FakeDiscovery(), created: created, roomSettings: rooms));
+      expect(find.byKey(const Key('pair-via-relay')), findsNothing); // collapsed
+      await openAdvanced(tester, 'pair-start-advanced');
+      expect(tester.widget<SwitchListTile>(find.byKey(const Key('pair-via-relay'))).value, isFalse);
+      expect(find.byKey(const Key('relay-line')), findsNothing);
+      await tester.tap(find.byKey(const Key('pair-via-relay')));
+      await tester.pump();
+      expect(rooms.value, isTrue);
+      expect(find.byKey(const Key('relay-line')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('pair-via-relay')));
+      await tester.pump();
+      expect(rooms.value, isFalse);
+      await _startHosting(tester);
+      expect(created.hosts, hasLength(1)); // TCP on this device
+      await unmountAndSettleSockets(tester, created);
+    }, timeout: _timeout);
   });
 }
 

@@ -9,7 +9,7 @@ import '../ltr.dart';
 
 /// "Relay: 192.168.1.5:8000 · ändern" (or "Kein Relay eingerichtet – Adresse
 /// eingeben"): the one place the relay of [settings] is shown and changed,
-/// the same on "Spiel hosten" and "Mit Raumcode beitreten". [defaultRelay]
+/// the same on "Raum starten" and "Raum beitreten" (under "Erweitert"). [defaultRelay]
 /// is used while nothing is chosen (the PWA's own server).
 class RelayLine extends StatelessWidget {
   final RelaySettings settings;
@@ -199,26 +199,37 @@ class _Command extends StatelessWidget {
   }
 }
 
-/// Heading of the relay group, "Über Relay spielen (Raumcode)", with the
-/// [RelayLine] below it: what "Spiel hosten" and "Mit Raumcode beitreten"
-/// share.
-class RelayGroupHeader extends StatelessWidget {
-  final RelaySettings settings;
-  final Uri? defaultRelay;
-  final bool enabled;
+/// "Erweitert" (KLD-098): the collapsed section with the technical details
+/// of a room screen (relay address, IP addresses, direct connection), which
+/// are needed once, when a relay is set up. [id] keys the tile and its title
+/// (`<id>-toggle`, to tap it in tests). The children stay built while
+/// collapsed ([ExpansionTile.maintainState]), so their fields keep their text.
+class RoomAdvanced extends StatelessWidget {
+  final String id;
+  final List<Widget> children;
+  final bool initiallyExpanded;
 
-  const RelayGroupHeader({super.key, required this.settings, this.defaultRelay, this.enabled = true});
+  const RoomAdvanced({super.key, required this.id, required this.children, this.initiallyExpanded = false});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(AppLocalizations.of(context).relayGroupTitle,
-            key: const Key('relay-group-title'), style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 4),
-        RelayLine(settings: settings, defaultRelay: defaultRelay, enabled: enabled),
-      ],
+    final theme = Theme.of(context);
+    return ExpansionTile(
+      key: Key(id),
+      maintainState: true,
+      initiallyExpanded: initiallyExpanded,
+      tilePadding: EdgeInsetsDirectional.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      expandedCrossAxisAlignment: CrossAxisAlignment.stretch,
+      shape: const Border(),
+      collapsedShape: const Border(),
+      leading: Icon(Icons.tune, color: theme.colorScheme.onSurfaceVariant),
+      title: Text(
+        AppLocalizations.of(context).roomAdvanced,
+        key: Key('$id-toggle'),
+        style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      ),
+      children: children,
     );
   }
 }

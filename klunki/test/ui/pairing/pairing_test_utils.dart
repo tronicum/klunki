@@ -12,7 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/transport/network_transport.dart';
+import 'package:klunki/profile/relay_settings.dart';
+import 'package:klunki/profile/room_settings.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/relay_host_screen.dart';
+import 'package:klunki/ui/pairing/room_join.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -134,6 +138,10 @@ PairingDeps testDeps({
   HostTransportFactory? hostTransport,
   JoinTransportFactory? joinTransport,
   Duration joinTimeout = const Duration(seconds: 12),
+  RoomSettings? roomSettings,
+  RelaySettings? relaySettings,
+  RelayHostTransportFactory? relayHost,
+  RelayJoinTransportFactory? relayJoin,
 }) =>
     PairingDeps(
       discovery: () => discovery,
@@ -148,26 +156,53 @@ PairingDeps testDeps({
       preferredPort: preferredPort,
       preferredWsPort: preferredWsPort,
       joinTimeout: joinTimeout,
+      roomSettings: () => roomSettings ?? RoomSettings.memory(),
+      relaySettings: () => relaySettings ?? RelaySettings.memory(),
+      relayHost: relayHost ?? platformRelayHost,
+      relayJoin: relayJoin ?? platformRelayJoin,
     );
 
-/// A launcher page with an "open" button that pushes the pairing screen, so
-/// leaving the game / pairing screen has somewhere to go back to.
-/// Pinned to German (see `l10n_test_utils.dart`).
+/// A launcher page with two buttons that push the room screens ("open-pairing":
+/// "Raum starten", "open-join": "Raum beitreten"), so leaving the game /
+/// pairing screen has somewhere to go back to. Pinned to German (see
+/// `l10n_test_utils.dart`).
 Widget launcherApp(PairingDeps deps) => localizedApp(
       debugShowCheckedModeBanner: false,
       Builder(
         builder: (context) => Scaffold(
           body: Center(
-            child: ElevatedButton(
-              key: const Key('open-pairing'),
-              onPressed: () =>
-                  Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PairingScreen(deps: deps))),
-              child: const Text('open'),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  key: const Key('open-pairing'),
+                  onPressed: () => Navigator.of(context)
+                      .push(MaterialPageRoute<void>(builder: (_) => PairingScreen(deps: deps))),
+                  child: const Text('open'),
+                ),
+                ElevatedButton(
+                  key: const Key('open-join'),
+                  onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => PairingScreen(deps: deps, mode: RoomMode.join))),
+                  child: const Text('join'),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+
+/// Opens the "Erweitert" section [id] (KLD-098) and scrolls it into view
+/// (no settle: a searching spinner may be running).
+Future<void> openAdvanced(WidgetTester tester, String id) async {
+  final toggle = find.byKey(Key('$id-toggle'));
+  await tester.ensureVisible(toggle);
+  await tester.pump();
+  await tester.tap(toggle);
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 400));
+}
 
 /// Pumps frames with short real waits in between until [condition] holds.
 ///

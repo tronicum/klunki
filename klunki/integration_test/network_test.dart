@@ -2,11 +2,12 @@
 // of KLD-038a). One run of this file is ONE device: the role comes from
 // `--dart-define=KLUNKI_E2E_ROLE=host|guest` (see lib/app/test_mode.dart).
 //
-// host:  menu → "Über WLAN spielen" → Hosten → Mühle (fixed port + seed from
+// host:  menu → "Raum starten" → Mühle (fixed port + seed from
 //        the test mode) → waits for the guest → taps X's half of the
 //        scripted 33-move game (test/e2e/muehle_script.dart).
-// guest: menu → "Über WLAN spielen" → Beitreten → looks for the host in the
-//        mDNS list (reported either way) → joins by the manual address
+// guest: menu → "Raum beitreten" (closes the camera) → looks for the room
+//        under "Räume in der Nähe" (reported either way) → joins by the
+//        address under "Erweitert"
 //        (or by the list entry with KLUNKI_E2E_JOIN=mdns) → taps O's half.
 // Both then print `KLUNKI_IT E2E_RESULT {json}`; tool/e2e_ios_sims.sh compares
 // the two lines and prints PASS/FAIL.
@@ -57,7 +58,7 @@ void main() {
   final me = isHost ? Player.a : Player.b;
   final tag = isHost ? 'host' : 'guest';
 
-  Future<void> openPairing(WidgetTester tester, String name) async {
+  Future<void> openPairing(WidgetTester tester, String name, {bool join = false}) async {
     // German, like the widget tests; the run is independent of the
     // simulator language and of a saved choice.
     await tester.pumpWidget(KlunkiApp(
@@ -66,7 +67,16 @@ void main() {
     ));
     await tester.pumpAndSettle();
     expect(find.byType(MenuScreen), findsOneWidget);
-    await tapAndSettle(tester, find.byKey(const Key('menu-network')));
+    final button = find.byKey(Key(join ? 'menu-room-join' : 'menu-room-start'));
+    await tester.ensureVisible(button);
+    if (join) {
+      // No settle: the "searching" spinner never stops.
+      await tester.tap(button);
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump();
+    } else {
+      await tapAndSettle(tester, button);
+    }
     expect(find.byKey(const Key('player-name-dialog')), findsNothing, reason: 'the name is already set');
   }
 
@@ -75,8 +85,12 @@ void main() {
     await tapAndSettle(tester, find.byKey(const Key('pair-game-muehle')));
     await tester.tap(find.byKey(const Key('pair-host-start')));
     await pumpUntilFound(tester, find.byKey(const Key('pair-host-waiting')), what: 'hosting');
+    // Under "Erweitert" (KLD-098), found while collapsed.
     final address = tester
-        .widget<Text>(find.descendant(of: find.byKey(const Key('pair-address-text-0')), matching: find.byType(Text)))
+        .widget<Text>(find.descendant(
+            of: find.byKey(const Key('pair-address-text-0'), skipOffstage: false),
+            matching: find.byType(Text, skipOffstage: false),
+            skipOffstage: false))
         .data!;
     expect(address, endsWith(':${E2eMode.port}'), reason: 'port ${E2eMode.port} was free (else the app fell back)');
     log('E2E_READY host $address port=${E2eMode.port}');
@@ -86,15 +100,18 @@ void main() {
   }
 
   Future<void> guest(WidgetTester tester) async {
-    await openPairing(tester, guestName);
-    // "Beitreten" (no settle: the "searching" spinner never stops).
-    await tester.tap(find.byIcon(Icons.login));
-    await tester.pump(const Duration(milliseconds: 500));
-    await tester.pump();
+    await openPairing(tester, guestName, join: true);
+    // "Raum beitreten" opens the camera first (KLD-098): close it.
+    final scanCancel = find.byKey(const Key('qr-scan-cancel'));
+    if (scanCancel.evaluate().isNotEmpty) {
+      await tester.tap(scanCancel);
+      await tester.pump(const Duration(milliseconds: 800));
+      await tester.pump();
+    }
 
     // mDNS: does the host show up in the list? Reported either way.
-    // The entry's title is "iPhone hostet Mühle" (KLD-056: the host's name).
-    final entry = find.ancestor(of: find.text('$hostName hostet Mühle'), matching: find.byType(Card));
+    // The entry's title is "Raum von iPhone: Mühle" (KLD-056: the host's name).
+    final entry = find.ancestor(of: find.text('Raum von $hostName: Mühle'), matching: find.byType(Card));
     final sw = Stopwatch()..start();
     while (entry.evaluate().isEmpty && sw.elapsed < mdnsWait) {
       await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -118,6 +135,12 @@ void main() {
         expect(seen, isTrue, reason: 'KLUNKI_E2E_JOIN=mdns, but the host never showed in the list');
         await tester.tap(entry.first);
       } else {
+        if (find.byKey(const Key('pair-manual')).evaluate().isEmpty) {
+          await tester.ensureVisible(find.byKey(const Key('pair-join-advanced-toggle')));
+          await tester.tap(find.byKey(const Key('pair-join-advanced-toggle')));
+          await tester.pump(const Duration(milliseconds: 500));
+        }
+        await tester.ensureVisible(find.byKey(const Key('pair-manual')));
         await tester.enterText(find.byKey(const Key('pair-manual')), '${E2eMode.host}:${E2eMode.port}');
         await tester.pump();
         await tester.tap(find.byKey(const Key('pair-manual-connect')));

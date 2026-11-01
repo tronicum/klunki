@@ -2,5 +2,8 @@ import 'package:flutter/widgets.dart';
 
 import 'pairing_screen.dart';
 
-/// Native: the real pairing screen with the platform dependencies.
-WidgetBuilder? get pairingScreenBuilder => (_) => PairingScreen();
+/// Native: "Raum starten" (room on this device, or through the relay).
+WidgetBuilder? get roomStartScreenBuilder => (_) => PairingScreen(mode: RoomMode.start);
+
+/// Native: "Raum beitreten" (scanner, room code, rooms nearby).
+WidgetBuilder? get roomJoinScreenBuilder => (_) => PairingScreen(mode: RoomMode.join);

@@ -150,12 +150,6 @@ abstract class AppLocalizations {
   /// **'Debug-Konsole'**
   String get menuDebugConsole;
 
-  /// Menu card that opens the pairing screen for network play on the local Wi-Fi (not on web).
-  ///
-  /// In de, this message translates to:
-  /// **'Über WLAN spielen'**
-  String get menuPlayOverWifi;
-
   /// Game title: connect four in a row (generic name, no brand).
   ///
   /// In de, this message translates to:
@@ -222,17 +216,53 @@ abstract class AppLocalizations {
   /// **'Zu zweit an einem Gerät'**
   String get menuSectionHotSeat;
 
-  /// Menu section header above the network entry (KLD-062).
+  /// Menu: heading of the device-vs-device section with the two room buttons (KLD-098).
   ///
   /// In de, this message translates to:
-  /// **'Mit zwei Geräten'**
+  /// **'Mit anderen Geräten spielen'**
   String get menuSectionNetwork;
 
-  /// Subtitle of the network entry "Über WLAN spielen" (KLD-062).
+  /// KLD-098: subtitle of the menu button roomStart.
   ///
   /// In de, this message translates to:
-  /// **'Spiel hosten oder beitreten'**
-  String get menuNetworkSubtitle;
+  /// **'Andere kommen mit dem Raumcode dazu'**
+  String get roomStartSubtitle;
+
+  /// KLD-098: subtitle of the menu button roomJoin.
+  ///
+  /// In de, this message translates to:
+  /// **'Code scannen oder eintippen'**
+  String get roomJoinSubtitle;
+
+  /// KLD-098: collapsible section with the technical details (relay address, IP addresses, direct connection).
+  ///
+  /// In de, this message translates to:
+  /// **'Erweitert'**
+  String get roomAdvanced;
+
+  /// KLD-098: waiting screen of a room running directly on this device (no room code): how the others get in. Quoted texts are roomJoin and roomNearby.
+  ///
+  /// In de, this message translates to:
+  /// **'Andere tippen auf „Raum beitreten“ und scannen diesen QR-Code. Geräte im selben WLAN finden den Raum auch unter „Räume in der Nähe“.'**
+  String get roomDirectWaitingHint;
+
+  /// KLD-098: app, start-a-room screen, under "Erweitert": switch to open the room through the relay (with a room code) instead of directly on this device. Remembered.
+  ///
+  /// In de, this message translates to:
+  /// **'Raum über ein Relay öffnen'**
+  String get roomViaRelay;
+
+  /// KLD-098: explanation below roomViaRelay. "klunki relay" is the command and stays as is.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Raumcode, auch für Mitspieler im Browser. Dafür muss auf einem Rechner „klunki relay“ laufen. Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.'**
+  String get roomViaRelayHelper;
+
+  /// KLD-098: join screen: heading above the room code field.
+  ///
+  /// In de, this message translates to:
+  /// **'Raumcode eintippen'**
+  String get roomTypeCode;
 
   /// Tooltip/semantics of the eye-off badge on hidden-information game tiles (secret hand or fleet, the device is passed between turns) (KLD-062).
   ///
@@ -1092,12 +1122,6 @@ abstract class AppLocalizations {
   /// **'Demo: alle Spiele'**
   String get debugDemo;
 
-  /// App bar title of the pairing screen (host or join a game on the local Wi-Fi).
-  ///
-  /// In de, this message translates to:
-  /// **'Über WLAN spielen'**
-  String get pairingTitle;
-
   /// Helper text below the device name field.
   ///
   /// In de, this message translates to:
@@ -1140,61 +1164,49 @@ abstract class AppLocalizations {
   /// **'Optional – leer lassen, um nur X und O zu zeigen.'**
   String get hotSeatNamesHelper;
 
-  /// Segmented button: host a game on this device.
-  ///
-  /// In de, this message translates to:
-  /// **'Hosten'**
-  String get pairingModeHost;
-
-  /// Segmented button: join a game hosted on another device.
-  ///
-  /// In de, this message translates to:
-  /// **'Beitreten'**
-  String get pairingModeJoin;
-
-  /// Heading above the game list when hosting.
+  /// Heading above the game list when starting a room.
   ///
   /// In de, this message translates to:
   /// **'Spiel wählen'**
   String get pairingChooseGame;
 
-  /// Button: start hosting the chosen game.
+  /// KLD-098: menu button, screen title and start button: open a room others join (over the relay or directly on this device). No "host" wording.
   ///
   /// In de, this message translates to:
-  /// **'Spiel hosten'**
-  String get pairingHostGame;
+  /// **'Raum starten'**
+  String get roomStart;
 
-  /// Error when the host session could not be started; error = technical message.
+  /// KLD-098: the room could not be opened; error = technical message.
   ///
   /// In de, this message translates to:
-  /// **'Spiel konnte nicht gestartet werden: {error}'**
-  String pairingHostStartFailed(String error);
+  /// **'Raum konnte nicht gestartet werden: {error}'**
+  String roomStartFailed(String error);
 
-  /// Host: advertising via mDNS failed; the guest has to type the address.
+  /// Room on this device: advertising via mDNS failed; others scan the QR code.
   ///
   /// In de, this message translates to:
-  /// **'Nicht automatisch sichtbar – Mitspieler gibt die Adresse ein.'**
+  /// **'Nicht automatisch sichtbar – andere scannen den QR-Code.'**
   String get pairingNotAdvertised;
 
-  /// Host: this device has no mDNS discovery; the guest has to type the address.
+  /// Room on this device: no mDNS discovery here; others scan the QR code.
   ///
   /// In de, this message translates to:
-  /// **'Keine automatische Suche auf diesem Gerät – Mitspieler gibt die Adresse ein.'**
+  /// **'Keine automatische Suche auf diesem Gerät – andere scannen den QR-Code.'**
   String get pairingNoDiscoveryHost;
 
-  /// Host waiting screen headline; name = device name, game = game title.
+  /// KLD-098: a room's headline (waiting screen) and a room found nearby; name = player name of whoever started it, game = game title.
   ///
   /// In de, this message translates to:
-  /// **'{name} hostet {game}'**
-  String pairingHosting(String name, String game);
+  /// **'Raum von {name}: {game}'**
+  String roomOfPlayer(String name, String game);
 
-  /// Host: no LAN address found, so no QR code; port = TCP port.
+  /// Room on this device: no LAN address found, so no QR code; port = TCP port.
   ///
   /// In de, this message translates to:
   /// **'Keine WLAN-Adresse gefunden. Ist das Gerät mit dem WLAN verbunden? Port: {port}'**
   String pairingNoAddress(int port);
 
-  /// Host: heading above the list of IP:port addresses.
+  /// Room on this device, under "Erweitert": heading above the list of IP:port addresses.
   ///
   /// In de, this message translates to:
   /// **'Adressen (zum Eintippen):'**
@@ -1206,53 +1218,47 @@ abstract class AppLocalizations {
   /// **'wahrscheinlich WLAN'**
   String get pairingProbablyWifi;
 
-  /// Host status while no guest has joined yet.
+  /// Room waiting screen: status while nobody has joined yet.
   ///
   /// In de, this message translates to:
   /// **'Warte auf Mitspieler…'**
   String get pairingWaitingForGuest;
 
-  /// Button: stop hosting / stop connecting.
+  /// Button: close the room / stop connecting.
   ///
   /// In de, this message translates to:
   /// **'Abbrechen'**
   String get pairingCancel;
 
-  /// Join: heading above the discovered hosts.
+  /// KLD-098: join screen (app): heading above the rooms found on the local Wi-Fi.
   ///
   /// In de, this message translates to:
-  /// **'Spiele im Netzwerk'**
-  String get pairingGamesOnNetwork;
+  /// **'Räume in der Nähe'**
+  String get roomNearby;
 
-  /// Join: this device has no mDNS discovery.
+  /// Join screen: this device has no mDNS discovery. The quoted word is roomAdvanced.
   ///
   /// In de, this message translates to:
-  /// **'Automatische Suche ist auf diesem Gerät nicht verfügbar. Adresse unten eingeben.'**
+  /// **'Automatische Suche ist auf diesem Gerät nicht verfügbar. Scanne den QR-Code oder gib unter „Erweitert“ die Adresse ein.'**
   String get pairingNoDiscoveryJoin;
 
-  /// Join: mDNS browsing failed.
+  /// Join screen: mDNS browsing failed. The quoted word is roomAdvanced.
   ///
   /// In de, this message translates to:
-  /// **'Suche im Netzwerk nicht möglich. Adresse unten eingeben.'**
+  /// **'Suche im Netzwerk nicht möglich. Scanne den QR-Code oder gib unter „Erweitert“ die Adresse ein.'**
   String get pairingBrowseFailed;
 
-  /// Join: no host found yet, still searching.
+  /// Join screen: no room found nearby yet, still searching.
   ///
   /// In de, this message translates to:
-  /// **'Suche nach Spielen…'**
+  /// **'Suche nach Räumen…'**
   String get pairingSearching;
 
-  /// Join: a discovered host speaks another protocol version and cannot be joined.
+  /// Join screen: a room found nearby runs another protocol version and cannot be joined.
   ///
   /// In de, this message translates to:
   /// **'andere Klunki-Version'**
   String get pairingOtherVersion;
-
-  /// Join: heading above the manual address field.
-  ///
-  /// In de, this message translates to:
-  /// **'Oder Adresse eingeben'**
-  String get pairingOrEnterAddress;
 
   /// Label of the manual address field.
   ///
@@ -1359,10 +1365,10 @@ abstract class AppLocalizations {
   /// Error below the connection banner when reconnecting failed.
   ///
   /// In de, this message translates to:
-  /// **'Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?'**
+  /// **'Neu verbinden fehlgeschlagen. Ist das andere Gerät noch im Spiel?'**
   String get pairingReconnectFailed;
 
-  /// Host waiting view: heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code).
+  /// Room on this device, under "Erweitert": heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code).
   ///
   /// In de, this message translates to:
   /// **'Im Browser beitreten (Adresse eingeben oder Link einfügen):'**
@@ -1380,16 +1386,10 @@ abstract class AppLocalizations {
   /// **'Link kopiert'**
   String get pairingLinkCopied;
 
-  /// Browser (PWA) join screen: what it does. "klunki host" is the terminal command and stays as is; the quoted text is pairingBrowserJoin without its parenthesis.
+  /// Browser join and host screens: shown when the page was opened over https (browsers block ws:// relays and hosts from https pages; only wss:// works). Also the error when such a connection is attempted.
   ///
   /// In de, this message translates to:
-  /// **'Tritt im Browser einem Spiel bei, das ein iPhone, iPad, Android-Gerät oder das Terminal (klunki host) hostet. Der Host zeigt Adresse und Link unter „Im Browser beitreten“.'**
-  String get webJoinIntro;
-
-  /// Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages).
-  ///
-  /// In de, this message translates to:
-  /// **'Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.'**
+  /// **'Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.'**
   String get webJoinHttpsWarning;
 
   /// Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link).
@@ -1401,7 +1401,7 @@ abstract class AppLocalizations {
   /// Browser join screen: helper below the address field; port = the default WebSocket port (4748).
   ///
   /// In de, this message translates to:
-  /// **'Der Port ist der Browser-Port (WebSocket) des Hosts, ohne Angabe {port}.'**
+  /// **'Der Port ist der Browser-Port (WebSocket) des anderen Geräts, ohne Angabe {port}.'**
   String webJoinAddressHelper(int port);
 
   /// Browser join screen: the typed address could not be parsed.
@@ -1410,10 +1410,10 @@ abstract class AppLocalizations {
   /// **'Ungültige Adresse. Beispiel: 192.168.1.20, 192.168.1.20:4748 oder klunki://join?h=…'**
   String get webJoinInvalidAddress;
 
-  /// Troubleshooting hints shown with every failed browser join (same Wi-Fi, http not https, host version with browser support).
+  /// Troubleshooting hints shown with every failed direct browser join (same Wi-Fi, http not https, version with browser support).
   ///
   /// In de, this message translates to:
-  /// **'Tipps: Ist dieses Gerät im selben WLAN wie der Host? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem Host muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).'**
+  /// **'Tipps: Ist dieses Gerät im selben WLAN wie das Gerät mit dem Raum? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem anderen Gerät muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).'**
   String get webJoinHints;
 
   /// Result reason (4 Gewinnt): four markers lined up.
@@ -1938,22 +1938,22 @@ abstract class AppLocalizations {
   /// **'Schiff'**
   String get engineShipOther;
 
-  /// Web pairing screen, under the "Spiel hosten" button (KLD-057).
+  /// KLD-098: start-a-room screen (relay room): how the others get in. The quoted text is roomJoin.
   ///
   /// In de, this message translates to:
-  /// **'Ein zweiter Browser im selben WLAN tritt mit dem Raumcode bei.'**
-  String get relayHostIntro;
+  /// **'Andere tippen auf „Raum beitreten“ und geben den Raumcode ein.'**
+  String get roomStartIntro;
 
-  /// Label of the room code (host waiting screen and the join field).
+  /// Room code: label above the code on the waiting screen and of the code field.
   ///
   /// In de, this message translates to:
   /// **'Raumcode'**
   String get relayRoomCode;
 
-  /// Host waiting screen: how the second player joins.
+  /// KLD-098: relay room waiting screen: how the others get in (the quoted text is roomJoin).
   ///
   /// In de, this message translates to:
-  /// **'Öffne den Link auf dem zweiten Gerät oder scanne den QR-Code. Oder öffne dort Klunki und gib den Raumcode ein.'**
+  /// **'Andere tippen auf „Raum beitreten“ und scannen den QR-Code oder geben den Raumcode ein. Oder sie öffnen den Link.'**
   String get relayWaitingHint;
 
   /// Small line with the relay address (host:port).
@@ -1962,17 +1962,11 @@ abstract class AppLocalizations {
   /// **'Relay: {address}'**
   String relayInfo(String address);
 
-  /// Heading of the room-code join section.
+  /// KLD-098: helper below the room code field.
   ///
   /// In de, this message translates to:
-  /// **'Mit Raumcode beitreten'**
-  String get relayJoinTitle;
-
-  /// Helper text under the room code field.
-  ///
-  /// In de, this message translates to:
-  /// **'5 Zeichen. Der Browser, der das Spiel hostet, zeigt den Code.'**
-  String get relayCodeHelper;
+  /// **'5 Zeichen – das andere Gerät zeigt den Code bei seinem Raum.'**
+  String get roomCodeHelper;
 
   /// Error for a malformed room code.
   ///
@@ -1980,11 +1974,11 @@ abstract class AppLocalizations {
   /// **'Ungültiger Raumcode: 5 Buchstaben oder Ziffern (ohne 0, O, 1, I, L).'**
   String get relayCodeInvalid;
 
-  /// Button: join the room.
+  /// KLD-098: menu button, screen title and join button: join someone else's room (scan the QR code or type the room code).
   ///
   /// In de, this message translates to:
   /// **'Raum beitreten'**
-  String get relayJoin;
+  String get roomJoin;
 
   /// Progress while joining a room; code is grouped like "K7Q 2M".
   ///
@@ -2004,22 +1998,16 @@ abstract class AppLocalizations {
   /// **'Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749'**
   String get relayAddressHelper;
 
-  /// Expandable section with the relay address (web).
-  ///
-  /// In de, this message translates to:
-  /// **'Erweitert: Relay-Adresse'**
-  String get relayAddressAdvanced;
-
   /// Error for a malformed relay address.
   ///
   /// In de, this message translates to:
   /// **'Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749'**
   String get relayAddressInvalid;
 
-  /// Relay error: no room with this code; code grouped like "K7Q 2M".
+  /// Room-code join: no open room with this code; code = the grouped code.
   ///
   /// In de, this message translates to:
-  /// **'Kein Raum mit dem Code {code}. Stimmt der Code, und wartet der Host noch?'**
+  /// **'Kein Raum mit dem Code {code}. Stimmt der Code, und ist der Raum noch offen?'**
   String relayErrorUnknownCode(String code);
 
   /// Relay error: the room already has a guest.
@@ -2028,11 +2016,11 @@ abstract class AppLocalizations {
   /// **'Raum {code} ist schon voll: Dort spielen bereits zwei.'**
   String relayErrorRoomFull(String code);
 
-  /// Relay: the host closed the room (guest banner / join error).
+  /// KLD-098: the room was closed because whoever started it left; the game is over.
   ///
   /// In de, this message translates to:
-  /// **'Der Host hat den Raum verlassen. Das Spiel ist beendet.'**
-  String get relayErrorHostLeft;
+  /// **'Der Raum wurde geschlossen: Wer ihn gestartet hat, ist gegangen. Das Spiel ist beendet.'**
+  String get relayErrorRoomClosed;
 
   /// Relay: the room expired after 10 idle minutes.
   ///
@@ -2052,16 +2040,16 @@ abstract class AppLocalizations {
   /// **'Die Verbindung zum Relay ist abgebrochen.'**
   String get relayErrorLost;
 
-  /// Shown when the page is not served by a relay; the start command follows on its own line.
+  /// Shown when no relay is reachable, followed by the start command.
   ///
   /// In de, this message translates to:
-  /// **'Browser gegen Browser braucht ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:'**
+  /// **'Räume mit Raumcode brauchen ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:'**
   String get relayStartHint;
 
-  /// Host banner when the relay room is gone; reason = relayErrorExpired / relayErrorLost.
+  /// Relay room lost while waiting; reason = the relay error text.
   ///
   /// In de, this message translates to:
-  /// **'{reason} Starte ein neues Spiel.'**
+  /// **'{reason} Starte einen neuen Raum.'**
   String relayRoomLost(String reason);
 
   /// KLD-075 room join: the relay a ?room= link or scanned room QR names, used for this join only (not saved); address = host:port.
@@ -2094,13 +2082,7 @@ abstract class AppLocalizations {
   /// **'Platz belegt: In diesem Spiel spielt schon jemand. Nur wer zuerst beigetreten ist, kann wieder einsteigen.'**
   String get pairingSeatTaken;
 
-  /// Web join screen: heading of the direct address section (native host).
-  ///
-  /// In de, this message translates to:
-  /// **'Oder mit einem Host-Gerät verbinden (App oder Terminal)'**
-  String get webJoinDirectTitle;
-
-  /// Join tab (app): button that opens the camera to scan the host's QR code; also the scanner screen title.
+  /// Join screen (app): button that opens the camera to scan the other device's QR code; also the scanner screen title.
   ///
   /// In de, this message translates to:
   /// **'QR-Code scannen'**
@@ -2109,13 +2091,13 @@ abstract class AppLocalizations {
   /// Scanner screen: instruction below the viewfinder.
   ///
   /// In de, this message translates to:
-  /// **'Richte die Kamera auf den QR-Code des Gastgebers.'**
+  /// **'Richte die Kamera auf den QR-Code des anderen Geräts.'**
   String get qrScanHint;
 
   /// Scanner screen: the scanned QR code is not a Klunki join code; scanning continues.
   ///
   /// In de, this message translates to:
-  /// **'Kein Klunki-Code. Scanne den QR-Code, den das Spiel beim Hosten zeigt.'**
+  /// **'Kein Klunki-Code. Scanne den QR-Code, den das andere Gerät bei seinem Raum zeigt.'**
   String get qrScanNotKlunki;
 
   /// Scanner screen: tooltip of the torch button (torch is off).
@@ -2148,17 +2130,11 @@ abstract class AppLocalizations {
   /// **'Die Kamera ist nicht verfügbar.'**
   String get qrScanUnavailable;
 
-  /// Scanner screen: button back to the join tab to type the code or address instead.
+  /// Scanner screen: button back to the join screen to type the room code instead.
   ///
   /// In de, this message translates to:
   /// **'Code eintippen'**
   String get qrScanTypeInstead;
-
-  /// Join screens: heading of the group with "Spiel hosten" and "Mit Raumcode beitreten" (both go through the relay).
-  ///
-  /// In de, this message translates to:
-  /// **'Über Relay spielen (Raumcode)'**
-  String get relayGroupTitle;
 
   /// Relay line: action that opens the relay address dialog (lower case, after "Relay: <address> ·").
   ///
@@ -2184,22 +2160,16 @@ abstract class AppLocalizations {
   /// **'Übernehmen'**
   String get relaySave;
 
-  /// Room-code join: where the code comes from.
-  ///
-  /// In de, this message translates to:
-  /// **'Der Raumcode kommt von einem Browser, der „Spiel hosten“ gewählt hat.'**
-  String get relayJoinIntro;
-
-  /// Join screens: heading of the secondary group that connects directly to a device that hosts itself (IP address).
+  /// Join screens, under "Erweitert": heading of the direct connection to a device the room runs on (IP address).
   ///
   /// In de, this message translates to:
   /// **'Direkt mit einem Gerät verbinden'**
   String get joinDirectTitle;
 
-  /// Join screens: helper below joinDirectTitle.
+  /// Join screens, under "Erweitert": helper below joinDirectTitle.
   ///
   /// In de, this message translates to:
-  /// **'Für ein Handy, Tablet oder Terminal, das selbst hostet: Geräte-Adresse (IP) eingeben.'**
+  /// **'Für ein Gerät, auf dem der Raum direkt läuft (App oder Terminal): seine Adresse (IP) eingeben.'**
   String get joinDirectHelper;
 
   /// KLD-065 resign: app bar action (tooltip) and the confirm button of the resign dialog.
@@ -2214,11 +2184,29 @@ abstract class AppLocalizations {
   /// **'Wirklich aufgeben?'**
   String get shellResignTitle;
 
-  /// KLD-065 resign dialog (network game): what happens; player = the opponent's label, e.g. "Anna (X)".
+  /// KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. "Anna (X)".
   ///
   /// In de, this message translates to:
-  /// **'Die Partie endet sofort, {player} gewinnt.'**
+  /// **'Das Spiel endet für beide – {player} gewinnt.'**
   String shellResignBody(String player);
+
+  /// KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, or a hot-seat game under way).
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel verlassen?'**
+  String get shellLeaveTitle;
+
+  /// KLD-099 leave confirmation (network game): what leaving does.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Verbindung wird getrennt, das Spiel endet für beide.'**
+  String get shellLeaveBody;
+
+  /// KLD-099 leave confirmation: the confirm button.
+  ///
+  /// In de, this message translates to:
+  /// **'Verlassen'**
+  String get shellLeave;
 
   /// KLD-065 resign dialog (hot-seat): asks which of the two players gives up.
   ///

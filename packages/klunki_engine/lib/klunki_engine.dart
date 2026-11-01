@@ -7,6 +7,7 @@ export 'quartett.dart' show QuartettGame, QuartettMode, QuartettStat, QuartettDe
 export 'schiffe.dart';
 export 'gostrategy.dart';
 export 'chess.dart';
+export 'word_tiles.dart';
 export 'registry.dart';
 export 'compat.dart';
 export 'secrecy.dart';

@@ -34,7 +34,7 @@ class KlunkiApp extends StatefulWidget {
 
   /// The player name for network games (KLD-056; loaded in `main()`). When
   /// omitted, an in-memory controller with no name yet is used (the first
-  /// visit of "Über WLAN spielen" asks for one).
+  /// visit of a room screen asks for one).
   final PlayerNameController? playerNameController;
 
   /// Last-used hot-seat names (KLD-056); in-memory and empty when omitted.

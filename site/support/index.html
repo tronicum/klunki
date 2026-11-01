@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Klunki – Support / Hilfe</title>
+  <!-- KLD-096: plain static page, no external resources. Published by the
+       `pages` job in .github/workflows/build.yml at <pages-url>/support/. -->
+  <style>
+    :root { --fg: #1f2937; --bg: #ffffff; --muted: #4b5563; --accent: #4338ca; --rule: #d1d5db; }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg: #e5e7eb; --bg: #111827; --muted: #9ca3af; --accent: #a5b4fc; --rule: #374151; }
+    }
+    html { background: var(--bg); color: var(--fg); }
+    body {
+      margin: 0 auto; max-width: 46rem; padding: 1.5rem 1rem 3rem;
+      font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .25rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 .5rem; }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 .25rem; }
+    a { color: var(--accent); }
+    a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    nav { margin: .5rem 0 1rem; }
+    nav a { margin-right: 1rem; }
+    .meta { color: var(--muted); margin: 0; }
+    hr { border: 0; border-top: 1px solid var(--rule); margin: 3rem 0; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .95em; }
+    ul { padding-left: 1.25rem; }
+  </style>
+</head>
+<body>
+<nav aria-label="Klunki">
+  <a href="../">Klunki</a>
+  <a href="./" aria-current="page">Support</a>
+  <a href="../privacy/">Datenschutz / Privacy</a>
+  <a href="../impressum/">Impressum</a>
+</nav>
+<nav aria-label="Sprache / Language">
+  <a href="#de" hreflang="de" lang="de">Deutsch</a>
+  <a href="#en" hreflang="en" lang="en">English</a>
+</nav>
+
+<main>
+<article id="de" lang="de">
+  <h1>Klunki – Hilfe</h1>
+
+  <p>Klunki ist eine Sammlung klassischer Spiele für zwei Personen, z. B. 4 Gewinnt, Mühle, Quartett und
+    Schiffe versenken. Ihr spielt abwechselnd auf einem Gerät oder jede Person auf ihrem eigenen Gerät im WLAN.
+    Klunki gibt es als App für iPhone, iPad und Android und als Web-App im Browser. Kein Konto, keine Werbung.</p>
+
+  <h2>Hilfe bekommen</h2>
+  <ul>
+    <li>E-Mail: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a></li>
+    <li>Fehler melden oder Ideen vorschlagen:
+      <a href="https://github.com/tronicum/klunki/issues">GitHub Issues</a>
+      (funktioniert, sobald das Projekt öffentlich ist).</li>
+  </ul>
+
+  <h2>Häufige Fragen</h2>
+
+  <h3>Wie spielen wir im WLAN?</h3>
+  <p>Beide Geräte müssen im selben WLAN sein. Auf einem Gerät „Über WLAN spielen“ → „Spiel hosten“ wählen und ein
+    Spiel aussuchen. Das andere Gerät findet das Spiel in der Liste oder scannt den QR-Code des Hosts. Gäste-WLANs
+    blockieren oft Verbindungen zwischen Geräten; dann ein anderes WLAN oder den Hotspot eines Handys nutzen.</p>
+
+  <h3>Was sind Relay und Raumcode?</h3>
+  <p>Zwei Browser können sich nicht direkt verbinden. Dafür gibt es ein Relay: ein kleines Programm, das ihr auf
+    einem Computer im WLAN startet (<code>klunki relay</code>). Es leitet nur die Spielzüge weiter. Wer „Spiel
+    hosten“ wählt, bekommt einen kurzen Raumcode (z. B. <code>K7Q 2M</code>), einen QR-Code und einen Link. Das
+    andere Gerät gibt den Raumcode ein oder öffnet den Link. Die Apps können ebenfalls über ein Relay spielen.</p>
+
+  <h3>Wie funktioniert der QR-Code?</h3>
+  <p>In der App „QR-Code scannen“ antippen und die Kamera auf den QR-Code des anderen Geräts halten. Klunki
+    verbindet sich dann von selbst, direkt oder über das Relay mit dem Raumcode. Die Web-App kann nicht scannen;
+    dort den Raumcode eintippen oder den Link öffnen.</p>
+
+  <h3>Warum müssen die Versionen zusammenpassen?</h3>
+  <p>Beide Geräte rechnen das Spiel nach denselben Regeln und mit denselben Karten. Passen die Versionen nicht
+    zusammen (z. B. eine neue App und eine ältere, zwischengespeicherte Web-App), lehnt Klunki die Verbindung ab und
+    sagt, welches Gerät aktualisiert werden muss. App aktualisieren bzw. die Seite im Browser neu laden, dann noch
+    einmal verbinden.</p>
+
+  <h3>Warum fragt die App nach Kamera und lokalem Netzwerk?</h3>
+  <ul>
+    <li><strong>Kamera:</strong> nur zum Scannen des QR-Codes. Bilder werden nicht gespeichert oder gesendet.</li>
+    <li><strong>Lokales Netzwerk:</strong> um Spiele im WLAN zu finden und direkt mit dem anderen Gerät zu spielen.
+      Ohne diese Erlaubnis geht nur das Spiel auf einem Gerät oder über ein Relay.</li>
+  </ul>
+  <p>Beides lässt sich in den Einstellungen des Geräts jederzeit ändern.</p>
+
+  <h3>Die Web-App findet mein Relay nicht</h3>
+  <p>Im Browser über https (wie auf dieser Website) kann Klunki nur sichere Relays (<code>wss://</code>) erreichen.
+    Für ein Relay im eigenen WLAN die App nutzen oder die Web-App direkt vom Relay öffnen
+    (<code>http://&lt;Adresse des Computers&gt;:4749/</code>).</p>
+
+  <p><a href="../privacy/#de">Datenschutzerklärung</a> · <a href="../impressum/#de">Impressum</a></p>
+</article>
+
+<hr>
+
+<article id="en" lang="en">
+  <h1>Klunki – Help</h1>
+
+  <p>Klunki is a collection of classic two-player games, e.g. Four in a Row, Nine Men's Morris, Quartett and a
+    battleship-style game. Take turns on one device, or each player uses their own device over Wi-Fi. Klunki is an
+    app for iPhone, iPad and Android and a web app in the browser. No account, no ads.</p>
+
+  <h2>Getting help</h2>
+  <ul>
+    <li>Email: <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a></li>
+    <li>Report a bug or suggest an idea:
+      <a href="https://github.com/tronicum/klunki/issues">GitHub Issues</a>
+      (works once the project is public).</li>
+  </ul>
+
+  <h2>Frequently asked questions</h2>
+
+  <h3>How do we play over Wi-Fi?</h3>
+  <p>Both devices must be on the same Wi-Fi. On one device choose “Play over Wi-Fi” → “Host game” and pick a game.
+    The other device finds the game in the list or scans the host's QR code. Guest networks often block connections
+    between devices; then use another Wi-Fi or a phone's hotspot.</p>
+
+  <h3>What are the relay and the room code?</h3>
+  <p>Two browsers cannot connect to each other directly. That is what the relay is for: a small program you start
+    on a computer on the Wi-Fi (<code>klunki relay</code>). It only passes the moves on. Whoever chooses “Host game”
+    gets a short room code (e.g. <code>K7Q 2M</code>), a QR code and a link. The other device enters the room code or
+    opens the link. The apps can play through a relay as well.</p>
+
+  <h3>How does the QR code work?</h3>
+  <p>In the app tap “Scan QR code” and point the camera at the other device's QR code. Klunki then connects by
+    itself, directly or through the relay with the room code. The web app cannot scan; type the room code or open
+    the link there.</p>
+
+  <h3>Why do the versions have to match?</h3>
+  <p>Both devices compute the game with the same rules and the same cards. If the versions don't fit together (e.g.
+    a new app and an older, cached web app), Klunki refuses the connection and says which device has to update.
+    Update the app or reload the page in the browser, then connect again.</p>
+
+  <h3>Why does the app ask for the camera and the local network?</h3>
+  <ul>
+    <li><strong>Camera:</strong> only to scan the QR code. Images are neither stored nor sent.</li>
+    <li><strong>Local network:</strong> to find games on the Wi-Fi and to play directly with the other device.
+      Without it, only playing on one device or through a relay works.</li>
+  </ul>
+  <p>You can change both at any time in the device settings.</p>
+
+  <h3>The web app can't reach my relay</h3>
+  <p>In a browser over https (like this website) Klunki can only reach secure relays (<code>wss://</code>). For a
+    relay on your own Wi-Fi, use the app or open the web app directly from the relay
+    (<code>http://&lt;computer address&gt;:4749/</code>).</p>
+
+  <p><a href="../privacy/#en">Privacy policy</a> · <a href="../impressum/#en">Legal notice (Impressum)</a></p>
+</article>
+</main>
+</body>
+</html>

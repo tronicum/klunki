@@ -6,8 +6,9 @@ games are KLD-090.
 
 - **Hot-seat**: one browser. Menu → Quartett (Trumpf) → deck → Spielen, then
   pick stats, "Weiter", acknowledge the handover cover, to the result dialog.
-- **Network**: two browsers. A hosts Quartett (Trumpf) through the relay, B
-  types the room code. Both play to the end; the waiting browser sometimes
+- **Network**: two browsers. A taps "Raum starten" and opens a Quartett
+  (Trumpf) room through the relay, B taps "Raum beitreten" and types the
+  room code. Both play to the end; the waiting browser sometimes
   taps "Weiter" and sometimes lets the 5 s grace run out, so tricks queue up.
 
 Every trick each browser shows is logged (`tricks.log`). The run fails if:
@@ -69,7 +70,7 @@ for this; the labels are the German UI texts (the driver sets the locale).
 ## Files
 
 - `browser.mjs`: generic Firefox/BiDi driver (start, load PWA, semantics
-  nodes, tap, type, host a room, join by code).
+  nodes, tap, type, start a room, join by code).
 - `live.mjs`: generic game loop (hot-seat and network), logs, checks, report.
 - `quartett_trumpf.mjs`: the Quartett (Trumpf) adapter (read the screen,
   choose a stat, the turn rule).

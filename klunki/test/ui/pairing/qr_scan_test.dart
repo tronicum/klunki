@@ -85,13 +85,13 @@ PairingDeps _deps(_Calls calls, {bool scan = true}) => PairingDeps(
           : null,
     );
 
-Future<void> _openJoinTab(WidgetTester tester, PairingDeps deps) async {
+/// "Raum beitreten" without opening the camera on its own ([scanFirst]
+/// false), so the tests open it with the button.
+Future<void> _openJoinTab(WidgetTester tester, PairingDeps deps, {bool scanFirst = false}) async {
   tester.view.physicalSize = const Size(800, 2000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(localizedApp(PairingScreen(deps: deps)));
-  await tester.pump();
-  await tester.tap(find.byIcon(Icons.login));
+  await tester.pumpWidget(localizedApp(PairingScreen(deps: deps, mode: RoomMode.join, scanFirst: scanFirst)));
   await tester.pump();
 }
 
@@ -116,7 +116,28 @@ Future<void> _openScanner(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('the join tab has a "QR-Code scannen" button with a camera icon', (tester) async {
+  // KLD-098: "Raum beitreten" leads straight to the camera; closing it
+  // leaves the code field.
+  testWidgets('"Raum beitreten" opens the scanner right away; closing it shows the code field', (tester) async {
+    final calls = _Calls();
+    await _openJoinTab(tester, _deps(calls), scanFirst: true);
+    await _settle(tester);
+    expect(find.byKey(const Key('qr-scan-screen')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('qr-scan-cancel')));
+    await _settle(tester);
+    expect(find.byKey(const Key('qr-scan-screen')), findsNothing);
+    expect(find.byKey(const Key('room-code')), findsOneWidget);
+    expect(calls.scanners, hasLength(1));
+  });
+
+  testWidgets('without a camera "Raum beitreten" shows the code field right away', (tester) async {
+    await _openJoinTab(tester, _deps(_Calls(), scan: false), scanFirst: true);
+    await _settle(tester);
+    expect(find.byKey(const Key('qr-scan-screen')), findsNothing);
+    expect(find.byKey(const Key('room-code')), findsOneWidget);
+  });
+
+  testWidgets('the join screen has a "QR-Code scannen" button with a camera icon', (tester) async {
     await _openJoinTab(tester, _deps(_Calls()));
     final button = find.byKey(const Key('pair-scan'));
     expect(button, findsOneWidget);
@@ -143,7 +164,7 @@ void main() {
     await _openJoinTab(tester, _deps(calls));
     await _openScanner(tester);
     expect(find.byKey(const Key('fake-preview')), findsOneWidget);
-    expect(find.text('Richte die Kamera auf den QR-Code des Gastgebers.'), findsOneWidget);
+    expect(find.text('Richte die Kamera auf den QR-Code des anderen Geräts.'), findsOneWidget);
     expect(find.byKey(const Key('qr-scan-torch')), findsNothing); // no torch reported
 
     await tester.tap(find.byKey(const Key('qr-scan-cancel')));
@@ -167,7 +188,8 @@ void main() {
     expect(calls.direct, [('192.168.1.20', 4747, 'Pixel')]);
     expect(find.byKey(const Key('pair-join-progress')), findsOneWidget);
     expect(find.textContaining('Anna'), findsWidgets);
-    expect(tester.widget<TextField>(find.byKey(const Key('pair-manual'))).controller!.text, '192.168.1.20:4747');
+    expect(tester.widget<TextField>(find.byKey(const Key('pair-manual'), skipOffstage: false)).controller!.text,
+        '192.168.1.20:4747');
     await _drain(tester);
   });
 
@@ -202,7 +224,7 @@ void main() {
     expect(tester.widget<TextField>(find.byKey(const Key('room-code'))).controller!.text, 'K7Q 2M');
     expect(calls.settings.value, isNull);
     expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
-    expect(find.byKey(const Key('relay-line-unset')), findsOneWidget);
+    expect(find.byKey(const Key('relay-line-unset'), skipOffstage: false), findsOneWidget); // under "Erweitert"
     // An app has no page origin: no foreign-relay warning.
     expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
     await _drain(tester);
@@ -219,7 +241,7 @@ void main() {
     await _settle(tester);
     expect(calls.relay, [(Uri.parse('ws://10.0.0.9:4749/relay'), 'ABCDE', 'Pixel')]);
     expect(calls.settings.value, saved);
-    expect(find.text('Relay: 192.168.1.20:4749'), findsOneWidget);
+    expect(find.text('Relay: 192.168.1.20:4749', skipOffstage: false), findsOneWidget);
     expect(find.text('Relay aus Link: 10.0.0.9:4749'), findsOneWidget);
     expect(find.byKey(const Key('room-error')), findsOneWidget);
 
@@ -234,7 +256,7 @@ void main() {
     await tester.tap(find.byKey(const Key('room-link-relay-save')));
     await _settle(tester);
     expect(calls.settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
-    expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+    expect(find.text('Relay: 10.0.0.9:4749', skipOffstage: false), findsOneWidget);
     expect(find.byKey(const Key('room-link-relay')), findsNothing);
     await _drain(tester);
   });
@@ -265,7 +287,7 @@ void main() {
     await tester.tap(find.byKey(const Key('qr-scan-type-instead')));
     await _settle(tester);
     expect(find.byKey(const Key('qr-scan-screen')), findsNothing);
-    expect(find.byKey(const Key('pair-manual')), findsOneWidget);
+    expect(find.byKey(const Key('room-code')), findsOneWidget);
     expect(calls.direct, isEmpty);
   });
 

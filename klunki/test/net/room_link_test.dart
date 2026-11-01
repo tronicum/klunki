@@ -7,6 +7,18 @@ import 'package:klunki/ui/pairing/relay_errors.dart';
 import 'package:klunki_net/klunki_net.dart';
 
 void main() {
+  test('KLD-096: an https page cannot open ws:// (except loopback); http pages and natively it can', () {
+    final https = Uri.parse('https://user.github.io/klunki/');
+    bool blocks(Uri? page, String target) => browserBlocksWebSocket(pageUrl: page, target: Uri.parse(target));
+    expect(blocks(https, 'ws://192.168.1.20:8081/relay'), isTrue);
+    expect(blocks(https, 'ws://pc.local:4748'), isTrue);
+    expect(blocks(https, 'wss://relay.example/relay'), isFalse);
+    expect(blocks(https, 'ws://localhost:8081/relay'), isFalse);
+    expect(blocks(https, 'ws://127.0.0.1:8081/relay'), isFalse);
+    expect(blocks(Uri.parse('http://192.168.1.20:8081/'), 'ws://192.168.1.20:8081/relay'), isFalse);
+    expect(blocks(null, 'ws://192.168.1.20:8081/relay'), isFalse);
+  });
+
   group('KLD-083: loopback hosts', () {
     test('localhost, 127.x, ::1 and *.localhost are loopback', () {
       for (final h in ['localhost', 'LOCALHOST', '127.0.0.1', '127.1.2.3', '::1', '[::1]', '0:0:0:0:0:0:0:1',
@@ -15,7 +27,7 @@ void main() {
       }
     });
     test('LAN IPs, .local names and hostnames are not', () {
-      for (final h in ['192.168.178.105', '10.0.0.9', 'fd00::5', 'fe80::1', 'pc.local', 'klunki.example',
+      for (final h in ['192.168.1.20', '10.0.0.9', 'fd00::5', 'fe80::1', 'pc.local', 'klunki.example',
           'localhost.example', 'mylocalhost', '128.0.0.1', '']) {
         expect(isLoopbackHost(h), isFalse, reason: h);
       }

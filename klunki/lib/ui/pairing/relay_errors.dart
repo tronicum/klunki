@@ -98,7 +98,7 @@ String? relayErrorText(BuildContext context, Object error, {String? code, Uri? r
     RelayFailure.unknownCode => l10n.relayErrorUnknownCode(room),
     RelayFailure.roomFull => l10n.relayErrorRoomFull(room),
     RelayFailure.seatTaken => l10n.pairingSeatTaken,
-    RelayFailure.hostLeft => l10n.relayErrorHostLeft,
+    RelayFailure.hostLeft => l10n.relayErrorRoomClosed,
     RelayFailure.expired => l10n.relayErrorExpired,
     RelayFailure.unreachable => l10n.relayErrorUnreachable(
       relay == null ? '?' : bidiLtr(context, relayAddressLabel(relay)),

@@ -604,7 +604,7 @@ void main() {
       expect(relayUriForPage(Uri.parse('https://klunki.example/app/')).toString(), 'wss://klunki.example/relay');
       expect(relayUriForPage(Uri.parse('file:///index.html')), isNull);
       // KLD-083: `.local` names and bracketed IPv6 hosts.
-      expect(parseRelayUrl('Stefans-MacBook.local:8081').toString(), 'ws://stefans-macbook.local:8081/relay');
+      expect(parseRelayUrl('my-computer.local:8081').toString(), 'ws://my-computer.local:8081/relay');
       expect(parseRelayUrl('[::1]:8081').toString(), 'ws://[::1]:8081/relay');
       expect(parseRelayUrl('http://[fd00::5]:8081/').toString(), 'ws://[fd00::5]:8081/relay');
       expect(relayUriForPage(Uri.parse('http://pc.local:8081/')).toString(), 'ws://pc.local:8081/relay');

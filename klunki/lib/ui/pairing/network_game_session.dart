@@ -119,7 +119,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
     }
     final reason = t.lastDisconnectReason ?? '';
     // A relay host that says bye has closed its session, and with it the room.
-    if (reason.startsWith('peer left')) return AppLocalizations.of(context).relayErrorHostLeft;
+    if (reason.startsWith('peer left')) return AppLocalizations.of(context).relayErrorRoomClosed;
     if (!relayRoomClosed(classifyRelayError(reason))) return null;
     return relayErrorText(context, reason, code: t.roomCode, relay: t.relayUrl);
   }

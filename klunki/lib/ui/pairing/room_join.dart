@@ -19,7 +19,8 @@ typedef RelayJoinTransportFactory = Future<NetworkTransport> Function(Uri relay,
 Future<NetworkTransport> platformRelayJoin(Uri relay, String code, {required String name}) =>
     NetworkTransport.joinRelay(relay, code, name: name);
 
-/// "Mit Raumcode beitreten" (KLD-057b): a room-code field, a join button,
+/// The room-code join (KLD-057b; KLD-098: "Raumcode eintippen" on "Raum
+/// beitreten"): a room-code field, a join button,
 /// progress with cancel and friendly relay errors. The relay is the shared
 /// [settings] (shown and changed by the [RelayLine] above it; in the browser
 /// [defaultRelay], the page's own server, until another one is chosen; with
@@ -40,7 +41,7 @@ class RoomCodeJoin extends StatefulWidget {
   /// browser, null natively.
   final Uri? defaultRelay;
 
-  /// The shared relay setting (also used by "Spiel hosten").
+  /// The shared relay setting (also used by "Raum starten").
   final RelaySettings settings;
 
   /// Prefills the code (`?room=`).
@@ -59,6 +60,11 @@ class RoomCodeJoin extends StatefulWidget {
   final String Function() playerName;
   final void Function(NetworkTransport transport) onConnected;
 
+  /// The browser page (null natively): an `https:` page cannot reach a
+  /// `ws://` relay (KLD-096), so such a join fails right away with a clear
+  /// message.
+  final Uri? pageUrl;
+
   const RoomCodeJoin({
     super.key,
     required this.joinTransport,
@@ -71,6 +77,7 @@ class RoomCodeJoin extends StatefulWidget {
     this.linkRelay,
     this.autoConnect = false,
     this.ready,
+    this.pageUrl,
   });
 
   @override
@@ -133,6 +140,13 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
 
   Future<void> _connect(String code, Uri relay) async {
     if (_joining != null) return;
+    if (browserBlocksWebSocket(pageUrl: widget.pageUrl, target: relay)) {
+      setState(() {
+        _error = AppLocalizations.of(context).webJoinHttpsWarning;
+        _showStartHint = false;
+      });
+      return;
+    }
     final attempt = ++_attempt;
     setState(() {
       _joining = formatRoomCode(code);
@@ -278,9 +292,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
       key: const Key('room-join'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.relayJoinTitle, style: theme.textTheme.titleSmall),
-        const SizedBox(height: 4),
-        Text(l10n.relayJoinIntro, key: const Key('room-join-intro'), style: theme.textTheme.bodySmall),
+        Text(l10n.roomTypeCode, key: const Key('room-join-title'), style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
         _linkRelayNotice(context, busy),
         TextField(
@@ -305,7 +317,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
           decoration: InputDecoration(
             labelText: l10n.relayRoomCode,
             hintText: 'K7Q 2M',
-            helperText: l10n.relayCodeHelper,
+            helperText: l10n.roomCodeHelper,
             helperMaxLines: 2,
             errorText: _codeError,
             errorMaxLines: 3,
@@ -319,7 +331,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
           key: const Key('room-join-button'),
           onPressed: busy ? null : _join,
           icon: const Icon(Icons.meeting_room_outlined),
-          label: Text(l10n.relayJoin),
+          label: Text(l10n.roomJoin),
         ),
         if (busy) ...[
           const SizedBox(height: 16),
@@ -347,7 +359,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
   }
 }
 
-/// "Browser gegen Browser braucht ein Relay …" plus the start command
+/// "Räume mit Raumcode brauchen ein Relay …" plus the start command
 /// (left-to-right, selectable).
 class RelayStartHint extends StatelessWidget {
   const RelayStartHint({super.key});

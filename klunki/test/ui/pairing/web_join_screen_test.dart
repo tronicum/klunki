@@ -10,6 +10,7 @@ import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
+import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/connect4/connect4_board.dart';
 import 'package:klunki/ui/games/connect4_screen.dart';
@@ -40,6 +41,8 @@ Future<void> _pumpScreen(WidgetTester tester, WebJoinScreen screen) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(localizedApp(screen));
   await tester.pump();
+  // KLD-098: the direct connection is under "Erweitert".
+  await openAdvanced(tester, 'web-join-advanced');
 }
 
 Future<void> _enterAndConnect(WidgetTester tester, String input) async {
@@ -53,13 +56,14 @@ Uri _ws(String host, int port) => Uri(scheme: 'ws', host: host, port: port);
 
 void main() {
   group('web join screen', () {
-    testWidgets('join-only: no host tab, no discovery list; name defaults to "Browser"', (tester) async {
+    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Browser"', (tester) async {
       final r = _Recorder();
       await _pumpScreen(tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join)));
-      expect(find.text('Über WLAN spielen'), findsOneWidget);
-      expect(find.text('Hosten'), findsNothing);
+      expect(find.widgetWithText(AppBar, 'Raum beitreten'), findsOneWidget);
+      expect(find.text('Raum starten'), findsNothing);
+      expect(find.byKey(const Key('web-host')), findsNothing);
       expect(find.byKey(const Key('pair-host-panel')), findsNothing);
-      expect(find.text('Suche nach Spielen…'), findsNothing);
+      expect(find.text('Suche nach Räumen…'), findsNothing);
       expect(tester.widget<TextField>(find.byKey(const Key('web-join-name'))).controller!.text, 'Browser');
       expect(find.textContaining('Browser-Port (WebSocket)'), findsOneWidget, reason: 'helper explains the port');
       expect(find.byKey(const Key('web-join-https')), findsNothing);
@@ -144,6 +148,47 @@ void main() {
       await _pumpScreen(
           tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join), pageUrl: Uri.parse('https://x.example/')));
       expect(find.byKey(const Key('web-join-https')), findsOneWidget);
+      expect(find.textContaining('nur sichere Relays (wss://)'), findsOneWidget);
+    });
+
+    testWidgets('KLD-096: an https page does not try ws:// to the LAN and says why', (tester) async {
+      final r = _Recorder();
+      await _pumpScreen(tester,
+          WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join), pageUrl: Uri.parse('https://x.example/klunki/')));
+      await _enterAndConnect(tester, '10.0.0.7');
+      expect(r.calls, isEmpty);
+      expect(find.byKey(const Key('web-join-progress')), findsNothing);
+      expect(tester.widget<Text>(find.byKey(const Key('web-join-error'))).data!, contains('nur sichere Relays (wss://)'));
+      // Loopback is allowed by browsers even from https.
+      await _enterAndConnect(tester, 'ws://localhost:4748');
+      expect(r.calls.single.$1, _ws('localhost', 4748));
+    });
+
+    testWidgets('KLD-096: an https page does not join a ws:// relay by room code and says why', (tester) async {
+      final r = _Recorder();
+      var relayJoins = 0;
+      final settings = RelaySettings.memory()..set(Uri.parse('ws://192.168.1.20:8081/relay'));
+      await _pumpScreen(
+        tester,
+        WebJoinScreen(
+          deps: WebJoinDeps(
+            joinTransport: r.join,
+            relayJoin: (relay, code, {required name}) {
+              relayJoins++;
+              return Future.error(StateError('unused'));
+            },
+            relaySettings: () => settings,
+          ),
+          pageUrl: Uri.parse('https://x.example/klunki/'),
+        ),
+      );
+      await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
+      await tester.ensureVisible(find.byKey(const Key('room-join-button')));
+      await tester.tap(find.byKey(const Key('room-join-button')));
+      await tester.pump();
+      expect(relayJoins, 0);
+      expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data!, contains('nur sichere Relays (wss://)'));
+      expect(find.byKey(const Key('room-start-hint')), findsNothing);
     });
   });
 
@@ -236,7 +281,8 @@ void main() {
     await tester.tap(on(hostKey, find.byKey(const Key('pair-game-connect4'))));
     await tester.pump();
     await tester.tap(on(hostKey, find.byKey(const Key('pair-host-start'))));
-    await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('pair-link'))), what: 'host shows the link');
+    await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('pair-host-waiting'))), what: 'host waits');
+    await openAdvanced(tester, 'pair-waiting-advanced');
     final host = created.hosts.single;
     final link = tester.widget<SelectableText>(on(hostKey, find.byKey(const Key('pair-link')))).data!;
     expect(link, contains('w=${host.wsPort}'));
@@ -245,6 +291,7 @@ void main() {
     await tester.tap(on(webKey, find.byKey(const Key('open-web-join'))));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1)); // route transition (the host's spinner never settles)
+    await openAdvanced(tester, 'web-join-advanced');
     // An Arabic name in the German UI (KLD-056).
     await tester.enterText(on(webKey, find.byKey(const Key('web-join-name'))), 'علی');
     await tester.enterText(on(webKey, find.byKey(const Key('web-join-address'))), link);
@@ -276,6 +323,9 @@ void main() {
 
     // The browser leaves: the host sees the banner.
     await tester.tap(on(webKey, find.byType(BackButton)));
+    await tester.pumpAndSettle();
+    // KLD-099: leaving a running network game asks first.
+    await tester.tap(on(webKey, find.byKey(const Key('leave-confirm'))));
     await tester.pumpAndSettle();
     await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('net-banner'))), what: 'host banner');
     expect(on(hostKey, find.textContaining('\u2068علی\u2069 hat das Spiel verlassen')), findsOneWidget,

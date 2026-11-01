@@ -47,7 +47,7 @@ String _status(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key(
 
 void main() {
   group('first-run dialog', () {
-    testWidgets('appears once on "Über WLAN spielen", prefilled with the device name', (tester) async {
+    testWidgets('appears once on "Raum starten", prefilled with the device name', (tester) async {
       tester.view.physicalSize = const Size(800, 1400);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -118,9 +118,10 @@ void main() {
       await tester.tap(find.byKey(const Key('pair-host-start')));
       await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty,
           what: 'host waiting view');
-      expect(find.text('Anna hostet 4 Gewinnt'), findsOneWidget);
+      expect(find.text('Raum von Anna: 4 Gewinnt'), findsOneWidget);
       expect(discovery.advertised?.name, 'Anna');
-      expect(tester.widget<SelectableText>(find.byKey(const Key('pair-link'))).data, contains('n=Anna'));
+      expect(tester.widget<SelectableText>(find.byKey(const Key('pair-link'), skipOffstage: false)).data,
+          contains('n=Anna'));
       await unmountAndSettleSockets(tester, created);
     });
   });

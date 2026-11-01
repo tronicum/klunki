@@ -34,13 +34,17 @@ typedef RelayHostTransportFactory = Future<NetworkTransport> Function(
 Future<NetworkTransport> platformRelayHost(GameConfig config, Uri relay, {required String name}) =>
     NetworkTransport.hostRelay(config, relay, name: name);
 
-/// "Spiel hosten" through the relay (KLD-057b), the browser's way to host:
-/// pick a game, open a room on the relay (the shared [relaySettings], shown
-/// as "Relay: … · ändern"; [defaultRelay] = the page's own server until
-/// another one is chosen), then wait with the room code (large,
+/// "Raum starten" through the relay (KLD-057b, KLD-098): the browser's only
+/// way to open a room, and the app's when "Raum über ein Relay öffnen" is on.
+/// Pick a game, open a room on the relay (the shared [relaySettings], shown
+/// under "Erweitert" as "Relay: … · ändern"; [defaultRelay] = the page's own
+/// server until another one is chosen), then wait with the room code (large,
 /// grouped `K7Q 2M`), a QR code and the `?room=` link. When the guest
 /// arrives the route is replaced by the same [NetworkGameSession] as in the
 /// apps. A page not served by a relay gets the "how to start one" hint.
+///
+/// [autoStart] opens the room right away with [initialGameId] (the app's
+/// "Raum starten" hands over here after the game was chosen).
 class RelayHostScreen extends StatefulWidget {
   final RelayHostTransportFactory hostTransport;
 
@@ -67,6 +71,12 @@ class RelayHostScreen extends StatefulWidget {
   /// Overrides the app's player name controller (tests).
   final PlayerNameController? nameController;
 
+  /// The preselected game (default: the first network game).
+  final String? initialGameId;
+
+  /// Opens the room as soon as the screen is shown.
+  final bool autoStart;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -77,6 +87,8 @@ class RelayHostScreen extends StatefulWidget {
     this.seed = newGameSeed,
     this.deviceName = _browser,
     this.nameController,
+    this.initialGameId,
+    this.autoStart = false,
   });
 
   static String _browser() => 'Browser';
@@ -86,7 +98,7 @@ class RelayHostScreen extends StatefulWidget {
 }
 
 class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField {
-  String _gameId = networkGameSpecs.first.id;
+  late String _gameId = widget.initialGameId ?? networkGameSpecs.first.id;
   late final QuartettDeckSettings _deckSettings = widget.deckSettings ?? QuartettDeckSettings.memory();
   late String _deck = _deckSettings.value;
 
@@ -108,6 +120,17 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   String playerNameSuggestion() => widget.deviceName();
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.autoStart) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await playerNameReady;
+        if (mounted && _transport == null && !_starting) _start();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _teardown();
     super.dispose();
@@ -124,6 +147,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     final l10n = AppLocalizations.of(context);
     final relay = await relayOrAsk(context, _settings, defaultRelay: widget.defaultRelay);
     if (relay == null || !mounted) return;
+    if (browserBlocksWebSocket(pageUrl: widget.pageUrl, target: relay)) {
+      // KLD-096: the browser would refuse ws:// from this https page.
+      setState(() {
+        _error = l10n.webJoinHttpsWarning;
+        _showStartHint = false;
+      });
+      return;
+    }
     setState(() {
       _starting = true;
       _error = null;
@@ -138,7 +169,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         final failure = classifyRelayError(e);
         setState(() {
           _starting = false;
-          _error = relayErrorText(context, e, relay: relay) ?? l10n.pairingHostStartFailed('$e');
+          _error = relayErrorText(context, e, relay: relay) ?? l10n.roomStartFailed('$e');
           _showStartHint = failure == RelayFailure.unreachable;
         });
       }
@@ -190,7 +221,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     final l10n = AppLocalizations.of(context);
     final t = _transport;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.pairingHostGame)),
+      appBar: AppBar(title: Text(l10n.roomStart)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -210,6 +241,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     return [
+      if (widget.pageUrl?.scheme == 'https') ...[
+        Text(
+          l10n.webJoinHttpsWarning,
+          key: const Key('relay-host-https'),
+          style: TextStyle(color: theme.colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+      ],
       playerNameField(key: const Key('relay-host-name'), enabled: !_starting),
       const SizedBox(height: 16),
       Text(l10n.pairingChooseGame, style: theme.textTheme.titleMedium),
@@ -245,19 +284,17 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           },
         ),
       ],
-      const SizedBox(height: 8),
-      RelayLine(settings: _settings, defaultRelay: widget.defaultRelay, enabled: !_starting),
-      const SizedBox(height: 8),
+      const SizedBox(height: 16),
       FilledButton.icon(
         key: const Key('relay-host-start'),
         onPressed: _starting ? null : _start,
         icon: _starting
             ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-            : const Icon(Icons.wifi_tethering),
-        label: Text(l10n.pairingHostGame),
+            : const Icon(Icons.meeting_room_outlined),
+        label: Text(l10n.roomStart),
       ),
       const SizedBox(height: 8),
-      Text(l10n.relayHostIntro, style: theme.textTheme.bodySmall),
+      Text(l10n.roomStartIntro, key: const Key('relay-host-intro'), style: theme.textTheme.bodySmall),
       if (_error != null) ...[
         const SizedBox(height: 16),
         Text(
@@ -267,6 +304,12 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         ),
         if (_showStartHint) const RelayStartHint(key: Key('relay-host-start-hint')),
       ],
+      const SizedBox(height: 8),
+      // KLD-098: the relay address only matters once, when it is set up.
+      RoomAdvanced(
+        id: 'relay-host-advanced',
+        children: [RelayLine(settings: _settings, defaultRelay: widget.defaultRelay, enabled: !_starting)],
+      ),
     ];
   }
 
@@ -286,7 +329,8 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            l10n.pairingHosting(bidiName(context, t.localName), title),
+            l10n.roomOfPlayer(bidiName(context, t.localName), title),
+            key: const Key('relay-host-title'),
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
@@ -336,13 +380,6 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
               short: !_isWebPage(widget.pageUrl),
             ),
           Text(l10n.relayWaitingHint, key: const Key('relay-host-hint'), textAlign: TextAlign.center),
-          const SizedBox(height: 4),
-          Text(
-            l10n.relayInfo(bidiLtr(context, relayAddressLabel(relay))),
-            key: const Key('relay-host-relay'),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall,
-          ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -355,6 +392,17 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           RefusedGuestNotice(transport: t),
           const SizedBox(height: 16),
           OutlinedButton(key: const Key('relay-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
+          const SizedBox(height: 8),
+          RoomAdvanced(
+            id: 'relay-host-waiting-advanced',
+            children: [
+              Text(
+                l10n.relayInfo(bidiLtr(context, relayAddressLabel(relay))),
+                key: const Key('relay-host-relay'),
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
+          ),
         ],
       ),
     ];

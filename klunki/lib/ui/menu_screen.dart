@@ -16,10 +16,16 @@ import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoi
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+/// Whether the menu links the debug console: only outside release builds.
+/// The App Store screenshots (debug-mode tests) switch it off.
+@visibleForTesting
+bool menuShowsDebugConsole = !kReleaseMode;
+
 /// The game-selection menu: a tile per game in `appGameSpecs` order (drawn
 /// illustration on the game's accent colour, title, one-liner; see
-/// `game_visuals.dart`), then the network entry. Tapping a game starts a
-/// hot-seat game with a fresh random seed (see [openGame]).
+/// `game_visuals.dart`), then "Mit anderen Geräten spielen" (KLD-098: the
+/// two room buttons, "Raum starten" and "Raum beitreten"). Tapping a game
+/// starts a hot-seat game with a fresh random seed (see [openGame]).
 ///
 /// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
 /// browser join screen on top of the menu and connects right away, so "back"
@@ -72,7 +78,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final palette = KlunkiPalette.of(context);
-    final pairing = pairingScreenBuilder;
+    final start = roomStartScreenBuilder, join = roomJoinScreenBuilder;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: palette.backgroundTop,
@@ -123,18 +129,21 @@ class _MenuScreenState extends State<MenuScreen> {
                         ),
                       ),
                     ),
-                    // Native: host or join (KLD-034); web: host via relay or join (KLD-055, KLD-057b).
-                    if (pairing != null) ...[
+                    // KLD-098: "Mit anderen Geräten spielen": start or join a
+                    // room (native: on this device or through the relay; web:
+                    // through the relay, KLD-034/055/057b).
+                    if (start != null && join != null) ...[
                       const SizedBox(height: 16),
                       _SectionLabel(icon: Icons.devices_outlined, text: l10n.menuSectionNetwork),
                       const SizedBox(height: 8),
-                      _NetworkCard(
+                      _RoomButtons(
                         accent: palette.networkAccent,
-                        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: pairing)),
+                        onStart: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: start)),
+                        onJoin: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: join)),
                       ),
                     ],
                     // Text frontend for engine testing; hidden in release builds.
-                    if (!kReleaseMode)
+                    if (menuShowsDebugConsole)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Align(
@@ -323,51 +332,92 @@ class _GameTile extends StatelessWidget {
   }
 }
 
-/// The network entry: host or join a game with a second device.
-class _NetworkCard extends StatelessWidget {
+/// KLD-098: "Raum starten" and "Raum beitreten", two equal buttons side by
+/// side (stacked on very narrow screens), the same height.
+class _RoomButtons extends StatelessWidget {
   final GameAccent accent;
+  final VoidCallback onStart;
+  final VoidCallback onJoin;
+  const _RoomButtons({required this.accent, required this.onStart, required this.onJoin});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final start = _RoomButton(
+      key: const Key('menu-room-start'),
+      accent: accent,
+      icon: Icons.meeting_room_outlined,
+      title: l10n.roomStart,
+      subtitle: l10n.roomStartSubtitle,
+      onTap: onStart,
+    );
+    final join = _RoomButton(
+      key: const Key('menu-room-join'),
+      accent: accent,
+      icon: Icons.qr_code_scanner,
+      title: l10n.roomJoin,
+      subtitle: l10n.roomJoinSubtitle,
+      onTap: onJoin,
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        if (box.maxWidth < 300) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [start, const SizedBox(height: 12), join],
+          );
+        }
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [Expanded(child: start), const SizedBox(width: 12), Expanded(child: join)],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RoomButton extends StatelessWidget {
+  final GameAccent accent;
+  final IconData icon;
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
-  const _NetworkCard({required this.accent, required this.onTap});
+  const _RoomButton({
+    super.key,
+    required this.accent,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
     return Card(
-      key: const Key('menu-network'),
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
-            border: BorderDirectional(start: BorderSide(color: accent.color, width: 5)),
+            border: Border(top: BorderSide(color: accent.color, width: 4)),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
+          padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(color: accent.color, shape: BoxShape.circle),
-                child: Icon(Icons.wifi, color: accent.onColor),
+                child: Icon(icon, color: accent.onColor),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.menuPlayOverWifi,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      l10n.menuNetworkSubtitle,
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.chevron_right, color: accent.onSurface(theme.brightness)),
+              const SizedBox(height: 10),
+              Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             ],
           ),
         ),

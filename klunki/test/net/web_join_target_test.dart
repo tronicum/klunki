@@ -20,7 +20,7 @@ void main() {
     });
 
     test('host names work like IPs', () {
-      expect(WebJoinTarget.tryParse('stefans-mac.local')!.uri, _ws('stefans-mac.local', 4748));
+      expect(WebJoinTarget.tryParse('my-computer.local')!.uri, _ws('my-computer.local', 4748));
     });
 
     test('klunki:// link uses w=, with name and game', () {

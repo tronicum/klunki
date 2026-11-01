@@ -90,6 +90,10 @@ class ShellStatus {
 /// * app bar with the game title, undo (hot-seat), restart, resign
 ///   ("Aufgeben", KLD-065: with a confirmation; in hot-seat the dialog asks
 ///   which player gives up) and move history,
+/// * leaving a running game asks first ("Spiel verlassen?", KLD-099): back
+///   button, system/predictive back; over the network always, in hot-seat
+///   once the game is under way. A confirm dialog closes itself when the
+///   game ends underneath it (e.g. the opponent resigns),
 /// * status line ("X ist am Zug", with names "Anna (X) ist am Zug" or, on a
 ///   network device, "Du bist am Zug (X)" / "Warte auf Ben (O)…") plus a
 ///   hint line the board can set
@@ -144,6 +148,13 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   bool _resultShown = false;
   bool _resultHeld = false;
   late GameTransport _transport;
+
+  /// The open "are you sure?" dialog (resign or leave, KLD-099), closed when
+  /// the game ends underneath it.
+  ModalRoute<Object?>? _confirmRoute;
+
+  /// Set once the player confirmed leaving: lets the route pop.
+  bool _leaving = false;
 
   @override
   GameController get controller => widget.controller;
@@ -240,8 +251,78 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     if (!controller.game.isOver) {
       _resultShown = false;
     } else {
+      _closeConfirm();
       _maybeShowResult();
     }
+  }
+
+  /// Shows an "are you sure?" dialog that closes itself (answering null) if
+  /// the game ends while it is open, e.g. when the opponent resigns (KLD-099).
+  Future<T?> _confirm<T>(WidgetBuilder builder) async {
+    try {
+      return await showDialog<T>(
+        context: context,
+        builder: (ctx) {
+          _confirmRoute = ModalRoute.of(ctx);
+          return builder(ctx);
+        },
+      );
+    } finally {
+      _confirmRoute = null;
+    }
+  }
+
+  void _closeConfirm() {
+    final r = _confirmRoute;
+    _confirmRoute = null;
+    final nav = r?.navigator;
+    if (r == null || nav == null || !r.isActive) return;
+    if (r.isCurrent) {
+      nav.pop();
+    } else {
+      nav.removeRoute(r);
+    }
+  }
+
+  /// Leaving asks first (KLD-099) while the game is running: always over the
+  /// network (it ends the game for both devices), in hot-seat once the game
+  /// is under way.
+  bool get _confirmLeave => !_leaving && !controller.game.isOver && (!_canRestart || _underway);
+
+  /// A hot-seat game is under way once each side has moved, or after a few
+  /// moves (some games let one side move several times in a row).
+  bool get _underway {
+    final moves = controller.moves.where((m) => Game.resignerOf(m.move) == null);
+    if (moves.length >= 4) return true;
+    return moves.any((m) => m.player == Player.a) && moves.any((m) => m.player == Player.b);
+  }
+
+  /// Back button, system back, predictive back: "Spiel verlassen?" first.
+  Future<void> _leave() async {
+    final l10n = AppLocalizations.of(context);
+    final ok = await _confirm<bool>(
+      (ctx) => AlertDialog(
+        key: const Key('leave-dialog'),
+        title: Text(l10n.shellLeaveTitle),
+        content: Text(_canRestart ? l10n.shellNewGameBody : l10n.shellLeaveBody),
+        actions: [
+          TextButton(
+            key: const Key('leave-cancel'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.shellCancel),
+          ),
+          FilledButton(
+            key: const Key('leave-confirm'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.shellLeave),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    setState(() => _leaving = true);
+    final nav = Navigator.of(context);
+    if (nav.canPop()) nav.pop();
   }
 
   Future<void> _showResult() async {
@@ -334,9 +415,9 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final palette = KlunkiPalette.of(context);
     final accent = palette.accent(controller.spec.id);
     final single = players.length == 1 ? players.first : null;
-    final who = await showDialog<Player>(
-      context: context,
-      builder: (ctx) => AlertDialog(
+    final scheme = Theme.of(context).colorScheme;
+    final who = await _confirm<Player>(
+      (ctx) => AlertDialog(
         key: const Key('resign-dialog'),
         icon: Icon(Icons.flag_outlined, size: 36, color: accent.onSurface(Theme.of(ctx).brightness)),
         title: Text(l10n.shellResignTitle),
@@ -350,6 +431,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
           if (single != null)
             FilledButton(
               key: const Key('resign-confirm'),
+              // Destructive: the game ends for both devices.
+              style: FilledButton.styleFrom(backgroundColor: scheme.error, foregroundColor: scheme.onError),
               onPressed: () => Navigator.of(ctx).pop(single),
               child: Text(l10n.shellResign),
             )
@@ -363,7 +446,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         ],
       ),
     );
-    if (who == null || !mounted) return;
+    if (who == null || !mounted || controller.game.isOver) return;
     await controller.resign(who);
   }
 
@@ -449,110 +532,119 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     return _GameShellScope(
       shell: this,
       hint: _hint,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: accent.color,
-          foregroundColor: accent.onColor,
-          title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
-          actions: [
-            if (controller.transport is HotSeatTransport)
+      // KLD-099: back (app bar, system, predictive back) asks first while
+      // leaving would end a running game; the iOS back swipe is held back
+      // then and the back button shows the dialog.
+      child: PopScope<Object?>(
+        canPop: !_confirmLeave,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop && _confirmRoute == null) _leave();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: accent.color,
+            foregroundColor: accent.onColor,
+            title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
+            actions: [
+              if (controller.transport is HotSeatTransport)
+                IconButton(
+                  key: const Key('shell-undo'),
+                  tooltip: l10n.shellUndo,
+                  icon: const Icon(Icons.undo),
+                  onPressed: controller.canUndo ? controller.undo : null,
+                ),
+              // Hot-seat names (KLD-056), when the app provides the store.
+              if (_canRestart && PlayerNameScope.maybeOf(context) != null)
+                IconButton(
+                  key: const Key('shell-names'),
+                  tooltip: l10n.hotSeatNamesTitle,
+                  icon: const Icon(Icons.people_outline),
+                  onPressed: () => showHotSeatNamesDialog(context),
+                ),
+              if (_canRestart)
+                IconButton(
+                  key: const Key('shell-restart'),
+                  tooltip: l10n.shellNewGame,
+                  icon: const Icon(Icons.refresh),
+                  onPressed: _restart,
+                ),
+              if (controller.canResign.isNotEmpty)
+                IconButton(
+                  key: const Key('shell-resign'),
+                  tooltip: l10n.shellResign,
+                  icon: const Icon(Icons.flag_outlined),
+                  onPressed: _resign,
+                ),
               IconButton(
-                key: const Key('shell-undo'),
-                tooltip: l10n.shellUndo,
-                icon: const Icon(Icons.undo),
-                onPressed: controller.canUndo ? controller.undo : null,
+                key: const Key('shell-history'),
+                tooltip: l10n.shellMoves,
+                icon: const Icon(Icons.history),
+                onPressed: _showHistory,
               ),
-            // Hot-seat names (KLD-056), when the app provides the store.
-            if (_canRestart && PlayerNameScope.maybeOf(context) != null)
-              IconButton(
-                key: const Key('shell-names'),
-                tooltip: l10n.hotSeatNamesTitle,
-                icon: const Icon(Icons.people_outline),
-                onPressed: () => showHotSeatNamesDialog(context),
-              ),
-            if (_canRestart)
-              IconButton(
-                key: const Key('shell-restart'),
-                tooltip: l10n.shellNewGame,
-                icon: const Icon(Icons.refresh),
-                onPressed: _restart,
-              ),
-            if (controller.canResign.isNotEmpty)
-              IconButton(
-                key: const Key('shell-resign'),
-                tooltip: l10n.shellResign,
-                icon: const Icon(Icons.flag_outlined),
-                onPressed: _resign,
-              ),
-            IconButton(
-              key: const Key('shell-history'),
-              tooltip: l10n.shellMoves,
-              icon: const Icon(Icons.history),
-              onPressed: _showHistory,
-            ),
-          ],
-        ),
-        body: KlunkiBackground(
-          child: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Outside the handover cover: whose turn it is is no secret.
-                _TurnEdge(color: _edgeColor(context, mood, turnPlayer)),
-                Expanded(
-                  child: HandoverCover(
-                    controller: controller,
-                    detail: widget.handoverDetail,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                          // A Wrap, not a Row: on narrow phones with long
-                          // names the legend moves below the pill instead of
-                          // squeezing the status into many lines.
-                          child: Wrap(
-                            alignment: WrapAlignment.spaceBetween,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 8,
-                            runSpacing: 4,
-                            children: [
-                              _TurnIndicator(
-                                gameId: controller.spec.id,
-                                player: turnPlayer,
-                                mood: mood,
-                                network: labels.local != null,
-                                status: status,
-                                badge: override?.badge,
-                              ),
-                              // Hot-seat: both players with their colours (KLD-067).
-                              if (labels.local == null)
-                                _PlayersLegend(
-                                  gameId: controller.spec.id,
-                                  labels: labels,
-                                  current: game.isOver ? null : game.currentPlayer,
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (_hint != null)
+            ],
+          ),
+          body: KlunkiBackground(
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Outside the handover cover: whose turn it is is no secret.
+                  _TurnEdge(color: _edgeColor(context, mood, turnPlayer)),
+                  Expanded(
+                    child: HandoverCover(
+                      controller: controller,
+                      detail: widget.handoverDetail,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
-                            child: Semantics(
-                              liveRegion: true,
-                              child: Text(
-                                _hint!,
-                                key: const Key('shell-hint'),
-                                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                              ),
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                            // A Wrap, not a Row: on narrow phones with long
+                            // names the legend moves below the pill instead of
+                            // squeezing the status into many lines.
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                _TurnIndicator(
+                                  gameId: controller.spec.id,
+                                  player: turnPlayer,
+                                  mood: mood,
+                                  network: labels.local != null,
+                                  status: status,
+                                  badge: override?.badge,
+                                ),
+                                // Hot-seat: both players with their colours (KLD-067).
+                                if (labels.local == null)
+                                  _PlayersLegend(
+                                    gameId: controller.spec.id,
+                                    labels: labels,
+                                    current: game.isOver ? null : game.currentPlayer,
+                                  ),
+                              ],
                             ),
                           ),
-                        Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
-                      ],
+                          if (_hint != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  _hint!,
+                                  key: const Key('shell-hint'),
+                                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                ),
+                              ),
+                            ),
+                          Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

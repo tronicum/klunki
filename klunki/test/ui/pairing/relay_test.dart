@@ -1,4 +1,4 @@
-// KLD-057b: browser vs browser through the relay. The "Spiel hosten" waiting
+// KLD-057b: browser vs browser through the relay. The "Raum starten" waiting
 // screen (room code, QR, link), the room-code join (validation, relay
 // address, error mapping), `?room=` at startup, and an in-process end to end
 // game: a real RelayServer on loopback, host via relay ↔ guest via relay
@@ -74,8 +74,9 @@ void main() {
       await tester.pumpWidget(localizedApp(
           WebJoinScreen(pageUrl: _page, deps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join))));
       await tester.pump();
-      expect(find.byKey(const Key('web-host')), findsOneWidget);
-      expect(find.text('Mit Raumcode beitreten'), findsOneWidget);
+      // KLD-098: "Raum beitreten" only joins; the code field comes first.
+      expect(find.byKey(const Key('web-host')), findsNothing);
+      expect(find.text('Raumcode eintippen'), findsOneWidget);
       for (final bad in ['', 'K7Q2', 'K7Q2MM', 'K7Q0M', 'OIL23']) {
         await tester.enterText(find.byKey(const Key('room-code')), bad);
         await _tapVisible(tester, find.byKey(const Key('room-join-button')));
@@ -91,7 +92,7 @@ void main() {
       expect(r.calls.single, (_pageRelay, 'K7Q2M', 'Browser'));
       expect(find.textContaining('Ungültiger Raumcode'), findsNothing);
       expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data,
-          'Kein Raum mit dem Code K7Q 2M. Stimmt der Code, und wartet der Host noch?');
+          'Kein Raum mit dem Code K7Q 2M. Stimmt der Code, und ist der Raum noch offen?');
     });
 
     testWidgets('relay errors become friendly messages; unreachable shows how to start a relay', (tester) async {
@@ -110,7 +111,8 @@ void main() {
                 mismatch: VersionMismatch(Incompatibility.protocol, PeerAge.older, 'protocol 2 on the other device')):
             'Die Spielversionen passen nicht zusammen: Das andere Gerät hat eine ältere Version. '
                 'Bitte dort die App aktualisieren (Browser: neu laden).',
-        const NetException('relay: host left'): 'Der Host hat den Raum verlassen. Das Spiel ist beendet.',
+        const NetException('relay: host left'):
+            'Der Raum wurde geschlossen: Wer ihn gestartet hat, ist gegangen. Das Spiel ist beendet.',
         const NetException('relay: room expired (idle)'): 'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).',
         const NetException('cannot connect: cannot open ws://192.168.1.5:8000/relay?join=K7Q2M'):
             'Kein Relay erreichbar unter 192.168.1.5:8000.',
@@ -132,7 +134,7 @@ void main() {
       }
     });
 
-    testWidgets('one visible relay line: "ändern" sets another relay; invalid refused; default resets',
+    testWidgets('one relay line under "Erweitert": "ändern" sets another relay; invalid refused; default resets',
         (tester) async {
       await _setSize(tester, const Size(800, 1600));
       final r = _JoinRecorder();
@@ -141,10 +143,10 @@ void main() {
           pageUrl: _page,
           deps: WebJoinDeps(joinTransport: _noJoin, relayJoin: r.join, relaySettings: () => settings))));
       await tester.pump();
-      // No expanders, one relay line for hosting and joining.
-      expect(find.byType(ExpansionTile), findsNothing);
+      // KLD-098: the relay is a technical detail, collapsed under "Erweitert".
+      expect(find.byKey(const Key('relay-line')), findsNothing);
+      await openAdvanced(tester, 'web-join-advanced');
       expect(find.byKey(const Key('relay-line')), findsOneWidget);
-      expect(find.text('Über Relay spielen (Raumcode)'), findsOneWidget);
       expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
 
       await _tapVisible(tester, find.byKey(const Key('relay-change')));
@@ -177,11 +179,12 @@ void main() {
       expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
     });
 
-    testWidgets('the host screen shows the same relay line and uses the shared relay', (tester) async {
+    testWidgets('"Raum starten" shows the same relay line under "Erweitert" and uses the shared relay',
+        (tester) async {
       await _setSize(tester, const Size(800, 1600));
       final hosts = <Uri>[];
       final settings = RelaySettings.memory(Uri.parse('ws://10.0.0.9:4749/relay'));
-      await tester.pumpWidget(localizedApp(WebJoinScreen(
+      await tester.pumpWidget(localizedApp(webRoomStartScreen(
           pageUrl: _page,
           deps: WebJoinDeps(
             joinTransport: _noJoin,
@@ -192,9 +195,9 @@ void main() {
             },
           ))));
       await tester.pump();
-      await _tapVisible(tester, find.byKey(const Key('web-host')));
-      await tester.pumpAndSettle();
-      expect(find.byType(ExpansionTile), findsNothing);
+      expect(find.widgetWithText(AppBar, 'Raum starten'), findsOneWidget);
+      expect(find.text('Relay: 10.0.0.9:4749'), findsNothing);
+      await openAdvanced(tester, 'relay-host-advanced');
       expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
       await _tapVisible(tester, find.byKey(const Key('relay-host-start')));
       await tester.pumpAndSettle();
@@ -217,16 +220,17 @@ void main() {
         deviceName: () => 'Pixel',
         relaySettings: () => settings,
       );
-      await tester.pumpWidget(localizedApp(PairingScreen(deps: deps)));
+      await tester.pumpWidget(localizedApp(PairingScreen(deps: deps, mode: RoomMode.join)));
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.login));
-      await tester.pump();
-      expect(find.byType(ExpansionTile), findsNothing);
+      // KLD-098: the code field first; relay and IP address under "Erweitert".
+      expect(find.text('Kein Relay eingerichtet – Adresse eingeben'), findsNothing);
+      await openAdvanced(tester, 'pair-join-advanced');
       expect(find.text('Kein Relay eingerichtet – Adresse eingeben'), findsOneWidget);
-      // The groups, in order: relay (room code) first, direct second.
-      final relayY = tester.getTopLeft(find.byKey(const Key('relay-group-title'))).dy;
+      final codeY = tester.getTopLeft(find.byKey(const Key('room-join-title'))).dy;
+      final nearbyY = tester.getTopLeft(find.byKey(const Key('pair-nearby-title'))).dy;
       final directY = tester.getTopLeft(find.byKey(const Key('pair-direct-title'))).dy;
-      expect(relayY, lessThan(directY));
+      expect(codeY, lessThan(nearbyY));
+      expect(nearbyY, lessThan(directY));
       expect(find.text('Direkt mit einem Gerät verbinden'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
@@ -287,6 +291,7 @@ void main() {
       expect(find.textContaining('fremden Relay'), findsOneWidget);
       // The saved setting and the relay line are unchanged.
       expect(settings.value, isNull);
+      await openAdvanced(tester, 'web-join-advanced');
       expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
 
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
@@ -329,6 +334,7 @@ void main() {
       expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
       expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
       expect(settings.value, saved);
+      await openAdvanced(tester, 'web-join-advanced');
       expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
     });
 
@@ -366,9 +372,10 @@ void main() {
       final link = tester.widget<SelectableText>(find.byKey(const Key('relay-link'))).data!;
       expect(link, 'http://127.0.0.1:${server.port}/?room=$code');
       expect(tester.widget<KlunkiQrCode>(find.byKey(const Key('relay-qr'))).data, link);
-      expect(find.text('Relay: 127.0.0.1:${server.port}'), findsOneWidget);
-      expect(find.text('Ada hostet 4 Gewinnt'), findsOneWidget);
-      expect(find.textContaining('Öffne den Link auf dem zweiten Gerät'), findsOneWidget);
+      // KLD-098: the relay address is under "Erweitert".
+      expect(find.text('Relay: 127.0.0.1:${server.port}', skipOffstage: false), findsOneWidget);
+      expect(find.text('Raum von Ada: 4 Gewinnt'), findsOneWidget);
+      expect(find.textContaining('scannen den QR-Code oder geben den Raumcode ein'), findsOneWidget);
 
       // The guest types the code as shown, with the space.
       await tester.runAsync(() => relayJoin(created, host.relayUrl!, shown, name: 'Bea'));
@@ -401,6 +408,30 @@ void main() {
           'Kein Relay erreichbar unter 127.0.0.1:$port.');
       expect(find.byKey(const Key('relay-start-command')), findsOneWidget);
       expect(find.byKey(const Key('relay-host-waiting')), findsNothing);
+    }, timeout: _timeout);
+
+    testWidgets('KLD-096: an https page explains wss:// and does not try a ws:// relay', (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final created = CreatedTransports();
+      var tried = 0;
+      final page = Uri.parse('https://user.github.io/klunki/');
+      final settings = RelaySettings.memory()..set(Uri.parse('ws://192.168.1.20:8081/relay'));
+      await tester.pumpWidget(localizedApp(RelayHostScreen(
+        hostTransport: (config, relay, {required name}) {
+          tried++;
+          return relayHost(created, config, relay, name: name);
+        },
+        defaultRelay: relayUriForPage(page),
+        relaySettings: settings,
+        pageUrl: page,
+      )));
+      await tester.pump();
+      expect(find.byKey(const Key('relay-host-https')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('relay-host-start')));
+      await tester.pump();
+      expect(tried, 0);
+      expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data, contains('nur sichere Relays (wss://)'));
+      expect(find.byKey(const Key('relay-start-command')), findsNothing);
     }, timeout: _timeout);
 
     testWidgets('the relay stops while waiting: room lost, back to the setup', (tester) async {
@@ -451,11 +482,22 @@ void main() {
         Builder(
           builder: (context) => Scaffold(
             body: Center(
-              child: ElevatedButton(
-                key: const Key('open'),
-                onPressed: () => Navigator.of(context)
-                    .push(MaterialPageRoute<void>(builder: (_) => WebJoinScreen(pageUrl: page, deps: deps))),
-                child: const Text('open'),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    key: const Key('open-start'),
+                    onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(builder: (_) => webRoomStartScreen(pageUrl: page, deps: deps))),
+                    child: const Text('start'),
+                  ),
+                  ElevatedButton(
+                    key: const Key('open'),
+                    onPressed: () => Navigator.of(context)
+                        .push(MaterialPageRoute<void>(builder: (_) => WebJoinScreen(pageUrl: page, deps: deps))),
+                    child: const Text('open'),
+                  ),
+                ],
               ),
             ),
           ),
@@ -472,10 +514,8 @@ void main() {
     ));
     addTearDown(() => unmountAndSettleSockets(tester, created));
 
-    // Browser A: Über WLAN spielen → Spiel hosten → 4 Gewinnt → room code.
-    await tester.tap(on(hostKey, find.byKey(const Key('open'))));
-    await tester.pumpAndSettle();
-    await tester.tap(on(hostKey, find.byKey(const Key('web-host'))));
+    // Browser A: Raum starten → 4 Gewinnt → room code.
+    await tester.tap(on(hostKey, find.byKey(const Key('open-start'))));
     await tester.pumpAndSettle();
     await tester.tap(on(hostKey, find.byKey(const Key('relay-game-connect4'))));
     await tester.pump();
@@ -526,7 +566,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(has(hostKey, find.byType(NetworkGameSession)), isFalse);
     await pumpUntil(tester, () => has(guestKey, find.byKey(const Key('net-banner'))), what: 'guest banner');
-    expect(on(guestKey, find.textContaining('Der Host hat den Raum verlassen')), findsOneWidget,
+    expect(on(guestKey, find.textContaining('Der Raum wurde geschlossen')), findsOneWidget,
         reason: 'guest disconnect reason: ${created.guests.single.lastDisconnectReason}');
     expect(on(guestKey, find.byKey(const Key('net-reconnect'))), findsNothing);
     await tester.pump(const Duration(seconds: 6));

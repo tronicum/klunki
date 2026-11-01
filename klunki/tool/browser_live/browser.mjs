@@ -244,25 +244,25 @@ export class Browser {
   }
 }
 
-/** Menu → Über WLAN spielen → Spiel hosten → [gameLabel] (→ deck) → hosts; returns the room code. */
+/** Menu → Raum starten → [gameLabel] (→ deck) → Raum starten; returns the room code (KLD-098). */
 export async function hostRoom(a, gameLabel, deckLabel) {
-  await a.tap(/^Über WLAN spielen/, 'menu: Über WLAN spielen');
-  await a.tap(/^Spiel hosten$/, 'Spiel hosten button');
-  await a.find(/^Spiel wählen$/m, 'host setup');
+  await a.tap(/^Raum starten/, 'menu: Raum starten');
+  await a.find(/^Spiel wählen$/m, 'room setup');
   await a.tap(new RegExp(`^${gameLabel.replace(/[()]/g, '\\$&')}`), `game ${gameLabel}`);
   if (deckLabel) await a.tap(new RegExp(`^${deckLabel}`), `deck ${deckLabel}`);
-  await a.tap(/^Spiel hosten$/, 'start hosting', (n) => n.y > 300);
+  // The button, not the app bar title of the same name.
+  await a.tap(/^Raum starten$/, 'start the room', (n) => n.y > 300);
   const codeRe = /^[2-9A-HJKMNP-Z]{3} [2-9A-HJKMNP-Z]{2}$/m;
   return (await a.find(codeRe, 'the room code')).label.match(codeRe)[0];
 }
 
-/** Menu → Über WLAN spielen → types [code] → Raum beitreten. */
+/** Menu → Raum beitreten → types [code] → Raum beitreten (KLD-098). */
 export async function joinRoom(b, code) {
-  await b.tap(/^Über WLAN spielen/, 'menu: Über WLAN spielen');
-  await b.find(/^Mit Raumcode beitreten$/m, 'room join section');
-  const field = await b.find(/^Raumcode/, 'room code field');
+  await b.tap(/^Raum beitreten/, 'menu: Raum beitreten');
+  await b.find(/^Raumcode eintippen$/m, 'room code section');
+  const field = await b.find(/^Raumcode(?! eintippen)/, 'room code field');
   await b.tapAt(field.x, field.y);
   await sleep(500);
   await b.type(code.toLowerCase().replace(' ', ''));
-  await b.tap(/^Raum beitreten$/, 'Raum beitreten button');
+  await b.tap(/^Raum beitreten$/, 'Raum beitreten button', (n) => n.y > field.y);
 }

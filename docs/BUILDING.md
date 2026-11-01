@@ -71,7 +71,8 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
   `flutter_tester` on macOS can be allowed or denied; loopback works either way.
 - `klunki/test/e2e` plays whole games between two app stacks over loopback TCP. `KLUNKI_E2E_VERBOSE=1` prints a
   transcript.
-- The screenshot harness (`klunki/test/screenshots`) is skipped unless `KLUNKI_SHOTS` is set.
+- The screenshot harness (`klunki/test/screenshots`) is skipped unless `KLUNKI_SHOTS` is set. Its App Store set
+  (group `appstore`) needs `KLUNKI_APPSTORE` instead; see [APPSTORE.md](APPSTORE.md#screenshots).
 - On-device tests: `cd klunki && flutter test integration_test -d <device>`.
 
 ## 4. Android
@@ -228,8 +229,8 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
 # Klunki relay listening on port 8081: ws://<ip>:8081/relay
 # Serving the PWA from …: http://<ip>:8081/
 # Open on other devices:
-#   http://192.168.178.105:8081/        (Wi-Fi/LAN, en0)
-#   http://Stefans-MacBook.local:8081/  (Bonjour/mDNS name)
+#   http://192.168.1.20:8081/       (Wi-Fi/LAN, en0)
+#   http://my-computer.local:8081/  (Bonjour/mDNS name)
 ```
 Open `http://localhost:8081/` on this computer, or `http://<ip>:8081/` on other devices in the same Wi-Fi. Use
 `http`, not `https`: browsers block `ws://` connections from https pages. Any free port works (the default is
@@ -290,7 +291,7 @@ SHA.
 | `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK → artifact `klunki-android-apk`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
 
 All jobs run on ubuntu, except iOS (macOS, only on manual runs because macOS minutes are expensive in a private
-repo). Nothing is deployed. A GitHub Pages job is present but disabled (`if: false`) until the owner decides.
+repo). Nothing goes to a store. GitHub Pages is deployed only when enabled (§7.1).
 
 **Downloading artifacts:** Actions tab › the "Build" run › **Artifacts** at the bottom, or with the GitHub CLI:
 ```bash
@@ -310,6 +311,48 @@ with the runner's throwaway debug key, which differs on every run, so CI APKs ca
 | `KEYSTORE_KEY_ALIAS` | key alias, e.g. `upload` |
 | `KEYSTORE_KEY_PASSWORD` | key password |
 
+### 7.1 GitHub Pages (KLD-096)
+
+`build.yml` publishes a Pages **project site** at `https://<owner>.github.io/<repo>/`, for this repo
+`https://tronicum.github.io/klunki/`:
+
+| Path | Content | Source |
+|---|---|---|
+| `/klunki/` | the PWA | `flutter build web --release --base-href /klunki/` + `pwa_finalize.py` |
+| `/klunki/privacy/` | privacy policy (de + en) | `site/privacy/index.html` |
+| `/klunki/support/` | support page with FAQ (de + en) | `site/support/index.html` |
+| `/klunki/impressum/` | Impressum / legal notice (de + en) | `site/impressum/index.html` |
+
+Two jobs: **pages-build** builds the PWA under the repo sub-path (`--base-href "/${{ github.event.repository.name }}/"`),
+finalizes it, copies the static pages in with `python3 -I site/build_site.py klunki/build/web` (fills
+`{{CONTACT_EMAIL}}` from `site/site.json`, the one place to change the contact address), runs the no-external-URL
+check and uploads the Pages artifact. **pages** deploys it (`github-pages` environment; only this job has
+`pages: write` and `id-token: write`). The `pwa` job's artifact stays a root build for `klunki relay --web`.
+
+**Enable it (one time):**
+1. Settings › Pages › Build and deployment › Source: **GitHub Actions**.
+2. Settings › Secrets and variables › Actions › **Variables** › New repository variable: `PAGES_ENABLED` = `true`.
+
+Both jobs run only on a push to `main` and only while that variable is `true`; set it to anything else to stop
+deploying. To try the Pages build locally:
+```bash
+cd klunki
+flutter build web --release --base-href /klunki/
+python3 -I build/web/pwa_finalize.py
+python3 -I ../site/build_site.py build/web
+python3 -I tool/check_pwa_external_urls.py build/web
+```
+
+**Sub-path:** `index.html` uses `<base href>`, the manifest has `start_url`/`scope`/`id` `./` and the service worker
+is registered as `klunki_sw.js` with scope `./`, so the same sources work at `/` (relay) and at `/klunki/` (Pages).
+The worker never answers `privacy/`, `support/` or `impressum/` with the app shell (`STATIC_PAGES` in
+`klunki_sw.js`) and `pwa_finalize.py` does not precache them.
+
+**Limit: https.** Pages serves only https, and browsers block `ws://` connections from https pages (mixed
+content), except to `localhost`. So the Pages PWA plays on one device (hot-seat, offline) and can join only a
+**`wss://`** relay; for a LAN relay or a host in the Wi-Fi use the apps or open the PWA from the relay over http
+(§6.2). The join and host screens say so on an https page and do not try a `ws://` connection there.
+
 ## 8. Troubleshooting
 
 | Symptom | Cause | Fix |
@@ -328,7 +371,7 @@ with the runner's throwaway debug key, which differs on every run, so CI APKs ca
 | PWA: "Kein Relay erreichbar unter …" | page not served by `klunki relay` | §6.2 |
 | PWA: "Kein Raum mit dem Code …" | host and guest on different relays/ports, a typo, or the room expired (10 min idle) | §6.3 |
 | PWA shows the old version after a rebuild | old page still open | reload once (§6.4) |
-| PWA: `ws://` blocked | page served over https | serve over http on the LAN (§6.2) |
+| PWA: "Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen …" | page served over https (e.g. GitHub Pages) and a `ws://` relay/host | use the app, or serve over http on the LAN (§6.2); a `wss://` relay works (§7.1) |
 | `pwa_finalize.py`: refuses to run | already finalized | `flutter build web --release` again, then finalize |
 | Chinese text shows □ boxes | new characters not in the font subset | §6.5 |
 | Port already in use (relay, host) | another relay/host still running | pick another `--port`; hosts fall back to a free port by themselves |
