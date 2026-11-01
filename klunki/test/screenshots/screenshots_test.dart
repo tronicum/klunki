@@ -7,8 +7,14 @@
 // so the PNGs show real text instead of the test font's boxes. Captures the
 // menu, every game mid-game, the result dialog and pairing in light and
 // dark at phone (390×844) and tablet (1180×820) size, plus Arabic.
+//
+// The App Store set (group "appstore", exact Apple pixel sizes) is skipped
+// unless KLUNKI_APPSTORE=<output dir> is set; see docs/APPSTORE.md:
+//
+//   KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name appstore
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -22,7 +28,9 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
+import 'package:klunki/net/join_payload.dart' show klunkiDefaultPort, klunkiDefaultWebSocketPort;
 import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
+import 'package:klunki/ui/menu_screen.dart' show menuShowsDebugConsole;
 import 'package:klunki/profile/quartett_deck_settings.dart';
 import 'package:klunki/ui/games/quartett_deck_picker.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
@@ -41,6 +49,7 @@ import 'package:klunki_net/relay_server.dart';
 import '../ui/pairing/pairing_test_utils.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
+final String? _appstoreOut = Platform.environment['KLUNKI_APPSTORE'];
 const _boundary = Key('shot-boundary');
 
 Future<void> _loadFonts() async {
@@ -171,8 +180,10 @@ Future<(int, int)> _schiffeSetup(WidgetTester tester) async {
 void main() {
   final skip = _out == null ? 'set KLUNKI_SHOTS=<dir> to capture screenshots' : null;
   setUpAll(() async {
-    if (_out != null) await _loadFonts();
+    if (_out != null || _appstoreOut != null) await _loadFonts();
   });
+
+  _appStore();
 
 
   for (final size in [phone, tablet]) {
@@ -668,4 +679,213 @@ class _GuestTransport implements GameTransport {
 
   @override
   void dispose() => _inner.dispose();
+}
+
+// ---------------------------------------------------------------------------
+// App Store screenshots (docs/APPSTORE.md). Exact pixel sizes of Apple's
+// "Screenshot specifications": logical size × device pixel ratio. Light
+// mode, German and English, games set up deterministically mid-game. The
+// PNGs are RGB without an alpha channel (App Store Connect rejects alpha).
+
+/// Folder name → (logical portrait size, device pixel ratio).
+const _appStoreDevices = <String, (Size, double)>{
+  'iphone-6.9': (Size(440, 956), 3), // 1320 × 2868
+  'iphone-6.3': (Size(402, 874), 3), // 1206 × 2622
+  'ipad-13': (Size(1032, 1376), 2), // 2064 × 2752
+};
+
+void _appStore() {
+  final out = _appstoreOut;
+  final skip = out == null;
+
+  Future<void> setup(WidgetTester tester, Size size, double dpr) async {
+    tester.view.physicalSize = size * dpr;
+    tester.view.devicePixelRatio = dpr;
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+    debugDisableShadows = false;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+  }
+
+  Future<void> shot(WidgetTester tester, String path, Size size, double dpr,
+      {Duration settle = const Duration(seconds: 2)}) async {
+    await tester.pump(settle);
+    await tester.pump();
+    final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
+    await tester.runAsync(() async {
+      final ui.Image img = await ro.toImage(pixelRatio: dpr);
+      final w = (size.width * dpr).round(), h = (size.height * dpr).round();
+      expect((img.width, img.height), (w, h), reason: path);
+      final rgba = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final f = File('$out/$path.png');
+      f.parent.createSync(recursive: true);
+      f.writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), w, h));
+    });
+    debugDisableShadows = true;
+  }
+
+  Future<GameController> game(WidgetTester tester, GameConfig config, Locale locale) async {
+    final c = GameController.hotSeat(config);
+    addTearDown(c.dispose);
+    await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
+    return c;
+  }
+
+  void handover(GameController c) {
+    if (c.needsHandover) c.acknowledgeHandover();
+  }
+
+  // Each scene builds its screen and returns a cleanup (sockets) or null.
+  final scenes = <String, Future<Future<void> Function()?> Function(WidgetTester, Locale)>{
+    '01-menu': (tester, locale) async {
+      menuShowsDebugConsole = false; // as in a release build
+      addTearDown(() => menuShowsDebugConsole = true);
+      await tester.pumpWidget(_wrap(KlunkiApp(localeController: LocaleController.memory(locale))));
+      return null;
+    },
+    '02-quartett': (tester, locale) async {
+      final c = await game(tester, const GameConfig('quartett-trumpf', seed: 7, deck: 'rockets'), locale);
+      _play(c, 3);
+      await tester.pump();
+      await _precachePhotos(tester);
+      return null;
+    },
+    '03-quartett-gallery': (tester, locale) async {
+      await tester.pumpWidget(_wrap(_themed(QuartettDeckGalleryScreen(deck: QuartettDeck.rockets), locale: locale)));
+      await _precachePhotos(tester);
+      return null;
+    },
+    '04-schiffe': (tester, locale) async {
+      final c = await game(tester, const GameConfig('schiffe', seed: 7), locale);
+      _play(c, 60);
+      await tester.pump();
+      return null;
+    },
+    '05-gostrategy': (tester, locale) async {
+      final c = await game(tester, const GameConfig('gostrategy', seed: 7), locale);
+      c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
+      handover(c);
+      c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
+      handover(c);
+      final g = c.game as GoStrategyGame;
+      // Quiet moves (no fights) so both armies stay on the board.
+      for (var i = 0; i < 30; i++) {
+        final quiet = [
+          for (final m in g.legalMoves)
+            if (m['action'] == 'move' && g.board[m['to'] as int].owner == null) m
+        ];
+        if (quiet.isEmpty) break;
+        c.submit(quiet[(i * 7 + 3) % quiet.length]);
+        handover(c);
+      }
+      await tester.pump();
+      return null;
+    },
+    '06-chess': (tester, locale) async {
+      final c = await game(tester, const GameConfig('chess', seed: 7), locale);
+      // An Italian opening; White to move, the knight on f3 selected.
+      for (final m in ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1c4', 'f8c5', 'c2c3', 'g8f6', 'd2d3', 'd7d6', 'e1g1', 'e8g8']) {
+        c.submit({'action': 'move', 'from': m.substring(0, 2), 'to': m.substring(2)});
+        handover(c);
+      }
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('chess-sq-f3')));
+      await tester.pump();
+      return null;
+    },
+    '07-play-together': (tester, locale) async {
+      final created = CreatedTransports();
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        name: 'Anna',
+        addresses: const ['192.168.1.20'],
+        preferredPort: klunkiDefaultPort,
+        preferredWsPort: klunkiDefaultWebSocketPort,
+      );
+      await tester.pumpWidget(_wrap(_themed(PairingScreen(deps: deps), locale: locale)));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty, what: 'waiting');
+      return () => unmountAndSettleSockets(tester, created);
+    },
+    '08-muehle': (tester, locale) async {
+      final c = await game(tester, const GameConfig('muehle', seed: 7), locale);
+      _play(c, 13);
+      await tester.pump();
+      return null;
+    },
+  };
+
+  group('appstore', () {
+    for (final MapEntry(key: device, value: (size, dpr)) in _appStoreDevices.entries) {
+      for (final locale in const [Locale('de'), Locale('en')]) {
+        for (final MapEntry(key: name, value: build) in scenes.entries) {
+          final path = '$device/${locale.languageCode}/$name';
+          testWidgets(path, skip: skip, (tester) async {
+            await setup(tester, size, dpr);
+            final cleanup = await build(tester, locale);
+            await shot(tester, path, size, dpr,
+                settle: cleanup == null ? const Duration(seconds: 2) : const Duration(milliseconds: 300));
+            await cleanup?.call();
+          });
+        }
+      }
+    }
+  });
+}
+
+/// An RGB PNG (colour type 2, no alpha) of [rgba]; pixels are composited on
+/// white, the screens are opaque anyway.
+Uint8List _pngRgb(Uint8List rgba, int w, int h) {
+  final raw = Uint8List(h * (w * 3 + 1));
+  var o = 0;
+  for (var y = 0; y < h; y++) {
+    raw[o++] = 0; // filter: none
+    for (var x = 0; x < w; x++) {
+      final i = (y * w + x) * 4;
+      final a = rgba[i + 3];
+      for (var k = 0; k < 3; k++) {
+        raw[o++] = a == 255 ? rgba[i + k] : (rgba[i + k] * a + 255 * (255 - a)) ~/ 255;
+      }
+    }
+  }
+  final b = BytesBuilder();
+  void chunk(String type, List<int> data) {
+    final t = type.codeUnits;
+    b.add((ByteData(4)..setUint32(0, data.length)).buffer.asUint8List());
+    b.add(t);
+    b.add(data);
+    b.add((ByteData(4)..setUint32(0, _crc32([...t, ...data]))).buffer.asUint8List());
+  }
+
+  b.add(const [137, 80, 78, 71, 13, 10, 26, 10]);
+  chunk(
+      'IHDR',
+      (ByteData(13)
+            ..setUint32(0, w)
+            ..setUint32(4, h)
+            ..setUint8(8, 8)
+            ..setUint8(9, 2))
+          .buffer
+          .asUint8List());
+  chunk('IDAT', ZLibCodec(level: 6).encode(raw));
+  chunk('IEND', const []);
+  return b.toBytes();
+}
+
+final List<int> _crcTable = List.generate(256, (n) {
+  var c = n;
+  for (var k = 0; k < 8; k++) {
+    c = (c & 1) != 0 ? 0xEDB88320 ^ (c >> 1) : c >> 1;
+  }
+  return c;
+});
+
+int _crc32(List<int> bytes) {
+  var c = 0xFFFFFFFF;
+  for (final x in bytes) {
+    c = _crcTable[(c ^ x) & 0xFF] ^ (c >> 8);
+  }
+  return c ^ 0xFFFFFFFF;
 }
