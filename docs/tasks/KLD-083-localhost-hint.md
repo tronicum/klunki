@@ -46,8 +46,8 @@ browser can't find out its own LAN IP, so the app can't fix the link by itself.
 **Relay CLI prints the reachable addresses** at startup (when bound to all interfaces):
 ```
 Open on other devices:
-  http://192.168.178.105:8081/            (Wi-Fi/LAN, en0)
-  http://Stefans-MacBook-Pro.local:8081/  (Bonjour/mDNS name)
+  http://192.168.1.20:8081/       (Wi-Fi/LAN, en0)
+  http://my-computer.local:8081/  (Bonjour/mDNS name)
   (.local names work on Apple devices and most recent Windows, Android and Linux with Avahi; if not, use the IP address.)
 ```
 LAN IPv4 addresses from `NetworkInterface.list()` without loopback, link-local `169.254.x.x` and recognisable
@@ -78,6 +78,6 @@ IPv6; `relayAddressLabel` now keeps the brackets (`[::1]:8081`).
 ## Next step (not built)
 
 The relay could report its LAN addresses and mDNS name to the page (e.g. `GET /relay/info` →
-`{"addresses": ["192.168.178.105"], "mdns": "Stefans-MacBook-Pro.local", "port": 8081}`). A page opened as
+`{"addresses": ["192.168.1.20"], "mdns": "my-computer.local", "port": 8081}`). A page opened as
 localhost would then build the room link and QR code from a reachable address automatically (with a picker when
 there are several), and the notice would only be needed when the relay knows no LAN address.

@@ -15,7 +15,7 @@ void main() {
       }
     });
     test('LAN IPs, .local names and hostnames are not', () {
-      for (final h in ['192.168.178.105', '10.0.0.9', 'fd00::5', 'fe80::1', 'pc.local', 'klunki.example',
+      for (final h in ['192.168.1.20', '10.0.0.9', 'fd00::5', 'fe80::1', 'pc.local', 'klunki.example',
           'localhost.example', 'mylocalhost', '128.0.0.1', '']) {
         expect(isLoopbackHost(h), isFalse, reason: h);
       }

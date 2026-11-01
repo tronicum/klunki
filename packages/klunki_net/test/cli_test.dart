@@ -107,7 +107,7 @@ void main() {
     test('LAN addresses skip loopback, link-local, virtual interfaces and duplicates', () {
       final all = <NicAddress>[
         (interface: 'lo0', address: '127.0.0.1'),
-        (interface: 'en0', address: '192.168.178.105'),
+        (interface: 'en0', address: '192.168.1.20'),
         (interface: 'en5', address: '169.254.12.3'),
         (interface: 'docker0', address: '172.17.0.1'),
         (interface: 'br-1a2b', address: '172.18.0.1'),
@@ -117,13 +117,13 @@ void main() {
         (interface: 'en1', address: '10.0.0.7'),
       ];
       expect(lanAddresses(all), [
-        (interface: 'en0', address: '192.168.178.105'),
+        (interface: 'en0', address: '192.168.1.20'),
         (interface: 'en1', address: '10.0.0.7'),
       ]);
     });
 
     test('the mDNS name: <first label>.local; localhost and empty give none', () {
-      expect(mdnsName('Stefans-MacBook'), 'Stefans-MacBook.local');
+      expect(mdnsName('my-computer'), 'my-computer.local');
       expect(mdnsName('pc.local'), 'pc.local');
       expect(mdnsName('pc.fritz.box'), 'pc.local');
       expect(mdnsName('localhost.localdomain'), isNull);
@@ -134,13 +134,13 @@ void main() {
     test('the block aligns the URLs and names IP and mDNS', () {
       final lines = openOnOtherDevices(
         port: 8081,
-        lan: [(interface: 'en0', address: '192.168.178.105')],
-        mdns: 'Stefans-MacBook.local',
+        lan: [(interface: 'en0', address: '192.168.1.20')],
+        mdns: 'my-computer.local',
       );
       expect(lines.take(3), [
         'Open on other devices:',
-        '  http://192.168.178.105:8081/        (Wi-Fi/LAN, en0)',
-        '  http://Stefans-MacBook.local:8081/  (Bonjour/mDNS name)',
+        '  http://192.168.1.20:8081/       (Wi-Fi/LAN, en0)',
+        '  http://my-computer.local:8081/  (Bonjour/mDNS name)',
       ]);
       expect(lines.last, contains('.local names work on Apple devices'));
       expect(

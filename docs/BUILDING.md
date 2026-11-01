@@ -228,8 +228,8 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
 # Klunki relay listening on port 8081: ws://<ip>:8081/relay
 # Serving the PWA from …: http://<ip>:8081/
 # Open on other devices:
-#   http://192.168.178.105:8081/        (Wi-Fi/LAN, en0)
-#   http://Stefans-MacBook.local:8081/  (Bonjour/mDNS name)
+#   http://192.168.1.20:8081/       (Wi-Fi/LAN, en0)
+#   http://my-computer.local:8081/  (Bonjour/mDNS name)
 ```
 Open `http://localhost:8081/` on this computer, or `http://<ip>:8081/` on other devices in the same Wi-Fi. Use
 `http`, not `https`: browsers block `ws://` connections from https pages. Any free port works (the default is
