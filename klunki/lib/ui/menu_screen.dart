@@ -16,6 +16,11 @@ import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoi
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+/// Whether the menu links the debug console: only outside release builds.
+/// The App Store screenshots (debug-mode tests) switch it off.
+@visibleForTesting
+bool menuShowsDebugConsole = !kReleaseMode;
+
 /// The game-selection menu: a tile per game in `appGameSpecs` order (drawn
 /// illustration on the game's accent colour, title, one-liner; see
 /// `game_visuals.dart`), then "Mit anderen Geräten spielen" (KLD-098: the
@@ -138,7 +143,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       ),
                     ],
                     // Text frontend for engine testing; hidden in release builds.
-                    if (!kReleaseMode)
+                    if (menuShowsDebugConsole)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Align(

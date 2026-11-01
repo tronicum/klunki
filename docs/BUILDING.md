@@ -71,7 +71,8 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
   `flutter_tester` on macOS can be allowed or denied; loopback works either way.
 - `klunki/test/e2e` plays whole games between two app stacks over loopback TCP. `KLUNKI_E2E_VERBOSE=1` prints a
   transcript.
-- The screenshot harness (`klunki/test/screenshots`) is skipped unless `KLUNKI_SHOTS` is set.
+- The screenshot harness (`klunki/test/screenshots`) is skipped unless `KLUNKI_SHOTS` is set. Its App Store set
+  (group `appstore`) needs `KLUNKI_APPSTORE` instead; see [APPSTORE.md](APPSTORE.md#screenshots).
 - On-device tests: `cd klunki && flutter test integration_test -d <device>`.
 
 ## 4. Android
