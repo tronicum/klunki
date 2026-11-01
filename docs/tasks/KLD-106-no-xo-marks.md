@@ -1,6 +1,6 @@
-# KLD-107: no X / O marks in the UI
+# KLD-106: no X / O marks in the UI
 
-- **ID:** `KLD-107`
+- **ID:** `KLD-106`
 - **Title:** Remove the remaining X / O marks from the app: names in sentences, "1" / "2" or the game piece on tokens
 - **Milestone:** M3 (polish)
 - **Status:** DONE
@@ -66,5 +66,5 @@ the token has no number, so the players legend also shows "Anna (1)" / "Anna (2)
 - [x] No user-visible "(X)" / "(O)" / "X:" / "O:" in ARB values (7 locales; ar without gendered verbs for `{player}`).
 - [x] Tokens: "1" / "2" or the game piece, distinguishable without colour.
 - [x] Tests updated (widget, network, live-UI adapters, screenshots); new token test in `turn_colour_test.dart`.
-- [x] Screenshots (group `kld107`, plus the existing per-game and `kld103` shots).
+- [x] Screenshots (group `kld106`, plus the existing per-game and `kld103` shots).
 - [x] `dart test` (engine, net), `flutter analyze`, `flutter test -j 2` green.

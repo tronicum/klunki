@@ -29,10 +29,10 @@ typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move
 
 /// Internal player marks for widget keys: player A is "X", player B is "O".
 /// Never shown: texts name the players (KLD-103, see [PlayerLabels.label]),
-/// tokens show [playerNumber] (KLD-107).
+/// tokens show [playerNumber] (KLD-106).
 String playerMark(Player p) => PlayerLabels.markOf(p);
 
-/// The player number on a player's token: "1" for A, "2" for B (KLD-107,
+/// The player number on a player's token: "1" for A, "2" for B (KLD-106,
 /// matching "Spieler 1 / 2").
 String playerNumber(Player p) => PlayerLabels.numberOf(p);
 
@@ -685,7 +685,7 @@ class _GameShellScope extends InheritedWidget {
 
 /// A player's token: a small round disc in the player's colour
 /// ([playerColor]: accent / slate, GoStrategy red / blue, see
-/// `game_visuals.dart`) with the player number "1" / "2" (KLD-107), so the
+/// `game_visuals.dart`) with the player number "1" / "2" (KLD-106), so the
 /// identity is never colour-only (UX-REVIEW 2.1, 2.10). Games with their own
 /// piece show it instead ([GameVisuals.tokenIcon]: 4 Gewinnt discs, Mühle
 /// stones, the chess king).
@@ -957,7 +957,7 @@ class _PlayersLegend extends StatelessWidget {
     Widget entry(Player p) {
       final on = current == p;
       final l10n = AppLocalizations.of(context);
-      // Same names: "Anna (1)" / "Anna (2)" as in the status line (KLD-107);
+      // Same names: "Anna (1)" / "Anna (2)" as in the status line (KLD-106);
       // in games with pieces the token shows no number.
       final n = bidiName(context, labels.name(l10n, p));
       final name = labels.sameNames(l10n) ? l10n.playerLabel(n, PlayerLabels.numberOf(p)) : n;

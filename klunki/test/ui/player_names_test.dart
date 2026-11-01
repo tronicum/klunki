@@ -271,7 +271,7 @@ void main() {
       await _pumpLabelled(tester, 'connect4', const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'anna'}));
       expect(_status(tester), 'Anna (1) ist am Zug');
       // The legend tells them apart the same way (4 Gewinnt tokens are discs
-      // without a number, KLD-107).
+      // without a number, KLD-106).
       expect(find.text('Anna (1)'), findsOneWidget);
       expect(find.text('anna (2)'), findsOneWidget);
       await playMove(tester);

@@ -232,7 +232,7 @@ Future<void> unmountAndSettleSockets(WidgetTester tester, CreatedTransports crea
 }
 
 /// The network connection bar's status sentence ("Du: Anna · Gegner: Ben",
-/// KLD-107): since KLD-067 it is the bar's semantics label, shown as tokens
+/// KLD-106): since KLD-067 it is the bar's semantics label, shown as tokens
 /// plus "Du: Anna" / "Gegner: Ben".
 Finder netStatus(String text) => find.byWidgetPredicate(
     (w) => w is Semantics && w.key == const Key('net-status') && w.properties.label == text,

@@ -14,7 +14,7 @@ import '../shell/screen_registry.dart';
 /// underneath: each player's token in their colour plus "Du: Anna" /
 /// "Gegner: Ben" (KLD-067), plus a banner while the
 /// other side is missing. The game shell names both players through a
-/// [PlayerLabelsScope] (KLD-056, KLD-107): "Du bist am Zug", "Warte auf Ben…",
+/// [PlayerLabelsScope] (KLD-056, KLD-106): "Du bist am Zug", "Warte auf Ben…",
 /// "Ben gewinnt!", "Ben: …" in the history. The guest gets a "Neu verbinden" button there (the full
 /// reconnect UX is KLD-036).
 ///
@@ -204,7 +204,7 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       ),
                       const SizedBox(width: 8),
                       // Each player as token (colour + number or piece, KLD-067,
-                      // KLD-107) and name; read out as "Du: Anna · Gegner: Ben".
+                      // KLD-106) and name; read out as "Du: Anna · Gegner: Ben".
                       Expanded(
                         child: Semantics(
                           key: const Key('net-status'),

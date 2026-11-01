@@ -128,7 +128,7 @@
   },
   "shellYourTurn": "Du bist am Zug",
   "@shellYourTurn": {
-    "description": "Status line in a network game when this device is to move (KLD-107: no player mark; the token in the pill shows the player)."
+    "description": "Status line in a network game when this device is to move (KLD-106: no player mark; the token in the pill shows the player)."
   },
   "shellWaitingFor": "Warte auf {player}…",
   "@shellWaitingFor": {
@@ -569,7 +569,7 @@
   },
   "quartettTrumpfYouPickNext": "Du wählst als Nächstes",
   "@quartettTrumpfYouPickNext": {
-    "description": "Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it (KLD-107: no mark)."
+    "description": "Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it (KLD-106: no mark)."
   },
   "quartettTrumpfTricksBehind": "noch {count, plural, =1{1 Runde} other{{count} Runden}}",
   "@quartettTrumpfTricksBehind": {
@@ -1125,7 +1125,7 @@
   },
   "playerLabel": "{name} ({mark})",
   "@playerLabel": {
-    "description": "A player name with its mark, e.g. \"Anna (Weiß)\" in chess, or \"Anna (1)\" / \"Anna (2)\" (the player number, as on the token) when both players have the same name (KLD-107); used inside other sentences (status line, result, history).",
+    "description": "A player name with its mark, e.g. \"Anna (Weiß)\" in chess, or \"Anna (1)\" / \"Anna (2)\" (the player number, as on the token) when both players have the same name (KLD-106); used inside other sentences (status line, result, history).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1297,7 +1297,7 @@
   },
   "pairingStatus": "Du: {name} · Gegner: {peer}",
   "@pairingStatus": {
-    "description": "Network game connection bar, read out by screen readers (KLD-107: names only, no marks); name = own player name, peer = the other player's name.",
+    "description": "Network game connection bar, read out by screen readers (KLD-106: names only, no marks); name = own player name, peer = the other player's name.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1309,7 +1309,7 @@
   },
   "netBarYou": "Du: {name}",
   "@netBarYou": {
-    "description": "KLD-067: network connection bar, this device's player next to its coloured token (the token shows the player number 1 / 2 or the game's piece); name = own player name. Same shape as netBarOpponent (KLD-107).",
+    "description": "KLD-067: network connection bar, this device's player next to its coloured token (the token shows the player number 1 / 2 or the game's piece); name = own player name. Same shape as netBarOpponent (KLD-106).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1681,7 +1681,7 @@
   },
   "goArmyOwn": "Deine Armee",
   "@goArmyOwn": {
-    "description": "GoStrategy panel heading: the viewer's army (KLD-107: no mark or name)."
+    "description": "GoStrategy panel heading: the viewer's army (KLD-106: no mark or name)."
   },
   "goArmyEnemy": "Gegner: {player}",
   "@goArmyEnemy": {

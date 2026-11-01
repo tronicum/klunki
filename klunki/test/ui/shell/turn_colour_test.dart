@@ -100,7 +100,7 @@ void main() {
     });
   });
 
-  group('tokens (KLD-107): number "1" / "2" or the game piece, never X / O', () {
+  group('tokens (KLD-106): number "1" / "2" or the game piece, never X / O', () {
     List<String> tokenTexts(WidgetTester tester) => [
           for (final t in tester.widgetList<Text>(find.descendant(
               of: find.byKey(const Key('shell-players')),

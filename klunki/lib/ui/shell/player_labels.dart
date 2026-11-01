@@ -22,7 +22,7 @@ import '../ltr.dart';
 /// * [markNames]: a game's own words for the marks (chess, KLD-059: "Weiß" /
 ///   "Schwarz"); see [withMarkNames];
 /// * both players have the same name: the player number, as on the token
-///   and in "Spieler 1 / 2" ("Anna (1)" / "Anna (2)", KLD-107).
+///   and in "Spieler 1 / 2" ("Anna (1)" / "Anna (2)", KLD-106).
 @immutable
 class PlayerLabels {
   const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}});
@@ -42,11 +42,11 @@ class PlayerLabels {
   String mark(Player p) => markNames[p] ?? numberOf(p);
 
   /// The player number shown on the player's token and in "Spieler 1 / 2"
-  /// (KLD-107): A (who starts in every game) is "1", B is "2".
+  /// (KLD-106): A (who starts in every game) is "1", B is "2".
   static String numberOf(Player p) => p == Player.a ? '1' : '2';
 
   /// The internal player mark: A is "X", B is "O". Widget keys, preference
-  /// keys and engine-facing text only; never shown in the app (KLD-107).
+  /// keys and engine-facing text only; never shown in the app (KLD-106).
   static String markOf(Player p) => p == Player.a ? 'X' : 'O';
 
   /// The name given for [p], or null (then [name] is the default name).

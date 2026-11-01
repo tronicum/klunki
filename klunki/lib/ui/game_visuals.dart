@@ -35,7 +35,7 @@ class GameVisuals {
   final Color? Function(KlunkiPalette palette, Player player)? token;
 
   /// The game's own player token (null = a disc in [token]'s colour with
-  /// the player number "1" / "2", KLD-107). Games whose token is a game
+  /// the player number "1" / "2", KLD-106). Games whose token is a game
   /// piece show the piece without a letter: chess the side's king, 4 Gewinnt
   /// the disc (yellow with its inner ring), Mühle the light / dark stone.
   /// Each stays distinguishable without colour (shape or lightness).
@@ -92,14 +92,14 @@ final Map<String, GameVisuals> gameVisuals = {
   ),
 };
 
-/// 4 Gewinnt token (KLD-107): the board's piece, red for A, yellow with the
+/// 4 Gewinnt token (KLD-106): the board's piece, red for A, yellow with the
 /// embossed inner ring for B (shape, not only colour, UX-REVIEW 2.10).
 Widget _connect4Token(BuildContext context, Player player, double size) {
   final c = KlunkiPalette.of(context).connect4;
   return Connect4Piece(color: player == Player.a ? c.red : c.yellow, ringed: player == Player.b);
 }
 
-/// Mühle token (KLD-107): the board's stone, light for A and dark for B
+/// Mühle token (KLD-106): the board's stone, light for A and dark for B
 /// (told apart by lightness, not hue).
 Widget _muehleToken(BuildContext context, Player player, double size) {
   final m = KlunkiPalette.of(context).muehle;

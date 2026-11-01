@@ -282,7 +282,7 @@ abstract class AppLocalizations {
   /// **'{player} hat gewonnen'**
   String shellHasWon(String player);
 
-  /// Status line in a network game when this device is to move (KLD-107: no player mark; the token in the pill shows the player).
+  /// Status line in a network game when this device is to move (KLD-106: no player mark; the token in the pill shows the player).
   ///
   /// In de, this message translates to:
   /// **'Du bist am Zug'**
@@ -666,7 +666,7 @@ abstract class AppLocalizations {
   /// **'Weiter – {player} wählt'**
   String quartettTrumpfContinuePicker(String player);
 
-  /// Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it (KLD-107: no mark).
+  /// Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it (KLD-106: no mark).
   ///
   /// In de, this message translates to:
   /// **'Du wählst als Nächstes'**
@@ -1164,7 +1164,7 @@ abstract class AppLocalizations {
   /// **'Dein Name'**
   String get playerNameLabel;
 
-  /// A player name with its mark, e.g. "Anna (Weiß)" in chess, or "Anna (1)" / "Anna (2)" (the player number, as on the token) when both players have the same name (KLD-107); used inside other sentences (status line, result, history).
+  /// A player name with its mark, e.g. "Anna (Weiß)" in chess, or "Anna (1)" / "Anna (2)" (the player number, as on the token) when both players have the same name (KLD-106); used inside other sentences (status line, result, history).
   ///
   /// In de, this message translates to:
   /// **'{name} ({mark})'**
@@ -1356,13 +1356,13 @@ abstract class AppLocalizations {
   /// **'Tipps: Sind beide Geräte im selben WLAN? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. iOS: Ist „Lokales Netzwerk“ für Klunki erlaubt (Einstellungen › Datenschutz)?'**
   String get pairingJoinHints;
 
-  /// Network game connection bar, read out by screen readers (KLD-107: names only, no marks); name = own player name, peer = the other player's name.
+  /// Network game connection bar, read out by screen readers (KLD-106: names only, no marks); name = own player name, peer = the other player's name.
   ///
   /// In de, this message translates to:
   /// **'Du: {name} · Gegner: {peer}'**
   String pairingStatus(String name, String peer);
 
-  /// KLD-067: network connection bar, this device's player next to its coloured token (the token shows the player number 1 / 2 or the game's piece); name = own player name. Same shape as netBarOpponent (KLD-107).
+  /// KLD-067: network connection bar, this device's player next to its coloured token (the token shows the player number 1 / 2 or the game's piece); name = own player name. Same shape as netBarOpponent (KLD-106).
   ///
   /// In de, this message translates to:
   /// **'Du: {name}'**
@@ -1740,7 +1740,7 @@ abstract class AppLocalizations {
   /// **'Noch {moves} Züge ohne Kampf, dann ist es unentschieden.'**
   String goMoveLimit(String moves);
 
-  /// GoStrategy panel heading: the viewer's army (KLD-107: no mark or name).
+  /// GoStrategy panel heading: the viewer's army (KLD-106: no mark or name).
   ///
   /// In de, this message translates to:
   /// **'Deine Armee'**
