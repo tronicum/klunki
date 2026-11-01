@@ -11,10 +11,13 @@ String _player(String key) => key == 'a' ? 'X' : 'O';
 
 String _value(QuartettStat s, num v) => s.unit.isEmpty ? s.formatNumber(v) : '${s.formatNumber(v)} ${s.unit}';
 
-/// Quartett (Trumpf): the Trumpf mode that compares stats. Shows only the top card of the player to move.
+/// Quartett (Trumpf): the Trumpf mode that compares stats. Shows only the
+/// card of the player to move: the top card, or (KLD-100,
+/// [QuartettGame.pickLowCards], on by default like the app's GameConfig) the
+/// whole stack of a player with 3 or fewer cards, to choose from.
 class QuartettTrumpfText extends TextGame {
-  QuartettTrumpfText([this.seed = 0, QuartettDeck? deck])
-      : game = QuartettGame(QuartettMode.trumpf, seed: seed, deck: deck);
+  QuartettTrumpfText([this.seed = 0, QuartettDeck? deck, bool pickLowCards = true])
+      : game = QuartettGame(QuartettMode.trumpf, seed: seed, deck: deck, pickLowCards: pickLowCards);
 
   /// Wraps an existing engine instance (e.g. one built from a network `GameConfig`).
   QuartettTrumpfText.forGame(this.game) : seed = game.seed;
@@ -28,23 +31,45 @@ class QuartettTrumpfText extends TextGame {
   @override
   String get title => 'Quartett (Trumpf)${_deckSuffix(game)}';
   @override
-  String get moveHelp => '<stat>   pick a stat of your top card: '
-      '${[for (final (i, s) in game.stats.indexed) '${i + 1}/${s.id}'].join(', ')}';
+  String get moveHelp => game.mustChoose
+      ? '<n|card id>   choose the card to play (1–${game.stackSize(game.currentPlayer)} or its id)'
+      : '<stat>   pick a stat of your card: '
+          '${[for (final (i, s) in game.stats.indexed) '${i + 1}/${s.id}'].join(', ')}';
 
   @override
-  QuartettTrumpfText restart() => QuartettTrumpfText(seed, game.deck);
+  QuartettTrumpfText restart() => QuartettTrumpfText(seed, game.deck, game.pickLowCards);
 
   @override
   String render() {
     final me = game.currentPlayer;
     final opp = me == Player.a ? Player.b : Player.a;
-    final card = game.topCard(me);
     final b = StringBuffer('Cards: ${mark(me)} ${game.stackSize(me)}, ${mark(opp)} ${game.stackSize(opp)}'
         '${game.potSize > 0 ? ', pot ${game.potSize}' : ''}   (round ${game.tricks})');
-    if (card != null && !game.isOver) {
+    if (game.isOver) return b.toString();
+    final announced = game.announcedStat;
+    if (game.mustChoose) {
+      final cards = game.stackOf(me);
+      b.writeln();
+      if (announced != null) {
+        b.writeln('${mark(game.picker)} picks ${announced.label} '
+            '(${announced.higherWins ? 'higher wins' : 'lower wins'}). ${mark(me)}, choose your card:');
+      } else {
+        b.writeln('${mark(me)} has only ${cards.length} cards – choose one:');
+      }
+      for (final (i, c) in cards.indexed) {
+        final values = announced != null
+            ? _value(announced, c.stats[announced.id]!)
+            : [for (final s in game.stats) '${s.id} ${_value(s, c.stats[s.id]!)}'].join(', ');
+        b.writeln('  ${i + 1} ${c.id} ${c.name.padRight(24)} $values');
+      }
+      return b.toString().trimRight();
+    }
+    final card = game.playedCard(me);
+    if (card != null) {
+      final which = game.chosenCard(me) != null ? 'chosen card' : 'top card';
       b
         ..writeln()
-        ..writeln("${mark(me)}'s top card: ${card.id} ${card.name} (${game.setNames[card.set]})");
+        ..writeln("${mark(me)}'s $which: ${card.id} ${card.name} (${game.setNames[card.set]})");
       for (final (i, s) in game.stats.indexed) {
         b.writeln('  ${i + 1} ${s.id.padRight(9)} ${s.label.padRight(22)} '
             '${_value(s, card.stats[s.id]!).padLeft(10)}  ${s.higherWins ? 'higher wins' : 'lower wins'}');
@@ -57,6 +82,13 @@ class QuartettTrumpfText extends TextGame {
   Map<String, dynamic>? parse(String input) {
     final s = input.trim().toLowerCase();
     final n = int.tryParse(s);
+    if (game.mustChoose) {
+      final cards = game.stackOf(game.currentPlayer);
+      final id = n != null && n >= 1 && n <= cards.length
+          ? cards[n - 1].id
+          : cards.map((c) => c.id).where((id) => id == s.toUpperCase()).firstOrNull;
+      return id == null ? null : {'action': 'choose', 'card': id};
+    }
     final stat = n != null && n >= 1 && n <= game.stats.length
         ? game.stats[n - 1].id
         : game.stats.map((x) => x.id).where((id) => id == s).firstOrNull;
@@ -66,38 +98,65 @@ class QuartettTrumpfText extends TextGame {
   @override
   List<Map<String, dynamic>> get legalMoves => game.legalMoves;
 
+  /// A pick as its stat, a choice as its card ("a card" when redacted).
   @override
-  String format(Map<String, dynamic> move) => '${move['stat']}';
+  String format(Map<String, dynamic> move) =>
+      move['action'] == 'choose' ? '${move['card'] ?? 'a card'}' : '${move['stat']}';
 
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map;
+    final me = mark(mover);
+    if (p['chose'] == true) return '$me chooses a card.';
     final stat = game.statById(p['stat'] as String)!;
+    if (p['announced'] == true) {
+      return '$me picks ${stat.label} – ${mark(mover == Player.a ? Player.b : Player.a)} chooses a card.';
+    }
     final cards = p['cards'] as Map, values = p['values'] as Map;
     String side(String k) =>
         "${_player(k)}'s ${game.cardById(cards[k] as String)!.name} (${_value(stat, values[k] as num)})";
-    final me = mark(mover);
-    final first = mover == Player.a ? 'a' : 'b', second = first == 'a' ? 'b' : 'a';
-    var s = '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
+    // A round the defender's choice completed names its picker (KLD-100).
+    final first = p['picker'] as String? ?? (mover == Player.a ? 'a' : 'b');
+    final second = first == 'a' ? 'b' : 'a';
+    final picker = _player(first);
+    var s = p['picker'] != null
+        ? '$me chooses: ${side(first)} vs ${side(second)}'
+        : '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
     final winner = p['trickWinner'] as String?;
     s += winner == null
-        ? ' – tie, tie-break! Both cards go to the pot (${p['pot']}), $me picks again.'
+        ? ' – tie, tie-break! Both cards go to the pot (${p['pot']}), $picker picks again.'
         : ' → ${_player(winner)} wins the round (X ${game.stackSize(Player.a)}, O ${game.stackSize(Player.b)} cards).';
     if (event.winner != null) s += ' ${mark(event.winner)} wins: ${game.result.reason}.';
     if (event.draw) s += ' Draw: ${game.result.reason}.';
     return s;
   }
 
-  /// Picks the stat in which the top card ranks best within the deck.
+  /// How strong [card] is in [s]: the share of deck cards it beats.
+  double _rank(Card card, QuartettStat s) {
+    final v = card.stats[s.id]!;
+    return game.cards.where((c) => s.beats(v, c.stats[s.id]!)).length / game.cards.length;
+  }
+
+  /// Picks the stat in which the played card ranks best within the deck.
+  /// Choosing (KLD-100): the defender takes its best card for the announced
+  /// stat; a low picker the card with the strongest stat.
   @override
   Map<String, dynamic> autoMove(Random rng) {
-    final card = game.topCard(game.currentPlayer)!;
-    double rank(QuartettStat s) {
-      final v = card.stats[s.id]!;
-      return game.cards.where((c) => s.beats(v, c.stats[s.id]!)).length / game.cards.length;
+    final me = game.currentPlayer;
+    if (game.mustChoose) {
+      final cards = game.stackOf(me);
+      final announced = game.announcedStat;
+      final Card best;
+      if (announced != null) {
+        best = cards.reduce((x, y) => announced.beats(y.stats[announced.id]!, x.stats[announced.id]!) ? y : x);
+      } else {
+        double strength(Card c) => game.stats.map((s) => _rank(c, s)).reduce(max);
+        best = cards.reduce((x, y) => strength(y) > strength(x) ? y : x);
+      }
+      return {'action': 'choose', 'card': best.id};
     }
-
-    final best = game.stats.reduce((a, b) => rank(a) >= rank(b) ? a : b);
+    final card = game.playedCard(me)!;
+    final best = game.stats.reduce((a, b) => _rank(card, a) >= _rank(card, b) ? a : b);
     return {'action': 'pick', 'stat': best.id};
   }
 

@@ -39,8 +39,8 @@ Key _statKey(String id) => Key('qt-stat-$id');
 /// opponent's moves come from [remote]; every own [submit] is recorded in
 /// [sent] (what would go over the wire).
 class _DeviceTransport implements GameTransport {
-  _DeviceTransport(int seed, this.me, {required this.fullInformation})
-      : _inner = HotSeatTransport(GameConfig('quartett-trumpf', seed: seed));
+  _DeviceTransport(int seed, this.me, {required this.fullInformation, bool pickLow = false})
+      : _inner = HotSeatTransport(GameConfig('quartett-trumpf', seed: seed, pickLowCards: pickLow));
 
   final HotSeatTransport _inner;
   final Player me;
@@ -417,7 +417,7 @@ void main() {
 
     testWidgets('hot-seat: shows the last submitted trick, not the preview', (tester) async {
       final (seed, s1, s2) = _twoTricks('a');
-      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed, pickLowCards: false));
       addTearDown(c.dispose);
       await tester.pumpWidget(localizedApp(buildGameScreen(c)));
       await tester.pump();
@@ -603,7 +603,7 @@ void main() {
     testWidgets('hot-seat: the final trick is previewed; "Weiter" ends the game, the result follows at once',
         (tester) async {
       final (seed, stats, _, _) = _findGame((s, p, w) => true);
-      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed, pickLowCards: false));
       addTearDown(c.dispose);
       for (final s in stats.take(stats.length - 1)) {
         expect((await c.submit(_pickMove(s))).isAccepted, isTrue);
@@ -623,7 +623,7 @@ void main() {
 
   testWidgets('hot-seat keeps the preview: one tap on "Weiter" submits, no grace', (tester) async {
     final (seed, s1, _) = _twoTricks('a');
-    final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+    final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed, pickLowCards: false));
     addTearDown(c.dispose);
     await tester.pumpWidget(localizedApp(buildGameScreen(c)));
     await tester.pump();

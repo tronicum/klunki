@@ -9,6 +9,7 @@
 // dark at phone (390×844) and tablet (1180×820) size, plus Arabic.
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -615,6 +616,89 @@ void main() {
       });
     }
   });
+
+  // KLD-100: "3 or fewer cards: choose". The low picker's cards face-up, the
+  // defender's handover cover naming the stat, the defender's choice with
+  // the stat highlighted, and the round it decides.
+  group('kld100', () {
+    Player other(Player p) => p == Player.a ? Player.b : Player.a;
+    for (final (size, b) in [(phone, Brightness.light), (phone, Brightness.dark), (tablet, Brightness.light)]) {
+      final tag = _tag(size, b);
+      testWidgets('kld100 picker chooses $tag', skip: skip != null, (tester) async {
+        await _setup(tester, size, b);
+        final (seed, moves) = _qtMovesTo((g) =>
+            g.announcedStat == null && g.mustChoose && g.stackSize(g.picker) == 3 && !g.choosesCard(other(g.picker)));
+        await _qtHotSeatAt(tester, seed, moves);
+        await _shot(tester, 'kld100-picker-choose-$tag', settle: const Duration(milliseconds: 300));
+      });
+      testWidgets('kld100 defender chooses $tag', skip: skip != null, (tester) async {
+        await _setup(tester, size, b);
+        final (seed, moves) = _qtMovesTo((g) =>
+            g.announcedStat == null &&
+            !g.mustChoose &&
+            !g.choosesCard(g.picker) &&
+            g.stackSize(other(g.picker)) == 3);
+        final c = await _qtHotSeatAt(tester, seed, moves);
+        await tester.ensureVisible(find.byKey(const Key('qt-stat-kmh')));
+        await tester.tap(find.byKey(const Key('qt-stat-kmh')));
+        await tester.pump();
+        expect(c.needsHandover, isTrue);
+        await _shot(tester, 'kld100-defender-cover-$tag', settle: const Duration(milliseconds: 300));
+        debugDisableShadows = false;
+        await tester.tap(find.byKey(const Key('handover-continue')));
+        await tester.pump();
+        await _shot(tester, 'kld100-defender-choose-$tag', settle: const Duration(milliseconds: 300));
+        debugDisableShadows = false;
+        final g = c.game as QuartettGame;
+        final card = g.stackOf(g.currentPlayer).first;
+        await tester.ensureVisible(find.byKey(Key('qt-choose-${card.id}')));
+        await tester.tap(find.byKey(Key('qt-choose-${card.id}')));
+        await tester.pump();
+        await tester.scrollUntilVisible(find.byKey(const Key('qt-continue')), -200,
+            scrollable: find.byType(Scrollable).last);
+        await _shot(tester, 'kld100-defender-result-$tag', settle: const Duration(milliseconds: 300));
+      });
+    }
+  });
+}
+
+/// KLD-100: the moves of a rule-on Quartett (Trumpf) game (random legal
+/// moves, first matching seed) up to the first position satisfying [stop].
+(int, List<Map<String, dynamic>>) _qtMovesTo(bool Function(QuartettGame g) stop) {
+  for (var seed = 1; seed < 500; seed++) {
+    final g = createGame(GameConfig('quartett-trumpf', seed: seed)) as QuartettGame;
+    final rng = Random(seed);
+    final moves = <Map<String, dynamic>>[];
+    while (!g.isOver && !stop(g)) {
+      final legal = g.legalMoves;
+      moves.add(legal[rng.nextInt(legal.length)]);
+      g.applyMove(moves.last);
+    }
+    if (!g.isOver) return (seed, moves);
+  }
+  throw StateError('no game');
+}
+
+/// KLD-100: a hot-seat game (Anna = X, Ben = O) of [seed] with [moves]
+/// played, on screen.
+Future<GameController> _qtHotSeatAt(WidgetTester tester, int seed, List<Map<String, dynamic>> moves,
+    {Locale locale = const Locale('de')}) async {
+  final t = HotSeatTransport(GameConfig('quartett-trumpf', seed: seed));
+  for (final m in moves) {
+    t.submitSync(m);
+  }
+  final c = GameController(t);
+  addTearDown(c.dispose);
+  await tester.pumpWidget(_wrap(_themed(
+    PlayerLabelsScope(
+      labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
+      child: buildGameScreen(c),
+    ),
+    locale: locale,
+  )));
+  await tester.pump();
+  await _precachePhotos(tester);
+  return c;
 }
 
 /// First (seed, stat) of the cars deck whose opening trick satisfies [ok].

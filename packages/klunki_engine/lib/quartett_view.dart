@@ -10,8 +10,8 @@ class QuartettView extends QuartettGame {
   /// The player whose view this is.
   final Player viewer;
 
-  QuartettView._(this.viewer, QuartettMode mode, int handSize, QuartettDeck deck)
-      : super(mode, handSize: handSize, deck: deck) {
+  QuartettView._(this.viewer, QuartettMode mode, int handSize, QuartettDeck deck, bool pickLowCards)
+      : super(mode, handSize: handSize, deck: deck, pickLowCards: pickLowCards) {
     for (final p in Player.values) {
       _stacks[p]!.clear();
       _hands[p]!.clear();
@@ -33,7 +33,7 @@ class QuartettView extends QuartettGame {
       final deckId = j['deck'];
       if (deckId != null && deckId is! String) throw const BadViewException('bad deck');
       final deck = QuartettDeck.byId(deckId as String?) ?? (throw BadViewException('unknown deck $deckId'));
-      final v = QuartettView._(viewer, mode, handSize, deck);
+      final v = QuartettView._(viewer, mode, handSize, deck, j['pickLow'] == true);
       Card card(Object? id) => (id is String ? deck.cardById(id) : null) ?? (throw BadViewException('unknown card $id'));
       List<Card> hidden(Object? n) => List.filled(n as int, QuartettGame.hiddenCard);
       if (mode == QuartettMode.trumpf) {
@@ -45,6 +45,25 @@ class QuartettView extends QuartettGame {
         if (top != null) {
           if (v._stacks[viewer]!.isEmpty) throw const BadViewException('top card of an empty stack');
           v._stacks[viewer]![0] = card(top);
+        }
+        // KLD-100: a low viewer knows its whole stack and its own choice.
+        final hand = j['hand'];
+        if (hand != null) {
+          final cards = [for (final id in hand as List) card(id)];
+          if (cards.length != v._stacks[viewer]!.length || cards.first.id != top) {
+            throw const BadViewException('hand does not fit the stack');
+          }
+          v._stacks[viewer]!.setAll(0, cards);
+        }
+        final chosen = j['chosen'];
+        if (chosen != null) {
+          v._chosen[viewer] = v._stacks[viewer]!.where((c) => c.id == chosen).firstOrNull ??
+              (throw BadViewException('chosen card $chosen not held'));
+        }
+        final announced = j['announced'];
+        if (announced != null) {
+          v._announced = (announced is String ? deck.statById(announced) : null) ??
+              (throw BadViewException('unknown stat $announced'));
         }
         v._pot.addAll(hidden(j['pot']));
         v._tricks = j['tricks'] as int;
@@ -61,7 +80,10 @@ class QuartettView extends QuartettGame {
           v._quartets[p]!.addAll((quartets[p.name] as List).cast<String>());
         }
       }
-      v._current = playerIn(j['current']);
+      // `current` is the player to act; while the defender chooses, the
+      // picker is the other one.
+      final current = playerIn(j['current']);
+      v._current = v._announced != null ? QuartettGame._other(current) : current;
       final r = resultFromJson(j['result']);
       v
         .._winner = r.winner
@@ -85,13 +107,14 @@ class QuartettView extends QuartettGame {
   @override
   Card? topCard(Player p) => p == viewer ? super.topCard(p) : null;
 
-  /// Only the cards the viewer knows (its own top card).
+  /// Only the cards the viewer knows (its own top card, or its whole stack
+  /// while it may choose, KLD-100).
   @override
   List<Card> stackOf(Player p) => [for (final c in _stacks[p]!) if (!identical(c, QuartettGame.hiddenCard)) c];
 
   /// The viewer's legal moves on its turn; empty on the opponent's turn.
   @override
-  List<Map<String, dynamic>> get legalMoves => _current == viewer ? super.legalMoves : const [];
+  List<Map<String, dynamic>> get legalMoves => currentPlayer == viewer ? super.legalMoves : const [];
 
   /// Read-only: the host applies every move, a resign included, and sends
   /// the next view (KLD-065: a resign arrives as `resigned` in the view).
@@ -119,7 +142,10 @@ class QuartettView extends QuartettGame {
 /// Redaction for both Quartett modes: the seed (and with it the deal) stays
 /// secret; moves are public; in Sets the card drawn by the opponent is
 /// hidden (`drew: true`). Trumpf payloads are public: both cards of a trick
-/// are shown in the fight.
+/// are shown in the fight. A Trumpf `choose` (KLD-100) reaches the opponent
+/// without its card (`{'action': 'choose'}`): the chosen card only shows in
+/// the trick payload, when the round is revealed. A host's hidden choice is
+/// committed and revealed at the end like any other secret move.
 class QuartettRedaction extends Redaction {
   const QuartettRedaction();
 
@@ -131,6 +157,13 @@ class QuartettRedaction extends Redaction {
 
   @override
   Game fromView(Map<String, dynamic> view) => QuartettView.fromJson(view);
+
+  @override
+  Map<String, dynamic> redactMove(Map<String, dynamic> move, Player mover, Player viewer) {
+    final m = super.redactMove(move, mover, viewer);
+    if (mover == viewer || m['action'] != 'choose') return m;
+    return {'action': 'choose'};
+  }
 
   @override
   Object? redactPayload(Object? payload, Player mover, Player viewer) {

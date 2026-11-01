@@ -36,8 +36,8 @@ BuildCompat _build(String build, {String? key, GameFingerprint? f, bool remove =
 }
 
 /// The rocket deck as a build from before KLD-082 had it: revision 1, other
-/// data (year stats).
-final _oldRockets = GameFingerprint(rules: 1, revision: 1, content: '0' * 32);
+/// data (year stats), with this build's rules.
+final _oldRockets = GameFingerprint(rules: specById('quartett-trumpf')!.rulesVersion, revision: 1, content: '0' * 32);
 
 /// Every way a guest can reach a host: direct TCP, WebSocket, relay.
 enum Via { tcp, ws, relay }

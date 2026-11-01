@@ -72,6 +72,24 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// shown every trick (the final reveal is left with "Weiter" or, for the
 /// waiting player, when its grace runs out), see [GameShell.holdResult].
 ///
+/// House rule "3 or fewer cards: choose" (KLD-100, [QuartettGame.pickLowCards],
+/// on by default): a player with 2–3 cards whose turn it is to choose sees
+/// all of them face-up side by side (`qt-choose-<cardId>`, hint
+/// `qt-choose-hint`) and taps one:
+/// * as the picker before announcing a stat ("Du hast nur noch 3 Karten –
+///   wähle eine aus."). The choice is submitted at once (the turn stays), then
+///   the chosen card's stats are tappable as usual.
+/// * as the defender after the picker announced a stat ("Ben (X) spielt PS.
+///   Wähle deine Karte.", the stat highlighted on every card). The picker's
+///   pick is then submitted at once instead of previewed (its outcome is not
+///   known yet); in hot-seat the turn passes to the defender behind the
+///   handover cover, which names the stat. The defender's choice completes
+///   the round: hot-seat previews it like a pick (reveal, "Weiter" submits),
+///   the network reveals it from the event on both devices.
+/// The waiting network player sees "Ben (O) wählt eine Karte …". The
+/// opponent's choice is never shown before the reveal (the history says
+/// "wählt eine Karte").
+///
 /// Keys: `qt-stat-<statId>` (stat rows of the active card), `qt-reveal`,
 /// `qt-reveal-picked`, `qt-reveal-text`, `qt-next-picker`, `qt-continue`,
 /// `qt-handover-reason`, `qt-grace`, `qt-grace-seconds`, `qt-queued-notice`,
@@ -84,24 +102,38 @@ class QuartettTrumpfScreen extends StatelessWidget {
   /// History text for a pick: "wählt Leistung" (the shell prefixes the
   /// player). No card names, so the history never leaks a card.
   static String describeMove(AppLocalizations l10n, AcceptedMove m) {
+    if (m.move['action'] == 'choose') return l10n.quartettTrumpfMoveChoose;
     return l10n.quartettTrumpfMovePick(localizedStatLabel(l10n, '${m.move['stat']}'));
   }
 
   /// Hot-seat cover (KLD-091): why the device goes to the player on turn,
   /// "O hat die Runde gewonnen" (the cover only appears when the turn
-  /// passed, i.e. the other player won the trick). Nothing for any other
-  /// cover (e.g. after an undo).
+  /// passed, i.e. the other player won the trick). KLD-100: "X spielt PS.
+  /// Wähle deine Karte." when the defender chooses its card, "X wählt noch
+  /// einmal" after a tie the defender's choice completed. Nothing for any
+  /// other cover (e.g. after an undo).
   Widget _handoverReason(BuildContext context) {
     final moves = controller.moves;
     final game = controller.game;
     if (moves.isEmpty || game is! QuartettGame) return const SizedBox.shrink();
     final payload = moves.last.event.payload;
-    final winner = payload is Map ? payload['trickWinner'] : null;
-    final next = game.currentPlayer;
-    if (winner != next.name) return const SizedBox.shrink();
+    if (payload is! Map) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
+    final labels = PlayerLabelsScope.of(context);
+    final next = game.currentPlayer;
+    final winner = payload['trickWinner'];
+    final String text;
+    if (game.announcedStat case final stat? when payload['announced'] == true) {
+      text = l10n.quartettTrumpfChooseDefend(labels.label(context, l10n, game.picker), localizedStatLabel(l10n, stat.id));
+    } else if (winner == next.name) {
+      text = l10n.quartettTrumpfHandoverReason(labels.label(context, l10n, next));
+    } else if (winner == null && payload['cards'] != null && moves.last.player != next) {
+      text = l10n.quartettTrumpfPicksAgain(labels.label(context, l10n, next));
+    } else {
+      return const SizedBox.shrink();
+    }
     return Text(
-      l10n.quartettTrumpfHandoverReason(PlayerLabelsScope.of(context).label(context, l10n, next)),
+      text,
       key: const Key('qt-handover-reason'),
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.titleMedium,
@@ -171,8 +203,10 @@ class _Trick {
     final a = deck.cardById('${cards['a']}'), b = deck.cardById('${cards['b']}');
     if (a == null || b == null) return null;
     final w = payload['trickWinner'];
+    // KLD-100: a round the defender's choice completed names its picker.
+    final named = payload['picker'];
     return _Trick(
-      picker: picker,
+      picker: named == 'a' ? Player.a : (named == 'b' ? Player.b : picker),
       stat: stat,
       a: a,
       b: b,
@@ -389,21 +423,44 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   /// once (the host applies it immediately); the accepted event reveals it.
   void _pick(QuartettStat stat) {
     if (!c.canAct || _reveal != null || _submitting) return;
+    final game = _game;
     final move = <String, dynamic>{'action': 'pick', 'stat': stat.id};
-    final copy = _networked ? null : c.previewCopy();
+    // KLD-100: with a low defender the pick only announces the stat; the
+    // defender's choice decides the round, so there is nothing to preview.
+    final announces = game != null && game.choosesCard(_other(game.currentPlayer));
+    _submitOrPreview(move, preview: !announces);
+  }
+
+  /// KLD-100: the local player chose [card] (a low picker before its pick, or
+  /// the low defender for the announced stat). The defender's choice
+  /// completes the round and is previewed in hot-seat like a pick.
+  void _choose(qe.Card card) {
+    if (!c.canAct || _reveal != null || _submitting) return;
+    final game = _game;
+    if (game == null || !game.mustChoose) return;
+    _submitOrPreview({'action': 'choose', 'card': card.id}, preview: game.announcedStat != null);
+  }
+
+  /// Hot-seat with [preview]: computes the trick on a replayed copy of the
+  /// engine and reveals it; the real game is only changed on "Weiter".
+  /// Otherwise (network, or a move that decides no round) submits at once;
+  /// an accepted round is revealed from its event.
+  void _submitOrPreview(Map<String, dynamic> move, {required bool preview}) {
+    final copy = _networked || !preview ? null : c.previewCopy();
     if (copy == null) {
-      _submitting = true;
+      setState(() => _submitting = true);
       c.submit(move).then((r) {
-        if (!r.isAccepted) _submitting = false;
+        if (!r.isAccepted && mounted) setState(() => _submitting = false);
       });
       return;
     }
+    final picker = (c.game as QuartettGame).picker;
     final event = copy.applyMove(move);
-    final trick = event == null || copy is! QuartettGame
-        ? null
-        : _Trick.fromPayload(copy.deck, c.game.currentPlayer, event.payload, move);
+    final trick = event == null || copy is! QuartettGame ? null : _Trick.fromPayload(copy.deck, picker, event.payload, move);
     if (trick != null) setState(() => _show(trick));
   }
+
+  static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
 
   /// "Weiter": local only. Hot-seat submits the previewed pick; otherwise it
   /// just leaves the reveal (skipping the rest of a grace period).
@@ -449,7 +506,8 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     if (game == null) return Center(child: Text(l10n.quartettNoGame));
     final shell = GameScreen.of(context);
     final reveal = _reveal;
-    final choosing = reveal == null && c.canAct && game.topCard(game.currentPlayer) != null;
+    final acting = reveal == null && c.canAct;
+    final choosing = acting && game.playedCard(game.currentPlayer) != null;
     final waiting = reveal == null && !game.isOver && _networked && !c.canAct;
     // KLD-089 (network): after the final trick the result dialog waits until
     // every trick this device still has to show (the one on screen and any
@@ -459,11 +517,17 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     // result comes after the reveal anyway.
     shell.holdResult(_networked && game.isOver && (reveal != null || _queue.isNotEmpty));
     shell.setStatusOverride(_statusOverride(context));
-    shell.setHint(choosing
-        ? l10n.quartettTrumpfHintPick
-        : waiting
-            ? l10n.quartettTrumpfHintWaiting(PlayerLabelsScope.of(context).label(context, l10n, game.currentPlayer))
-            : null);
+    final labels = PlayerLabelsScope.of(context);
+    // KLD-100: the choose view carries its own (bold) hint; no second one.
+    shell.setHint(acting && game.mustChoose
+        ? null
+        : choosing
+            ? l10n.quartettTrumpfHintPick
+            : waiting
+                ? (game.announcedStat != null
+                    ? l10n.quartettTrumpfHintDefending(labels.label(context, l10n, game.currentPlayer))
+                    : l10n.quartettTrumpfHintWaiting(labels.label(context, l10n, game.currentPlayer)))
+                : null);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
@@ -558,18 +622,33 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     return local.length == 1 ? local.first : g.currentPlayer;
   }
 
-  /// Own top card face-up (stats tappable), opponent's stack face-down.
+  /// KLD-100: "Du hast nur noch 3 Karten – wähle eine aus." (picker) or
+  /// "Ben (X) spielt PS. Wähle deine Karte." (defender).
+  String _chooseHint(BuildContext context, QuartettGame game) {
+    final l10n = AppLocalizations.of(context);
+    final stat = game.announcedStat;
+    if (stat == null) return l10n.quartettTrumpfChooseOwn(game.stackSize(game.currentPlayer));
+    return l10n.quartettTrumpfChooseDefend(
+        PlayerLabelsScope.of(context).label(context, l10n, game.picker), localizedStatLabel(l10n, stat.id));
+  }
+
+  /// Own card face-up (stats tappable: the top card, or the chosen one,
+  /// KLD-100), opponent's stack face-down. A low player who has to choose
+  /// sees [_chooseView] instead.
   Widget _tableView(BuildContext context, QuartettGame game) {
     final me = _viewer(game);
+    if (c.canAct && game.currentPlayer == me && game.mustChoose) return _chooseView(context, game, me);
     final opp = me == Player.a ? Player.b : Player.a;
-    final top = game.topCard(me);
+    final top = game.playedCard(me);
     if (top == null) return const SizedBox.shrink();
     final own = QuartettCard(
       key: const Key('qt-own-card'),
       card: top,
       statKeyPrefix: 'qt-stat-',
       onStatTap: _pick,
-      enabled: c.canAct,
+      enabled: c.canAct && !_submitting,
+      // The picker waiting for the defender's choice sees its stat.
+      highlightStat: game.picker == me ? game.announcedStat?.id : null,
     );
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
@@ -615,6 +694,57 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
         children: [ownColumn, const SizedBox(height: 12), Center(child: oppStack)],
       );
     });
+  }
+
+  /// KLD-100: all of [me]'s 2–3 cards face-up side by side (two per row on
+  /// a narrow screen), the announced stat highlighted for the defender; a
+  /// tap on a card chooses it.
+  Widget _chooseView(BuildContext context, QuartettGame game, Player me) {
+    final cards = game.stackOf(me);
+    final stat = game.announcedStat;
+    final theme = Theme.of(context);
+    return Column(
+      key: const Key('qt-choose'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            _chooseHint(context, game),
+            key: const Key('qt-choose-hint'),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+        ),
+        LayoutBuilder(builder: (context, box) {
+          const gap = 8.0;
+          final perRow = box.maxWidth >= cards.length * 190 ? cards.length : 2;
+          final width = (box.maxWidth - gap * (perRow - 1)) / perRow;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            alignment: WrapAlignment.center,
+            children: [
+              for (final card in cards)
+                SizedBox(
+                  width: width,
+                  child: Semantics(
+                    button: true,
+                    child: InkWell(
+                      key: Key('qt-choose-${card.id}'),
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: _submitting ? null : () => _choose(card),
+                      child: IgnorePointer(
+                        child: QuartettCard(card: card, dense: true, highlightStat: stat?.id),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        }),
+      ],
+    );
   }
 
   Widget _revealView(BuildContext context, _Trick t) {

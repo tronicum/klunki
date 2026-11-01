@@ -388,6 +388,24 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfChooseOwn(int count) {
+    return 'Du hast nur noch $count Karten – wähle eine aus.';
+  }
+
+  @override
+  String quartettTrumpfChooseDefend(String player, String stat) {
+    return '$player spielt $stat. Wähle deine Karte.';
+  }
+
+  @override
+  String get quartettTrumpfMoveChoose => 'wählt eine Karte';
+
+  @override
+  String quartettTrumpfHintDefending(String player) {
+    return '$player wählt eine Karte …';
+  }
+
+  @override
   String get quartettSetsHit => 'Treffer';
 
   @override

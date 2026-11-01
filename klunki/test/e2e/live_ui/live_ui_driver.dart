@@ -250,8 +250,10 @@ void _observe(WidgetTester tester, LiveUiAdapter a, UiDevice d, _Watcher w, Live
   // uncovered screen count.
   if (d.dialogOpen) return;
   final r = a.observe(tester, d, engine, inSync: inSync);
+  // Turns (e.g. Quartett rounds) this device knows of: not every move is
+  // one (a KLD-100 choice or announced stat is not).
+  final known = r == null ? 0 : a.engineTurns(d.controller(tester)).length;
   if (r != null && r != w.last) {
-    final known = d.controller(tester).moves.length;
     final index = log.shown[d.name]?.length ?? 0;
     final status = d.on(find.byKey(const Key('shell-status')));
     final line = status.evaluate().isEmpty ? '' : tester.widget<Text>(status).data ?? '';
@@ -261,7 +263,7 @@ void _observe(WidgetTester tester, LiveUiAdapter a, UiDevice d, _Watcher w, Live
   }
   if (r != null) {
     final shownIndex = (log.shown[d.name]?.length ?? 1) - 1;
-    a.checkShown(tester, d, r, behind: d.controller(tester).moves.length - shownIndex - 1);
+    a.checkShown(tester, d, r, behind: known - shownIndex - 1);
   }
   w.last = r;
 }
@@ -389,7 +391,8 @@ Future<LiveUiLog> playNetwork(WidgetTester tester, LiveUiAdapter a, GameConfig c
   bool done() {
     if (!hc.game.isOver) return false;
     final n = hc.moves.length;
-    return devices.every((d) => controllers[d.name]!.moves.length == n && (log.shown[d.name]?.length ?? 0) >= n);
+    final turns = a.engineTurns(hc).length; // not every move is a turn (KLD-100)
+    return devices.every((d) => controllers[d.name]!.moves.length == n && (log.shown[d.name]?.length ?? 0) >= turns);
   }
 
   final pending = <String, int>{};
@@ -463,9 +466,13 @@ Future<LiveUiLog> playNetwork(WidgetTester tester, LiveUiAdapter a, GameConfig c
   expect([for (final m in hc.moves) '${playerMark(m.player)} ${m.move}'],
       [for (final t in log.tapped) '$t'],
       reason: '${log.label}: host log vs taps');
-  // Both devices hold the same log.
+  // Both devices hold the same log (the guest's redacted for a hidden game:
+  // e.g. a host's Quartett choice arrives without its card, KLD-100).
   final gc = controllers[devices[1].name]!;
-  expect([for (final m in gc.moves) m.move], [for (final m in hc.moves) m.move]);
+  final redaction = specById(config.gameId)?.redaction;
+  final guestPlayer = devices[1].me!;
+  expect([for (final m in gc.moves) m.move],
+      [for (final m in hc.moves) redaction?.redactMove(m.move, m.player, guestPlayer) ?? m.move]);
   log.expectComplete();
   return log;
 }

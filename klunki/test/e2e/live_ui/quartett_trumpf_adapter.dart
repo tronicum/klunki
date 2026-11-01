@@ -3,12 +3,15 @@
 // Reads what a QuartettTrumpfScreen shows (the reveal's "X wählt PS", the
 // headline, both revealed cards; the own card on the table and its caption)
 // and plays by tapping `qt-stat-<id>` on the own card, "Weiter"
-// (`qt-continue`) and, as a fidget, "Vorige Runde".
+// (`qt-continue`) and, as a fidget, "Vorige Runde". KLD-100 (on by default):
+// with 2–3 cards it taps one of the face-up cards (`qt-choose-<id>`), as the
+// picker before its pick and as the defender for the announced stat.
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/shell/game_screen.dart' show playerMark;
@@ -25,6 +28,8 @@ const _lastTrick = Key('qt-last-trick');
 const _overlay = Key('qt-last-trick-overlay');
 const _overlayClose = Key('qt-last-trick-close');
 const _result = Key('result-dialog');
+const _choose = Key('qt-choose');
+const _chooseHint = Key('qt-choose-hint');
 
 String _outcome(Player? winner) => winner == null ? 'tie' : '${playerMark(winner)} wins';
 
@@ -102,13 +107,32 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
         nextActor: winner ?? picker,
       );
     }
+    final choose = d.on(find.byKey(_choose));
+    if (choose.evaluate().isNotEmpty && inSync && !g.isOver) {
+      // KLD-100: exactly the chooser's own stack, face-up; the hint says why.
+      final viewer = d.me ?? g.currentPlayer;
+      expect(g.currentPlayer, viewer, reason: '${d.name}: only the player to act chooses');
+      expect(g.mustChoose, isTrue, reason: '${d.name}: the choose view only when a choice is due');
+      expect(_shownChoices(tester, choose), [for (final c in g.stackOf(viewer)) c.id],
+          reason: '${d.name}: ${playerMark(viewer)} sees its own cards');
+      final hint = tester.widget<Text>(d.on(find.byKey(_chooseHint))).data!;
+      final stat = g.announcedStat;
+      expect(
+          hint,
+          stat == null
+              ? deL10n.quartettTrumpfChooseOwn(g.stackSize(viewer))
+              : endsWith(deL10n.quartettTrumpfChooseDefend('', localizedStatLabel(deL10n, stat.id)).trim()),
+          reason: '${d.name}: choose hint');
+      if (stat != null) defenderViews++;
+    }
     final own = d.on(find.byKey(_ownCard));
     if (own.evaluate().isNotEmpty && inSync && !g.isOver) {
-      // Whose card is up: the device's player, or (hot-seat) the player to move.
+      // Whose card is up: the device's player, or (hot-seat) the player to
+      // move; the chosen card once a low player chose (KLD-100).
       final viewer = d.me ?? g.currentPlayer;
       final shown = tester.widget<QuartettCard>(own).card!;
-      expect(shown.id, g.topCard(viewer)!.id,
-          reason: '${d.name}: the table shows ${playerMark(viewer)}\'s top card');
+      expect(shown.id, g.playedCard(viewer)!.id,
+          reason: '${d.name}: the table shows ${playerMark(viewer)}\'s card');
       expect(d.has(find.text(deL10n.quartettTrumpfYourCard(playerMark(viewer)))), isTrue,
           reason: '${d.name}: caption names ${playerMark(viewer)}');
       if (d.networked && g.currentPlayer != d.me) {
@@ -120,6 +144,17 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     }
     return null;
   }
+
+  /// The card ids of the choose view, in order.
+  List<String> _shownChoices(WidgetTester tester, Finder choose) => [
+        for (final w in tester.widgetList<QuartettCard>(find.descendant(of: choose, matching: find.byType(QuartettCard))))
+          w.card!.id,
+      ];
+
+  /// KLD-100: how often a device tapped a card to choose it, and how often
+  /// the defender's choose view (after an announced stat) was checked.
+  int chooseTaps = 0;
+  int defenderViews = 0;
 
   /// "Karten in den Topf (jetzt n), X wählt noch einmal" for some pot size n >= 2.
   bool _potAgain(String cue, String mark) => [
@@ -182,16 +217,32 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
   int hotSeatStatusChecks = 0;
 
   /// Hot-seat (KLD-091): a cover only when the device changes hands, and it
-  /// says why: the player on turn won the last trick.
+  /// says why: the player on turn won the last trick, or (KLD-100) the
+  /// defender chooses its card for the announced stat, or the defender's
+  /// choice tied and the picker picks again.
   @override
   void checkCover(WidgetTester tester, UiDevice d, GameController c) {
-    final next = c.game.currentPlayer;
+    final g = c.game as QuartettGame;
+    final next = g.currentPlayer;
     final last = c.moves.last;
-    expect(last.player, isNot(next), reason: '${d.name}: a cover only when the other player picks');
-    expect((last.event.payload as Map)['trickWinner'], next.name);
-    expect(tester.widget<Text>(d.on(find.byKey(const Key('qt-handover-reason')))).data,
-        deL10n.quartettTrumpfHandoverReason(playerMark(next)), reason: '${d.name}: the cover says why');
+    expect(last.player, isNot(next), reason: '${d.name}: a cover only when the other player acts');
+    final payload = last.event.payload as Map;
+    final reason = tester.widget<Text>(d.on(find.byKey(const Key('qt-handover-reason')))).data;
+    if (payload['announced'] == true) {
+      expect(reason, deL10n.quartettTrumpfChooseDefend(playerMark(g.picker), localizedStatLabel(deL10n, '${payload['stat']}')),
+          reason: '${d.name}: the cover names the stat the defender chooses for');
+      defenderCovers++;
+    } else if (payload['trickWinner'] == null) {
+      expect(payload['picker'], next.name, reason: "${d.name}: a tie the defender's choice completed");
+      expect(reason, deL10n.quartettTrumpfPicksAgain(playerMark(next)), reason: '${d.name}: the cover says why');
+    } else {
+      expect(payload['trickWinner'], next.name);
+      expect(reason, deL10n.quartettTrumpfHandoverReason(playerMark(next)), reason: '${d.name}: the cover says why');
+    }
   }
+
+  /// KLD-100: hot-seat covers before the defender's choice.
+  int defenderCovers = 0;
 
   /// Hot-seat: exactly one cover per change of picker (none on a winner
   /// streak or a tie, none after the final trick).
@@ -224,6 +275,29 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
   @override
   Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
     if (_blocked(d) || d.hasKey(_reveal)) return null;
+    final choose = d.on(find.byKey(_choose));
+    if (choose.evaluate().isNotEmpty) {
+      // KLD-100: choose one of the own 2–3 cards: the best for the announced
+      // stat (defender) or the one with the strongest stat (picker), or any.
+      final c = d.controller(tester);
+      if (!c.canAct) return null;
+      final g = c.game as QuartettGame;
+      final cards = [
+        for (final w in tester.widgetList<QuartettCard>(find.descendant(of: choose, matching: find.byType(QuartettCard))))
+          w.card!,
+      ];
+      final stat = g.announcedStat;
+      double rank(qe.Card card, QuartettStat s) =>
+          g.deck.cards.where((o) => s.beats(card.stats[s.id]!, o.stats[s.id]!)).length.toDouble();
+      double strength(qe.Card card) =>
+          stat != null ? rank(card, stat) : g.deck.stats.map((s) => rank(card, s)).reduce(max);
+      final card = rng.nextBool()
+          ? cards[rng.nextInt(cards.length)]
+          : cards.reduce((x, y) => strength(y) > strength(x) ? y : x);
+      await d.tapKey(tester, Key('qt-choose-${card.id}'));
+      chooseTaps++;
+      return {'action': 'choose', 'card': card.id};
+    }
     final own = d.on(find.byKey(_ownCard));
     if (own.evaluate().isEmpty) return null;
     final card = tester.widget<QuartettCard>(own);
@@ -268,18 +342,26 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     return 'opens Vorige Runde';
   }
 
+  /// The picker of the round [m] completed: the mover, or (KLD-100, the
+  /// defender's choice completed it) the one the payload names.
+  static Player _pickerOf(AcceptedMove m) {
+    final named = (m.event.payload as Map)['picker'];
+    return named is String ? Player.values.byName(named) : m.player;
+  }
+
   @override
   List<TurnRecord> engineTurns(GameController c) => [
         for (final (i, m) in c.moves.indexed)
           if (m.event.payload case {'stat': final String stat, 'cards': final Map cards, 'trickWinner': final w})
-            TurnRecord(
-              index: i,
-              actor: m.player,
-              action: stat,
-              outcome: _outcome(w == null ? null : Player.values.byName(w as String)),
-              detail: 'X:${cards['a']} O:${cards['b']}',
-              nextActor: w == null ? m.player : Player.values.byName(w as String),
-              source: 'engine',
-            ),
+            if (_pickerOf(m) case final picker)
+              TurnRecord(
+                index: i,
+                actor: picker,
+                action: stat,
+                outcome: _outcome(w == null ? null : Player.values.byName(w as String)),
+                detail: 'X:${cards['a']} O:${cards['b']}',
+                nextActor: w == null ? picker : Player.values.byName(w as String),
+                source: 'engine',
+              ),
       ];
 }

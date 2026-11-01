@@ -401,6 +401,24 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfChooseOwn(int count) {
+    return 'لم يبقَ لديك سوى $count بطاقات – اختر واحدة.';
+  }
+
+  @override
+  String quartettTrumpfChooseDefend(String player, String stat) {
+    return '$player يلعب $stat. اختر بطاقتك.';
+  }
+
+  @override
+  String get quartettTrumpfMoveChoose => 'يختار بطاقة';
+
+  @override
+  String quartettTrumpfHintDefending(String player) {
+    return '$player يختار بطاقة …';
+  }
+
+  @override
   String get quartettSetsHit => 'إصابة';
 
   @override

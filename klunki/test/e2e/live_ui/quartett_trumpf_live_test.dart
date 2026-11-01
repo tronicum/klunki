@@ -45,6 +45,14 @@ void main() {
     }
   }
 
+  // KLD-100 (on by default): the low-card choice was played through the UI,
+  // by pickers and by defenders (hot-seat behind a cover).
+  test('the "3 or fewer cards: choose" phase was exercised', () {
+    expect(adapter.chooseTaps, greaterThan(0));
+    expect(adapter.defenderViews, greaterThan(0));
+    expect(adapter.defenderCovers, greaterThan(0));
+  });
+
   for (final deck in full ? QuartettDeck.all : [QuartettDeck.cars]) {
     for (final seed in full ? [11, 12] : [11]) {
       testWidgets('network ${deck.id} seed $seed: both devices reveal every trick once, in order', (tester) async {

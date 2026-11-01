@@ -13,6 +13,12 @@ const reveal = Key('qt-reveal');
 const cont = Key('qt-continue');
 Key statKey(String id) => Key('qt-stat-$id');
 
+/// KLD-100: the cards to choose from (`qt-choose-<cardId>`).
+final chooseCards = find.byWidgetPredicate((w) {
+  final k = w.key;
+  return k is ValueKey<String> && k.value.startsWith('qt-choose-') && k.value != 'qt-choose-hint';
+});
+
 QuartettGame fresh(int seed) => QuartettGame(QuartettMode.trumpf, seed: seed);
 
 /// First (seed, stat) whose opening trick satisfies [test] (va = X, vb = O).
@@ -165,6 +171,10 @@ void main() {
         await tester.tap(find.byKey(handoverContinue));
       } else if (find.byKey(cont).evaluate().isNotEmpty) {
         await tester.tap(find.byKey(cont));
+      } else if (chooseCards.evaluate().isNotEmpty) {
+        // KLD-100 (on by default): 3 or fewer cards, choose one.
+        await tester.ensureVisible(chooseCards.first);
+        await tester.tap(chooseCards.first);
       } else {
         final s = QuartettDeck.cars.stats[i % QuartettDeck.cars.stats.length];
         await tester.ensureVisible(find.byKey(statKey(s.id)));

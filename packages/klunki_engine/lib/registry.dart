@@ -16,32 +16,46 @@ import 'secrecy.dart';
 /// the default car deck, which is what configs from before KLD-069 (no
 /// `deck` key) get. Games without decks ignore it. The deck is public config:
 /// with a secret seed (KLD-064) the host still sends it ([publicJson]).
+///
+/// [pickLowCards] (KLD-100, Quartett Trumpf only, on by default): the house
+/// rule "with 3 or fewer cards you choose which card to play", see
+/// [QuartettGame.pickLowCards]. Public config like the deck; JSON key
+/// `pickLow`, written only when off (absent = on).
 class GameConfig {
   final String gameId;
   final int seed;
   final String? deck;
-  const GameConfig(this.gameId, {this.seed = 0, this.deck});
+  final bool pickLowCards;
+  const GameConfig(this.gameId, {this.seed = 0, this.deck, this.pickLowCards = true});
 
-  Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, if (deck != null) 'deck': deck};
+  Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
   /// [toJson] without the seed: what a guest may see of a game whose seed is
   /// secret.
-  Map<String, dynamic> publicJson() => {'game': gameId, if (deck != null) 'deck': deck};
+  Map<String, dynamic> publicJson() => {'game': gameId, ..._options};
 
-  factory GameConfig.fromJson(Map<String, dynamic> json) =>
-      GameConfig(json['game'] as String, seed: json['seed'] as int? ?? 0, deck: json['deck'] as String?);
+  Map<String, dynamic> get _options => {if (deck != null) 'deck': deck, if (!pickLowCards) 'pickLow': false};
 
-  GameConfig copyWith({int? seed}) => GameConfig(gameId, seed: seed ?? this.seed, deck: deck);
+  factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
+      seed: json['seed'] as int? ?? 0, deck: json['deck'] as String?, pickLowCards: json['pickLow'] != false);
+
+  GameConfig copyWith({int? seed}) =>
+      GameConfig(gameId, seed: seed ?? this.seed, deck: deck, pickLowCards: pickLowCards);
 
   @override
   bool operator ==(Object other) =>
-      other is GameConfig && other.gameId == gameId && other.seed == seed && other.deck == deck;
+      other is GameConfig &&
+      other.gameId == gameId &&
+      other.seed == seed &&
+      other.deck == deck &&
+      other.pickLowCards == pickLowCards;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards);
 
   @override
-  String toString() => 'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'})';
+  String toString() =>
+      'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -70,7 +84,7 @@ class GameSpec {
   /// changed move or view format). Network peers must have the same value
   /// ([fingerprintOf]); the higher one is the newer build.
   final int rulesVersion;
-  final Game Function(int seed, QuartettDeck deck) _create;
+  final Game Function(GameConfig config, QuartettDeck deck) _create;
   const GameSpec(this.id, this.title, this._create,
       {this.hiddenInformation = false,
       this.appReady = true,
@@ -79,11 +93,12 @@ class GameSpec {
       this.rulesVersion = 1});
 
   /// A new game; [deck] (games with [usesDeck]) defaults to the car deck.
-  /// Throws [ArgumentError] for an unknown deck.
-  Game create([int seed = 0, String? deck]) {
+  /// [pickLowCards]: see [GameConfig.pickLowCards]. Throws [ArgumentError]
+  /// for an unknown deck.
+  Game create([int seed = 0, String? deck, bool pickLowCards = true]) {
     final d = QuartettDeck.byId(usesDeck ? deck : null);
     if (d == null) throw ArgumentError.value(deck, 'deck', 'unknown deck');
-    return _create(seed, d);
+    return _create(GameConfig(id, seed: seed, deck: deck, pickLowCards: pickLowCards), d);
   }
 }
 
@@ -91,11 +106,14 @@ class GameSpec {
 final List<GameSpec> gameSpecs = [
   GameSpec('connect4', '4 Gewinnt', (_, __) => Connect4Game()),
   GameSpec('muehle', 'Mühle', (_, __) => MuehleGame()),
-  GameSpec('quartett-trumpf', 'Quartett (Trumpf)', (s, d) => QuartettGame(QuartettMode.trumpf, seed: s, deck: d),
-      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true),
+  // Rules 2 (KLD-100): the "3 or fewer cards: choose" house rule
+  // (`choose` moves, GameConfig.pickLowCards).
+  GameSpec('quartett-trumpf', 'Quartett (Trumpf)',
+      (c, d) => QuartettGame(QuartettMode.trumpf, seed: c.seed, deck: d, pickLowCards: c.pickLowCards),
+      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true, rulesVersion: 2),
   // 8 cards each plus a draw pile: with all 32 dealt every ask would hit.
-  GameSpec('quartett-sets', 'Quartett (Sets)',
-      (s, d) => QuartettGame(QuartettMode.sets, seed: s, handSize: 8, deck: d),
+  GameSpec(
+      'quartett-sets', 'Quartett (Sets)', (c, d) => QuartettGame(QuartettMode.sets, seed: c.seed, handSize: 8, deck: d),
       hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true),
   GameSpec('schiffe', 'Schiffe versenken', (_, __) => SchiffeGame(),
       hiddenInformation: true, redaction: const SchiffeRedaction()),
@@ -125,7 +143,7 @@ String? configProblem(GameConfig config) {
 Game createGame(GameConfig config) {
   final spec = specById(config.gameId);
   if (spec == null) throw ArgumentError.value(config.gameId, 'gameId', 'unknown game');
-  return spec.create(config.seed, config.deck);
+  return spec.create(config.seed, config.deck, config.pickLowCards);
 }
 
 /// Rebuilds a game by replaying [moves] on a fresh instance. Returns null if

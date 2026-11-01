@@ -99,7 +99,8 @@ class Card {
 }
 
 /// Rules engine. Moves:
-/// * trumpf: `{'action': 'pick', 'stat': id}`
+/// * trumpf: `{'action': 'pick', 'stat': id}`, with [pickLowCards] also
+///   `{'action': 'choose', 'card': id}` (see below)
 /// * sets:   `{'action': 'ask', 'card': id}`
 ///
 /// An illegal move, or any move after the game is over, returns `null` and
@@ -129,8 +130,28 @@ class Card {
 ///   empty (the last cards tied into the pot) the game is a draw.
 /// * After [maxTricks] tricks the larger stack wins (pot ignored); equal is a
 ///   draw.
+///
+/// Trumpf house rule [pickLowCards] (KLD-100, "with 3 or fewer cards you
+/// choose"): a player whose stack (pot excluded) holds at most
+/// [pickLowLimit] cards sees all of them and chooses the card to play
+/// instead of playing the top card. One round then runs:
+/// 1. the picker, if low, chooses a card (`choose`; the turn stays);
+/// 2. the picker announces the stat (`pick`);
+/// 3. the defender, if low, chooses a card knowing the stat (`choose`; during
+///    this phase [currentPlayer] is the defender, [picker] stays the picker,
+///    [announcedStat] is set);
+/// 4. the two played cards ([playedCard]) are compared as usual: a chosen card
+///    leaves the stack exactly like the top card would, the rest keeps its
+///    order; tie-break (Stechen) and pot are unchanged.
+/// With more than [pickLowLimit] cards a player plays the top card again; a
+/// single last card has no alternative and plays like a top card (no choice).
+/// The trick payload names the [picker] (`picker`) when the defender's
+/// choice completed it, and the players who chose (`chosen`).
 class QuartettGame extends Game {
   static const int maxTricks = 200;
+
+  /// Highest stack size at which [pickLowCards] lets a player choose.
+  static const int pickLowLimit = 3;
 
   /// The deck in play (default: [QuartettDeck.cars]).
   final QuartettDeck deck;
@@ -159,6 +180,11 @@ class QuartettGame extends Game {
   /// Cards dealt to each player in sets mode (16 = whole deck, no stock).
   final int handSize;
 
+  /// Trumpf house rule (KLD-100): with at most [pickLowLimit] cards a player
+  /// chooses the card to play. Off for a bare engine (the classic rules); the
+  /// app's [GameConfig] turns it on by default.
+  final bool pickLowCards;
+
   Player _current = Player.a;
   Player? _winner;
   bool _draw = false;
@@ -171,13 +197,17 @@ class QuartettGame extends Game {
   final Map<Player, List<Card>> _stacks = {Player.a: [], Player.b: []};
   final List<Card> _pot = [];
   int _tricks = 0;
+  // pickLowCards: the cards chosen this round, the stat announced while the
+  // defender chooses.
+  final Map<Player, Card?> _chosen = {Player.a: null, Player.b: null};
+  QuartettStat? _announced;
 
   // sets: hands, stock (front = top), laid-down set letters.
   final Map<Player, List<Card>> _hands = {Player.a: [], Player.b: []};
   final List<Card> _stock = [];
   final Map<Player, List<String>> _quartets = {Player.a: [], Player.b: []};
 
-  QuartettGame(this.mode, {this.seed = 0, this.handSize = 16, QuartettDeck? deck})
+  QuartettGame(this.mode, {this.seed = 0, this.handSize = 16, QuartettDeck? deck, this.pickLowCards = false})
       : deck = deck ?? QuartettDeck.cars,
         assert(handSize >= 1 && handSize <= 16) {
     final cards = List<Card>.of(this.deck.cards);
@@ -204,8 +234,10 @@ class QuartettGame extends Game {
     }
   }
 
+  /// The player to act: the [picker], or the defender while it chooses its
+  /// card for the [announcedStat].
   @override
-  Player get currentPlayer => _current;
+  Player get currentPlayer => _announced != null ? _other(_current) : _current;
 
   @override
   GameResult get playResult =>
@@ -231,6 +263,29 @@ class QuartettGame extends Game {
   int get potSize => _pot.length;
   int get tricks => _tricks;
 
+  /// Trumpf: the player who announces the stat this round (equals
+  /// [currentPlayer] except while the defender chooses).
+  Player get picker => _current;
+
+  /// [pickLowCards]: the stat the picker announced while the defender still
+  /// chooses its card; null otherwise.
+  QuartettStat? get announcedStat => _announced;
+
+  /// [pickLowCards]: the card [p] chose this round (null: none yet).
+  Card? chosenCard(Player p) => _chosen[p];
+
+  /// Whether [p] chooses its card ([pickLowCards] and at most
+  /// [pickLowLimit] cards left; a single card has no choice and plays like a
+  /// top card).
+  bool choosesCard(Player p) =>
+      mode == QuartettMode.trumpf && pickLowCards && _stacks[p]!.length >= 2 && _stacks[p]!.length <= pickLowLimit;
+
+  /// The [currentPlayer] has to choose a card now (`choose` moves).
+  bool get mustChoose => !isOver && choosesCard(currentPlayer) && _chosen[currentPlayer] == null;
+
+  /// The card [p] plays this round: the chosen one, else the top card.
+  Card? playedCard(Player p) => _chosen[p] ?? topCard(p);
+
   // --- sets getters ---
 
   /// [p]'s hand, sorted by id.
@@ -249,7 +304,7 @@ class QuartettGame extends Game {
         'mode': mode.name,
         'deck': deck.id,
         'handSize': handSize,
-        'current': _current.name,
+        'current': currentPlayer.name,
         'result': resultToJson(playResult),
         if (resignedBy != null) 'resigned': resignedBy!.name,
         if (mode == QuartettMode.trumpf) ...{
@@ -257,6 +312,11 @@ class QuartettGame extends Game {
           'pot': potSize,
           'stacks': {'a': stackSize(Player.a), 'b': stackSize(Player.b)},
           'top': topCard(viewer)?.id,
+          if (pickLowCards) 'pickLow': true,
+          // KLD-100: a low player sees its whole stack; only its own choice.
+          if (choosesCard(viewer)) 'hand': [for (final c in _stacks[viewer]!) c.id],
+          if (_chosen[viewer] case final c?) 'chosen': c.id,
+          if (_announced case final s?) 'announced': s.id,
         } else ...{
           'hand': [for (final c in handOf(viewer)) c.id],
           'hands': {'a': handOf(Player.a).length, 'b': handOf(Player.b).length},
@@ -269,6 +329,12 @@ class QuartettGame extends Game {
   List<Map<String, dynamic>> get legalMoves {
     if (isOver) return const [];
     if (mode == QuartettMode.trumpf) {
+      if (mustChoose) {
+        return [
+          for (final c in _stacks[currentPlayer]!) {'action': 'choose', 'card': c.id}
+        ];
+      }
+      if (_announced != null) return const []; // unreachable: the defender chooses
       return [
         for (final s in stats) {'action': 'pick', 'stat': s.id}
       ];
@@ -286,7 +352,8 @@ class QuartettGame extends Game {
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
-    return mode == QuartettMode.trumpf ? _pick(move) : _ask(move);
+    if (mode == QuartettMode.sets) return _ask(move);
+    return move['action'] == 'choose' ? _choose(move) : _pick(move);
   }
 
   static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
@@ -297,16 +364,49 @@ class QuartettGame extends Game {
   // --- trumpf ---
 
   GameEvent? _pick(Map<String, dynamic> move) {
-    if (move['action'] != 'pick') return null;
+    if (move['action'] != 'pick' || _announced != null) return null;
     final stat = move['stat'];
     final s = stat is String ? statById(stat) : null;
     if (s == null) return null;
-    final ca = topCard(Player.a), cb = topCard(Player.b);
-    if (ca == null || cb == null) return null; // unreachable: game is over
+    if (topCard(Player.a) == null || topCard(Player.b) == null) return null; // unreachable: game is over
+    if (mustChoose) return null; // a low picker chooses its card first
 
+    _history.add({'player': _current, 'action': 'pick', 'stat': s.id});
+    if (choosesCard(_other(_current))) {
+      // KLD-100: the defender chooses its card for the announced stat.
+      _announced = s;
+      return _event({'stat': s.id, 'announced': true});
+    }
+    return _resolve(s);
+  }
+
+  /// KLD-100: the low picker (before `pick`) or the low defender (after it)
+  /// chooses the card to play; the defender's choice completes the round.
+  GameEvent? _choose(Map<String, dynamic> move) {
+    if (!mustChoose) return null;
+    final id = move['card'];
+    final me = currentPlayer;
+    final card = _stacks[me]!.where((c) => c.id == id).firstOrNull;
+    if (card == null) return null;
+    _chosen[me] = card;
+    _history.add({'player': me, 'action': 'choose', 'card': card.id});
+    final s = _announced;
+    if (s == null) return _event({'chose': true});
+    return _resolve(s);
+  }
+
+  /// Compares the played cards of both players for [s] and settles the
+  /// round.
+  GameEvent _resolve(QuartettStat s) {
+    final ca = playedCard(Player.a)!, cb = playedCard(Player.b)!;
     final picker = _current;
-    _stacks[Player.a]!.removeAt(0);
-    _stacks[Player.b]!.removeAt(0);
+    final byDefender = _announced != null;
+    final chose = [for (final p in Player.values) if (_chosen[p] != null) p.name];
+    _stacks[Player.a]!.remove(ca);
+    _stacks[Player.b]!.remove(cb);
+    _chosen[Player.a] = null;
+    _chosen[Player.b] = null;
+    _announced = null;
     final va = ca.stats[s.id]!, vb = cb.stats[s.id]!;
     Player? trickWinner;
     if (s.beats(va, vb)) {
@@ -325,7 +425,6 @@ class QuartettGame extends Game {
       _current = trickWinner;
     }
     _tricks++;
-    _history.add({'player': picker, 'action': 'pick', 'stat': s.id});
     _checkTrumpfOver();
     return _event({
       'stat': s.id,
@@ -333,6 +432,8 @@ class QuartettGame extends Game {
       'values': {'a': va, 'b': vb},
       'trickWinner': trickWinner?.name,
       'pot': _pot.length,
+      if (byDefender) 'picker': picker.name,
+      if (chose.isNotEmpty) 'chosen': chose,
     });
   }
 
