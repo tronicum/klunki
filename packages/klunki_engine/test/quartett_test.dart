@@ -211,7 +211,7 @@ void main() {
       }
       expect(g.tricks, QuartettGame.maxTricks);
       expect(g.result.draw, isTrue);
-      expect(g.result.reason, contains('trick limit'));
+      expect(g.result.reason, contains('round limit'));
       expect(g.result.code, GameEndReason.quartettTrickLimitEqual);
 expect(g.result.params, {'a': 16, 'b': 16});
     });

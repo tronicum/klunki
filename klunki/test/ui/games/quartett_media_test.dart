@@ -498,7 +498,7 @@ void _widgetTests() {
             for (final s in deck.stats) {
               final texts = tester
                   .widgetList<Text>(find.descendant(of: find.byKey(Key('s-${s.id}')), matching: find.byType(Text)))
-                  .map((t) => t.data ?? '')
+                  .map((t) => t.semanticsLabel ?? t.data ?? '')
                   .toList();
               final value = texts.firstWhere((t) => t != localizedStatLabel(l10n, s.id));
               final where = '${deck.id} ${card.id} ${s.id}: "$value"';

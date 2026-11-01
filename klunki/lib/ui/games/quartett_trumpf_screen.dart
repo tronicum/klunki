@@ -18,23 +18,30 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// The screen is built by `ui/shell/screen_registry.dart` and renders a
 /// [GameScreen].
 ///
+/// Wording (KLD-092): one comparison is a round ("Runde", not "Stich"); a tie
+/// is a tie-break ("Gleichstand – Stechen!"), the next card decides. Internal
+/// names keep "trick".
+///
 /// Flow of one trick (hot-seat):
 /// 1. The player to move sees only their own top card (stats tappable) and
 ///    the opponent's face-down stack.
 /// 2. Tapping a stat shows the trick reveal (both cards, chosen stat
-///    highlighted, winner text). The move is *not* submitted yet: the reveal
+///    highlighted, winner text). While it is shown the shell's status line
+///    names the next picker ("O wählt als Nächstes", KLD-092) instead of the
+///    live "X ist am Zug". The move is *not* submitted yet: the reveal
 ///    is computed on a replayed copy of the engine, so the shell's handover
 ///    cover (which appears as soon as a move passes the turn) cannot hide it.
 /// 3. "Weiter – X wählt" submits the pick. If the turn passed (the other
 ///    player won the trick), the shell's [HandoverCover] appears and says
-///    why ("O hat den Stich gewonnen", `qt-handover-reason`); otherwise (the
+///    why ("O hat die Runde gewonnen", `qt-handover-reason`); otherwise (the
 ///    picker won, or a tie) there is no cover: nothing has to be passed and
 ///    the reveal already said "X wählt noch einmal" (KLD-091, reverses the
 ///    old KLD-029 plan).
 ///
 /// Every trick result names who picks next (`qt-next-picker`, KLD-091):
 /// "O wählt als Nächstes" when the other player won, "X wählt noch einmal"
-/// when the picker won, and after a tie the pot plus "X wählt noch einmal".
+/// when the picker won, and after a tie "Karten in den Topf (jetzt 2), X wählt
+/// noch einmal" under the headline "Gleichstand – Stechen!".
 ///
 /// Network (KLD-086): "Weiter" is local only, never a message, and the game
 /// never waits for it. A pick is submitted at once (no preview) and every
@@ -48,7 +55,7 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// The waiting player's grace shows a countdown (`qt-grace`); a trick picked
 /// meanwhile is announced ("X hat gewählt: PS", `qt-queued-notice`).
 ///
-/// "Letzter Stich" (`qt-last-trick`, next to the stack counts, in every mode)
+/// "Vorige Runde" (`qt-last-trick`, next to the stack counts, in every mode)
 /// opens a local overlay (`qt-last-trick-overlay`) with the most recent trick
 /// the player has seen. While it is open nothing new is revealed and the
 /// grace pauses; tricks arriving meanwhile are queued and shown after it
@@ -57,7 +64,7 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// Network status line (KLD-091): while the reveal on screen is not the
 /// newest trick (more are queued behind it), the shell's status line follows
 /// the reveal ("Ben (O) wählt als Nächstes" / "Du wählst als Nächstes (O)")
-/// with a badge "noch 2 Stiche" (`shell-status-badge`) instead of the live
+/// with a badge "noch 2 Runden" (`shell-status-badge`) instead of the live
 /// "Du bist am Zug"; it goes back to the live status once the queue is
 /// empty, see [GameShell.setStatusOverride].
 ///
@@ -81,7 +88,7 @@ class QuartettTrumpfScreen extends StatelessWidget {
   }
 
   /// Hot-seat cover (KLD-091): why the device goes to the player on turn,
-  /// "O hat den Stich gewonnen" (the cover only appears when the turn
+  /// "O hat die Runde gewonnen" (the cover only appears when the turn
   /// passed, i.e. the other player won the trick). Nothing for any other
   /// cover (e.g. after an undo).
   Widget _handoverReason(BuildContext context) {
@@ -119,7 +126,7 @@ class QuartettTrumpfScreen extends StatelessWidget {
 /// "Weiter" skips it.
 const quartettRevealGrace = Duration(seconds: 5);
 
-/// How many tricks the board keeps for "Letzter Stich" (newest last). Only
+/// How many tricks the board keeps for "Vorige Runde" (newest last). Only
 /// the last one is shown for now; a longer list would allow a history view.
 const quartettTrickHistoryLength = 1;
 
@@ -210,7 +217,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   _Trick? _reveal;
 
   /// Network: tricks that arrived while [_reveal] was still in its grace
-  /// period (or "Letzter Stich" was open), shown in order afterwards.
+  /// period (or "Vorige Runde" was open), shown in order afterwards.
   final List<_Trick> _queue = [];
 
   /// Network, waiting player: the grace period of [_reveal] (0 → 1).
@@ -224,7 +231,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   /// [quartettTrickHistoryLength].
   final List<_Trick> _history = [];
 
-  /// The "Letzter Stich" overlay is open: nothing new is revealed and the
+  /// The "Vorige Runde" overlay is open: nothing new is revealed and the
   /// grace is paused until it closes.
   bool _peeking = false;
 
@@ -346,7 +353,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   }
 
   /// Shows [t] now, or queues it behind the reveal on screen or the open
-  /// "Letzter Stich" overlay.
+  /// "Vorige Runde" overlay.
   void _enqueue(_Trick t) {
     if (_reveal == null && !_peeking) {
       _show(t);
@@ -413,7 +420,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     });
   }
 
-  /// Opens the "Letzter Stich" overlay. Purely local: while it is open new
+  /// Opens the "Vorige Runde" overlay. Purely local: while it is open new
   /// tricks queue up and the grace pauses; closing it carries on.
   Future<void> _openLastTrick() async {
     if (_history.isEmpty || _peeking) return;
@@ -474,21 +481,33 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     );
   }
 
-  /// KLD-091 (network): while older tricks are still on screen (more are
-  /// queued behind the reveal), the shell's status line follows the reveal,
-  /// not the live game; null: the live status.
+  /// The shell's status line follows the reveal instead of the live game
+  /// (null: the live status):
+  ///
+  /// * KLD-091 (network): while older rounds are still on screen (more are
+  ///   queued behind the reveal), with a badge "noch 2 Runden".
+  /// * KLD-092 (hot-seat): while a previewed round result is on screen. The
+  ///   pick is only applied on "Weiter", so the live status would still name
+  ///   the picker ("X ist am Zug") while the result says "O wählt als
+  ///   Nächstes". It uses the cue's words ("O wählt als Nächstes" / "X wählt
+  ///   noch einmal"), with the player's name if set. (A result of a move
+  ///   that is already applied needs no override: the live status agrees.)
   ShellStatus? _statusOverride(BuildContext context) {
     final reveal = _reveal;
-    if (!_networked || reveal == null || _queue.isEmpty) return null;
+    if (reveal == null) return null;
+    if (_networked ? _queue.isEmpty : reveal.pending == null) return null;
     final l10n = AppLocalizations.of(context);
     final labels = PlayerLabelsScope.of(context);
     final next = reveal.nextPicker;
+    final name = labels.label(context, l10n, next);
     return ShellStatus(
-      text: labels.isLocal(next)
-          ? l10n.quartettTrumpfYouPickNext(playerMark(next))
-          : l10n.quartettTrumpfNextPicker(labels.label(context, l10n, next)),
+      text: !_networked
+          ? (next == reveal.picker ? l10n.quartettTrumpfPicksAgain(name) : l10n.quartettTrumpfNextPicker(name))
+          : labels.isLocal(next)
+              ? l10n.quartettTrumpfYouPickNext(playerMark(next))
+              : l10n.quartettTrumpfNextPicker(name),
       player: next,
-      badge: l10n.quartettTrumpfTricksBehind(_queue.length),
+      badge: _queue.isEmpty ? null : l10n.quartettTrumpfTricksBehind(_queue.length),
     );
   }
 
@@ -501,7 +520,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     GameScreen.of(context).setStatusOverride(_statusOverride(context));
   }
 
-  /// Stack counts of both players plus the pot, and the "Letzter Stich"
+  /// Stack counts of both players plus the pot, and the "Vorige Runde"
   /// button. During a hot-seat reveal the counts are those before the trick
   /// (the pick is not applied yet); on a network device the current ones.
   Widget _counts(BuildContext context, QuartettGame game, _Trick? reveal) {
@@ -804,7 +823,7 @@ class _TrickCards extends StatelessWidget {
   }
 }
 
-/// "Letzter Stich": a peek at the most recent trick — both cards with the
+/// "Vorige Runde": a peek at the most recent trick — both cards with the
 /// chosen stat and values, who won (or the tie and the pot) and the stack
 /// sizes right after it. Closes on a tap outside, the close button or Back.
 class _LastTrickDialog extends StatelessWidget {

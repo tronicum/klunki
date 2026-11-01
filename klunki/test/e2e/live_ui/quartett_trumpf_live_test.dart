@@ -1,7 +1,7 @@
 // KLD-089: Quartett (Trumpf) played to the end through the real UI, like a
 // user: hot-seat (one device, handover covers) and network (host and guest
 // side by side over real sockets through the Wi-Fi latency proxy, with
-// dawdling, timed-out grace periods and "Letzter Stich" peeks). After every
+// dawdling, timed-out grace periods and "Vorige Runde" peeks). After every
 // game each device's sequence of revealed tricks (picker, stat, winner, both
 // cards) must equal the host engine's history, and the engine history must
 // follow the rule: the trick winner picks next, after a tie the same player.
@@ -35,9 +35,12 @@ void main() {
     for (final seed in full ? [1, 2, 3, 4, 5, 6] : [1, 2]) {
       testWidgets('hot-seat ${deck.id} seed $seed: every trick revealed once, in order, by the right picker',
           (tester) async {
+        final before = adapter.hotSeatStatusChecks;
         final log = await playHotSeat(tester, adapter, GameConfig('quartett-trumpf', seed: seed, deck: deck.id),
             rng: Random(seed * 31 + deck.id.length));
         log.printIfVerbose();
+        // KLD-092: the status line was checked under every hot-seat result.
+        expect(adapter.hotSeatStatusChecks - before, greaterThanOrEqualTo(log.engine.length));
       });
     }
   }

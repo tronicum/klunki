@@ -323,7 +323,7 @@ class NetBehaviour {
   /// Chance the fake clock jumps 1–6 s after a round (grace periods run out).
   final double wait;
 
-  /// Chance of a side action (e.g. opening "Letzter Stich").
+  /// Chance of a side action (e.g. opening "Vorige Runde").
   final double fidget;
 
   const NetBehaviour({this.dawdle = 0.3, this.wait = 0.2, this.fidget = 0.05});

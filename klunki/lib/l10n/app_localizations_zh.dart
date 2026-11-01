@@ -292,7 +292,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => '平手 – 牌进入奖池';
+  String get quartettTrumpfTie => '平手 – 加赛！';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
@@ -320,12 +320,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count 张牌',
-    );
-    return '奖池中：$_temp0 – $player 再选一次';
+    return '牌进入奖池（现有 $count 张），$player 再选一次';
   }
 
   @override
@@ -334,7 +329,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => '上一墩';
+  String get quartettTrumpfLastTrick => '上一轮';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {

@@ -304,11 +304,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => 'Égalité – les cartes vont au pot';
+  String get quartettTrumpfTie => 'Égalité – départage !';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player remporte le pli';
+    return '$player remporte la manche';
   }
 
   @override
@@ -332,14 +332,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count cartes',
-      many: '$count de cartes',
-      one: '$count carte',
-    );
-    return 'Dans le pot : $_temp0 – $player choisit encore';
+    return 'Les cartes vont au pot (maintenant $count), $player choisit encore';
   }
 
   @override
@@ -348,7 +341,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => 'Dernier pli';
+  String get quartettTrumpfLastTrick => 'Manche précédente';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {
@@ -385,16 +378,16 @@ class AppLocalizationsFr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'encore $count plis',
-      many: 'encore $count de plis',
-      one: 'encore $count pli',
+      other: 'encore $count manches',
+      many: 'encore $count de manches',
+      one: 'encore $count manche',
     );
     return '$_temp0';
   }
 
   @override
   String quartettTrumpfHandoverReason(String player) {
-    return '$player a remporté le pli';
+    return '$player a remporté la manche';
   }
 
   @override
@@ -928,12 +921,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'Limite de plis atteinte, autant de cartes ($a:$b)';
+    return 'Limite de manches atteinte, autant de cartes ($a:$b)';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'Limite de plis atteinte, plus de cartes ($a:$b)';
+    return 'Limite de manches atteinte, plus de cartes ($a:$b)';
   }
 
   @override
@@ -1182,13 +1175,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get engineSetH => 'Petites bombes';
 
   @override
-  String get engineStatPs => 'Puissance';
+  String get engineStatPs => 'Puis­sance';
 
   @override
   String get engineStatKmh => 'Vitesse max.';
 
   @override
-  String get engineStatCcm => 'Cylindrée';
+  String get engineStatCcm => 'Cylin­drée';
 
   @override
   String get engineStatKg => 'Poids';
@@ -1504,40 +1497,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quartettSetPlanesH => 'Records insolites';
 
   @override
-  String get quartettStatKw => 'Puissance';
+  String get quartettStatKw => 'Puis­sance';
 
   @override
-  String get quartettStatLengthM => 'Longueur';
+  String get quartettStatLengthM => 'Lon­gueur';
 
   @override
   String get quartettStatMassT => 'Poids';
 
   @override
-  String get quartettStatTractiveKn => 'Effort de traction';
+  String get quartettStatTractiveKn => 'Effort de trac­tion';
 
   @override
   String get quartettStatHeightM => 'Hauteur';
 
   @override
-  String get quartettStatThrustKn => 'Poussée au décollage';
+  String get quartettStatThrustKn => 'Pous­sée au décol­lage';
 
   @override
   String get quartettStatLeoT => 'Charge utile (LEO)';
 
   @override
-  String get quartettStatLaunchMassT => 'Masse au lancement';
+  String get quartettStatLaunchMassT => 'Masse au lance­ment';
 
   @override
-  String get quartettStatFlights => 'Lancements';
+  String get quartettStatFlights => 'Lance­ments';
 
   @override
-  String get quartettStatRangeKm => 'Autonomie';
+  String get quartettStatRangeKm => 'Auto­nomie';
 
   @override
-  String get quartettStatWingspanM => 'Envergure';
+  String get quartettStatWingspanM => 'Enver­gure';
 
   @override
-  String get quartettStatMtowT => 'Masse max. au décollage';
+  String get quartettStatMtowT => 'Masse max. au décol­lage';
 
   @override
   String get quartettDeckPickerTitle => 'Choisir un jeu de cartes';
@@ -1584,7 +1577,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quartettStatBuilt => 'Construits';
+  String get quartettStatBuilt => 'Cons­truits';
 
   @override
   String get quartettStatSuccessPct => 'Taux de réussite';

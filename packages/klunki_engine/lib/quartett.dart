@@ -350,12 +350,12 @@ class QuartettGame extends Game {
       final na = stackSize(Player.a), nb = stackSize(Player.b);
       if (na == nb) {
         _draw = true;
-        _reason = 'trick limit reached with equal stacks ($na:$nb)';
+        _reason = 'round limit reached with equal stacks ($na:$nb)';
         _code = GameEndReason.quartettTrickLimitEqual;
         _params = {'a': na, 'b': nb};
       } else {
         _winner = na > nb ? Player.a : Player.b;
-        _reason = 'trick limit reached, more cards ($na:$nb)';
+        _reason = 'round limit reached, more cards ($na:$nb)';
         _code = GameEndReason.quartettTrickLimitMoreCards;
         _params = {'a': na, 'b': nb};
       }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
@@ -33,3 +34,9 @@ Widget localizedApp(Widget home, {Locale locale = testLocale, bool debugShowChec
 
 /// The whole app (menu first) pinned to [locale], without persistence.
 Widget klunkiApp({Locale locale = testLocale}) => KlunkiApp(localeController: LocaleController.memory(locale));
+
+/// A [Text] showing [label]: as its text, or (a Quartett stat label that the
+/// card lays out over two lines, "Höchst-\ngeschwindigkeit", KLD-092) as its
+/// semantics label.
+Finder findLabel(String label) =>
+    find.byWidgetPredicate((w) => w is Text && (w.data == label || w.semanticsLabel == label), description: 'label "$label"');

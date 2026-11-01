@@ -101,7 +101,7 @@ void main() {
         Scaffold(body: SingleChildScrollView(child: SizedBox(width: 320, child: QuartettCard(card: card)))),
         locale: const Locale('en')));
     for (final label in ['Power', 'Top speed', 'Displacement', 'Weight', '0–100 km/h']) {
-      expect(find.text(label), findsOneWidget, reason: label);
+      expect(findLabel(label), findsOneWidget, reason: label);
     }
     expect(find.text('650 hp'), findsOneWidget);
     expect(find.text('2.7 s'), findsOneWidget);

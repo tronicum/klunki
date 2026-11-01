@@ -72,7 +72,7 @@ class ShellStatus {
   final Player player;
 
   /// Optional small badge on the status pill (`shell-status-badge`), e.g.
-  /// "noch 2 Stiche".
+  /// "noch 2 Runden".
   final String? badge;
 
   const ShellStatus({required this.text, required this.player, this.badge});
@@ -810,7 +810,7 @@ class _TurnIndicatorState extends State<_TurnIndicator> with SingleTickerProvide
   }
 }
 
-/// A small badge on the status pill, e.g. "noch 2 Stiche".
+/// A small badge on the status pill, e.g. "noch 2 Runden".
 class _StatusBadge extends StatelessWidget {
   final String text;
   const _StatusBadge({super.key, required this.text});
