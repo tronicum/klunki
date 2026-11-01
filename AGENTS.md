@@ -11,7 +11,10 @@ device** on the local Wi-Fi (TCP/WebSocket, mDNS discovery, QR join), or **brows
 small relay**. Target audience: families and kids; the UI language is German first, plus 6 more locales.
 License: AGPL-3.0 (public repo: never commit secrets, private data or anything you would not publish).
 
-Games (`GameSpec.id` in `packages/klunki_engine/lib/registry.dart`, menu order):
+Games (`GameSpec.id` in `packages/klunki_engine/lib/registry.dart`, menu order). Titles are display text
+(ARB `menuGame*`); renaming a game never changes its id, the protocol or the compat fingerprint.
+The word tile game is called **Wortgewandt** (en Wordsmith; chosen by the maintainer, KLD-094); the
+proposals WortSalat and KlunkerKombi are kept for future games.
 
 | id | German title | Notes |
 |---|---|---|
@@ -22,7 +25,7 @@ Games (`GameSpec.id` in `packages/klunki_engine/lib/registry.dart`, menu order):
 | `schiffe` | Schiffe versenken | hidden info; fleet of 6 ships |
 | `gostrategy` | GoStrategy | hidden ranks, capture the flag |
 | `chess` | Schach | |
-| `wordtiles` | Wortleger (working title) | hidden racks; `appReady: false` (debug preview only, KLD-094) |
+| `wordtiles` | Wortgewandt | word tile game; hidden racks; `appReady: false` (debug preview "Vorschau: Wortgewandt", KLD-094) |
 
 **Generic names only.** Never use publisher or brand names for games, in code, ARB strings, docs, store
 texts or commit messages (say "Four in a Row", "Sink the Fleet", "word tile game"). Real vehicle names on
@@ -111,9 +114,10 @@ troubleshooting: `docs/BUILDING.md`.
   After new Chinese (or other non-Latin) strings, regenerate the web font subset:
   `cd klunki && python3 -I tool/update_web_fonts.py subset && flutter test test/l10n` (needs internet; ask first).
 - **Player names are data.** Sentences use `{player}` placeholders; never put X/O (or colours) inside a
-  sentence. Default names come per locale (`playerDefaultNameA/B`: Anna/Ben in de) and players can enter
+  sentence. Default names come per locale (`playerDefaultNameA/B`: Anna/Ben in de and en, Anne/Hugo in fr, Ana/Beto in es) and players can enter
   their own. Names are of any gender: write sentences without grammatical gender agreement (in `ar`, phrase
-  `{player}` as a noun phrase, no gendered verbs; in `de`, no possessive endings on the name).
+  `{player}` as a noun phrase, no gendered verbs; in `de`, no possessive endings on the name; in `fr`, no "de"/"que" right before `{player}`: Anne and Hugo
+  would need elision, write "À {player} de jouer").
 - **Wording (German UI).** Quartett has a **"Runde"** and a tie is **"Stechen"**, never "Stich". Network play is
   **"Raum starten" / "Raum beitreten"**; no "hosten", no "Multiplayer". Plain words a child understands, no
   English jargon.
