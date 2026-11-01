@@ -31,9 +31,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuDebugConsole => '调试控制台';
 
   @override
-  String get menuPlayOverWifi => '通过 Wi-Fi 对战';
-
-  @override
   String get menuGameConnect4 => '四子棋';
 
   @override
@@ -67,10 +64,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuSectionHotSeat => '两人用一台设备';
 
   @override
-  String get menuSectionNetwork => '两台设备';
+  String get menuSectionNetwork => '与其他设备一起玩';
 
   @override
-  String get menuNetworkSubtitle => '创建或加入游戏';
+  String get roomStartSubtitle => '其他人用房间码加入';
+
+  @override
+  String get roomJoinSubtitle => '扫码或输入房间码';
+
+  @override
+  String get roomAdvanced => '高级';
+
+  @override
+  String get roomDirectWaitingHint =>
+      '其他人点“加入房间”并扫描这个二维码。同一 Wi-Fi 下的设备也能在“附近的房间”中找到它。';
+
+  @override
+  String get roomViaRelay => '通过中继创建房间';
+
+  @override
+  String get roomViaRelayHelper =>
+      '使用房间码，浏览器里的玩家也能加入。需要一台运行“klunki relay”的电脑。关闭时，房间直接在本设备上运行，同一 Wi-Fi 下的设备会自动找到它。';
+
+  @override
+  String get roomTypeCode => '输入房间码';
 
   @override
   String get menuHiddenInfo => '手牌或舰队不能给对方看——轮流传递设备';
@@ -663,9 +680,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get debugDemo => '演示：所有游戏';
 
   @override
-  String get pairingTitle => '通过 Wi-Fi 对战';
-
-  @override
   String get pairingDeviceNameHelper => '对方会看到这个名字';
 
   @override
@@ -691,31 +705,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hotSeatNamesHelper => '可选 – 留空则只显示 X 和 O。';
 
   @override
-  String get pairingModeHost => '创建';
-
-  @override
-  String get pairingModeJoin => '加入';
-
-  @override
   String get pairingChooseGame => '选择游戏';
 
   @override
-  String get pairingHostGame => '创建对局';
+  String get roomStart => '创建房间';
 
   @override
-  String pairingHostStartFailed(String error) {
-    return '无法开始对局：$error';
+  String roomStartFailed(String error) {
+    return '无法创建房间：$error';
   }
 
   @override
-  String get pairingNotAdvertised => '无法被自动发现 – 请对方输入地址。';
+  String get pairingNotAdvertised => '无法被自动发现——其他人请扫描二维码。';
 
   @override
-  String get pairingNoDiscoveryHost => '此设备不支持自动搜索 – 请对方输入地址。';
+  String get pairingNoDiscoveryHost => '此设备不支持自动查找——其他人请扫描二维码。';
 
   @override
-  String pairingHosting(String name, String game) {
-    return '$name 创建了 $game';
+  String roomOfPlayer(String name, String game) {
+    return '$name 的房间：$game';
   }
 
   @override
@@ -736,22 +744,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingCancel => '取消';
 
   @override
-  String get pairingGamesOnNetwork => '网络中的对局';
+  String get roomNearby => '附近的房间';
 
   @override
-  String get pairingNoDiscoveryJoin => '此设备不支持自动搜索。请在下方输入地址。';
+  String get pairingNoDiscoveryJoin => '此设备不支持自动查找。请扫描二维码，或在“高级”中输入地址。';
 
   @override
-  String get pairingBrowseFailed => '无法搜索网络。请在下方输入地址。';
+  String get pairingBrowseFailed => '无法在网络中查找。请扫描二维码，或在“高级”中输入地址。';
 
   @override
-  String get pairingSearching => '正在搜索对局…';
+  String get pairingSearching => '正在查找房间…';
 
   @override
   String get pairingOtherVersion => 'Klunki 版本不同';
-
-  @override
-  String get pairingOrEnterAddress => '或输入地址';
 
   @override
   String get pairingManualLabel => 'IP、IP:端口或 klunki:// 链接';
@@ -823,7 +828,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get networkVerificationFailed => '无法确认对局记录';
 
   @override
-  String get pairingReconnectFailed => '重新连接失败。主机还在对局中吗？';
+  String get pairingReconnectFailed => '重新连接失败。另一台设备还在游戏中吗？';
 
   @override
   String get pairingBrowserJoin => '在浏览器中加入（输入地址或粘贴链接）：';
@@ -835,10 +840,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingLinkCopied => '链接已复制';
 
   @override
-  String get webJoinIntro =>
-      '在浏览器中加入由 iPhone、iPad、Android 设备或终端（klunki host）主持的游戏。主机会在“在浏览器中加入”下显示地址和链接。';
-
-  @override
   String get webJoinHttpsWarning =>
       '此页面是通过 https 打开的。浏览器会阻止从这里到本地网络的 ws:// 连接。请通过 http:// 打开 Klunki。';
 
@@ -847,7 +848,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String webJoinAddressHelper(int port) {
-    return '端口是主机的浏览器端口（WebSocket）；未填写时为 $port。';
+    return '端口是另一台设备的浏览器端口（WebSocket），不填则为 $port。';
   }
 
   @override
@@ -856,7 +857,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webJoinHints =>
-      '提示：此设备与主机是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。页面必须通过 http:// 打开，而不是 https://。主机必须运行支持浏览器的 Klunki 版本（会显示“在浏览器中加入”）。';
+      '提示：此设备与房间所在的设备是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。页面必须通过 http:// 打开，而不是 https://。另一台设备必须运行支持浏览器的 Klunki 版本（会显示“在浏览器中加入”）。';
 
   @override
   String get engineReasonConnect4FourInARow => '四子连线';
@@ -1179,13 +1180,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get engineShipOther => '舰船';
 
   @override
-  String get relayHostIntro => '同一 Wi-Fi 下的另一个浏览器用房间码加入。';
+  String get roomStartIntro => '其他人点“加入房间”并输入房间码。';
 
   @override
   String get relayRoomCode => '房间码';
 
   @override
-  String get relayWaitingHint => '在第二台设备上打开链接或扫描二维码。也可以在那里打开 Klunki 并输入房间码。';
+  String get relayWaitingHint => '其他人点“加入房间”，扫描二维码或输入房间码。也可以打开链接。';
 
   @override
   String relayInfo(String address) {
@@ -1193,16 +1194,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get relayJoinTitle => '用房间码加入';
-
-  @override
-  String get relayCodeHelper => '5 个字符。创建游戏的浏览器会显示该码。';
+  String get roomCodeHelper => '5 个字符——另一台设备会在它的房间里显示房间码。';
 
   @override
   String get relayCodeInvalid => '房间码无效：5 个字母或数字（不含 0、O、1、I、L）。';
 
   @override
-  String get relayJoin => '加入房间';
+  String get roomJoin => '加入房间';
 
   @override
   String relayJoining(String code) {
@@ -1217,14 +1215,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '同一 Wi-Fi 中运行 “klunki relay” 的电脑，例如 192.168.1.20:4749';
 
   @override
-  String get relayAddressAdvanced => '高级：中继地址';
-
-  @override
   String get relayAddressInvalid => '中继地址无效。示例：192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
-    return '没有房间码为 $code 的房间。请确认房间码正确，且主机仍在等待。';
+    return '没有房间码为 $code 的房间。请确认房间码正确，且房间仍然开着。';
   }
 
   @override
@@ -1233,7 +1228,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get relayErrorHostLeft => '主机已离开房间，游戏结束。';
+  String get relayErrorRoomClosed => '房间已关闭：创建房间的人已离开。游戏结束。';
 
   @override
   String get relayErrorExpired => '房间已过期（10 分钟无活动）。';
@@ -1248,11 +1243,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get relayStartHint =>
-      '浏览器对战浏览器需要一个中继。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：';
+      '带房间码的房间需要一个中继。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：';
 
   @override
   String relayRoomLost(String reason) {
-    return '$reason请开始新游戏。';
+    return '$reason请创建新房间。';
   }
 
   @override
@@ -1274,16 +1269,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingSeatTaken => '位置已被占用：已有人在玩这局游戏。只有最先加入的玩家才能重新加入。';
 
   @override
-  String get webJoinDirectTitle => '或连接到主机设备（应用或终端）';
-
-  @override
   String get qrScanButton => '扫描二维码';
 
   @override
-  String get qrScanHint => '将摄像头对准主机的二维码。';
+  String get qrScanHint => '将摄像头对准另一台设备上的二维码。';
 
   @override
-  String get qrScanNotKlunki => '不是 Klunki 二维码。请扫描游戏创建时显示的二维码。';
+  String get qrScanNotKlunki => '不是 Klunki 二维码。请扫描另一台设备在房间里显示的二维码。';
 
   @override
   String get qrScanTorchOn => '打开手电筒';
@@ -1304,9 +1296,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qrScanTypeInstead => '输入代码';
 
   @override
-  String get relayGroupTitle => '通过中继游戏（房间码）';
-
-  @override
   String get relayChange => '更改';
 
   @override
@@ -1321,13 +1310,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get relaySave => '应用';
 
   @override
-  String get relayJoinIntro => '房间码来自选择了“创建对局”的浏览器。';
-
-  @override
   String get joinDirectTitle => '直接连接设备';
 
   @override
-  String get joinDirectHelper => '适用于自己主持游戏的手机、平板或终端：输入设备地址（IP）。';
+  String get joinDirectHelper => '适用于房间直接运行在其上的设备（应用或终端）：输入它的地址（IP）。';
 
   @override
   String get shellResign => '认输';

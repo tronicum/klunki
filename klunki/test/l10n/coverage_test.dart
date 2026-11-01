@@ -377,6 +377,18 @@ void main() {
           ));
           await tester.pump();
           audit.check(tester, 'pairing');
+          // KLD-098: "Erweitert" with the relay switch, on and off.
+          await openAdvanced(tester, 'pair-start-advanced');
+          audit.check(tester, 'pairing start (Erweitert)');
+          await tester.ensureVisible(find.byKey(const Key('pair-via-relay')));
+          await tester.pump();
+          await tester.tap(find.byKey(const Key('pair-via-relay')));
+          await tester.pump();
+          audit.check(tester, 'pairing start (relay)');
+          await tester.ensureVisible(find.byKey(const Key('pair-via-relay')));
+          await tester.pump();
+          await tester.tap(find.byKey(const Key('pair-via-relay')));
+          await tester.pump();
 
           await tester.ensureVisible(find.byKey(const Key('pair-host-start')));
           await tester.pump();
@@ -384,6 +396,8 @@ void main() {
           await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty,
               what: 'host waiting view', limit: const Duration(seconds: 30));
           audit.check(tester, 'pairing host waiting');
+          await openAdvanced(tester, 'pair-waiting-advanced');
+          audit.check(tester, 'pairing host waiting (Erweitert)');
           await tester.ensureVisible(find.byKey(const Key('pair-host-cancel')));
           await tester.pump();
           await tester.tap(find.byKey(const Key('pair-host-cancel')));
@@ -391,13 +405,21 @@ void main() {
           await tester.pump();
           audit.check(tester, 'pairing host cancelled');
 
-          await tester.tap(find.byIcon(Icons.login));
+          await tester.pumpWidget(localizedApp(
+            PairingScreen(
+                key: const Key('join'),
+                deps: testDeps(discovery: discovery, created: created, name: 'Pixel'),
+                mode: RoomMode.join),
+            locale: locale,
+          ));
           await tester.pump();
           audit.check(tester, 'pairing join (searching)');
           discovery.addHost(const KlunkiHostInfo(
               name: 'iPad', host: '192.168.0.20', port: 4747, protocol: klunkiProtocolVersion, gameId: 'connect4'));
           await tester.pump();
           audit.check(tester, 'pairing join (host found)');
+          await openAdvanced(tester, 'pair-join-advanced');
+          audit.check(tester, 'pairing join (Erweitert)');
           await tester.enterText(find.byKey(const Key('pair-manual')), 'not an address');
           await tester.ensureVisible(find.byKey(const Key('pair-manual-connect')));
           await tester.pump();
@@ -421,6 +443,8 @@ void main() {
           ));
           await tester.pump();
           audit.check(tester, 'web join');
+          await openAdvanced(tester, 'web-join-advanced');
+          audit.check(tester, 'web join (Erweitert)');
           // Submit from the keyboard: the connect button may be outside the
           // lazily built list on small screens.
           await tester.enterText(find.byKey(const Key('web-join-address')), 'not an address');

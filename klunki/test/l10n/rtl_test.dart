@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
-import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
@@ -164,6 +163,7 @@ void main() {
     await tester.tap(find.byKey(const Key('pair-host-start')));
     await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty,
         what: 'host waiting view');
+    await openAdvanced(tester, 'pair-waiting-advanced');
 
     final port = created.hosts.single.port!;
     final text = find.descendant(of: find.byKey(const Key('pair-address-text-0')), matching: find.byType(Text));
@@ -182,16 +182,15 @@ void main() {
     final created = CreatedTransports();
     final discovery = FakeDiscovery();
     await tester.pumpWidget(localizedApp(
-      PairingScreen(deps: testDeps(discovery: discovery, created: created)),
+      PairingScreen(deps: testDeps(discovery: discovery, created: created), mode: RoomMode.join),
       locale: fa,
     ));
-    await tester.tap(find.text(lookupAppLocalizations(fa).pairingModeJoin));
     await tester.pump();
     discovery.addHost(const KlunkiHostInfo(
         name: 'iPad', host: '192.168.0.20', port: 4747, protocol: klunkiProtocolVersion, gameId: 'connect4'));
     await tester.pump();
     expect(find.textContaining('\u2066192.168.0.20:4747\u2069'), findsOneWidget);
-    final manual = tester.widget<TextField>(find.byKey(const Key('pair-manual')));
+    final manual = tester.widget<TextField>(find.byKey(const Key('pair-manual'), skipOffstage: false));
     expect(manual.textDirection, TextDirection.ltr);
     await unmountAndSettleSockets(tester, created);
   });

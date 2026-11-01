@@ -31,9 +31,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuDebugConsole => 'وحدة تصحيح الأخطاء';
 
   @override
-  String get menuPlayOverWifi => 'اللعب عبر Wi-Fi';
-
-  @override
   String get menuGameConnect4 => 'أربعة في صف';
 
   @override
@@ -70,10 +67,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuSectionHotSeat => 'لاعبان على جهاز واحد';
 
   @override
-  String get menuSectionNetwork => 'بجهازين';
+  String get menuSectionNetwork => 'العب مع أجهزة أخرى';
 
   @override
-  String get menuNetworkSubtitle => 'استضف لعبة أو انضم إليها';
+  String get roomStartSubtitle => 'ينضم الآخرون برمز الغرفة';
+
+  @override
+  String get roomJoinSubtitle => 'امسح الرمز أو اكتبه';
+
+  @override
+  String get roomAdvanced => 'متقدم';
+
+  @override
+  String get roomDirectWaitingHint =>
+      'يضغط الآخرون على «انضم إلى غرفة» ويمسحون رمز QR هذا. وتجد الأجهزة على شبكة Wi-Fi نفسها الغرفة أيضًا تحت «غرف قريبة».';
+
+  @override
+  String get roomViaRelay => 'افتح الغرفة عبر مُرحِّل';
+
+  @override
+  String get roomViaRelayHelper =>
+      'برمز غرفة، ويصلح أيضًا للاعبين في المتصفح. يتطلب حاسوبًا يعمل عليه «klunki relay». عند الإيقاف تعمل الغرفة على هذا الجهاز، وتجدها الأجهزة على شبكة Wi-Fi نفسها تلقائيًا.';
+
+  @override
+  String get roomTypeCode => 'اكتب رمز الغرفة';
 
   @override
   String get menuHiddenInfo => 'بطاقات أو أسطول سري – تتبادلون الجهاز';
@@ -707,9 +724,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get debugDemo => 'عرض: كل الألعاب';
 
   @override
-  String get pairingTitle => 'اللعب عبر Wi-Fi';
-
-  @override
   String get pairingDeviceNameHelper => 'هكذا يراك اللاعب الآخر';
 
   @override
@@ -735,33 +749,26 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hotSeatNamesHelper => 'اختياري – اتركه فارغًا لعرض X و O فقط.';
 
   @override
-  String get pairingModeHost => 'استضافة';
-
-  @override
-  String get pairingModeJoin => 'انضمام';
-
-  @override
   String get pairingChooseGame => 'اختر لعبة';
 
   @override
-  String get pairingHostGame => 'استضف اللعبة';
+  String get roomStart => 'افتح غرفة';
 
   @override
-  String pairingHostStartFailed(String error) {
-    return 'تعذّر بدء اللعبة: $error';
+  String roomStartFailed(String error) {
+    return 'تعذّر فتح الغرفة: $error';
   }
 
   @override
-  String get pairingNotAdvertised =>
-      'غير ظاهر تلقائيًا – يُدخل اللاعب الآخر العنوان.';
+  String get pairingNotAdvertised => 'غير مرئي تلقائيًا – يمسح الآخرون رمز QR.';
 
   @override
   String get pairingNoDiscoveryHost =>
-      'لا بحث تلقائي على هذا الجهاز – يُدخل اللاعب الآخر العنوان.';
+      'لا بحث تلقائي على هذا الجهاز – يمسح الآخرون رمز QR.';
 
   @override
-  String pairingHosting(String name, String game) {
-    return '$name يستضيف $game';
+  String roomOfPlayer(String name, String game) {
+    return 'غرفة $name: $game';
   }
 
   @override
@@ -782,24 +789,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingCancel => 'إلغاء';
 
   @override
-  String get pairingGamesOnNetwork => 'ألعاب على الشبكة';
+  String get roomNearby => 'غرف قريبة';
 
   @override
   String get pairingNoDiscoveryJoin =>
-      'البحث التلقائي غير متاح على هذا الجهاز. أدخل العنوان أدناه.';
+      'البحث التلقائي غير متاح على هذا الجهاز. امسح رمز QR أو أدخل العنوان تحت «متقدم».';
 
   @override
   String get pairingBrowseFailed =>
-      'تعذّر البحث في الشبكة. أدخل العنوان أدناه.';
+      'تعذّر البحث في الشبكة. امسح رمز QR أو أدخل العنوان تحت «متقدم».';
 
   @override
-  String get pairingSearching => 'جارٍ البحث عن ألعاب…';
+  String get pairingSearching => 'جارٍ البحث عن غرف…';
 
   @override
   String get pairingOtherVersion => 'إصدار مختلف من Klunki';
-
-  @override
-  String get pairingOrEnterAddress => 'أو أدخل عنوانًا';
 
   @override
   String get pairingManualLabel => 'IP أو IP:منفذ أو رابط klunki://';
@@ -872,7 +876,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pairingReconnectFailed =>
-      'فشلت إعادة الاتصال. هل المضيف ما زال في اللعبة؟';
+      'فشلت إعادة الاتصال. هل ما زال الجهاز الآخر في اللعبة؟';
 
   @override
   String get pairingBrowserJoin =>
@@ -885,10 +889,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingLinkCopied => 'تم نسخ الرابط';
 
   @override
-  String get webJoinIntro =>
-      'انضم من المتصفح إلى لعبة يستضيفها iPhone أو iPad أو جهاز Android أو الطرفية (klunki host). يعرض المضيف العنوان والرابط تحت «الانضمام من متصفح».';
-
-  @override
   String get webJoinHttpsWarning =>
       'فُتحت هذه الصفحة عبر https. من هناك تحظر المتصفحات اتصالات ws:// بالشبكة المحلية. افتح Klunki عبر http://.';
 
@@ -897,7 +897,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String webJoinAddressHelper(int port) {
-    return 'المنفذ هو منفذ المتصفح (WebSocket) لدى المضيف؛ بدونه: $port.';
+    return 'المنفذ هو منفذ المتصفح (WebSocket) للجهاز الآخر، وإن لم يُذكر فهو $port.';
   }
 
   @override
@@ -906,7 +906,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webJoinHints =>
-      'نصائح: هل هذا الجهاز على شبكة Wi-Fi نفسها التي عليها المضيف؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. يجب فتح الصفحة عبر http:// وليس https://. يجب أن يعمل على المضيف إصدار من Klunki يدعم المتصفح (يعرض «الانضمام من متصفح»).';
+      'نصائح: هل هذا الجهاز على شبكة Wi-Fi نفسها التي عليها جهاز الغرفة؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. يجب فتح الصفحة عبر http:// وليس https://. يجب أن يعمل على الجهاز الآخر إصدار من Klunki يدعم المتصفح (يعرض «الانضمام من متصفح»).';
 
   @override
   String get engineReasonConnect4FourInARow => 'أربعة في صف';
@@ -1231,15 +1231,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get engineShipOther => 'سفينة';
 
   @override
-  String get relayHostIntro =>
-      'ينضم متصفح ثانٍ على شبكة Wi-Fi نفسها برمز الغرفة.';
+  String get roomStartIntro =>
+      'يضغط الآخرون على «انضم إلى غرفة» ويُدخلون رمز الغرفة.';
 
   @override
   String get relayRoomCode => 'رمز الغرفة';
 
   @override
   String get relayWaitingHint =>
-      'افتح الرابط على الجهاز الثاني أو امسح رمز QR. أو افتح Klunki هناك وأدخل رمز الغرفة.';
+      'يضغط الآخرون على «انضم إلى غرفة» ويمسحون رمز QR أو يُدخلون رمز الغرفة. أو يفتحون الرابط.';
 
   @override
   String relayInfo(String address) {
@@ -1247,17 +1247,14 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get relayJoinTitle => 'الانضمام برمز الغرفة';
-
-  @override
-  String get relayCodeHelper => '5 رموز. يعرض المتصفح المستضيف للعبة الرمز.';
+  String get roomCodeHelper => '5 رموز – يعرض الجهاز الآخر الرمز مع غرفته.';
 
   @override
   String get relayCodeInvalid =>
       'رمز غرفة غير صالح: 5 أحرف أو أرقام (بدون 0 وO و1 وI وL).';
 
   @override
-  String get relayJoin => 'انضم إلى الغرفة';
+  String get roomJoin => 'انضم إلى غرفة';
 
   @override
   String relayJoining(String code) {
@@ -1272,15 +1269,12 @@ class AppLocalizationsAr extends AppLocalizations {
       'حاسوب على شبكة Wi-Fi يشغّل «klunki relay»، مثلًا 192.168.1.20:4749';
 
   @override
-  String get relayAddressAdvanced => 'متقدم: عنوان المُرحِّل';
-
-  @override
   String get relayAddressInvalid =>
       'عنوان مُرحِّل غير صالح. مثال: 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
-    return 'لا توجد غرفة بالرمز $code. هل الرمز صحيح، وهل ما زال المضيف ينتظر؟';
+    return 'لا توجد غرفة بالرمز $code. هل الرمز صحيح، وهل ما زالت الغرفة مفتوحة؟';
   }
 
   @override
@@ -1289,7 +1283,8 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get relayErrorHostLeft => 'غادر المضيف الغرفة. انتهت اللعبة.';
+  String get relayErrorRoomClosed =>
+      'أُغلقت الغرفة: غادر من فتحها. انتهت اللعبة.';
 
   @override
   String get relayErrorExpired => 'انتهت صلاحية الغرفة (10 دقائق دون نشاط).';
@@ -1304,11 +1299,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get relayStartHint =>
-      'يتطلب اللعب بين متصفحين مُرحِّلًا. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:';
+      'تحتاج الغرف ذات الرمز إلى مُرحِّل. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:';
 
   @override
   String relayRoomLost(String reason) {
-    return '$reason ابدأ لعبة جديدة.';
+    return '$reason افتح غرفة جديدة.';
   }
 
   @override
@@ -1331,17 +1326,14 @@ class AppLocalizationsAr extends AppLocalizations {
       'المقعد مشغول: هناك من يلعب هذه المباراة بالفعل. يمكن فقط لمن انضم أولاً أن يعود.';
 
   @override
-  String get webJoinDirectTitle => 'أو اتصل بجهاز مضيف (تطبيق أو طرفية)';
-
-  @override
   String get qrScanButton => 'مسح رمز QR';
 
   @override
-  String get qrScanHint => 'وجّه الكاميرا نحو رمز QR الخاص بالمضيف.';
+  String get qrScanHint => 'وجّه الكاميرا نحو رمز QR على الجهاز الآخر.';
 
   @override
   String get qrScanNotKlunki =>
-      'هذا ليس رمز Klunki. امسح رمز QR الذي تعرضه اللعبة عند الاستضافة.';
+      'هذا ليس رمز Klunki. امسح رمز QR الذي يعرضه الجهاز الآخر مع غرفته.';
 
   @override
   String get qrScanTorchOn => 'تشغيل الضوء';
@@ -1363,9 +1355,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get qrScanTypeInstead => 'اكتب الرمز';
 
   @override
-  String get relayGroupTitle => 'اللعب عبر المُرحِّل (رمز الغرفة)';
-
-  @override
   String get relayChange => 'تغيير';
 
   @override
@@ -1380,14 +1369,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get relaySave => 'تطبيق';
 
   @override
-  String get relayJoinIntro => 'يأتي رمز الغرفة من متصفح اختار «استضف اللعبة».';
-
-  @override
   String get joinDirectTitle => 'الاتصال مباشرة بجهاز';
 
   @override
   String get joinDirectHelper =>
-      'لهاتف أو جهاز لوحي أو طرفية تستضيف بنفسها: أدخل عنوان الجهاز (IP).';
+      'لجهاز تعمل عليه الغرفة مباشرة (تطبيق أو طرفية): أدخل عنوانه (IP).';
 
   @override
   String get shellResign => 'استسلام';

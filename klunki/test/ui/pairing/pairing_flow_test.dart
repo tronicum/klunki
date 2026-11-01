@@ -54,7 +54,7 @@ Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen, {String?
   ));
   addTearDown(() => unmountAndSettleSockets(tester, created));
 
-  // Host: open pairing, pick the game, host it.
+  // Host: "Raum starten", pick the game, start the room (on this device).
   await tester.tap(_on(_hostKey, find.byKey(const Key('open-pairing'))));
   await tester.pumpAndSettle();
   await tester.tap(_on(_hostKey, find.byKey(Key('pair-game-$gameId'))));
@@ -67,15 +67,13 @@ Future<_Pair> _connect(WidgetTester tester, String gameId, Type screen, {String?
   await pumpUntil(tester, () => _has(_hostKey, find.text('Warte auf Mitspieler…')), what: 'host waits');
   final port = created.hosts.single.port!;
 
-  // Guest: open pairing, switch to "Beitreten", tap the discovered host.
-  await tester.tap(_on(_guestKey, find.byKey(const Key('open-pairing'))));
+  // Guest: "Raum beitreten", tap the room found nearby.
+  await tester.tap(_on(_guestKey, find.byKey(const Key('open-join'))));
   await tester.pump();
   await tester.pump(const Duration(seconds: 1)); // route transition (the host's spinner never settles)
-  await tester.tap(_on(_guestKey, find.text('Beitreten')));
-  await tester.pump();
   final tile = _on(_guestKey, find.byKey(Key('pair-host-192.168.0.10:$port')));
   await pumpUntil(tester, () => tile.evaluate().isNotEmpty, what: 'guest lists the host');
-  expect(_on(_guestKey, find.textContaining('Anna hostet ')), findsOneWidget);
+  expect(_on(_guestKey, find.textContaining('Raum von Anna: ')), findsOneWidget);
   await tester.tap(tile);
 
   await pumpUntil(tester, () => _has(_hostKey, find.byType(screen)) && _has(_guestKey, find.byType(screen)),

@@ -15,6 +15,7 @@ import '../../net/local_ip.dart';
 import '../../net/scanned_join_code.dart';
 import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
+import '../../profile/room_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
@@ -26,6 +27,7 @@ import 'device_name.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
+import 'relay_host_screen.dart';
 import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
@@ -52,6 +54,12 @@ class PairingDeps {
   /// Joins a relay room by code (KLD-057b).
   final RelayJoinTransportFactory relayJoin;
 
+  /// Opens a relay room ("Raum über ein Relay öffnen", KLD-098).
+  final RelayHostTransportFactory relayHost;
+
+  /// Whether "Raum starten" opens rooms through the relay (KLD-098).
+  final RoomSettings Function() roomSettings;
+
   /// This device's LAN IPv4 addresses, best first.
   final Future<List<String>> Function() localAddresses;
 
@@ -76,12 +84,12 @@ class PairingDeps {
   /// the button.
   final QrScannerFactory? qrScanner;
 
-  /// The relay setting of the room-code join (shared with the PWA's
-  /// "Spiel hosten" wording: one relay for everything).
+  /// The relay setting of the room-code join and of relay rooms (one relay
+  /// for everything).
   final RelaySettings Function() relaySettings;
 
-  /// The remembered Quartett deck (KLD-069), preselected when hosting
-  /// Quartett.
+  /// The remembered Quartett deck (KLD-069), preselected when a Quartett
+  /// room is started.
   final QuartettDeckSettings Function() quartettDecks;
 
   const PairingDeps({
@@ -89,6 +97,8 @@ class PairingDeps {
     required this.hostTransport,
     required this.joinTransport,
     this.relayJoin = platformRelayJoin,
+    this.relayHost = platformRelayHost,
+    this.roomSettings = RoomSettings.memory,
     required this.localAddresses,
     required this.deviceName,
     this.seed = newGameSeed,
@@ -113,27 +123,47 @@ class PairingDeps {
         preferredPort: E2eMode.enabled ? E2eMode.port : klunkiDefaultPort,
         qrScanner: MobileQrScanner.new,
         relaySettings: RelaySettings.shared,
+        roomSettings: RoomSettings.shared,
         quartettDecks: QuartettDeckSettings.shared,
       );
 }
 
-enum _Mode { host, join }
+/// Which side of "Mit anderen Geräten spielen" (KLD-098) a [PairingScreen]
+/// shows: "Raum starten" or "Raum beitreten".
+enum RoomMode { start, join }
 
-/// "Über WLAN spielen": host a game (name, IP:port, QR, waiting for the
-/// guest) or join one (discovered hosts + manual entry). Once both sides are
-/// connected the route is replaced by a [NetworkGameSession], so leaving the
-/// game goes straight back to the menu.
+/// The app's room screens (KLD-034, KLD-098): one mental model, "a room with
+/// a code".
+///
+/// - [RoomMode.start] ("Raum starten"): name, game (and deck), start. By
+///   default the room runs directly on this device (TCP + mDNS: devices on
+///   the same Wi-Fi find it, the QR code joins it, no server needed). Under
+///   "Erweitert" the player can switch to rooms through the relay (room code,
+///   browsers can join; remembered in [RoomSettings]); then the route is
+///   replaced by the [RelayHostScreen], which opens the room right away.
+/// - [RoomMode.join] ("Raum beitreten"): the camera scanner first (opened
+///   right away when the device has one, [scanFirst]), the room code field,
+///   the rooms found nearby, and under "Erweitert" the relay address and a
+///   typed IP address.
+///
+/// Once both sides are connected the route is replaced by a
+/// [NetworkGameSession], so leaving the game goes straight back to the menu.
 ///
 /// The player name ("Dein Name", KLD-056) is the app's [PlayerNameController]
 /// ([nameController] or the [PlayerNameScope]); the first visit without a
 /// saved name asks for it once.
 class PairingScreen extends StatefulWidget {
   final PairingDeps deps;
+  final RoomMode mode;
+
+  /// "Raum beitreten" opens the scanner right away when there is a camera.
+  final bool scanFirst;
 
   /// Overrides the app's player name controller (tests).
   final PlayerNameController? nameController;
 
-  PairingScreen({super.key, PairingDeps? deps, this.nameController}) : deps = deps ?? PairingDeps.platform();
+  PairingScreen({super.key, PairingDeps? deps, this.mode = RoomMode.start, this.scanFirst = true, this.nameController})
+      : deps = deps ?? PairingDeps.platform();
 
   @override
   State<PairingScreen> createState() => _PairingScreenState();
@@ -141,7 +171,6 @@ class PairingScreen extends StatefulWidget {
 
 class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
   late final DiscoveryService? _discovery = widget.deps.discovery();
-  _Mode _mode = _Mode.host;
 
   @override
   PlayerNameController? get explicitNameController => widget.nameController;
@@ -167,10 +196,15 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    // A page can neither host nor browse mDNS: join-only (KLD-055).
-    if (kIsWeb) return WebJoinScreen(pageUrl: Uri.base, nameController: widget.nameController);
+    final start = widget.mode == RoomMode.start;
+    // A page can neither listen nor browse mDNS (KLD-055): the web screens.
+    if (kIsWeb) {
+      return start
+          ? webRoomStartScreen(pageUrl: Uri.base, nameController: widget.nameController)
+          : WebJoinScreen(pageUrl: Uri.base, nameController: widget.nameController);
+    }
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.pairingTitle)),
+      appBar: AppBar(title: Text(start ? l10n.roomStart : l10n.roomJoin)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -180,22 +214,13 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
               children: [
                 playerNameField(key: const Key('pair-name')),
                 const SizedBox(height: 16),
-                SegmentedButton<_Mode>(
-                  segments: [
-                    ButtonSegment(
-                        value: _Mode.host, label: Text(l10n.pairingModeHost), icon: const Icon(Icons.wifi_tethering)),
-                    ButtonSegment(value: _Mode.join, label: Text(l10n.pairingModeJoin), icon: const Icon(Icons.login)),
-                  ],
-                  selected: {_mode},
-                  onSelectionChanged: (s) => setState(() => _mode = s.first),
-                ),
-                const SizedBox(height: 16),
-                if (_mode == _Mode.host)
+                if (start)
                   _HostPanel(
                     key: const Key('pair-host-panel'),
                     deps: widget.deps,
                     discovery: _discovery,
                     deviceName: () => _deviceName,
+                    nameController: widget.nameController,
                     onConnected: _openGame,
                   )
                 else
@@ -204,6 +229,8 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
                     deps: widget.deps,
                     discovery: _discovery,
                     deviceName: () => _deviceName,
+                    scanFirst: widget.scanFirst,
+                    ready: playerNameReady,
                     onConnected: _openGame,
                   ),
               ],
@@ -216,12 +243,13 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
 }
 
 // ---------------------------------------------------------------------------
-// Host
+// Raum starten (on this device, or handed over to the relay room screen)
 
 class _HostPanel extends StatefulWidget {
   final PairingDeps deps;
   final DiscoveryService? discovery;
   final String Function() deviceName;
+  final PlayerNameController? nameController;
   final void Function(NetworkTransport) onConnected;
 
   const _HostPanel({
@@ -229,6 +257,7 @@ class _HostPanel extends StatefulWidget {
     required this.deps,
     required this.discovery,
     required this.deviceName,
+    required this.nameController,
     required this.onConnected,
   });
 
@@ -240,8 +269,10 @@ class _HostPanelState extends State<_HostPanel> {
   String _gameId = networkGameSpecs.first.id;
   late final QuartettDeckSettings _deckSettings = widget.deps.quartettDecks();
   late String _deck = _deckSettings.value;
+  late final RoomSettings _roomSettings = widget.deps.roomSettings();
+  late final RelaySettings _relaySettings = widget.deps.relaySettings();
 
-  /// The deck to host with (KLD-069): only for Quartett.
+  /// The deck of the room (KLD-069): only for Quartett.
   String? get _hostDeck => specById(_gameId)?.usesDeck == true ? _deck : null;
   bool _starting = false;
   String? _error;
@@ -273,7 +304,26 @@ class _HostPanelState extends State<_HostPanel> {
     if (t != null && !_handedOver) t.close();
   }
 
+  /// "Raum starten": on this device, or (KLD-098, "Erweitert") through the
+  /// relay: the relay room screen takes over with the chosen game and opens
+  /// the room right away (its cancel stays there, with the game preselected).
   Future<void> _start() async {
+    if (_roomSettings.value) {
+      final deps = widget.deps;
+      Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
+        builder: (_) => RelayHostScreen(
+          hostTransport: deps.relayHost,
+          relaySettings: _relaySettings,
+          deckSettings: _deckSettings,
+          seed: deps.seed,
+          deviceName: deps.deviceName,
+          nameController: widget.nameController,
+          initialGameId: _gameId,
+          autoStart: true,
+        ),
+      ));
+      return;
+    }
     setState(() {
       _starting = true;
       _error = null;
@@ -288,7 +338,7 @@ class _HostPanelState extends State<_HostPanel> {
       if (mounted) {
         setState(() {
           _starting = false;
-          _error = AppLocalizations.of(context).pairingHostStartFailed('$e');
+          _error = AppLocalizations.of(context).roomStartFailed('$e');
         });
       }
       return;
@@ -418,19 +468,44 @@ class _HostPanelState extends State<_HostPanel> {
             },
           ),
         ],
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         FilledButton.icon(
           key: const Key('pair-host-start'),
           onPressed: _starting ? null : _start,
           icon: _starting
               ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.wifi_tethering),
-          label: Text(l10n.pairingHostGame),
+              : const Icon(Icons.meeting_room_outlined),
+          label: Text(l10n.roomStart),
         ),
         if (_error != null) ...[
           const SizedBox(height: 8),
           Text(_error!, key: const Key('pair-host-error'), style: TextStyle(color: theme.colorScheme.error)),
         ],
+        const SizedBox(height: 8),
+        // KLD-098: where the room runs. Default: this device (nothing to set
+        // up); the relay (room code, browsers) is chosen once and remembered.
+        RoomAdvanced(
+          id: 'pair-start-advanced',
+          children: [
+            ValueListenableBuilder<bool>(
+              valueListenable: _roomSettings,
+              builder: (context, viaRelay, _) => Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SwitchListTile(
+                    key: const Key('pair-via-relay'),
+                    contentPadding: EdgeInsetsDirectional.zero,
+                    value: viaRelay,
+                    onChanged: _starting ? null : _roomSettings.set,
+                    title: Text(l10n.roomViaRelay),
+                    subtitle: Text(l10n.roomViaRelayHelper),
+                  ),
+                  if (viaRelay) RelayLine(settings: _relaySettings, enabled: !_starting),
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -448,14 +523,15 @@ class _HostPanelState extends State<_HostPanel> {
       key: const Key('pair-host-waiting'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.pairingHosting(bidiName(context, _name), title), key: const Key('pair-hosting'), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+        Text(l10n.roomOfPlayer(bidiName(context, _name), title),
+            key: const Key('pair-hosting'), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
         const SizedBox(height: 12),
         if (payload != null)
           Center(
             child: JoinQrCode(
               key: const Key('pair-qr'),
               payload: payload,
-              size: 180,
+              size: 200,
             ),
           )
         else
@@ -465,6 +541,36 @@ class _HostPanelState extends State<_HostPanel> {
             textAlign: TextAlign.center,
           ),
         const SizedBox(height: 12),
+        Text(l10n.roomDirectWaitingHint, key: const Key('pair-host-hint'), textAlign: TextAlign.center),
+        if (_advertiseError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(_advertiseError!, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
+          ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            const SizedBox(width: 12),
+            // Flexible: long translations wrap instead of overflowing (I18N-06).
+            Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
+          ],
+        ),
+        RefusedGuestNotice(transport: t),
+        const SizedBox(height: 16),
+        OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
+        const SizedBox(height: 8),
+        // KLD-098: addresses to type and the browser link are technical.
+        RoomAdvanced(id: 'pair-waiting-advanced', children: _addressDetails(context, port, payload, qrHost, wsPort)),
+      ],
+    );
+  }
+
+  List<Widget> _addressDetails(BuildContext context, int port, JoinPayload? payload, String? qrHost, int? wsPort) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return [
         if (_addresses.isNotEmpty) Text(l10n.pairingAddresses, style: theme.textTheme.labelLarge),
         for (var i = 0; i < _addresses.length; i++)
           ListTile(
@@ -499,26 +605,7 @@ class _HostPanelState extends State<_HostPanel> {
             ),
           ),
         ],
-        if (_advertiseError != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(_advertiseError!, style: theme.textTheme.bodySmall),
-          ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-            const SizedBox(width: 12),
-            // Flexible: long translations wrap instead of overflowing (I18N-06).
-            Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
-          ],
-        ),
-        RefusedGuestNotice(transport: t),
-        const SizedBox(height: 16),
-        OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),
-      ],
-    );
+    ];
   }
 }
 
@@ -529,6 +616,11 @@ class _JoinPanel extends StatefulWidget {
   final PairingDeps deps;
   final DiscoveryService? discovery;
   final String Function() deviceName;
+  final bool scanFirst;
+
+  /// Completes once the player has a name (the first-run dialog comes
+  /// before the scanner).
+  final Future<void> ready;
   final void Function(NetworkTransport) onConnected;
 
   const _JoinPanel({
@@ -536,6 +628,8 @@ class _JoinPanel extends StatefulWidget {
     required this.deps,
     required this.discovery,
     required this.deviceName,
+    required this.scanFirst,
+    required this.ready,
     required this.onConnected,
   });
 
@@ -570,6 +664,15 @@ class _JoinPanelState extends State<_JoinPanel> {
           if (mounted) setState(() => _browseError = AppLocalizations.of(context).pairingBrowseFailed);
         },
       );
+    }
+    // KLD-098: "Raum beitreten" leads straight to the camera; closing it (or
+    // "Code eintippen") leaves the code field and the rooms nearby.
+    final scanner = widget.deps.qrScanner;
+    if (scanner != null && widget.scanFirst) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await widget.ready;
+        if (mounted && _connecting == null) _scan(scanner);
+      });
     }
   }
 
@@ -663,10 +766,19 @@ class _JoinPanelState extends State<_JoinPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // 1. A browser hosting through the relay (KLD-057b): the relay line
-        //    (an app has no page origin: the last used relay, else "enter one").
-        RelayGroupHeader(settings: _relaySettings, enabled: !busy),
-        const SizedBox(height: 12),
+        // 1. The camera (KLD-052): reads both kinds of room QR code (a room
+        //    on a device and a relay room). Opened right away (KLD-098).
+        if (scanner != null) ...[
+          FilledButton.icon(
+            key: const Key('pair-scan'),
+            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+            onPressed: busy ? null : () => _scan(scanner),
+            icon: const Icon(Icons.qr_code_scanner),
+            label: Text(l10n.qrScanButton),
+          ),
+          const SizedBox(height: 16),
+        ],
+        // 2. The room code (a relay room, KLD-057b).
         RoomCodeJoin(
           key: _roomJoin,
           joinTransport: widget.deps.relayJoin,
@@ -680,24 +792,9 @@ class _JoinPanelState extends State<_JoinPanel> {
             widget.onConnected(t);
           },
         ),
-        // 2. Scanning handles both kinds of host QR code (KLD-052).
-        if (scanner != null) ...[
-          const Divider(height: 32),
-          FilledButton.tonalIcon(
-            key: const Key('pair-scan'),
-            onPressed: busy ? null : () => _scan(scanner),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(l10n.qrScanButton),
-          ),
-        ],
-        // 3. A device that hosts itself (app or terminal): discovered games
-        //    or its address.
+        // 3. Rooms running on a device in the same Wi-Fi (mDNS).
         const Divider(height: 32),
-        Text(l10n.joinDirectTitle, key: const Key('pair-direct-title'), style: theme.textTheme.titleMedium),
-        const SizedBox(height: 4),
-        Text(l10n.joinDirectHelper, style: theme.textTheme.bodySmall),
-        const SizedBox(height: 12),
-        Text(l10n.pairingGamesOnNetwork, style: theme.textTheme.titleSmall),
+        Text(l10n.roomNearby, key: const Key('pair-nearby-title'), style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         if (widget.discovery == null)
           Text(l10n.pairingNoDiscoveryJoin)
@@ -710,30 +807,6 @@ class _JoinPanelState extends State<_JoinPanel> {
             title: Text(l10n.pairingSearching),
           ),
         for (final h in _hosts) _hostTile(l10n, h, busy),
-        const SizedBox(height: 12),
-        Text(l10n.pairingOrEnterAddress, style: theme.textTheme.titleSmall),
-        const SizedBox(height: 8),
-        TextField(
-          key: const Key('pair-manual'),
-          controller: _manual,
-          enabled: !busy,
-          keyboardType: TextInputType.url,
-          textDirection: TextDirection.ltr,
-          autocorrect: false,
-          decoration: InputDecoration(
-            labelText: l10n.pairingManualLabel,
-            hintText: '192.168.1.20:4747',
-            errorText: _manualError,
-            border: const OutlineInputBorder(),
-          ),
-          onSubmitted: (_) => _connectManual(),
-        ),
-        const SizedBox(height: 8),
-        FilledButton(
-          key: const Key('pair-manual-connect'),
-          onPressed: busy ? null : _connectManual,
-          child: Text(l10n.pairingConnect),
-        ),
         if (busy) ...[
           const SizedBox(height: 16),
           Row(
@@ -750,6 +823,42 @@ class _JoinPanelState extends State<_JoinPanel> {
           const SizedBox(height: 16),
           Text(_error!, key: const Key('pair-join-error'), style: TextStyle(color: theme.colorScheme.error)),
         ],
+        const SizedBox(height: 16),
+        // 4. KLD-098: the technical part: the relay address (an app has no
+        //    page origin: the last used relay, else "enter one") and a
+        //    device's IP address.
+        RoomAdvanced(
+          id: 'pair-join-advanced',
+          children: [
+            RelayLine(settings: _relaySettings, enabled: !busy),
+            const Divider(height: 32),
+            Text(l10n.joinDirectTitle, key: const Key('pair-direct-title'), style: theme.textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text(l10n.joinDirectHelper, style: theme.textTheme.bodySmall),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('pair-manual'),
+              controller: _manual,
+              enabled: !busy,
+              keyboardType: TextInputType.url,
+              textDirection: TextDirection.ltr,
+              autocorrect: false,
+              decoration: InputDecoration(
+                labelText: l10n.pairingManualLabel,
+                hintText: '192.168.1.20:4747',
+                errorText: _manualError,
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _connectManual(),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              key: const Key('pair-manual-connect'),
+              onPressed: busy ? null : _connectManual,
+              child: Text(l10n.pairingConnect),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -761,9 +870,10 @@ class _JoinPanelState extends State<_JoinPanel> {
     return Card(
       key: Key('pair-host-${h.host}:${h.port}'),
       child: ListTile(
-        leading: const Icon(Icons.devices),
-        // "Anna hostet 4 Gewinnt" (KLD-056: the host's player name).
-        title: Text(game == null ? bidiName(context, h.name) : l10n.pairingHosting(bidiName(context, h.name), game)),
+        leading: const Icon(Icons.meeting_room_outlined),
+        // "Raum von Anna: 4 Gewinnt" (KLD-056: the player name of whoever
+        // started it); the address only for telling two rooms apart.
+        title: Text(game == null ? bidiName(context, h.name) : l10n.roomOfPlayer(bidiName(context, h.name), game)),
         subtitle: Text([
           bidiLtr(context, '${h.host}:${h.port}'),
           if (!compatible) l10n.pairingOtherVersion,

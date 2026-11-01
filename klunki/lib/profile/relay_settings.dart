@@ -3,7 +3,7 @@ import 'package:klunki_net/guest_web.dart' show parseRelayUrl;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The one relay address for hosting and joining by room code (KLD-057b,
-/// KLD-052): "Spiel hosten", "Mit Raumcode beitreten" and a scanned room
+/// KLD-052): "Raum starten", the room-code join and a scanned room
 /// link all read and change this one setting.
 ///
 /// [value] is the address the player chose (null: none). Which relay is used

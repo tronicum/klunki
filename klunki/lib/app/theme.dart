@@ -328,7 +328,7 @@ class KlunkiPalette extends ThemeExtension<KlunkiPalette> {
   final Map<String, GameAccent> accents;
   final GameAccent defaultAccent;
 
-  /// Accent of the network entry ("Über WLAN spielen").
+  /// Accent of the room buttons ("Raum starten", "Raum beitreten").
   final GameAccent networkAccent;
 
   /// Trophy colour (result dialog, status pill of a finished game).

@@ -34,10 +34,10 @@ class WebJoinDeps {
   /// Room-code join through the relay (KLD-057b).
   final RelayJoinTransportFactory relayJoin;
 
-  /// "Spiel hosten" through the relay (KLD-057b).
+  /// "Raum starten" through the relay (KLD-057b, see [webRoomStartScreen]).
   final RelayHostTransportFactory relayHost;
 
-  /// Seed of a game hosted through the relay.
+  /// Seed of a game in a relay room.
   final int Function() seed;
 
   /// Suggestion for the player name when none is saved ("Browser").
@@ -47,7 +47,7 @@ class WebJoinDeps {
   /// opens, e.g. a host on another network).
   final Duration joinTimeout;
 
-  /// The relay setting shared by "Spiel hosten" and the room-code join.
+  /// The relay setting shared by "Raum starten" and the room-code join.
   final RelaySettings Function() relaySettings;
 
   const WebJoinDeps({
@@ -70,13 +70,30 @@ class WebJoinDeps {
       );
 }
 
-/// "Über WLAN spielen" in the browser (KLD-055): join-only. A web page can
-/// neither listen for guests nor browse mDNS, so there is no host tab and no
-/// list of discovered games; the player types the host's address or pastes
-/// its `klunki://` link (see [WebJoinTarget] for the accepted forms). Also
-/// reached directly through `?join=<link>` in the page URL ([initialInput] +
-/// [autoConnect]). Once connected the route is replaced by the same
-/// [NetworkGameSession] the apps use.
+/// "Raum starten" in the browser (KLD-057b, KLD-098): the relay room screen
+/// with this page's relay ([pageUrl]'s own server) and [deps]' factories.
+Widget webRoomStartScreen({Uri? pageUrl, WebJoinDeps? deps, PlayerNameController? nameController}) {
+  final d = deps ?? WebJoinDeps.platform();
+  return RelayHostScreen(
+    hostTransport: d.relayHost,
+    defaultRelay: pageUrl == null ? null : relayUriForPage(pageUrl),
+    relaySettings: d.relaySettings(),
+    deckSettings: QuartettDeckSettings.shared(),
+    pageUrl: pageUrl,
+    seed: d.seed,
+    deviceName: d.deviceName,
+    nameController: nameController,
+  );
+}
+
+/// "Raum beitreten" in the browser (KLD-055, KLD-057b, KLD-098): the room
+/// code field first (a page has no camera scanner and cannot browse mDNS);
+/// under "Erweitert" the relay address and the direct connection to a device
+/// a room runs on (its address or `klunki://` link, see [WebJoinTarget] for
+/// the accepted forms). Also reached directly through `?join=<link>` in the
+/// page URL ([initialInput] + [autoConnect], "Erweitert" then starts open)
+/// and `?room=CODE` ([initialRoom]). Once connected the route is replaced by
+/// the same [NetworkGameSession] the apps use.
 ///
 /// The player name ("Dein Name", KLD-056) is the app's
 /// [PlayerNameController] ([nameController] or the [PlayerNameScope]); the
@@ -214,23 +231,6 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     null => null,
   };
 
-  void _host() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => RelayHostScreen(
-          hostTransport: widget.deps.relayHost,
-          defaultRelay: _pageRelay,
-          relaySettings: _relaySettings,
-          deckSettings: QuartettDeckSettings.shared(),
-          pageUrl: widget.pageUrl,
-          seed: widget.deps.seed,
-          deviceName: widget.deps.deviceName,
-          nameController: widget.nameController,
-        ),
-      ),
-    );
-  }
-
   void _cancelConnect() {
     _attempt++;
     setState(() => _connecting = null);
@@ -245,20 +245,8 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
     final target = WebJoinTarget.tryParse(_address.text);
     final game = target?.gameId;
     final directFirst = (widget.initialInput ?? '').trim().isNotEmpty;
-    // Browser vs browser through the relay (KLD-057b): one group, one relay.
-    final relay = <Widget>[
-      RelayGroupHeader(settings: _relaySettings, defaultRelay: _pageRelay, enabled: !busy),
-      const SizedBox(height: 12),
-      FilledButton.tonalIcon(
-        key: const Key('web-host'),
-        onPressed: busy ? null : _host,
-        icon: const Icon(Icons.wifi_tethering),
-        label: Text(l10n.pairingHostGame),
-      ),
-      const SizedBox(height: 4),
-      Text(l10n.relayHostIntro, style: theme.textTheme.bodySmall),
-      const SizedBox(height: 24),
-      RoomCodeJoin(
+    // The room code through the relay (KLD-057b): what everybody uses.
+    final room = RoomCodeJoin(
         joinTransport: widget.deps.relayJoin,
         joinTimeout: widget.deps.joinTimeout,
         defaultRelay: _pageRelay,
@@ -274,12 +262,13 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
         ready: playerNameReady,
         playerName: () => _deviceName,
         onConnected: _openGame,
-      ),
-    ];
+      );
+    // KLD-098: the technical part ("Erweitert"): the relay and a device a
+    // room runs on directly.
     final direct = <Widget>[
       Text(l10n.joinDirectTitle, key: const Key('web-join-direct-title'), style: theme.textTheme.titleMedium),
       const SizedBox(height: 4),
-      Text(l10n.joinDirectHelper, key: const Key('web-join-intro'), style: theme.textTheme.bodySmall),
+      Text(l10n.joinDirectHelper, key: const Key('web-join-direct-helper'), style: theme.textTheme.bodySmall),
       const SizedBox(height: 16),
       TextField(
         key: const Key('web-join-address'),
@@ -340,9 +329,10 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
       ],
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.pairingTitle)),
+      appBar: AppBar(title: Text(l10n.roomJoin)),
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 520),
             // Not a lazy ListView: the room-code join keeps its state (and
@@ -367,17 +357,19 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
                     textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 16),
-                  // `?join=` first shows the direct section (its progress and
-                  // error), otherwise the relay (KLD-057b) comes first.
-                  if (directFirst) ...[
-                    ...direct,
-                    const Divider(height: 32),
-                    ...relay,
-                  ] else ...[
-                    ...relay,
-                    const Divider(height: 32),
-                    ...direct,
-                  ],
+                  room,
+                  const SizedBox(height: 16),
+                  // `?join=` opens "Erweitert" right away (the direct join's
+                  // progress and error are in there).
+                  RoomAdvanced(
+                    id: 'web-join-advanced',
+                    initiallyExpanded: directFirst,
+                    children: [
+                      RelayLine(settings: _relaySettings, defaultRelay: _pageRelay, enabled: !busy),
+                      const Divider(height: 32),
+                      ...direct,
+                    ],
+                  ),
                 ],
               ),
             ),

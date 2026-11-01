@@ -40,6 +40,8 @@ Future<void> _pumpScreen(WidgetTester tester, WebJoinScreen screen) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(localizedApp(screen));
   await tester.pump();
+  // KLD-098: the direct connection is under "Erweitert".
+  await openAdvanced(tester, 'web-join-advanced');
 }
 
 Future<void> _enterAndConnect(WidgetTester tester, String input) async {
@@ -53,13 +55,14 @@ Uri _ws(String host, int port) => Uri(scheme: 'ws', host: host, port: port);
 
 void main() {
   group('web join screen', () {
-    testWidgets('join-only: no host tab, no discovery list; name defaults to "Browser"', (tester) async {
+    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Browser"', (tester) async {
       final r = _Recorder();
       await _pumpScreen(tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join)));
-      expect(find.text('Über WLAN spielen'), findsOneWidget);
-      expect(find.text('Hosten'), findsNothing);
+      expect(find.widgetWithText(AppBar, 'Raum beitreten'), findsOneWidget);
+      expect(find.text('Raum starten'), findsNothing);
+      expect(find.byKey(const Key('web-host')), findsNothing);
       expect(find.byKey(const Key('pair-host-panel')), findsNothing);
-      expect(find.text('Suche nach Spielen…'), findsNothing);
+      expect(find.text('Suche nach Räumen…'), findsNothing);
       expect(tester.widget<TextField>(find.byKey(const Key('web-join-name'))).controller!.text, 'Browser');
       expect(find.textContaining('Browser-Port (WebSocket)'), findsOneWidget, reason: 'helper explains the port');
       expect(find.byKey(const Key('web-join-https')), findsNothing);
@@ -236,7 +239,8 @@ void main() {
     await tester.tap(on(hostKey, find.byKey(const Key('pair-game-connect4'))));
     await tester.pump();
     await tester.tap(on(hostKey, find.byKey(const Key('pair-host-start'))));
-    await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('pair-link'))), what: 'host shows the link');
+    await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('pair-host-waiting'))), what: 'host waits');
+    await openAdvanced(tester, 'pair-waiting-advanced');
     final host = created.hosts.single;
     final link = tester.widget<SelectableText>(on(hostKey, find.byKey(const Key('pair-link')))).data!;
     expect(link, contains('w=${host.wsPort}'));
@@ -245,6 +249,7 @@ void main() {
     await tester.tap(on(webKey, find.byKey(const Key('open-web-join'))));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1)); // route transition (the host's spinner never settles)
+    await openAdvanced(tester, 'web-join-advanced');
     // An Arabic name in the German UI (KLD-056).
     await tester.enterText(on(webKey, find.byKey(const Key('web-join-name'))), 'علی');
     await tester.enterText(on(webKey, find.byKey(const Key('web-join-address'))), link);

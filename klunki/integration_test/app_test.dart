@@ -43,7 +43,7 @@ void main() {
 
   /// Starts the app the way `main()` does (saved language from the real
   /// shared_preferences) and waits for the menu. The player name is preset
-  /// in memory (KLD-056), so "Über WLAN spielen" skips its first-run dialog.
+  /// in memory (KLD-056), so "Raum starten" skips its first-run dialog.
   Future<LocaleController> startApp(WidgetTester tester) async {
     final controller = await LocaleController.load();
     await tester.pumpWidget(KlunkiApp(
@@ -96,7 +96,9 @@ void main() {
     for (final spec in gameSpecs) {
       expect(find.byKey(Key('menu-${spec.id}')), findsOneWidget, reason: spec.id);
     }
-    expect(find.byKey(const Key('menu-network')), findsOneWidget, reason: 'Wi-Fi play is offered on native platforms');
+    expect(find.byKey(const Key('menu-room-start'), skipOffstage: false), findsOneWidget,
+        reason: 'rooms are offered on native platforms');
+    expect(find.byKey(const Key('menu-room-join'), skipOffstage: false), findsOneWidget);
     expect(find.byKey(const Key('language-button')), findsOneWidget);
     await screenshot(binding, tester, 'menu');
   });
@@ -231,7 +233,8 @@ void main() {
 
     // Host screen: address list + QR + mDNS advertising.
     await startApp(tester);
-    await tapAndSettle(tester, find.byKey(const Key('menu-network')));
+    await tester.ensureVisible(find.byKey(const Key('menu-room-start')));
+    await tapAndSettle(tester, find.byKey(const Key('menu-room-start')));
     expect(find.byKey(const Key('player-name-dialog')), findsNothing, reason: 'the name is already set');
     expect(tester.widget<TextField>(find.byKey(const Key('pair-name'))).controller?.text, 'iPhone');
     await tapAndSettle(tester, find.byKey(const Key('pair-game-muehle')));
@@ -240,9 +243,11 @@ void main() {
     await tester.pump(const Duration(seconds: 2)); // give bonsoir time to register (or fail)
     await tester.pump();
 
+    // Under "Erweitert" (KLD-098), found while collapsed.
     final first = tester.widget<Text>(find.descendant(
-      of: find.byKey(const Key('pair-address-text-0')),
-      matching: find.byType(Text),
+      of: find.byKey(const Key('pair-address-text-0'), skipOffstage: false),
+      matching: find.byType(Text, skipOffstage: false),
+      skipOffstage: false,
     ));
     log('HOST_ADDRESS ${first.data}');
     expect(first.data, startsWith('${addresses.first}:'));
