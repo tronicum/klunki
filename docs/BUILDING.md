@@ -72,7 +72,8 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
 - `klunki/test/e2e` plays whole games between two app stacks over loopback TCP. `KLUNKI_E2E_VERBOSE=1` prints a
   transcript.
 - The screenshot harness (`klunki/test/screenshots`) is skipped unless `KLUNKI_SHOTS` is set. Its App Store set
-  (group `appstore`) needs `KLUNKI_APPSTORE` instead; see [APPSTORE.md](APPSTORE.md#screenshots).
+  (group `appstore`) needs `KLUNKI_APPSTORE` instead; see [APPSTORE.md](APPSTORE.md#screenshots). The Google Play set
+  (group `playstore`) needs `KLUNKI_PLAYSTORE`; see [PLAYSTORE.md](PLAYSTORE.md#generating-the-screenshots).
 - On-device tests: `cd klunki && flutter test integration_test -d <device>`.
 
 ## 4. Android
@@ -145,7 +146,8 @@ your own devices, but not for a store, and an APK signed with a different key ca
    ```
 Instead of `key.properties`, the build also reads the environment variables `KLUNKI_KEYSTORE_FILE`,
 `KLUNKI_KEYSTORE_PASSWORD`, `KLUNKI_KEY_ALIAS` and `KLUNKI_KEY_PASSWORD` (that's how CI signs, see §7). If you
-publish under your own name, also change `applicationId` in `klunki/android/app/build.gradle.kts`.
+publish under your own name, also change `applicationId` in `klunki/android/app/build.gradle.kts`. For the
+Play Store (upload key, Play App Signing, the store listing) see [PLAYSTORE.md](PLAYSTORE.md).
 
 ### 4.5 Android troubleshooting
 - **"Android sdkmanager not found" / licences not accepted:** install "Android SDK Command-line Tools (latest)"
@@ -288,7 +290,7 @@ SHA.
 | Workflow | Trigger | Jobs |
 |---|---|---|
 | `ci.yml` | push to `main`, every pull request | **engine** (`dart analyze --fatal-infos`, `dart test`), **net** (same, including the dart2js web compile test), **app** (l10n up to date, `flutter analyze`, `flutter test`) |
-| `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK → artifact `klunki-android-apk`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
+| `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK and app bundle → artifacts `klunki-android-apk`, `klunki-android-aab`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
 
 All jobs run on ubuntu, except iOS (macOS, only on manual runs because macOS minutes are expensive in a private
 repo). Nothing goes to a store. GitHub Pages is deployed only when enabled (§7.1).
@@ -297,6 +299,7 @@ repo). Nothing goes to a store. GitHub Pages is deployed only when enabled (§7.
 ```bash
 gh run list --workflow build.yml --limit 5
 gh run download <run-id> --name klunki-android-apk     # app-release.apk
+gh run download <run-id> --name klunki-android-aab     # app-release.aab (Play Store format)
 gh run download <run-id> --name klunki-pwa --dir web  # serve with the relay: --web web
 ```
 Artifacts are kept for 30 days.

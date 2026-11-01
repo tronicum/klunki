@@ -12,6 +12,11 @@
 // unless KLUNKI_APPSTORE=<output dir> is set; see docs/APPSTORE.md:
 //
 //   KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name appstore
+//
+// The Google Play set (group "playstore", the same scenes at Play's sizes)
+// needs KLUNKI_PLAYSTORE=<output dir> instead; see docs/PLAYSTORE.md:
+//
+//   KLUNKI_PLAYSTORE=/tmp/playstore flutter test test/screenshots --plain-name playstore
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
@@ -53,6 +58,7 @@ import '../ui/pairing/pairing_test_utils.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 final String? _appstoreOut = Platform.environment['KLUNKI_APPSTORE'];
+final String? _playstoreOut = Platform.environment['KLUNKI_PLAYSTORE'];
 const _boundary = Key('shot-boundary');
 
 Future<void> _loadFonts() async {
@@ -185,10 +191,11 @@ Future<(int, int)> _schiffeSetup(WidgetTester tester) async {
 void main() {
   final skip = _out == null ? 'set KLUNKI_SHOTS=<dir> to capture screenshots' : null;
   setUpAll(() async {
-    if (_out != null || _appstoreOut != null) await _loadFonts();
+    if (_out != null || _appstoreOut != null || _playstoreOut != null) await _loadFonts();
   });
 
-  _appStore();
+  _storeShots('appstore', _appstoreOut, _appStoreDevices);
+  _storeShots('playstore', _playstoreOut, _playStoreDevices);
 
 
   for (final size in [phone, tablet]) {
@@ -927,8 +934,19 @@ const _appStoreDevices = <String, (Size, double)>{
   'ipad-13': (Size(1032, 1376), 2), // 2064 × 2752
 };
 
-void _appStore() {
-  final out = _appstoreOut;
+// Google Play screenshots (docs/PLAYSTORE.md): PNG or JPEG without alpha,
+// each side 320–3840 px (10" tablets: 1080–7680 px), the long side at most
+// twice the short one, so Apple's 19.5:9 iPhone sets don't fit. The phone set
+// is 9:16 at 1080 × 1920, as Play recommends for promoted listings.
+const _playStoreDevices = <String, (Size, double)>{
+  'phone': (Size(1080 / 2.625, 1920 / 2.625), 2.625), // 1080 × 1920 (411 × 731 dp)
+  'tablet-7': (Size(600, 960), 2), // 1200 × 1920
+  'tablet-10': (Size(800, 1280), 2), // 1600 × 2560
+};
+
+/// The store screenshot set [name] (the test group) at [devices], written
+/// below [out]; skipped when [out] is null.
+void _storeShots(String name, String? out, Map<String, (Size, double)> devices) {
   final skip = out == null;
 
   Future<void> setup(WidgetTester tester, Size size, double dpr) async {
@@ -1050,8 +1068,8 @@ void _appStore() {
     },
   };
 
-  group('appstore', () {
-    for (final MapEntry(key: device, value: (size, dpr)) in _appStoreDevices.entries) {
+  group(name, () {
+    for (final MapEntry(key: device, value: (size, dpr)) in devices.entries) {
       for (final locale in const [Locale('de'), Locale('en')]) {
         for (final MapEntry(key: name, value: build) in scenes.entries) {
           final path = '$device/${locale.languageCode}/$name';
