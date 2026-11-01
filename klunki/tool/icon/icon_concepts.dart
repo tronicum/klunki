@@ -34,7 +34,18 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-p1': ('Jeanstasche: Handy statt Karte', paintConceptC5P1),
   'c5-p2': ('Jeanstasche: Handy als Stickerei', paintConceptC5P2),
   'c5-p3': ('Jeanstasche: Handy hinter den Steinen', paintConceptC5P3),
+  // The user's pick c5-p1 with the word "Klunki" (centred on the pocket first).
+  'c5-k1': ('c5-p1 + Lederpatch "Klunki" mittig', paintConceptC5K1),
+  'c5-k2': ('c5-p1 + "Klunki" gestickt mittig', paintConceptC5K2),
+  'c5-k3': ('c5-p1 + "Klunki" weiß gedruckt mittig', paintConceptC5K3),
+  'c5-k4': ('c5-p1 + "Klunki" gelb im Bogen mittig', paintConceptC5K4),
+  'c5-k5': ('c5-p1 + Banner "Klunki" unten', paintConceptC5K5),
+  'c5-k6': ('c5-p1 + "Klunki" auf größerer Fahne', paintConceptC5K6),
 };
+
+/// Concepts that letter the word "Klunki" with Roboto: the renderer must load
+/// `assets/fonts/Roboto` under [iconFontFamily] before painting them.
+const String iconFontFamily = 'Roboto';
 
 // ---------------------------------------------------------------- shared --
 
@@ -558,7 +569,13 @@ void paintConceptC5P3(Canvas canvas, double size) => _grid(canvas, size, (c) => 
 
 enum _C5Phone { none, insteadOfCard, embroidered, behind }
 
-void _c5(Canvas c, _C5Phone phone) {
+void _c5(
+  Canvas c,
+  _C5Phone phone, {
+  void Function(Canvas c, _Leather leather)? emblem,
+  Rect flagBox = const Rect.fromLTWH(470, 196, 360, 360),
+  bool flagWord = false,
+}) {
   _table(c);
   _fit(c, 1.04, dy: -24);
   final c4 = _p.connect4;
@@ -572,7 +589,8 @@ void _c5(Canvas c, _C5Phone phone) {
         // The phone takes the card's place, standing behind the pieces.
         _phone(c, const Offset(430, 420), const Size(236, 380), -0.14, screen: _screenGlow);
       }
-      _flag(c, const Rect.fromLTWH(470, 196, 360, 360), _p.gostrategy.red, lineWidth: 4.5);
+      _flag(c, flagBox, _p.gostrategy.red, lineWidth: 4.5 * 360 / flagBox.width);
+      if (flagWord) _flagWord(c, flagBox);
       if (phone == _C5Phone.insteadOfCard) {
         _phone(c, const Offset(404, 440), const Size(204, 344), -0.2, screen: _screenBoard);
       } else if (phone != _C5Phone.behind) {
@@ -582,8 +600,216 @@ void _c5(Canvas c, _C5Phone phone) {
       _chip(c, const Offset(624, 540), 90, c4.red);
     },
     rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
-    emblem: phone == _C5Phone.embroidered ? _embroideredPhone : null,
+    emblem: emblem ?? (phone == _C5Phone.embroidered ? _embroideredPhone : null),
   );
+}
+
+// ------------------------------------------- c5-p1 with "Klunki" (k) --
+
+/// (c5-k1) A brown leather jeans patch, centred on the pocket, with "Klunki"
+/// pressed into it (cream letters with a dark bevel above them).
+void paintConceptC5K1(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _leatherPatch));
+
+/// (c5-k2) "Klunki" embroidered straight on the denim in the yellow thread
+/// (satin stitch: diagonal thread stripes, raised by a small shadow).
+void paintConceptC5K2(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _embroideredWord));
+
+/// (c5-k3) "Klunki" as a bold white print with a dark outline, centred.
+void paintConceptC5K3(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _printedWord));
+
+/// (c5-k4) Big yellow letters on a gentle rainbow arch (badge style), dark
+/// outline, centred.
+void paintConceptC5K4(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _arcWord));
+
+/// (c5-k5) A red ribbon banner across the lower pocket with white letters.
+void paintConceptC5K5(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _banner));
+
+/// (c5-k6) A bigger red flag with "Klunki" on its pennant.
+void paintConceptC5K6(Canvas canvas, double size) => _grid(
+  canvas,
+  size,
+  (c) => _c5(c, _C5Phone.insteadOfCard, flagBox: const Rect.fromLTWH(440, 150, 450, 450), flagWord: true),
+);
+
+/// Lays out "Klunki" in Roboto Bold.
+TextPainter _wordPainter(double fontSize, {Paint? foreground, Color? color, double spacing = 0}) => TextPainter(
+  text: TextSpan(
+    text: 'Klunki',
+    style: TextStyle(
+      fontFamily: iconFontFamily,
+      fontWeight: FontWeight.w700,
+      fontSize: fontSize,
+      letterSpacing: spacing,
+      height: 1,
+      color: foreground == null ? color : null,
+      foreground: foreground,
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+/// Paints "Klunki" centred at [center] with each paint in [paints] in turn
+/// (and the matching offset), so outlines, shadows and fills line up.
+void _word(Canvas c, Offset center, double fontSize, List<(Paint, Offset)> paints, {double spacing = 0}) {
+  for (final (paint, shift) in paints) {
+    final tp = _wordPainter(fontSize, foreground: paint, spacing: spacing);
+    // Centre on the cap height, not the line box (no descenders in "Klunki");
+    // Roboto's cap height is 0.711 em. Trailing letter spacing is dropped.
+    final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    tp.paint(c, center + shift - Offset((tp.width - spacing) / 2, base - fontSize * 0.711 / 2));
+  }
+}
+
+/// Centre of the pocket front between the stitching (pocket design coords).
+const _front = Offset(512, 664);
+
+void _leatherPatch(Canvas c, _Leather leather) {
+  final r = RRect.fromRectAndRadius(
+    Rect.fromCenter(center: _front, width: 408, height: 180),
+    const Radius.circular(22),
+  );
+  c.save();
+  c.translate(_front.dx, _front.dy);
+  c.rotate(-0.035);
+  c.translate(-_front.dx, -_front.dy);
+  c.drawRRect(r.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+  c.drawRRect(
+    r,
+    Paint()
+      ..shader = ui.Gradient.linear(r.outerRect.topCenter, r.outerRect.bottomCenter, [
+        const Color(0xFFB0662F),
+        const Color(0xFF7E3A18),
+      ]),
+  );
+  _dashed(c, Path()..addRRect(r.deflate(16)), _stroke(const Color(0xFFF7DDB0), 6), 18, 12);
+  c.drawRRect(r, _stroke(_ink, 10));
+  _word(c, _front, 110, [
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
+    (_fill(const Color(0xFFFFE7BF)), const Offset(0, 2)),
+  ], spacing: 2);
+  c.restore();
+}
+
+void _embroideredWord(Canvas c, _Leather leather) {
+  final hsl = HSLColor.fromColor(leather.stitch);
+  final dark = hsl.withLightness(hsl.lightness - 0.14).toColor();
+  final satin = Paint()
+    ..shader = ui.Gradient.linear(
+      Offset.zero,
+      const Offset(7, 7),
+      [leather.stitch, leather.stitch, dark, dark],
+      [0, 0.6, 0.6, 1],
+      TileMode.repeated,
+    );
+  _word(c, _front, 142, [
+    (_fill(const Color(0x66000000)), const Offset(3, 7)),
+    (_stroke(dark, 6), Offset.zero),
+    (satin, Offset.zero),
+  ], spacing: 3);
+}
+
+void _printedWord(Canvas c, _Leather leather) {
+  _word(c, _front, 156, [
+    (_fill(const Color(0x55000000)), const Offset(4, 9)),
+    (_stroke(_ink, 22), Offset.zero),
+    (_fill(const Color(0xFFFFFBF2)), Offset.zero),
+  ], spacing: 2);
+}
+
+void _arcWord(Canvas c, _Leather leather) {
+  // Letters on a circle arc that rises in the middle (circle centre below).
+  const fontSize = 146.0;
+  const radius = 760.0;
+  const center = Offset(512, 652 + radius);
+  final glyphs = [for (final ch in 'Klunki'.split('')) (ch, _glyph(ch, fontSize, Paint()).width)];
+  final total = glyphs.fold(0.0, (a, g) => a + g.$2) + 6 * (glyphs.length - 1);
+  var x = -total / 2;
+  for (final (ch, w) in glyphs) {
+    final angle = (x + w / 2) / radius;
+    c.save();
+    c.translate(center.dx, center.dy);
+    c.rotate(angle);
+    c.translate(0, -radius);
+    for (final (paint, shift) in [
+      (_fill(const Color(0x55000000)), const Offset(4, 9)),
+      (_stroke(_ink, 20), Offset.zero),
+      (_fill(const Color(0xFFFFC93C)), Offset.zero),
+    ]) {
+      final tp = _glyph(ch, fontSize, paint);
+      final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+      tp.paint(c, Offset(-w / 2, -base + fontSize * 0.711 / 2) + shift);
+    }
+    c.restore();
+    x += w + 6;
+  }
+}
+
+TextPainter _glyph(String ch, double fontSize, Paint paint) => TextPainter(
+  text: TextSpan(
+    text: ch,
+    style: TextStyle(
+      fontFamily: iconFontFamily,
+      fontWeight: FontWeight.w700,
+      fontSize: fontSize,
+      height: 1,
+      foreground: paint,
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+void _banner(Canvas c, _Leather leather) {
+  const red = Color(0xFFC62D2D), redDark = Color(0xFF8E1B1B);
+  const y = 730.0, h = 136.0, half = 300.0;
+  // Folded tails behind the ends.
+  for (final s in [-1.0, 1.0]) {
+    final tail = Path()
+      ..moveTo(512 + s * (half - 40), y - h / 2 + 34)
+      ..lineTo(512 + s * (half + 70), y - h / 2 + 34)
+      ..lineTo(512 + s * (half + 34), y + 34)
+      ..lineTo(512 + s * (half + 70), y + h / 2 + 34)
+      ..lineTo(512 + s * (half - 40), y + h / 2 + 34)
+      ..close();
+    c.drawPath(tail.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+    c.drawPath(tail, _fill(redDark));
+    c.drawPath(tail, _stroke(_ink, 10));
+  }
+  final band = Rect.fromCenter(center: const Offset(512, y), width: half * 2, height: h);
+  final p = Path()
+    ..moveTo(band.left, band.top)
+    ..quadraticBezierTo(512, band.top + 30, band.right, band.top)
+    ..lineTo(band.right, band.bottom)
+    ..quadraticBezierTo(512, band.bottom + 30, band.left, band.bottom)
+    ..close();
+  c.drawPath(p.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+  c.drawPath(p, _fill(red));
+  c.drawPath(p, _stroke(_ink, 10));
+  _word(c, const Offset(512, y + 12), 112, [
+    (_fill(redDark), const Offset(0, 5)),
+    (_fill(const Color(0xFFFFFBF2)), Offset.zero),
+  ], spacing: 4);
+}
+
+/// "Klunki" across the GoStrategy pennant (flag [box], see [_flag]).
+void _flagWord(Canvas c, Rect box) {
+  _inBox(c, box, (c) {
+    final pennant = Path()
+      ..moveTo(34, 12)
+      ..quadraticBezierTo(60, 8, 88, 22)
+      ..quadraticBezierTo(62, 34, 34, 46)
+      ..close();
+    c.save();
+    c.clipPath(pennant);
+    c.translate(56, 24);
+    c.rotate(-0.08);
+    _word(c, Offset.zero, 12.5, [(_fill(const Color(0xFFFFFBF2)), Offset.zero)]);
+    c.restore();
+  });
 }
 
 /// A generic phone: graphite rounded body and a screen; no notch, no

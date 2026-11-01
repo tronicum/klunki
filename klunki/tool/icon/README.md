@@ -3,7 +3,7 @@
 Step 1 of KLD-097: four icon concepts drawn in code, in the "Spieltisch" look
 of KLD-062 (colours from `KlunkiPalette.classicLight`, pawn shape from
 `lib/ui/games/chess/chess_pieces.dart`). All of them are full-bleed, opaque
-squares on a warm amber table, have no text, and keep their key content inside
+squares on a warm amber table, have no text (except the c5-k variants), and keep their key content inside
 the central ~66 % so Android circle or squircle masks don't cut it off.
 
 | id | concept | idea |
@@ -35,6 +35,27 @@ The user then picked **c5** (denim). Final size and phone ideas:
 
 The phones are deliberately generic: a rounded rectangle with a screen, no
 notch, no buttons, no brand cues.
+
+The user then picked **c5-p1** and asked for the name "Klunki" on the icon,
+preferably centred on the pocket. All of these are c5-p1 with the same pieces
+and pocket; the word is set in Roboto Bold (`assets/fonts/Roboto`, already in
+the app; the render test loads it with a `FontLoader`):
+
+| id | variant |
+|---|---|
+| c5-k1 | Brown leather jeans patch with its own cream stitching, centred on the pocket, slightly tilted; "Klunki" pressed in, cream letters |
+| c5-k2 | "Klunki" embroidered straight on the denim in the yellow thread (satin-stitch stripes, darker thread edge, small shadow) |
+| c5-k3 | "Klunki" as a big white print with a thick dark outline, centred |
+| c5-k4 | Big yellow letters with a dark outline on a gentle rainbow arch (badge style), centred |
+| c5-k5 | A red ribbon banner with folded tails across the lower pocket, white letters; the tails reach past the 66 % circle (inside 80 %) |
+| c5-k6 | A ~25 % bigger red flag with "Klunki" on the pennant |
+
+Legibility: all are clear at 1024 and 180 px; k3 and k4 (biggest, highest
+contrast) read best at 120 px. At 60 px the word is only a light/dark smudge
+on the pocket and at 40 px it is mush in every variant; the pocket, phone and
+pieces carry the icon there. k6's pennant text is already small at 180 px.
+`c5-k-compare.png` (written by the render test) shows all k variants at 256,
+180 and 60 px side by side.
 
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
