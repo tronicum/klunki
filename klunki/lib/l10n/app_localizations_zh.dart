@@ -103,9 +103,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String shellYourTurn(String mark) {
-    return '轮到你了（$mark）';
-  }
+  String get shellYourTurn => '轮到你了';
 
   @override
   String shellWaitingFor(String player) {
@@ -374,9 +372,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String quartettTrumpfYouPickNext(String player) {
-    return '下一个由你选择（$player）';
-  }
+  String get quartettTrumpfYouPickNext => '下一个由你选择';
 
   @override
   String quartettTrumpfTricksBehind(int count) {
@@ -819,13 +815,13 @@ class AppLocalizationsZh extends AppLocalizations {
       '提示：两台设备是否在同一 Wi-Fi 下？访客网络常会阻止设备之间的连接。iOS：是否已允许 Klunki 使用“本地网络”（设置 › 隐私）？';
 
   @override
-  String pairingStatus(String name, String mark, String peer, String peerMark) {
-    return '你（$name，$mark）· 对手：$peer（$peerMark）';
+  String pairingStatus(String name, String peer) {
+    return '你：$name · 对手：$peer';
   }
 
   @override
   String netBarYou(String name) {
-    return '你（$name）';
+    return '你：$name';
   }
 
   @override
@@ -1059,9 +1055,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String goArmyOwn(String mark) {
-    return '你的军队（$mark）';
-  }
+  String get goArmyOwn => '你的军队';
 
   @override
   String goArmyEnemy(String player) {

@@ -105,7 +105,7 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
 ///   "Auf Wikipedia lesen" below the stats.
 ///
 /// Face-down: patterned back with the [deck]'s pictogram, an optional [count]
-/// ("15 Karten") and [label] (e.g. "O").
+/// ("15 Karten") and [label] (e.g. the owner's player number "2").
 class QuartettCard extends StatelessWidget {
   final qe.Card? card;
   final void Function(qe.QuartettStat stat)? onStatTap;
@@ -122,7 +122,7 @@ class QuartettCard extends StatelessWidget {
   /// Back side only: number shown on the back ("15 Karten").
   final int? count;
 
-  /// Back side only: caption on the back, e.g. the owner's mark.
+  /// Back side only: caption on the back, e.g. the owner's player number.
   final String? label;
 
   /// Back side only: the deck id, for its pictogram (default: cars).

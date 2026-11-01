@@ -109,9 +109,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String shellYourTurn(String mark) {
-    return 'Te toca ($mark)';
-  }
+  String get shellYourTurn => 'Te toca';
 
   @override
   String shellWaitingFor(String player) {
@@ -387,9 +385,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String quartettTrumpfYouPickNext(String player) {
-    return 'Eliges tú a continuación ($player)';
-  }
+  String get quartettTrumpfYouPickNext => 'Eliges tú a continuación';
 
   @override
   String quartettTrumpfTricksBehind(int count) {
@@ -851,13 +847,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Consejos: ¿están ambos dispositivos en el mismo wifi? Las redes de invitados suelen bloquear las conexiones entre dispositivos. iOS: ¿está permitida la «Red local» para Klunki (Ajustes › Privacidad)?';
 
   @override
-  String pairingStatus(String name, String mark, String peer, String peerMark) {
-    return 'Tú ($name, $mark) · Rival: $peer ($peerMark)';
+  String pairingStatus(String name, String peer) {
+    return 'Tú: $name · Rival: $peer';
   }
 
   @override
   String netBarYou(String name) {
-    return 'Tú ($name)';
+    return 'Tú: $name';
   }
 
   @override
@@ -1098,9 +1094,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String goArmyOwn(String mark) {
-    return 'Tu ejército ($mark)';
-  }
+  String get goArmyOwn => 'Tu ejército';
 
   @override
   String goArmyEnemy(String player) {

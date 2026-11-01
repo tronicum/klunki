@@ -14,13 +14,15 @@ import '../ltr.dart';
 ///   "Du bist am Zug" / "Du gewinnst!". Null when both play here (hot-seat).
 ///
 /// Sentences show the name only ("Anna ist am Zug"); the player's colour and
-/// symbol stay next to it as tokens (players legend, pieces, the turn pill).
-/// The mark joins the name ("Anna (Weiß)") only where it carries meaning or
-/// is needed to tell the players apart ([withMark]):
+/// number (or the game's own piece) stay next to it as tokens (players
+/// legend, pieces, the turn pill). The mark joins the name ("Anna (Weiß)")
+/// only where it carries meaning or is needed to tell the players apart
+/// ([withMark]):
 ///
 /// * [markNames]: a game's own words for the marks (chess, KLD-059: "Weiß" /
-///   "Schwarz" instead of X / O); see [withMarkNames];
-/// * both players have the same name ("Anna (X)" / "Anna (O)").
+///   "Schwarz"); see [withMarkNames];
+/// * both players have the same name: the player number, as on the token
+///   and in "Spieler 1 / 2" ("Anna (1)" / "Anna (2)", KLD-107).
 @immutable
 class PlayerLabels {
   const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}});
@@ -36,10 +38,15 @@ class PlayerLabels {
   PlayerLabels withMarkNames(Map<Player, String> marks) => PlayerLabels(names: names, local: local, markNames: marks);
 
   /// The mark of [p] as shown in texts: the game's [markNames] word, else
-  /// [markOf].
-  String mark(Player p) => markNames[p] ?? markOf(p);
+  /// the player number [numberOf].
+  String mark(Player p) => markNames[p] ?? numberOf(p);
 
-  /// The player mark (the symbol on the player's token): A is "X", B is "O".
+  /// The player number shown on the player's token and in "Spieler 1 / 2"
+  /// (KLD-107): A (who starts in every game) is "1", B is "2".
+  static String numberOf(Player p) => p == Player.a ? '1' : '2';
+
+  /// The internal player mark: A is "X", B is "O". Widget keys, preference
+  /// keys and engine-facing text only; never shown in the app (KLD-107).
   static String markOf(Player p) => p == Player.a ? 'X' : 'O';
 
   /// The name given for [p], or null (then [name] is the default name).
@@ -62,8 +69,10 @@ class PlayerLabels {
 
   /// Whether [label] adds the mark: the game names its marks, or both
   /// players have the same name (ignoring case).
-  bool withMark(AppLocalizations l10n) =>
-      markNames.isNotEmpty || name(l10n, Player.a).toLowerCase() == name(l10n, Player.b).toLowerCase();
+  bool withMark(AppLocalizations l10n) => markNames.isNotEmpty || sameNames(l10n);
+
+  /// Whether both players have the same name (ignoring case).
+  bool sameNames(AppLocalizations l10n) => name(l10n, Player.a).toLowerCase() == name(l10n, Player.b).toLowerCase();
 
   @override
   bool operator ==(Object other) =>

@@ -187,8 +187,8 @@ void main() {
         tester,
         () => find.byKey(const Key('net-status')).evaluate().isNotEmpty && status().contains('Gegner: $peerName'),
         what: 'the peer name in the connection bar');
-    expect(status(), startsWith('Du ($myName, '));
-    expect(status(), contains('Gegner: $peerName ('));
+    expect(status(), startsWith('Du: $myName'));
+    expect(status(), endsWith('Gegner: $peerName'));
     log('E2E_NAMES $tag "${status()}"');
 
     final gameSw = Stopwatch()..start();

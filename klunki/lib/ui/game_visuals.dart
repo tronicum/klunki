@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' show ChessPiece, ChessPieceTyp
 import '../app/theme.dart';
 import 'game_illustrations.dart';
 import 'games/chess/chess_pieces.dart';
+import 'games/connect4/connect4_board.dart' show Connect4Piece;
 import 'games/wordtiles/wordtiles_tiles.dart';
 
 /// Per-game visuals (KLD-062): menu illustration, one-line description and
@@ -34,8 +35,10 @@ class GameVisuals {
   final Color? Function(KlunkiPalette palette, Player player)? token;
 
   /// The game's own player token (null = a disc in [token]'s colour with
-  /// the mark). Chess: the side's king, so "Weiß" / "Schwarz" need no
-  /// letter in the token.
+  /// the player number "1" / "2", KLD-107). Games whose token is a game
+  /// piece show the piece without a letter: chess the side's king, 4 Gewinnt
+  /// the disc (yellow with its inner ring), Mühle the light / dark stone.
+  /// Each stays distinguishable without colour (shape or lightness).
   final Widget Function(BuildContext context, Player player, double size)? tokenIcon;
 
   const GameVisuals({required this.illustration, this.description, this.token, this.tokenIcon});
@@ -51,11 +54,13 @@ final Map<String, GameVisuals> gameVisuals = {
     illustration: Connect4Illustration.new,
     description: (l) => l.menuDescConnect4,
     token: (p, player) => player == Player.a ? p.connect4.red : p.connect4.yellow,
+    tokenIcon: _connect4Token,
   ),
   'muehle': GameVisuals(
     illustration: MuehleIllustration.new,
     description: (l) => l.menuDescMuehle,
     token: (p, player) => player == Player.a ? p.muehle.light : p.muehle.dark,
+    tokenIcon: _muehleToken,
   ),
   'quartett-trumpf': GameVisuals(
     illustration: (p) => QuartettIllustration(p, sets: const ['F', 'E', 'A']),
@@ -87,6 +92,35 @@ final Map<String, GameVisuals> gameVisuals = {
   ),
 };
 
+/// 4 Gewinnt token (KLD-107): the board's piece, red for A, yellow with the
+/// embossed inner ring for B (shape, not only colour, UX-REVIEW 2.10).
+Widget _connect4Token(BuildContext context, Player player, double size) {
+  final c = KlunkiPalette.of(context).connect4;
+  return Connect4Piece(color: player == Player.a ? c.red : c.yellow, ringed: player == Player.b);
+}
+
+/// Mühle token (KLD-107): the board's stone, light for A and dark for B
+/// (told apart by lightness, not hue).
+Widget _muehleToken(BuildContext context, Player player, double size) {
+  final m = KlunkiPalette.of(context).muehle;
+  final light = player == Player.a;
+  return Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(color: light ? m.lightEdge : m.darkEdge, width: size * 0.06),
+      boxShadow: const [BoxShadow(color: Color(0x55000000), blurRadius: 2, offset: Offset(0.5, 1))],
+      gradient: RadialGradient(
+        center: const Alignment(-0.3, -0.4),
+        colors: light
+            ? [Colors.white, m.light, m.lightShade]
+            : [m.darkShine, m.dark, Color.lerp(m.dark, Colors.black, 0.5)!],
+      ),
+    ),
+  );
+}
+
 /// Chess token: the side's king on a light square disc.
 Widget _chessToken(BuildContext context, Player player, double size) {
   final c = KlunkiPalette.of(context).chess;
@@ -107,7 +141,7 @@ GameVisuals visualsOf(String gameId) => gameVisuals[gameId] ?? GameVisuals.fallb
 
 /// The colour of [player] in [gameId] (KLD-067): the piece colour where the
 /// game has one ([GameVisuals.token]: 4 Gewinnt red / yellow, Mühle light /
-/// dark stones, GoStrategy red X / blue O), otherwise the game accent for A and
+/// dark stones, GoStrategy red / blue), otherwise the game accent for A and
 /// [KlunkiPalette.secondPlayer] for B.
 Color playerColor(KlunkiPalette palette, String gameId, Player player) =>
     visualsOf(gameId).token?.call(palette, player) ??

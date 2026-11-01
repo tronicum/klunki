@@ -106,9 +106,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String shellYourTurn(String mark) {
-    return 'دورك ($mark)';
-  }
+  String get shellYourTurn => 'دورك';
 
   @override
   String shellWaitingFor(String player) {
@@ -393,9 +391,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String quartettTrumpfYouPickNext(String player) {
-    return 'أنت تختار التالي ($player)';
-  }
+  String get quartettTrumpfYouPickNext => 'أنت تختار التالي';
 
   @override
   String quartettTrumpfTricksBehind(int count) {
@@ -866,13 +862,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'نصائح: هل الجهازان على شبكة Wi-Fi نفسها؟ غالبًا ما تحظر شبكات الضيوف الاتصال بين الأجهزة. iOS: هل «الشبكة المحلية» مسموحة لـ Klunki (الإعدادات › الخصوصية)؟';
 
   @override
-  String pairingStatus(String name, String mark, String peer, String peerMark) {
-    return 'أنت ($name، $mark) · الخصم: $peer ($peerMark)';
+  String pairingStatus(String name, String peer) {
+    return 'أنت: $name · الخصم: $peer';
   }
 
   @override
   String netBarYou(String name) {
-    return 'أنت ($name)';
+    return 'أنت: $name';
   }
 
   @override
@@ -1110,9 +1106,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String goArmyOwn(String mark) {
-    return 'جيشك ($mark)';
-  }
+  String get goArmyOwn => 'جيشك';
 
   @override
   String goArmyEnemy(String player) {

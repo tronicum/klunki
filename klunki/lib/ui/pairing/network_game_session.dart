@@ -11,11 +11,11 @@ import '../shell/screen_registry.dart';
 
 /// Owns a [GameController] over a [NetworkTransport] and shows the game's
 /// regular screen (through the shell registry) with a small connection bar
-/// underneath: each player's token in their colour plus "Du (Anna)" /
+/// underneath: each player's token in their colour plus "Du: Anna" /
 /// "Gegner: Ben" (KLD-067), plus a banner while the
 /// other side is missing. The game shell names both players through a
-/// [PlayerLabelsScope] (KLD-056): "Du bist am Zug (X)", "Warte auf Ben (O)…",
-/// "Ben (O) gewinnt!", "Ben (O): …" in the history. The guest gets a "Neu verbinden" button there (the full
+/// [PlayerLabelsScope] (KLD-056, KLD-107): "Du bist am Zug", "Warte auf Ben…",
+/// "Ben gewinnt!", "Ben: …" in the history. The guest gets a "Neu verbinden" button there (the full
 /// reconnect UX is KLD-036).
 ///
 /// One local player per device, so the controller never asks for a
@@ -73,7 +73,7 @@ PlayerLabels networkLabels(NetworkTransport t) {
 /// The other player.
 Player _otherPlayer(Player p) => p == Player.a ? Player.b : Player.a;
 
-/// "Du (Anna, X) · Gegner: Ben (O)" and, while the peer is missing, a banner.
+/// "Du: Anna · Gegner: Ben" and, while the peer is missing, a banner.
 class NetworkConnectionBar extends StatefulWidget {
   final NetworkTransport transport;
 
@@ -203,13 +203,12 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                         color: state == NetConnectionState.connected ? theme.colorScheme.primary : theme.colorScheme.error,
                       ),
                       const SizedBox(width: 8),
-                      // Each player as token (colour + mark, KLD-067) and name; read
-                      // out as the full sentence "Du (Anna, X) · Gegner: Ben (O)".
+                      // Each player as token (colour + number or piece, KLD-067,
+                      // KLD-107) and name; read out as "Du: Anna · Gegner: Ben".
                       Expanded(
                         child: Semantics(
                           key: const Key('net-status'),
-                          label: l10n.pairingStatus(
-                              bidiName(context, t.localName), playerMark(me), peer, playerMark(_otherPlayer(me))),
+                          label: l10n.pairingStatus(bidiName(context, t.localName), peer),
                           excludeSemantics: true,
                           child: Row(
                             children: [

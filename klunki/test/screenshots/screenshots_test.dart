@@ -291,7 +291,7 @@ void main() {
       });
 
       // KLD-067: a network game over loopback, from both sides: the host
-      // ("Du bist am Zug") and the guest ("Warte auf Anna (X)…").
+      // ("Du bist am Zug") and the guest ("Warte auf Anna…").
       testWidgets('network $tag', skip: skip != null, (tester) async {
         await _setup(tester, size, b);
         final created = CreatedTransports();
@@ -756,6 +756,47 @@ void main() {
       )));
       await tester.pump();
       await _shot(tester, 'kld103-connect4-fa-mixed-phone-light');
+    });
+  });
+  // KLD-107: no X / O in the UI. Network games from the guest's view: 4 Gewinnt
+  // after the host's first disc ("Du bist am Zug", "Du: Ben · Gegner: Anna"),
+  // also in Arabic; Quartett (Trumpf) after the first round (the card back
+  // shows "1"). Two players with the same name ("Anna (1)").
+  group('kld107', () {
+    for (final (l, id, host, guest) in const [
+      ('de', 'connect4', 'Anna', 'Ben'),
+      ('ar', 'connect4', 'أمل', 'باسم'),
+      ('de', 'quartett-trumpf', 'Anna', 'Ben'),
+    ]) {
+      testWidgets('kld107 network guest $id $l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        final created = CreatedTransports();
+        final h = (await tester.runAsync(() => loopbackHost(created, GameConfig(id, seed: 7), name: host, port: 0)))!;
+        final g = (await tester.runAsync(() => loopbackJoin(created, '127.0.0.1', h.port!, name: guest)))!;
+        await pumpUntil(tester, () => h.peerName != null && g.peerName != null, what: 'connected');
+        expect(g.me, Player.b);
+        final Map<String, dynamic> first =
+            id == 'connect4' ? {'col': 3} : ((h.game as dynamic).legalMoves as List).cast<Map<String, dynamic>>().first;
+        await tester.runAsync(() => h.submit(first));
+        await pumpUntil(tester, () => g.moves.isNotEmpty, what: 'first move');
+        await tester.pumpWidget(
+            _wrap(_themed(NetworkGameSession(transport: g), locale: Locale(l), webFonts: l != 'de')));
+        await tester.pump();
+        if (id == 'quartett-trumpf') await _precachePhotos(tester);
+        await _shot(tester, 'kld107-network-guest-$id-$l-phone-light', settle: const Duration(milliseconds: 300));
+        await unmountAndSettleSockets(tester, created);
+      });
+    }
+    testWidgets('kld107 same name', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final c = GameController.hotSeat(const GameConfig('connect4', seed: 7));
+      addTearDown(c.dispose);
+      _play(c, 3);
+      await tester.pumpWidget(_wrap(_themed(
+        PlayerLabelsScope(labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Anna'}), child: buildGameScreen(c)),
+      )));
+      await tester.pump();
+      await _shot(tester, 'kld107-same-name-phone-light');
     });
   });
   // KLD-100: "3 or fewer cards: choose". The low picker's cards face-up, the
