@@ -35,7 +35,7 @@ One-time registration fee of 25 USD. Two account types:
 **EU trader status (DSA):** every account must declare whether it acts as a trader. A GmbH publishing an app is a
 trader, so its address, phone and email are shown on the store page. A private person publishing a free app
 without commercial intent usually is not. Decide before submitting; the contact data shown must match the
-Impressum (`site/impressum/`).
+Impressum (`site/impressum/`; the app shows a stored copy under "Über Klunki" → Impressum, KLD-102).
 
 **Recommendation:** an organization account if Klunki is published under the company; it avoids the 12-tester /
 14-day wait. Under a personal account, plan the closed test early (the internal track does not count).

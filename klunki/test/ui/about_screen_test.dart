@@ -1,5 +1,5 @@
-// KLD-102: "Über Klunki" in the menu: version, privacy policy (stored in the
-// app, offline), Impressum, support, source code, licences.
+// KLD-102: "Über Klunki" in the menu: version, privacy policy and Impressum
+// (stored in the app, offline), support (web page), source code, licences.
 import 'dart:convert';
 import 'dart:io';
 
@@ -23,7 +23,7 @@ Future<void> _openAbout(WidgetTester tester, {Locale locale = testLocale}) async
   await tester.pumpAndSettle();
 }
 
-/// Waits for the privacy text: the asset loads asynchronously (real I/O).
+/// Waits for a stored legal text: the asset loads asynchronously (real I/O).
 Future<void> _waitForText(WidgetTester tester, String text) async {
   for (var i = 0; i < 100 && find.text(text).evaluate().isEmpty; i++) {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
@@ -73,21 +73,63 @@ void main() {
     }
     expect(find.text('Klunki ist freie Software unter der GNU AGPL 3.0.'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('about-impressum')));
+    // Stored in the app: chevron; web pages: external-link icon.
+    Icon trailing(String key) => tester.widget<Icon>(
+        find.descendant(of: find.byKey(Key(key)), matching: find.byType(Icon)).last);
+    for (final key in ['about-privacy', 'about-impressum', 'about-licenses']) {
+      expect(trailing(key).icon, Icons.chevron_right, reason: key);
+    }
+    for (final key in ['about-support', 'about-source']) {
+      expect(trailing(key).icon, Icons.open_in_new, reason: key);
+    }
+
     await tester.tap(find.byKey(const Key('about-support')));
     await tester.tap(find.byKey(const Key('about-source')));
     await tester.pump();
     expect(opened.map((u) => u.toString()), [
-      'https://tronicum.github.io/klunki/impressum/',
       'https://tronicum.github.io/klunki/support/',
       'https://github.com/tronicum/klunki',
     ]);
   });
 
-  testWidgets('English: links point to the English part', (tester) async {
+  testWidgets('English: Support points to the English part', (tester) async {
     await _openAbout(tester, locale: const Locale('en'));
     expect(find.text('About Klunki'), findsWidgets);
+    await tester.tap(find.byKey(const Key('about-support')));
+    await tester.pump();
+    expect(opened.single.toString(), 'https://tronicum.github.io/klunki/support/#en');
+  });
+
+  // Local first: the Impressum is readable without the web pages (GitHub
+  // Pages may be unpublished or the device offline).
+  testWidgets('Impressum opens the stored text; web action and link open the page', (tester) async {
+    await _openAbout(tester);
     await tester.tap(find.byKey(const Key('about-impressum')));
+    await tester.pumpAndSettle();
+    await _waitForText(tester, 'Angaben gemäß § 5 DDG');
+    expect(opened, isEmpty);
+    expect(find.byKey(const Key('impressum-text')), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Impressum'), findsOneWidget);
+    expect(find.text('Angaben gemäß § 5 DDG'), findsOneWidget);
+    expect(find.textContaining('Markgrafendamm 4'), findsWidgets);
+    expect(find.text('E-Mail: contact@tronicum.com'), findsOneWidget);
+    expect(find.textContaining('Maßgeblich ist die Seite im Web'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('impressum-open-web')));
+    await tester.tap(find.byKey(const Key('impressum-web-link')));
+    await tester.pump();
+    expect(opened.map((u) => u.toString()), List.filled(2, 'https://tronicum.github.io/klunki/impressum/'));
+  });
+
+  testWidgets('English: Impressum shows the English text and links to #en', (tester) async {
+    await _openAbout(tester, locale: const Locale('en'));
+    await tester.tap(find.byKey(const Key('about-impressum')));
+    await tester.pumpAndSettle();
+    await _waitForText(tester, 'Information according to § 5 DDG (German Digital Services Act)');
+    expect(find.widgetWithText(AppBar, 'Legal notice (Impressum)'), findsOneWidget);
+    expect(find.text('Information according to § 5 DDG (German Digital Services Act)'), findsOneWidget);
+    expect(find.text('Email: contact@tronicum.com'), findsOneWidget);
+    expect(find.text('Angaben gemäß § 5 DDG'), findsNothing);
+    await tester.tap(find.byKey(const Key('impressum-open-web')));
     await tester.pump();
     expect(opened.single.toString(), 'https://tronicum.github.io/klunki/impressum/#en');
   });
@@ -126,21 +168,31 @@ void main() {
     expect(find.byType(LicensePage), findsOneWidget);
   });
 
-  // The stored text must say what the web page says: rerun
-  // `python3 -I site/export_privacy_text.py` after editing the page.
-  test('assets/legal/privacy.json matches site/privacy/index.html', () {
-    final values = (jsonDecode(File('../site/site.json').readAsStringSync()) as Map).cast<String, String>();
-    final html = File('../site/privacy/index.html')
-        .readAsStringSync()
-        .replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '')
-        .replaceAllMapped(RegExp(r'\{\{([A-Z_]+)\}\}'), (m) => values[m[1]] ?? m[0]!);
-    final asset = File(privacyAsset).readAsStringSync();
-    List<String> words(String s) => s.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
-    for (final lang in ['de', 'en']) {
-      final article = RegExp('<article id="$lang"[^>]*>(.*?)</article>', dotAll: true).firstMatch(html)![1]!;
-      final pageWords = words(article.replaceAll(RegExp(r'<[^>]+>'), ''));
-      final assetWords = words(parsePrivacyBlocks(asset, lang).map((b) => b.text).join(' '));
-      expect(assetWords, pageWords, reason: '$lang: run python3 -I site/export_privacy_text.py');
+  test('stored legal pages are listed in pubspec.yaml; Support is not stored', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    for (final page in LegalPage.values) {
+      expect(pubspec, contains('- ${page.asset}'), reason: page.name);
     }
+    expect(LegalPage.values.map((p) => p.site), isNot(contains(SitePage.support)));
   });
+
+  // The stored texts must say what the web pages say: rerun
+  // `python3 -I site/export_legal_text.py` after editing a page.
+  for (final page in LegalPage.values) {
+    test('${page.asset} matches site/${page.site.path}index.html', () {
+      final values = (jsonDecode(File('../site/site.json').readAsStringSync()) as Map).cast<String, String>();
+      final html = File('../site/${page.site.path}index.html')
+          .readAsStringSync()
+          .replaceAll(RegExp(r'<!--.*?-->', dotAll: true), '')
+          .replaceAllMapped(RegExp(r'\{\{([A-Z_]+)\}\}'), (m) => values[m[1]] ?? m[0]!);
+      final asset = File(page.asset).readAsStringSync();
+      List<String> words(String s) => s.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+      for (final lang in ['de', 'en']) {
+        final article = RegExp('<article id="$lang"[^>]*>(.*?)</article>', dotAll: true).firstMatch(html)![1]!;
+        final pageWords = words(article.replaceAll(RegExp(r'<[^>]+>'), ''));
+        final assetWords = words(parseLegalBlocks(asset, lang).map((b) => b.text).join(' '));
+        expect(assetWords, pageWords, reason: '$lang: run python3 -I site/export_legal_text.py');
+      }
+    });
+  }
 }

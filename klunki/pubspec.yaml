@@ -114,9 +114,11 @@ flutter:
     # for LicenseRegistry (lib/app/third_party_licenses.dart).
     - assets/licenses/zxing-cpp/LICENSE
     - assets/licenses/libzint/LICENSE
-    # The privacy policy as text, readable offline in "Über Klunki" (KLD-102);
-    # exported from site/privacy/index.html by site/export_privacy_text.py.
+    # Privacy policy and Impressum as text, readable offline in "Über Klunki"
+    # (KLD-102); exported from site/{privacy,impressum}/index.html by
+    # site/export_legal_text.py.
     - assets/legal/privacy.json
+    - assets/legal/impressum.json
     # The app icon (KLD-097, concept c5-final-d4) for the About screen; written
     # by tool/icon/export_icon_test.dart together with the platform icons.
     - assets/icon/app_icon.png

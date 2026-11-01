@@ -1,0 +1,70 @@
+{
+ "de": [
+  {
+   "t": "h1",
+   "x": "Impressum"
+  },
+  {
+   "t": "h2",
+   "x": "Angaben gemäß § 5 DDG"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin"
+  },
+  {
+   "t": "h2",
+   "x": "Kontakt"
+  },
+  {
+   "t": "p",
+   "x": "E-Mail: contact@tronicum.com"
+  },
+  {
+   "t": "h2",
+   "x": "Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin"
+  },
+  {
+   "t": "p",
+   "x": "Datenschutzerklärung · Support"
+  }
+ ],
+ "en": [
+  {
+   "t": "h1",
+   "x": "Legal notice (Impressum)"
+  },
+  {
+   "t": "h2",
+   "x": "Information according to § 5 DDG (German Digital Services Act)"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin\nGermany"
+  },
+  {
+   "t": "h2",
+   "x": "Contact"
+  },
+  {
+   "t": "p",
+   "x": "Email: contact@tronicum.com"
+  },
+  {
+   "t": "h2",
+   "x": "Responsible for the content according to § 18 (2) MStV"
+  },
+  {
+   "t": "address",
+   "x": "Stefan Sels\nc/o tronicum networx GmbH\nMarkgrafendamm 4\n10245 Berlin\nGermany"
+  },
+  {
+   "t": "p",
+   "x": "Privacy policy · Support"
+  }
+ ]
+}
