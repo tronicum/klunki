@@ -126,14 +126,9 @@
       }
     }
   },
-  "shellYourTurn": "Du bist am Zug ({mark})",
+  "shellYourTurn": "Du bist am Zug",
   "@shellYourTurn": {
-    "description": "Status line in a network game when this device is to move; mark = own mark (X, O).",
-    "placeholders": {
-      "mark": {
-        "type": "String"
-      }
-    }
+    "description": "Status line in a network game when this device is to move (KLD-107: no player mark; the token in the pill shows the player)."
   },
   "shellWaitingFor": "Warte auf {player}…",
   "@shellWaitingFor": {
@@ -572,14 +567,9 @@
       }
     }
   },
-  "quartettTrumpfYouPickNext": "Du wählst als Nächstes ({player})",
+  "quartettTrumpfYouPickNext": "Du wählst als Nächstes",
   "@quartettTrumpfYouPickNext": {
-    "description": "Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it. player = mark.",
-    "placeholders": {
-      "player": {
-        "type": "String"
-      }
-    }
+    "description": "Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it (KLD-107: no mark)."
   },
   "quartettTrumpfTricksBehind": "noch {count, plural, =1{1 Runde} other{{count} Runden}}",
   "@quartettTrumpfTricksBehind": {
@@ -610,7 +600,7 @@
   },
   "quartettTrumpfChooseDefend": "{player} spielt {stat}. Wähle deine Karte.",
   "@quartettTrumpfChooseDefend": {
-    "description": "Quartett (Trumpf), KLD-100: hint (and hot-seat handover cover) for the defender with 2–3 cards: the opponent announced a stat, now the defender chooses which of their cards to play. player = \"Ben (O)\" or the mark; stat = stat label.",
+    "description": "Quartett (Trumpf), KLD-100: hint (and hot-seat handover cover) for the defender with 2–3 cards: the opponent announced a stat, now the defender chooses which of their cards to play. player = the defender's name, e.g. \"Ben\" (\"Ben (2)\" when both players have the same name); stat = stat label.",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1135,7 +1125,7 @@
   },
   "playerLabel": "{name} ({mark})",
   "@playerLabel": {
-    "description": "A player name with its mark, e.g. \"Anna (Weiß)\" in chess, or \"Anna (X)\" when both players have the same name; used inside other sentences (status line, result, history).",
+    "description": "A player name with its mark, e.g. \"Anna (Weiß)\" in chess, or \"Anna (1)\" / \"Anna (2)\" (the player number, as on the token) when both players have the same name (KLD-107); used inside other sentences (status line, result, history).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1305,27 +1295,21 @@
   "@pairingJoinHints": {
     "description": "Troubleshooting hints shown with every failed join."
   },
-  "pairingStatus": "Du ({name}, {mark}) · Gegner: {peer} ({peerMark})",
+  "pairingStatus": "Du: {name} · Gegner: {peer}",
   "@pairingStatus": {
-    "description": "Network game connection bar; name = own player name, mark / peerMark = player marks (X, O), peer = the other player's name.",
+    "description": "Network game connection bar, read out by screen readers (KLD-107: names only, no marks); name = own player name, peer = the other player's name.",
     "placeholders": {
       "name": {
         "type": "String"
       },
-      "mark": {
-        "type": "String"
-      },
       "peer": {
-        "type": "String"
-      },
-      "peerMark": {
         "type": "String"
       }
     }
   },
-  "netBarYou": "Du ({name})",
+  "netBarYou": "Du: {name}",
   "@netBarYou": {
-    "description": "KLD-067: network connection bar, this device's player next to its coloured token (the token shows the mark); name = own player name.",
+    "description": "KLD-067: network connection bar, this device's player next to its coloured token (the token shows the player number 1 / 2 or the game's piece); name = own player name. Same shape as netBarOpponent (KLD-107).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1695,14 +1679,9 @@
       }
     }
   },
-  "goArmyOwn": "Deine Armee ({mark})",
+  "goArmyOwn": "Deine Armee",
   "@goArmyOwn": {
-    "description": "GoStrategy panel heading: the viewer's army. mark = player name, e.g. \"Anna\" (KLD-103; the key keeps its old placeholder name).",
-    "placeholders": {
-      "mark": {
-        "type": "String"
-      }
-    }
+    "description": "GoStrategy panel heading: the viewer's army (KLD-107: no mark or name)."
   },
   "goArmyEnemy": "Gegner: {player}",
   "@goArmyEnemy": {

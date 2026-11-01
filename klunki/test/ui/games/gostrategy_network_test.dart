@@ -132,7 +132,7 @@ void main() {
     for (final d in [_hostKey, _guestKey]) {
       expect(_on(d, find.byKey(const Key('handover-cover'), skipOffstage: false)), findsNothing);
     }
-    expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Du bist am Zug')), findsOneWidget);
     expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
 
     // KLD-081: on each device every piece stands on the square and at the

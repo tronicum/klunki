@@ -14,7 +14,6 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
-import 'package:klunki/ui/shell/game_screen.dart' show playerMark;
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
@@ -172,7 +171,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
 
   /// KLD-091, network: while newer tricks are queued behind the one shown,
   /// the status line describes the shown one ("Anna wählt als
-  /// Nächstes" / "Du wählst als Nächstes (O)") with "noch n Runden";
+  /// Nächstes" / "Du wählst als Nächstes") with "noch n Runden";
   /// otherwise it is the live status and there is no badge.
   ///
   /// KLD-092, hot-seat: while a result is shown (applied only on "Weiter")
@@ -196,14 +195,14 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     if (behind <= 0) {
       expect(badge, findsNothing, reason: '${d.name}: no badge on the newest trick ($shown)');
       final followsReveal = status.endsWith(deL10n.quartettTrumpfNextPicker('')) ||
-          Player.values.any((p) => status == deL10n.quartettTrumpfYouPickNext(playerMark(p)));
+          status == deL10n.quartettTrumpfYouPickNext;
       expect(followsReveal, isFalse, reason: '${d.name}: live status on the newest trick, got "$status"');
       return;
     }
     expect(d.networked, isTrue, reason: '${d.name}: queued tricks only on a network device');
     final next = shown.nextActor!;
     if (next == d.me) {
-      expect(status, deL10n.quartettTrumpfYouPickNext(playerMark(next)), reason: '${d.name}: status follows $shown');
+      expect(status, deL10n.quartettTrumpfYouPickNext, reason: '${d.name}: status follows $shown');
     } else {
       expect(status, deL10n.quartettTrumpfNextPicker(_name(next)),
           reason: '${d.name}: status follows $shown ($behind behind)');

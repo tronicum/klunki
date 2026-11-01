@@ -382,7 +382,7 @@ void main() {
       await pumpUntil(tester, () => find.byType(Connect4Screen).evaluate().isNotEmpty, what: 'game starts');
       await tester.pump();
       expect(find.byType(NetworkGameSession), findsOneWidget);
-      expect(netStatus('Du (Ada, X) · Gegner: Bea (O)'), findsOneWidget);
+      expect(netStatus('Du: Ada · Gegner: Bea'), findsOneWidget);
       await unmountAndSettleSockets(tester, created);
       await tester.pump(const Duration(seconds: 6));
     }, timeout: _timeout);
@@ -533,8 +533,8 @@ void main() {
         what: 'both on the game screen');
     await tester.pump();
     expect(created.relayJoinCalls.single, (Uri.parse('ws://127.0.0.1:${server.port}/relay'), shown.replaceAll(' ', '')));
-    expect(on(hostKey, netStatus('Du (Ada, X) · Gegner: Bea (O)')), findsOneWidget);
-    expect(on(guestKey, netStatus('Du (Bea, O) · Gegner: Ada (X)')), findsOneWidget);
+    expect(on(hostKey, netStatus('Du: Ada · Gegner: Bea')), findsOneWidget);
+    expect(on(guestKey, netStatus('Du: Bea · Gegner: Ada')), findsOneWidget);
 
     Connect4Cell cell(Key d, int r, int c) => tester.widget<Connect4Cell>(on(d, find.byKey(Key('c4-cell-$r-$c'))));
     GameScreen screen(Key d) => tester.widget<GameScreen>(on(d, find.byType(GameScreen)));

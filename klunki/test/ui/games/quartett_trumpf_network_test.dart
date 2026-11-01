@@ -490,11 +490,11 @@ void main() {
       await _tap(tester, _cont);
       expect(find.byKey(_reveal), findsOneWidget, reason: 'the third trick');
       expect(find.byKey(badge), findsNothing);
-      final live = c.game.currentPlayer == Player.b ? 'Du bist am Zug (O)' : 'Warte auf Anna…';
+      final live = c.game.currentPlayer == Player.b ? 'Du bist am Zug' : 'Warte auf Anna…';
       expect(status(tester), live, reason: 'queue empty: live status again');
     });
 
-    testWidgets('several tricks at once: "Du wählst als Nächstes (O)" while an older one is shown', (tester) async {
+    testWidgets('several tricks at once: "Du wählst als Nächstes" while an older one is shown', (tester) async {
       final (seed, s1, s2) = _twoTricks('b');
       // X wins s1 and picks s2, which O wins; O's own pick arrives in the
       // same batch (e.g. after a reconnect): the device shows s2 with O's
@@ -512,7 +512,7 @@ void main() {
       expect(badgeText(tester), 'noch 2 Runden');
       await _tap(tester, _cont);
       expect(find.text(_picked('Anna', s2)), findsOneWidget);
-      expect(status(tester), 'Du wählst als Nächstes (O)');
+      expect(status(tester), 'Du wählst als Nächstes');
       expect(badgeText(tester), 'noch 1 Runde');
       await _tap(tester, _cont);
       expect(find.text(_picked('Ben', s1)), findsOneWidget);
@@ -526,7 +526,7 @@ void main() {
       await _tap(tester, _statKey(s1));
       expect(find.byKey(_reveal), findsOneWidget);
       expect(tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data, 'Anna wählt noch einmal');
-      expect(status(tester), 'Du bist am Zug (X)');
+      expect(status(tester), 'Du bist am Zug');
       expect(find.byKey(badge), findsNothing);
     });
   });

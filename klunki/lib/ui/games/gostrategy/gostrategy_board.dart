@@ -881,7 +881,7 @@ class _ArmyPanel extends StatelessWidget {
           ),
         side(opp, l10n.goArmyEnemy(labels.label(context, l10n, opp))),
         const SizedBox(height: 8),
-        side(me, l10n.goArmyOwn(labels.label(context, l10n, me))),
+        side(me, l10n.goArmyOwn),
       ],
     );
   }

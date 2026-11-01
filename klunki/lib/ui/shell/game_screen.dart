@@ -27,10 +27,14 @@ typedef BoardBuilder = Widget Function(BuildContext context, GameController cont
 /// language of [l10n].
 typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move);
 
-/// Player marks (the symbol on a player's token, and widget keys): player A
-/// is "X", player B is "O". Texts name the players instead (KLD-103, see
-/// [PlayerLabels.label]).
+/// Internal player marks for widget keys: player A is "X", player B is "O".
+/// Never shown: texts name the players (KLD-103, see [PlayerLabels.label]),
+/// tokens show [playerNumber] (KLD-107).
 String playerMark(Player p) => PlayerLabels.markOf(p);
+
+/// The player number on a player's token: "1" for A, "2" for B (KLD-107,
+/// matching "Spieler 1 / 2").
+String playerNumber(Player p) => PlayerLabels.numberOf(p);
 
 /// [p] as named inside a sentence (KLD-103): the name ("Anna"), see
 /// [PlayerLabels.label], from the nearest [PlayerLabelsScope].
@@ -519,7 +523,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     }
     final p = game.currentPlayer;
     if (labels.local == null) return l10n.shellToMove(label(p));
-    return labels.isLocal(p) ? l10n.shellYourTurn(labels.mark(p)) : l10n.shellWaitingFor(label(p));
+    return labels.isLocal(p) ? l10n.shellYourTurn : l10n.shellWaitingFor(label(p));
   }
 
   @override
@@ -679,10 +683,12 @@ class _GameShellScope extends InheritedWidget {
   bool updateShouldNotify(_GameShellScope old) => old.hint != hint;
 }
 
-/// A player's piece as a small round token in the player's colour
-/// ([playerColor]: 4 Gewinnt red/yellow, Mühle light/dark, accent / slate
-/// elsewhere, see `game_visuals.dart`) plus the mark, so the identity is
-/// never colour-only (UX-REVIEW 2.1, 2.10).
+/// A player's token: a small round disc in the player's colour
+/// ([playerColor]: accent / slate, GoStrategy red / blue, see
+/// `game_visuals.dart`) with the player number "1" / "2" (KLD-107), so the
+/// identity is never colour-only (UX-REVIEW 2.1, 2.10). Games with their own
+/// piece show it instead ([GameVisuals.tokenIcon]: 4 Gewinnt discs, Mühle
+/// stones, the chess king).
 class PlayerToken extends StatelessWidget {
   final String gameId;
   final Player player;
@@ -710,7 +716,7 @@ class PlayerToken extends StatelessWidget {
           boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
         ),
         child: Text(
-          playerMark(player),
+          playerNumber(player),
           textDirection: TextDirection.ltr,
           style: TextStyle(color: inkOn(fill), fontSize: size * 0.5, fontWeight: FontWeight.w700, height: 1),
         ),
@@ -950,7 +956,11 @@ class _PlayersLegend extends StatelessWidget {
     final duration = reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250);
     Widget entry(Player p) {
       final on = current == p;
-      final name = labels.name(AppLocalizations.of(context), p);
+      final l10n = AppLocalizations.of(context);
+      // Same names: "Anna (1)" / "Anna (2)" as in the status line (KLD-107);
+      // in games with pieces the token shows no number.
+      final n = bidiName(context, labels.name(l10n, p));
+      final name = labels.sameNames(l10n) ? l10n.playerLabel(n, PlayerLabels.numberOf(p)) : n;
       final color = playerColor(palette, gameId, p);
       return AnimatedOpacity(
         key: Key('shell-player-${playerMark(p)}'),
@@ -975,7 +985,7 @@ class _PlayersLegend extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 72),
                 child: Text(
-                  bidiName(context, name),
+                  name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),

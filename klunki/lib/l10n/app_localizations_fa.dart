@@ -106,9 +106,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String shellYourTurn(String mark) {
-    return 'نوبت توست ($mark)';
-  }
+  String get shellYourTurn => 'نوبت توست';
 
   @override
   String shellWaitingFor(String player) {
@@ -381,9 +379,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String quartettTrumpfYouPickNext(String player) {
-    return 'انتخاب بعدی با توست ($player)';
-  }
+  String get quartettTrumpfYouPickNext => 'انتخاب بعدی با توست';
 
   @override
   String quartettTrumpfTricksBehind(int count) {
@@ -839,13 +835,13 @@ class AppLocalizationsFa extends AppLocalizations {
       'نکته‌ها: آیا هر دو دستگاه روی یک Wi-Fi هستند؟ شبکه‌های مهمان اغلب اتصال بین دستگاه‌ها را مسدود می‌کنند. iOS: آیا «شبکهٔ محلی» برای Klunki مجاز است (تنظیمات › حریم خصوصی)؟';
 
   @override
-  String pairingStatus(String name, String mark, String peer, String peerMark) {
-    return 'تو ($name، $mark) · حریف: $peer ($peerMark)';
+  String pairingStatus(String name, String peer) {
+    return 'تو: $name · حریف: $peer';
   }
 
   @override
   String netBarYou(String name) {
-    return 'تو ($name)';
+    return 'تو: $name';
   }
 
   @override
@@ -1085,9 +1081,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String goArmyOwn(String mark) {
-    return 'ارتش تو ($mark)';
-  }
+  String get goArmyOwn => 'ارتش تو';
 
   @override
   String goArmyEnemy(String player) {

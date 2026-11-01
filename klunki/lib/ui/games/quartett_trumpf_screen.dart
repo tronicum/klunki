@@ -573,7 +573,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
       text: !_networked
           ? (next == reveal.picker ? l10n.quartettTrumpfPicksAgain(name) : l10n.quartettTrumpfNextPicker(name))
           : labels.isLocal(next)
-              ? l10n.quartettTrumpfYouPickNext(playerMark(next))
+              ? l10n.quartettTrumpfYouPickNext
               : l10n.quartettTrumpfNextPicker(name),
       player: next,
       badge: _queue.isEmpty ? null : l10n.quartettTrumpfTricksBehind(_queue.length),
@@ -670,7 +670,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
           QuartettCard.back(
             key: const Key('qt-opponent-stack'),
             deck: game.deck.id,
-            label: playerMark(opp),
+            label: playerNumber(opp),
             count: game.stackSize(opp),
             dense: true,
           ),

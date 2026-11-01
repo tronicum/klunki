@@ -94,8 +94,8 @@ void main() {
     final pair = await _connect(tester, 'connect4', Connect4Screen);
 
     // Who is who, and no hot-seat controls over the network.
-    expect(_on(_hostKey, netStatus('Du (Anna, X) · Gegner: Ben (O)')), findsOneWidget);
-    expect(_on(_guestKey, netStatus('Du (Ben, O) · Gegner: Anna (X)')), findsOneWidget);
+    expect(_on(_hostKey, netStatus('Du: Anna · Gegner: Ben')), findsOneWidget);
+    expect(_on(_guestKey, netStatus('Du: Ben · Gegner: Anna')), findsOneWidget);
     // KLD-067: each side as token (colour + mark) and name in the bar.
     PlayerToken token(Key device, String key) =>
         tester.widget<PlayerToken>(_on(device, find.byKey(Key(key))));
@@ -103,12 +103,12 @@ void main() {
     expect(token(_hostKey, 'net-peer-token').player, Player.b);
     expect(token(_guestKey, 'net-you-token').player, Player.b);
     expect(token(_guestKey, 'net-you-token').gameId, 'connect4');
-    expect(_on(_hostKey, find.text('Du (Anna)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Du: Anna')), findsOneWidget);
     expect(_on(_hostKey, find.text('Gegner: Ben')), findsOneWidget);
     expect(_on(_hostKey, find.byKey(const Key('shell-waiting'))), findsNothing);
     expect(_on(_guestKey, find.byKey(const Key('shell-waiting'))), findsOneWidget);
     // The status line names the players (KLD-056).
-    expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Du bist am Zug')), findsOneWidget);
     expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
     for (final d in [_hostKey, _guestKey]) {
       expect(_on(d, find.byKey(const Key('shell-undo'))), findsNothing);
@@ -131,7 +131,7 @@ void main() {
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
     expect(_controller(tester, _hostKey).moves.length, 2);
     expect(_controller(tester, _guestKey).moves.length, 2);
-    expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Du bist am Zug')), findsOneWidget);
     expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
 
     // The history names who moved, on both sides.

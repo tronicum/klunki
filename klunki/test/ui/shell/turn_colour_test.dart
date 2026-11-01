@@ -100,12 +100,39 @@ void main() {
     });
   });
 
+  group('tokens (KLD-107): number "1" / "2" or the game piece, never X / O', () {
+    List<String> tokenTexts(WidgetTester tester) => [
+          for (final t in tester.widgetList<Text>(find.descendant(
+              of: find.byKey(const Key('shell-players')),
+              matching: find.descendant(of: find.byType(PlayerToken), matching: find.byType(Text)))))
+            t.data!,
+        ];
+
+    for (final id in ['schiffe', 'quartett-trumpf', 'quartett-sets', 'gostrategy', 'wordtiles']) {
+      testWidgets('$id: discs with "1" and "2"', (tester) async {
+        await _pump(tester, id);
+        expect(tokenTexts(tester), ['1', '2']);
+        final pill = find.descendant(of: find.byKey(const Key('shell-turn')), matching: find.byType(PlayerToken));
+        expect(tester.widget<Text>(find.descendant(of: pill, matching: find.byType(Text))).data, '1');
+      });
+    }
+
+    for (final id in ['connect4', 'muehle', 'chess']) {
+      testWidgets('$id: the game piece, no letter', (tester) async {
+        await _pump(tester, id);
+        expect(find.descendant(of: find.byKey(const Key('shell-players')), matching: find.byType(PlayerToken)),
+            findsNWidgets(2));
+        expect(tokenTexts(tester), isEmpty);
+      });
+    }
+  });
+
   group('network', () {
     const mine = PlayerLabels(local: Player.a, names: {Player.a: 'Anna', Player.b: 'Ben'});
 
     testWidgets('"my turn" is filled and bold, "waiting" is muted with an hourglass', (tester) async {
       await _pump(tester, 'connect4', labels: mine);
-      expect(find.text('Du bist am Zug (X)'), findsOneWidget);
+      expect(find.text('Du bist am Zug'), findsOneWidget);
       expect(_pill(tester).color, red);
       expect(_pill(tester).boxShadow, isNotEmpty, reason: 'glow');
       expect(_edge(tester), red);

@@ -42,7 +42,7 @@ void main() {
       final game = c.game as WordTilesGame;
       expect(game.isOver, isTrue);
       expect(tester.widget<Text>(find.byKey(const Key('result-reason'))).data,
-          localizedResultReason(deL10n, game.result, playerLabel: playerMark));
+          localizedResultReason(deL10n, game.result, playerLabel: (p) => PlayerLabels.defaults.name(deL10n, p)));
       expect(game.result.code, anyOf(GameEndReason.wordtilesPlayedOut, GameEndReason.wordtilesScoreless));
     });
   }

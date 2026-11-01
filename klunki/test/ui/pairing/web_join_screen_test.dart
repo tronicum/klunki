@@ -303,9 +303,9 @@ void main() {
     await tester.pump();
     expect(created.webJoinCalls.single, Uri(scheme: 'ws', host: '192.168.0.10', port: host.wsPort));
     expect(on(webKey, find.byType(NetworkGameSession)), findsOneWidget);
-    expect(on(webKey, netStatus('Du (\u2068علی\u2069, O) · Gegner: Host-iPhone (X)')), findsOneWidget);
-    expect(on(hostKey, netStatus('Du (Host-iPhone, X) · Gegner: \u2068علی\u2069 (O)')), findsOneWidget);
-    expect(on(hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
+    expect(on(webKey, netStatus('Du: \u2068علی\u2069 · Gegner: Host-iPhone')), findsOneWidget);
+    expect(on(hostKey, netStatus('Du: Host-iPhone · Gegner: \u2068علی\u2069')), findsOneWidget);
+    expect(on(hostKey, find.text('Du bist am Zug')), findsOneWidget);
     expect(on(webKey, find.text('Warte auf Host-iPhone…')), findsOneWidget);
 
     Connect4Cell cell(Key d, int r, int c) => tester.widget<Connect4Cell>(on(d, find.byKey(Key('c4-cell-$r-$c'))));

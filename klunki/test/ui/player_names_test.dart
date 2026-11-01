@@ -215,7 +215,7 @@ void main() {
 
     testWidgets('status line: "Du bist am Zug" / "Warte auf Ben…"', (tester) async {
       await _pumpLabelled(tester, 'connect4', labels);
-      expect(_status(tester), 'Du bist am Zug (X)');
+      expect(_status(tester), 'Du bist am Zug');
       await playMove(tester);
       expect(_status(tester), 'Warte auf Ben…');
     });
@@ -267,11 +267,15 @@ void main() {
       expect(_status(tester), 'Ben ist am Zug', reason: 'B without a name: the default name');
     });
 
-    testWidgets('two players with the same name are told apart by the mark', (tester) async {
+    testWidgets('two players with the same name are told apart by the player number', (tester) async {
       await _pumpLabelled(tester, 'connect4', const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'anna'}));
-      expect(_status(tester), 'Anna (X) ist am Zug');
+      expect(_status(tester), 'Anna (1) ist am Zug');
+      // The legend tells them apart the same way (4 Gewinnt tokens are discs
+      // without a number, KLD-107).
+      expect(find.text('Anna (1)'), findsOneWidget);
+      expect(find.text('anna (2)'), findsOneWidget);
       await playMove(tester);
-      expect(_status(tester), 'anna (O) ist am Zug');
+      expect(_status(tester), 'anna (2) ist am Zug');
     });
   });
 
