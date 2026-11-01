@@ -109,6 +109,7 @@ async function playHotSeat(o) {
     await b.shot('start');
     let expected = 'X';
     let lastTap = null; // {player, stat, card}
+    let coverDue = false, covers = 0;
     for (let step = 0; step < maxSteps; step++) {
       const s = await snapshot(b);
       if (s.kind === 'reveal') {
@@ -120,7 +121,10 @@ async function playHotSeat(o) {
           }
           expected = adapter.nextPicker(r);
         }
+        for (const p of adapter.revealProblems(s, null)) seen.problem(p);
         if (s.result) break;
+        // KLD-091: a cover follows only when the other player picks next.
+        coverDue = expected !== s.rec.picker;
         await b.tapAt(s.cont.x, s.cont.y);
         seen.clear();
         await sleep(250);
@@ -128,11 +132,16 @@ async function playHotSeat(o) {
         break;
       } else if (s.kind === 'cover') {
         if (s.name !== expected) seen.problem(`handover cover names ${s.name}, ${expected} picks next`);
-        log(`hot-seat  cover "Ich bin ${s.name} – weiter"`);
+        if (s.reason !== expected) seen.problem(`cover reason names ${s.reason}, ${expected} won the trick`);
+        if (!coverDue) seen.problem(`a cover although ${expected} picks again`);
+        coverDue = false;
+        covers++;
+        log(`hot-seat  cover "Ich bin ${s.name} – weiter" (${s.reason} hat den Stich gewonnen)`);
         await b.tapAt(s.node.x, s.node.y);
         await sleep(300);
       } else if (s.kind === 'table') {
         if (s.viewer !== expected) seen.problem(`table shows ${s.viewer}'s card, ${expected} picks`);
+        if (coverDue) seen.problem(`no cover before ${expected}'s card (the device changed hands)`);
         if (!s.status.startsWith(`${expected} ist am Zug`)) seen.problem(`status "${s.status}", ${expected} picks`);
         const c = adapter.choose(s, rng);
         if (!c) { await sleep(150); continue; }
@@ -149,7 +158,7 @@ async function playHotSeat(o) {
     const end = await snapshot(b);
     if (!end.result) seen.problem('no result dialog at the end');
     checkRule(seen);
-    log(`hot-seat  game over after ${seen.recs.length} tricks, ${seen.problems.length} problem(s)`);
+    log(`hot-seat  game over after ${seen.recs.length} tricks, ${covers} cover(s), ${seen.problems.length} problem(s)`);
   } finally {
     await b.close();
   }
@@ -185,6 +194,8 @@ async function playNetwork(o) {
         if (s.kind === 'reveal') {
           if (d.seen.add(s)) d.pending = false;
           if (s.result) continue;
+          for (const p of adapter.revealProblems(s, d.me)) d.seen.problem(p);
+          if (s.badge) d.badges = (d.badges || 0) + 1;
           // The next picker must tap Weiter; the waiting player sometimes
           // lets the grace run out instead.
           const mine = adapter.nextPicker(s.rec) === d.me;
@@ -233,6 +244,7 @@ async function playNetwork(o) {
         break;
       }
     }
+    log(`network   status line followed a queued reveal ${(devices[0].badges || 0) + (devices[1].badges || 0)} time(s)`);
     log(`network   game over after ${seenA.recs.length} tricks; problems: host ${seenA.problems.length}, guest ${seenG.problems.length}`);
   } finally {
     await a.close();

@@ -3,13 +3,35 @@
 - **ID:** `KLD-029`
 - **Title:** In hot-seat Quartett Trumpf, cover the screen after every trick reveal, not only when the turn passes
 - **Milestone:** P2 polish (backlog)
-- **Status:** TODO
+- **Status:** CLOSED (won't do; decided the opposite in KLD-091)
 - **Depends on:** KLD-024 (Quartett Trumpf screen) merged
 - **Touched paths:**
   - `klunki/lib/game/game_controller.dart` (handover rule)
   - `klunki/lib/ui/games/quartett_trumpf_screen.dart` (only if the reveal → cover sequencing needs it)
   - `klunki/test/game/**`, `klunki/test/ui/games/quartett_trumpf*`
   - `docs/tasks/KLD-029-quartett-reveal-handover.md`
+
+## Decision (2026-10-31, KLD-091)
+
+Closed without building it. KLD-091 decides the opposite: **no cover when the
+same player picks again** (the picker won the trick, or a tie). Why:
+
+- In hot-seat both players watch the reveal anyway; the next card that shows
+  after "Weiter" is the picker's own, and the picker is the one holding the
+  device. An extra "Gib das Gerät an X weiter" / "Ich bin X – weiter" when
+  nothing has to be passed felt like a turn change that did not happen; the
+  user's report (KLD-089: "it feels like it skips players") came from exactly
+  this kind of mismatch between what the screen says and who acts.
+- Instead every trick result now says who picks next ("X wählt noch einmal",
+  "O wählt als Nächstes", "Weiter – X wählt"), and the cover only appears
+  when the device really changes hands, naming the player and why
+  ("Gib das Gerät an O weiter" / "O hat den Stich gewonnen").
+- The secrecy concern below (the opponent glimpses the picker's next top
+  card) is accepted for now: it is the opponent's own choice to keep looking
+  after "Weiter – X wählt". If it turns out to matter, a short "X wählt …"
+  privacy pause can be a new card; it should not reuse the handover cover.
+
+The original plan follows for reference.
 
 ## Goal
 In Trumpf both top cards are revealed after a pick, and both players look at the screen. Today

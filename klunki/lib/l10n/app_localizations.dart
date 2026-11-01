@@ -618,6 +618,42 @@ abstract class AppLocalizations {
   /// **'{player} hat gewählt: {stat}'**
   String quartettTrumpfQueuedPick(String player, String stat);
 
+  /// Quartett (Trumpf) reveal and network status line: who picks after the trick shown, when that is not the picker (the winner). player = mark (reveal) or "Ben (O)" (status line).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} wählt als Nächstes'**
+  String quartettTrumpfNextPicker(String player);
+
+  /// Quartett (Trumpf) reveal: the picker won the trick (or tied) and picks again. player = mark.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} wählt noch einmal'**
+  String quartettTrumpfPicksAgain(String player);
+
+  /// Quartett (Trumpf): the "Weiter" button under a trick result, naming who picks next. player = mark.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter – {player} wählt'**
+  String quartettTrumpfContinuePicker(String player);
+
+  /// Quartett (Trumpf), network status line while an older trick is still shown: this device's player picks after it. player = mark.
+  ///
+  /// In de, this message translates to:
+  /// **'Du wählst als Nächstes ({player})'**
+  String quartettTrumpfYouPickNext(String player);
+
+  /// Quartett (Trumpf), network: badge next to the status line while more tricks are queued behind the one shown (count >= 1).
+  ///
+  /// In de, this message translates to:
+  /// **'noch {count, plural, =1{1 Stich} other{{count} Stiche}}'**
+  String quartettTrumpfTricksBehind(int count);
+
+  /// Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = "Ben (O)" or the mark.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat den Stich gewonnen'**
+  String quartettTrumpfHandoverReason(String player);
+
   /// Ask result: the opponent had the card.
   ///
   /// In de, this message translates to:

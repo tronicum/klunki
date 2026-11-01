@@ -355,6 +355,42 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String quartettTrumpfNextPicker(String player) {
+    return '$player picks next';
+  }
+
+  @override
+  String quartettTrumpfPicksAgain(String player) {
+    return '$player picks again';
+  }
+
+  @override
+  String quartettTrumpfContinuePicker(String player) {
+    return 'Continue – $player picks';
+  }
+
+  @override
+  String quartettTrumpfYouPickNext(String player) {
+    return 'You pick next ($player)';
+  }
+
+  @override
+  String quartettTrumpfTricksBehind(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more tricks',
+      one: '1 more trick',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String quartettTrumpfHandoverReason(String player) {
+    return '$player won the trick';
+  }
+
+  @override
   String get quartettSetsHit => 'Hit';
 
   @override

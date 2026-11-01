@@ -25,8 +25,16 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 ///    highlighted, winner text). The move is *not* submitted yet: the reveal
 ///    is computed on a replayed copy of the engine, so the shell's handover
 ///    cover (which appears as soon as a move passes the turn) cannot hide it.
-/// 3. "Weiter" submits the pick. If the turn passed, the shell's
-///    [HandoverCover] appears; otherwise the same player picks again.
+/// 3. "Weiter – X wählt" submits the pick. If the turn passed (the other
+///    player won the trick), the shell's [HandoverCover] appears and says
+///    why ("O hat den Stich gewonnen", `qt-handover-reason`); otherwise (the
+///    picker won, or a tie) there is no cover: nothing has to be passed and
+///    the reveal already said "X wählt noch einmal" (KLD-091, reverses the
+///    old KLD-029 plan).
+///
+/// Every trick result names who picks next (`qt-next-picker`, KLD-091):
+/// "O wählt als Nächstes" when the other player won, "X wählt noch einmal"
+/// when the picker won, and after a tie the pot plus "X wählt noch einmal".
 ///
 /// Network (KLD-086): "Weiter" is local only, never a message, and the game
 /// never waits for it. A pick is submitted at once (no preview) and every
@@ -46,12 +54,20 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// grace pauses; tricks arriving meanwhile are queued and shown after it
 /// closes. The board keeps the last [quartettTrickHistoryLength] tricks.
 ///
+/// Network status line (KLD-091): while the reveal on screen is not the
+/// newest trick (more are queued behind it), the shell's status line follows
+/// the reveal ("Ben (O) wählt als Nächstes" / "Du wählst als Nächstes (O)")
+/// with a badge "noch 2 Stiche" (`shell-status-badge`) instead of the live
+/// "Du bist am Zug"; it goes back to the live status once the queue is
+/// empty, see [GameShell.setStatusOverride].
+///
 /// Game end (KLD-089): the shell's result dialog waits until the device has
 /// shown every trick (the final reveal is left with "Weiter" or, for the
 /// waiting player, when its grace runs out), see [GameShell.holdResult].
 ///
 /// Keys: `qt-stat-<statId>` (stat rows of the active card), `qt-reveal`,
-/// `qt-continue`, `qt-grace`, `qt-grace-seconds`, `qt-queued-notice`,
+/// `qt-reveal-picked`, `qt-reveal-text`, `qt-next-picker`, `qt-continue`,
+/// `qt-handover-reason`, `qt-grace`, `qt-grace-seconds`, `qt-queued-notice`,
 /// `qt-last-trick`, `qt-last-trick-overlay`, `qt-last-trick-close`.
 class QuartettTrumpfScreen extends StatelessWidget {
   final GameController controller;
@@ -64,12 +80,34 @@ class QuartettTrumpfScreen extends StatelessWidget {
     return l10n.quartettTrumpfMovePick(localizedStatLabel(l10n, '${m.move['stat']}'));
   }
 
+  /// Hot-seat cover (KLD-091): why the device goes to the player on turn,
+  /// "O hat den Stich gewonnen" (the cover only appears when the turn
+  /// passed, i.e. the other player won the trick). Nothing for any other
+  /// cover (e.g. after an undo).
+  Widget _handoverReason(BuildContext context) {
+    final moves = controller.moves;
+    final game = controller.game;
+    if (moves.isEmpty || game is! QuartettGame) return const SizedBox.shrink();
+    final payload = moves.last.event.payload;
+    final winner = payload is Map ? payload['trickWinner'] : null;
+    final next = game.currentPlayer;
+    if (winner != next.name) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    return Text(
+      l10n.quartettTrumpfHandoverReason(PlayerLabelsScope.of(context).label(context, l10n, next)),
+      key: const Key('qt-handover-reason'),
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.titleMedium,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GameScreen(
       controller: controller,
       describeMove: describeMove,
       title: quartettScreenTitle(context, controller),
+      handoverDetail: _handoverReason,
       boardBuilder: (context, controller) => _QuartettTrumpfBoard(controller: controller),
     );
   }
@@ -413,6 +451,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     // Hot-seat previews the final trick before it is submitted, so its
     // result comes after the reveal anyway.
     shell.holdResult(_networked && game.isOver && (reveal != null || _queue.isNotEmpty));
+    shell.setStatusOverride(_statusOverride(context));
     shell.setHint(choosing
         ? l10n.quartettTrumpfHintPick
         : waiting
@@ -433,6 +472,33 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
         ],
       ),
     );
+  }
+
+  /// KLD-091 (network): while older tricks are still on screen (more are
+  /// queued behind the reveal), the shell's status line follows the reveal,
+  /// not the live game; null: the live status.
+  ShellStatus? _statusOverride(BuildContext context) {
+    final reveal = _reveal;
+    if (!_networked || reveal == null || _queue.isEmpty) return null;
+    final l10n = AppLocalizations.of(context);
+    final labels = PlayerLabelsScope.of(context);
+    final next = reveal.nextPicker;
+    return ShellStatus(
+      text: labels.isLocal(next)
+          ? l10n.quartettTrumpfYouPickNext(playerMark(next))
+          : l10n.quartettTrumpfNextPicker(labels.label(context, l10n, next)),
+      player: next,
+      badge: l10n.quartettTrumpfTricksBehind(_queue.length),
+    );
+  }
+
+  /// Every change of the reveal or the queue goes through here, so the
+  /// status line follows in the same frame (from `build` alone it would lag
+  /// one frame behind the reveal).
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    GameScreen.of(context).setStatusOverride(_statusOverride(context));
   }
 
   /// Stack counts of both players plus the pot, and the "Letzter Stich"
@@ -549,27 +615,37 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: color),
           ),
-          child: Row(
-            children: [
-              Expanded(child: _TrickSummary(trick: t)),
-              const SizedBox(width: 12),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  FilledButton(
-                    key: const Key('qt-continue'),
-                    onPressed: _continue,
-                    child: Text(l10n.quartettContinue),
+          child: LayoutBuilder(builder: (context, box) {
+            return Row(
+              children: [
+                Expanded(child: _TrickSummary(trick: t)),
+                const SizedBox(width: 12),
+                // At most half the row: a long "Weiter – X wählt" (fr, fa)
+                // wraps instead of overflowing.
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: box.maxWidth / 2),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      FilledButton(
+                        key: const Key('qt-continue'),
+                        onPressed: _continue,
+                        child: Text(
+                          l10n.quartettTrumpfContinuePicker(playerMark(t.nextPicker)),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      if (_graceActive) ...[
+                        const SizedBox(height: 6),
+                        _countdown(context),
+                      ],
+                    ],
                   ),
-                  if (_graceActive) ...[
-                    const SizedBox(height: 6),
-                    _countdown(context),
-                  ],
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            );
+          }),
         ),
         if (queued != null)
           Padding(
@@ -627,7 +703,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
 Color _trickColor(BuildContext context, _Trick t) => quartettOutcomeColor(
     t.winner == null ? QuartettOutcome.tie : QuartettOutcome.win, KlunkiPalette.of(context).quartett);
 
-/// "X wählt PS", who won (or the tie and the pot).
+/// "X wählt PS", who won (or the tie and the pot) and who picks next.
 class _TrickSummary extends StatelessWidget {
   final _Trick trick;
   const _TrickSummary({required this.trick});
@@ -639,19 +715,29 @@ class _TrickSummary extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final w = t.winner;
     final headline = w == null ? l10n.quartettTrumpfTie : l10n.quartettTrumpfWinsTrick(playerMark(w));
+    final picker = playerMark(t.picker);
+    // Who picks next (KLD-091): the winner, or the same player after a tie.
+    final cue = w == null
+        ? (t.pot > 0 ? l10n.quartettTrumpfPotAgain(t.pot, picker) : l10n.quartettTrumpfPicksAgain(picker))
+        : w == t.picker
+            ? l10n.quartettTrumpfPicksAgain(picker)
+            : l10n.quartettTrumpfNextPicker(playerMark(w));
     final color = _trickColor(context, t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.quartettTrumpfPicked(playerMark(t.picker), localizedStatLabel(l10n, t.stat.id)),
-            style: theme.textTheme.bodyMedium),
+        Text(l10n.quartettTrumpfPicked(picker, localizedStatLabel(l10n, t.stat.id)),
+            key: const Key('qt-reveal-picked'), style: theme.textTheme.bodyMedium),
         Text(
           headline,
           key: const Key('qt-reveal-text'),
           style: theme.textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
         ),
-        if (w == null && t.pot > 0)
-          Text(l10n.quartettTrumpfPotAgain(t.pot, playerMark(t.picker)), style: theme.textTheme.bodySmall),
+        Text(
+          cue,
+          key: const Key('qt-next-picker'),
+          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }

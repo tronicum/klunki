@@ -31,7 +31,10 @@ import 'package:klunki/ui/games/quartett_media_data.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart';
+import 'package:klunki/ui/shell/game_screen.dart' show PlayerLabels, PlayerLabelsScope;
 import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki/transport/game_transport.dart';
+import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/relay_server.dart';
 
@@ -492,4 +495,121 @@ void main() {
     await tester.pump();
     await _shot(tester, 'muehle-ar-phone-dark');
   });
+
+  // KLD-091: Quartett (Trumpf) says who picks next. Hot-seat: the result
+  // with the cue, a tie, the handover cover with its reason; network: the
+  // status line following an older trick, with "noch 2 Stiche".
+  group('kld091', () {
+    /// First (seed, stat) of the cars deck whose opening trick satisfies [ok].
+    (int, String) opening(bool Function(QuartettStat s, num va, num vb) ok) {
+      for (var seed = 1; seed < 5000; seed++) {
+        final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+        final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
+        for (final s in QuartettDeck.cars.stats) {
+          if (ok(s, a.stats[s.id]!, b.stats[s.id]!)) return (seed, s.id);
+        }
+      }
+      throw StateError('no seed');
+    }
+
+    Future<GameController> hotSeat(WidgetTester tester, int seed, String stat, Locale locale) async {
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
+      await tester.pump();
+      await _precachePhotos(tester);
+      await tester.ensureVisible(find.byKey(Key('qt-stat-$stat')));
+      await tester.tap(find.byKey(Key('qt-stat-$stat')));
+      await tester.pump();
+      await tester.scrollUntilVisible(find.byKey(const Key('qt-continue')), -200, scrollable: find.byType(Scrollable).last);
+      return c;
+    }
+
+    for (final locale in const [Locale('de'), Locale('ar')]) {
+      final l = locale.languageCode == 'de' ? '' : '-${locale.languageCode}';
+      testWidgets('kld091 result and cover$l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        final (seed, stat) = opening((s, va, vb) => s.beats(vb, va));
+        await hotSeat(tester, seed, stat, locale);
+        await _shot(tester, 'kld091-hotseat-result-next$l-phone-light', settle: const Duration(milliseconds: 300));
+        debugDisableShadows = false;
+        await tester.tap(find.byKey(const Key('qt-continue')));
+        await tester.pump();
+        await _shot(tester, 'kld091-hotseat-cover$l-phone-light', settle: const Duration(milliseconds: 300));
+      });
+      testWidgets('kld091 tie$l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        final (seed, stat) = opening((s, va, vb) => va == vb);
+        await hotSeat(tester, seed, stat, locale);
+        await _shot(tester, 'kld091-hotseat-tie$l-phone-light', settle: const Duration(milliseconds: 300));
+      });
+      testWidgets('kld091 network badge$l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        // X wins twice and picks a third time while O still looks at the
+        // first trick.
+        final ids = [for (final s in QuartettDeck.cars.stats) s.id];
+        late int seed;
+        late List<String> picks;
+        search:
+        for (seed = 1; seed < 5000; seed++) {
+          for (final s1 in ids) {
+            for (final s2 in ids) {
+              final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+              final w1 = (g.applyMove({'action': 'pick', 'stat': s1})!.payload as Map)['trickWinner'];
+              if (w1 != 'a') continue;
+              final w2 = (g.applyMove({'action': 'pick', 'stat': s2})!.payload as Map)['trickWinner'];
+              if (w2 != 'a') continue;
+              picks = [s1, s2, s1];
+              break search;
+            }
+          }
+        }
+        final t = _GuestTransport(GameConfig('quartett-trumpf', seed: seed));
+        final c = GameController(t);
+        addTearDown(c.dispose);
+        await tester.pumpWidget(_wrap(_themed(
+          PlayerLabelsScope(
+            labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}, local: Player.b),
+            child: buildGameScreen(c),
+          ),
+          locale: locale,
+        )));
+        await tester.pump();
+        t.remote(picks[0]);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1500));
+        t.remote(picks[1]);
+        t.remote(picks[2]);
+        await tester.pump();
+        await tester.pump();
+        await _shot(tester, 'kld091-network-badge$l-phone-light', settle: const Duration(milliseconds: 1));
+      });
+    }
+  });
+}
+
+/// One device of a network game for player O: X's picks come from [remote].
+class _GuestTransport implements GameTransport {
+  _GuestTransport(GameConfig config) : _inner = HotSeatTransport(config);
+  final HotSeatTransport _inner;
+
+  @override
+  bool get fullInformation => false;
+  @override
+  GameConfig get config => _inner.config;
+  @override
+  Set<Player> get localPlayers => const {Player.b};
+  @override
+  Game get game => _inner.game;
+  @override
+  List<AcceptedMove> get moves => _inner.moves;
+  @override
+  Stream<AcceptedMove> get accepted => _inner.accepted;
+  @override
+  Future<SubmitResult> submit(Map<String, dynamic> move) async => _inner.submitSync(move);
+
+  void remote(String stat) => _inner.submitSync({'action': 'pick', 'stat': stat});
+
+  @override
+  void dispose() => _inner.dispose();
 }

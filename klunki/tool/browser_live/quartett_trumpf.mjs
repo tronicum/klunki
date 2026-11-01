@@ -21,12 +21,25 @@ const CARD_ID = /^[A-H][1-4]$/;
 export function observe(nodes, viewportWidth) {
   const by = (re) => nodes.find((n) => re.test(n.label));
   const result = !!by(/^(Du gewinnst!|.+ gewinnt!|Unentschieden)$/m) && !!by(/^Menü$/);
-  const status = by(/ ist am Zug$|^Du bist am Zug|^Warte auf /)?.label ?? '';
+  const status = by(/ ist am Zug$|^Du bist am Zug|^Warte auf |\((X|O)\) wählt als Nächstes$|^Du wählst als Nächstes/)?.label ?? '';
+  // KLD-091: "noch 2 Stiche" next to the status line while tricks are queued.
+  const badge = by(/^noch \d+ Stich(e)?$/)?.label ?? null;
   const cover = by(/^Ich bin (.+) – weiter$/);
-  if (cover) return { kind: 'cover', name: cover.label.match(/^Ich bin (.+) – weiter$/)[1], node: cover, result, status };
-  const picked = nodes.find((n) => /^(X|O) wählt (.+)$/.test(n.label) && !/…$/.test(n.label));
-  const cont = nodes.find((n) => n.role === 'button' && /^Weiter$/.test(n.label));
+  if (cover) {
+    const reason = by(/^(.+) hat den Stich gewonnen$/)?.label.match(/^(.+) hat den Stich gewonnen$/)[1] ?? null;
+    return { kind: 'cover', name: cover.label.match(/^Ich bin (.+) – weiter$/)[1], reason, node: cover, result, status };
+  }
+  // "X wählt Leistung"; not the cue ("X wählt noch einmal" / "O wählt als
+  // Nächstes"), the hint ("X wählt …") or a named status line.
+  const picked = nodes.find((n) => /^(X|O) wählt (.+)$/.test(n.label) && !/…$/.test(n.label)
+    && !/ wählt (noch einmal|als Nächstes)$/.test(n.label));
+  // "Weiter – O wählt" (KLD-091: names the next picker).
+  const cont = nodes.find((n) => n.role === 'button' && /^Weiter – (X|O) wählt$/.test(n.label));
   if (picked && cont) {
+    const contNext = cont.label.match(/^Weiter – (X|O) wählt$/)[1];
+    const cueNode = by(/^(X|O) wählt (noch einmal|als Nächstes)$|^Im Topf: .+ – (X|O) wählt noch einmal$/);
+    const cueMatch = cueNode?.label.match(/(X|O) wählt (noch einmal|als Nächstes)$/);
+    const cue = cueMatch ? { next: cueMatch[1], again: cueMatch[2] === 'noch einmal', text: cueNode.label } : null;
     const [, picker, stat] = picked.label.match(/^(X|O) wählt (.+)$/);
     const head = by(/^(X|O) gewinnt den Stich$|^Gleichstand/);
     const winner = head ? (head.label.match(/^(X|O) gewinnt/)?.[1] ?? null) : undefined;
@@ -50,6 +63,9 @@ export function observe(nodes, viewportWidth) {
       grace: grace?.label ?? null,
       queued: queued?.label ?? null,
       cont,
+      contNext,
+      cue,
+      badge,
       result,
       status,
     };
@@ -62,9 +78,40 @@ export function observe(nodes, viewportWidth) {
       .map((n) => ({ node: n, stat: n.label.split('\n')[1], enabled: !n.disabled }));
     const counts = Object.fromEntries(nodes.filter((n) => /^(X|O): \d+ Karten?$/.test(n.label))
       .map((n) => { const m = n.label.match(/^(X|O): (\d+)/); return [m[1], Number(m[2])]; }));
-    return { kind: 'table', viewer, card, stats, counts, result, status };
+    return { kind: 'table', viewer, card, stats, counts, result, status, badge };
   }
-  return { kind: 'none', result, status };
+  return { kind: 'none', result, status, badge };
+}
+
+/**
+ * KLD-091 checks on a reveal [o] (list of problems): the cue and "Weiter"
+ * name the next picker; on a network device [me] the status line follows
+ * the reveal exactly while tricks are queued behind it (the "… hat gewählt"
+ * notice is up) and carries the "noch n Stiche" badge, else it is live.
+ */
+export function revealProblems(o, me) {
+  const p = [];
+  const next = nextPicker(o.rec);
+  if (!o.cue) p.push('no "… wählt als Nächstes / noch einmal" cue');
+  else {
+    if (o.cue.next !== next) p.push(`cue "${o.cue.text}", ${next} picks next`);
+    if (o.cue.again !== (next === o.rec.picker)) p.push(`cue "${o.cue.text}" after ${show(o.rec)}`);
+  }
+  if (o.contNext !== next) p.push(`button "Weiter – ${o.contNext} wählt", ${next} picks next`);
+  if (me) {
+    const follows = /\) wählt als Nächstes$|^Du wählst als Nächstes/.test(o.status);
+    if (o.queued) {
+      if (!o.badge) p.push(`tricks queued ("${o.queued}") but no "noch n Stiche" badge`);
+      const want = next === me ? `Du wählst als Nächstes (${me})` : null;
+      if (want ? o.status !== want : !o.status.endsWith(`(${next}) wählt als Nächstes`)) {
+        p.push(`status "${o.status}" while an older trick is shown, ${next} picks after it`);
+      }
+    } else {
+      if (o.badge) p.push(`badge "${o.badge}" but nothing queued`);
+      if (follows) p.push(`status "${o.status}" on the newest trick (should be live)`);
+    }
+  }
+  return p;
 }
 
 /** Stable identity of a reveal for "is this a new one?". */

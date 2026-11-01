@@ -190,6 +190,84 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  group('who picks next (KLD-091)', () {
+    String cue(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data!;
+    String button(WidgetTester tester) =>
+        tester.widget<Text>(find.descendant(of: find.byKey(cont), matching: find.byType(Text))).data!;
+
+    testWidgets('win: "X wählt noch einmal", no cover, X goes on', (tester) async {
+      final (seed, stat) = findOpening((s, va, vb) => s.beats(va, vb));
+      final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
+      await pick(tester, stat.id);
+      expect(find.text('X gewinnt den Stich'), findsOneWidget);
+      expect(cue(tester), 'X wählt noch einmal');
+      expect(button(tester), 'Weiter – X wählt');
+
+      await tapContinue(tester);
+      expect(c.needsHandover, isFalse);
+      expect(find.byKey(const Key('handover-cover')), findsNothing, reason: 'nothing has to be passed');
+      final top = (c.game as QuartettGame).topCard(Player.a)!;
+      expect(find.text(top.name), findsOneWidget, reason: 'X picks again at once');
+      expect(find.text('X ist am Zug'), findsOneWidget);
+    });
+
+    testWidgets('loss: "O wählt als Nächstes", then the cover names O and why', (tester) async {
+      final (seed, stat) = findOpening((s, va, vb) => s.beats(vb, va));
+      final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
+      await pick(tester, stat.id);
+      expect(find.text('O gewinnt den Stich'), findsOneWidget);
+      expect(cue(tester), 'O wählt als Nächstes');
+      expect(button(tester), 'Weiter – O wählt');
+
+      await tapContinue(tester);
+      expect(c.needsHandover, isTrue);
+      final cover = find.byKey(const Key('handover-cover'));
+      expect(find.descendant(of: cover, matching: find.text('Gib das Gerät an O weiter')), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, 'O hat den Stich gewonnen');
+      expect(find.descendant(of: cover, matching: find.text('Ich bin O – weiter')), findsOneWidget);
+    });
+
+    testWidgets('tie: "Im Topf: 2 Karten – X wählt noch einmal", no cover', (tester) async {
+      final (seed, stat) = findOpening((s, va, vb) => va == vb);
+      final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
+      await pick(tester, stat.id);
+      expect(cue(tester), 'Im Topf: 2 Karten – X wählt noch einmal');
+      expect(button(tester), 'Weiter – X wählt');
+      await tapContinue(tester);
+      expect(c.needsHandover, isFalse);
+      expect(find.byKey(const Key('handover-cover')), findsNothing);
+    });
+
+    testWidgets('a streak and a switch: a cover only when the device has to change hands', (tester) async {
+      final c = await pumpGame(tester, 'quartett-trumpf', seed: 5);
+      var covers = 0, repeats = 0;
+      for (var i = 0; i < 40; i++) {
+        final g = c.game as QuartettGame;
+        final picker = g.currentPlayer;
+        final s = QuartettDeck.cars.stats[i % QuartettDeck.cars.stats.length];
+        await pick(tester, s.id);
+        await tapContinue(tester);
+        final w = (c.lastEvent!.payload as Map)['trickWinner'];
+        final next = w == null ? picker : Player.values.byName(w as String);
+        final covered = find.byKey(const Key('handover-cover')).evaluate().isNotEmpty;
+        expect(covered, next != picker, reason: 'trick $i: cover only when ${next.name} != ${picker.name}');
+        if (covered) {
+          covers++;
+          final mark = next == Player.a ? 'X' : 'O';
+          expect(find.text('Gib das Gerät an $mark weiter'), findsOneWidget);
+          expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, '$mark hat den Stich gewonnen');
+          await tester.tap(find.byKey(handoverContinue));
+          await tester.pump();
+        } else {
+          repeats++;
+        }
+        if (c.game.isOver) break;
+      }
+      expect(covers, greaterThan(0));
+      expect(repeats, greaterThan(0));
+    });
+  });
+
   test('describeMove names only the stat', () async {
     final c = GameController.hotSeat(const GameConfig('quartett-trumpf', seed: 1));
     addTearDown(c.dispose);
