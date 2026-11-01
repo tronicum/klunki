@@ -20,7 +20,9 @@ Every trick each browser shows is logged (`tricks.log`). The run fails if:
   button ("Weiter – O wählt") names the wrong player, a hot-seat cover
   appears although the same player goes on (or is missing on a switch) or
   gives the wrong reason, or on a network device the status line and the
-  "noch n Stiche" badge do not follow a reveal with tricks queued behind it,
+  "noch n Runden" badge do not follow a reveal with tricks queued behind it,
+- (KLD-092) the hot-seat status line under a result does not read like the
+  cue ("O wählt als Nächstes" / "X wählt noch einmal"),
 - the two network browsers did not show the same tricks in the same order
   (a skipped, duplicated or reordered trick),
 - no result dialog at the end.
@@ -59,7 +61,7 @@ queued notice), `report.json`, screenshots at the start and the end.
 Flutter web draws on a canvas. The driver turns on Flutter's accessibility
 tree (the hidden "Enable accessibility" placeholder, what a screen reader
 does) and reads the semantics labels from the DOM (`flt-semantics`): "X wählt
-Leistung", "X gewinnt den Stich", the card ids ("B3") under "X – gewinnt" /
+Leistung", "X gewinnt die Runde", the card ids ("B3") under "X – gewinnt" /
 "O – verliert", "Deine Karte (X)", the stat buttons, "Ich bin O – weiter".
 Taps are real pointer events at a node's centre. The app has no test hooks
 for this; the labels are the German UI texts (the driver sets the locale).

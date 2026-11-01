@@ -76,7 +76,7 @@ void main() {
       expect(game.deck.id, 'trains');
       expect(find.text('Quartett (Trumpf) · Züge'), findsOneWidget);
       expect(find.text(game.topCard(Player.a)!.name), findsOneWidget);
-      expect(find.text(localizedStatLabel(deL10n, 'tractiveKn')), findsOneWidget);
+      expect(findLabel(localizedStatLabel(deL10n, 'tractiveKn')), findsOneWidget);
 
       // "Nochmal" keeps the deck.
       c.restart(seed: 99);
@@ -144,7 +144,7 @@ void main() {
           expect(find.text(localizedSetName(l10n, 'C', deck.id)), findsOneWidget);
           expect(find.byKey(Key('quartett-pictogram-${deck.id}')), findsOneWidget);
           for (final s in deck.stats) {
-            expect(find.text(localizedStatLabel(l10n, s.id)), findsOneWidget, reason: s.id);
+            expect(findLabel(localizedStatLabel(l10n, s.id)), findsOneWidget, reason: s.id);
             expect(
               find.text(formatQuartettValue(s, card.stats[s.id]!,
                   locale: l10n.localeName, unit: localizedStatUnit(l10n, s.id))),
@@ -236,7 +236,7 @@ void main() {
       expect(find.byKey(const Key('gallery-full-B3')), findsOneWidget);
       for (final s in deck.stats) {
         expect(find.byKey(Key('quartett-pictogram-trains')), findsWidgets);
-        expect(find.text(localizedStatLabel(deL10n, s.id)), findsOneWidget);
+        expect(findLabel(localizedStatLabel(deL10n, s.id)), findsOneWidget);
       }
       expect(find.text('höher gewinnt'), findsOneWidget);
       expect(find.text('niedriger gewinnt'), findsOneWidget);

@@ -96,9 +96,19 @@ QuartettStat? _anyStat(String statId) {
   return null;
 }
 
+/// Soft hyphen (U+00AD): marks where a long stat label may be hyphenated on
+/// a card (KLD-092, "Höchst\u00ADgeschwindig\u00ADkeit").
+const softHyphen = '\u00AD';
+
 /// Localized label of a Quartett stat id (any deck); the engine label (or the
-/// id) for unknown ids.
-String localizedStatLabel(AppLocalizations l10n, String statId) => switch (statId) {
+/// id) for unknown ids. Plain text: the soft hyphens of the ARB are removed
+/// (for running text, history, semantics and tests).
+String localizedStatLabel(AppLocalizations l10n, String statId) =>
+    localizedStatLabelHyphenated(l10n, statId).replaceAll(softHyphen, '');
+
+/// [localizedStatLabel] with the soft hyphens ([softHyphen]) of the ARB, the
+/// places where the card may break a long word (see `HyphenatedLabel`).
+String localizedStatLabelHyphenated(AppLocalizations l10n, String statId) => switch (statId) {
       'ps' => l10n.engineStatPs,
       'kmh' => l10n.engineStatKmh,
       'ccm' => l10n.engineStatCcm,

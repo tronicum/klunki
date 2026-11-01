@@ -498,32 +498,10 @@ void main() {
 
   // KLD-091: Quartett (Trumpf) says who picks next. Hot-seat: the result
   // with the cue, a tie, the handover cover with its reason; network: the
-  // status line following an older trick, with "noch 2 Stiche".
+  // status line following an older trick, with "noch 2 Runden".
   group('kld091', () {
-    /// First (seed, stat) of the cars deck whose opening trick satisfies [ok].
-    (int, String) opening(bool Function(QuartettStat s, num va, num vb) ok) {
-      for (var seed = 1; seed < 5000; seed++) {
-        final g = QuartettGame(QuartettMode.trumpf, seed: seed);
-        final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
-        for (final s in QuartettDeck.cars.stats) {
-          if (ok(s, a.stats[s.id]!, b.stats[s.id]!)) return (seed, s.id);
-        }
-      }
-      throw StateError('no seed');
-    }
-
-    Future<GameController> hotSeat(WidgetTester tester, int seed, String stat, Locale locale) async {
-      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
-      addTearDown(c.dispose);
-      await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
-      await tester.pump();
-      await _precachePhotos(tester);
-      await tester.ensureVisible(find.byKey(Key('qt-stat-$stat')));
-      await tester.tap(find.byKey(Key('qt-stat-$stat')));
-      await tester.pump();
-      await tester.scrollUntilVisible(find.byKey(const Key('qt-continue')), -200, scrollable: find.byType(Scrollable).last);
-      return c;
-    }
+    final opening = _qtOpening;
+    final hotSeat = _qtHotSeat;
 
     for (final locale in const [Locale('de'), Locale('ar')]) {
       final l = locale.languageCode == 'de' ? '' : '-${locale.languageCode}';
@@ -586,6 +564,84 @@ void main() {
       });
     }
   });
+
+  // KLD-092: Quartett (Trumpf) wording ("Runde", "Stechen", "Vorige Runde"),
+  // the hot-seat status line under a result and long stat labels with
+  // hyphens at phone width.
+  group('kld092', () {
+    testWidgets('kld092 hot-seat result with status', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final (seed, stat) = _qtOpening((s, va, vb) => s.beats(vb, va));
+      await _qtHotSeat(tester, seed, stat, const Locale('de'));
+      await _shot(tester, 'kld092-hotseat-result-status-phone-light', settle: const Duration(milliseconds: 300));
+    });
+    testWidgets('kld092 tie-break', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final (seed, stat) = _qtOpening((s, va, vb) => va == vb);
+      await _qtHotSeat(tester, seed, stat, const Locale('de'));
+      await _shot(tester, 'kld092-hotseat-stechen-phone-light', settle: const Duration(milliseconds: 300));
+    });
+    testWidgets('kld092 previous round overlay', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      // X wins (no cover), then "Vorige Runde".
+      final (seed, stat) = _qtOpening((s, va, vb) => s.beats(va, vb));
+      await _qtHotSeat(tester, seed, stat, const Locale('de'));
+      await tester.tap(find.byKey(const Key('qt-continue')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.scrollUntilVisible(find.byKey(const Key('qt-last-trick')), -200,
+          scrollable: find.byType(Scrollable).last);
+      await tester.tap(find.byKey(const Key('qt-last-trick')));
+      await tester.pump();
+      await _shot(tester, 'kld092-vorige-runde-overlay-phone-light', settle: const Duration(milliseconds: 500));
+    });
+    for (final deck in ['cars', 'planes']) {
+      testWidgets('kld092 card with Höchstgeschwindigkeit $deck', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: 7, deck: deck));
+        addTearDown(c.dispose);
+        await tester.pumpWidget(_wrap(_themed(buildGameScreen(c))));
+        await tester.pump();
+        await _precachePhotos(tester);
+        await tester.ensureVisible(find.byKey(const Key('qt-stat-kmh')));
+        await tester.pump();
+        await _shot(tester, 'kld092-card-kmh-$deck-phone-light', settle: const Duration(milliseconds: 300));
+        // The two narrow cards of the result.
+        await tester.tap(find.byKey(const Key('qt-stat-kmh')));
+        await tester.pump();
+        await tester.ensureVisible(find.byKey(const Key('qt-reveal-a')));
+        await tester.pump();
+        await _shot(tester, 'kld092-reveal-kmh-$deck-phone-light', settle: const Duration(milliseconds: 300));
+      });
+    }
+  });
+}
+
+/// First (seed, stat) of the cars deck whose opening trick satisfies [ok].
+(int, String) _qtOpening(bool Function(QuartettStat s, num va, num vb) ok) {
+  for (var seed = 1; seed < 5000; seed++) {
+    final g = QuartettGame(QuartettMode.trumpf, seed: seed);
+    final a = g.topCard(Player.a)!, b = g.topCard(Player.b)!;
+    for (final s in QuartettDeck.cars.stats) {
+      if (ok(s, a.stats[s.id]!, b.stats[s.id]!)) return (seed, s.id);
+    }
+  }
+  throw StateError('no seed');
+}
+
+/// A hot-seat Quartett (Trumpf) game of [seed] with [stat] picked: the
+/// result is on screen, "Weiter" scrolled into view.
+Future<GameController> _qtHotSeat(WidgetTester tester, int seed, String stat, Locale locale) async {
+  final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+  addTearDown(c.dispose);
+  await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
+  await tester.pump();
+  await _precachePhotos(tester);
+  await tester.ensureVisible(find.byKey(Key('qt-stat-$stat')));
+  await tester.tap(find.byKey(Key('qt-stat-$stat')));
+  await tester.pump();
+  await tester.scrollUntilVisible(find.byKey(const Key('qt-continue')), -200, scrollable: find.byType(Scrollable).last);
+  return c;
 }
 
 /// One device of a network game for player O: X's picks come from [remote].

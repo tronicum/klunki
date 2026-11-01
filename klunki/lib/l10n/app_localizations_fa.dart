@@ -299,11 +299,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => 'مساوی – کارت‌ها به پاتیل می‌روند';
+  String get quartettTrumpfTie => 'مساوی – دور تعیین‌کننده!';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player این دست را می‌برد';
+    return '$player این دور را می‌برد';
   }
 
   @override
@@ -327,13 +327,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count کارت',
-      one: 'یک کارت',
-    );
-    return 'در پاتیل: $_temp0 – $player دوباره انتخاب می‌کند';
+    return 'کارت‌ها به پاتیل می‌روند (اکنون $count)، $player دوباره انتخاب می‌کند';
   }
 
   @override
@@ -342,7 +336,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => 'دست قبلی';
+  String get quartettTrumpfLastTrick => 'دور قبلی';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {
@@ -379,15 +373,15 @@ class AppLocalizationsFa extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count دست دیگر',
-      one: 'یک دست دیگر',
+      other: '$count دور دیگر',
+      one: 'یک دور دیگر',
     );
     return '$_temp0';
   }
 
   @override
   String quartettTrumpfHandoverReason(String player) {
-    return '$player این دست را برد';
+    return '$player این دور را برد';
   }
 
   @override
@@ -912,12 +906,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'سقف دست‌ها، کارت برابر ($a:$b)';
+    return 'سقف دورها، کارت برابر ($a:$b)';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'سقف دست‌ها، کارت بیشتر ($a:$b)';
+    return 'سقف دورها، کارت بیشتر ($a:$b)';
   }
 
   @override

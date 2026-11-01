@@ -302,11 +302,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => 'Gleichstand – Karten in den Topf';
+  String get quartettTrumpfTie => 'Gleichstand – Stechen!';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player gewinnt den Stich';
+    return '$player gewinnt die Runde';
   }
 
   @override
@@ -330,13 +330,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count Karten',
-      one: '1 Karte',
-    );
-    return 'Im Topf: $_temp0 – $player wählt noch einmal';
+    return 'Karten in den Topf (jetzt $count), $player wählt noch einmal';
   }
 
   @override
@@ -345,7 +339,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => 'Letzter Stich';
+  String get quartettTrumpfLastTrick => 'Vorige Runde';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {
@@ -382,15 +376,15 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count Stiche',
-      one: '1 Stich',
+      other: '$count Runden',
+      one: '1 Runde',
     );
     return 'noch $_temp0';
   }
 
   @override
   String quartettTrumpfHandoverReason(String player) {
-    return '$player hat den Stich gewonnen';
+    return '$player hat die Runde gewonnen';
   }
 
   @override
@@ -919,12 +913,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'Stichlimit erreicht, gleich viele Karten ($a:$b)';
+    return 'Rundenlimit erreicht, gleich viele Karten ($a:$b)';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'Stichlimit erreicht, mehr Karten ($a:$b)';
+    return 'Rundenlimit erreicht, mehr Karten ($a:$b)';
   }
 
   @override
@@ -1176,10 +1170,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get engineStatPs => 'Leistung';
 
   @override
-  String get engineStatKmh => 'Höchstgeschwindigkeit';
+  String get engineStatKmh => 'Höchst­geschwindig­keit';
 
   @override
-  String get engineStatCcm => 'Hubraum';
+  String get engineStatCcm => 'Hub­raum';
 
   @override
   String get engineStatKg => 'Gewicht';
@@ -1503,31 +1497,31 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quartettStatMassT => 'Gewicht';
 
   @override
-  String get quartettStatTractiveKn => 'Anfahrzugkraft';
+  String get quartettStatTractiveKn => 'Anfahr­zug­kraft';
 
   @override
   String get quartettStatHeightM => 'Höhe';
 
   @override
-  String get quartettStatThrustKn => 'Startschub';
+  String get quartettStatThrustKn => 'Start­schub';
 
   @override
-  String get quartettStatLeoT => 'Nutzlast (LEO)';
+  String get quartettStatLeoT => 'Nutz­last (LEO)';
 
   @override
-  String get quartettStatLaunchMassT => 'Startmasse';
+  String get quartettStatLaunchMassT => 'Start­masse';
 
   @override
   String get quartettStatFlights => 'Starts';
 
   @override
-  String get quartettStatRangeKm => 'Reichweite';
+  String get quartettStatRangeKm => 'Reich­weite';
 
   @override
-  String get quartettStatWingspanM => 'Spannweite';
+  String get quartettStatWingspanM => 'Spann­weite';
 
   @override
-  String get quartettStatMtowT => 'Startgewicht';
+  String get quartettStatMtowT => 'Start­gewicht';
 
   @override
   String get quartettDeckPickerTitle => 'Kartendeck wählen';
@@ -1577,7 +1571,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quartettStatBuilt => 'Gebaut';
 
   @override
-  String get quartettStatSuccessPct => 'Erfolgsquote';
+  String get quartettStatSuccessPct => 'Erfolgs­quote';
 
   @override
   String get quartettUnitBuilt => 'Stk.';

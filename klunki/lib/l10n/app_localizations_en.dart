@@ -299,11 +299,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => 'Tie – cards go to the pot';
+  String get quartettTrumpfTie => 'Tie – tie-break!';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player wins the trick';
+    return '$player wins the round';
   }
 
   @override
@@ -327,13 +327,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count cards',
-      one: '1 card',
-    );
-    return 'In the pot: $_temp0 – $player picks again';
+    return 'Cards go to the pot (now $count), $player picks again';
   }
 
   @override
@@ -342,7 +336,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => 'Last trick';
+  String get quartettTrumpfLastTrick => 'Previous round';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {
@@ -379,15 +373,15 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more tricks',
-      one: '1 more trick',
+      other: '$count more rounds',
+      one: '1 more round',
     );
     return '$_temp0';
   }
 
   @override
   String quartettTrumpfHandoverReason(String player) {
-    return '$player won the trick';
+    return '$player won the round';
   }
 
   @override
@@ -915,12 +909,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String engineReasonQuartettTrickLimitEqual(int a, int b) {
-    return 'Trick limit reached, equal stacks ($a:$b)';
+    return 'Round limit reached, equal stacks ($a:$b)';
   }
 
   @override
   String engineReasonQuartettTrickLimitMoreCards(int a, int b) {
-    return 'Trick limit reached, more cards ($a:$b)';
+    return 'Round limit reached, more cards ($a:$b)';
   }
 
   @override
@@ -1174,7 +1168,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get engineStatKmh => 'Top speed';
 
   @override
-  String get engineStatCcm => 'Displacement';
+  String get engineStatCcm => 'Displace­ment';
 
   @override
   String get engineStatKg => 'Weight';
@@ -1498,13 +1492,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quartettStatMassT => 'Weight';
 
   @override
-  String get quartettStatTractiveKn => 'Tractive effort';
+  String get quartettStatTractiveKn => 'Tractive ef­fort';
 
   @override
   String get quartettStatHeightM => 'Height';
 
   @override
-  String get quartettStatThrustKn => 'Liftoff thrust';
+  String get quartettStatThrustKn => 'Lift­off thrust';
 
   @override
   String get quartettStatLeoT => 'Payload (LEO)';
@@ -1513,13 +1507,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quartettStatLaunchMassT => 'Launch mass';
 
   @override
-  String get quartettStatFlights => 'Launches';
+  String get quartettStatFlights => 'Laun­ches';
 
   @override
   String get quartettStatRangeKm => 'Range';
 
   @override
-  String get quartettStatWingspanM => 'Wingspan';
+  String get quartettStatWingspanM => 'Wing­span';
 
   @override
   String get quartettStatMtowT => 'Take-off weight';

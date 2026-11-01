@@ -40,7 +40,7 @@ class QuartettTrumpfText extends TextGame {
     final opp = me == Player.a ? Player.b : Player.a;
     final card = game.topCard(me);
     final b = StringBuffer('Cards: ${mark(me)} ${game.stackSize(me)}, ${mark(opp)} ${game.stackSize(opp)}'
-        '${game.potSize > 0 ? ', pot ${game.potSize}' : ''}   (trick ${game.tricks})');
+        '${game.potSize > 0 ? ', pot ${game.potSize}' : ''}   (round ${game.tricks})');
     if (card != null && !game.isOver) {
       b
         ..writeln()
@@ -81,8 +81,8 @@ class QuartettTrumpfText extends TextGame {
     var s = '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
     final winner = p['trickWinner'] as String?;
     s += winner == null
-        ? ' – tie! Both cards go to the pot (${p['pot']}), $me picks again.'
-        : ' → ${_player(winner)} takes the trick (X ${game.stackSize(Player.a)}, O ${game.stackSize(Player.b)} cards).';
+        ? ' – tie, tie-break! Both cards go to the pot (${p['pot']}), $me picks again.'
+        : ' → ${_player(winner)} wins the round (X ${game.stackSize(Player.a)}, O ${game.stackSize(Player.b)} cards).';
     if (event.winner != null) s += ' ${mark(event.winner)} wins: ${game.result.reason}.';
     if (event.draw) s += ' Draw: ${game.result.reason}.';
     return s;

@@ -546,16 +546,16 @@ abstract class AppLocalizations {
   /// **'Deine Karte ({player})'**
   String quartettTrumpfYourCard(String player);
 
-  /// Reveal headline for a tie.
+  /// Reveal headline for a tie: a tie-break (Stechen), the next card decides. Not a "Stich" (Quartett has rounds, KLD-092).
   ///
   /// In de, this message translates to:
-  /// **'Gleichstand – Karten in den Topf'**
+  /// **'Gleichstand – Stechen!'**
   String get quartettTrumpfTie;
 
-  /// Reveal headline for a won trick.
+  /// Reveal headline for a won round (Runde, not Stich, KLD-092).
   ///
   /// In de, this message translates to:
-  /// **'{player} gewinnt den Stich'**
+  /// **'{player} gewinnt die Runde'**
   String quartettTrumpfWinsTrick(String player);
 
   /// Reveal: outcome word above a card.
@@ -588,10 +588,10 @@ abstract class AppLocalizations {
   /// **'{player} wählt {stat}'**
   String quartettTrumpfPicked(String player, String stat);
 
-  /// Reveal after a tie: pot size and who picks next.
+  /// Reveal after a tie (second line under the tie-break headline): the cards go to the pot (count = pot size now) and who picks again.
   ///
   /// In de, this message translates to:
-  /// **'Im Topf: {count, plural, =1{1 Karte} other{{count} Karten}} – {player} wählt noch einmal'**
+  /// **'Karten in den Topf (jetzt {count}), {player} wählt noch einmal'**
   String quartettTrumpfPotAgain(int count, String player);
 
   /// Quartett (Trumpf), network: hint while the opponent picks a stat. player = "Ben (O)".
@@ -600,10 +600,10 @@ abstract class AppLocalizations {
   /// **'{player} wählt …'**
   String quartettTrumpfHintWaiting(String player);
 
-  /// Quartett (Trumpf): button on the table that re-opens the result of the previous trick.
+  /// Quartett (Trumpf): button on the table that re-opens the result of the previous round. "Vorige Runde", not "Letzte Runde" (that would be the final round).
   ///
   /// In de, this message translates to:
-  /// **'Letzter Stich'**
+  /// **'Vorige Runde'**
   String get quartettTrumpfLastTrick;
 
   /// Quartett (Trumpf), network: countdown under the reveal before it moves on by itself.
@@ -618,40 +618,40 @@ abstract class AppLocalizations {
   /// **'{player} hat gewählt: {stat}'**
   String quartettTrumpfQueuedPick(String player, String stat);
 
-  /// Quartett (Trumpf) reveal and network status line: who picks after the trick shown, when that is not the picker (the winner). player = mark (reveal) or "Ben (O)" (status line).
+  /// Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = mark (reveal) or "Ben (O)" (status line).
   ///
   /// In de, this message translates to:
   /// **'{player} wählt als Nächstes'**
   String quartettTrumpfNextPicker(String player);
 
-  /// Quartett (Trumpf) reveal: the picker won the trick (or tied) and picks again. player = mark.
+  /// Quartett (Trumpf) reveal: the picker won the round (or tied) and picks again. player = mark.
   ///
   /// In de, this message translates to:
   /// **'{player} wählt noch einmal'**
   String quartettTrumpfPicksAgain(String player);
 
-  /// Quartett (Trumpf): the "Weiter" button under a trick result, naming who picks next. player = mark.
+  /// Quartett (Trumpf): the "Weiter" button under a round result, naming who picks next. player = mark.
   ///
   /// In de, this message translates to:
   /// **'Weiter – {player} wählt'**
   String quartettTrumpfContinuePicker(String player);
 
-  /// Quartett (Trumpf), network status line while an older trick is still shown: this device's player picks after it. player = mark.
+  /// Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it. player = mark.
   ///
   /// In de, this message translates to:
   /// **'Du wählst als Nächstes ({player})'**
   String quartettTrumpfYouPickNext(String player);
 
-  /// Quartett (Trumpf), network: badge next to the status line while more tricks are queued behind the one shown (count >= 1).
+  /// Quartett (Trumpf), network: badge next to the status line while more rounds are queued behind the one shown (count >= 1).
   ///
   /// In de, this message translates to:
-  /// **'noch {count, plural, =1{1 Stich} other{{count} Stiche}}'**
+  /// **'noch {count, plural, =1{1 Runde} other{{count} Runden}}'**
   String quartettTrumpfTricksBehind(int count);
 
   /// Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = "Ben (O)" or the mark.
   ///
   /// In de, this message translates to:
-  /// **'{player} hat den Stich gewonnen'**
+  /// **'{player} hat die Runde gewonnen'**
   String quartettTrumpfHandoverReason(String player);
 
   /// Ask result: the opponent had the card.
@@ -1458,16 +1458,16 @@ abstract class AppLocalizations {
   /// **'Gegner hat keine Karten mehr'**
   String get engineReasonQuartettAllCards;
 
-  /// Result reason (Quartett Trumpf): draw at the trick limit. a/b = stack sizes of X/O.
+  /// Result reason (Quartett Trumpf): draw at the round limit. a/b = stack sizes of X/O.
   ///
   /// In de, this message translates to:
-  /// **'Stichlimit erreicht, gleich viele Karten ({a}:{b})'**
+  /// **'Rundenlimit erreicht, gleich viele Karten ({a}:{b})'**
   String engineReasonQuartettTrickLimitEqual(int a, int b);
 
-  /// Result reason (Quartett Trumpf): the larger stack wins at the trick limit. a/b = stack sizes of X/O.
+  /// Result reason (Quartett Trumpf): the larger stack wins at the round limit. a/b = stack sizes of X/O.
   ///
   /// In de, this message translates to:
-  /// **'Stichlimit erreicht, mehr Karten ({a}:{b})'**
+  /// **'Rundenlimit erreicht, mehr Karten ({a}:{b})'**
   String engineReasonQuartettTrickLimitMoreCards(int a, int b);
 
   /// Result reason (Quartett Sets): draw with equal quartet counts. a/b = quartets of X/O.
@@ -1857,13 +1857,13 @@ abstract class AppLocalizations {
   /// Quartett stat label: top speed.
   ///
   /// In de, this message translates to:
-  /// **'Höchstgeschwindigkeit'**
+  /// **'Höchst­geschwindig­keit'**
   String get engineStatKmh;
 
   /// Quartett stat label: engine displacement.
   ///
   /// In de, this message translates to:
-  /// **'Hubraum'**
+  /// **'Hub­raum'**
   String get engineStatCcm;
 
   /// Quartett stat label: weight.
@@ -2433,7 +2433,7 @@ abstract class AppLocalizations {
   /// KLD-069 Quartett stat label: starting tractive effort in kN (trains).
   ///
   /// In de, this message translates to:
-  /// **'Anfahrzugkraft'**
+  /// **'Anfahr­zug­kraft'**
   String get quartettStatTractiveKn;
 
   /// KLD-069 Quartett stat label: height in metres (rockets).
@@ -2445,19 +2445,19 @@ abstract class AppLocalizations {
   /// KLD-069 Quartett stat label: liftoff thrust in kN (rockets).
   ///
   /// In de, this message translates to:
-  /// **'Startschub'**
+  /// **'Start­schub'**
   String get quartettStatThrustKn;
 
   /// KLD-069 Quartett stat label: payload to low Earth orbit in tonnes (rockets).
   ///
   /// In de, this message translates to:
-  /// **'Nutzlast (LEO)'**
+  /// **'Nutz­last (LEO)'**
   String get quartettStatLeoT;
 
   /// KLD-069 Quartett stat label: launch mass in tonnes (rockets).
   ///
   /// In de, this message translates to:
-  /// **'Startmasse'**
+  /// **'Start­masse'**
   String get quartettStatLaunchMassT;
 
   /// KLD-069 Quartett stat label: number of launches (rockets).
@@ -2469,19 +2469,19 @@ abstract class AppLocalizations {
   /// KLD-069 Quartett stat label: range in km (planes).
   ///
   /// In de, this message translates to:
-  /// **'Reichweite'**
+  /// **'Reich­weite'**
   String get quartettStatRangeKm;
 
   /// KLD-069 Quartett stat label: wingspan in metres (planes).
   ///
   /// In de, this message translates to:
-  /// **'Spannweite'**
+  /// **'Spann­weite'**
   String get quartettStatWingspanM;
 
   /// KLD-069 Quartett stat label: maximum take-off weight in tonnes (planes).
   ///
   /// In de, this message translates to:
-  /// **'Startgewicht'**
+  /// **'Start­gewicht'**
   String get quartettStatMtowT;
 
   /// KLD-069 deck picker title (before a Quartett game).
@@ -2565,7 +2565,7 @@ abstract class AppLocalizations {
   /// KLD-082 Quartett stat label: share of successful launches in percent, higher wins (rockets).
   ///
   /// In de, this message translates to:
-  /// **'Erfolgsquote'**
+  /// **'Erfolgs­quote'**
   String get quartettStatSuccessPct;
 
   /// KLD-082 unit after the number built, short (de "Stk." = pieces), e.g. "11.000 Stk.".

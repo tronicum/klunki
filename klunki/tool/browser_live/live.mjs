@@ -136,7 +136,7 @@ async function playHotSeat(o) {
         if (!coverDue) seen.problem(`a cover although ${expected} picks again`);
         coverDue = false;
         covers++;
-        log(`hot-seat  cover "Ich bin ${s.name} – weiter" (${s.reason} hat den Stich gewonnen)`);
+        log(`hot-seat  cover "Ich bin ${s.name} – weiter" (${s.reason} hat die Runde gewonnen)`);
         await b.tapAt(s.node.x, s.node.y);
         await sleep(300);
       } else if (s.kind === 'table') {

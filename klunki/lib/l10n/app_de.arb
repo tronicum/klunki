@@ -430,13 +430,13 @@
       }
     }
   },
-  "quartettTrumpfTie": "Gleichstand – Karten in den Topf",
+  "quartettTrumpfTie": "Gleichstand – Stechen!",
   "@quartettTrumpfTie": {
-    "description": "Reveal headline for a tie."
+    "description": "Reveal headline for a tie: a tie-break (Stechen), the next card decides. Not a \"Stich\" (Quartett has rounds, KLD-092)."
   },
-  "quartettTrumpfWinsTrick": "{player} gewinnt den Stich",
+  "quartettTrumpfWinsTrick": "{player} gewinnt die Runde",
   "@quartettTrumpfWinsTrick": {
-    "description": "Reveal headline for a won trick.",
+    "description": "Reveal headline for a won round (Runde, not Stich, KLD-092).",
     "placeholders": {
       "player": {
         "type": "String"
@@ -479,9 +479,9 @@
       }
     }
   },
-  "quartettTrumpfPotAgain": "Im Topf: {count, plural, =1{1 Karte} other{{count} Karten}} – {player} wählt noch einmal",
+  "quartettTrumpfPotAgain": "Karten in den Topf (jetzt {count}), {player} wählt noch einmal",
   "@quartettTrumpfPotAgain": {
-    "description": "Reveal after a tie: pot size and who picks next.",
+    "description": "Reveal after a tie (second line under the tie-break headline): the cards go to the pot (count = pot size now) and who picks again.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -500,9 +500,9 @@
       }
     }
   },
-  "quartettTrumpfLastTrick": "Letzter Stich",
+  "quartettTrumpfLastTrick": "Vorige Runde",
   "@quartettTrumpfLastTrick": {
-    "description": "Quartett (Trumpf): button on the table that re-opens the result of the previous trick."
+    "description": "Quartett (Trumpf): button on the table that re-opens the result of the previous round. \"Vorige Runde\", not \"Letzte Runde\" (that would be the final round)."
   },
   "quartettTrumpfGraceSeconds": "Weiter in {seconds} s",
   "@quartettTrumpfGraceSeconds": {
@@ -527,7 +527,7 @@
   },
   "quartettTrumpfNextPicker": "{player} wählt als Nächstes",
   "@quartettTrumpfNextPicker": {
-    "description": "Quartett (Trumpf) reveal and network status line: who picks after the trick shown, when that is not the picker (the winner). player = mark (reveal) or \"Ben (O)\" (status line).",
+    "description": "Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = mark (reveal) or \"Ben (O)\" (status line).",
     "placeholders": {
       "player": {
         "type": "String"
@@ -536,7 +536,7 @@
   },
   "quartettTrumpfPicksAgain": "{player} wählt noch einmal",
   "@quartettTrumpfPicksAgain": {
-    "description": "Quartett (Trumpf) reveal: the picker won the trick (or tied) and picks again. player = mark.",
+    "description": "Quartett (Trumpf) reveal: the picker won the round (or tied) and picks again. player = mark.",
     "placeholders": {
       "player": {
         "type": "String"
@@ -545,7 +545,7 @@
   },
   "quartettTrumpfContinuePicker": "Weiter – {player} wählt",
   "@quartettTrumpfContinuePicker": {
-    "description": "Quartett (Trumpf): the \"Weiter\" button under a trick result, naming who picks next. player = mark.",
+    "description": "Quartett (Trumpf): the \"Weiter\" button under a round result, naming who picks next. player = mark.",
     "placeholders": {
       "player": {
         "type": "String"
@@ -554,23 +554,23 @@
   },
   "quartettTrumpfYouPickNext": "Du wählst als Nächstes ({player})",
   "@quartettTrumpfYouPickNext": {
-    "description": "Quartett (Trumpf), network status line while an older trick is still shown: this device's player picks after it. player = mark.",
+    "description": "Quartett (Trumpf), network status line while an older round is still shown: this device's player picks after it. player = mark.",
     "placeholders": {
       "player": {
         "type": "String"
       }
     }
   },
-  "quartettTrumpfTricksBehind": "noch {count, plural, =1{1 Stich} other{{count} Stiche}}",
+  "quartettTrumpfTricksBehind": "noch {count, plural, =1{1 Runde} other{{count} Runden}}",
   "@quartettTrumpfTricksBehind": {
-    "description": "Quartett (Trumpf), network: badge next to the status line while more tricks are queued behind the one shown (count >= 1).",
+    "description": "Quartett (Trumpf), network: badge next to the status line while more rounds are queued behind the one shown (count >= 1).",
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
   },
-  "quartettTrumpfHandoverReason": "{player} hat den Stich gewonnen",
+  "quartettTrumpfHandoverReason": "{player} hat die Runde gewonnen",
   "@quartettTrumpfHandoverReason": {
     "description": "Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = \"Ben (O)\" or the mark.",
     "placeholders": {
@@ -1398,9 +1398,9 @@
   "@engineReasonQuartettAllCards": {
     "description": "Result reason (Quartett Trumpf): the winner holds all cards."
   },
-  "engineReasonQuartettTrickLimitEqual": "Stichlimit erreicht, gleich viele Karten ({a}:{b})",
+  "engineReasonQuartettTrickLimitEqual": "Rundenlimit erreicht, gleich viele Karten ({a}:{b})",
   "@engineReasonQuartettTrickLimitEqual": {
-    "description": "Result reason (Quartett Trumpf): draw at the trick limit. a/b = stack sizes of X/O.",
+    "description": "Result reason (Quartett Trumpf): draw at the round limit. a/b = stack sizes of X/O.",
     "placeholders": {
       "a": {
         "type": "int"
@@ -1410,9 +1410,9 @@
       }
     }
   },
-  "engineReasonQuartettTrickLimitMoreCards": "Stichlimit erreicht, mehr Karten ({a}:{b})",
+  "engineReasonQuartettTrickLimitMoreCards": "Rundenlimit erreicht, mehr Karten ({a}:{b})",
   "@engineReasonQuartettTrickLimitMoreCards": {
-    "description": "Result reason (Quartett Trumpf): the larger stack wins at the trick limit. a/b = stack sizes of X/O.",
+    "description": "Result reason (Quartett Trumpf): the larger stack wins at the round limit. a/b = stack sizes of X/O.",
     "placeholders": {
       "a": {
         "type": "int"
@@ -1838,11 +1838,11 @@
   "@engineStatPs": {
     "description": "Quartett stat label: engine power."
   },
-  "engineStatKmh": "Höchstgeschwindigkeit",
+  "engineStatKmh": "Höchst\u00ADgeschwindig\u00ADkeit",
   "@engineStatKmh": {
     "description": "Quartett stat label: top speed."
   },
-  "engineStatCcm": "Hubraum",
+  "engineStatCcm": "Hub\u00ADraum",
   "@engineStatCcm": {
     "description": "Quartett stat label: engine displacement."
   },
@@ -2277,7 +2277,7 @@
   "@quartettStatMassT": {
     "description": "KLD-069 Quartett stat label: weight in tonnes, lower wins (trains)."
   },
-  "quartettStatTractiveKn": "Anfahrzugkraft",
+  "quartettStatTractiveKn": "Anfahr\u00ADzug\u00ADkraft",
   "@quartettStatTractiveKn": {
     "description": "KLD-069 Quartett stat label: starting tractive effort in kN (trains)."
   },
@@ -2285,15 +2285,15 @@
   "@quartettStatHeightM": {
     "description": "KLD-069 Quartett stat label: height in metres (rockets)."
   },
-  "quartettStatThrustKn": "Startschub",
+  "quartettStatThrustKn": "Start\u00ADschub",
   "@quartettStatThrustKn": {
     "description": "KLD-069 Quartett stat label: liftoff thrust in kN (rockets)."
   },
-  "quartettStatLeoT": "Nutzlast (LEO)",
+  "quartettStatLeoT": "Nutz\u00ADlast (LEO)",
   "@quartettStatLeoT": {
     "description": "KLD-069 Quartett stat label: payload to low Earth orbit in tonnes (rockets)."
   },
-  "quartettStatLaunchMassT": "Startmasse",
+  "quartettStatLaunchMassT": "Start\u00ADmasse",
   "@quartettStatLaunchMassT": {
     "description": "KLD-069 Quartett stat label: launch mass in tonnes (rockets)."
   },
@@ -2301,15 +2301,15 @@
   "@quartettStatFlights": {
     "description": "KLD-069 Quartett stat label: number of launches (rockets)."
   },
-  "quartettStatRangeKm": "Reichweite",
+  "quartettStatRangeKm": "Reich\u00ADweite",
   "@quartettStatRangeKm": {
     "description": "KLD-069 Quartett stat label: range in km (planes)."
   },
-  "quartettStatWingspanM": "Spannweite",
+  "quartettStatWingspanM": "Spann\u00ADweite",
   "@quartettStatWingspanM": {
     "description": "KLD-069 Quartett stat label: wingspan in metres (planes)."
   },
-  "quartettStatMtowT": "Startgewicht",
+  "quartettStatMtowT": "Start\u00ADgewicht",
   "@quartettStatMtowT": {
     "description": "KLD-069 Quartett stat label: maximum take-off weight in tonnes (planes)."
   },
@@ -2394,7 +2394,7 @@
   "@quartettStatBuilt": {
     "description": "KLD-082 Quartett stat label: number built of the type/class, higher wins (trains, planes)."
   },
-  "quartettStatSuccessPct": "Erfolgsquote",
+  "quartettStatSuccessPct": "Erfolgs\u00ADquote",
   "@quartettStatSuccessPct": {
     "description": "KLD-082 Quartett stat label: share of successful launches in percent, higher wins (rockets)."
   },

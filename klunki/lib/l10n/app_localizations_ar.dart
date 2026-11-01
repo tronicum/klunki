@@ -311,7 +311,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfTie => 'تعادل – البطاقات إلى الوعاء';
+  String get quartettTrumpfTie => 'تعادل – جولة فاصلة!';
 
   @override
   String quartettTrumpfWinsTrick(String player) {
@@ -339,17 +339,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count بطاقة',
-      many: '$count بطاقة',
-      few: '$count بطاقات',
-      two: 'بطاقتان',
-      one: 'بطاقة واحدة',
-      zero: 'لا بطاقات',
-    );
-    return 'في الوعاء: $_temp0 – $player يختار مرة أخرى';
+    return 'البطاقات إلى الوعاء (الآن $count)، $player يختار مرة أخرى';
   }
 
   @override
@@ -358,7 +348,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get quartettTrumpfLastTrick => 'الجولة الأخيرة';
+  String get quartettTrumpfLastTrick => 'الجولة السابقة';
 
   @override
   String quartettTrumpfGraceSeconds(int seconds) {

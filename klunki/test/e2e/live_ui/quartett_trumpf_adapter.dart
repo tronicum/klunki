@@ -3,7 +3,7 @@
 // Reads what a QuartettTrumpfScreen shows (the reveal's "X wählt PS", the
 // headline, both revealed cards; the own card on the table and its caption)
 // and plays by tapping `qt-stat-<id>` on the own card, "Weiter"
-// (`qt-continue`) and, as a fidget, "Letzter Stich".
+// (`qt-continue`) and, as a fidget, "Vorige Runde".
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -121,7 +121,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     return null;
   }
 
-  /// "Im Topf: n Karten – X wählt noch einmal" for some pot size n >= 2.
+  /// "Karten in den Topf (jetzt n), X wählt noch einmal" for some pot size n >= 2.
   bool _potAgain(String cue, String mark) => [
         for (var n = 2; n <= 64; n++) deL10n.quartettTrumpfPotAgain(n, mark),
       ].contains(cue);
@@ -133,12 +133,27 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
 
   /// KLD-091, network: while newer tricks are queued behind the one shown,
   /// the status line describes the shown one ("Anna (X) wählt als
-  /// Nächstes" / "Du wählst als Nächstes (O)") with "noch n Stiche";
+  /// Nächstes" / "Du wählst als Nächstes (O)") with "noch n Runden";
   /// otherwise it is the live status and there is no badge.
+  ///
+  /// KLD-092, hot-seat: while a result is shown (applied only on "Weiter")
+  /// the status line uses the cue's words ("O wählt als Nächstes" / "X
+  /// wählt noch einmal"), never the live "X ist am Zug"; no badge.
   @override
   void checkShown(WidgetTester tester, UiDevice d, TurnRecord shown, {required int behind}) {
     final status = _status(tester, d);
     final badge = d.on(find.descendant(of: find.byKey(_badge), matching: find.byType(Text)));
+    if (!d.networked) {
+      expect(badge, findsNothing, reason: '${d.name}: no badge in hot-seat ($shown)');
+      final next = shown.nextActor!;
+      final mark = playerMark(next);
+      String words(String label) =>
+          next == shown.actor ? deL10n.quartettTrumpfPicksAgain(label) : deL10n.quartettTrumpfNextPicker(label);
+      expect(status, anyOf(words(mark), endsWith(words('($mark)'))),
+          reason: '${d.name}: hot-seat status follows the result $shown');
+      hotSeatStatusChecks++;
+      return;
+    }
     if (behind <= 0) {
       expect(badge, findsNothing, reason: '${d.name}: no badge on the newest trick ($shown)');
       final followsReveal = status.endsWith(deL10n.quartettTrumpfNextPicker('')) ||
@@ -162,6 +177,9 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
 
   /// How often [checkShown] saw a trick with newer ones queued behind it.
   int queuedChecks = 0;
+
+  /// How often [checkShown] checked the status line under a hot-seat result.
+  int hotSeatStatusChecks = 0;
 
   /// Hot-seat (KLD-091): a cover only when the device changes hands, and it
   /// says why: the player on turn won the last trick.
@@ -193,7 +211,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     if (!_overlayReady(tester, d) || !_endgame(d, tester)) return null;
     await d.tapKey(tester, _overlayClose);
     await _settle(tester);
-    return 'closes Letzter Stich (endgame)';
+    return 'closes Vorige Runde (endgame)';
   }
 
   @override
@@ -216,7 +234,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     return {'action': 'pick', 'stat': stat};
   }
 
-  /// The "Letzter Stich" overlay is fully open (not animating).
+  /// The "Vorige Runde" overlay is fully open (not animating).
   bool _overlayReady(WidgetTester tester, UiDevice d) =>
       d.hasKey(_overlay) &&
       !d.hasKey(_result) &&
@@ -241,13 +259,13 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       if (!_overlayReady(tester, d)) return null;
       await d.tapKey(tester, _overlayClose);
       await _settle(tester);
-      return 'closes Letzter Stich';
+      return 'closes Vorige Runde';
     }
     if (_blocked(d) || !d.hasKey(_lastTrick) || _endgame(d, tester)) return null;
     if (tester.widget<ActionChip>(d.on(find.byKey(_lastTrick))).onPressed == null) return null;
     await d.tapKey(tester, _lastTrick);
     await _settle(tester);
-    return 'opens Letzter Stich';
+    return 'opens Vorige Runde';
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettDeck,
 
 import '../../app/theme.dart';
 import '../engine_l10n.dart';
+import 'hyphenated_label.dart';
 import 'quartett_media.dart';
 import 'quartett_pictograms.dart';
 
@@ -286,11 +287,12 @@ class QuartettCard extends StatelessWidget {
           final rowWidth = box.maxWidth;
           return Row(
             children: [
+              // KLD-092: a long label ("Höchstgeschwindigkeit") breaks at
+              // its soft hyphens with a "-" and shrinks a little, never in
+              // the middle of a word without one.
               Expanded(
-                child: Text(
-                  localizedStatLabel(l10n, s.id),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: HyphenatedLabel(
+                  localizedStatLabelHyphenated(l10n, s.id),
                   style: text?.copyWith(fontWeight: highlighted ? FontWeight.bold : null),
                 ),
               ),

@@ -85,7 +85,7 @@ void main() {
     await pick(tester, stat.id);
     expect(find.byKey(reveal), findsOneWidget);
     expect(c.moves, isEmpty, reason: 'the pick is submitted only on "Weiter"');
-    expect(find.text('X gewinnt den Stich'), findsOneWidget);
+    expect(find.text('X gewinnt die Runde'), findsOneWidget);
     expect(find.text(a.name), findsOneWidget);
     expect(find.text(b.name), findsOneWidget);
     expect(find.text('X – gewinnt'), findsOneWidget);
@@ -119,7 +119,7 @@ void main() {
     final (seed, stat) = findOpening((s, va, vb) => va == vb);
     final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
     await pick(tester, stat.id);
-    expect(find.text('Gleichstand – Karten in den Topf'), findsOneWidget);
+    expect(find.text('Gleichstand – Stechen!'), findsOneWidget);
     expect(find.text('X – Gleichstand'), findsOneWidget);
     expect(find.text('O – Gleichstand'), findsOneWidget);
     final a = (c.game as QuartettGame).topCard(Player.a)!;
@@ -140,7 +140,7 @@ void main() {
     final (seed, stat) = findOpening((s, va, vb) => s.beats(vb, va));
     final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
     await pick(tester, stat.id);
-    expect(find.text('O gewinnt den Stich'), findsOneWidget);
+    expect(find.text('O gewinnt die Runde'), findsOneWidget);
     expect(find.byKey(handoverContinue), findsNothing, reason: 'both players watch the reveal');
 
     await tapContinue(tester);
@@ -194,14 +194,20 @@ void main() {
     String cue(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data!;
     String button(WidgetTester tester) =>
         tester.widget<Text>(find.descendant(of: find.byKey(cont), matching: find.byType(Text))).data!;
+    // KLD-092: while the result is shown (the pick is applied only on
+    // "Weiter") the status line names the next picker like the cue, not the
+    // live "X ist am Zug".
+    String status(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key('shell-status'))).data!;
 
     testWidgets('win: "X wählt noch einmal", no cover, X goes on', (tester) async {
       final (seed, stat) = findOpening((s, va, vb) => s.beats(va, vb));
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
-      expect(find.text('X gewinnt den Stich'), findsOneWidget);
+      expect(find.text('X gewinnt die Runde'), findsOneWidget);
       expect(cue(tester), 'X wählt noch einmal');
       expect(button(tester), 'Weiter – X wählt');
+      expect(status(tester), 'X wählt noch einmal');
+      expect(find.text('X ist am Zug'), findsNothing);
 
       await tapContinue(tester);
       expect(c.needsHandover, isFalse);
@@ -215,24 +221,29 @@ void main() {
       final (seed, stat) = findOpening((s, va, vb) => s.beats(vb, va));
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
-      expect(find.text('O gewinnt den Stich'), findsOneWidget);
+      expect(find.text('O gewinnt die Runde'), findsOneWidget);
       expect(cue(tester), 'O wählt als Nächstes');
       expect(button(tester), 'Weiter – O wählt');
+      expect(status(tester), 'O wählt als Nächstes');
+      expect(find.text('X ist am Zug'), findsNothing, reason: 'no contradiction to the result');
 
       await tapContinue(tester);
       expect(c.needsHandover, isTrue);
       final cover = find.byKey(const Key('handover-cover'));
       expect(find.descendant(of: cover, matching: find.text('Gib das Gerät an O weiter')), findsOneWidget);
-      expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, 'O hat den Stich gewonnen');
+      expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, 'O hat die Runde gewonnen');
       expect(find.descendant(of: cover, matching: find.text('Ich bin O – weiter')), findsOneWidget);
     });
 
-    testWidgets('tie: "Im Topf: 2 Karten – X wählt noch einmal", no cover', (tester) async {
+    testWidgets('tie: "Gleichstand – Stechen!", "Karten in den Topf (jetzt 2), X wählt noch einmal", no cover',
+        (tester) async {
       final (seed, stat) = findOpening((s, va, vb) => va == vb);
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
-      expect(cue(tester), 'Im Topf: 2 Karten – X wählt noch einmal');
+      expect(find.text('Gleichstand – Stechen!'), findsOneWidget);
+      expect(cue(tester), 'Karten in den Topf (jetzt 2), X wählt noch einmal');
       expect(button(tester), 'Weiter – X wählt');
+      expect(status(tester), 'X wählt noch einmal');
       await tapContinue(tester);
       expect(c.needsHandover, isFalse);
       expect(find.byKey(const Key('handover-cover')), findsNothing);
@@ -255,7 +266,7 @@ void main() {
           covers++;
           final mark = next == Player.a ? 'X' : 'O';
           expect(find.text('Gib das Gerät an $mark weiter'), findsOneWidget);
-          expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, '$mark hat den Stich gewonnen');
+          expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, '$mark hat die Runde gewonnen');
           await tester.tap(find.byKey(handoverContinue));
           await tester.pump();
         } else {
