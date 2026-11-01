@@ -13,7 +13,7 @@ void main() {
       expect(s.redaction != null, s.hiddenInformation, reason: s.id);
     }
     expect(hidden.map((s) => s.id), containsAll(['schiffe', 'gostrategy', 'quartett-trumpf', 'quartett-sets']));
-    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets']);
+    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets', 'wordtiles']);
   });
 
   for (final spec in hidden) {
@@ -159,6 +159,21 @@ void _sameForViewer(Game game, Game view, Player viewer) {
       for (var sq = 0; sq < 100; sq++) {
         if (g.currentPlayer == viewer) expect(v.targetsFrom(sq), g.targetsFrom(sq));
       }
+    case (WordTilesGame g, WordTilesGame v):
+      final me = WordTilesGame.seatOf(viewer), other = WordTilesGame.seatOf(opp);
+      expect(v.board, g.board);
+      expect(v.rackOf(me), g.rackOf(me));
+      expect(v.rackOf(other), isEmpty);
+      expect(v.rackSizeOf(other), g.rackSizeOf(other));
+      expect(v.bagCount, g.bagCount);
+      expect(v.scores, g.scores);
+      expect(v.rackPenalties, g.rackPenalties);
+      expect(v.currentSeat, g.currentSeat);
+      expect(v.canChallenge, g.canChallenge);
+      expect(v.endPending, g.endPending);
+      expect(v.challengeable?.words, g.challengeable?.words);
+      expect([for (final t in v.turns) t.toJson()], [for (final t in g.turns) t.toJson()]);
+      expect(v.result.params, g.result.params);
     default:
       fail('unexpected ${game.runtimeType} / ${view.runtimeType}');
   }
