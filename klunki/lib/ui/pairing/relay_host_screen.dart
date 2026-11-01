@@ -147,6 +147,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     final l10n = AppLocalizations.of(context);
     final relay = await relayOrAsk(context, _settings, defaultRelay: widget.defaultRelay);
     if (relay == null || !mounted) return;
+    if (browserBlocksWebSocket(pageUrl: widget.pageUrl, target: relay)) {
+      // KLD-096: the browser would refuse ws:// from this https page.
+      setState(() {
+        _error = l10n.webJoinHttpsWarning;
+        _showStartHint = false;
+      });
+      return;
+    }
     setState(() {
       _starting = true;
       _error = null;
@@ -233,6 +241,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     return [
+      if (widget.pageUrl?.scheme == 'https') ...[
+        Text(
+          l10n.webJoinHttpsWarning,
+          key: const Key('relay-host-https'),
+          style: TextStyle(color: theme.colorScheme.error),
+        ),
+        const SizedBox(height: 16),
+      ],
       playerNameField(key: const Key('relay-host-name'), enabled: !_starting),
       const SizedBox(height: 16),
       Text(l10n.pairingChooseGame, style: theme.textTheme.titleMedium),

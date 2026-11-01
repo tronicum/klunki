@@ -864,7 +864,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'این صفحه با https باز شده است. از آنجا مرورگرها اتصال ws:// به شبکهٔ محلی را مسدود می‌کنند. Klunki را با http:// باز کن.';
+      'در مرورگر با https، Klunki فقط به رله‌های امن (wss://) دسترسی دارد – از اپ یا نسخهٔ http محلی استفاده کن.';
 
   @override
   String get webJoinAddressLabel => 'IP، IP:پورت، پیوند ws:// یا klunki://';

@@ -214,7 +214,7 @@
   "pairingBrowserJoin": "Unirse desde un navegador (escribe la dirección o pega el enlace):",
   "pairingCopyLink": "Copiar enlace",
   "pairingLinkCopied": "Enlace copiado",
-  "webJoinHttpsWarning": "Esta página se abrió con https. Desde ahí, los navegadores bloquean las conexiones ws:// a la red local. Abre Klunki con http://.",
+  "webJoinHttpsWarning": "En un navegador con https, Klunki solo puede conectar con relés seguros (wss://): usa la app o la versión http local.",
   "webJoinAddressLabel": "IP, IP:puerto, enlace ws:// o klunki://",
   "webJoinAddressHelper": "El puerto es el puerto de navegador (WebSocket) del otro dispositivo; {port} si no se indica.",
   "webJoinInvalidAddress": "Dirección no válida. Ejemplo: 192.168.1.20, 192.168.1.20:4748 o klunki://join?h=…",

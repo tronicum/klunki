@@ -1386,10 +1386,10 @@ abstract class AppLocalizations {
   /// **'Link kopiert'**
   String get pairingLinkCopied;
 
-  /// Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages).
+  /// Browser join and host screens: shown when the page was opened over https (browsers block ws:// relays and hosts from https pages; only wss:// works). Also the error when such a connection is attempted.
   ///
   /// In de, this message translates to:
-  /// **'Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.'**
+  /// **'Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.'**
   String get webJoinHttpsWarning;
 
   /// Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link).

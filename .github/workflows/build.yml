@@ -1,6 +1,7 @@
 # Klunki builds (KLD-070): PWA and Android APK as downloadable artifacts, an
-# iOS compile check on demand. NO deployment: nothing is published to GitHub
-# Pages or a store (that needs the owner's OK; see the disabled `pages` job).
+# iOS compile check on demand. Nothing goes to a store. GitHub Pages (KLD-096)
+# is deployed only from main and only when the repository variable
+# PAGES_ENABLED is 'true' (see the `pages-build` / `pages` jobs).
 #
 # Flutter is pinned like in ci.yml (3.47.8 stable, Dart 3.13.7).
 # Every action is pinned to a commit SHA (tag in the comment).
@@ -135,14 +136,47 @@ jobs:
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
 
-  # Disabled on purpose: publishing the PWA (GitHub Pages) needs the owner's
-  # OK, and Pages on a private repo needs a paid plan. To enable: set the
-  # repository's Pages source to "GitHub Actions", remove `if: false`.
-  # Note: Pages serves https, and browsers block ws:// from https pages, so a
-  # Pages-hosted PWA can only use a wss:// relay (see docs/BUILDING.md).
+  # GitHub Pages (KLD-096): the PWA at the site root and the static pages
+  # (privacy/, support/, impressum/ from site/) next to it, at
+  # https://<owner>.github.io/<repo>/. Only on pushes to main and only when the
+  # repository variable PAGES_ENABLED is 'true' (Settings > Secrets and
+  # variables > Actions > Variables); Pages source must be "GitHub Actions".
+  # A separate build from the `pwa` job: a project site lives under /<repo>/,
+  # so it needs --base-href /<repo>/, while the `klunki-pwa` artifact stays a
+  # root build for `klunki relay --web`.
+  # Note: Pages serves https, and browsers block ws:// from https pages, so the
+  # Pages-hosted PWA plays on one device and joins only wss:// relays (the app
+  # says so on its join and host screens; see docs/BUILDING.md).
+  pages-build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
+    name: Pages site (PWA under /<repo>/ + static pages)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: klunki
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          pub-cache: true
+      - run: flutter pub get
+      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - run: python3 -I build/web/pwa_finalize.py
+      # privacy/, support/, impressum/ (contact email from site/site.json).
+      - run: python3 -I ../site/build_site.py build/web
+      - name: No external URLs in the build
+        run: python3 -I tool/check_pwa_external_urls.py build/web
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: klunki/build/web
+
   pages:
-    if: false
-    needs: pwa
+    needs: pages-build
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -151,12 +185,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: klunki-pwa
-          path: web
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: web
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

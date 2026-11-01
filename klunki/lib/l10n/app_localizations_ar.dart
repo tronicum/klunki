@@ -890,7 +890,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'فُتحت هذه الصفحة عبر https. من هناك تحظر المتصفحات اتصالات ws:// بالشبكة المحلية. افتح Klunki عبر http://.';
+      'في المتصفح عبر https لا يصل Klunki إلا إلى مُرحِّلات آمنة (wss://) – استخدم التطبيق أو نسخة http المحلية.';
 
   @override
   String get webJoinAddressLabel => 'IP أو IP:منفذ أو رابط ws:// أو klunki://';

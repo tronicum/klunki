@@ -214,7 +214,7 @@
   "pairingBrowserJoin": "الانضمام من متصفح (اكتب العنوان أو الصق الرابط):",
   "pairingCopyLink": "نسخ الرابط",
   "pairingLinkCopied": "تم نسخ الرابط",
-  "webJoinHttpsWarning": "فُتحت هذه الصفحة عبر https. من هناك تحظر المتصفحات اتصالات ws:// بالشبكة المحلية. افتح Klunki عبر http://.",
+  "webJoinHttpsWarning": "في المتصفح عبر https لا يصل Klunki إلا إلى مُرحِّلات آمنة (wss://) – استخدم التطبيق أو نسخة http المحلية.",
   "webJoinAddressLabel": "IP أو IP:منفذ أو رابط ws:// أو klunki://",
   "webJoinAddressHelper": "المنفذ هو منفذ المتصفح (WebSocket) للجهاز الآخر، وإن لم يُذكر فهو {port}.",
   "webJoinInvalidAddress": "عنوان غير صالح. مثال: 192.168.1.20 أو 192.168.1.20:4748 أو klunki://join?h=…",

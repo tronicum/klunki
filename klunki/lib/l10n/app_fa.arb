@@ -214,7 +214,7 @@
   "pairingBrowserJoin": "پیوستن از مرورگر (نشانی را بنویس یا پیوند را جای‌گذاری کن):",
   "pairingCopyLink": "رونوشت پیوند",
   "pairingLinkCopied": "پیوند رونوشت شد",
-  "webJoinHttpsWarning": "این صفحه با https باز شده است. از آنجا مرورگرها اتصال ws:// به شبکهٔ محلی را مسدود می‌کنند. Klunki را با http:// باز کن.",
+  "webJoinHttpsWarning": "در مرورگر با https، Klunki فقط به رله‌های امن (wss://) دسترسی دارد – از اپ یا نسخهٔ http محلی استفاده کن.",
   "webJoinAddressLabel": "IP، IP:پورت، پیوند ws:// یا klunki://",
   "webJoinAddressHelper": "درگاه، درگاه مرورگر (WebSocket) دستگاه دیگر است؛ اگر ننویسی {port}.",
   "webJoinInvalidAddress": "نشانی نامعتبر. نمونه: 192.168.1.20، 192.168.1.20:4748 یا klunki://join?h=…",

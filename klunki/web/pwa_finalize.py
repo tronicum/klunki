@@ -27,6 +27,9 @@ EXCLUDE_FROM_PRECACHE = EXCLUDE_FROM_HASH | {
     'flutter_service_worker.js',  # Flutter's deprecated cleanup worker
     'assets/NOTICES',             # 1.3 MB, only for the license page (runtime-cached)
 }
+# Static pages published next to the app (KLD-096, GitHub Pages): not part of
+# the app, the service worker leaves them alone (klunki_sw.js STATIC_PAGES).
+STATIC_PAGES = ('privacy/', 'support/', 'impressum/')
 
 
 def main() -> int:
@@ -58,6 +61,7 @@ def main() -> int:
         rel for rel in files
         if rel not in EXCLUDE_FROM_PRECACHE
         and not rel.startswith('canvaskit/')
+        and not rel.startswith(STATIC_PAGES)
         and not rel.endswith('.symbols')
     ]
 

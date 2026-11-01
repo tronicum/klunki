@@ -410,6 +410,30 @@ void main() {
       expect(find.byKey(const Key('relay-host-waiting')), findsNothing);
     }, timeout: _timeout);
 
+    testWidgets('KLD-096: an https page explains wss:// and does not try a ws:// relay', (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final created = CreatedTransports();
+      var tried = 0;
+      final page = Uri.parse('https://user.github.io/klunki/');
+      final settings = RelaySettings.memory()..set(Uri.parse('ws://192.168.1.20:8081/relay'));
+      await tester.pumpWidget(localizedApp(RelayHostScreen(
+        hostTransport: (config, relay, {required name}) {
+          tried++;
+          return relayHost(created, config, relay, name: name);
+        },
+        defaultRelay: relayUriForPage(page),
+        relaySettings: settings,
+        pageUrl: page,
+      )));
+      await tester.pump();
+      expect(find.byKey(const Key('relay-host-https')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('relay-host-start')));
+      await tester.pump();
+      expect(tried, 0);
+      expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data, contains('nur sichere Relays (wss://)'));
+      expect(find.byKey(const Key('relay-start-command')), findsNothing);
+    }, timeout: _timeout);
+
     testWidgets('the relay stops while waiting: room lost, back to the setup', (tester) async {
       await _setSize(tester, const Size(800, 1600));
       final server = await _startRelay(tester);

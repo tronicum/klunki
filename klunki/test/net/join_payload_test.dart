@@ -49,7 +49,7 @@ void main() {
     for (final p in const [
       JoinPayload(host: '192.168.1.20', port: 47474, name: 'Stefans iPhone', gameId: 'muehle'),
       JoinPayload(host: '10.0.0.5'),
-      JoinPayload(host: 'stefans-mac.local', port: 1, protocol: 7, name: 'Ä & ö = ü?#'),
+      JoinPayload(host: 'my-computer.local', port: 1, protocol: 7, name: 'Ä & ö = ü?#'),
       JoinPayload(host: '172.20.10.1', port: 65535, gameId: 'connect4'),
     ]) {
       test(p.format(), () => expect(JoinPayload.tryParse(p.format()), p));

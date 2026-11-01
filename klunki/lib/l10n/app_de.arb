@@ -1340,9 +1340,9 @@
   "@pairingLinkCopied": {
     "description": "Snackbar after copying the join link."
   },
-  "webJoinHttpsWarning": "Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.",
+  "webJoinHttpsWarning": "Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.",
   "@webJoinHttpsWarning": {
-    "description": "Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages)."
+    "description": "Browser join and host screens: shown when the page was opened over https (browsers block ws:// relays and hosts from https pages; only wss:// works). Also the error when such a connection is attempted."
   },
   "webJoinAddressLabel": "IP, IP:Port, ws://- oder klunki://-Link",
   "@webJoinAddressLabel": {

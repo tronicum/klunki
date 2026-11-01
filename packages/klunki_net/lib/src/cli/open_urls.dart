@@ -30,8 +30,8 @@ List<NicAddress> lanAddresses(Iterable<NicAddress> all) {
   ];
 }
 
-/// The Bonjour/mDNS name for [hostname]: `Stefans-MacBook` →
-/// `Stefans-MacBook.local`; a DNS name (`pc.fritz.box`) → its first label
+/// The Bonjour/mDNS name for [hostname]: `my-computer` →
+/// `my-computer.local`; a DNS name (`pc.fritz.box`) → its first label
 /// (`pc.local`, as Avahi and Windows announce it); `….local` stays; empty or
 /// `localhost` → null.
 String? mdnsName(String hostname) {

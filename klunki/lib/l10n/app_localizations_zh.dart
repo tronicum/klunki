@@ -841,7 +841,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      '此页面是通过 https 打开的。浏览器会阻止从这里到本地网络的 ws:// 连接。请通过 http:// 打开 Klunki。';
+      '在浏览器中通过 https 打开时，Klunki 只能连接安全中继（wss://）——请使用应用或本地 http 版本。';
 
   @override
   String get webJoinAddressLabel => 'IP、IP:端口、ws:// 或 klunki:// 链接';
