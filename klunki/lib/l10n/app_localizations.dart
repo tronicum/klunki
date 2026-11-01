@@ -2981,6 +2981,294 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{times}-mal dieselbe Stellung'**
   String engineReasonChessThreefoldRepetition(int times);
+
+  /// Game title: the crossword-style word tile game (KLD-094; working title, no brand names).
+  ///
+  /// In de, this message translates to:
+  /// **'Wortleger'**
+  String get menuGameWordTiles;
+
+  /// Menu tile one-liner for the word tile game (KLD-094).
+  ///
+  /// In de, this message translates to:
+  /// **'Wörter aus Buchstaben legen'**
+  String get menuDescWordTiles;
+
+  /// Debug builds only: menu button that opens a game that is not in the app yet (KLD-094).
+  ///
+  /// In de, this message translates to:
+  /// **'Vorschau: {game}'**
+  String menuPreviewGame(String game);
+
+  /// Word tiles: button that plays the tiles laid on the board.
+  ///
+  /// In de, this message translates to:
+  /// **'Legen'**
+  String get wordtilesPlay;
+
+  /// Word tiles: tooltip of the button that takes all tiles laid this turn back to the rack.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Steine zurücknehmen'**
+  String get wordtilesRecall;
+
+  /// Word tiles: tooltip of the button that shuffles the rack.
+  ///
+  /// In de, this message translates to:
+  /// **'Steine mischen'**
+  String get wordtilesShuffle;
+
+  /// Word tiles: button to swap rack tiles with the bag.
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschen'**
+  String get wordtilesExchange;
+
+  /// Word tiles: confirm button of the swap, with the number of tiles chosen.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} tauschen'**
+  String wordtilesExchangeConfirm(int count);
+
+  /// Word tiles: button to pass the turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Passen'**
+  String get wordtilesPass;
+
+  /// Word tiles: tooltip of the zoom button (board shown whole).
+  ///
+  /// In de, this message translates to:
+  /// **'Vergrößern'**
+  String get wordtilesZoomIn;
+
+  /// Word tiles: tooltip of the zoom button (board zoomed in).
+  ///
+  /// In de, this message translates to:
+  /// **'Ganzes Brett'**
+  String get wordtilesZoomOut;
+
+  /// Word tiles: tiles left in the bag (tooltip and screen reader text of the bag counter).
+  ///
+  /// In de, this message translates to:
+  /// **'Beutel: {count} Steine'**
+  String wordtilesBag(int count);
+
+  /// Word tiles: a player's score (screen reader text of the score bar).
+  ///
+  /// In de, this message translates to:
+  /// **'{player}: {score} Punkte'**
+  String wordtilesScore(String player, int score);
+
+  /// Word tiles: hint line while the player can lay tiles.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehe Steine aufs Brett oder tippe einen Stein und dann ein Feld.'**
+  String get wordtilesHintPlace;
+
+  /// Word tiles: hint and error: the first word must cover the centre square (marked with a star).
+  ///
+  /// In de, this message translates to:
+  /// **'Das erste Wort muss über den Stern in der Mitte gehen.'**
+  String get wordtilesHintFirst;
+
+  /// Word tiles: hint after a rack tile was tapped.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe ein freies Feld an.'**
+  String get wordtilesHintSelected;
+
+  /// Word tiles: hint while choosing tiles to swap.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle die Steine, die zurück in den Beutel sollen.'**
+  String get wordtilesHintExchange;
+
+  /// Word tiles: hint while the last placement can be challenged.
+  ///
+  /// In de, this message translates to:
+  /// **'Nimm das Wort an oder zweifle es an.'**
+  String get wordtilesHintAnswer;
+
+  /// Word tiles: why swapping is not possible now (count = 7).
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschen geht nur, solange mindestens {count} Steine im Beutel sind.'**
+  String wordtilesExchangeNotNow(int count);
+
+  /// Word tiles: live preview of the words laid and their score.
+  ///
+  /// In de, this message translates to:
+  /// **'{words}: {score} Punkte'**
+  String wordtilesPreview(String words, int score);
+
+  /// Word tiles: live preview when all rack tiles are laid (bonus = 50).
+  ///
+  /// In de, this message translates to:
+  /// **'{words}: {score} Punkte (mit {bonus} Bonus für alle Steine)'**
+  String wordtilesPreviewBingo(String words, int score, int bonus);
+
+  /// Word tiles: placement error: not in one row or column.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Steine müssen in einer Reihe oder Spalte liegen.'**
+  String get wordtilesErrorLine;
+
+  /// Word tiles: placement error: an empty square between the tiles.
+  ///
+  /// In de, this message translates to:
+  /// **'Zwischen den Steinen ist noch ein Feld frei.'**
+  String get wordtilesErrorGap;
+
+  /// Word tiles: placement error: the first word has one letter only.
+  ///
+  /// In de, this message translates to:
+  /// **'Das erste Wort braucht mindestens zwei Buchstaben.'**
+  String get wordtilesErrorShort;
+
+  /// Word tiles: placement error: the tiles touch no tile on the board.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Steine müssen an ein Wort auf dem Brett anschließen.'**
+  String get wordtilesErrorConnect;
+
+  /// Word tiles: placement error (dictionary mode): a word is not in the word list.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Wort steht nicht im Wörterbuch.'**
+  String get wordtilesErrorUnknownWord;
+
+  /// Word tiles: placement error: the last placement must be accepted or challenged first.
+  ///
+  /// In de, this message translates to:
+  /// **'Nimm zuerst das letzte Wort an oder zweifle es an.'**
+  String get wordtilesErrorAnswerFirst;
+
+  /// Word tiles: placement error for every other case.
+  ///
+  /// In de, this message translates to:
+  /// **'So kannst du die Steine nicht legen.'**
+  String get wordtilesErrorOther;
+
+  /// Word tiles: the last placement, which the player to move may challenge.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} legte {words} für {score} Punkte.'**
+  String wordtilesOpenPlacement(String player, String words, int score);
+
+  /// Word tiles: button: accept the last placement.
+  ///
+  /// In de, this message translates to:
+  /// **'Annehmen'**
+  String get wordtilesAccept;
+
+  /// Word tiles: button: challenge the last placement.
+  ///
+  /// In de, this message translates to:
+  /// **'Anzweifeln'**
+  String get wordtilesChallenge;
+
+  /// Word tiles: title of the challenge confirmation.
+  ///
+  /// In de, this message translates to:
+  /// **'Wort anzweifeln?'**
+  String get wordtilesChallengeTitle;
+
+  /// Word tiles: challenge confirmation without a dictionary (the challenger's call is final).
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Wörterbuch zählt dein Einwand: {player} nimmt die Steine zurück und bekommt keine Punkte. Dann bist du am Zug.'**
+  String wordtilesChallengeBodyFree(String player);
+
+  /// Word tiles: challenge confirmation with a dictionary.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Wörterbuch entscheidet. Steht das Wort darin, verlierst du deinen Zug.'**
+  String get wordtilesChallengeBodyDict;
+
+  /// Word tiles: the last placement used the last tile; accepting it ends the game.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat alle Steine gelegt. Nimmst du an, ist das Spiel aus.'**
+  String wordtilesEndPending(String player);
+
+  /// Word tiles: a placement in the move list and the last-turn line (after "{player}: ").
+  ///
+  /// In de, this message translates to:
+  /// **'{words} für {score} Punkte'**
+  String wordtilesMovePlace(String words, int score);
+
+  /// Word tiles: a swap in the move list (count = tiles swapped).
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Stein getauscht} other{{count} Steine getauscht}}'**
+  String wordtilesMoveExchange(int count);
+
+  /// Word tiles: a pass in the move list.
+  ///
+  /// In de, this message translates to:
+  /// **'gepasst'**
+  String get wordtilesMovePass;
+
+  /// Word tiles: a successful challenge in the move list; the words were taken back.
+  ///
+  /// In de, this message translates to:
+  /// **'angezweifelt: {words} zurückgenommen'**
+  String wordtilesMoveChallengeWithdrawn(String words);
+
+  /// Word tiles: a failed challenge in the move list (dictionary mode).
+  ///
+  /// In de, this message translates to:
+  /// **'angezweifelt, aber die Wörter gelten'**
+  String get wordtilesMoveChallengeFailed;
+
+  /// Word tiles: an explicit accept in the move list.
+  ///
+  /// In de, this message translates to:
+  /// **'angenommen'**
+  String get wordtilesMoveAccept;
+
+  /// Word tiles: title of the letter picker for a blank tile.
+  ///
+  /// In de, this message translates to:
+  /// **'Welchen Buchstaben zeigt der Joker?'**
+  String get wordtilesBlankTitle;
+
+  /// Word tiles: very short label (2–3 characters) on a double-letter square.
+  ///
+  /// In de, this message translates to:
+  /// **'2B'**
+  String get wordtilesPremiumDoubleLetter;
+
+  /// Word tiles: very short label (2–3 characters) on a triple-letter square.
+  ///
+  /// In de, this message translates to:
+  /// **'3B'**
+  String get wordtilesPremiumTripleLetter;
+
+  /// Word tiles: very short label (2–3 characters) on a double-word square.
+  ///
+  /// In de, this message translates to:
+  /// **'2W'**
+  String get wordtilesPremiumDoubleWord;
+
+  /// Word tiles: very short label (2–3 characters) on a triple-word square.
+  ///
+  /// In de, this message translates to:
+  /// **'3W'**
+  String get wordtilesPremiumTripleWord;
+
+  /// Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Steine gelegt, Endstand {a} : {b}'**
+  String engineReasonWordtilesPlayedOut(int a, int b);
+
+  /// Result reason (word tiles): too many turns in a row without points (turns = 6); a, b = final scores.
+  ///
+  /// In de, this message translates to:
+  /// **'{turns} Züge ohne Punkte, Endstand {a} : {b}'**
+  String engineReasonWordtilesScoreless(int turns, int a, int b);
 }
 
 class _AppLocalizationsDelegate

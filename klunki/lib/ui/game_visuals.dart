@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' show ChessPiece, ChessPieceTyp
 import '../app/theme.dart';
 import 'game_illustrations.dart';
 import 'games/chess/chess_pieces.dart';
+import 'games/wordtiles/wordtiles_tiles.dart';
 
 /// Per-game visuals (KLD-062): menu illustration, one-line description and
 /// the player token colours shown in the shell's turn indicator. The accent
@@ -78,6 +79,11 @@ final Map<String, GameVisuals> gameVisuals = {
     description: (l) => l.menuDescChess,
     token: (p, player) => player == Player.a ? p.chess.whiteToken : p.chess.blackToken,
     tokenIcon: _chessToken,
+  ),
+  'wordtiles': GameVisuals(
+    illustration: (p) =>
+        WordTilesIllustration(p.background.computeLuminance() < 0.2 ? Brightness.dark : Brightness.light),
+    description: (l) => l.menuDescWordTiles,
   ),
 };
 

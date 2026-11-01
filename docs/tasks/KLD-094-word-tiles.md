@@ -3,7 +3,8 @@
 - **ID:** `KLD-094`
 - **Title:** A crossword-style letter tile game (id `wordtiles`)
 - **Milestone:** long-term games
-- **Status:** step 1 DONE (research, design, engine, text adapter, tests); steps 2–5 open, see "Step plan"
+- **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
+  (hot-seat screen, `appReady` still false until the 🧑 UX review and the name); steps 3–5 open, see "Step plan"
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -221,6 +222,37 @@ text adapter notation. Shared tests now cover `wordtiles` too: contract, resign,
 secrecy (views agree all game long), compat golden, and in `klunki_net` a full random network game with the
 host's reveal verified by the guest.
 
+## Step 2 (hot-seat UI): what was built
+- **Touched paths:** `klunki/lib/ui/games/wordtiles_screen.dart`, `lib/ui/games/wordtiles/{wordtiles_board,wordtiles_tiles}.dart`
+  (new); `lib/ui/shell/screen_registry.dart` (`gameScreens`, `previewGames = {'wordtiles'}`, `hotSeatOnlyGames`),
+  `lib/ui/menu_screen.dart` (debug-only "Vorschau: Wortleger" button under the debug console), `lib/ui/game_titles.dart`,
+  `lib/ui/game_visuals.dart` (illustration, one-liner), `lib/app/theme.dart` (accent), `lib/ui/engine_l10n.dart` (both end
+  reasons localized), ARB keys `menuGameWordTiles`, `menuDescWordTiles`, `menuPreviewGame`, `wordtiles*`,
+  `engineReasonWordtiles*` in all 7 locales (zh written with the characters the bundled Noto Sans SC subset already has:
+  no font re-subset, which would need a download); tests `test/ui/games/wordtiles_screen_test.dart`,
+  `test/e2e/live_ui/wordtiles_{adapter,live_test}.dart`, `test/screenshots/wordtiles_shots_test.dart`, `wordtiles` added
+  to the per-game lists of `test/l10n/{translations,rtl}_test.dart`, `test/ui/shell/game_screen_test.dart` (preview games).
+- **Screen** (`WordTilesBoard`): score bar (token, name, score, end penalties, bag count), the last turn as a line or, for
+  the player who may answer it, the challenge banner ("Anna (X) legte BIRNE für 11 Punkte." + "Anzweifeln" / "Annehmen";
+  the open tiles ringed red; the challenge asks for confirmation and says that without a word list the challenger's call
+  is final). Board 15 × 15 in our premium colours (word premiums green, letter premiums ochre / sand, labels 2W/3W/2B/3B,
+  localized; star in the centre), always LTR. Rack below: drag a tile onto a square, or tap a tile and then a square; a
+  laid tile goes back with a tap or a long-press drag. Blank → letter picker (A–Z, Ä Ö Ü; no ß, as the engine). Line above
+  the rack: live words + score (`checkPlacement`), or the reason a placement does not fit (muted, red after "Legen").
+  Actions in one row: take back, shuffle, zoom, "Tauschen" (rack turns into a picker; refused with a reason below 7 bag
+  tiles), "Passen", "Legen". Phone: squares under 30 px zoom in (×~2) on the first tile laid and back out after the move;
+  pinch-zoom any time. Tablet landscape: board left, panel right.
+- **Hot-seat:** `hiddenInformation` → the shell's handover cover hides the rack; the cover shows the public last turn.
+  Names via `PlayerLabelsScope` (no hard-coded names). History sheet: "X: HAUS für 8 Punkte", "O: 2 Steine getauscht", ….
+- **appReady stays false** (🧑 decides after trying it): the name is open, there is no word list, and the layout is still
+  to be checked by playing. Debug builds open it from the menu; release builds do not show it.
+- **Tests:** 12 widget tests (tap and drag placement, preview score, invalid placement error, blank picker with cancel,
+  challenge withdraw, accept / swap / pass + history, swap refused, 6 scoreless turns → result dialog with penalties, last
+  tile → end pending → accept ends, phone auto-zoom, Arabic board LTR, debug menu entry); live UI: two full hot-seat games
+  through the real UI (taps only, covers, challenges, swaps, passes; every turn shown once, in engine order; the final
+  turn checked in the result dialog). Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_shots_test.dart`.
+- **Open UX questions (🧑):** see "Open questions" 9–13.
+
 ## Step plan
 1. **Engine (done).** This card.
 2. **Hot-seat UI:** board (premium colours of our own, not any product's), rack below with drag-to-board and
@@ -248,3 +280,9 @@ host's reveal verified by the guest.
 7. **Layout:** keep the layout above, or tune after playing it in step 2?
 8. **Tile language per game:** follow the app locale, or pick it when starting a game (a German family may want
    English tiles for practice)?
+9. **Score bar vs shell legend:** the shell's player legend (top right) and the score bar both show the names; drop the
+   names from the score bar (token + score only) to save a line on phones?
+10. **Premium labels:** "2W / 3W / 2B / 3B" (de) on the squares, colour-coded; enough, or a legend / long-press help?
+11. **Auto-zoom on phones:** zoom in on the first tile laid (current), or only by pinch / the zoom button?
+12. **"Passen" without a confirmation** (hot-seat undo exists): OK, or ask first?
+13. **Blank tiles** show their letter in blue without points; clear enough?

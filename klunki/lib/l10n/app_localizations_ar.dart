@@ -1830,4 +1830,192 @@ class AppLocalizationsAr extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return 'تكرار الوضع نفسه $times مرات';
   }
+
+  @override
+  String get menuGameWordTiles => 'بلاطات الكلمات';
+
+  @override
+  String get menuDescWordTiles => 'كوّن كلمات من الحروف';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'معاينة: $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'العب';
+
+  @override
+  String get wordtilesRecall => 'استرجاع كل البلاطات';
+
+  @override
+  String get wordtilesShuffle => 'خلط البلاطات';
+
+  @override
+  String get wordtilesExchange => 'تبديل';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return 'تبديل $count';
+  }
+
+  @override
+  String get wordtilesPass => 'تمرير';
+
+  @override
+  String get wordtilesZoomIn => 'تكبير';
+
+  @override
+  String get wordtilesZoomOut => 'اللوحة كاملة';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'الكيس: $count بلاطة';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player: $score نقطة';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'اسحب البلاطات إلى اللوحة، أو المس بلاطة ثم خانة.';
+
+  @override
+  String get wordtilesHintFirst => 'يجب أن تمر الكلمة الأولى بالنجمة في الوسط.';
+
+  @override
+  String get wordtilesHintSelected => 'المس خانة فارغة.';
+
+  @override
+  String get wordtilesHintExchange => 'اختر البلاطات التي تعود إلى الكيس.';
+
+  @override
+  String get wordtilesHintAnswer => 'اقبل الكلمة أو اعترض عليها.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'التبديل ممكن فقط ما دام في الكيس $count بلاطات على الأقل.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words: $score نقطة';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words: $score نقطة (منها $bonus مكافأة لكل البلاطات)';
+  }
+
+  @override
+  String get wordtilesErrorLine =>
+      'يجب أن تكون البلاطات في صف واحد أو عمود واحد.';
+
+  @override
+  String get wordtilesErrorGap => 'توجد خانة فارغة بين البلاطات.';
+
+  @override
+  String get wordtilesErrorShort => 'تحتاج الكلمة الأولى إلى حرفين على الأقل.';
+
+  @override
+  String get wordtilesErrorConnect => 'يجب أن تتصل البلاطات بكلمة على اللوحة.';
+
+  @override
+  String get wordtilesErrorUnknownWord => 'إحدى الكلمات ليست في القاموس.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'اقبل الكلمة الأخيرة أو اعترض عليها أولاً.';
+
+  @override
+  String get wordtilesErrorOther => 'لا يمكنك وضع البلاطات هكذا.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return 'وضع $player $words مقابل $score نقطة.';
+  }
+
+  @override
+  String get wordtilesAccept => 'قبول';
+
+  @override
+  String get wordtilesChallenge => 'اعتراض';
+
+  @override
+  String get wordtilesChallengeTitle => 'الاعتراض على الكلمة؟';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'بدون قاموس يُحسم الأمر برأيك: يسترجع $player البلاطات ولا يحصل على نقاط. ثم يأتي دورك.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'القاموس يحسم. إذا كانت الكلمة فيه، تخسر دورك.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return 'وضع $player كل بلاطاته. إذا قبلت، تنتهي اللعبة.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words مقابل $score نقطة';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بُدّلت $count بلاطة',
+      many: 'بُدّلت $count بلاطة',
+      few: 'بُدّلت $count بلاطات',
+      two: 'بُدّلت بلاطتان',
+      one: 'بُدّلت بلاطة واحدة',
+      zero: 'لم تُبدَّل بلاطات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'مرّر الدور';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'اعتراض: سُحبت $words';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed => 'اعتراض، لكن الكلمات صحيحة';
+
+  @override
+  String get wordtilesMoveAccept => 'قَبِل';
+
+  @override
+  String get wordtilesBlankTitle => 'أي حرف تمثّل البلاطة الفارغة؟';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => 'ح×2';
+
+  @override
+  String get wordtilesPremiumTripleLetter => 'ح×3';
+
+  @override
+  String get wordtilesPremiumDoubleWord => 'ك×2';
+
+  @override
+  String get wordtilesPremiumTripleWord => 'ك×3';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'وُضعت كل البلاطات، النتيجة النهائية $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns أدوار بلا نقاط، النتيجة النهائية $a : $b';
+  }
 }

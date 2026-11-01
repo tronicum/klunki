@@ -1765,4 +1765,183 @@ class AppLocalizationsZh extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return '同一局面出现$times次';
   }
+
+  @override
+  String get menuGameWordTiles => '字母牌';
+
+  @override
+  String get menuDescWordTiles => '用字母牌在棋盘上组字得分';
+
+  @override
+  String menuPreviewGame(String game) {
+    return '试玩：$game';
+  }
+
+  @override
+  String get wordtilesPlay => '出牌';
+
+  @override
+  String get wordtilesRecall => '取回所有牌';
+
+  @override
+  String get wordtilesShuffle => '重排字母牌';
+
+  @override
+  String get wordtilesExchange => '换牌';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return '换 $count 张';
+  }
+
+  @override
+  String get wordtilesPass => '过';
+
+  @override
+  String get wordtilesZoomIn => '放大';
+
+  @override
+  String get wordtilesZoomOut => '全盘';
+
+  @override
+  String wordtilesBag(int count) {
+    return '牌堆：$count 张';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player：$score 分';
+  }
+
+  @override
+  String get wordtilesHintPlace => '把字母牌拖到棋盘上，或先点一张牌再点一个格。';
+
+  @override
+  String get wordtilesHintFirst => '第一组字必须经过中间格。';
+
+  @override
+  String get wordtilesHintSelected => '点一个空格。';
+
+  @override
+  String get wordtilesHintExchange => '选出要放回牌堆的牌。';
+
+  @override
+  String get wordtilesHintAnswer => '接受或否认这组字。';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return '牌堆不少于 $count 张牌时才能换牌。';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words：$score 分';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words：$score 分（含全部出牌奖 $bonus 分）';
+  }
+
+  @override
+  String get wordtilesErrorLine => '牌必须在同一横行或同一纵列。';
+
+  @override
+  String get wordtilesErrorGap => '牌之间还有空格。';
+
+  @override
+  String get wordtilesErrorShort => '第一组字不能少于两个字母。';
+
+  @override
+  String get wordtilesErrorConnect => '牌必须与棋盘上的字相连。';
+
+  @override
+  String get wordtilesErrorUnknownWord => '有字不在字典里。';
+
+  @override
+  String get wordtilesErrorAnswerFirst => '请先接受或否认上一组字。';
+
+  @override
+  String get wordtilesErrorOther => '不能这样出牌。';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player 出了 $words，得 $score 分。';
+  }
+
+  @override
+  String get wordtilesAccept => '接受';
+
+  @override
+  String get wordtilesChallenge => '否认';
+
+  @override
+  String get wordtilesChallengeTitle => '否认这组字？';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return '没有字典时以你为准：$player 取回这些牌，不得分。然后轮到你。';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict => '以字典为准。字典里有这组字时，你本轮不能出牌。';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player 已出完所有牌。如果你接受，本局结束。';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words，$score 分';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '换了 $count 张牌',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => '过了本轮';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return '否认：$words 已取回';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed => '否认，但这组字有效';
+
+  @override
+  String get wordtilesMoveAccept => '接受了';
+
+  @override
+  String get wordtilesBlankTitle => '空白牌是什么字母？';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => '字×2';
+
+  @override
+  String get wordtilesPremiumTripleLetter => '字×3';
+
+  @override
+  String get wordtilesPremiumDoubleWord => '组×2';
+
+  @override
+  String get wordtilesPremiumTripleWord => '组×3';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return '所有牌已出完，比分 $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '连续 $turns 轮没有得分，比分 $a : $b';
+  }
 }

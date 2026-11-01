@@ -158,6 +158,19 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
+                    // Games not in the app yet (KLD-094), debug builds only.
+                    if (menuShowsDebugConsole)
+                      for (final id in previewGames)
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: TextButton.icon(
+                            key: Key('menu-preview-$id'),
+                            icon: const Icon(Icons.science_outlined, size: 18),
+                            label: Text(l10n.menuPreviewGame(
+                                localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id))),
+                            onPressed: () => openGame(context, id),
+                          ),
+                        ),
                     // KLD-102: "Über Klunki" (privacy policy, Impressum,
                     // support, licences) right above the version line: out
                     // of the way of the games, where people look for it.

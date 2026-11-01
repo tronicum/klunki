@@ -1829,4 +1829,195 @@ class AppLocalizationsFr extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return 'Même position $times fois';
   }
+
+  @override
+  String get menuGameWordTiles => 'Tuiles de mots';
+
+  @override
+  String get menuDescWordTiles => 'Former des mots avec des lettres';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'Aperçu : $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'Jouer';
+
+  @override
+  String get wordtilesRecall => 'Reprendre toutes les tuiles';
+
+  @override
+  String get wordtilesShuffle => 'Mélanger les tuiles';
+
+  @override
+  String get wordtilesExchange => 'Échanger';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return 'Échanger $count';
+  }
+
+  @override
+  String get wordtilesPass => 'Passer';
+
+  @override
+  String get wordtilesZoomIn => 'Agrandir';
+
+  @override
+  String get wordtilesZoomOut => 'Plateau entier';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'Sac : $count tuiles';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player : $score points';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'Glisse des tuiles sur le plateau, ou touche une tuile puis une case.';
+
+  @override
+  String get wordtilesHintFirst =>
+      'Le premier mot doit passer par l’étoile au centre.';
+
+  @override
+  String get wordtilesHintSelected => 'Touche une case libre.';
+
+  @override
+  String get wordtilesHintExchange =>
+      'Choisis les tuiles à remettre dans le sac.';
+
+  @override
+  String get wordtilesHintAnswer => 'Accepte le mot ou conteste-le.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'Échange possible seulement s’il reste au moins $count tuiles dans le sac.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words : $score points';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words : $score points (dont $bonus de bonus pour toutes les tuiles)';
+  }
+
+  @override
+  String get wordtilesErrorLine =>
+      'Les tuiles doivent être sur une seule ligne ou colonne.';
+
+  @override
+  String get wordtilesErrorGap => 'Il reste une case vide entre les tuiles.';
+
+  @override
+  String get wordtilesErrorShort =>
+      'Le premier mot doit avoir au moins deux lettres.';
+
+  @override
+  String get wordtilesErrorConnect =>
+      'Les tuiles doivent toucher un mot du plateau.';
+
+  @override
+  String get wordtilesErrorUnknownWord =>
+      'Un mot n’est pas dans le dictionnaire.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'Accepte ou conteste d’abord le dernier mot.';
+
+  @override
+  String get wordtilesErrorOther => 'Tu ne peux pas poser les tuiles ainsi.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player a posé $words pour $score points.';
+  }
+
+  @override
+  String get wordtilesAccept => 'Accepter';
+
+  @override
+  String get wordtilesChallenge => 'Contester';
+
+  @override
+  String get wordtilesChallengeTitle => 'Contester le mot ?';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'Sans dictionnaire, ta contestation l’emporte : $player reprend ses tuiles et ne marque aucun point. Ensuite, c’est à toi.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'Le dictionnaire tranche. Si le mot y figure, tu perds ton tour.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player a posé toutes ses tuiles. Si tu acceptes, la partie est finie.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words pour $score points';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tuiles échangées',
+      many: '$count de tuiles échangées',
+      one: '$count tuile échangée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'a passé';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'contesté : $words repris';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed =>
+      'contesté, mais les mots sont valables';
+
+  @override
+  String get wordtilesMoveAccept => 'accepté';
+
+  @override
+  String get wordtilesBlankTitle => 'Quelle lettre pour le joker ?';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => '2L';
+
+  @override
+  String get wordtilesPremiumTripleLetter => '3L';
+
+  @override
+  String get wordtilesPremiumDoubleWord => '2M';
+
+  @override
+  String get wordtilesPremiumTripleWord => '3M';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'Toutes les tuiles posées, score final $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns tours sans points, score final $a : $b';
+  }
 }
