@@ -2611,6 +2611,42 @@
       }
     }
   },
+  "aboutTitle": "Über Klunki",
+  "@aboutTitle": {
+    "description": "KLD-102: menu footer button and title of the About screen (version, privacy, Impressum, support, licences)."
+  },
+  "aboutPrivacy": "Datenschutz",
+  "@aboutPrivacy": {
+    "description": "KLD-102: About screen link to the privacy policy (opens the copy stored in the app)."
+  },
+  "aboutImpressum": "Impressum",
+  "@aboutImpressum": {
+    "description": "KLD-102: About screen link to the Impressum (German legal notice, the word stays recognisable)."
+  },
+  "aboutSupport": "Support",
+  "@aboutSupport": {
+    "description": "KLD-102: About screen link to the support page (help and contact)."
+  },
+  "aboutLicense": "Klunki ist freie Software unter der GNU AGPL 3.0.",
+  "@aboutLicense": {
+    "description": "KLD-102: About screen licence line; also the legalese on the licence page."
+  },
+  "aboutSourceCode": "Quellcode",
+  "@aboutSourceCode": {
+    "description": "KLD-102: About screen link to the source code on GitHub."
+  },
+  "aboutLicenses": "Open-Source-Lizenzen",
+  "@aboutLicenses": {
+    "description": "KLD-102: About screen button that opens the list of open source licences (Flutter licence page)."
+  },
+  "aboutOpenInBrowser": "Im Browser öffnen",
+  "@aboutOpenInBrowser": {
+    "description": "KLD-102: privacy screen action: open the web page in the browser."
+  },
+  "aboutPrivacyOffline": "Diese Fassung ist in der App gespeichert, damit du sie auch ohne Internet lesen kannst. Maßgeblich ist die Seite im Web:",
+  "@aboutPrivacyOffline": {
+    "description": "KLD-102: privacy screen note above the stored text; the web address follows. The text itself is German or (all other languages) English."
+  },
   "menuGameChess": "Schach",
   "@menuGameChess": {
     "description": "Game title: chess (KLD-059)."

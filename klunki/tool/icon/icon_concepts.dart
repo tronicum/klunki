@@ -34,7 +34,41 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-p1': ('Jeanstasche: Handy statt Karte', paintConceptC5P1),
   'c5-p2': ('Jeanstasche: Handy als Stickerei', paintConceptC5P2),
   'c5-p3': ('Jeanstasche: Handy hinter den Steinen', paintConceptC5P3),
+  // The user's pick c5-p1 with the word "Klunki" (centred on the pocket first).
+  'c5-k1': ('c5-p1 + Lederpatch "Klunki" mittig', paintConceptC5K1),
+  'c5-k2': ('c5-p1 + "Klunki" gestickt mittig', paintConceptC5K2),
+  'c5-k3': ('c5-p1 + "Klunki" weiß gedruckt mittig', paintConceptC5K3),
+  'c5-k4': ('c5-p1 + "Klunki" gelb im Bogen mittig', paintConceptC5K4),
+  'c5-k5': ('c5-p1 + Banner "Klunki" unten', paintConceptC5K5),
+  'c5-k6': ('c5-p1 + "Klunki" auf größerer Fahne', paintConceptC5K6),
+  // The user's pick k1 (leather patch): patch / lettering styles and cards.
+  'c5-k1a': ('k1: dunkles Leder, Goldprägung', (c, s) => _k1(c, s, _patchA)),
+  'c5-k1b': ('k1: helles Leder, Ton-in-Ton geprägt', (c, s) => _k1(c, s, _patchB)),
+  'c5-k1c': ('k1: weiße Versalien, gesperrt', (c, s) => _k1(c, s, _patchC)),
+  'c5-k1d': ('k1: dünne Schrift creme', (c, s) => _k1(c, s, _patchD)),
+  'c5-k1e': ('k1: rotbraunes Leder, schmale Gold-Versalien', (c, s) => _k1(c, s, _patchE)),
+  'c5-k1f': ('k1: kursiv, erhaben mit Kontur', (c, s) => _k1(c, s, _patchF)),
+  'c5-k1-card-a': ('k1: Karte statt Handy', paintConceptC5K1CardA),
+  'c5-k1-card-b': ('k1: Karte hinter dem Handy', paintConceptC5K1CardB),
+  // The user's pick c5-k1-card-b: patch steps from k1 to k1b, letter tile.
+  'c5-cb-a': ('card-b: Patch wie k1 (creme auf mittelbraun)', paintConceptCbA),
+  'c5-cb-b': ('card-b: Patch wie k1b (hell, Ton in Ton)', paintConceptCbB),
+  'c5-cb-c': ('card-b: Patch heller als k1, creme Schrift', paintConceptCbC),
+  'c5-cb-d': ('card-b: helles Leder, dunkel geprägt', paintConceptCbD),
+  'c5-cb-e': ('card-b: hellbraun, creme Schrift', paintConceptCbE),
+  'c5-cb-tile-1': ('card-b: Buchstabenstein vor dem Handy', paintConceptCbTile1),
+  'c5-cb-tile-2': ('card-b: Buchstabenstein statt rotem Stein', paintConceptCbTile2),
+  'c5-cb-tile-3': ('card-b: Buchstabenstein zwischen Bauer und Fahne', paintConceptCbTile3),
+  // The user's pick c5-cb-tile-1 plus a small die behind the red piece.
+  'c5-final-d1': ('tile-1 + weißer Würfel, 5, flach', paintConceptFinalD1),
+  'c5-final-d2': ('tile-1 + elfenbein Würfel, 6, mit Oberseite', paintConceptFinalD2),
+  'c5-final-d3': ('tile-1 + weißer Würfel, 5, 3D (Oberseite und Seite)', paintConceptFinalD3),
+  'c5-final-d4': ('tile-1 + kleiner elfenbein Würfel, 6, stark gedreht', paintConceptFinalD4),
 };
+
+/// Concepts that letter the word "Klunki" with Roboto: the renderer must load
+/// `assets/fonts/Roboto` under [iconFontFamily] before painting them.
+const String iconFontFamily = 'Roboto';
 
 // ---------------------------------------------------------------- shared --
 
@@ -56,12 +90,24 @@ Paint _stroke(Color c, double w) => Paint()
   ..strokeCap = StrokeCap.round
   ..isAntiAlias = true;
 
+/// The layers of an Android adaptive icon: [full] is the normal icon,
+/// [foreground] everything but the table (on transparent), [background] only
+/// the table.
+enum IconLayer { full, foreground, background }
+
+/// Which layer the painters draw; set by the export tool, normally [IconLayer.full].
+IconLayer iconLayer = IconLayer.full;
+
 /// Runs [body] on a 1024 × 1024 grid scaled to [size].
 void _grid(Canvas canvas, double size, void Function(Canvas c) body) {
   canvas.save();
   canvas.scale(size / 1024);
   canvas.clipRect(const Rect.fromLTWH(0, 0, 1024, 1024));
-  body(canvas);
+  if (iconLayer == IconLayer.background) {
+    _table(canvas);
+  } else {
+    body(canvas);
+  }
   canvas.restore();
 }
 
@@ -74,6 +120,7 @@ void _fit(Canvas c, double scale, {double dx = 0, double dy = 0}) {
 
 /// The table: a warm radial gradient, lighter in the upper middle.
 void _table(Canvas c, {Color light = _tableLight, Color dark = _tableDark}) {
+  if (iconLayer == IconLayer.foreground) return;
   const r = Rect.fromLTWH(0, 0, 1024, 1024);
   c.drawRect(r, Paint()..shader = ui.Gradient.radial(const Offset(512, 430), 720, [light, dark], [0.0, 1.0]));
 }
@@ -556,9 +603,18 @@ void paintConceptC5P2(Canvas canvas, double size) => _grid(canvas, size, (c) => 
 /// of its lit screen.
 void paintConceptC5P3(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.behind));
 
-enum _C5Phone { none, insteadOfCard, embroidered, behind }
+enum _C5Phone { none, insteadOfCard, embroidered, behind, cardAndPhone }
 
-void _c5(Canvas c, _C5Phone phone) {
+void _c5(
+  Canvas c,
+  _C5Phone phone, {
+  void Function(Canvas c, _Leather leather)? emblem,
+  Rect flagBox = const Rect.fromLTWH(470, 196, 360, 360),
+  bool flagWord = false,
+  bool chip = true,
+  void Function(Canvas c)? extra,
+  void Function(Canvas c)? behindChip,
+}) {
   _table(c);
   _fit(c, 1.04, dy: -24);
   final c4 = _p.connect4;
@@ -572,18 +628,595 @@ void _c5(Canvas c, _C5Phone phone) {
         // The phone takes the card's place, standing behind the pieces.
         _phone(c, const Offset(430, 420), const Size(236, 380), -0.14, screen: _screenGlow);
       }
-      _flag(c, const Rect.fromLTWH(470, 196, 360, 360), _p.gostrategy.red, lineWidth: 4.5);
-      if (phone == _C5Phone.insteadOfCard) {
+      _flag(c, flagBox, _p.gostrategy.red, lineWidth: 4.5 * 360 / flagBox.width);
+      if (flagWord) _flagWord(c, flagBox);
+      if (phone == _C5Phone.cardAndPhone) {
+        _card(c, const Offset(364, 392), const Size(190, 290), -0.46, _p.quartett.sets['E']!, outline: 12);
+      }
+      if (phone == _C5Phone.insteadOfCard || phone == _C5Phone.cardAndPhone) {
         _phone(c, const Offset(404, 440), const Size(204, 344), -0.2, screen: _screenBoard);
-      } else if (phone != _C5Phone.behind) {
+      } else if (phone == _C5Phone.none || phone == _C5Phone.embroidered) {
         _card(c, const Offset(404, 446), const Size(214, 330), -0.2, _p.quartett.sets['F']!, outline: 13);
       }
       _pawn(c, const Rect.fromLTWH(344, 262, 330, 330), fill: _p.chess.whiteFill, lineWidth: 4.5);
-      _chip(c, const Offset(624, 540), 90, c4.red);
+      behindChip?.call(c);
+      if (chip) _chip(c, const Offset(624, 540), 90, c4.red);
+      extra?.call(c);
     },
     rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
-    emblem: phone == _C5Phone.embroidered ? _embroideredPhone : null,
+    emblem: emblem ?? (phone == _C5Phone.embroidered ? _embroideredPhone : null),
   );
+}
+
+// ------------------------------------------- c5-p1 with "Klunki" (k) --
+
+/// (c5-k1) A brown leather jeans patch, centred on the pocket, with "Klunki"
+/// pressed into it (cream letters with a dark bevel above them).
+void paintConceptC5K1(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _leatherPatch));
+
+/// c5-k1a…f: c5-p1 with a restyled leather patch.
+void _k1(Canvas canvas, double size, void Function(Canvas c, _Leather leather) patch) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: patch));
+
+/// The patch style used with the cards (the pick of the k1 styles).
+const _cardPatch = _patchA;
+
+/// (c5-k1-card-a) The Quartett card back in the phone's place, k1 patch.
+void paintConceptC5K1CardA(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.none, emblem: _cardPatch));
+
+/// (c5-k1-card-b) Phone in front, the Quartett card peeking out behind it.
+void paintConceptC5K1CardB(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.cardAndPhone, emblem: _cardPatch));
+
+// ------------------------------------------ c5-k1-card-b round (cb) --
+
+/// c5-k1-card-b (phone in front, green card behind) with [patch] and an
+/// optional letter [tile] (drawn last among the pieces; [chip]: keep the red
+/// piece).
+void _cb(
+  Canvas canvas,
+  double size,
+  void Function(Canvas c, _Leather leather) patch, {
+  void Function(Canvas c)? tile,
+  bool chip = true,
+  void Function(Canvas c)? behindChip,
+}) => _grid(
+  canvas,
+  size,
+  (c) => _c5(c, _C5Phone.cardAndPhone, emblem: patch, extra: tile, chip: chip, behindChip: behindChip),
+);
+
+/// cb-c: halfway between k1 and k1b: lighter leather than k1, cream letters
+/// pressed in with a dark edge above (k1 style), so it still reads at 180 px.
+void _patchCbC(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFFCB8A4C),
+  bottom: const Color(0xFFA0602C),
+  stitch: const Color(0xFFFBE6C2),
+  letters: [
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
+    (_fill(const Color(0xFFFFEDCF)), const Offset(0, 2)),
+  ],
+);
+
+/// cb-d: k1b's light tan leather, but the pressed-in letters in deep brown.
+void _patchCbD(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFFE2AE72),
+  bottom: const Color(0xFFC08347),
+  stitch: const Color(0xFF7A4520),
+  letters: [
+    (_fill(const Color(0xFFF8DDB4)), const Offset(0, 4)),
+    (_fill(const Color(0xFF2E1408)), const Offset(0, -3)),
+    (_fill(const Color(0xFF5A2C10)), Offset.zero),
+  ],
+);
+
+/// cb-e: like cb-c on a slightly darker tan (a step towards k1b's leather
+/// with cream letters).
+void _patchCbE(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFFD99C5E),
+  bottom: const Color(0xFFB27238),
+  stitch: const Color(0xFF6E3C1A),
+  letters: [
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
+    (_fill(const Color(0xFFFFF4E2)), const Offset(0, 2)),
+  ],
+);
+
+/// The patch used for the tile placements (the pick of cb-a…e).
+const _tilePatch = _patchCbC;
+
+/// A light-wood word-game tile: "K" with a small point value in the corner.
+void _letterTile(Canvas c, Offset center, double side, double angle) {
+  c.save();
+  c.translate(center.dx, center.dy);
+  c.rotate(angle);
+  final box = Rect.fromCenter(center: Offset.zero, width: side, height: side);
+  _piece(
+    c,
+    box,
+    [Path()..addRRect(RRect.fromLTRBR(6, 6, 94, 94, const Radius.circular(12)))],
+    fill: const Color(0xFFF3DDB0),
+    lineWidth: 5,
+  );
+  _inBox(c, box, (c) {
+    // Lower bevel and wood grain.
+    c.drawRRect(RRect.fromLTRBR(9, 82, 91, 91, const Radius.circular(9)), _fill(const Color(0x22000000)));
+    for (final y in [22.0, 48.0, 70.0]) {
+      c.drawLine(Offset(14, y), Offset(86, y + 3), _stroke(const Color(0x14000000), 2));
+    }
+    void text(String s, double size, Offset at) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: s,
+          style: TextStyle(
+            fontFamily: iconFontFamily,
+            fontWeight: FontWeight.w700,
+            fontSize: size,
+            height: 1,
+            color: const Color(0xFF3A1E0E),
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+      tp.paint(c, at - Offset(tp.width / 2, base - size * 0.711 / 2));
+    }
+
+    text('K', 62, const Offset(46, 47));
+    text('5', 20, const Offset(79, 77));
+  });
+  c.restore();
+}
+
+/// cb-a: k1's patch (cream on mid brown).
+void paintConceptCbA(Canvas canvas, double size) => _cb(canvas, size, _leatherPatch);
+
+/// cb-b: k1b's patch (tonal deboss on light tan).
+void paintConceptCbB(Canvas canvas, double size) => _cb(canvas, size, _patchB);
+
+/// cb-c: in between, lighter than k1 but with cream letters.
+void paintConceptCbC(Canvas canvas, double size) => _cb(canvas, size, _patchCbC);
+
+/// cb-d: k1b leather with deep-brown pressed letters.
+void paintConceptCbD(Canvas canvas, double size) => _cb(canvas, size, _patchCbD);
+
+/// cb-e: tan leather with cream letters (between cb-c and k1b).
+void paintConceptCbE(Canvas canvas, double size) => _cb(canvas, size, _patchCbE);
+
+/// tile-1: the tile in front of the phone's lower left, rising from the
+/// pocket.
+void paintConceptCbTile1(Canvas canvas, double size) => _cb(canvas, size, _tilePatch, tile: _tile1);
+
+// ------------------------------------------- final: tile-1 + die (d) --
+
+const _dieWhite = (face: Color(0xFFFFFFFF), shade: Color(0xFFD9DDE3), pip: Color(0xFF26201C));
+const _dieIvory = (face: Color(0xFFFFF4DC), shade: Color(0xFFE2CFA6), pip: Color(0xFF3A1E0E));
+
+/// A die centred at [center] (front face [side] wide, rotated by [angle])
+/// showing [pips] (5 or 6). [depth] > 0 adds a top face (and with [sideFace]
+/// a right face) for a 3D hint; the top face shows one pip.
+void _die(
+  Canvas c,
+  Offset center,
+  double side,
+  double angle,
+  int pips,
+  ({Color face, Color shade, Color pip}) col, {
+  double depth = 0,
+  bool sideFace = false,
+}) {
+  c.save();
+  c.translate(center.dx, center.dy);
+  c.rotate(angle);
+  final h = side / 2, r = side * 0.18, d = depth * side;
+  final front = RRect.fromLTRBR(-h, -h, h, h, Radius.circular(r));
+  final line = _stroke(_ink, side * 0.07);
+  // Shadow.
+  c.drawRRect(front.shift(Offset(side * 0.06, side * 0.12)), _fill(_shadow));
+  if (d > 0) {
+    Path face(List<Offset> pts) => Path()..addPolygon(pts, true);
+    final top = face([
+      Offset(-h + r * 0.4, -h),
+      Offset(h - r * 0.4, -h),
+      Offset(h + d - r * 0.4, -h - d),
+      Offset(-h + d + r * 0.4, -h - d),
+    ]);
+    c.drawPath(top, _fill(col.face));
+    c.drawPath(top, line);
+    // One pip on the top face, squashed into the parallelogram.
+    c.save();
+    c.translate(d / 2, -h - d / 2);
+    c.scale(1, 0.45);
+    c.drawCircle(Offset.zero, side * 0.09, _fill(col.pip));
+    c.restore();
+    if (sideFace) {
+      final right = face([
+        Offset(h, -h + r * 0.4),
+        Offset(h + d, -h - d + r * 0.4),
+        Offset(h + d, h - d - r * 0.4),
+        Offset(h, h - r * 0.4),
+      ]);
+      c.drawPath(right, _fill(col.shade));
+      c.drawPath(right, line);
+    }
+  }
+  c.drawRRect(front, Paint()..shader = ui.Gradient.linear(Offset(-h, -h), Offset(h, h), [col.face, col.shade]));
+  c.drawRRect(front, line);
+  final q = side * 0.27, pr = side * 0.09;
+  final spots = <Offset>[
+    Offset(-q, -q), Offset(q, q), Offset(q, -q), Offset(-q, q), //
+    if (pips == 5) Offset.zero,
+    if (pips == 6) ...[Offset(-q, 0), Offset(q, 0)],
+  ];
+  for (final o in spots) {
+    c.drawCircle(o, pr, _fill(col.pip));
+  }
+  c.restore();
+}
+
+void _tile1(Canvas c) => _letterTile(c, const Offset(318, 474), 136, -0.22);
+
+void _final(Canvas canvas, double size, void Function(Canvas c) die) =>
+    _cb(canvas, size, _tilePatch, tile: _tile1, behindChip: die);
+
+/// d1: small white die, 5 pips, flat, tilted right, peeking out right of
+/// the red piece.
+void paintConceptFinalD1(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(712, 452), 92, 0.3, 5, _dieWhite));
+
+/// d2: ivory die, 6 pips, with a hint of its top face.
+void paintConceptFinalD2(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(708, 460), 96, -0.12, 6, _dieIvory, depth: 0.26));
+
+/// d3: white die, 5 pips, 3D with top and right face.
+void paintConceptFinalD3(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(702, 462), 92, 0.18, 5, _dieWhite, depth: 0.26, sideFace: true));
+
+/// d4: smaller ivory die, 6 pips, strongly turned, flat.
+void paintConceptFinalD4(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(716, 466), 80, 0.62, 6, _dieIvory));
+
+/// tile-2: the tile replaces the red piece.
+void paintConceptCbTile2(Canvas canvas, double size) =>
+    _cb(canvas, size, _tilePatch, chip: false, tile: (c) => _letterTile(c, const Offset(636, 456), 168, 0.14));
+
+/// tile-3: a smaller tile leaning between pawn and flag, on the red piece.
+void paintConceptCbTile3(Canvas canvas, double size) =>
+    _cb(canvas, size, _tilePatch, tile: (c) => _letterTile(c, const Offset(706, 414), 124, 0.24));
+
+/// (c5-k2) "Klunki" embroidered straight on the denim in the yellow thread
+/// (satin stitch: diagonal thread stripes, raised by a small shadow).
+void paintConceptC5K2(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _embroideredWord));
+
+/// (c5-k3) "Klunki" as a bold white print with a dark outline, centred.
+void paintConceptC5K3(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _printedWord));
+
+/// (c5-k4) Big yellow letters on a gentle rainbow arch (badge style), dark
+/// outline, centred.
+void paintConceptC5K4(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _arcWord));
+
+/// (c5-k5) A red ribbon banner across the lower pocket with white letters.
+void paintConceptC5K5(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _banner));
+
+/// (c5-k6) A bigger red flag with "Klunki" on its pennant.
+void paintConceptC5K6(Canvas canvas, double size) => _grid(
+  canvas,
+  size,
+  (c) => _c5(c, _C5Phone.insteadOfCard, flagBox: const Rect.fromLTWH(440, 150, 450, 450), flagWord: true),
+);
+
+/// A lettering face: text, family, weight, slant and cap height (em, for
+/// centring).
+typedef _Face = ({String text, String family, FontWeight weight, bool italic, double cap});
+
+const _Face _robotoBold = (text: 'Klunki', family: iconFontFamily, weight: FontWeight.w700, italic: false, cap: 0.711);
+const _Face _robotoCaps = (text: 'KLUNKI', family: iconFontFamily, weight: FontWeight.w500, italic: false, cap: 0.711);
+const _Face _robotoItalic = (text: 'Klunki', family: iconFontFamily, weight: FontWeight.w700, italic: true, cap: 0.711);
+
+const _Face _robotoRegular = (
+  text: 'Klunki',
+  family: iconFontFamily,
+  weight: FontWeight.w400,
+  italic: false,
+  cap: 0.711,
+);
+const _Face _robotoBoldCaps = (
+  text: 'KLUNKI',
+  family: iconFontFamily,
+  weight: FontWeight.w700,
+  italic: false,
+  cap: 0.711,
+);
+
+/// Lays out [face] at [fontSize] with [foreground].
+TextPainter _wordPainter(_Face face, double fontSize, Paint foreground, double spacing) => TextPainter(
+  text: TextSpan(
+    text: face.text,
+    style: TextStyle(
+      fontFamily: face.family,
+      fontWeight: face.weight,
+      fontStyle: face.italic ? FontStyle.italic : FontStyle.normal,
+      fontSize: fontSize,
+      letterSpacing: spacing,
+      height: 1,
+      foreground: foreground,
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+/// Paints the word centred at [center] with each paint in [paints] in turn
+/// (and the matching offset), so outlines, shadows and fills line up.
+void _word(
+  Canvas c,
+  Offset center,
+  double fontSize,
+  List<(Paint, Offset)> paints, {
+  double spacing = 0,
+  _Face face = _robotoBold,
+  double stretch = 1,
+}) {
+  c.save();
+  // Horizontal stretch around the centre (< 1: condensed).
+  c.translate(center.dx, 0);
+  c.scale(stretch, 1);
+  c.translate(-center.dx, 0);
+  for (final (paint, shift) in paints) {
+    final tp = _wordPainter(face, fontSize, paint, spacing);
+    // Centre on the cap height, not the line box (no descenders in "Klunki").
+    // Trailing letter spacing is dropped.
+    final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+    tp.paint(c, center + shift - Offset((tp.width - spacing) / 2, base - fontSize * face.cap / 2));
+  }
+  c.restore();
+}
+
+/// Centre of the pocket front between the stitching (pocket design coords).
+const _front = Offset(512, 664);
+
+/// Lettering on the patch: (paint, offset) layers from back to front.
+typedef _Letters = List<(Paint, Offset)>;
+
+/// A leather jeans patch centred on the pocket front, slightly tilted, with
+/// its own stitching, lettered with [face] in [letters].
+void _patch(
+  Canvas c, {
+  Color top = const Color(0xFFB0662F),
+  Color bottom = const Color(0xFF7E3A18),
+  Color stitch = const Color(0xFFF7DDB0),
+  _Face face = _robotoBold,
+  double fontSize = 110,
+  double spacing = 2,
+  Offset nudge = Offset.zero,
+  double stretch = 1,
+  required _Letters letters,
+}) {
+  final r = RRect.fromRectAndRadius(
+    Rect.fromCenter(center: _front, width: 408, height: 180),
+    const Radius.circular(22),
+  );
+  c.save();
+  c.translate(_front.dx, _front.dy);
+  c.rotate(-0.035);
+  c.translate(-_front.dx, -_front.dy);
+  c.drawRRect(r.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+  c.drawRRect(r, Paint()..shader = ui.Gradient.linear(r.outerRect.topCenter, r.outerRect.bottomCenter, [top, bottom]));
+  _dashed(c, Path()..addRRect(r.deflate(16)), _stroke(stitch, 6), 18, 12);
+  c.drawRRect(r, _stroke(_ink, 10));
+  _word(c, _front + nudge, fontSize, letters, spacing: spacing, face: face, stretch: stretch);
+  c.restore();
+}
+
+/// k1: mid-brown leather, cream Roboto Bold pressed in (dark edge above).
+void _leatherPatch(Canvas c, _Leather leather) => _patch(
+  c,
+  letters: [
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
+    (_fill(const Color(0xFFFFE7BF)), const Offset(0, 2)),
+  ],
+);
+
+/// Gold foil: vertical gradient, light top, deep amber bottom.
+Paint _gold(double fontSize) => Paint()
+  ..shader = ui.Gradient.linear(
+    Offset(0, _front.dy - fontSize * 0.4),
+    Offset(0, _front.dy + fontSize * 0.4),
+    [const Color(0xFFFFE9A0), const Color(0xFFE6B34A), const Color(0xFFB07A1E)],
+    [0, 0.5, 1],
+  );
+
+/// k1a: dark chocolate leather, gold foil letters, gold stitching.
+void _patchA(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFF5E2E16),
+  bottom: const Color(0xFF3A1A0B),
+  stitch: const Color(0xFFE6B34A),
+  letters: [(_fill(const Color(0xFF1E0C04)), const Offset(0, 5)), (_gold(110), Offset.zero)],
+);
+
+/// k1b: light tan leather, classic tonal deboss (letters pressed in, darker
+/// than the leather, with a light lip below).
+void _patchB(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFFE2AE72),
+  bottom: const Color(0xFFC08347),
+  stitch: const Color(0xFF7A4520),
+  letters: [
+    (_fill(const Color(0xFFF6D6A8)), const Offset(0, 4)),
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -3)),
+    (_fill(const Color(0xFF8A4E22)), Offset.zero),
+  ],
+);
+
+/// k1c: mid leather, white caps print with wide spacing (Roboto Medium).
+void _patchC(Canvas c, _Leather leather) => _patch(
+  c,
+  face: _robotoCaps,
+  fontSize: 84,
+  spacing: 9,
+  letters: [(_fill(const Color(0x88000000)), const Offset(0, 4)), (_fill(const Color(0xFFFFFFFF)), Offset.zero)],
+);
+
+/// k1d: mid leather, light cream Roboto Regular, a bit larger, printed.
+void _patchD(Canvas c, _Leather leather) => _patch(
+  c,
+  face: _robotoRegular,
+  fontSize: 122,
+  spacing: 1,
+  letters: [(_fill(const Color(0xFF3A1A0B)), const Offset(0, 5)), (_fill(const Color(0xFFFFEFD2)), Offset.zero)],
+);
+
+/// k1e: dark red-brown leather, tall condensed gold caps (Roboto Bold
+/// squeezed to 78 %), workwear-label style.
+void _patchE(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFF7A2E1A),
+  bottom: const Color(0xFF4E1A0E),
+  stitch: const Color(0xFFE6B34A),
+  face: _robotoBoldCaps,
+  fontSize: 116,
+  spacing: 4,
+  stretch: 0.78,
+  letters: [(_fill(const Color(0xFF1E0C04)), const Offset(0, 5)), (_gold(116), Offset.zero)],
+);
+
+/// k1f: mid leather, raised cream Roboto Bold Italic with a dark outline and
+/// a shadow down-right.
+void _patchF(Canvas c, _Leather leather) => _patch(
+  c,
+  fontSize: 112,
+  face: _robotoItalic,
+  letters: [
+    (_fill(const Color(0xAA2A1206)), const Offset(4, 6)),
+    (_stroke(_ink, 9), Offset.zero),
+    (_fill(const Color(0xFFFFE7BF)), Offset.zero),
+  ],
+);
+
+void _embroideredWord(Canvas c, _Leather leather) {
+  final hsl = HSLColor.fromColor(leather.stitch);
+  final dark = hsl.withLightness(hsl.lightness - 0.14).toColor();
+  final satin = Paint()
+    ..shader = ui.Gradient.linear(
+      Offset.zero,
+      const Offset(7, 7),
+      [leather.stitch, leather.stitch, dark, dark],
+      [0, 0.6, 0.6, 1],
+      TileMode.repeated,
+    );
+  _word(c, _front, 142, [
+    (_fill(const Color(0x66000000)), const Offset(3, 7)),
+    (_stroke(dark, 6), Offset.zero),
+    (satin, Offset.zero),
+  ], spacing: 3);
+}
+
+void _printedWord(Canvas c, _Leather leather) {
+  _word(c, _front, 156, [
+    (_fill(const Color(0x55000000)), const Offset(4, 9)),
+    (_stroke(_ink, 22), Offset.zero),
+    (_fill(const Color(0xFFFFFBF2)), Offset.zero),
+  ], spacing: 2);
+}
+
+void _arcWord(Canvas c, _Leather leather) {
+  // Letters on a circle arc that rises in the middle (circle centre below).
+  const fontSize = 146.0;
+  const radius = 760.0;
+  const center = Offset(512, 652 + radius);
+  final glyphs = [for (final ch in 'Klunki'.split('')) (ch, _glyph(ch, fontSize, Paint()).width)];
+  final total = glyphs.fold(0.0, (a, g) => a + g.$2) + 6 * (glyphs.length - 1);
+  var x = -total / 2;
+  for (final (ch, w) in glyphs) {
+    final angle = (x + w / 2) / radius;
+    c.save();
+    c.translate(center.dx, center.dy);
+    c.rotate(angle);
+    c.translate(0, -radius);
+    for (final (paint, shift) in [
+      (_fill(const Color(0x55000000)), const Offset(4, 9)),
+      (_stroke(_ink, 20), Offset.zero),
+      (_fill(const Color(0xFFFFC93C)), Offset.zero),
+    ]) {
+      final tp = _glyph(ch, fontSize, paint);
+      final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
+      tp.paint(c, Offset(-w / 2, -base + fontSize * 0.711 / 2) + shift);
+    }
+    c.restore();
+    x += w + 6;
+  }
+}
+
+TextPainter _glyph(String ch, double fontSize, Paint paint) => TextPainter(
+  text: TextSpan(
+    text: ch,
+    style: TextStyle(
+      fontFamily: iconFontFamily,
+      fontWeight: FontWeight.w700,
+      fontSize: fontSize,
+      height: 1,
+      foreground: paint,
+    ),
+  ),
+  textDirection: TextDirection.ltr,
+)..layout();
+
+void _banner(Canvas c, _Leather leather) {
+  const red = Color(0xFFC62D2D), redDark = Color(0xFF8E1B1B);
+  const y = 730.0, h = 136.0, half = 300.0;
+  // Folded tails behind the ends.
+  for (final s in [-1.0, 1.0]) {
+    final tail = Path()
+      ..moveTo(512 + s * (half - 40), y - h / 2 + 34)
+      ..lineTo(512 + s * (half + 70), y - h / 2 + 34)
+      ..lineTo(512 + s * (half + 34), y + 34)
+      ..lineTo(512 + s * (half + 70), y + h / 2 + 34)
+      ..lineTo(512 + s * (half - 40), y + h / 2 + 34)
+      ..close();
+    c.drawPath(tail.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+    c.drawPath(tail, _fill(redDark));
+    c.drawPath(tail, _stroke(_ink, 10));
+  }
+  final band = Rect.fromCenter(center: const Offset(512, y), width: half * 2, height: h);
+  final p = Path()
+    ..moveTo(band.left, band.top)
+    ..quadraticBezierTo(512, band.top + 30, band.right, band.top)
+    ..lineTo(band.right, band.bottom)
+    ..quadraticBezierTo(512, band.bottom + 30, band.left, band.bottom)
+    ..close();
+  c.drawPath(p.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
+  c.drawPath(p, _fill(red));
+  c.drawPath(p, _stroke(_ink, 10));
+  _word(c, const Offset(512, y + 12), 112, [
+    (_fill(redDark), const Offset(0, 5)),
+    (_fill(const Color(0xFFFFFBF2)), Offset.zero),
+  ], spacing: 4);
+}
+
+/// "Klunki" across the GoStrategy pennant (flag [box], see [_flag]).
+void _flagWord(Canvas c, Rect box) {
+  _inBox(c, box, (c) {
+    final pennant = Path()
+      ..moveTo(34, 12)
+      ..quadraticBezierTo(60, 8, 88, 22)
+      ..quadraticBezierTo(62, 34, 34, 46)
+      ..close();
+    c.save();
+    c.clipPath(pennant);
+    c.translate(56, 24);
+    c.rotate(-0.08);
+    _word(c, Offset.zero, 12.5, [(_fill(const Color(0xFFFFFBF2)), Offset.zero)]);
+    c.restore();
+  });
 }
 
 /// A generic phone: graphite rounded body and a screen; no notch, no

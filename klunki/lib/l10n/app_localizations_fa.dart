@@ -1705,6 +1705,34 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get aboutTitle => 'درباره Klunki';
+
+  @override
+  String get aboutPrivacy => 'حریم خصوصی';
+
+  @override
+  String get aboutImpressum => 'اطلاعات حقوقی (Impressum)';
+
+  @override
+  String get aboutSupport => 'پشتیبانی';
+
+  @override
+  String get aboutLicense => 'Klunki نرم‌افزار آزاد تحت مجوز GNU AGPL 3.0 است.';
+
+  @override
+  String get aboutSourceCode => 'کد منبع';
+
+  @override
+  String get aboutLicenses => 'مجوزهای متن‌باز';
+
+  @override
+  String get aboutOpenInBrowser => 'باز کردن در مرورگر';
+
+  @override
+  String get aboutPrivacyOffline =>
+      'این نسخه (به انگلیسی) در برنامه ذخیره شده تا بدون اینترنت هم بخوانی. مرجع، صفحهٔ وب است:';
+
+  @override
   String get menuGameChess => 'شطرنج';
 
   @override

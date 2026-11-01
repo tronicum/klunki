@@ -7,37 +7,97 @@
 // without KLUNKI_ICON_OUT it is skipped as well. Writes per concept
 // `concept-<id>-1024.png` (RGB, no alpha channel) and `concept-<id>-preview.png`
 // (sizes 180/120/60/40 unmasked, iOS rounded square and Android circle on a
-// light and a dark home screen).
+// light and a dark home screen). Also writes `c5-k-compare.png` and
+// `c5-k1-compare.png`: variant groups side by side at 256, 180 and 60 px
+// (iOS mask on the small rows).
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'icon_concepts.dart';
+import 'icon_png.dart';
 
 final String? _out = Platform.environment['KLUNKI_ICON_OUT'];
 
 void main() {
+  setUpAll(() async {
+    if (_out != null) await loadIconFonts();
+  });
+  final ids = iconConcepts.keys;
+  final compare = {
+    // The first wordmark round: c5-k1 … c5-k6.
+    'c5-k-compare': [
+      for (final id in ids)
+        if (RegExp(r'^c5-k\d$').hasMatch(id)) id,
+    ],
+    // The leather patch (k1) styles and the card variants.
+    // card-b with patch steps from k1 to k1b, and the letter tile placements.
+    'c5-cb-compare': [
+      for (final id in ids)
+        if (id.startsWith('c5-cb')) id,
+    ],
+    // The base c5-cb-tile-1 and the die variants.
+    'c5-final-compare': [
+      'c5-cb-tile-1',
+      for (final id in ids)
+        if (id.startsWith('c5-final-d')) id,
+    ],
+    'c5-k1-compare': [
+      for (final id in ids)
+        if (id.startsWith('c5-k1')) id,
+    ],
+  };
+  for (final MapEntry(key: name, value: ids) in compare.entries) {
+    testWidgets('$name sheet', skip: _out == null, (tester) async {
+      await tester.runAsync(() async {
+        final icons = [for (final id in ids) await renderImage(1024, 1024, (c) => iconConcepts[id]!.$2(c, 1024))];
+        await writePng(await _compareSheet(ids, icons), '$_out/$name.png');
+      });
+    });
+  }
   for (final MapEntry(key: id, value: (title, paint)) in iconConcepts.entries) {
     testWidgets('icon concept $id ($title)', skip: _out == null, (tester) async {
       await tester.runAsync(() async {
-        final icon = await _render(1024, 1024, (c) => paint(c, 1024));
-        await _writePng(icon, '$_out/concept-$id-1024.png');
-        final preview = await _render(_sheetW, _sheetH, (c) => _sheet(c, icon));
-        await _writePng(preview, '$_out/concept-$id-preview.png');
+        final icon = await renderImage(1024, 1024, (c) => paint(c, 1024));
+        await writePng(icon, '$_out/concept-$id-1024.png');
+        final preview = await renderImage(_sheetW, _sheetH, (c) => _sheet(c, icon));
+        await writePng(preview, '$_out/concept-$id-preview.png');
       });
     });
   }
 }
 
-Future<ui.Image> _render(int w, int h, void Function(Canvas c) body) {
-  final rec = ui.PictureRecorder();
-  final c = Canvas(rec, Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()));
-  body(c);
-  return rec.endRecording().toImage(w, h);
+/// [icons] side by side at 256 px (no mask), 180 and 60 px (iOS mask).
+Future<ui.Image> _compareSheet(List<String> ids, List<ui.Image> icons) {
+  const gap = 32.0, label = 44.0;
+  const rows = [256.0, 180.0, 60.0];
+  final w = gap + ids.length * (256 + gap);
+  final h = gap + rows.fold(0.0, (a, s) => a + s + gap) + label;
+  return renderImage(w.toInt(), h.toInt(), (c) {
+    c.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = const Color(0xFFF2F2F7));
+    var y = gap;
+    for (var i = 0; i < ids.length; i++) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: ids[i],
+          style: const TextStyle(fontFamily: iconFontFamily, fontSize: 26, color: Color(0xFF1C1C1E)),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(c, Offset(gap + i * (256 + gap) + (256 - tp.width) / 2, y));
+    }
+    y += label;
+    for (final s in rows) {
+      for (var i = 0; i < ids.length; i++) {
+        final r = Rect.fromLTWH(gap + i * (256 + gap) + (256 - s) / 2, y, s, s);
+        _drawIcon(c, icons[i], r, s == 256 ? null : _squircle(r));
+      }
+      y += s + gap;
+    }
+  });
 }
 
 // ------------------------------------------------------------ preview --
@@ -115,70 +175,4 @@ Path _squircle(Rect r) {
     i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
   }
   return path..close();
-}
-
-// --------------------------------------------------------- PNG (RGB) --
-
-/// Writes [img] as an 8-bit RGB PNG (colour type 2, no alpha channel).
-Future<void> _writePng(ui.Image img, String path) async {
-  final data = (await img.toByteData(format: ui.ImageByteFormat.rawRgba))!.buffer.asUint8List();
-  final w = img.width, h = img.height;
-  final raw = BytesBuilder(copy: false);
-  final row = Uint8List(1 + w * 3);
-  for (var y = 0; y < h; y++) {
-    row[0] = 0; // filter: none
-    for (var x = 0; x < w; x++) {
-      final i = (y * w + x) * 4;
-      // Composite on black would be the same for opaque pixels; the canvas is
-      // opaque, so the alpha byte is simply dropped.
-      row[1 + x * 3] = data[i];
-      row[2 + x * 3] = data[i + 1];
-      row[3 + x * 3] = data[i + 2];
-    }
-    raw.add(Uint8List.fromList(row));
-  }
-  final ihdr = ByteData(13)
-    ..setUint32(0, w)
-    ..setUint32(4, h)
-    ..setUint8(8, 8) // bit depth
-    ..setUint8(9, 2) // colour type RGB
-    ..setUint8(10, 0)
-    ..setUint8(11, 0)
-    ..setUint8(12, 0);
-  final out = BytesBuilder()
-    ..add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
-    ..add(_chunk('IHDR', ihdr.buffer.asUint8List()))
-    ..add(_chunk('IDAT', Uint8List.fromList(ZLibCodec(level: 9).encode(raw.takeBytes()))))
-    ..add(_chunk('IEND', Uint8List(0)));
-  final f = File(path)..parent.createSync(recursive: true);
-  f.writeAsBytesSync(out.takeBytes());
-}
-
-Uint8List _chunk(String type, Uint8List data) {
-  final b = BytesBuilder();
-  final len = ByteData(4)..setUint32(0, data.length);
-  final typeBytes = type.codeUnits;
-  b
-    ..add(len.buffer.asUint8List())
-    ..add(typeBytes)
-    ..add(data);
-  final crc = ByteData(4)..setUint32(0, _crc32([...typeBytes, ...data]));
-  b.add(crc.buffer.asUint8List());
-  return b.takeBytes();
-}
-
-final List<int> _crcTable = List.generate(256, (n) {
-  var c = n;
-  for (var k = 0; k < 8; k++) {
-    c = (c & 1) != 0 ? 0xEDB88320 ^ (c >> 1) : c >> 1;
-  }
-  return c;
-});
-
-int _crc32(List<int> bytes) {
-  var c = 0xFFFFFFFF;
-  for (final b in bytes) {
-    c = _crcTable[(c ^ b) & 0xFF] ^ (c >> 8);
-  }
-  return c ^ 0xFFFFFFFF;
 }

@@ -1663,6 +1663,33 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get aboutTitle => '关于 Klunki';
+
+  @override
+  String get aboutPrivacy => '隐私';
+
+  @override
+  String get aboutImpressum => '法定信息（Impressum）';
+
+  @override
+  String get aboutSupport => '支持';
+
+  @override
+  String get aboutLicense => 'Klunki 是自由开源的应用，许可证为 GNU AGPL 3.0。';
+
+  @override
+  String get aboutSourceCode => '源代码';
+
+  @override
+  String get aboutLicenses => '开源许可证';
+
+  @override
+  String get aboutOpenInBrowser => '在浏览器中打开';
+
+  @override
+  String get aboutPrivacyOffline => '此版本（English）保存在应用中，无需联网即可阅读。以网页为准：';
+
+  @override
   String get menuGameChess => '国际象棋';
 
   @override
