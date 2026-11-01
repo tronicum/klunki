@@ -2030,6 +2030,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wordtilesPremiumTripleWord => '3W';
 
   @override
+  String get wordtilesOptionTiles => 'Letters';
+
+  @override
+  String get wordtilesOptionDictionary => 'Check the dictionary';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'Every word laid is looked up. If one is missing, you decide together: take it back or allow it anyway.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'Without a dictionary you judge yourselves: a word can be challenged.';
+
+  @override
+  String get wordtilesOptionsNext => 'Next';
+
+  @override
+  String get wordtilesDictLoading => 'Loading the dictionary …';
+
+  @override
+  String get wordtilesDictLoadFailed => 'The dictionary could not be loaded.';
+
+  @override
+  String get wordtilesUnknownTitle => 'Not in the dictionary';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '“$words” are not in the dictionary.',
+      one: '“$words” is not in the dictionary.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'You can take the tiles back. If you both agree it counts anyway, allow it.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'Take back';
+
+  @override
+  String get wordtilesUnknownAllow => 'Allow anyway';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words for $score points (allowed: $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'Bench';
+
+  @override
+  String get wordtilesBenchClear => 'Move all tiles back from the bench';
+
+  @override
+  String get wordtilesBenchHint => 'Drag tiles here to try out words.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'All tiles played, final score $a : $b';
   }

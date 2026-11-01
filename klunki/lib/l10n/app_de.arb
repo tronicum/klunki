@@ -3068,6 +3068,89 @@
   "@wordtilesPremiumTripleWord": {
     "description": "Word tiles: very short label (2–3 characters) on a triple-word square."
   },
+  "wordtilesOptionTiles": "Buchstaben",
+  "@wordtilesOptionTiles": {
+    "description": "Word tiles start options: label of the tile language choice (Deutsch / English)."
+  },
+  "wordtilesOptionDictionary": "Wörterbuch prüfen",
+  "@wordtilesOptionDictionary": {
+    "description": "Word tiles start options: switch to check every laid word against the bundled word list."
+  },
+  "wordtilesOptionDictionaryOn": "Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.",
+  "@wordtilesOptionDictionaryOn": {
+    "description": "Word tiles start options: what the dictionary check does (shown while it is on)."
+  },
+  "wordtilesOptionDictionaryOff": "Ohne Wörterbuch entscheidet ihr selbst: Ein Wort kann angezweifelt werden.",
+  "@wordtilesOptionDictionaryOff": {
+    "description": "Word tiles start options: how words are judged without the dictionary (shown while it is off)."
+  },
+  "wordtilesOptionsNext": "Weiter",
+  "@wordtilesOptionsNext": {
+    "description": "Word tiles start options: button to go on to the player names."
+  },
+  "wordtilesDictLoading": "Wörterbuch wird geladen …",
+  "@wordtilesDictLoading": {
+    "description": "Word tiles: shown while the word list loads at game start."
+  },
+  "wordtilesDictLoadFailed": "Das Wörterbuch konnte nicht geladen werden.",
+  "@wordtilesDictLoadFailed": {
+    "description": "Word tiles: the word list could not be loaded (the game does not start)."
+  },
+  "wordtilesUnknownTitle": "Nicht im Wörterbuch",
+  "@wordtilesUnknownTitle": {
+    "description": "Word tiles: title of the notice after \"Legen\" when a word is not in the word list."
+  },
+  "wordtilesUnknownBody": "{count, plural, =1{„{words}“ steht nicht im Wörterbuch.} other{„{words}“ stehen nicht im Wörterbuch.}}",
+  "@wordtilesUnknownBody": {
+    "description": "Word tiles: which laid words the word list does not know. words = the words, comma separated; count = how many.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesUnknownAsk": "Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.",
+  "@wordtilesUnknownAsk": {
+    "description": "Word tiles: the joint decision after an unknown word (both players are at the device)."
+  },
+  "wordtilesUnknownWithdraw": "Zurücknehmen",
+  "@wordtilesUnknownWithdraw": {
+    "description": "Word tiles: unknown word notice, the tiles go back to the rack and the turn goes on."
+  },
+  "wordtilesUnknownAllow": "Trotzdem zulassen",
+  "@wordtilesUnknownAllow": {
+    "description": "Word tiles: unknown word notice, the players agree the word counts (house rule)."
+  },
+  "wordtilesMovePlaceAllowed": "{words} für {score} Punkte (zugelassen: {allowed})",
+  "@wordtilesMovePlaceAllowed": {
+    "description": "Word tiles history: a placement with words the players allowed although the word list lacks them.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      },
+      "allowed": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesBench": "Bänkchen",
+  "@wordtilesBench": {
+    "description": "Word tiles: the collapsible practice rows next to the rack (\"Bänkchen\") where a player tries out words; private like the rack."
+  },
+  "wordtilesBenchClear": "Alle Steine vom Bänkchen zurück",
+  "@wordtilesBenchClear": {
+    "description": "Word tiles: tooltip, moves every tile from the practice rows back to the rack."
+  },
+  "wordtilesBenchHint": "Zieh Steine hierher und probier Wörter aus.",
+  "@wordtilesBenchHint": {
+    "description": "Word tiles: shown in the empty practice rows."
+  },
   "engineReasonWordtilesPlayedOut": "Alle Steine gelegt, Endstand {a} : {b}",
   "@engineReasonWordtilesPlayedOut": {
     "description": "Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.",

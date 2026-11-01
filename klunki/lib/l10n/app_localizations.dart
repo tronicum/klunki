@@ -3306,6 +3306,102 @@ abstract class AppLocalizations {
   /// **'3W'**
   String get wordtilesPremiumTripleWord;
 
+  /// Word tiles start options: label of the tile language choice (Deutsch / English).
+  ///
+  /// In de, this message translates to:
+  /// **'Buchstaben'**
+  String get wordtilesOptionTiles;
+
+  /// Word tiles start options: switch to check every laid word against the bundled word list.
+  ///
+  /// In de, this message translates to:
+  /// **'Wörterbuch prüfen'**
+  String get wordtilesOptionDictionary;
+
+  /// Word tiles start options: what the dictionary check does (shown while it is on).
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.'**
+  String get wordtilesOptionDictionaryOn;
+
+  /// Word tiles start options: how words are judged without the dictionary (shown while it is off).
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Wörterbuch entscheidet ihr selbst: Ein Wort kann angezweifelt werden.'**
+  String get wordtilesOptionDictionaryOff;
+
+  /// Word tiles start options: button to go on to the player names.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get wordtilesOptionsNext;
+
+  /// Word tiles: shown while the word list loads at game start.
+  ///
+  /// In de, this message translates to:
+  /// **'Wörterbuch wird geladen …'**
+  String get wordtilesDictLoading;
+
+  /// Word tiles: the word list could not be loaded (the game does not start).
+  ///
+  /// In de, this message translates to:
+  /// **'Das Wörterbuch konnte nicht geladen werden.'**
+  String get wordtilesDictLoadFailed;
+
+  /// Word tiles: title of the notice after "Legen" when a word is not in the word list.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht im Wörterbuch'**
+  String get wordtilesUnknownTitle;
+
+  /// Word tiles: which laid words the word list does not know. words = the words, comma separated; count = how many.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{„{words}“ steht nicht im Wörterbuch.} other{„{words}“ stehen nicht im Wörterbuch.}}'**
+  String wordtilesUnknownBody(String words, int count);
+
+  /// Word tiles: the joint decision after an unknown word (both players are at the device).
+  ///
+  /// In de, this message translates to:
+  /// **'Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.'**
+  String get wordtilesUnknownAsk;
+
+  /// Word tiles: unknown word notice, the tiles go back to the rack and the turn goes on.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurücknehmen'**
+  String get wordtilesUnknownWithdraw;
+
+  /// Word tiles: unknown word notice, the players agree the word counts (house rule).
+  ///
+  /// In de, this message translates to:
+  /// **'Trotzdem zulassen'**
+  String get wordtilesUnknownAllow;
+
+  /// Word tiles history: a placement with words the players allowed although the word list lacks them.
+  ///
+  /// In de, this message translates to:
+  /// **'{words} für {score} Punkte (zugelassen: {allowed})'**
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed);
+
+  /// Word tiles: the collapsible practice rows next to the rack ("Bänkchen") where a player tries out words; private like the rack.
+  ///
+  /// In de, this message translates to:
+  /// **'Bänkchen'**
+  String get wordtilesBench;
+
+  /// Word tiles: tooltip, moves every tile from the practice rows back to the rack.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Steine vom Bänkchen zurück'**
+  String get wordtilesBenchClear;
+
+  /// Word tiles: shown in the empty practice rows.
+  ///
+  /// In de, this message translates to:
+  /// **'Zieh Steine hierher und probier Wörter aus.'**
+  String get wordtilesBenchHint;
+
   /// Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.
   ///
   /// In de, this message translates to:

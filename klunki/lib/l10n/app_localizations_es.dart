@@ -2044,6 +2044,67 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wordtilesPremiumTripleWord => '3P';
 
   @override
+  String get wordtilesOptionTiles => 'Letras';
+
+  @override
+  String get wordtilesOptionDictionary => 'Comprobar en el diccionario';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'Cada palabra colocada se busca. Si falta alguna, decidís juntos: retirarla o permitirla igualmente.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'Sin diccionario juzgáis vosotros: se puede dudar de una palabra.';
+
+  @override
+  String get wordtilesOptionsNext => 'Siguiente';
+
+  @override
+  String get wordtilesDictLoading => 'Cargando el diccionario…';
+
+  @override
+  String get wordtilesDictLoadFailed => 'No se pudo cargar el diccionario.';
+
+  @override
+  String get wordtilesUnknownTitle => 'No está en el diccionario';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '«$words» no están en el diccionario.',
+      one: '«$words» no está en el diccionario.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'Podéis retirar las fichas. Si estáis de acuerdo en que cuenta igualmente, permitidlo.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'Retirar';
+
+  @override
+  String get wordtilesUnknownAllow => 'Permitir igualmente';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words por $score puntos (permitido: $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'Banquito';
+
+  @override
+  String get wordtilesBenchClear => 'Devolver todas las fichas del banquito';
+
+  @override
+  String get wordtilesBenchHint => 'Arrastra fichas aquí para probar palabras.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Todas las fichas colocadas, resultado final $a : $b';
   }

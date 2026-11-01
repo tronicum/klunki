@@ -13,6 +13,7 @@ import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
 import '../games/wordtiles_screen.dart';
+import '../games/wordtiles/wordtiles_options.dart';
 import '../../profile/player_name_controller.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../../profile/quartett_deck_settings.dart';
@@ -86,25 +87,38 @@ class GameNotInAppScreen extends StatelessWidget {
 /// Starts a hot-seat game of [gameId] (random seed unless given; [deck] for
 /// Quartett, KLD-069) and pushes its screen. The controller lives as long as
 /// the route and is disposed when it is popped.
-Future<void> openGame(BuildContext context, String gameId, {int? seed, String? deck}) {
+Future<void> openGame(BuildContext context, String gameId,
+    {int? seed, String? deck, String? tiles, bool dictionary = false}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
-    builder: (_) => GameSession(config: GameConfig(gameId, seed: seed ?? newGameSeed(), deck: deck)),
+    builder: (_) => GameSession(
+        config: GameConfig(gameId, seed: seed ?? newGameSeed(), deck: deck, tiles: tiles, dictionary: dictionary)),
   ));
 }
 
 /// The menu's way into a game: Quartett first asks for the deck
-/// (KLD-069, [showQuartettDeckPicker]); then "Wer spielt?" (KLD-103) asks
-/// for both player names, prefilled with the last ones or the default names
-/// (only with the app's [PlayerNameScope]). Cancelling either starts nothing.
+/// (KLD-069, [showQuartettDeckPicker]), Wortgewandt for the tile language
+/// and the word list (KLD-094, [showWordTilesOptionsDialog]); then "Wer
+/// spielt?" (KLD-103) asks for both player names, prefilled with the last
+/// ones or the default names (only with the app's [PlayerNameScope]).
+/// Cancelling any of them starts nothing. A Wortgewandt game with "Wörterbuch
+/// prüfen" loads its word list before the game opens.
 Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
   String? deck;
   if (specById(gameId)?.usesDeck == true) {
     deck = await showQuartettDeckPicker(context, settings: deckSettings);
     if (deck == null || !context.mounted) return;
   }
+  WordTilesOptions? words;
+  if (gameId == 'wordtiles') {
+    words = await showWordTilesOptionsDialog(context);
+    if (words == null || !context.mounted) return;
+  }
   final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
   if (!go || !context.mounted) return;
-  return openGame(context, gameId, deck: deck);
+  if (words != null && words.dictionary) {
+    if (!await loadWordListWithProgress(context, words.tiles) || !context.mounted) return;
+  }
+  return openGame(context, gameId, deck: deck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

@@ -74,3 +74,13 @@ See [`docs/BUILDING.md`](docs/BUILDING.md) for the full build guide, `docs/ROADM
 
 Klunki is licensed under the **GNU Affero General Public License v3.0**
 (AGPL-3.0-only). See [`LICENSE`](LICENSE).
+
+Bundled third-party data keeps its own licence (all listed on the app's licence page): fonts (SIL OFL 1.1),
+Quartett card photos (see `klunki/assets/quartett/*/credits.json`), and the word lists of the word tile game
+(`klunki/assets/wordlists/*/SOURCE.txt`):
+
+- German: [enz/german-wordlist](https://github.com/enz/german-wordlist), CC0-1.0.
+- English: the English Speller Database (ESDB, formerly SCOWL) by Kevin Atkinson,
+  [en-wl/wordlist](https://github.com/en-wl/wordlist), "Copyright 2000-2026 by Kevin Atkinson", MIT-like licence
+  (full notice in `klunki/assets/wordlists/en/LICENSE`); derived mainly from 12dicts and ENABLE2K (public domain,
+  Alan Beale).

@@ -1970,6 +1970,63 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesPremiumTripleWord => '组×3';
 
   @override
+  String get wordtilesOptionTiles => '字母';
+
+  @override
+  String get wordtilesOptionDictionary => '查字典';
+
+  @override
+  String get wordtilesOptionDictionaryOn => '每组字出牌后查字典。字典里没有时，你们来定：取回或仍然接受。';
+
+  @override
+  String get wordtilesOptionDictionaryOff => '没有字典时以你们为准：可以否认一组字。';
+
+  @override
+  String get wordtilesOptionsNext => '下一步';
+
+  @override
+  String get wordtilesDictLoading => '正在载入字典……';
+
+  @override
+  String get wordtilesDictLoadFailed => '无法载入字典。';
+
+  @override
+  String get wordtilesUnknownTitle => '字典里没有';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '字典里没有“$words”。',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk => '可以取回这些牌。如果你们都同意仍然算数，就接受。';
+
+  @override
+  String get wordtilesUnknownWithdraw => '取回';
+
+  @override
+  String get wordtilesUnknownAllow => '仍然接受';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words，$score 分（仍然接受：$allowed）';
+  }
+
+  @override
+  String get wordtilesBench => '试牌';
+
+  @override
+  String get wordtilesBenchClear => '取回试牌上的所有牌';
+
+  @override
+  String get wordtilesBenchHint => '把牌拖到这里试试组字。';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return '所有牌已出完，比分 $a : $b';
   }

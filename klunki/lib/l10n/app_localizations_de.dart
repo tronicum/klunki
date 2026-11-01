@@ -2039,6 +2039,69 @@ class AppLocalizationsDe extends AppLocalizations {
   String get wordtilesPremiumTripleWord => '3W';
 
   @override
+  String get wordtilesOptionTiles => 'Buchstaben';
+
+  @override
+  String get wordtilesOptionDictionary => 'Wörterbuch prüfen';
+
+  @override
+  String get wordtilesOptionDictionaryOn =>
+      'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.';
+
+  @override
+  String get wordtilesOptionDictionaryOff =>
+      'Ohne Wörterbuch entscheidet ihr selbst: Ein Wort kann angezweifelt werden.';
+
+  @override
+  String get wordtilesOptionsNext => 'Weiter';
+
+  @override
+  String get wordtilesDictLoading => 'Wörterbuch wird geladen …';
+
+  @override
+  String get wordtilesDictLoadFailed =>
+      'Das Wörterbuch konnte nicht geladen werden.';
+
+  @override
+  String get wordtilesUnknownTitle => 'Nicht im Wörterbuch';
+
+  @override
+  String wordtilesUnknownBody(String words, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '„$words“ stehen nicht im Wörterbuch.',
+      one: '„$words“ steht nicht im Wörterbuch.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesUnknownAsk =>
+      'Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.';
+
+  @override
+  String get wordtilesUnknownWithdraw => 'Zurücknehmen';
+
+  @override
+  String get wordtilesUnknownAllow => 'Trotzdem zulassen';
+
+  @override
+  String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
+    return '$words für $score Punkte (zugelassen: $allowed)';
+  }
+
+  @override
+  String get wordtilesBench => 'Bänkchen';
+
+  @override
+  String get wordtilesBenchClear => 'Alle Steine vom Bänkchen zurück';
+
+  @override
+  String get wordtilesBenchHint =>
+      'Zieh Steine hierher und probier Wörter aus.';
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Alle Steine gelegt, Endstand $a : $b';
   }

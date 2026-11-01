@@ -1,0 +1,38 @@
+Wortgewandt word list, English (tile set "en"), KLD-094 step 4
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, upper case, sorted)
+Words:     190,787 (2-15 letters)
+Size:      1,937,171 bytes raw, 500,999 bytes gzip
+sha256:    0927f44c2dedac2e82bbade2a262b0e4d245c59ad4c021762bec30d9a8e7091d  words.txt.gz
+
+Source:    English Speller Database (ESDB, previously SCOWL / SCOWLv2) by Kevin Atkinson,
+           https://github.com/en-wl/wordlist
+           file "data/scowl-pre.txt" at commit 1e5b7d3a72f47a71da5d28686c1dd4b397178485 (2026-06-24)
+           https://raw.githubusercontent.com/en-wl/wordlist/1e5b7d3a72f47a71da5d28686c1dd4b397178485/data/scowl-pre.txt
+           sha256 a5fe3f11682a6ab9d31f2ea2a185833b1a01be7af83409c671bd0756a870f6c7
+           (the project's GitHub releases only carry Hunspell/Aspell dictionaries; scowl-pre.txt is the database
+           text the project's own build combines into scowl.txt. We parse it ourselves instead of running the
+           project's make/Python tools, so the small corrections in data/fixes, data/extra etc. are not applied.)
+Licence:   MIT-like (see LICENSE, the project's Copyright file):
+             Copyright 2000-2026 by Kevin Atkinson
+             Permission to use, copy, modify, distribute, and sell any part of the English Speller Database
+             (ESDB, previously known as SCOWLv2), or word lists created from it, is hereby granted without fee,
+             provided that the above copyright notice appears in all copies and that both the above copyright
+             notice and this notice appear in supporting documentation. [...]
+           Only the main notice applies: the list uses no size above 80 (the UKACD notice applies above 80)
+           and no Australian-only data (the AU notice applies to the 'D' spelling / 'AU' region).
+           Primary sources credited by the project: 12dicts and ENABLE2K (public domain, Alan Beale).
+Fetched:   2026-11-02 with curl, approved by the maintainer (KLD-094 step 4).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py en <download dir> --size 80
+  * size <= 80 ("80: a valid word in current usage ... the strange and unusual words people like to use in
+    word games"); size 70 has 130,169 words and lacks e.g. ZA, QAT, ZAX, so 80 was chosen;
+  * sizes counted without region or for US / GB / CA; derived-form annotations raise the size like ESDB does;
+  * spellings A (US), B / Z (GB), C (CA), _ ; variant levels up to V (acceptable) and @ (archaic);
+    dropped: '-' (uncommon) and 'x' (misspelling);
+  * dropped: words with upper-case letters (proper nouns, abbreviations), name / place / trademark / abbreviation
+    classes, abbreviations, prefixes, suffixes, contractions, multi-word parts, unit symbols without a vowel
+    that ENABLE does not list (CM, KG, ML), and every group tagged offensive-* or vulgar-* (61 groups);
+  * normalized to upper case; kept: 2-15 letters A-Z (no apostrophes, hyphens, accents).
+Check:     python3 -I tool/build_word_lists.py check

@@ -16,6 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
+import 'package:klunki/ui/games/wordtiles/wordtiles_options.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -63,19 +65,28 @@ Future<void> _shot(WidgetTester tester, String name) async {
 }
 
 Future<GameController> _pump(WidgetTester tester, Size size,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light}) async {
+    {Locale locale = const Locale('de'),
+    Brightness brightness = Brightness.light,
+    GameConfig config = const GameConfig('wordtiles', seed: 1),
+    List<List<String>> racks = const [
+      ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+      ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+    ]}) async {
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
+  final c = GameController.hotSeat(config);
   addTearDown(c.dispose);
   (c.game as WordTilesGame).debugSetup(
-    racks: const [
-      ['H', 'A', 'U', 'S', 'E', 'N', '?'],
-      ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
-    ],
+    racks: racks,
     bag: [...List.filled(30, 'E'), 'L', 'K', 'M', 'A', 'I', 'R', 'B', 'Ü'],
   );
+  await _pumpScreen(tester, locale: locale, brightness: brightness, child: buildGameScreen(c));
+  return c;
+}
+
+Future<void> _pumpScreen(WidgetTester tester,
+    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light, required Widget child}) async {
   await tester.pumpWidget(RepaintBoundary(
     key: _boundary,
     child: MaterialApp(
@@ -91,13 +102,12 @@ Future<GameController> _pump(WidgetTester tester, Size size,
       supportedLocales: AppLocalizations.supportedLocales,
       home: PlayerLabelsScope(
         labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
-        child: buildGameScreen(c),
+        child: child,
       ),
     ),
   ));
   await tester.pump();
   await tester.pump();
-  return c;
 }
 
 Future<void> _submit(WidgetTester tester, GameController c, List<(int, int, String, String?)> tiles) async {
@@ -200,5 +210,72 @@ void main() {
     c = await _pump(tester, phone, locale: const Locale('ar'));
     await _midGame(tester, c);
     await _shot(tester, 'iphone-ar-mid');
+  });
+
+  // KLD-094 step 4: the bench, the check at "Legen" with the real German
+  // word list, and the start options (`--plain-name kld094-step4`).
+  group('kld094-step4', () {
+    const sizes = [
+      ('iphone-se', Size(375, 667)),
+      ('iphone-max', Size(430, 932)),
+      ('ipad-portrait', Size(820, 1180)),
+      ('ipad-landscape', Size(1180, 820)),
+    ];
+    const dict = GameConfig('wordtiles', seed: 1, dictionary: true);
+    const anna = ['B', 'A', 'U', 'M', 'E', 'N', '?'];
+
+    for (final (name, size) in sizes) {
+      testWidgets('bench $name', skip: skip, (tester) async {
+        await tester.runAsync(() => WordListLoader.ensure('de'));
+        final c = await _pump(tester, size, config: dict, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
+        // Open the bench where it starts collapsed (small phones).
+        if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isEmpty) {
+          await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        }
+        await _shot(tester, 'bench-$name-0-empty');
+        // BAUM in row 0, NE in row 1 (tap a tile, then a slot).
+        for (final (t, r, s) in [('B', 0, 1), ('A', 0, 2), ('U', 0, 3), ('M', 0, 4), ('N', 1, 2), ('E', 1, 3)]) {
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await _tap(tester, find.byKey(Key('wordtiles-bench-$r-$s')));
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, 'bench-$name-1-word-score');
+        // BAUN on the board (from the bench), "Legen": not in the list.
+        for (final (t, col) in [('U', 7), ('A', 6), ('B', 5), ('N', 8)]) {
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await tester.ensureVisible(find.byKey(Key('wordtiles-sq-7-$col')));
+          await _tap(tester, find.byKey(Key('wordtiles-sq-7-$col')));
+          await tester.pumpAndSettle();
+        }
+        await _shot(tester, 'bench-$name-2-laid-preview');
+        await _tap(tester, find.byKey(const Key('wordtiles-play')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('wordtiles-unknown')), findsOneWidget);
+        await _shot(tester, 'bench-$name-3-unknown-word');
+        await _tap(tester, find.byKey(const Key('wordtiles-unknown-allow')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'bench-$name-4-allowed-cover');
+        await _tap(tester, find.byKey(const Key('handover-continue')));
+        await tester.pumpAndSettle();
+        await _tap(tester, find.byKey(const Key('shell-history')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'bench-$name-5-history');
+      });
+    }
+
+    for (final (lang, locale) in [('de', Locale('de')), ('en', Locale('en'))]) {
+      testWidgets('start options $lang', skip: skip, (tester) async {
+        tester.view.physicalSize = const Size(375, 667) * 2;
+        tester.view.devicePixelRatio = 2;
+        addTearDown(tester.view.reset);
+        await _pumpScreen(tester, locale: locale, child: const Scaffold(body: SizedBox.expand()));
+        showWordTilesOptionsDialog(tester.element(find.byType(Scaffold)));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'options-$lang-1-default');
+        await _tap(tester, find.byKey(const Key('wordtiles-dict')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'options-$lang-2-no-dictionary');
+      });
+    }
   });
 }

@@ -22,12 +22,21 @@ import 'word_tiles.dart';
 /// rule "with 3 or fewer cards you choose which card to play", see
 /// [QuartettGame.pickLowCards]. Public config like the deck; JSON key
 /// `pickLow`, written only when off (absent = on).
+///
+/// Word tiles (KLD-094 step 4): [tiles] picks the tile set ([TileSet.byId],
+/// JSON `tiles`; null = German), [dictionary] (JSON `dict`, written only
+/// when on) checks every word against the list registered in [WordLists]
+/// for that tile set ([WordCheck.dictionary]); off = challenge mode. Other
+/// games ignore both.
 class GameConfig {
   final String gameId;
   final int seed;
   final String? deck;
   final bool pickLowCards;
-  const GameConfig(this.gameId, {this.seed = 0, this.deck, this.pickLowCards = true});
+  final String? tiles;
+  final bool dictionary;
+  const GameConfig(this.gameId,
+      {this.seed = 0, this.deck, this.pickLowCards = true, this.tiles, this.dictionary = false});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -35,13 +44,22 @@ class GameConfig {
   /// secret.
   Map<String, dynamic> publicJson() => {'game': gameId, ..._options};
 
-  Map<String, dynamic> get _options => {if (deck != null) 'deck': deck, if (!pickLowCards) 'pickLow': false};
+  Map<String, dynamic> get _options => {
+        if (deck != null) 'deck': deck,
+        if (!pickLowCards) 'pickLow': false,
+        if (tiles != null) 'tiles': tiles,
+        if (dictionary) 'dict': true,
+      };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
-      seed: json['seed'] as int? ?? 0, deck: json['deck'] as String?, pickLowCards: json['pickLow'] != false);
+      seed: json['seed'] as int? ?? 0,
+      deck: json['deck'] as String?,
+      pickLowCards: json['pickLow'] != false,
+      tiles: json['tiles'] as String?,
+      dictionary: json['dict'] == true);
 
-  GameConfig copyWith({int? seed}) =>
-      GameConfig(gameId, seed: seed ?? this.seed, deck: deck, pickLowCards: pickLowCards);
+  GameConfig copyWith({int? seed}) => GameConfig(gameId,
+      seed: seed ?? this.seed, deck: deck, pickLowCards: pickLowCards, tiles: tiles, dictionary: dictionary);
 
   @override
   bool operator ==(Object other) =>
@@ -49,14 +67,17 @@ class GameConfig {
       other.gameId == gameId &&
       other.seed == seed &&
       other.deck == deck &&
-      other.pickLowCards == pickLowCards;
+      other.pickLowCards == pickLowCards &&
+      other.tiles == tiles &&
+      other.dictionary == dictionary;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary);
 
   @override
   String toString() =>
-      'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'})';
+      'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
+      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -96,10 +117,14 @@ class GameSpec {
   /// A new game; [deck] (games with [usesDeck]) defaults to the car deck.
   /// [pickLowCards]: see [GameConfig.pickLowCards]. Throws [ArgumentError]
   /// for an unknown deck.
-  Game create([int seed = 0, String? deck, bool pickLowCards = true]) {
-    final d = QuartettDeck.byId(usesDeck ? deck : null);
-    if (d == null) throw ArgumentError.value(deck, 'deck', 'unknown deck');
-    return _create(GameConfig(id, seed: seed, deck: deck, pickLowCards: pickLowCards), d);
+  Game create([int seed = 0, String? deck, bool pickLowCards = true]) =>
+      createFrom(GameConfig(id, seed: seed, deck: deck, pickLowCards: pickLowCards));
+
+  /// A new game for [config] (its id is not checked against [id]).
+  Game createFrom(GameConfig config) {
+    final d = QuartettDeck.byId(usesDeck ? config.deck : null);
+    if (d == null) throw ArgumentError.value(config.deck, 'deck', 'unknown deck');
+    return _create(config, d);
   }
 }
 
@@ -124,10 +149,22 @@ final List<GameSpec> gameSpecs = [
   // network play from step 3 (see `networkGameSpecs` in the app).
   GameSpec('chess', 'Schach', (_, __) => ChessGame()),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
-  // title "Wortgewandt" (chosen by the maintainer, 2026-11-01).
-  GameSpec('wordtiles', 'Wortgewandt', (c, _) => WordTilesGame(seed: c.seed),
-      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false),
+  // title "Wortgewandt" (chosen by the maintainer, 2026-11-01). Rules 2
+  // (step 4): tile set and word list per game (GameConfig.tiles /
+  // .dictionary), `allow` on placements, the word-list revisions in the
+  // fingerprint.
+  GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
+      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false, rulesVersion: 2),
 ];
+
+WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
+  final tileSet = TileSet.byId(c.tiles ?? TileSet.german.id) ??
+      (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
+  if (!c.dictionary) return WordTilesGame(seed: c.seed, tileSet: tileSet);
+  final list = WordLists.of(tileSet.id) ??
+      (throw ArgumentError.value(tileSet.id, 'tiles', 'no word list loaded for this tile set'));
+  return WordTilesGame(seed: c.seed, tileSet: tileSet, check: WordCheck.dictionary, validator: list);
+}
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a
 /// screen.
@@ -140,6 +177,11 @@ String? configProblem(GameConfig config) {
   final spec = specById(config.gameId);
   if (spec == null) return 'unknown game "${config.gameId}"';
   if (spec.usesDeck && QuartettDeck.byId(config.deck) == null) return 'unknown deck "${config.deck}"';
+  if (config.gameId == 'wordtiles') {
+    final tiles = config.tiles ?? TileSet.german.id;
+    if (TileSet.byId(tiles) == null) return 'unknown tile set "$tiles"';
+    if (config.dictionary && !WordLists.has(tiles)) return 'no word list for "$tiles"';
+  }
   return null;
 }
 
@@ -148,7 +190,7 @@ String? configProblem(GameConfig config) {
 Game createGame(GameConfig config) {
   final spec = specById(config.gameId);
   if (spec == null) throw ArgumentError.value(config.gameId, 'gameId', 'unknown game');
-  return spec.create(config.seed, config.deck, config.pickLowCards);
+  return spec.createFrom(config);
 }
 
 /// Rebuilds a game by replaying [moves] on a fresh instance. Returns null if
