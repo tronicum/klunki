@@ -6,7 +6,6 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' show Player;
 
 import '../profile/player_name_controller.dart';
-import 'games/chess/chess_pieces.dart' show chessSideName;
 import 'shell/game_screen.dart' show PlayerToken;
 import 'shell/player_labels.dart';
 
@@ -221,7 +220,10 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
         controller: c,
         inputFormatters: playerNameInputFormatters,
         decoration: InputDecoration(
-          labelText: l10n.hotSeatNameLabel(gameId == 'chess' ? chessSideName(l10n, p) : mark),
+          // Numbered in turn order: player A (1) makes the first move in
+          // every game, including the setup phases and chess (White).
+          labelText: l10n.hotSeatNameLabel(p == Player.a ? 1 : 2),
+          helperText: p == Player.a ? l10n.hotSeatStartsHint : null,
           hintText: defaultPlayerName(l10n, p),
           // The player's colour and symbol, as on the board (KLD-103).
           prefixIcon: gameId == null

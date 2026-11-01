@@ -5,8 +5,8 @@ import 'secrecy.dart';
 
 part 'word_tiles_view.dart';
 
-/// A crossword-style word tile game (KLD-094, id `wordtiles`; working title
-/// "Wortleger"): players draw letter tiles from a bag and lay words on a
+/// A crossword-style word tile game (KLD-094, id `wordtiles`, title
+/// "Wortgewandt"): players draw letter tiles from a bag and lay words on a
 /// 15 × 15 board with premium squares. See `docs/tasks/KLD-094-word-tiles.md`.
 ///
 /// The engine is written for 2–4 seats ([playerCount]); seats are `0…n-1`

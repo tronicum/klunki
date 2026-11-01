@@ -771,9 +771,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hotSeatNamesTitle => 'أسماء اللاعبين';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return 'اللاعب $mark';
+  String hotSeatNameLabel(int number) {
+    return 'اللاعب $number';
   }
+
+  @override
+  String get hotSeatStartsHint => 'الدور الأول';
 
   @override
   String get hotSeatNamesHelper => 'اتركه فارغًا لاستخدام الاسم الافتراضي.';
@@ -1832,7 +1835,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => 'بلاطات الكلمات';
+  String get menuGameWordTiles => 'فصاحة';
 
   @override
   String get menuDescWordTiles => 'كوّن كلمات من الحروف';

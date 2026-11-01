@@ -189,8 +189,8 @@ void main() {
     const defaults = {
       'de': ('Anna', 'Ben'),
       'en': ('Anna', 'Ben'),
-      'fr': ('Anna', 'Ben'),
-      'es': ('Ana', 'Ben'),
+      'fr': ('Anne', 'Hugo'),
+      'es': ('Ana', 'Beto'),
       'zh': ('小红', '小明'),
       'ar': ('أمل', 'باسم'),
       'fa': ('آرزو', 'بابک'),
@@ -288,6 +288,12 @@ void main() {
       // The player tokens (colour and symbol) sit next to the fields.
       expect(find.descendant(of: find.byKey(const Key('hot-seat-start-dialog')), matching: find.byType(PlayerToken)),
           findsNWidgets(2));
+      // Numbered fields (not "Spieler X / O"); player 1 starts in every game.
+      final dialog = find.byKey(const Key('hot-seat-start-dialog'));
+      expect(find.descendant(of: dialog, matching: find.text('Spieler 1')), findsOneWidget);
+      expect(find.descendant(of: dialog, matching: find.text('Spieler 2')), findsOneWidget);
+      expect(find.descendant(of: dialog, matching: find.text('beginnt')), findsOneWidget);
+      expect(find.descendant(of: dialog, matching: find.textContaining('Spieler X')), findsNothing);
       await tester.tap(find.text('Spielen'));
       await tester.pumpAndSettle();
       expect(find.byType(GameScreen), findsOneWidget);

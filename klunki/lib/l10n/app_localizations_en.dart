@@ -744,9 +744,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hotSeatNamesTitle => 'Player names';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return 'Player $mark';
+  String hotSeatNameLabel(int number) {
+    return 'Player $number';
   }
+
+  @override
+  String get hotSeatStartsHint => 'starts';
 
   @override
   String get hotSeatNamesHelper => 'Leave empty for the default name.';
@@ -1814,7 +1817,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => 'Word Tiles';
+  String get menuGameWordTiles => 'Wordsmith';
 
   @override
   String get menuDescWordTiles => 'Lay words from letter tiles';

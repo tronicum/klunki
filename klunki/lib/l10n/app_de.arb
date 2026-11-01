@@ -1165,14 +1165,18 @@
   "@hotSeatNamesTitle": {
     "description": "Game on this device: title of the player names dialog (app bar button during the game) and tooltip of that button."
   },
-  "hotSeatNameLabel": "Spieler {mark}",
+  "hotSeatNameLabel": "Spieler {number}",
   "@hotSeatNameLabel": {
-    "description": "Player names dialog (game on this device): label of the name field of one player; mark = X or O (chess: Weiß / Schwarz), shown next to the player's token.",
+    "description": "Player names dialog (game on this device): label of the name field of one player, numbered in turn order (1 = player A, who starts in every game; 2 = player B). The player's token (colour, symbol) is shown in the field.",
     "placeholders": {
-      "mark": {
-        "type": "String"
+      "number": {
+        "type": "int"
       }
     }
+  },
+  "hotSeatStartsHint": "beginnt",
+  "@hotSeatStartsHint": {
+    "description": "KLD-103: Player names dialog (game on this device): small hint under the field of player 1, who makes the first move in every game. Short; no gendered verb (Arabic: a noun phrase)."
   },
   "hotSeatNamesHelper": "Leer lassen für den Standardnamen.",
   "@hotSeatNamesHelper": {
@@ -2769,9 +2773,9 @@
       }
     }
   },
-  "menuGameWordTiles": "Wortleger",
+  "menuGameWordTiles": "Wortgewandt",
   "@menuGameWordTiles": {
-    "description": "Game title: the crossword-style word tile game (KLD-094; working title, no brand names)."
+    "description": "Game title: the crossword-style word tile game (KLD-094). Name chosen by the maintainer: Wortgewandt (= eloquent, skilled with words). Translate as a short, natural game name in that spirit (en Wordsmith), not literally; no brand names."
   },
   "menuDescWordTiles": "Wörter aus Buchstaben legen",
   "@menuDescWordTiles": {

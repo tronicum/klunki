@@ -727,9 +727,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hotSeatNamesTitle => '玩家名字';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return '玩家 $mark';
+  String hotSeatNameLabel(int number) {
+    return '玩家 $number';
   }
+
+  @override
+  String get hotSeatStartsHint => '先走';
 
   @override
   String get hotSeatNamesHelper => '留空则使用默认名字。';
@@ -1767,7 +1770,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => '字母牌';
+  String get menuGameWordTiles => '文字高手';
 
   @override
   String get menuDescWordTiles => '用字母牌在棋盘上组字得分';

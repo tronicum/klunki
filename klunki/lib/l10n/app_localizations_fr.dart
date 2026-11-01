@@ -741,10 +741,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get playerDefaultNameA => 'Anna';
+  String get playerDefaultNameA => 'Anne';
 
   @override
-  String get playerDefaultNameB => 'Ben';
+  String get playerDefaultNameB => 'Hugo';
 
   @override
   String get hotSeatStartTitle => 'Qui joue ?';
@@ -756,9 +756,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hotSeatNamesTitle => 'Noms des joueurs';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return 'Joueur $mark';
+  String hotSeatNameLabel(int number) {
+    return 'Joueur $number';
   }
+
+  @override
+  String get hotSeatStartsHint => 'commence';
 
   @override
   String get hotSeatNamesHelper => 'Laisse vide pour garder le nom par défaut.';
@@ -1831,7 +1834,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => 'Tuiles de mots';
+  String get menuGameWordTiles => 'As des mots';
 
   @override
   String get menuDescWordTiles => 'Former des mots avec des lettres';

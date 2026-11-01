@@ -21,7 +21,7 @@ class WordTilesText extends TextGame {
   @override
   String get id => 'wordtiles';
   @override
-  String get title => 'Wortleger';
+  String get title => 'Wortgewandt';
   @override
   String get moveHelp =>
       '"h8 HAUS" (across), "8h HAUS" (down; lower case = blank), "pass", "exchange QX?", "challenge", "accept"';

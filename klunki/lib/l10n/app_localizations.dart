@@ -1200,11 +1200,17 @@ abstract class AppLocalizations {
   /// **'Spielernamen'**
   String get hotSeatNamesTitle;
 
-  /// Player names dialog (game on this device): label of the name field of one player; mark = X or O (chess: Weiß / Schwarz), shown next to the player's token.
+  /// Player names dialog (game on this device): label of the name field of one player, numbered in turn order (1 = player A, who starts in every game; 2 = player B). The player's token (colour, symbol) is shown in the field.
   ///
   /// In de, this message translates to:
-  /// **'Spieler {mark}'**
-  String hotSeatNameLabel(String mark);
+  /// **'Spieler {number}'**
+  String hotSeatNameLabel(int number);
+
+  /// KLD-103: Player names dialog (game on this device): small hint under the field of player 1, who makes the first move in every game. Short; no gendered verb (Arabic: a noun phrase).
+  ///
+  /// In de, this message translates to:
+  /// **'beginnt'**
+  String get hotSeatStartsHint;
 
   /// Player names dialog (game on this device): an empty field means the default name (playerDefaultNameA / playerDefaultNameB).
   ///
@@ -2982,10 +2988,10 @@ abstract class AppLocalizations {
   /// **'{times}-mal dieselbe Stellung'**
   String engineReasonChessThreefoldRepetition(int times);
 
-  /// Game title: the crossword-style word tile game (KLD-094; working title, no brand names).
+  /// Game title: the crossword-style word tile game (KLD-094). Name chosen by the maintainer: Wortgewandt (= eloquent, skilled with words). Translate as a short, natural game name in that spirit (en Wordsmith), not literally; no brand names.
   ///
   /// In de, this message translates to:
-  /// **'Wortleger'**
+  /// **'Wortgewandt'**
   String get menuGameWordTiles;
 
   /// Menu tile one-liner for the word tile game (KLD-094).

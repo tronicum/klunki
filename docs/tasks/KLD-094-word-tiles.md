@@ -1,10 +1,10 @@
-# KLD-094: Word tile game (crossword-style, working title "Wortleger")
+# KLD-094: Word tile game "Wortgewandt" (crossword-style)
 
 - **ID:** `KLD-094`
 - **Title:** A crossword-style letter tile game (id `wordtiles`)
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
-  (hot-seat screen, `appReady` still false until the 🧑 UX review and the name); steps 3–5 open, see "Step plan"
+  (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); steps 3–5 open, see "Step plan"
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -22,11 +22,16 @@ premium squares, for 2 (later up to 4) players, hot-seat and over the network, w
 
 ## Naming and IP
 No brand names anywhere (code, docs, UI): the engine says "word tiles", the id is `wordtiles`.
-- **Name proposals** (🧑 to pick; `Wortleger` is the working title in `GameSpec`):
-  1. **Wortleger** (de) / "Word Layer": says what you do, short, no clash we know of.
-  2. **Buchstabensalat** (de) / "Letter Salad": playful, fits Klunki's tone; long for a menu tile.
-  3. **Kreuzwort** (de) / "Crossword Tiles": clear, but "Kreuzworträtsel" suggests a puzzle, not a game.
-  4. **Letter Tiles** / "Buchstabenplättchen": neutral, works in every locale.
+- **Name: Wortgewandt** (decided 2026-11-01, chosen by the maintainer; German for "eloquent, skilled with words").
+  Display title only: the id `wordtiles`, the protocol and the compat fingerprint are unchanged. Per locale
+  (`menuGameWordTiles`): en **Wordsmith**, fr **As des mots** (short, natural, invariable "as" = ace, no gender;
+  "Virtuose des mots" is 17 characters and stiff on a menu tile), es **Palabrista** (short and playful; "Juego de
+  palabras" means "pun"), zh **文字高手** ("master of words"; every glyph is already in the bundled Noto Sans SC
+  subset, 妙笔生词 is not), ar **فصاحة** ("eloquence", a noun, so no gendered form), fa **سخنور** ("eloquent
+  speaker", gender-neutral; واژه‌پرداز would read as "word processor").
+- **Kept for future games:** WortSalat and KlunkerKombi (maintainer's other proposals).
+- *Historical note:* the working title until 2026-11-01 was "Wortleger"; the other early proposals were
+  Buchstabensalat, Kreuzwort and Letter Tiles.
 - **Rules are not protected; trade dress may be.** We use the common rules (they are game mechanics) but our own
   board: the premium layout below is designed here, not copied. The tile counts and point values are derived by
   us from published letter-frequency facts (see "Tile sets"). No colours, fonts, logos or tile look of any
@@ -225,7 +230,7 @@ host's reveal verified by the guest.
 ## Step 2 (hot-seat UI): what was built
 - **Touched paths:** `klunki/lib/ui/games/wordtiles_screen.dart`, `lib/ui/games/wordtiles/{wordtiles_board,wordtiles_tiles}.dart`
   (new); `lib/ui/shell/screen_registry.dart` (`gameScreens`, `previewGames = {'wordtiles'}`, `hotSeatOnlyGames`),
-  `lib/ui/menu_screen.dart` (debug-only "Vorschau: Wortleger" button under the debug console), `lib/ui/game_titles.dart`,
+  `lib/ui/menu_screen.dart` (debug-only "Vorschau: Wortgewandt" button under the debug console), `lib/ui/game_titles.dart`,
   `lib/ui/game_visuals.dart` (illustration, one-liner), `lib/app/theme.dart` (accent), `lib/ui/engine_l10n.dart` (both end
   reasons localized), ARB keys `menuGameWordTiles`, `menuDescWordTiles`, `menuPreviewGame`, `wordtiles*`,
   `engineReasonWordtiles*` in all 7 locales (zh written with the characters the bundled Noto Sans SC subset already has:
@@ -269,7 +274,7 @@ host's reveal verified by the guest.
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 
 ## Open questions (🧑)
-1. **Name:** Wortleger, Buchstabensalat, Kreuzwort or Letter Tiles (or another)?
+1. ~~**Name**~~: decided, **Wortgewandt** (see "Naming and IP").
 2. **Word list for German:** OK to download enz/german-wordlist (CC0) for a check of coverage and size? English
    SCOWL 70 (or ENABLE)?
 3. **Challenge without a list:** should the challenger's call be final (current), or should the placer be able to

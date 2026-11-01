@@ -743,9 +743,12 @@ class AppLocalizationsFa extends AppLocalizations {
   String get hotSeatNamesTitle => 'نام بازیکنان';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return 'بازیکن $mark';
+  String hotSeatNameLabel(int number) {
+    return 'بازیکن $number';
   }
+
+  @override
+  String get hotSeatStartsHint => 'شروع می‌کند';
 
   @override
   String get hotSeatNamesHelper => 'خالی بگذار تا نام پیش‌فرض استفاده شود.';
@@ -1811,7 +1814,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => 'کاشی‌های واژه';
+  String get menuGameWordTiles => 'سخنور';
 
   @override
   String get menuDescWordTiles => 'با حروف واژه بساز';

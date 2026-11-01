@@ -296,7 +296,7 @@ void main() {
     await tester.tap(find.byKey(const Key('menu-preview-wordtiles')));
     await tester.pumpAndSettle();
     expect(find.byType(WordTilesScreen), findsOneWidget);
-    expect(find.descendant(of: find.byType(AppBar), matching: find.text('Wortleger')), findsOneWidget);
+    expect(find.descendant(of: find.byType(AppBar), matching: find.text('Wortgewandt')), findsOneWidget);
     expect(controllerOf(tester).config.gameId, 'wordtiles');
     expect(find.byType(GameScreen), findsOneWidget);
   });

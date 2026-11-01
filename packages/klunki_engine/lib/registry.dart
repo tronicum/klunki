@@ -124,8 +124,8 @@ final List<GameSpec> gameSpecs = [
   // network play from step 3 (see `networkGameSpecs` in the app).
   GameSpec('chess', 'Schach', (_, __) => ChessGame()),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
-  // the title is a working title until the user picks a name.
-  GameSpec('wordtiles', 'Wortleger', (c, _) => WordTilesGame(seed: c.seed),
+  // title "Wortgewandt" (chosen by the maintainer, 2026-11-01).
+  GameSpec('wordtiles', 'Wortgewandt', (c, _) => WordTilesGame(seed: c.seed),
       hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false),
 ];
 

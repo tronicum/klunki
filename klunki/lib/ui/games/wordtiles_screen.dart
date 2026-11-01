@@ -7,7 +7,7 @@ import '../../transport/game_transport.dart';
 import '../shell/game_screen.dart';
 import 'wordtiles/wordtiles_board.dart';
 
-/// Word tile game screen (KLD-094 step 2, working title "Wortleger"): the
+/// Word tile game screen (KLD-094 step 2, "Wortgewandt"): the
 /// board, rack and actions of [WordTilesBoard] in the shared [GameScreen].
 ///
 /// Hidden information (the racks): in hot-seat the shell's handover cover

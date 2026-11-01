@@ -33,20 +33,41 @@ is **Ben** by default; players can type their own names.
 | Quartett (Trumpf) result | "X gewinnt die Runde · O wählt als Nächstes" | "Anna gewinnt die Runde · Ben wählt als Nächstes" |
 | Network | "Warte auf Ben (O)…" | "Warte auf Ben…" (the connection bar still shows "Du (Anna, X) · Gegner: Ben (O)") |
 | Chess | "Anna (Weiß) ist am Zug" | unchanged: the side stays, it carries meaning |
-| Hot-seat start | game starts at once | "Wer spielt?" with two name fields (token, prefilled), "Spielen"; Quartett: after the deck |
+| Hot-seat start | game starts at once | "Wer spielt?" with two name fields "Spieler 1" (hint "beginnt") / "Spieler 2" (token, prefilled), "Spielen"; Quartett: after the deck |
 | CLI / debug console / engine reasons | "X drops into column 3", "O resigned" | "Anna drops into column 3", "Ben resigned"; the network CLI uses the session's handles ("Bea drops …") |
 
 ### Default names (translatable, regional)
 
 | Locale | A | B |
 |---|---|---|
-| de, en, fr | Anna | Ben |
-| es | Ana | Ben |
+| de, en | Anna | Ben |
+| fr | Anne | Hugo |
+| es | Ana | Beto |
 | zh | 小红 | 小明 |
 | ar | أمل (Amal) | باسم (Bassem) |
 | fa | آرزو (Arezoo) | بابک (Babak) |
 
 آنا / بن are avoided in ar/fa (they read as أنا "I" and بن "son of").
+fr and es got regional names on 2026-11-01 (maintainer's choice; before: fr
+Anna/Ben, es Ana/Ben). Both fr names start with a vowel or a silent h
+("d'Hugo"), so no fr sentence may put "de", "que", "le" or "la" right before
+`{player}`; checked again for Anne/Hugo: no fr string does (the earlier
+rewording already covers it), so no fr text changed.
+
+**Field labels "Spieler 1" / "Spieler 2"** (2026-11-01, user feedback: "Spieler X /
+Spieler O" was confusing). `hotSeatNameLabel` now takes the number (all 7
+locales: Player / Joueur / Jugador / 玩家 / اللاعب / بازیکن), for chess too (was
+"Spieler Weiß / Schwarz"; the token still shows the side). Player 1 gets the
+helper "beginnt" (`hotSeatStartsHint`; en starts, fr commence, es empieza, zh 先走,
+ar الدور الأول (a noun phrase, no gendered verb), fa شروع می‌کند): player A makes
+the first move in every game (engines start with `Player.a`: Connect Four, Mühle,
+both Quartetts, Schiffe placement and first shot, GoStrategy setup and first
+move, chess White, word tiles seat 0; the app never swaps the starter). The
+token in the field stays the visual cue. Other places that still show X/O
+(different strings, unchanged): "Du bist am Zug (X)" (`shellYourTurn`, network),
+the connection bar "Du (Anna, X) · Gegner: Ben (O)" (`pairingStatus`),
+`playerLabel` for equal names "Anna (X)", GoStrategy "Deine Armee (X)"
+(`goArmyOwn`). The network name field ("Dein Name") has no mark.
 
 ### Rules
 

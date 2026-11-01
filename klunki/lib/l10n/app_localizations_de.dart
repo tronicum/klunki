@@ -748,9 +748,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get hotSeatNamesTitle => 'Spielernamen';
 
   @override
-  String hotSeatNameLabel(String mark) {
-    return 'Spieler $mark';
+  String hotSeatNameLabel(int number) {
+    return 'Spieler $number';
   }
+
+  @override
+  String get hotSeatStartsHint => 'beginnt';
 
   @override
   String get hotSeatNamesHelper => 'Leer lassen für den Standardnamen.';
@@ -1822,7 +1825,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get menuGameWordTiles => 'Wortleger';
+  String get menuGameWordTiles => 'Wortgewandt';
 
   @override
   String get menuDescWordTiles => 'Wörter aus Buchstaben legen';
