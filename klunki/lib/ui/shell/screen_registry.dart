@@ -12,6 +12,7 @@ import '../games/quartett_deck_picker.dart';
 import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
+import '../games/wordtiles_screen.dart';
 import '../../profile/player_name_controller.dart';
 import '../../profile/quartett_deck_settings.dart';
 import 'game_screen.dart';
@@ -19,8 +20,9 @@ import 'game_screen.dart';
 /// Builds the screen widget for a game; the screen renders a [GameScreen].
 typedef GameScreenBuilder = Widget Function(GameController controller);
 
-/// `GameSpec.id` → screen. Every id in `appGameSpecs` must have an entry;
-/// games without one (`GameSpec.appReady` false) show [GameNotInAppScreen].
+/// `GameSpec.id` → screen. Every id in `appGameSpecs` must have an entry,
+/// plus the [previewGames]; other games (`GameSpec.appReady` false) show
+/// [GameNotInAppScreen].
 final Map<String, GameScreenBuilder> gameScreens = {
   'connect4': (c) => Connect4Screen(controller: c),
   'muehle': (c) => MuehleScreen(controller: c),
@@ -29,13 +31,19 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'schiffe': (c) => SchiffeScreen(controller: c),
   'gostrategy': (c) => GoStrategyScreen(controller: c),
   'chess': (c) => ChessScreen(controller: c),
+  'wordtiles': (c) => WordTilesScreen(controller: c),
 };
+
+/// Games with a screen that are not in the app yet (`GameSpec.appReady`
+/// false): only debug builds offer them, from the menu's debug section
+/// (KLD-094: the word tile game until its name and word list are decided).
+const Set<String> previewGames = {'wordtiles'};
 
 /// Games the app plays in hot-seat only for now: hidden from the host
 /// pickers of "Über WLAN spielen" and the relay host (KLD-059: chess network
-/// play is step 3). A guest joining a host that plays one still gets its
-/// screen.
-const Set<String> hotSeatOnlyGames = {'chess'};
+/// play is step 3; KLD-094: word tiles, also step 3). A guest joining a host
+/// that plays one still gets its screen.
+const Set<String> hotSeatOnlyGames = {'chess', 'wordtiles'};
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].

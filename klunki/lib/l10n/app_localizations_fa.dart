@@ -1752,4 +1752,189 @@ class AppLocalizationsFa extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return 'تکرار یک وضعیت $times بار';
   }
+
+  @override
+  String get menuGameWordTiles => 'کاشی‌های واژه';
+
+  @override
+  String get menuDescWordTiles => 'با حروف واژه بساز';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'پیش‌نمایش: $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'بگذار';
+
+  @override
+  String get wordtilesRecall => 'برگرداندن همهٔ کاشی‌ها';
+
+  @override
+  String get wordtilesShuffle => 'بُر زدن کاشی‌ها';
+
+  @override
+  String get wordtilesExchange => 'تعویض';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return 'تعویض $count';
+  }
+
+  @override
+  String get wordtilesPass => 'پاس';
+
+  @override
+  String get wordtilesZoomIn => 'بزرگ‌نمایی';
+
+  @override
+  String get wordtilesZoomOut => 'کل صفحه';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'کیسه: $count کاشی';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player: $score امتیاز';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'کاشی‌ها را روی صفحه بکش، یا یک کاشی و بعد یک خانه را لمس کن.';
+
+  @override
+  String get wordtilesHintFirst => 'واژهٔ اول باید از ستارهٔ وسط بگذرد.';
+
+  @override
+  String get wordtilesHintSelected => 'یک خانهٔ خالی را لمس کن.';
+
+  @override
+  String get wordtilesHintExchange =>
+      'کاشی‌هایی را که به کیسه برمی‌گردند انتخاب کن.';
+
+  @override
+  String get wordtilesHintAnswer => 'واژه را بپذیر یا به آن اعتراض کن.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'تعویض فقط وقتی ممکن است که دست‌کم $count کاشی در کیسه باشد.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words: $score امتیاز';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words: $score امتیاز (با $bonus امتیاز جایزه برای همهٔ کاشی‌ها)';
+  }
+
+  @override
+  String get wordtilesErrorLine => 'کاشی‌ها باید در یک ردیف یا یک ستون باشند.';
+
+  @override
+  String get wordtilesErrorGap => 'بین کاشی‌ها یک خانهٔ خالی مانده است.';
+
+  @override
+  String get wordtilesErrorShort => 'واژهٔ اول دست‌کم دو حرف لازم دارد.';
+
+  @override
+  String get wordtilesErrorConnect =>
+      'کاشی‌ها باید به واژه‌ای روی صفحه وصل باشند.';
+
+  @override
+  String get wordtilesErrorUnknownWord => 'یکی از واژه‌ها در واژه‌نامه نیست.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'اول واژهٔ قبلی را بپذیر یا به آن اعتراض کن.';
+
+  @override
+  String get wordtilesErrorOther => 'نمی‌توانی کاشی‌ها را این‌طور بگذاری.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player $words را با $score امتیاز گذاشت.';
+  }
+
+  @override
+  String get wordtilesAccept => 'پذیرفتن';
+
+  @override
+  String get wordtilesChallenge => 'اعتراض';
+
+  @override
+  String get wordtilesChallengeTitle => 'به واژه اعتراض می‌کنی؟';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'بدون واژه‌نامه نظر تو تعیین می‌کند: $player کاشی‌ها را پس می‌گیرد و امتیازی نمی‌گیرد. بعد نوبت توست.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'واژه‌نامه تعیین می‌کند. اگر واژه در آن باشد، نوبتت را از دست می‌دهی.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player همهٔ کاشی‌هایش را گذاشت. اگر بپذیری، بازی تمام می‌شود.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words با $score امتیاز';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کاشی عوض شد',
+      one: 'یک کاشی عوض شد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'پاس داد';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'اعتراض کرد: $words پس گرفته شد';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed => 'اعتراض کرد، ولی واژه‌ها درست‌اند';
+
+  @override
+  String get wordtilesMoveAccept => 'پذیرفت';
+
+  @override
+  String get wordtilesBlankTitle => 'کاشی خالی کدام حرف باشد؟';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => 'ح×2';
+
+  @override
+  String get wordtilesPremiumTripleLetter => 'ح×3';
+
+  @override
+  String get wordtilesPremiumDoubleWord => 'و×2';
+
+  @override
+  String get wordtilesPremiumTripleWord => 'و×3';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'همهٔ کاشی‌ها گذاشته شد، نتیجهٔ نهایی $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns نوبت بدون امتیاز، نتیجهٔ نهایی $a : $b';
+  }
 }

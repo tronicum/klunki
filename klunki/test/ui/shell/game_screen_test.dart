@@ -12,10 +12,14 @@ import '../../l10n/l10n_test_utils.dart';
 
 void main() {
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
-    expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id});
+    expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id, ...previewGames});
     expect(appGameSpecs.map((s) => s.id), contains('gostrategy'), reason: 'KLD-058b');
     for (final s in gameSpecs.where((s) => !s.appReady)) {
-      expect(gameScreens.containsKey(s.id), isFalse, reason: s.id);
+      expect(gameScreens.containsKey(s.id), previewGames.contains(s.id), reason: s.id);
+    }
+    // A preview game is a real engine game that the app does not list yet.
+    for (final id in previewGames) {
+      expect(specById(id)?.appReady, isFalse, reason: id);
     }
   });
 

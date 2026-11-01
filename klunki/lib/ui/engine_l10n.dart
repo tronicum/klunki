@@ -38,10 +38,8 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.chessInsufficientMaterial => l10n.engineReasonChessInsufficientMaterial,
     GameEndReason.chessSeventyFiveMoves => l10n.engineReasonChessSeventyFiveMoves(p('moves')),
     GameEndReason.chessThreefoldRepetition => l10n.engineReasonChessThreefoldRepetition(p('times')),
-    // KLD-094 step 1 (engine only): no app screen yet, so these stay English
-    // until step 2 adds the localized strings.
-    GameEndReason.wordtilesPlayedOut => 'all tiles played',
-    GameEndReason.wordtilesScoreless => '${p('turns')} scoreless turns',
+    GameEndReason.wordtilesPlayedOut => l10n.engineReasonWordtilesPlayedOut(p('a'), p('b')),
+    GameEndReason.wordtilesScoreless => l10n.engineReasonWordtilesScoreless(p('turns'), p('a'), p('b')),
   };
 }
 

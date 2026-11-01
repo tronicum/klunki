@@ -2676,5 +2676,302 @@
         "type": "int"
       }
     }
+  },
+  "menuGameWordTiles": "Wortleger",
+  "@menuGameWordTiles": {
+    "description": "Game title: the crossword-style word tile game (KLD-094; working title, no brand names)."
+  },
+  "menuDescWordTiles": "Wörter aus Buchstaben legen",
+  "@menuDescWordTiles": {
+    "description": "Menu tile one-liner for the word tile game (KLD-094)."
+  },
+  "menuPreviewGame": "Vorschau: {game}",
+  "@menuPreviewGame": {
+    "description": "Debug builds only: menu button that opens a game that is not in the app yet (KLD-094).",
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesPlay": "Legen",
+  "@wordtilesPlay": {
+    "description": "Word tiles: button that plays the tiles laid on the board."
+  },
+  "wordtilesRecall": "Alle Steine zurücknehmen",
+  "@wordtilesRecall": {
+    "description": "Word tiles: tooltip of the button that takes all tiles laid this turn back to the rack."
+  },
+  "wordtilesShuffle": "Steine mischen",
+  "@wordtilesShuffle": {
+    "description": "Word tiles: tooltip of the button that shuffles the rack."
+  },
+  "wordtilesExchange": "Tauschen",
+  "@wordtilesExchange": {
+    "description": "Word tiles: button to swap rack tiles with the bag."
+  },
+  "wordtilesExchangeConfirm": "{count} tauschen",
+  "@wordtilesExchangeConfirm": {
+    "description": "Word tiles: confirm button of the swap, with the number of tiles chosen.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesPass": "Passen",
+  "@wordtilesPass": {
+    "description": "Word tiles: button to pass the turn."
+  },
+  "wordtilesZoomIn": "Vergrößern",
+  "@wordtilesZoomIn": {
+    "description": "Word tiles: tooltip of the zoom button (board shown whole)."
+  },
+  "wordtilesZoomOut": "Ganzes Brett",
+  "@wordtilesZoomOut": {
+    "description": "Word tiles: tooltip of the zoom button (board zoomed in)."
+  },
+  "wordtilesBag": "Beutel: {count} Steine",
+  "@wordtilesBag": {
+    "description": "Word tiles: tiles left in the bag (tooltip and screen reader text of the bag counter).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesScore": "{player}: {score} Punkte",
+  "@wordtilesScore": {
+    "description": "Word tiles: a player's score (screen reader text of the score bar).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesHintPlace": "Ziehe Steine aufs Brett oder tippe einen Stein und dann ein Feld.",
+  "@wordtilesHintPlace": {
+    "description": "Word tiles: hint line while the player can lay tiles."
+  },
+  "wordtilesHintFirst": "Das erste Wort muss über den Stern in der Mitte gehen.",
+  "@wordtilesHintFirst": {
+    "description": "Word tiles: hint and error: the first word must cover the centre square (marked with a star)."
+  },
+  "wordtilesHintSelected": "Tippe ein freies Feld an.",
+  "@wordtilesHintSelected": {
+    "description": "Word tiles: hint after a rack tile was tapped."
+  },
+  "wordtilesHintExchange": "Wähle die Steine, die zurück in den Beutel sollen.",
+  "@wordtilesHintExchange": {
+    "description": "Word tiles: hint while choosing tiles to swap."
+  },
+  "wordtilesHintAnswer": "Nimm das Wort an oder zweifle es an.",
+  "@wordtilesHintAnswer": {
+    "description": "Word tiles: hint while the last placement can be challenged."
+  },
+  "wordtilesExchangeNotNow": "Tauschen geht nur, solange mindestens {count} Steine im Beutel sind.",
+  "@wordtilesExchangeNotNow": {
+    "description": "Word tiles: why swapping is not possible now (count = 7).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesPreview": "{words}: {score} Punkte",
+  "@wordtilesPreview": {
+    "description": "Word tiles: live preview of the words laid and their score.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesPreviewBingo": "{words}: {score} Punkte (mit {bonus} Bonus für alle Steine)",
+  "@wordtilesPreviewBingo": {
+    "description": "Word tiles: live preview when all rack tiles are laid (bonus = 50).",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesErrorLine": "Die Steine müssen in einer Reihe oder Spalte liegen.",
+  "@wordtilesErrorLine": {
+    "description": "Word tiles: placement error: not in one row or column."
+  },
+  "wordtilesErrorGap": "Zwischen den Steinen ist noch ein Feld frei.",
+  "@wordtilesErrorGap": {
+    "description": "Word tiles: placement error: an empty square between the tiles."
+  },
+  "wordtilesErrorShort": "Das erste Wort braucht mindestens zwei Buchstaben.",
+  "@wordtilesErrorShort": {
+    "description": "Word tiles: placement error: the first word has one letter only."
+  },
+  "wordtilesErrorConnect": "Die Steine müssen an ein Wort auf dem Brett anschließen.",
+  "@wordtilesErrorConnect": {
+    "description": "Word tiles: placement error: the tiles touch no tile on the board."
+  },
+  "wordtilesErrorUnknownWord": "Ein Wort steht nicht im Wörterbuch.",
+  "@wordtilesErrorUnknownWord": {
+    "description": "Word tiles: placement error (dictionary mode): a word is not in the word list."
+  },
+  "wordtilesErrorAnswerFirst": "Nimm zuerst das letzte Wort an oder zweifle es an.",
+  "@wordtilesErrorAnswerFirst": {
+    "description": "Word tiles: placement error: the last placement must be accepted or challenged first."
+  },
+  "wordtilesErrorOther": "So kannst du die Steine nicht legen.",
+  "@wordtilesErrorOther": {
+    "description": "Word tiles: placement error for every other case."
+  },
+  "wordtilesOpenPlacement": "{player} legte {words} für {score} Punkte.",
+  "@wordtilesOpenPlacement": {
+    "description": "Word tiles: the last placement, which the player to move may challenge.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesAccept": "Annehmen",
+  "@wordtilesAccept": {
+    "description": "Word tiles: button: accept the last placement."
+  },
+  "wordtilesChallenge": "Anzweifeln",
+  "@wordtilesChallenge": {
+    "description": "Word tiles: button: challenge the last placement."
+  },
+  "wordtilesChallengeTitle": "Wort anzweifeln?",
+  "@wordtilesChallengeTitle": {
+    "description": "Word tiles: title of the challenge confirmation."
+  },
+  "wordtilesChallengeBodyFree": "Ohne Wörterbuch zählt dein Einwand: {player} nimmt die Steine zurück und bekommt keine Punkte. Dann bist du am Zug.",
+  "@wordtilesChallengeBodyFree": {
+    "description": "Word tiles: challenge confirmation without a dictionary (the challenger's call is final).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesChallengeBodyDict": "Das Wörterbuch entscheidet. Steht das Wort darin, verlierst du deinen Zug.",
+  "@wordtilesChallengeBodyDict": {
+    "description": "Word tiles: challenge confirmation with a dictionary."
+  },
+  "wordtilesEndPending": "{player} hat alle Steine gelegt. Nimmst du an, ist das Spiel aus.",
+  "@wordtilesEndPending": {
+    "description": "Word tiles: the last placement used the last tile; accepting it ends the game.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesMovePlace": "{words} für {score} Punkte",
+  "@wordtilesMovePlace": {
+    "description": "Word tiles: a placement in the move list and the last-turn line (after \"{player}: \").",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesMoveExchange": "{count, plural, =1{1 Stein getauscht} other{{count} Steine getauscht}}",
+  "@wordtilesMoveExchange": {
+    "description": "Word tiles: a swap in the move list (count = tiles swapped).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesMovePass": "gepasst",
+  "@wordtilesMovePass": {
+    "description": "Word tiles: a pass in the move list."
+  },
+  "wordtilesMoveChallengeWithdrawn": "angezweifelt: {words} zurückgenommen",
+  "@wordtilesMoveChallengeWithdrawn": {
+    "description": "Word tiles: a successful challenge in the move list; the words were taken back.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesMoveChallengeFailed": "angezweifelt, aber die Wörter gelten",
+  "@wordtilesMoveChallengeFailed": {
+    "description": "Word tiles: a failed challenge in the move list (dictionary mode)."
+  },
+  "wordtilesMoveAccept": "angenommen",
+  "@wordtilesMoveAccept": {
+    "description": "Word tiles: an explicit accept in the move list."
+  },
+  "wordtilesBlankTitle": "Welchen Buchstaben zeigt der Joker?",
+  "@wordtilesBlankTitle": {
+    "description": "Word tiles: title of the letter picker for a blank tile."
+  },
+  "wordtilesPremiumDoubleLetter": "2B",
+  "@wordtilesPremiumDoubleLetter": {
+    "description": "Word tiles: very short label (2–3 characters) on a double-letter square."
+  },
+  "wordtilesPremiumTripleLetter": "3B",
+  "@wordtilesPremiumTripleLetter": {
+    "description": "Word tiles: very short label (2–3 characters) on a triple-letter square."
+  },
+  "wordtilesPremiumDoubleWord": "2W",
+  "@wordtilesPremiumDoubleWord": {
+    "description": "Word tiles: very short label (2–3 characters) on a double-word square."
+  },
+  "wordtilesPremiumTripleWord": "3W",
+  "@wordtilesPremiumTripleWord": {
+    "description": "Word tiles: very short label (2–3 characters) on a triple-word square."
+  },
+  "engineReasonWordtilesPlayedOut": "Alle Steine gelegt, Endstand {a} : {b}",
+  "@engineReasonWordtilesPlayedOut": {
+    "description": "Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.",
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "engineReasonWordtilesScoreless": "{turns} Züge ohne Punkte, Endstand {a} : {b}",
+  "@engineReasonWordtilesScoreless": {
+    "description": "Result reason (word tiles): too many turns in a row without points (turns = 6); a, b = final scores.",
+    "placeholders": {
+      "turns": {
+        "type": "int"
+      },
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
   }
 }

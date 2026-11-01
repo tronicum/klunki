@@ -1,0 +1,179 @@
+// Word tile adapter for the live UI driver (KLD-094 step 2).
+//
+// Reads the last turn a WordTilesScreen shows: the line under the score bar
+// (`wordtiles-last-turn`, "X: HAUS für 8 Punkte"), the challenge banner
+// (`wordtiles-open`, "X legte HAUS für 8 Punkte.") or the handover cover
+// (`wordtiles-cover-turn`). Plays like a user: answers an open placement
+// (sometimes challenging it), then lays the best-scoring sample placement
+// tile by tile (rack tile, then square; a blank through the letter picker)
+// and taps "Legen", or now and then swaps or passes.
+//
+// The game-ending turn is never on the board (the result dialog opens over
+// it), so [engineTurns] leaves it out; the test checks it in the dialog.
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+import '../../l10n/l10n_test_utils.dart';
+import 'live_ui_driver.dart';
+
+/// The text of [t] as the screen shows it (German, marks only).
+String turnText(AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
+      'place' => l10n.wordtilesMovePlace(t.words.join(', '), t.score),
+      'exchange' => l10n.wordtilesMoveExchange(t.count),
+      'pass' => l10n.wordtilesMovePass,
+      'challenge' =>
+        t.withdrawn ? l10n.wordtilesMoveChallengeWithdrawn(t.words.join(', ')) : l10n.wordtilesMoveChallengeFailed,
+      'accept' => l10n.wordtilesMoveAccept,
+      _ => t.action,
+    };
+
+class WordTilesAdapter extends LiveUiAdapter {
+  @override
+  String get gameId => 'wordtiles';
+
+  /// How often each kind of turn was tapped (the test checks the mix).
+  final Map<String, int> tapped = {};
+
+  final _line = RegExp(r'^(X|O): (.+)$');
+  final _open = RegExp(r'^(X|O) legte (.+) für (-?\d+) Punkte\.$');
+
+  TurnRecord _record(String mark, String text) => TurnRecord(
+        index: 0,
+        actor: mark == 'X' ? Player.a : Player.b,
+        action: 'turn',
+        outcome: text,
+        detail: '',
+      );
+
+  String? _text(WidgetTester tester, UiDevice d, Key k) {
+    final f = d.on(find.byKey(k));
+    return f.evaluate().isEmpty ? null : tester.widget<Text>(f).data;
+  }
+
+  @override
+  TurnRecord? observe(WidgetTester tester, UiDevice d, Game engine, {required bool inSync}) {
+    final line = _text(tester, d, const Key('wordtiles-cover-turn')) ?? _text(tester, d, const Key('wordtiles-last-turn'));
+    if (line != null) {
+      final m = _line.firstMatch(line);
+      expect(m, isNotNull, reason: '${d.name}: last-turn line "$line"');
+      return _record(m!.group(1)!, m.group(2)!);
+    }
+    final banner = d.on(find.byKey(const Key('wordtiles-open')));
+    if (banner.evaluate().isNotEmpty) {
+      final texts = [
+        for (final e in find.descendant(of: banner, matching: find.byType(Text)).evaluate()) (e.widget as Text).data ?? '',
+      ];
+      final m = texts.map(_open.firstMatch).whereType<RegExpMatch>().firstOrNull;
+      expect(m, isNotNull, reason: '${d.name}: challenge banner $texts');
+      // The banner shows the open placement: the last turn in the log.
+      final g = engine as WordTilesGame;
+      expect(g.challengeable, isNotNull, reason: '${d.name}: banner without an open placement');
+      return _record(m!.group(1)!, deL10n.wordtilesMovePlace(m.group(2)!, int.parse(m.group(3)!)));
+    }
+    return null;
+  }
+
+  @override
+  Future<bool> dismiss(WidgetTester tester, UiDevice device) async => false;
+
+  @override
+  Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
+    final c = d.controller(tester);
+    final g = c.game as WordTilesGame;
+    if (g.isOver) return null;
+    if (g.canChallenge) {
+      final r = rng.nextDouble();
+      if (g.endPending || r < 0.4) {
+        if (r < 0.15) {
+          tapped.update('challenge', (n) => n + 1, ifAbsent: () => 1);
+          await d.tapKey(tester, const Key('wordtiles-challenge'));
+          await tester.pumpAndSettle();
+          await d.tapKey(tester, const Key('wordtiles-challenge-confirm'));
+          await tester.pumpAndSettle();
+          return {'action': 'challenge'};
+        }
+        tapped.update('accept', (n) => n + 1, ifAbsent: () => 1);
+        await d.tapKey(tester, const Key('wordtiles-accept'));
+        return {'action': 'accept'};
+      }
+    }
+    final legal = g.legalMoves;
+    final r = rng.nextDouble();
+    if (r < 0.06) {
+      tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
+      await d.tapKey(tester, const Key('wordtiles-pass'));
+      return {'action': 'pass'};
+    }
+    final rack = g.rackOf(g.currentSeat);
+    if (r < 0.12 && g.canExchange) {
+      tapped.update('exchange', (n) => n + 1, ifAbsent: () => 1);
+      final k = 1 + rng.nextInt(rack.length);
+      final picks = (List.generate(rack.length, (i) => i)..shuffle(rng)).take(k).toList();
+      await d.tapKey(tester, const Key('wordtiles-exchange'));
+      for (final i in picks) {
+        await d.tapKey(tester, Key('wordtiles-rack-$i'));
+      }
+      await d.tapKey(tester, const Key('wordtiles-exchange-confirm'));
+      return {
+        'action': 'exchange',
+        'tiles': [for (final i in picks) rack[i]],
+      };
+    }
+    Map<String, dynamic>? best;
+    var bestScore = -1;
+    for (final m in legal) {
+      if (m['action'] != 'place') continue;
+      final s = g.checkPlacement(m).score;
+      if (s > bestScore) {
+        best = m;
+        bestScore = s;
+      }
+    }
+    if (best == null) {
+      tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
+      await d.tapKey(tester, const Key('wordtiles-pass'));
+      return {'action': 'pass'};
+    }
+    tapped.update('place', (n) => n + 1, ifAbsent: () => 1);
+    final used = <int>{};
+    for (final t in (best['tiles'] as List).cast<Map<String, dynamic>>()) {
+      final i = [for (var k = 0; k < rack.length; k++) if (rack[k] == t['tile'] && !used.contains(k)) k].first;
+      used.add(i);
+      await d.tapKey(tester, Key('wordtiles-rack-$i'));
+      await d.tapKey(tester, Key('wordtiles-sq-${t['row']}-${t['col']}'));
+      if (t['tile'] == TileSet.blank) {
+        await tester.pumpAndSettle();
+        await d.tapKey(tester, Key('wordtiles-blank-${t['letter']}'));
+        await tester.pumpAndSettle();
+      }
+    }
+    final preview = d.on(find.byKey(const Key('wordtiles-preview')));
+    expect(preview, findsOneWidget, reason: '${d.name}: score preview for $best');
+    expect(tester.widget<Text>(preview).data, endsWith('$bestScore Punkte'));
+    await d.tapKey(tester, const Key('wordtiles-play'));
+    return best;
+  }
+
+  @override
+  List<TurnRecord> engineTurns(GameController c) {
+    final g = c.game as WordTilesGame;
+    final turns = g.turns;
+    final shown = g.isOver ? turns.take(turns.length - 1) : turns;
+    return [
+      for (final (i, t) in shown.indexed)
+        TurnRecord(
+          index: i,
+          actor: t.seat == 0 ? Player.a : Player.b,
+          action: 'turn',
+          outcome: turnText(deL10n, t),
+          detail: '',
+          source: 'engine',
+        ),
+    ];
+  }
+}

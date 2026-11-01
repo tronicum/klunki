@@ -1762,4 +1762,194 @@ class AppLocalizationsDe extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return '$times-mal dieselbe Stellung';
   }
+
+  @override
+  String get menuGameWordTiles => 'Wortleger';
+
+  @override
+  String get menuDescWordTiles => 'Wörter aus Buchstaben legen';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'Vorschau: $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'Legen';
+
+  @override
+  String get wordtilesRecall => 'Alle Steine zurücknehmen';
+
+  @override
+  String get wordtilesShuffle => 'Steine mischen';
+
+  @override
+  String get wordtilesExchange => 'Tauschen';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return '$count tauschen';
+  }
+
+  @override
+  String get wordtilesPass => 'Passen';
+
+  @override
+  String get wordtilesZoomIn => 'Vergrößern';
+
+  @override
+  String get wordtilesZoomOut => 'Ganzes Brett';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'Beutel: $count Steine';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player: $score Punkte';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'Ziehe Steine aufs Brett oder tippe einen Stein und dann ein Feld.';
+
+  @override
+  String get wordtilesHintFirst =>
+      'Das erste Wort muss über den Stern in der Mitte gehen.';
+
+  @override
+  String get wordtilesHintSelected => 'Tippe ein freies Feld an.';
+
+  @override
+  String get wordtilesHintExchange =>
+      'Wähle die Steine, die zurück in den Beutel sollen.';
+
+  @override
+  String get wordtilesHintAnswer => 'Nimm das Wort an oder zweifle es an.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'Tauschen geht nur, solange mindestens $count Steine im Beutel sind.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words: $score Punkte';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words: $score Punkte (mit $bonus Bonus für alle Steine)';
+  }
+
+  @override
+  String get wordtilesErrorLine =>
+      'Die Steine müssen in einer Reihe oder Spalte liegen.';
+
+  @override
+  String get wordtilesErrorGap =>
+      'Zwischen den Steinen ist noch ein Feld frei.';
+
+  @override
+  String get wordtilesErrorShort =>
+      'Das erste Wort braucht mindestens zwei Buchstaben.';
+
+  @override
+  String get wordtilesErrorConnect =>
+      'Die Steine müssen an ein Wort auf dem Brett anschließen.';
+
+  @override
+  String get wordtilesErrorUnknownWord => 'Ein Wort steht nicht im Wörterbuch.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'Nimm zuerst das letzte Wort an oder zweifle es an.';
+
+  @override
+  String get wordtilesErrorOther => 'So kannst du die Steine nicht legen.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player legte $words für $score Punkte.';
+  }
+
+  @override
+  String get wordtilesAccept => 'Annehmen';
+
+  @override
+  String get wordtilesChallenge => 'Anzweifeln';
+
+  @override
+  String get wordtilesChallengeTitle => 'Wort anzweifeln?';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'Ohne Wörterbuch zählt dein Einwand: $player nimmt die Steine zurück und bekommt keine Punkte. Dann bist du am Zug.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'Das Wörterbuch entscheidet. Steht das Wort darin, verlierst du deinen Zug.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player hat alle Steine gelegt. Nimmst du an, ist das Spiel aus.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words für $score Punkte';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Steine getauscht',
+      one: '1 Stein getauscht',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'gepasst';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'angezweifelt: $words zurückgenommen';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed =>
+      'angezweifelt, aber die Wörter gelten';
+
+  @override
+  String get wordtilesMoveAccept => 'angenommen';
+
+  @override
+  String get wordtilesBlankTitle => 'Welchen Buchstaben zeigt der Joker?';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => '2B';
+
+  @override
+  String get wordtilesPremiumTripleLetter => '3B';
+
+  @override
+  String get wordtilesPremiumDoubleWord => '2W';
+
+  @override
+  String get wordtilesPremiumTripleWord => '3W';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'Alle Steine gelegt, Endstand $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns Züge ohne Punkte, Endstand $a : $b';
+  }
 }

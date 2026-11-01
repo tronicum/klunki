@@ -1768,4 +1768,193 @@ class AppLocalizationsEs extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return 'Misma posición $times veces';
   }
+
+  @override
+  String get menuGameWordTiles => 'Fichas de palabras';
+
+  @override
+  String get menuDescWordTiles => 'Forma palabras con letras';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'Vista previa: $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'Jugar';
+
+  @override
+  String get wordtilesRecall => 'Recuperar todas las fichas';
+
+  @override
+  String get wordtilesShuffle => 'Mezclar fichas';
+
+  @override
+  String get wordtilesExchange => 'Cambiar';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return 'Cambiar $count';
+  }
+
+  @override
+  String get wordtilesPass => 'Pasar';
+
+  @override
+  String get wordtilesZoomIn => 'Ampliar';
+
+  @override
+  String get wordtilesZoomOut => 'Tablero completo';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'Bolsa: $count fichas';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player: $score puntos';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'Arrastra fichas al tablero o toca una ficha y luego una casilla.';
+
+  @override
+  String get wordtilesHintFirst =>
+      'La primera palabra debe pasar por la estrella del centro.';
+
+  @override
+  String get wordtilesHintSelected => 'Toca una casilla libre.';
+
+  @override
+  String get wordtilesHintExchange =>
+      'Elige las fichas que vuelven a la bolsa.';
+
+  @override
+  String get wordtilesHintAnswer => 'Acepta la palabra o impúgnala.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'Solo puedes cambiar si quedan al menos $count fichas en la bolsa.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words: $score puntos';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words: $score puntos (con $bonus de bonificación por todas las fichas)';
+  }
+
+  @override
+  String get wordtilesErrorLine =>
+      'Las fichas deben estar en una sola fila o columna.';
+
+  @override
+  String get wordtilesErrorGap => 'Queda una casilla vacía entre las fichas.';
+
+  @override
+  String get wordtilesErrorShort =>
+      'La primera palabra necesita al menos dos letras.';
+
+  @override
+  String get wordtilesErrorConnect =>
+      'Las fichas deben tocar una palabra del tablero.';
+
+  @override
+  String get wordtilesErrorUnknownWord =>
+      'Una palabra no está en el diccionario.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'Primero acepta o impugna la última palabra.';
+
+  @override
+  String get wordtilesErrorOther => 'No puedes colocar las fichas así.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player colocó $words por $score puntos.';
+  }
+
+  @override
+  String get wordtilesAccept => 'Aceptar';
+
+  @override
+  String get wordtilesChallenge => 'Impugnar';
+
+  @override
+  String get wordtilesChallengeTitle => '¿Impugnar la palabra?';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'Sin diccionario, tu objeción decide: $player retira las fichas y no suma puntos. Luego te toca a ti.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'Decide el diccionario. Si la palabra está, pierdes tu turno.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player ha colocado todas sus fichas. Si aceptas, termina la partida.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words por $score puntos';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichas cambiadas',
+      one: '1 ficha cambiada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'pasó';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'impugnó: $words retirado';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed => 'impugnó, pero las palabras valen';
+
+  @override
+  String get wordtilesMoveAccept => 'aceptó';
+
+  @override
+  String get wordtilesBlankTitle => '¿Qué letra es el comodín?';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => '2L';
+
+  @override
+  String get wordtilesPremiumTripleLetter => '3L';
+
+  @override
+  String get wordtilesPremiumDoubleWord => '2P';
+
+  @override
+  String get wordtilesPremiumTripleWord => '3P';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'Todas las fichas colocadas, resultado final $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns turnos sin puntos, resultado final $a : $b';
+  }
 }

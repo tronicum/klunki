@@ -1755,4 +1755,192 @@ class AppLocalizationsEn extends AppLocalizations {
   String engineReasonChessThreefoldRepetition(int times) {
     return 'Same position $times times';
   }
+
+  @override
+  String get menuGameWordTiles => 'Word Tiles';
+
+  @override
+  String get menuDescWordTiles => 'Lay words from letter tiles';
+
+  @override
+  String menuPreviewGame(String game) {
+    return 'Preview: $game';
+  }
+
+  @override
+  String get wordtilesPlay => 'Play';
+
+  @override
+  String get wordtilesRecall => 'Take all tiles back';
+
+  @override
+  String get wordtilesShuffle => 'Shuffle tiles';
+
+  @override
+  String get wordtilesExchange => 'Swap';
+
+  @override
+  String wordtilesExchangeConfirm(int count) {
+    return 'Swap $count';
+  }
+
+  @override
+  String get wordtilesPass => 'Pass';
+
+  @override
+  String get wordtilesZoomIn => 'Zoom in';
+
+  @override
+  String get wordtilesZoomOut => 'Whole board';
+
+  @override
+  String wordtilesBag(int count) {
+    return 'Bag: $count tiles';
+  }
+
+  @override
+  String wordtilesScore(String player, int score) {
+    return '$player: $score points';
+  }
+
+  @override
+  String get wordtilesHintPlace =>
+      'Drag tiles onto the board, or tap a tile and then a square.';
+
+  @override
+  String get wordtilesHintFirst =>
+      'The first word must cross the star in the centre.';
+
+  @override
+  String get wordtilesHintSelected => 'Tap a free square.';
+
+  @override
+  String get wordtilesHintExchange =>
+      'Pick the tiles to put back into the bag.';
+
+  @override
+  String get wordtilesHintAnswer => 'Accept the word or challenge it.';
+
+  @override
+  String wordtilesExchangeNotNow(int count) {
+    return 'You can only swap while the bag holds at least $count tiles.';
+  }
+
+  @override
+  String wordtilesPreview(String words, int score) {
+    return '$words: $score points';
+  }
+
+  @override
+  String wordtilesPreviewBingo(String words, int score, int bonus) {
+    return '$words: $score points (incl. $bonus bonus for all tiles)';
+  }
+
+  @override
+  String get wordtilesErrorLine =>
+      'The tiles must be in one row or one column.';
+
+  @override
+  String get wordtilesErrorGap => 'There is an empty square between the tiles.';
+
+  @override
+  String get wordtilesErrorShort =>
+      'The first word needs at least two letters.';
+
+  @override
+  String get wordtilesErrorConnect =>
+      'The tiles must connect to a word on the board.';
+
+  @override
+  String get wordtilesErrorUnknownWord => 'A word is not in the dictionary.';
+
+  @override
+  String get wordtilesErrorAnswerFirst =>
+      'First accept or challenge the last word.';
+
+  @override
+  String get wordtilesErrorOther => 'You can’t place the tiles like that.';
+
+  @override
+  String wordtilesOpenPlacement(String player, String words, int score) {
+    return '$player played $words for $score points.';
+  }
+
+  @override
+  String get wordtilesAccept => 'Accept';
+
+  @override
+  String get wordtilesChallenge => 'Challenge';
+
+  @override
+  String get wordtilesChallengeTitle => 'Challenge the word?';
+
+  @override
+  String wordtilesChallengeBodyFree(String player) {
+    return 'Without a dictionary your call decides: $player takes the tiles back and scores nothing. Then it is your turn.';
+  }
+
+  @override
+  String get wordtilesChallengeBodyDict =>
+      'The dictionary decides. If the word is in it, you lose your turn.';
+
+  @override
+  String wordtilesEndPending(String player) {
+    return '$player has played all tiles. If you accept, the game ends.';
+  }
+
+  @override
+  String wordtilesMovePlace(String words, int score) {
+    return '$words for $score points';
+  }
+
+  @override
+  String wordtilesMoveExchange(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'swapped $count tiles',
+      one: 'swapped 1 tile',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wordtilesMovePass => 'passed';
+
+  @override
+  String wordtilesMoveChallengeWithdrawn(String words) {
+    return 'challenged: $words taken back';
+  }
+
+  @override
+  String get wordtilesMoveChallengeFailed => 'challenged, but the words stand';
+
+  @override
+  String get wordtilesMoveAccept => 'accepted';
+
+  @override
+  String get wordtilesBlankTitle => 'Which letter is the blank?';
+
+  @override
+  String get wordtilesPremiumDoubleLetter => '2L';
+
+  @override
+  String get wordtilesPremiumTripleLetter => '3L';
+
+  @override
+  String get wordtilesPremiumDoubleWord => '2W';
+
+  @override
+  String get wordtilesPremiumTripleWord => '3W';
+
+  @override
+  String engineReasonWordtilesPlayedOut(int a, int b) {
+    return 'All tiles played, final score $a : $b';
+  }
+
+  @override
+  String engineReasonWordtilesScoreless(int turns, int a, int b) {
+    return '$turns turns without points, final score $a : $b';
+  }
 }

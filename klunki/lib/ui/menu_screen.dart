@@ -157,6 +157,19 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
+                    // Games not in the app yet (KLD-094), debug builds only.
+                    if (menuShowsDebugConsole)
+                      for (final id in previewGames)
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: TextButton.icon(
+                            key: Key('menu-preview-$id'),
+                            icon: const Icon(Icons.science_outlined, size: 18),
+                            label: Text(l10n.menuPreviewGame(
+                                localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id))),
+                            onPressed: () => openGame(context, id),
+                          ),
+                        ),
                     // KLD-085: version, build, protocol and game data, to
                     // compare two devices by eye when they cannot play together.
                     Padding(
