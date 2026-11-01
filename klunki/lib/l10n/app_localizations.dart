@@ -138,12 +138,6 @@ abstract class AppLocalizations {
   /// **'Wähle ein Spiel'**
   String get menuChooseGame;
 
-  /// Menu subtitle of hidden-information games: players hand the device over between turns.
-  ///
-  /// In de, this message translates to:
-  /// **'Gerät weitergeben'**
-  String get menuPassDevice;
-
   /// Menu button that opens the text debug console (debug builds only).
   ///
   /// In de, this message translates to:
@@ -210,17 +204,29 @@ abstract class AppLocalizations {
   /// **'Versteckt eure Flotten und schießt abwechselnd.'**
   String get menuDescSchiffe;
 
-  /// Menu section header above the hot-seat game tiles (KLD-062).
-  ///
-  /// In de, this message translates to:
-  /// **'Zu zweit an einem Gerät'**
-  String get menuSectionHotSeat;
-
   /// Menu: heading of the device-vs-device section with the two room buttons (KLD-098).
   ///
   /// In de, this message translates to:
   /// **'Mit anderen Geräten spielen'**
   String get menuSectionNetwork;
+
+  /// KLD-105: link at the bottom of a menu game tile: start the game on this device (hot-seat), like tapping the tile. Short: two columns on a phone.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Gerät'**
+  String get menuPlayOnOneDevice;
+
+  /// KLD-105: link at the bottom of a menu game tile: start a room for this game ("Raum starten" with the game preselected). Short: two columns on a phone.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit anderen'**
+  String get menuPlayWithOthers;
+
+  /// KLD-105: line in the "Wer spielt?" dialog (hotSeatStartTitle) of hidden-information games (cards, fleet, ranks, letter racks): the players pass the device and the handover screen keeps the secrets.
+  ///
+  /// In de, this message translates to:
+  /// **'Ihr gebt das Gerät weiter – was verdeckt ist, bleibt geheim.'**
+  String get hotSeatPassDeviceHint;
 
   /// KLD-098: subtitle of the menu button roomStart.
   ///
@@ -263,12 +269,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Raumcode eintippen'**
   String get roomTypeCode;
-
-  /// Tooltip/semantics of the eye-off badge on hidden-information game tiles (secret hand or fleet, the device is passed between turns) (KLD-062).
-  ///
-  /// In de, this message translates to:
-  /// **'Geheime Karten oder Flotte – ihr reicht das Gerät weiter'**
-  String get menuHiddenInfo;
 
   /// Status line: whose turn it is (game on this device). player = player name, e.g. "Anna" (any name: keep the sentence free of grammatical gender and possessive endings).
   ///

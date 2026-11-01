@@ -105,6 +105,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(deL10n.menuDescConnect4), findsOneWidget);
     expect(find.text(deL10n.menuDescSchiffe), findsOneWidget);
-    expect(find.text(deL10n.menuSectionHotSeat), findsOneWidget);
+    expect(find.text(deL10n.menuPlayOnOneDevice), findsNWidgets(appGameSpecs.length));
   });
 }

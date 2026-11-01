@@ -30,6 +30,7 @@ import 'relay_host_screen.dart';
 import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
+import 'room_game_choice.dart';
 import 'room_join.dart';
 import 'web_join_screen.dart';
 
@@ -161,8 +162,18 @@ class PairingScreen extends StatefulWidget {
   /// Overrides the app's player name controller (tests).
   final PlayerNameController? nameController;
 
-  PairingScreen({super.key, PairingDeps? deps, this.mode = RoomMode.start, this.scanFirst = true, this.nameController})
-      : deps = deps ?? PairingDeps.platform();
+  /// "Raum starten" for this game only (KLD-105: a game tile's "Mit
+  /// anderen" link): shown instead of the game choice. Null: choose a game.
+  final String? gameId;
+
+  PairingScreen({
+    super.key,
+    PairingDeps? deps,
+    this.mode = RoomMode.start,
+    this.scanFirst = true,
+    this.nameController,
+    this.gameId,
+  }) : deps = deps ?? PairingDeps.platform();
 
   @override
   State<PairingScreen> createState() => _PairingScreenState();
@@ -201,7 +212,7 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
     // A page can neither listen nor browse mDNS (KLD-055): the web screens.
     if (kIsWeb) {
       return start
-          ? webRoomStartScreen(pageUrl: Uri.base, nameController: widget.nameController)
+          ? webRoomStartScreen(pageUrl: Uri.base, nameController: widget.nameController, gameId: widget.gameId)
           : WebJoinScreen(pageUrl: Uri.base, nameController: widget.nameController);
     }
     return Scaffold(
@@ -222,6 +233,7 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
                     discovery: _discovery,
                     deviceName: () => _deviceName,
                     nameController: widget.nameController,
+                    gameId: widget.gameId,
                     onConnected: _openGame,
                   )
                 else
@@ -251,6 +263,7 @@ class _HostPanel extends StatefulWidget {
   final DiscoveryService? discovery;
   final String Function() deviceName;
   final PlayerNameController? nameController;
+  final String? gameId;
   final void Function(NetworkTransport) onConnected;
 
   const _HostPanel({
@@ -259,6 +272,7 @@ class _HostPanel extends StatefulWidget {
     required this.discovery,
     required this.deviceName,
     required this.nameController,
+    required this.gameId,
     required this.onConnected,
   });
 
@@ -267,7 +281,7 @@ class _HostPanel extends StatefulWidget {
 }
 
 class _HostPanelState extends State<_HostPanel> {
-  String _gameId = networkGameSpecs.first.id;
+  late String _gameId = widget.gameId ?? networkGameSpecs.first.id;
   late final QuartettDeckSettings _deckSettings = widget.deps.quartettDecks();
   late String _deck = _deckSettings.value;
   late final RoomSettings _roomSettings = widget.deps.roomSettings();
@@ -320,6 +334,7 @@ class _HostPanelState extends State<_HostPanel> {
           deviceName: deps.deviceName,
           nameController: widget.nameController,
           initialGameId: _gameId,
+          fixedGame: widget.gameId != null,
           autoStart: true,
         ),
       ));
@@ -436,23 +451,12 @@ class _HostPanelState extends State<_HostPanel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.pairingChooseGame, style: theme.textTheme.titleMedium),
-        const SizedBox(height: 8),
-        RadioGroup<String>(
-          groupValue: _gameId,
-          onChanged: (v) {
-            if (v != null && !_starting) setState(() => _gameId = v);
-          },
-          child: Column(
-            children: [
-              for (final spec in networkGameSpecs)
-                RadioListTile<String>(
-                  key: Key('pair-game-${spec.id}'),
-                  value: spec.id,
-                  title: Text(localizedGameTitle(l10n, spec.id, fallback: spec.title)),
-                ),
-            ],
-          ),
+        RoomGameChoice(
+          gameId: _gameId,
+          fixed: widget.gameId != null,
+          enabled: !_starting,
+          keyPrefix: 'pair-game-',
+          onChanged: (id) => setState(() => _gameId = id),
         ),
         if (_hostDeck != null) ...[
           const SizedBox(height: 8),

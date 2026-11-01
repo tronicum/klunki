@@ -8,12 +8,14 @@ import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
 import 'package:klunki/net/join_qr.dart';
+import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/profile/room_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/pairing/relay_host_screen.dart' show RelayHostScreen;
 import 'package:klunki/ui/shell/screen_registry.dart' show networkGameSpecs;
-import 'package:klunki_engine/klunki_engine.dart' show appGameSpecs;
+import 'package:klunki_engine/klunki_engine.dart' show GameConfig, appGameSpecs;
 import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -361,6 +363,63 @@ void main() {
       expect(created.hosts, hasLength(1)); // TCP on this device
       await unmountAndSettleSockets(tester, created);
     }, timeout: _timeout);
+  });
+
+  // KLD-105: a game tile's "Mit anderen" opens "Raum starten" for that game.
+  group('KLD-105 room for one game', () {
+    Future<void> pumpFor(WidgetTester tester, PairingDeps deps, String gameId) async {
+      tester.view.physicalSize = const Size(800, 1400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(localizedApp(PairingScreen(deps: deps, gameId: gameId)));
+      await tester.pump();
+    }
+
+    testWidgets('on this device: the game is shown, not asked for, and hosted', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'schiffe');
+      expect(find.byKey(const Key('pair-game-fixed')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const Key('pair-game-fixed')), matching: find.text('Schiffe versenken')),
+          findsOneWidget);
+      expect(find.text('Spiel wählen'), findsNothing);
+      for (final spec in networkGameSpecs) {
+        expect(find.byKey(Key('pair-game-${spec.id}')), findsNothing);
+      }
+      await _startHosting(tester);
+      expect(created.hosts.single.config.gameId, 'schiffe');
+      await unmountAndSettleSockets(tester, created);
+    }, timeout: _timeout);
+
+    testWidgets('Quartett: the deck is still chosen', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'quartett-trumpf');
+      expect(find.byKey(const Key('pair-game-fixed')), findsOneWidget);
+      expect(find.byKey(const Key('pair-deck')), findsOneWidget);
+      await unmountAndSettleSockets(tester, created);
+    });
+
+    testWidgets('through the relay: the relay room screen keeps the game fixed', (tester) async {
+      final created = CreatedTransports();
+      final configs = <GameConfig>[];
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        roomSettings: RoomSettings.memory(true),
+        relaySettings: RelaySettings.memory(Uri.parse('ws://127.0.0.1:9/')),
+        relayHost: (config, relay, {required name}) async {
+          configs.add(config);
+          throw const SocketLikeError('no relay');
+        },
+      );
+      await pumpFor(tester, deps, 'gostrategy');
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RelayHostScreen), findsOneWidget);
+      expect(find.byKey(const Key('relay-game-fixed')), findsOneWidget);
+      expect(find.byKey(const Key('relay-game-connect4')), findsNothing);
+      expect(configs.single.gameId, 'gostrategy');
+      await unmountAndSettleSockets(tester, created);
+    });
   });
 }
 

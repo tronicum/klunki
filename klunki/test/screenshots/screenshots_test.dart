@@ -702,7 +702,7 @@ void main() {
         if (l == 'de') {
           await tester.pumpWidget(_wrap(KlunkiApp(localeController: LocaleController.memory(locale))));
           await tester.pumpAndSettle();
-          await tester.tap(find.byKey(const Key('menu-connect4')));
+          await tester.tap(find.byKey(const Key('menu-connect4-tile')));
         } else {
           // The bundled Arabic font needs the web fallback here (KLD-093).
           await tester.pumpWidget(_wrap(_themed(

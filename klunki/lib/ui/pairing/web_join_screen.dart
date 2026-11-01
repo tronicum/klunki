@@ -72,7 +72,8 @@ class WebJoinDeps {
 
 /// "Raum starten" in the browser (KLD-057b, KLD-098): the relay room screen
 /// with this page's relay ([pageUrl]'s own server) and [deps]' factories.
-Widget webRoomStartScreen({Uri? pageUrl, WebJoinDeps? deps, PlayerNameController? nameController}) {
+/// [gameId] (KLD-105, a game tile's "Mit anderen"): this game, no choice.
+Widget webRoomStartScreen({Uri? pageUrl, WebJoinDeps? deps, PlayerNameController? nameController, String? gameId}) {
   final d = deps ?? WebJoinDeps.platform();
   return RelayHostScreen(
     hostTransport: d.relayHost,
@@ -83,6 +84,8 @@ Widget webRoomStartScreen({Uri? pageUrl, WebJoinDeps? deps, PlayerNameController
     seed: d.seed,
     deviceName: d.deviceName,
     nameController: nameController,
+    initialGameId: gameId,
+    fixedGame: gameId != null,
   );
 }
 

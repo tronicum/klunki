@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' show Player;
+import 'package:klunki_engine/klunki_engine.dart' show Player, specById;
 
 import '../profile/player_name_controller.dart';
 import 'shell/game_screen.dart' show PlayerToken;
@@ -250,6 +250,20 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
           field(Player.b, _b, TextInputAction.done),
           const SizedBox(height: 12),
           Text(l10n.hotSeatNamesHelper, style: Theme.of(context).textTheme.bodySmall),
+          // KLD-105: hidden-information games are played by passing the
+          // device (the handover cover keeps the secrets); said once here
+          // instead of on the menu tiles.
+          if (widget.start && gameId != null && specById(gameId)?.hiddenInformation == true) ...[
+            const SizedBox(height: 12),
+            Row(
+              key: const Key('hot-seat-pass-device-hint'),
+              children: [
+                Icon(Icons.visibility_off_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(child: Text(l10n.hotSeatPassDeviceHint, style: Theme.of(context).textTheme.bodyMedium)),
+              ],
+            ),
+          ],
         ],
       ),
       scrollable: true,

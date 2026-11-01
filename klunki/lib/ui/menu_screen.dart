@@ -26,7 +26,9 @@ bool menuShowsDebugConsole = !kReleaseMode;
 /// illustration on the game's accent colour, title, one-liner; see
 /// `game_visuals.dart`), then "Mit anderen Geräten spielen" (KLD-098: the
 /// two room buttons, "Raum starten" and "Raum beitreten"). Tapping a game
-/// starts a hot-seat game with a fresh random seed (see [openGame]).
+/// (or its "An einem Gerät" link) starts a hot-seat game with a fresh random
+/// seed (see [openGameFromMenu]); its "Mit anderen" link (KLD-105) opens
+/// "Raum starten" with that game chosen.
 ///
 /// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
 /// browser join screen on top of the menu and connects right away, so "back"
@@ -48,6 +50,20 @@ class MenuScreen extends StatefulWidget {
 }
 
 class _MenuScreenState extends State<MenuScreen> {
+  /// A game tile's start is running (dialogs, then the pushed route): a
+  /// second tap (double tap, the other link) starts nothing (KLD-105).
+  bool _launching = false;
+
+  Future<void> _launch(Future<void> Function() start) async {
+    if (_launching) return;
+    _launching = true;
+    try {
+      await start();
+    } finally {
+      _launching = false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -80,6 +96,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final l10n = AppLocalizations.of(context);
     final palette = KlunkiPalette.of(context);
     final start = roomStartScreenBuilder, join = roomJoinScreenBuilder;
+    final startFor = roomStartForGameBuilder;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: palette.backgroundTop,
@@ -112,10 +129,17 @@ class _MenuScreenState extends State<MenuScreen> {
                       l10n.menuChooseGame,
                       style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 4),
-                    _SectionLabel(icon: Icons.people_alt_outlined, text: l10n.menuSectionHotSeat),
-                    const SizedBox(height: 8),
-                    _GameGrid(specs: appGameSpecs, onOpen: (id) => openGameFromMenu(context, id)),
+                    const SizedBox(height: 12),
+                    // KLD-105: every tile starts its game on this device (the
+                    // tile, "An einem Gerät") or a room for it ("Mit anderen").
+                    _GameGrid(
+                      specs: appGameSpecs,
+                      onLocal: (id) => _launch(() => openGameFromMenu(context, id)),
+                      onNetwork: startFor == null
+                          ? null
+                          : (id) => _launch(() => Navigator.of(context)
+                              .push(MaterialPageRoute<void>(builder: (_) => startFor(id)))),
+                    ),
                     // View-only Quartett card gallery (KLD-069).
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
@@ -236,8 +260,11 @@ class _SectionLabel extends StatelessWidget {
 /// screen readers; the tiles of a row share its height.
 class _GameGrid extends StatelessWidget {
   final List<GameSpec> specs;
-  final void Function(String id) onOpen;
-  const _GameGrid({required this.specs, required this.onOpen});
+  final void Function(String id) onLocal;
+
+  /// Null: no network play on this platform.
+  final void Function(String id)? onNetwork;
+  const _GameGrid({required this.specs, required this.onLocal, required this.onNetwork});
 
   @override
   Widget build(BuildContext context) {
@@ -258,9 +285,7 @@ class _GameGrid extends StatelessWidget {
                     for (var k = 0; k < cols; k++) ...[
                       if (k > 0) const SizedBox(width: gap),
                       Expanded(
-                        child: k < row.length
-                            ? _GameTile(spec: row[k], onTap: () => onOpen(row[k].id))
-                            : const SizedBox(),
+                        child: k < row.length ? _tile(row[k]) : const SizedBox(),
                       ),
                     ],
                   ],
@@ -273,14 +298,26 @@ class _GameGrid extends StatelessWidget {
       },
     );
   }
+
+  Widget _tile(GameSpec spec) {
+    final network = onNetwork;
+    return _GameTile(
+      spec: spec,
+      onLocal: () => onLocal(spec.id),
+      onNetwork: network == null || hotSeatOnlyGames.contains(spec.id) ? null : () => network(spec.id),
+    );
+  }
 }
 
-/// One game: illustration on the game's accent, title, one-liner, and an
-/// eye-off badge for hidden-information games (the device is passed).
+/// One game (KLD-105): illustration on the game's accent, title and
+/// one-liner (tapping them starts the game on this device, as before), then
+/// the two ways to play as links: "An einem Gerät" (the same) and "Mit
+/// anderen" (a room for this game; not for [hotSeatOnlyGames]).
 class _GameTile extends StatelessWidget {
   final GameSpec spec;
-  final VoidCallback onTap;
-  const _GameTile({required this.spec, required this.onTap});
+  final VoidCallback onLocal;
+  final VoidCallback? onNetwork;
+  const _GameTile({required this.spec, required this.onLocal, required this.onNetwork});
 
   @override
   Widget build(BuildContext context) {
@@ -291,69 +328,131 @@ class _GameTile extends StatelessWidget {
     final visuals = visualsOf(spec.id);
     final description = visuals.description?.call(l10n);
     final muted = theme.colorScheme.onSurfaceVariant;
+    final network = onNetwork;
     return Card(
       key: Key('menu-${spec.id}'),
       margin: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 84,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
-                ),
-                border: Border(bottom: BorderSide(color: accent.color, width: 3)),
-              ),
-              padding: const EdgeInsets.all(8),
-              child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 6, 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      localizedGameTitle(l10n, spec.id, fallback: spec.title),
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    if (description != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(description, style: theme.textTheme.bodySmall?.copyWith(color: muted)),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: InkWell(
+              key: Key('menu-${spec.id}-tile'),
+              onTap: onLocal,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    height: 84,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
                       ),
-                    const Spacer(),
-                    Row(
+                      border: Border(bottom: BorderSide(color: accent.color, width: 3)),
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (spec.hiddenInformation) ...[
-                          Tooltip(
-                            message: l10n.menuHiddenInfo,
-                            child: Icon(Icons.visibility_off_outlined, size: 16, color: muted),
+                        Text(
+                          localizedGameTitle(l10n, spec.id, fallback: spec.title),
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        if (description != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(description, style: theme.textTheme.bodySmall?.copyWith(color: muted)),
                           ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              l10n.menuPassDevice,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.labelSmall?.copyWith(color: muted),
-                            ),
-                          ),
-                        ] else
-                          const Spacer(),
-                        Icon(Icons.chevron_right, color: accent.onSurface(theme.brightness)),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _PlayLink(
+                  key: Key('menu-${spec.id}-local'),
+                  accent: accent,
+                  icon: Icons.smartphone,
+                  label: l10n.menuPlayOnOneDevice,
+                  onTap: onLocal,
+                ),
+                if (network != null) ...[
+                  const SizedBox(height: 6),
+                  _PlayLink(
+                    key: Key('menu-${spec.id}-network'),
+                    accent: accent,
+                    icon: Icons.wifi,
+                    label: l10n.menuPlayWithOthers,
+                    onTap: network,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A play-mode link at the bottom of a game tile (KLD-105): a tinted,
+/// outlined button (≥48 px high) with the mode's icon, its label and a
+/// chevron, so it reads as tappable and apart from the tile body. The
+/// chevron follows the text direction.
+class _PlayLink extends StatelessWidget {
+  final GameAccent accent;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _PlayLink({super.key, required this.accent, required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
+    final fg = dark ? theme.colorScheme.onSurface : Color.lerp(accent.color, Colors.black, 0.25)!;
+    final iconColor = accent.onSurface(theme.brightness);
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(color: accent.color.withValues(alpha: dark ? 0.7 : 0.45)),
+    );
+    return Material(
+      color: dark ? accent.container : accent.container.withValues(alpha: 0.55),
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 2, 6),
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: iconColor),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: theme.textTheme.labelLarge?.copyWith(color: fg, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Icon(Icons.chevron_right, size: 18, color: iconColor),
+              ],
+            ),
+          ),
         ),
       ),
     );
