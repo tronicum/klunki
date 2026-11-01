@@ -47,6 +47,11 @@ void main() {
         if (RegExp(r'^c5-k\d$').hasMatch(id)) id,
     ],
     // The leather patch (k1) styles and the card variants.
+    // card-b with patch steps from k1 to k1b, and the letter tile placements.
+    'c5-cb-compare': [
+      for (final id in ids)
+        if (id.startsWith('c5-cb')) id,
+    ],
     'c5-k1-compare': [
       for (final id in ids)
         if (id.startsWith('c5-k1')) id,

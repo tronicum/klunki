@@ -76,6 +76,24 @@ All patch styles read at 180 px (k1b and k1d least well); at 60 px the patch
 is a brown block with a light smudge. `c5-k1-compare.png` shows k1, k1a–f and
 both card variants at 256, 180 and 60 px.
 
+The user then picked **c5-k1-card-b** as the base. Patch steps from k1 to
+k1b, and a light-wood word-game tile ("K", point value 5, Roboto Bold; no
+brand look):
+
+| id | variant |
+|---|---|
+| c5-cb-a | k1 patch: cream letters pressed into mid-brown leather |
+| c5-cb-b | k1b patch: tonal deboss in light tan; softest at 180 px |
+| c5-cb-c | In between: lighter leather than k1, cream letters with k1's dark edge; reads at 180 px |
+| c5-cb-d | k1b's light tan with deep-brown pressed letters (k1b with more contrast) |
+| c5-cb-e | A step lighter than cb-c (tan leather), cream letters |
+| c5-cb-tile-1 | cb-c patch; tile rising from the pocket in front of the phone's lower left |
+| c5-cb-tile-2 | cb-c patch; tile replaces the red piece |
+| c5-cb-tile-3 | cb-c patch; smaller tile between pawn and flag, on the red piece |
+
+`c5-cb-compare.png` shows all of them at 256, 180 and 60 px. The tile's "K"
+reads at 180 px; at 60 px it is a light square.
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for
