@@ -1,4 +1,4 @@
-# Klunki builds (KLD-070): PWA and Android APK as downloadable artifacts, an
+# Klunki builds (KLD-070): PWA, Android APK and app bundle (.aab) as downloadable artifacts, an
 # iOS compile check on demand. Nothing goes to a store. GitHub Pages (KLD-096)
 # is deployed only from main and only when the repository variable
 # PAGES_ENABLED is 'true' (see the `pages-build` / `pages` jobs).
@@ -57,7 +57,7 @@ jobs:
           retention-days: 30
 
   android:
-    name: Android APK (flutter build apk)
+    name: Android APK + app bundle (flutter build apk, appbundle)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     defaults:
@@ -112,6 +112,16 @@ jobs:
         with:
           name: klunki-android-apk
           path: klunki/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 30
+      # The Play Store format (docs/PLAYSTORE.md). Same signing as the APK:
+      # without the KEYSTORE_* secrets it carries the debug key, which Play
+      # Console rejects, so such a bundle is for checking the build only.
+      - run: flutter build appbundle --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: klunki-android-aab
+          path: klunki/build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 30
 
