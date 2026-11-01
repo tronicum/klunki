@@ -1,0 +1,46 @@
+name: Renovate (manual pub check)
+
+# Manual-only trigger: run from the Actions tab (Renovate (manual pub check) >
+# Run workflow) whenever you want to check the pub dependencies of
+# klunki/pubspec.yaml, packages/klunki_engine/pubspec.yaml and
+# packages/klunki_net/pubspec.yaml for updates. Opens or updates PRs from
+# branches prefixed "renovate-manual/". Config: .github/renovate-config.js.
+# Needs the RENOVATE_TOKEN secret (see docs/REVIEWS.md for its scopes).
+#
+# Every action is pinned to a commit SHA (tag in the comment), like ci.yml.
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Renovate log level'
+        type: choice
+        default: info
+        options:
+          - info
+          - debug
+
+permissions:
+  contents: read   # Renovate itself writes with RENOVATE_TOKEN, not GITHUB_TOKEN
+
+concurrency:
+  group: renovate-manual
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45   # updating pubspec.lock installs the Flutter SDK inside Renovate's container
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Self-hosted Renovate
+        uses: renovatebot/github-action@f0f41e5f2e706165f6814b1d0f0d0e319de7d1d9 # v46.3.8
+        with:
+          configurationFile: .github/renovate-config.js
+          token: ${{ secrets.RENOVATE_TOKEN }}
+          # The Renovate (docker image) version, pinned exactly instead of the
+          # action's floating major.
+          renovate-version: 44.136.0
+        env:
+          LOG_LEVEL: ${{ inputs.logLevel }}
