@@ -58,7 +58,7 @@ void main() {
 
     expect(find.text('Random'), findsOneWidget);
     expect(find.text('Horizontal'), findsOneWidget);
-    expect(find.textContaining('Setup: tap the sea'), findsOneWidget);
+    expect(find.textContaining('Tap the sea to place the ship.'), findsOneWidget);
     expect(find.textContaining('Anna is placing'), findsOneWidget);
   });
 

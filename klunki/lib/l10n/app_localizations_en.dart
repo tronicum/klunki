@@ -518,7 +518,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get schiffeHintSetup =>
-      'Setup: tap the sea (or drag and release) to place the ship. Ships must not touch.';
+      'Tap the sea to place the ship. Hold your finger down to see first whether it fits. Ships must not touch.';
 
   @override
   String get schiffeHintAllSunk => 'All ships sunk.';
@@ -657,12 +657,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship selected: tap a cell or drag the ship to move it. Tap it again or “Rotate” to turn it.';
+    return '$ship selected: drag it or tap a free cell to move it. Tap it again to turn it.';
   }
 
   @override
   String get schiffeHintReady =>
-      'Fleet ready. Tap a ship to change it – or “Done”.';
+      'Fleet ready. Tap a ship to move or turn it – or “Done”.';
 
   @override
   String schiffeHintEarly(String player) {
@@ -685,6 +685,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'Harbour';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'Tap the sea for the next ship. Tap a placed ship to move or turn it.';
+
+  @override
+  String get schiffeCoachTap => 'Tap it: move or turn';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ships left',
+      one: '1 ship left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'Preview: $ship, $orientation. Tap to turn it.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count of this kind left',
+      one: 'the last of its kind',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

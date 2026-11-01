@@ -518,7 +518,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get schiffeHintSetup =>
-      'چیدمان: روی دریا بزن (یا بکش و رها کن) تا کشتی را بگذاری. کشتی‌ها نباید به هم بچسبند.';
+      'روی دریا بزن تا کشتی را بگذاری. انگشتت را نگه دار تا اول ببینی جا می‌شود یا نه. کشتی‌ها نباید به هم بچسبند.';
 
   @override
   String get schiffeHintAllSunk => 'همهٔ کشتی‌ها غرق شدند.';
@@ -657,12 +657,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship انتخاب شد: برای جابه‌جایی روی یک خانه بزن یا کشتی را بکش. برای چرخاندن دوباره رویش بزن یا «چرخاندن» را بزن.';
+    return '$ship انتخاب شد: بکشش یا روی یک خانهٔ خالی بزن تا جابه‌جا شود. دوباره رویش بزن تا بچرخد.';
   }
 
   @override
   String get schiffeHintReady =>
-      'ناوگان آماده است. برای تغییر روی یک کشتی بزن، یا «تمام».';
+      'ناوگان آماده است. روی یک کشتی بزن تا جابه‌جا یا چرخانده شود، یا «تمام».';
 
   @override
   String schiffeHintEarly(String player) {
@@ -684,6 +684,40 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'بندر';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'برای کشتی بعدی روی دریا بزن. روی یک کشتی گذاشته‌شده بزن تا جابه‌جا یا چرخانده شود.';
+
+  @override
+  String get schiffeCoachTap => 'رویش بزن: جابه‌جا یا چرخاندن';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کشتی مانده',
+      one: 'یک کشتی مانده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'پیش‌نمایش: $ship، $orientation. بزن تا بچرخد.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تا از این نوع مانده',
+      one: 'آخرین از این نوع',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

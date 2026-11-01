@@ -522,7 +522,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get schiffeHintSetup =>
-      'Aufstellung: tippe aufs Meer (oder ziehe und lass los), um das Schiff zu setzen. Schiffe dürfen sich nicht berühren.';
+      'Tippe aufs Meer, um das Schiff zu setzen. Halte den Finger drauf, dann siehst du vorher, ob es passt. Schiffe dürfen sich nicht berühren.';
 
   @override
   String get schiffeHintAllSunk => 'Alle Schiffe versenkt.';
@@ -661,12 +661,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship ausgewählt: tippe ein Feld oder ziehe das Schiff, um es zu verschieben. Nochmal tippen oder „Drehen“ dreht es.';
+    return '$ship ausgewählt: ziehe es oder tippe ein freies Feld, um es zu verschieben. Tippe es nochmal an, um es zu drehen.';
   }
 
   @override
   String get schiffeHintReady =>
-      'Flotte steht. Tippe ein Schiff, um es zu ändern – oder „Fertig“.';
+      'Flotte steht. Tippe ein Schiff an, um es zu verschieben oder zu drehen – oder „Fertig“.';
 
   @override
   String schiffeHintEarly(String player) {
@@ -689,6 +689,40 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'Hafen';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'Tippe aufs Meer für das nächste Schiff. Tippe ein gesetztes Schiff an, um es zu verschieben oder zu drehen.';
+
+  @override
+  String get schiffeCoachTap => 'Antippen: verschieben oder drehen';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count Schiffe',
+      one: 'noch 1 Schiff',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'Vorschau: $ship, $orientation. Tippen dreht es.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count dieser Art',
+      one: 'das letzte dieser Art',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

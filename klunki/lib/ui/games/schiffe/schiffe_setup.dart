@@ -29,6 +29,9 @@ const _wideBreakpoint = 600.0;
 ///   "Zurücksetzen" clears the board.
 /// * An invalid move or turn flashes red, shakes the board (not with reduced
 ///   motion) and explains why in the hint line.
+/// * KLD-107: a "next piece" preview box (tap = "Drehen"), a dock of all
+///   ships, a ↻ badge on the selected ship and a one-time tip after the
+///   first placement make these gestures discoverable.
 ///
 /// Over the network the player can arrange the fleet while the opponent is
 /// still placing; "Fertig" works once it is their turn. In hot-seat the
@@ -71,6 +74,20 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
   bool _submitting = false;
   bool _submitFailed = false;
 
+  /// The first ship placed from the harbour gets a one-time tip bubble
+  /// ("tap it: move or turn", KLD-107) until the next interaction.
+  bool _coachDone = false;
+  int? _coach;
+
+  /// Next-ship preview: the ship it shows, its orientation and the quarter
+  /// turns drawn (a turn of the same ship animates, another ship jumps).
+  int? _pvShip;
+  bool? _pvHorizontal;
+  int _pvTurns = 0;
+
+  /// Successful turns of a placed ship (spins the ↻ badge).
+  int _spins = 0;
+
   late final AnimationController _fx = AnimationController(vsync: this, duration: const Duration(milliseconds: 450))
     ..addStatusListener((s) {
       if (s == AnimationStatus.completed && mounted) setState(() => _flash = const {});
@@ -112,6 +129,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
   void _ok() {
     _message = null;
     _submitFailed = false;
+    _coach = null;
   }
 
   void _invalid(Iterable<List<int>> cells, String message) {
@@ -143,6 +161,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     }
     if (d.rotate(s, pivot: pivot)) {
       _ok();
+      _spins++;
     } else {
       _invalid(d[s]!.rotated(pivot: pivot).cells, l10n.schiffeInvalidRotate);
     }
@@ -158,7 +177,13 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final p = cur?.movedTo(r, c) ?? ShipPlacement(length: d.fleet[a], row: r, col: c, horizontal: _horizontal);
     if (d.place(a, p)) {
       _ok();
-      if (cur == null) _selected = null; // next ship from the harbour
+      if (cur == null) {
+        _selected = null; // next ship from the harbour
+        if (!_coachDone) {
+          _coachDone = true;
+          _coach = a;
+        }
+      }
     } else {
       _invalid(p.cells, l10n.schiffeInvalidPlace);
     }
@@ -171,6 +196,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
       if (a != null && d[a] != null) {
         if (d.rotate(a)) {
           _ok();
+          _spins++;
         } else {
           _invalid(d[a]!.rotated().cells, l10n.schiffeInvalidRotate);
         }
@@ -236,6 +262,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final d = _draft!;
     final s = _onBoard(cell) ? d.shipAt(cell.$1, cell.$2) : null;
     setState(() {
+      _coach = null;
       _down = cell;
       _hover = cell;
       _moved = false;
@@ -327,6 +354,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     if (_message != null) return _message;
     if (!canAct) return l10n.schiffeHintEarly(playerName(context, opp));
     if (active != null && activePlaced && _selected != null) return l10n.schiffeHintSelected(shipLabel(active));
+    if (active != null && d.placedCount > 0) return l10n.schiffeHintSetupMore;
     if (active != null) return l10n.schiffeHintSetup;
     return l10n.schiffeHintReady;
   }
@@ -361,9 +389,19 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final previewLook = preview == null ? null : (preview.$2 ? SvPreview.valid : SvPreview.invalid);
     final selectedShip = activePlaced && _selected != null ? d[active] : null;
 
+    final dragging = _dragShip != null && _moved;
+    final coachShip = _coach == null ? null : d[_coach!];
     final grid = SchiffeGrid(
       outlines: [?selectedShip],
       outlineColor: accent,
+      overlays: (unit) => [
+        // ↻ on the middle cell of the selected ship: tapping the selected
+        // ship turns it around the tapped cell, so this turns it in place.
+        if (selectedShip != null && editable && !dragging)
+          _RotateBadge(ship: selectedShip, unit: unit, color: accent, spins: _spins),
+        if (coachShip != null && editable && selectedShip == null && !dragging)
+          _CoachBubble(ship: coachShip, unit: unit, text: l10n.schiffeCoachTap),
+      ],
       cellBuilder: (r, c) {
         final i = r * SchiffeGame.size + c;
         final s = d.shipAt(r, c);
@@ -412,23 +450,64 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
             child: grid,
           );
 
-    // ---- title
-    final title = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          active == null ? l10n.schiffeFleetComplete : shipLabel(active),
-          key: const Key('sv-next-ship'),
-          style: theme.textTheme.titleLarge,
-        ),
-        Text(l10n.schiffeSetupCount(d.placedCount, d.fleet.length, playerName(context, me))),
-      ],
-    );
-
-    // ---- buttons
+    // ---- next-ship preview (KLD-107) and title
     final horizontal = activePlaced ? d[active]!.horizontal : _horizontal;
     final orientation = horizontal ? l10n.schiffeHorizontal : l10n.schiffeVertical;
+    if (active != _pvShip) {
+      _pvTurns = horizontal ? 0 : 1;
+    } else if (horizontal != _pvHorizontal) {
+      _pvTurns++;
+    }
+    _pvShip = active;
+    _pvHorizontal = horizontal;
+    // Ships of the active one's length still in the harbour (itself included).
+    final left = active == null || activePlaced
+        ? 0
+        : [for (var i = 0; i < d.fleet.length; i++) if (!d.isPlaced(i) && d.fleet[i] == d.fleet[active]) i].length;
+    Widget previewBox(double size) => _ShipPreview(
+          key: const Key('sv-preview'),
+          ship: active,
+          length: active == null ? null : d.fleet[active],
+          turns: _pvTurns,
+          left: left,
+          size: size,
+          accent: accent,
+          semanticLabel: active == null
+              ? l10n.schiffeFleetComplete
+              : [
+                  l10n.schiffePreviewSemantics(shipLabel(active), orientation),
+                  if (left > 0) l10n.schiffePreviewLeft(left),
+                ].join(', '),
+          onTap: editable && active != null ? () => _rotate(l10n) : null,
+        );
+    Widget title(double previewSize) => Row(
+          children: [
+            previewBox(previewSize),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    active == null ? l10n.schiffeFleetComplete : shipLabel(active),
+                    key: const Key('sv-next-ship'),
+                    style: theme.textTheme.titleLarge,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    l10n.schiffeSetupCount(d.placedCount, d.fleet.length, playerName(context, me)),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+
+    // ---- buttons
     final rotate = Semantics(
       label: l10n.schiffeRotateSemantics(orientation),
       excludeSemantics: true,
@@ -497,7 +576,21 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
       style: FilledButton.styleFrom(minimumSize: const Size(48, 52)),
       onPressed: editable && canAct && d.complete ? _done : null,
       icon: const Icon(Icons.check),
-      label: Text(l10n.schiffeDone),
+      label: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.schiffeDone, maxLines: 1, overflow: TextOverflow.ellipsis),
+          // Why it is still disabled (KLD-107).
+          if (editable && !d.complete)
+            Text(
+              l10n.schiffeDoneLeft(d.fleet.length - d.placedCount),
+              key: const Key('sv-done-left'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall,
+            ),
+        ],
+      ),
     );
 
     // ---- harbour (all ships; placed ones ticked)
@@ -518,7 +611,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
       builder: (context, box) {
         if (box.maxWidth >= _wideBreakpoint) {
           final panelTop = [
-            title,
+            title(84),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -565,7 +658,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              title,
+              title(64),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -577,12 +670,12 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
               const SizedBox(height: 8),
               Expanded(child: shaking),
               const SizedBox(height: 8),
-              SizedBox(
-                height: 52,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [for (var i = 0; i < d.fleet.length; i++) trayItem(i, dense: true)],
-                ),
+              // The dock: every ship as a small shape, placed ones ticked
+              // and faded, the active one outlined (KLD-107).
+              Row(
+                children: [
+                  for (var i = 0; i < d.fleet.length; i++) Expanded(child: trayItem(i, dense: true)),
+                ],
               ),
               const SizedBox(height: 8),
               Row(
@@ -648,8 +741,24 @@ class _TrayItem extends StatelessWidget {
           ),
       ],
     );
-    final content = Row(
-      mainAxisSize: dense ? MainAxisSize.min : MainAxisSize.max,
+    // Dense (the phone dock): only the shape, scaled to the slot, with a
+    // tick when it is on the board.
+    final content = dense
+        ? FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (placed) ...[
+                  Icon(Icons.check_circle, size: 14, color: Colors.green.shade600),
+                  const SizedBox(width: 3),
+                ],
+                ship,
+              ],
+            ),
+          )
+        : Row(
+      mainAxisSize: MainAxisSize.max,
       children: [
         Icon(
           placed ? Icons.check_circle : Icons.directions_boat_outlined,
@@ -672,7 +781,7 @@ class _TrayItem extends StatelessWidget {
       ],
     );
     return Padding(
-      padding: dense ? const EdgeInsetsDirectional.only(end: 6) : const EdgeInsets.symmetric(vertical: 2),
+      padding: dense ? const EdgeInsets.symmetric(horizontal: 2) : const EdgeInsets.symmetric(vertical: 2),
       child: Semantics(
         button: true,
         selected: selected,
@@ -691,11 +800,239 @@ class _TrayItem extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 48),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Align(alignment: AlignmentDirectional.centerStart, widthFactor: 1, child: content),
+                padding: EdgeInsets.symmetric(horizontal: dense ? 4 : 10),
+                child: dense
+                    ? Center(child: content)
+                    : Align(alignment: AlignmentDirectional.centerStart, widthFactor: 1, child: content),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One ship drawn horizontally as [length] cells of [cell] px.
+Widget _shipShape(BuildContext context, int length, double cell) {
+  final sea = KlunkiPalette.of(context).schiffe;
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 0; i < length; i++)
+        Container(
+          width: cell,
+          height: cell,
+          margin: EdgeInsets.only(right: i == length - 1 ? 0 : cell * 0.08),
+          decoration: BoxDecoration(
+            border: Border.all(color: sea.shipEdge),
+            borderRadius: BorderRadius.horizontal(
+              left: Radius.circular(i == 0 ? cell * 0.45 : cell * 0.15),
+              right: Radius.circular(i == length - 1 ? cell * 0.45 : cell * 0.15),
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [Color.lerp(sea.ship, Colors.white, 0.2)!, sea.ship],
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+/// The "next piece" box of the setup (KLD-107): the active ship (next from
+/// the harbour or the selected one) in its current orientation; tapping it
+/// turns the ship, which the box shows as a short quarter turn. "×2" when
+/// more ships of that length wait in the harbour; a tick once all are set.
+class _ShipPreview extends StatelessWidget {
+  final int? ship, length;
+  final int turns, left;
+  final double size;
+  final Color accent;
+  final String semanticLabel;
+  final VoidCallback? onTap;
+
+  const _ShipPreview({
+    super.key,
+    required this.ship,
+    required this.length,
+    required this.turns,
+    required this.left,
+    required this.size,
+    required this.accent,
+    required this.semanticLabel,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final sea = KlunkiPalette.of(context).schiffe;
+    final n = length;
+    final cell = (size - 16) / 5;
+    return Semantics(
+      button: onTap != null,
+      label: semanticLabel,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Material(
+        color: sea.water,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: n == null ? sea.gridLine : accent, width: 2),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox.square(
+            dimension: size,
+            child: Stack(
+              children: [
+                Center(
+                  child: n == null
+                      ? Icon(Icons.check_circle, size: size * 0.5, color: Colors.green.shade600)
+                      : KeyedSubtree(
+                          key: ValueKey(ship),
+                          child: AnimatedRotation(
+                            key: const Key('sv-preview-ship'),
+                            turns: turns / 4,
+                            duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 280),
+                            curve: Curves.easeOutBack,
+                            child: _shipShape(context, n, cell),
+                          ),
+                        ),
+                ),
+                if (n != null && onTap != null)
+                  Positioned(
+                    right: 3,
+                    bottom: 3,
+                    child: Icon(Icons.rotate_right, size: size * 0.22, color: accent),
+                  ),
+                if (left > 1)
+                  Positioned(
+                    left: 4,
+                    top: 3,
+                    child: Text(
+                      '×$left',
+                      key: const Key('sv-preview-left'),
+                      textDirection: TextDirection.ltr,
+                      style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: accent),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The ↻ badge on the middle cell of the selected ship (KLD-107). Only a
+/// picture: the setup's pointer handling turns the selected ship around the
+/// tapped cell, which for this cell is a turn in place. Spins a quarter on
+/// every turn.
+class _RotateBadge extends StatelessWidget {
+  final ShipPlacement ship;
+  final double unit;
+  final Color color;
+  final int spins;
+
+  const _RotateBadge({required this.ship, required this.unit, required this.color, required this.spins});
+
+  @override
+  Widget build(BuildContext context) {
+    final k = ship.length ~/ 2;
+    final r = ship.horizontal ? ship.row : ship.row + k;
+    final c = ship.horizontal ? ship.col + k : ship.col;
+    final inset = unit * 0.1;
+    return Positioned(
+      left: c * unit + inset,
+      top: r * unit + inset,
+      width: unit - 2 * inset,
+      height: unit - 2 * inset,
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: AnimatedRotation(
+            key: const Key('sv-rotate-badge'),
+            turns: spins / 4,
+            duration: reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 280),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 1.5),
+                boxShadow: const [BoxShadow(color: Color(0x55000000), blurRadius: 3, offset: Offset(0, 1))],
+              ),
+              child: const FittedBox(
+                child: Padding(
+                  padding: EdgeInsets.all(3),
+                  child: Icon(Icons.rotate_right, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One-time tip bubble next to the first placed ship (KLD-107): below it,
+/// or above when it sits low on the board. A picture only (the hint line
+/// carries the same advice for screen readers).
+class _CoachBubble extends StatelessWidget {
+  final ShipPlacement ship;
+  final double unit;
+  final String text;
+
+  const _CoachBubble({required this.ship, required this.unit, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const n = SchiffeGame.size;
+    final width = min(unit * n - 8, max(unit * 8.5, 220.0));
+    final bottomRow = ship.horizontal ? ship.row : ship.row + ship.length - 1;
+    final below = bottomRow < n - 2;
+    final left = (ship.col * unit).clamp(4.0, unit * n - width - 4);
+    final bubble = DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.inverseSurface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: const [BoxShadow(color: Color(0x44000000), blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.touch_app, size: 16, color: theme.colorScheme.onInverseSurface),
+            const SizedBox(width: 4),
+            Icon(Icons.rotate_right, size: 16, color: theme.colorScheme.onInverseSurface),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                text,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onInverseSurface),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    return Positioned(
+      key: const Key('sv-coach'),
+      left: left,
+      width: width,
+      top: below ? (bottomRow + 1) * unit + 4 : null,
+      bottom: below ? null : (n - ship.row) * unit + 4,
+      child: IgnorePointer(
+        child: ExcludeSemantics(
+          child: Align(alignment: Alignment.centerLeft, widthFactor: 1, child: bubble),
         ),
       ),
     );

@@ -527,7 +527,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get schiffeHintSetup =>
-      'Colocación: toca el mar (o arrastra y suelta) para colocar el barco. Los barcos no pueden tocarse.';
+      'Toca el mar para colocar el barco. Mantén el dedo para ver antes si cabe. Los barcos no pueden tocarse.';
 
   @override
   String get schiffeHintAllSunk => 'Todos los barcos hundidos.';
@@ -667,12 +667,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship seleccionado: toca una casilla o arrastra el barco para moverlo. Tócalo otra vez o «Girar» para girarlo.';
+    return '$ship seleccionado: arrástralo o toca una casilla libre para moverlo. Tócalo otra vez para girarlo.';
   }
 
   @override
   String get schiffeHintReady =>
-      'Flota lista. Toca un barco para cambiarlo, o «Listo».';
+      'Flota lista. Toca un barco para moverlo o girarlo, o «Listo».';
 
   @override
   String schiffeHintEarly(String player) {
@@ -695,6 +695,40 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get schiffeHarbour => 'Puerto';
+
+  @override
+  String get schiffeHintSetupMore =>
+      'Toca el mar para el siguiente barco. Toca un barco colocado para moverlo o girarlo.';
+
+  @override
+  String get schiffeCoachTap => 'Tócalo: mover o girar';
+
+  @override
+  String schiffeDoneLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'faltan $count barcos',
+      one: 'falta 1 barco',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String schiffePreviewSemantics(String ship, String orientation) {
+    return 'Vista previa: $ship, $orientation. Toca para girarlo.';
+  }
+
+  @override
+  String schiffePreviewLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'quedan $count de este tipo',
+      one: 'el último de este tipo',
+    );
+    return '$_temp0';
+  }
 
   @override
   String schiffeShipSunk(String ship) {

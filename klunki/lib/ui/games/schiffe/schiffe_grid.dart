@@ -90,7 +90,21 @@ class SchiffeCellView extends StatelessWidget {
     );
     switch (look) {
       case SvLook.water:
-        break;
+        // Ghost of a ship that would fit here (setup preview, KLD-107).
+        if (preview == SvPreview.valid) {
+          marker = Opacity(
+            key: const ValueKey('sv-ghost'),
+            opacity: 0.55,
+            child: Container(
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: p.shipEdge),
+                color: p.ship,
+              ),
+            ),
+          );
+        }
       case SvLook.ship:
         marker = shipBody();
       case SvLook.miss:
@@ -159,12 +173,17 @@ class SchiffeGrid extends StatelessWidget {
   /// pointer positions can be mapped to cells.
   final Widget Function(Widget cells, double unit)? wrapCells;
 
+  /// Extra layers over the cells (e.g. [Positioned] badges), given the cell
+  /// size; they get no pointer events (the setup maps taps itself).
+  final List<Widget> Function(double unit)? overlays;
+
   const SchiffeGrid({
     super.key,
     required this.cellBuilder,
     this.outlines = const [],
     this.outlineColor,
     this.wrapCells,
+    this.overlays,
   });
 
   @override
@@ -224,6 +243,7 @@ class SchiffeGrid extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (overlays != null) ...overlays!(unit),
             ],
           ),
         );
