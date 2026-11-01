@@ -29,6 +29,11 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c3': ('Schräge Tasche, 5 Teile mit K-Buchstabenstein', paintConceptC3),
   'c4': ('Minimal: 3 große Teile, Chip-Nieten', paintConceptC4),
   'c5': ('Jeanstasche (Denim) wie c1', paintConceptC5),
+  // The user's pick c5, final size, and phone ideas on top of it.
+  'c5-final': ('Jeanstasche, größere Tasche', paintConceptC5Final),
+  'c5-p1': ('Jeanstasche: Handy statt Karte', paintConceptC5P1),
+  'c5-p2': ('Jeanstasche: Handy als Stickerei', paintConceptC5P2),
+  'c5-p3': ('Jeanstasche: Handy hinter den Steinen', paintConceptC5P3),
 };
 
 // ---------------------------------------------------------------- shared --
@@ -420,7 +425,7 @@ Path _pocketOutline() => Path()
 /// middle of its opening). [pieces] are drawn first, clipped so nothing pokes
 /// out below the opening beside the pocket (they sit *in* it). [rivets] are
 /// drawn on the two top corners; [flap] adds a front flap with [button] on
-/// its tip.
+/// its tip; [emblem] draws on the pocket front (pocket design coordinates).
 void _pocket(
   Canvas c,
   Offset topCenter,
@@ -430,6 +435,7 @@ void _pocket(
   void Function(Canvas c, Offset at, double r)? rivets,
   bool flap = false,
   void Function(Canvas c, Offset at)? button,
+  void Function(Canvas c, _Leather leather)? emblem,
 }) {
   if (pieces != null) {
     final m = Float64List.fromList([
@@ -501,6 +507,7 @@ void _pocket(
     _dashed(c, fs, stitchPaint, 30, 22);
     button?.call(c, const Offset(512, 616));
   }
+  emblem?.call(c, leather);
   if (rivets != null) {
     rivets(c, const Offset(286, 522), 42);
     rivets(c, const Offset(738, 522), 42);
@@ -531,6 +538,136 @@ void _c1(Canvas c, _Leather leather) {
     },
     rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
   );
+}
+
+/// (c5-final) c5 with a ~12 % bigger pocket (pieces unchanged). The pocket
+/// opening moves up a little so the group stays at ~69 % of the icon.
+void paintConceptC5Final(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.none));
+
+/// (c5-p1) A generic phone instead of the card, with a tiny Four-in-a-Row
+/// board on its screen.
+void paintConceptC5P1(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard));
+
+/// (c5-p2) A subtle phone outline embroidered on the pocket in the stitching
+/// colour; it simply fades away at small sizes.
+void paintConceptC5P2(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.embroidered));
+
+/// (c5-p3) A phone standing upright behind the pieces, which pop out in front
+/// of its lit screen.
+void paintConceptC5P3(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.behind));
+
+enum _C5Phone { none, insteadOfCard, embroidered, behind }
+
+void _c5(Canvas c, _C5Phone phone) {
+  _table(c);
+  _fit(c, 1.04, dy: -24);
+  final c4 = _p.connect4;
+  _pocket(
+    c,
+    const Offset(512, 540),
+    0.83,
+    _denim,
+    pieces: (c) {
+      if (phone == _C5Phone.behind) {
+        // The phone takes the card's place, standing behind the pieces.
+        _phone(c, const Offset(430, 420), const Size(236, 380), -0.14, screen: _screenGlow);
+      }
+      _flag(c, const Rect.fromLTWH(470, 196, 360, 360), _p.gostrategy.red, lineWidth: 4.5);
+      if (phone == _C5Phone.insteadOfCard) {
+        _phone(c, const Offset(404, 440), const Size(204, 344), -0.2, screen: _screenBoard);
+      } else if (phone != _C5Phone.behind) {
+        _card(c, const Offset(404, 446), const Size(214, 330), -0.2, _p.quartett.sets['F']!, outline: 13);
+      }
+      _pawn(c, const Rect.fromLTWH(344, 262, 330, 330), fill: _p.chess.whiteFill, lineWidth: 4.5);
+      _chip(c, const Offset(624, 540), 90, c4.red);
+    },
+    rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
+    emblem: phone == _C5Phone.embroidered ? _embroideredPhone : null,
+  );
+}
+
+/// A generic phone: graphite rounded body and a screen; no notch, no
+/// buttons, no brand cues.
+void _phone(Canvas c, Offset center, Size s, double angle, {required void Function(Canvas c, RRect screen) screen}) {
+  c.save();
+  c.translate(center.dx, center.dy);
+  c.rotate(angle);
+  final body = RRect.fromRectAndRadius(
+    Rect.fromCenter(center: Offset.zero, width: s.width, height: s.height),
+    Radius.circular(s.width * 0.17),
+  );
+  c.drawRRect(body.shift(const Offset(8, 14)), _fill(_shadow));
+  c.drawRRect(body, _fill(const Color(0xFF2E3136)));
+  final m = s.width * 0.08;
+  final scr = RRect.fromRectAndRadius(
+    Rect.fromLTRB(body.left + m, body.top + m, body.right - m, body.bottom - m),
+    Radius.circular(s.width * 0.1),
+  );
+  c.save();
+  c.clipRRect(scr);
+  screen(c, scr);
+  c.restore();
+  c.drawRRect(body, _stroke(_ink, 13));
+  c.restore();
+}
+
+/// Phone screen with a tiny 3 × 4 Four-in-a-Row board.
+void _screenBoard(Canvas c, RRect s) {
+  final c4 = _p.connect4;
+  c.drawRRect(s, _fill(c4.board));
+  // Near the top of the screen: the lower half is inside the pocket.
+  const pattern = ['..r.', '.yr.', 'yryy'];
+  final cell = s.width / 4;
+  final top = s.top + cell * 0.35;
+  for (var row = 0; row < pattern.length; row++) {
+    for (var col = 0; col < 4; col++) {
+      final o = Offset(s.left + (col + 0.5) * cell, top + (row + 0.5) * cell);
+      final ch = pattern[row][col];
+      c.drawCircle(
+        o,
+        cell * 0.36,
+        _fill(
+          ch == 'r'
+              ? c4.red
+              : ch == 'y'
+              ? c4.yellow
+              : c4.boardShade,
+        ),
+      );
+    }
+  }
+}
+
+/// Phone screen as a lit deep-blue glow with a glass glint, so the light
+/// pieces in front stand out and it can't be mistaken for a card.
+void _screenGlow(Canvas c, RRect s) {
+  c.drawRRect(
+    s,
+    Paint()
+      ..shader = ui.Gradient.radial(s.center.translate(0, -s.height * 0.2), s.height * 0.7, [
+        const Color(0xFF4F8BD6),
+        const Color(0xFF1C3F7A),
+      ]),
+  );
+  c.drawPath(
+    Path()
+      ..moveTo(s.left, s.top + s.height * 0.32)
+      ..lineTo(s.right, s.top + s.height * 0.08)
+      ..lineTo(s.right, s.top + s.height * 0.2)
+      ..lineTo(s.left, s.top + s.height * 0.44)
+      ..close(),
+    _fill(const Color(0x22FFFFFF)),
+  );
+}
+
+/// Phone outline stitched on the pocket front (pocket design coordinates).
+void _embroideredPhone(Canvas c, _Leather leather) {
+  final body = RRect.fromRectAndRadius(
+    Rect.fromCenter(center: const Offset(512, 672), width: 132, height: 210),
+    const Radius.circular(26),
+  );
+  c.drawRRect(body.deflate(20), _fill(const Color(0x1FFFFFFF)));
+  _dashed(c, Path()..addRRect(body), _stroke(leather.stitch, 9), 22, 14);
 }
 
 /// (c2) Pocket with a front flap and a white Mühle stone as its button;

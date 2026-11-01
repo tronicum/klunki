@@ -24,6 +24,18 @@ pieces as rivets; the whole group fills about 66 % of the icon):
 | c4 | Minimal: three big pieces (card, pawn, red chip), yellow chip rivets |
 | c5 | Like c1 in denim blue with orange stitching (contrast test) |
 
+The user then picked **c5** (denim). Final size and phone ideas:
+
+| id | variant |
+|---|---|
+| c5-final | c5 with a ~12 % bigger pocket, pieces unchanged; the group fills ~69 % |
+| c5-p1 | A generic phone (graphite body, plain screen) instead of the card, with a tiny Four-in-a-Row board on its screen |
+| c5-p2 | A phone outline stitched on the pocket front in the orange thread; it fades away at small sizes |
+| c5-p3 | A phone with a lit blue screen stands behind the pieces in the card's place; pawn, flag and chip pop out in front of it |
+
+The phones are deliberately generic: a rounded rectangle with a screen, no
+notch, no buttons, no brand cues.
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for
