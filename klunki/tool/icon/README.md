@@ -94,6 +94,20 @@ brand look):
 `c5-cb-compare.png` shows all of them at 256, 180 and 60 px. The tile's "K"
 reads at 180 px; at 60 px it is a light square.
 
+The user then picked **c5-cb-tile-1** and asked for a small die behind the
+red piece (for future dice games). The die is drawn before the red piece, so
+it is partly hidden:
+
+| id | variant |
+|---|---|
+| c5-final-d1 | Small white die, 5 pips, flat, turned right |
+| c5-final-d2 | Ivory die, 6 pips, with a hint of its top face (one pip) |
+| c5-final-d3 | White die, 5 pips, 3D: top face (one pip) and a shaded right face |
+| c5-final-d4 | Smaller ivory die, 6 pips, strongly turned, flat |
+
+`c5-final-compare.png` shows c5-cb-tile-1 and d1–d4 at 256, 180 and 60 px.
+The pips read at 180 px; at 60 px the die is a small white speck.
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for
@@ -104,6 +118,10 @@ Files:
 
 - `icon_concepts.dart`: the painters (`iconConcepts`: id → title, painter).
   Each painter draws on a 1024 grid and scales to any size.
+- `icon_png.dart`: shared helpers (Roboto loading, rendering, PNG encoder
+  with RGB or RGBA output).
+- `export_icon_test.dart`: step 2, exports one concept in every app size
+  (see below).
 - `render_icons_test.dart`: renders every concept. It lives outside `test/`,
   so the normal `flutter test` run doesn't pick it up, and it is skipped
   unless `KLUNKI_ICON_OUT` is set.
@@ -127,3 +145,33 @@ The test writes, per concept:
 
 Nothing is installed and no app icon is replaced. Step 2 (all platform sizes)
 is described in `docs/tasks/KLD-097-app-icon.md`.
+
+## Exporting all app sizes (step 2)
+
+```sh
+cd klunki
+KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-final-d1 \
+  flutter test tool/icon/export_icon_test.dart
+```
+
+Opt-in like the render test. Every size is drawn straight from the painter
+(vector, no downscaling) into a tree that mirrors the app, so after review it
+can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web} .`):
+
+- `ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png`: all 15
+  files the existing `Contents.json` names (20–83.5 pt, the 1024 marketing
+  icon), RGB without alpha. `Contents.json` stays as it is.
+- `android/app/src/main/res/mipmap-{m,h,xh,xxh,xxxh}dpi/`: `ic_launcher.png`
+  (48 dp, legacy, opaque), `ic_launcher_foreground.png` (108 dp, transparent)
+  and `ic_launcher_background.png` (108 dp, the table), plus
+  `mipmap-anydpi-v26/ic_launcher.xml` (adaptive icon). The foreground is the
+  motif without the table, shrunk until every visible pixel (shadows too)
+  sits inside the 66 dp safe circle; the test prints the factor (0.78 for
+  c5-final-d1). The painters draw one layer at a time via `iconLayer`.
+- `web/icons/Icon-{192,512}.png`, `Icon-maskable-{192,512}.png` (the motif is
+  already inside the 80 % maskable circle) and `web/favicon.png` (32 px; the
+  old one is 16 px).
+- `store/play-store-512.png`: the Google Play listing icon (not part of the
+  app).
+- `check/android-adaptive.png`: the adaptive layers unmasked, under a circle
+  and a rounded-square mask, with the 66 dp safe circle in cyan.

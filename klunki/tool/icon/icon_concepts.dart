@@ -59,6 +59,11 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-cb-tile-1': ('card-b: Buchstabenstein vor dem Handy', paintConceptCbTile1),
   'c5-cb-tile-2': ('card-b: Buchstabenstein statt rotem Stein', paintConceptCbTile2),
   'c5-cb-tile-3': ('card-b: Buchstabenstein zwischen Bauer und Fahne', paintConceptCbTile3),
+  // The user's pick c5-cb-tile-1 plus a small die behind the red piece.
+  'c5-final-d1': ('tile-1 + weißer Würfel, 5, flach', paintConceptFinalD1),
+  'c5-final-d2': ('tile-1 + elfenbein Würfel, 6, mit Oberseite', paintConceptFinalD2),
+  'c5-final-d3': ('tile-1 + weißer Würfel, 5, 3D (Oberseite und Seite)', paintConceptFinalD3),
+  'c5-final-d4': ('tile-1 + kleiner elfenbein Würfel, 6, stark gedreht', paintConceptFinalD4),
 };
 
 /// Concepts that letter the word "Klunki" with Roboto: the renderer must load
@@ -85,12 +90,24 @@ Paint _stroke(Color c, double w) => Paint()
   ..strokeCap = StrokeCap.round
   ..isAntiAlias = true;
 
+/// The layers of an Android adaptive icon: [full] is the normal icon,
+/// [foreground] everything but the table (on transparent), [background] only
+/// the table.
+enum IconLayer { full, foreground, background }
+
+/// Which layer the painters draw; set by the export tool, normally [IconLayer.full].
+IconLayer iconLayer = IconLayer.full;
+
 /// Runs [body] on a 1024 × 1024 grid scaled to [size].
 void _grid(Canvas canvas, double size, void Function(Canvas c) body) {
   canvas.save();
   canvas.scale(size / 1024);
   canvas.clipRect(const Rect.fromLTWH(0, 0, 1024, 1024));
-  body(canvas);
+  if (iconLayer == IconLayer.background) {
+    _table(canvas);
+  } else {
+    body(canvas);
+  }
   canvas.restore();
 }
 
@@ -103,6 +120,7 @@ void _fit(Canvas c, double scale, {double dx = 0, double dy = 0}) {
 
 /// The table: a warm radial gradient, lighter in the upper middle.
 void _table(Canvas c, {Color light = _tableLight, Color dark = _tableDark}) {
+  if (iconLayer == IconLayer.foreground) return;
   const r = Rect.fromLTWH(0, 0, 1024, 1024);
   c.drawRect(r, Paint()..shader = ui.Gradient.radial(const Offset(512, 430), 720, [light, dark], [0.0, 1.0]));
 }
@@ -595,6 +613,7 @@ void _c5(
   bool flagWord = false,
   bool chip = true,
   void Function(Canvas c)? extra,
+  void Function(Canvas c)? behindChip,
 }) {
   _table(c);
   _fit(c, 1.04, dy: -24);
@@ -620,6 +639,7 @@ void _c5(
         _card(c, const Offset(404, 446), const Size(214, 330), -0.2, _p.quartett.sets['F']!, outline: 13);
       }
       _pawn(c, const Rect.fromLTWH(344, 262, 330, 330), fill: _p.chess.whiteFill, lineWidth: 4.5);
+      behindChip?.call(c);
       if (chip) _chip(c, const Offset(624, 540), 90, c4.red);
       extra?.call(c);
     },
@@ -661,7 +681,12 @@ void _cb(
   void Function(Canvas c, _Leather leather) patch, {
   void Function(Canvas c)? tile,
   bool chip = true,
-}) => _grid(canvas, size, (c) => _c5(c, _C5Phone.cardAndPhone, emblem: patch, extra: tile, chip: chip));
+  void Function(Canvas c)? behindChip,
+}) => _grid(
+  canvas,
+  size,
+  (c) => _c5(c, _C5Phone.cardAndPhone, emblem: patch, extra: tile, chip: chip, behindChip: behindChip),
+);
 
 /// cb-c: halfway between k1 and k1b: lighter leather than k1, cream letters
 /// pressed in with a dark edge above (k1 style), so it still reads at 180 px.
@@ -765,8 +790,96 @@ void paintConceptCbE(Canvas canvas, double size) => _cb(canvas, size, _patchCbE)
 
 /// tile-1: the tile in front of the phone's lower left, rising from the
 /// pocket.
-void paintConceptCbTile1(Canvas canvas, double size) =>
-    _cb(canvas, size, _tilePatch, tile: (c) => _letterTile(c, const Offset(318, 474), 136, -0.22));
+void paintConceptCbTile1(Canvas canvas, double size) => _cb(canvas, size, _tilePatch, tile: _tile1);
+
+// ------------------------------------------- final: tile-1 + die (d) --
+
+const _dieWhite = (face: Color(0xFFFFFFFF), shade: Color(0xFFD9DDE3), pip: Color(0xFF26201C));
+const _dieIvory = (face: Color(0xFFFFF4DC), shade: Color(0xFFE2CFA6), pip: Color(0xFF3A1E0E));
+
+/// A die centred at [center] (front face [side] wide, rotated by [angle])
+/// showing [pips] (5 or 6). [depth] > 0 adds a top face (and with [sideFace]
+/// a right face) for a 3D hint; the top face shows one pip.
+void _die(
+  Canvas c,
+  Offset center,
+  double side,
+  double angle,
+  int pips,
+  ({Color face, Color shade, Color pip}) col, {
+  double depth = 0,
+  bool sideFace = false,
+}) {
+  c.save();
+  c.translate(center.dx, center.dy);
+  c.rotate(angle);
+  final h = side / 2, r = side * 0.18, d = depth * side;
+  final front = RRect.fromLTRBR(-h, -h, h, h, Radius.circular(r));
+  final line = _stroke(_ink, side * 0.07);
+  // Shadow.
+  c.drawRRect(front.shift(Offset(side * 0.06, side * 0.12)), _fill(_shadow));
+  if (d > 0) {
+    Path face(List<Offset> pts) => Path()..addPolygon(pts, true);
+    final top = face([
+      Offset(-h + r * 0.4, -h),
+      Offset(h - r * 0.4, -h),
+      Offset(h + d - r * 0.4, -h - d),
+      Offset(-h + d + r * 0.4, -h - d),
+    ]);
+    c.drawPath(top, _fill(col.face));
+    c.drawPath(top, line);
+    // One pip on the top face, squashed into the parallelogram.
+    c.save();
+    c.translate(d / 2, -h - d / 2);
+    c.scale(1, 0.45);
+    c.drawCircle(Offset.zero, side * 0.09, _fill(col.pip));
+    c.restore();
+    if (sideFace) {
+      final right = face([
+        Offset(h, -h + r * 0.4),
+        Offset(h + d, -h - d + r * 0.4),
+        Offset(h + d, h - d - r * 0.4),
+        Offset(h, h - r * 0.4),
+      ]);
+      c.drawPath(right, _fill(col.shade));
+      c.drawPath(right, line);
+    }
+  }
+  c.drawRRect(front, Paint()..shader = ui.Gradient.linear(Offset(-h, -h), Offset(h, h), [col.face, col.shade]));
+  c.drawRRect(front, line);
+  final q = side * 0.27, pr = side * 0.09;
+  final spots = <Offset>[
+    Offset(-q, -q), Offset(q, q), Offset(q, -q), Offset(-q, q), //
+    if (pips == 5) Offset.zero,
+    if (pips == 6) ...[Offset(-q, 0), Offset(q, 0)],
+  ];
+  for (final o in spots) {
+    c.drawCircle(o, pr, _fill(col.pip));
+  }
+  c.restore();
+}
+
+void _tile1(Canvas c) => _letterTile(c, const Offset(318, 474), 136, -0.22);
+
+void _final(Canvas canvas, double size, void Function(Canvas c) die) =>
+    _cb(canvas, size, _tilePatch, tile: _tile1, behindChip: die);
+
+/// d1: small white die, 5 pips, flat, tilted right, peeking out right of
+/// the red piece.
+void paintConceptFinalD1(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(712, 452), 92, 0.3, 5, _dieWhite));
+
+/// d2: ivory die, 6 pips, with a hint of its top face.
+void paintConceptFinalD2(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(708, 460), 96, -0.12, 6, _dieIvory, depth: 0.26));
+
+/// d3: white die, 5 pips, 3D with top and right face.
+void paintConceptFinalD3(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(702, 462), 92, 0.18, 5, _dieWhite, depth: 0.26, sideFace: true));
+
+/// d4: smaller ivory die, 6 pips, strongly turned, flat.
+void paintConceptFinalD4(Canvas canvas, double size) =>
+    _final(canvas, size, (c) => _die(c, const Offset(716, 466), 80, 0.62, 6, _dieIvory));
 
 /// tile-2: the tile replaces the red piece.
 void paintConceptCbTile2(Canvas canvas, double size) =>
