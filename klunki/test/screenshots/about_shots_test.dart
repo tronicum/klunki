@@ -1,5 +1,5 @@
 // KLD-102 screenshots: the menu footer with "Über Klunki", the About screen
-// and the stored privacy text (de, plus ar for RTL). Skipped unless
+// and the stored privacy and Impressum texts (de, plus ar for RTL). Skipped unless
 // KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/about flutter test test/screenshots/about_shots_test.dart
@@ -80,15 +80,20 @@ void main() {
       await tester.runAsync(() => precacheImage(tester.widget<Image>(icon).image, tester.element(icon)));
       await tester.pump();
       await _shot(tester, '$lang-2-about');
-      await tester.tap(find.byKey(const Key('about-privacy')));
-      await tester.pumpAndSettle();
-      for (var i = 0; i < 100 && find.byKey(const Key('privacy-text')).evaluate().isEmpty; i++) {
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      // The stored texts (KLD-102): privacy policy, then Impressum.
+      for (final (n, page) in [(3, 'privacy'), (4, 'impressum')]) {
+        await tester.tap(find.byKey(Key('about-$page')));
+        await tester.pumpAndSettle();
+        for (var i = 0; i < 100 && find.byKey(Key('$page-text')).evaluate().isEmpty; i++) {
+          await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+          await tester.pump();
+        }
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
         await tester.pump();
+        await _shot(tester, '$lang-$n-$page');
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
       }
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-      await tester.pump();
-      await _shot(tester, '$lang-3-privacy');
     });
   }
 }

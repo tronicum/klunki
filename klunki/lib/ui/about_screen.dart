@@ -10,7 +10,9 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 // "Über Klunki" (KLD-102): version, privacy policy, Impressum, support,
 // licences. Reached from the menu footer. App Review (guideline 5.1.1)
 // wants the privacy policy inside the app; the Impressum must be easy to
-// reach as well.
+// reach as well. Both are stored in the app ("local first": readable
+// offline and while the web pages are not published); Support is a help
+// page and opens in the browser.
 
 /// The app icon (KLD-097, c5-final-d4) as on the home screen: the bundled
 /// 384 px PNG (written by `tool/icon/export_icon_test.dart`) in a rounded
@@ -110,16 +112,19 @@ class AboutScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 const Divider(),
-                link(
-                  const Key('about-privacy'),
-                  Icons.privacy_tip_outlined,
-                  l10n.aboutPrivacy,
-                  sitePageUri(SitePage.privacy, lang),
-                  onTap: () => Navigator.of(context)
-                      .push(MaterialPageRoute<void>(builder: (_) => const PrivacyTextScreen())),
-                ),
-                link(const Key('about-impressum'), Icons.gavel_outlined, l10n.aboutImpressum,
-                    sitePageUri(SitePage.impressum, lang)),
+                // Stored in the app (chevron); Support opens the web page (open_in_new).
+                for (final (key, icon, page) in [
+                  (const Key('about-privacy'), Icons.privacy_tip_outlined, LegalPage.privacy),
+                  (const Key('about-impressum'), Icons.gavel_outlined, LegalPage.impressum),
+                ])
+                  link(
+                    key,
+                    icon,
+                    page.title(l10n),
+                    sitePageUri(page.site, lang),
+                    onTap: () => Navigator.of(context)
+                        .push(MaterialPageRoute<void>(builder: (_) => LegalTextScreen(page))),
+                  ),
                 link(const Key('about-support'), Icons.help_outline, l10n.aboutSupport,
                     sitePageUri(SitePage.support, lang)),
                 const Divider(),
@@ -153,38 +158,57 @@ class AboutScreen extends StatelessWidget {
   }
 }
 
-/// One block of the stored privacy policy (`assets/legal/privacy.json`,
-/// exported from `site/privacy/index.html` by `site/export_privacy_text.py`).
+/// The pages stored in the app as text (`assets/legal/<name>.json`, exported
+/// from `site/<name>/index.html` by `site/export_legal_text.py`). Support is
+/// not one of them: it stays online only.
+enum LegalPage {
+  privacy(SitePage.privacy),
+  impressum(SitePage.impressum);
+
+  /// The web page with the same content (the authoritative version).
+  final SitePage site;
+  const LegalPage(this.site);
+
+  String get asset => 'assets/legal/$name.json';
+
+  String title(AppLocalizations l10n) => switch (this) {
+        LegalPage.privacy => l10n.aboutPrivacy,
+        LegalPage.impressum => l10n.aboutImpressum,
+      };
+}
+
+/// One block of a stored legal text ([LegalPage]).
 @immutable
-class PrivacyBlock {
+class LegalBlock {
   /// `h1`, `h2`, `meta` (the date line), `p`, `li` or `address`.
   final String type;
   final String text;
-  const PrivacyBlock(this.type, this.text);
+  const LegalBlock(this.type, this.text);
 }
-
-const String privacyAsset = 'assets/legal/privacy.json';
 
 /// The blocks of [json] (the asset's content) in [languageCode]'s page
 /// language ([sitePageLanguage]).
-List<PrivacyBlock> parsePrivacyBlocks(String json, String languageCode) {
+List<LegalBlock> parseLegalBlocks(String json, String languageCode) {
   final all = jsonDecode(json) as Map<String, dynamic>;
   final list = all[sitePageLanguage(languageCode)] as List<dynamic>;
   return [
-    for (final b in list.cast<Map<String, dynamic>>()) PrivacyBlock(b['t'] as String, b['x'] as String),
+    for (final b in list.cast<Map<String, dynamic>>()) LegalBlock(b['t'] as String, b['x'] as String),
   ];
 }
 
-/// The privacy policy stored in the app, readable offline; the web page is
-/// linked at the top and in the app bar.
-class PrivacyTextScreen extends StatefulWidget {
-  const PrivacyTextScreen({super.key});
+/// A legal text stored in the app ([page]: privacy policy or Impressum),
+/// readable offline; the web page is linked at the top and in the app bar.
+/// Keys are prefixed with the page name (`privacy-text`, `impressum-open-web`).
+class LegalTextScreen extends StatefulWidget {
+  const LegalTextScreen(this.page, {super.key});
+
+  final LegalPage page;
 
   @override
-  State<PrivacyTextScreen> createState() => _PrivacyTextScreenState();
+  State<LegalTextScreen> createState() => _LegalTextScreenState();
 }
 
-class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
+class _LegalTextScreenState extends State<LegalTextScreen> {
   Future<String>? _text;
 
   @override
@@ -192,7 +216,7 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
     super.didChangeDependencies();
     // Once: a new future on every build would reset the FutureBuilder.
     // Uncached: opened rarely, and a cached future would outlive its zone in tests.
-    _text ??= DefaultAssetBundle.of(context).loadString(privacyAsset, cache: false);
+    _text ??= DefaultAssetBundle.of(context).loadString(widget.page.asset, cache: false);
   }
 
   @override
@@ -200,13 +224,14 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final lang = Localizations.localeOf(context).languageCode;
-    final uri = sitePageUri(SitePage.privacy, lang);
+    final page = widget.page;
+    final uri = sitePageUri(page.site, lang);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.aboutPrivacy),
+        title: Text(page.title(l10n)),
         actions: [
           IconButton(
-            key: const Key('privacy-open-web'),
+            key: Key('${page.name}-open-web'),
             tooltip: l10n.aboutOpenInBrowser,
             icon: const Icon(Icons.open_in_new),
             onPressed: () => _open(context, uri),
@@ -218,12 +243,12 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
           future: _text,
           builder: (context, snap) {
             final data = snap.data;
-            final blocks = data == null ? const <PrivacyBlock>[] : parsePrivacyBlocks(data, lang);
+            final blocks = data == null ? const <LegalBlock>[] : parseLegalBlocks(data, lang);
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 720),
                 child: ListView(
-                  key: const Key('privacy-text'),
+                  key: Key('${page.name}-text'),
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   children: [
                     Card(
@@ -233,10 +258,11 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Generic wording ("this copy … the page on the web is authoritative").
                             Text(l10n.aboutPrivacyOffline, style: theme.textTheme.bodySmall),
                             const SizedBox(height: 4),
                             InkWell(
-                              key: const Key('privacy-web-link'),
+                              key: Key('${page.name}-web-link'),
                               onTap: () => _open(context, uri),
                               child: Text(
                                 bidiLtr(context, uri.toString()),
@@ -256,7 +282,7 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
                       textDirection: TextDirection.ltr,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [for (final b in blocks) _PrivacyBlockView(b)],
+                        children: [for (final b in blocks) _LegalBlockView(b)],
                       ),
                     ),
                   ],
@@ -270,9 +296,9 @@ class _PrivacyTextScreenState extends State<PrivacyTextScreen> {
   }
 }
 
-class _PrivacyBlockView extends StatelessWidget {
-  final PrivacyBlock block;
-  const _PrivacyBlockView(this.block);
+class _LegalBlockView extends StatelessWidget {
+  final LegalBlock block;
+  const _LegalBlockView(this.block);
 
   @override
   Widget build(BuildContext context) {
