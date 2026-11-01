@@ -49,8 +49,16 @@ word-game letter tile (c5-cb-tile-1) and a small die behind the red piece.
 
 Done with `klunki/tool/icon/export_icon_test.dart` (opt-in, see the README):
 `KLUNKI_ICON_EXPORT=<dir> KLUNKI_ICON_ID=c5-final-d4 flutter test
-tool/icon/export_icon_test.dart`, then `cp -R <dir>/{ios,android,web}
-klunki/`. The adaptive foreground is the motif without the table, shrunk to
+tool/icon/export_icon_test.dart`, then `cp -R <dir>/{ios,android,web,assets}
+klunki/`. `assets/icon/app_icon.png` (384 px) is the copy the About screen
+shows (KLD-102); the menu app bar keeps the three-chip `KlunkiLogo`.
+
+Matching colours (user-approved): web `theme_color` / meta theme-color
+`#C9772B`, `background_color` / page background `#FBF4E8`; iOS
+`LaunchScreen.storyboard` background `#FBF4E8`; Android launch and window
+background `@color/launch_background` = `#FBF4E8` (`values/colors.xml`) and
+`#1F1A16` in dark mode (`values-night/colors.xml`, the walnut table colour, to
+avoid a cream flash). The adaptive foreground is the motif without the table, shrunk to
 0.78 so every visible pixel is inside the 66 dp safe circle; the background
 is the table gradient as PNGs (no colour resource). Store art:
 `docs/store/app-icon-1024.png` (= the iOS marketing icon) and

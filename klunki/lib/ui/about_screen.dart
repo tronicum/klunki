@@ -5,13 +5,34 @@ import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/site_links.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/ltr.dart';
-import 'package:klunki/ui/menu_screen.dart' show KlunkiLogo;
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 // "Über Klunki" (KLD-102): version, privacy policy, Impressum, support,
 // licences. Reached from the menu footer. App Review (guideline 5.1.1)
 // wants the privacy policy inside the app; the Impressum must be easy to
 // reach as well.
+
+/// The app icon (KLD-097, c5-final-d4) as on the home screen: the bundled
+/// 384 px PNG (written by `tool/icon/export_icon_test.dart`) in a rounded
+/// square. Decorative; the app name is next to it.
+class KlunkiAppIcon extends StatelessWidget {
+  const KlunkiAppIcon({super.key, this.size = 112});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.225),
+      child: Image.asset(
+        'assets/icon/app_icon.png',
+        width: size,
+        height: size,
+        filterQuality: FilterQuality.medium,
+      ),
+    ),
+  );
+}
 
 /// Opens [uri] outside the app (web: a new tab). Returns false on failure.
 typedef AboutLinkOpener = Future<bool> Function(Uri uri);
@@ -70,10 +91,8 @@ class AboutScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 16),
               children: [
-                const ExcludeSemantics(
-                  child: Center(child: SizedBox.square(dimension: 64, child: CustomPaint(painter: KlunkiLogo()))),
-                ),
-                const SizedBox(height: 8),
+                const Center(child: KlunkiAppIcon(key: Key('about-app-icon'))),
+                const SizedBox(height: 12),
                 Text(
                   l10n.appTitle,
                   textAlign: TextAlign.center,
@@ -120,7 +139,7 @@ class AboutScreen extends StatelessWidget {
                     applicationVersion: appVersion,
                     applicationIcon: const Padding(
                       padding: EdgeInsets.all(8),
-                      child: SizedBox.square(dimension: 48, child: CustomPaint(painter: KlunkiLogo())),
+                      child: KlunkiAppIcon(size: 48),
                     ),
                     applicationLegalese: l10n.aboutLicense,
                   ),

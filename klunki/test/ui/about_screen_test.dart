@@ -65,6 +65,9 @@ void main() {
     await _openAbout(tester);
     expect(find.text('Über Klunki'), findsWidgets);
     expect(find.text('Version $appVersionLine'), findsOneWidget);
+    // The app icon (bundled PNG), not the three-chip menu mark.
+    final icon = find.descendant(of: find.byKey(const Key('about-app-icon')), matching: find.byType(Image));
+    expect((tester.widget<Image>(icon).image as AssetImage).assetName, 'assets/icon/app_icon.png');
     for (final t in ['Datenschutz', 'Impressum', 'Support', 'Quellcode', 'Open-Source-Lizenzen']) {
       expect(find.text(t), findsOneWidget, reason: t);
     }

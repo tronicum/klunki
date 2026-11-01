@@ -75,6 +75,10 @@ void main() {
       await _shot(tester, '$lang-1-menu-footer');
       await tester.tap(entry);
       await tester.pumpAndSettle();
+      // The app icon is an asset image: decode it before the shot.
+      final icon = find.descendant(of: find.byKey(const Key('about-app-icon')), matching: find.byType(Image));
+      await tester.runAsync(() => precacheImage(tester.widget<Image>(icon).image, tester.element(icon)));
+      await tester.pump();
       await _shot(tester, '$lang-2-about');
       await tester.tap(find.byKey(const Key('about-privacy')));
       await tester.pumpAndSettle();

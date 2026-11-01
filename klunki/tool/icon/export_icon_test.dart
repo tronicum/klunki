@@ -6,7 +6,7 @@
 //
 // Opt-in like render_icons_test.dart (skipped unless both variables are set).
 // Writes a tree that mirrors the app's paths, so after review it can be
-// copied over `klunki/` as is (`cp -R /tmp/klunki-icon/{ios,android,web} .`):
+// copied over `klunki/` as is (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .`):
 //
 // - ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png: every file
 //   the existing Contents.json names, RGB without alpha (incl. the 1024
@@ -17,7 +17,8 @@
 //   mipmap-anydpi-v26/ic_launcher.xml (adaptive icon, API 26+).
 // - web/icons/Icon-{192,512}.png, Icon-maskable-{192,512}.png (the motif is
 //   already inside the 80 % maskable safe circle), web/favicon.png (32 px).
-// - store/play-store-512.png (Google Play listing icon).
+// - store/play-store-512.png (Google Play listing icon; kept in docs/store/).
+// - assets/icon/app_icon.png (384 px, shown on the About screen).
 // - check/android-adaptive.png: foreground on background with a circle and a
 //   squircle mask and the 66 dp safe circle, for review.
 import 'dart:io';
@@ -126,6 +127,8 @@ void main() {
       }
       await full(32, 'web/favicon.png');
       await full(512, 'store/play-store-512.png');
+      // In-app copy for the About screen (up to ~128 logical px at 3x).
+      await full(384, 'assets/icon/app_icon.png');
 
       // Review sheet: adaptive layers under a circle and a squircle mask.
       const px = 432.0;

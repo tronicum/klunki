@@ -117,6 +117,9 @@ flutter:
     # The privacy policy as text, readable offline in "Über Klunki" (KLD-102);
     # exported from site/privacy/index.html by site/export_privacy_text.py.
     - assets/legal/privacy.json
+    # The app icon (KLD-097, concept c5-final-d4) for the About screen; written
+    # by tool/icon/export_icon_test.dart together with the platform icons.
+    - assets/icon/app_icon.png
     # Quartett card photos from Wikimedia Commons (KLD-082): ~480 px JPEGs,
     # credits.json = authors and licences (see docs/tasks/KLD-082-quartett-media.md,
     # tool/fetch_card_media.py). Bundled so they work offline; never hotlinked.

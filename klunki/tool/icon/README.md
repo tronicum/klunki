@@ -156,7 +156,7 @@ KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-final-d1 \
 
 Opt-in like the render test. Every size is drawn straight from the painter
 (vector, no downscaling) into a tree that mirrors the app, so after review it
-can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web} .`):
+can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .`):
 
 - `ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png`: all 15
   files the existing `Contents.json` names (20–83.5 pt, the 1024 marketing
@@ -172,6 +172,10 @@ can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web} .`):
   already inside the 80 % maskable circle) and `web/favicon.png` (32 px; the
   old one is 16 px).
 - `store/play-store-512.png`: the Google Play listing icon (not part of the
-  app).
+  app; kept in `docs/store/` with the 1024 marketing PNG).
+- `assets/icon/app_icon.png`: 384 px copy for the About screen
+  (`KlunkiAppIcon` in `lib/ui/about_screen.dart`). The app shows this PNG
+  rather than running the painter, so the painters stay in `tool/` and the
+  in-app icon is pixel-identical to the home-screen icon.
 - `check/android-adaptive.png`: the adaptive layers unmasked, under a circle
   and a rounded-square mask, with the 66 dp safe circle in cyan.
