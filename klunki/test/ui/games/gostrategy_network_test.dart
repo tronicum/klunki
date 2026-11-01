@@ -312,7 +312,7 @@ void main() {
       await tester.tap(_on(resigner, find.byKey(const Key('shell-resign'))));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(_on(resigner, find.text('Die Partie endet sofort, $otherName gewinnt.')), findsOneWidget);
+      expect(_on(resigner, find.text('Das Spiel endet für beide – $otherName gewinnt.')), findsOneWidget);
       await tester.tap(_on(resigner, find.byKey(const Key('resign-confirm'))));
       await _until(
           tester,

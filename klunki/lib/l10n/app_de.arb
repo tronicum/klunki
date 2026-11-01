@@ -2118,14 +2118,26 @@
   "@shellResignTitle": {
     "description": "KLD-065 resign: title of the confirmation dialog."
   },
-  "shellResignBody": "Die Partie endet sofort, {player} gewinnt.",
+  "shellResignBody": "Das Spiel endet für beide – {player} gewinnt.",
   "@shellResignBody": {
-    "description": "KLD-065 resign dialog (network game): what happens; player = the opponent's label, e.g. \"Anna (X)\".",
+    "description": "KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. \"Anna (X)\".",
     "placeholders": {
       "player": {
         "type": "String"
       }
     }
+  },
+  "shellLeaveTitle": "Spiel verlassen?",
+  "@shellLeaveTitle": {
+    "description": "KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, or a hot-seat game under way)."
+  },
+  "shellLeaveBody": "Die Verbindung wird getrennt, das Spiel endet für beide.",
+  "@shellLeaveBody": {
+    "description": "KLD-099 leave confirmation (network game): what leaving does."
+  },
+  "shellLeave": "Verlassen",
+  "@shellLeave": {
+    "description": "KLD-099 leave confirmation: the confirm button."
   },
   "shellResignWho": "Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.",
   "@shellResignWho": {

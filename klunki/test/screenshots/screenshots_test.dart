@@ -16,6 +16,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/fonts.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
@@ -82,10 +83,12 @@ Future<void> _setup(WidgetTester tester, Size size, Brightness b) async {
   addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
 }
 
-Widget _themed(Widget home, {Locale locale = const Locale('de')}) => MaterialApp(
+/// [webFonts]: the bundled fallback fonts as on the web (KLD-093), so Arabic,
+/// Persian and Chinese text renders here too.
+Widget _themed(Widget home, {Locale locale = const Locale('de'), bool webFonts = false}) => MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: KlunkiTheme.light,
-      darkTheme: KlunkiTheme.dark,
+      theme: withAppFonts(KlunkiTheme.light, web: webFonts),
+      darkTheme: withAppFonts(KlunkiTheme.dark, web: webFonts),
       locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -613,6 +616,58 @@ void main() {
         await tester.pump();
         await _shot(tester, 'kld092-reveal-kmh-$deck-phone-light', settle: const Duration(milliseconds: 300));
       });
+    }
+  });
+
+  // KLD-099: resign and leave confirmations in a running network game.
+  group('kld099', () {
+    for (final (locale, b) in [
+      (const Locale('de'), Brightness.light),
+      (const Locale('de'), Brightness.dark),
+      (const Locale('ar'), Brightness.light),
+      (const Locale('fa'), Brightness.light),
+    ]) {
+      for (final leave in [false, true]) {
+        final name = 'kld099-${leave ? 'leave' : 'resign'}-${locale.languageCode}-phone-${b.name}';
+        testWidgets(name, skip: skip != null, (tester) async {
+          await _setup(tester, phone, b);
+          final t = _GuestTransport(const GameConfig('connect4', seed: 7));
+          final c = GameController(t);
+          addTearDown(c.dispose);
+          await tester.pumpWidget(_wrap(_themed(
+            Builder(
+              builder: (context) => Scaffold(
+                body: Center(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => PlayerLabelsScope(
+                        labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}, local: Player.b),
+                        child: buildGameScreen(c),
+                      ),
+                    )),
+                    child: const Text('open'),
+                  ),
+                ),
+              ),
+            ),
+            locale: locale,
+            webFonts: true,
+          )));
+          await tester.tap(find.text('open'));
+          await tester.pumpAndSettle();
+          // Anna (X) and Ben (O) each dropped a disc.
+          await c.submit({'col': 3});
+          await c.submit({'col': 3});
+          await tester.pumpAndSettle();
+          if (leave) {
+            await tester.tap(find.byType(BackButton));
+          } else {
+            await tester.tap(find.byKey(const Key('shell-resign')));
+          }
+          await tester.pumpAndSettle();
+          await _shot(tester, name, settle: const Duration(milliseconds: 1));
+        });
+      }
     }
   });
 }

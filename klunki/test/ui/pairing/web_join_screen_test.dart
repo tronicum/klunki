@@ -277,6 +277,9 @@ void main() {
     // The browser leaves: the host sees the banner.
     await tester.tap(on(webKey, find.byType(BackButton)));
     await tester.pumpAndSettle();
+    // KLD-099: leaving a running network game asks first.
+    await tester.tap(on(webKey, find.byKey(const Key('leave-confirm'))));
+    await tester.pumpAndSettle();
     await pumpUntil(tester, () => has(hostKey, find.byKey(const Key('net-banner'))), what: 'host banner');
     expect(on(hostKey, find.textContaining('\u2068علی\u2069 hat das Spiel verlassen')), findsOneWidget,
         reason: 'host disconnect reason: ${host.lastDisconnectReason}');

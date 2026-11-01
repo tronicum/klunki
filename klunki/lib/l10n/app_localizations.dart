@@ -2214,11 +2214,29 @@ abstract class AppLocalizations {
   /// **'Wirklich aufgeben?'**
   String get shellResignTitle;
 
-  /// KLD-065 resign dialog (network game): what happens; player = the opponent's label, e.g. "Anna (X)".
+  /// KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. "Anna (X)".
   ///
   /// In de, this message translates to:
-  /// **'Die Partie endet sofort, {player} gewinnt.'**
+  /// **'Das Spiel endet für beide – {player} gewinnt.'**
   String shellResignBody(String player);
+
+  /// KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, or a hot-seat game under way).
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel verlassen?'**
+  String get shellLeaveTitle;
+
+  /// KLD-099 leave confirmation (network game): what leaving does.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Verbindung wird getrennt, das Spiel endet für beide.'**
+  String get shellLeaveBody;
+
+  /// KLD-099 leave confirmation: the confirm button.
+  ///
+  /// In de, this message translates to:
+  /// **'Verlassen'**
+  String get shellLeave;
 
   /// KLD-065 resign dialog (hot-seat): asks which of the two players gives up.
   ///
