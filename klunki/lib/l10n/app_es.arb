@@ -171,6 +171,8 @@
   "schiffeDoneLeft": "{count, plural, =1{falta 1 barco} other{faltan {count} barcos}}",
   "schiffePreviewSemantics": "Vista previa: {ship}, {orientation}. Toca para girarlo.",
   "schiffePreviewLeft": "{count, plural, =1{el último de este tipo} other{quedan {count} de este tipo}}",
+  "schiffeInvalidTouch": "Los barcos no pueden tocarse, ni siquiera por las esquinas: deja una casilla libre entre ellos.",
+  "schiffeInvalidOffBoard": "No cabe en el tablero.",
   "schiffeShipSunk": "{ship} hundido",
   "debugConsoleTitle": "Consola de depuración",
   "debugUndo": "undo",

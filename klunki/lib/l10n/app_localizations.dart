@@ -1128,6 +1128,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{das letzte dieser Art} other{noch {count} dieser Art}}'**
   String schiffePreviewLeft(int count);
 
+  /// KLD-107. Schiffe setup: reason after a placement, move or turn that would touch or cover another ship. The rule: no contact at all, not even diagonally (corner to corner); one free cell between ships.
+  ///
+  /// In de, this message translates to:
+  /// **'Schiffe dürfen sich nicht berühren, auch nicht über Eck – lass ein Feld Abstand.'**
+  String get schiffeInvalidTouch;
+
+  /// KLD-107. Schiffe setup: reason after a placement or move that would stick out of the 10×10 board.
+  ///
+  /// In de, this message translates to:
+  /// **'Passt nicht aufs Spielfeld.'**
+  String get schiffeInvalidOffBoard;
+
   /// Shot result: which ship was sunk (name from the engine).
   ///
   /// In de, this message translates to:

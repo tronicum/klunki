@@ -149,6 +149,25 @@ void main() {
     });
   }
 
+  // KLD-107: the idle cue (empty sea and after the first ship) and the
+  // reason banners (touching, off the board).
+  for (final (name, size) in [('iphone-small', const Size(375, 667)), ('iphone-large', const Size(430, 932))]) {
+    testWidgets('$name cue and reasons', skip: skip, (tester) async {
+      await _pump(tester, size);
+      await tester.pump(const Duration(milliseconds: 4100));
+      await _shot(tester, '$name-8-idle-cue-empty', settle: const Duration(milliseconds: 300));
+      await _tap(tester, _own(0, 0)); // Schlachtschiff A1–A5
+      await tester.pump(const Duration(milliseconds: 4100));
+      await _shot(tester, '$name-9-idle-cue-next', settle: const Duration(milliseconds: 300));
+      await _tap(tester, _own(1, 5)); // Kreuzer B6–B9 touches A5 at the corner
+      await _shot(tester, '$name-10-invalid-touch', settle: const Duration(milliseconds: 500));
+      await tester.pump(const Duration(seconds: 3));
+      await _tap(tester, _own(9, 8)); // Kreuzer J9–J12: off the board
+      await _shot(tester, '$name-11-invalid-off-board', settle: const Duration(milliseconds: 500));
+      await tester.pump(const Duration(seconds: 3));
+    });
+  }
+
   testWidgets('iphone-small dark', skip: skip, (tester) async {
     await _pump(tester, const Size(375, 667), brightness: Brightness.dark);
     await _story(tester, 'iphone-small-dark');

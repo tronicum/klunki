@@ -179,10 +179,10 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(shipCells(tester), isEmpty);
-      expect(hint(tester), startsWith('Passt dort nicht'));
+      expect(hint(tester), 'Passt nicht aufs Spielfeld.');
       // The invalid footprint flashes red, then clears.
       expect(cellOf(tester, own(9, 8)).preview, SvPreview.invalid);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(cellOf(tester, own(9, 8)).preview, isNull);
 
       // A1 horizontal fits: green across A1–A5.
@@ -248,9 +248,9 @@ void main() {
       // Moving off the board is refused (flash + hint), the ship stays.
       await tapCell(tester, 6, 7);
       expect(shipCells(tester), row(4, 2, 5));
-      expect(hint(tester), startsWith('Passt dort nicht'));
+      expect(hint(tester), 'Passt nicht aufs Spielfeld.');
       expect(cellOf(tester, own(6, 9)).preview, SvPreview.invalid);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(c.moves, isEmpty);
     });
 
@@ -286,7 +286,7 @@ void main() {
       await g2.up();
       await tester.pump();
       expect(shipCells(tester), row(7, 3, 5));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
     });
 
     testWidgets('rotate: tap the selected ship again or "Drehen"; invalid turns flash and explain', (tester) async {
@@ -305,7 +305,7 @@ void main() {
       expect(shipCells(tester), column(4, 2, 5));
       await tapCell(tester, 2, 4); // C5 → back to E3–E7
       expect(shipCells(tester), row(4, 2, 5));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
 
       // Schlachtschiff back to A1–A5, Kreuzer at C1–C4 underneath: the
       // Schlachtschiff cannot turn (down it touches, up it leaves the board).
@@ -318,13 +318,13 @@ void main() {
       expect(shipCells(tester), {...row(0, 0, 5), ...row(2, 0, 4)}, reason: 'unchanged');
       expect(hint(tester), 'Drehen geht hier nicht – zu wenig Platz.');
       expect(cellOf(tester, own(1, 2)).preview, SvPreview.invalid, reason: 'where the turn around A3 would go');
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(cellOf(tester, own(1, 2)).preview, isNull);
       // Tapping it again (it is selected) is refused the same way.
       await tapCell(tester, 0, 3);
       expect(shipCells(tester), {...row(0, 0, 5), ...row(2, 0, 4)});
       expect(hint(tester), 'Drehen geht hier nicht – zu wenig Platz.');
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
     });
 
     testWidgets('an invalid action shakes the board; with reduced motion it only flashes', (tester) async {
@@ -334,7 +334,7 @@ void main() {
       await tapCell(tester, 9, 9);
       await tester.pump(const Duration(milliseconds: 100));
       expect(shift(), isNot(0));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(shift(), 0);
 
       final c = GameController.hotSeat(const GameConfig('schiffe', seed: 1));
@@ -347,7 +347,7 @@ void main() {
       expect(cellOf(tester, own(9, 9)).preview, SvPreview.invalid);
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byKey(const Key('sv-shake')), findsNothing);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(cellOf(tester, own(9, 9)).preview, isNull);
     });
 
@@ -374,7 +374,7 @@ void main() {
       expect(gameOf(c).placements(Player.a), hasLength(6));
       expect(gameOf(c).placements(Player.a).first, locked);
       expect(c.needsHandover, isTrue);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
     });
 
     testWidgets('remove puts a ship back into the harbour; reset clears the board', (tester) async {
@@ -434,7 +434,7 @@ void main() {
           (tester.renderObject(find.ancestor(of: ship, matching: find.byType(RotationTransition)).first)
                   as RenderTransform)
               .getTransformTo(null);
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       final settled = transform();
 
       // Tapping the preview turns it on: half a turn, horizontal again.
@@ -443,7 +443,7 @@ void main() {
       expect(find.text('Horizontal'), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 100));
       expect(transform(), isNot(settled), reason: 'mid-turn');
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
 
       // Placed horizontally; the Kreuzer is next (no ×), then the Zerstörer (×2).
       await tapCell(tester, 0, 0);
@@ -499,7 +499,7 @@ void main() {
       expect(shipCells(tester), column(4, 2, 5));
       expect(tester.widget<AnimatedRotation>(badge).turns, 0.25);
       expect(previewTurns(tester), 0.25, reason: 'the preview shows the selected ship');
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
 
       // Moving it (tap a free cell): the badge follows.
       await tapCell(tester, 3, 8);
@@ -550,8 +550,117 @@ void main() {
       expect(tester.widget<AnimatedRotation>(badge).turns, 0, reason: 'no spin when nothing turned');
       await tester.pump(const Duration(milliseconds: 100));
       expect(shift(), isNot(0));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 3));
       expect(shift(), 0);
+    });
+
+    // KLD-107: why a placement fails, and the idle cue.
+    const touchReason = 'Schiffe dürfen sich nicht berühren, auch nicht über Eck – lass ein Feld Abstand.';
+
+    testWidgets('touching (even at a corner): the rule as reason, the other ship flashes, a banner for a while',
+        (tester) async {
+      await pumpGame(tester, 'schiffe');
+      await tapCell(tester, 0, 0); // Schlachtschiff A1–A5
+      await tapCell(tester, 1, 5); // Kreuzer B6–B9: only the corner A5/B6 touches
+      expect(shipCells(tester), row(0, 0, 5));
+      expect(hint(tester), touchReason);
+      for (var col = 5; col < 9; col++) {
+        expect(cellOf(tester, own(1, col)).preview, SvPreview.invalid);
+      }
+      expect(cellOf(tester, own(0, 4)).preview, SvPreview.invalid, reason: 'the touched ship cell');
+      expect(cellOf(tester, own(0, 3)).preview, isNull, reason: 'not next to the Kreuzer');
+      final banner = find.byKey(const Key('sv-reason'));
+      expect(find.descendant(of: banner, matching: find.text(touchReason)), findsOneWidget);
+      expect(tester.getCenter(banner).dy, greaterThan(tester.getCenter(own(5, 0)).dy),
+          reason: 'at the bottom, away from the red cells at the top');
+      await tester.pump(const Duration(seconds: 2));
+      expect(banner, findsOneWidget, reason: 'still readable after 2 s');
+      expect(cellOf(tester, own(0, 4)).preview, SvPreview.invalid);
+      await tester.pump(const Duration(seconds: 1));
+      expect(banner, findsNothing);
+      expect(cellOf(tester, own(0, 4)).preview, isNull);
+      expect(hint(tester), touchReason, reason: 'the hint keeps it until the next action');
+
+      // One free cell between the ships is enough.
+      await tapCell(tester, 0, 6); // Kreuzer A7–A10 (A6 free)
+      expect(shipCells(tester), {...row(0, 0, 5), ...row(0, 6, 4)});
+
+      // Off the board.
+      await tapCell(tester, 9, 9); // Zerstörer J10–J12
+      expect(hint(tester), 'Passt nicht aufs Spielfeld.');
+      expect(find.descendant(of: banner, matching: find.text('Passt nicht aufs Spielfeld.')), findsOneWidget);
+      expect(tester.getCenter(banner).dy, lessThan(tester.getCenter(own(5, 0)).dy), reason: 'red cells at the bottom');
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    testWidgets('a drag onto another ship names the rule too', (tester) async {
+      await pumpGame(tester, 'schiffe');
+      await tapCell(tester, 0, 0); // Schlachtschiff A1–A5
+      await tapKey(tester, 'sv-rotate');
+      await tapCell(tester, 3, 9); // Kreuzer D10–G10 (vertical)
+      final g = await tester.startGesture(tester.getCenter(own(3, 9)));
+      await tester.pump();
+      await g.moveTo(tester.getCenter(own(1, 5))); // B6–E6: corner of A5
+      await tester.pump();
+      await g.up();
+      await tester.pump();
+      await tester.pump();
+      expect(hint(tester), touchReason);
+      expect(cellOf(tester, own(0, 4)).preview, SvPreview.invalid);
+      await tester.pump(const Duration(seconds: 3));
+    });
+
+    double cueScale(WidgetTester tester, Finder f) => tester.widget<Transform>(f).transform.getMaxScaleOnAxis();
+    Finder cueOf(int i) => find.ancestor(of: find.byKey(Key('sv-fleet-$i')), matching: find.byKey(const Key('sv-cue')));
+
+    testWidgets('idle cue: after a few seconds the next ship pulses (and the empty sea); input stops it', (tester) async {
+      await pumpGame(tester, 'schiffe');
+      expect(cueScale(tester, cueOf(0)), 1);
+      expect(find.byKey(const Key('sv-sea-cue')), findsNothing);
+      await tester.pump(const Duration(seconds: 3));
+      expect(cueScale(tester, cueOf(0)), 1, reason: 'not yet');
+      await tester.pump(const Duration(milliseconds: 1500));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(cueScale(tester, cueOf(0)), greaterThan(1.03));
+      expect(find.byKey(const Key('sv-sea-cue')), findsOneWidget, reason: 'nothing placed yet');
+
+      await tapCell(tester, 0, 0); // input: the cue stops, the Kreuzer is next
+      expect(cueOf(0), findsNothing, reason: 'placed ships have no cue');
+      expect(cueScale(tester, cueOf(1)), 1);
+      await tester.pump(const Duration(milliseconds: 4100));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(cueScale(tester, cueOf(1)), greaterThan(1.03));
+      expect(find.byKey(const Key('sv-sea-cue')), findsNothing, reason: 'only on the empty sea');
+      await tester.pump(const Duration(seconds: 3));
+      expect(cueScale(tester, cueOf(1)), 1, reason: 'three pulses, then calm');
+
+      // A placed ship selected: no cue; complete fleet: none at all.
+      await tapCell(tester, 0, 2);
+      await tester.pump(const Duration(seconds: 10));
+      expect(find.byKey(const Key('sv-cue')), findsNothing);
+      await tapKey(tester, 'sv-random');
+      await tester.pump(const Duration(seconds: 20));
+      expect(find.byKey(const Key('sv-cue')), findsNothing);
+      expect(find.byKey(const Key('sv-preview-cue')), findsNothing);
+    });
+
+    testWidgets('idle cue with reduced motion: a static outline, no pulse', (tester) async {
+      final c = GameController.hotSeat(const GameConfig('schiffe', seed: 1));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(
+        localizedApp(MediaQuery(data: const MediaQueryData(disableAnimations: true), child: buildGameScreen(c))),
+      );
+      await tester.pump();
+      double outline(int i) => ((tester.widget<Material>(
+                      find.descendant(of: find.byKey(Key('sv-fleet-$i')), matching: find.byType(Material)).first))
+                  .shape as RoundedRectangleBorder)
+              .side
+              .width;
+      expect(outline(0), greaterThan(3));
+      expect(outline(1), 2);
+      await tester.pump(const Duration(seconds: 6));
+      expect(cueScale(tester, cueOf(0)), 1);
+      expect(find.byKey(const Key('sv-sea-cue')), findsNothing);
     });
 
     testWidgets('phone portrait: the setup fits, buttons and harbour items are at least 48 px', (tester) async {

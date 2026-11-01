@@ -717,6 +717,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get schiffeInvalidTouch =>
+      'Ships must not touch, not even at the corners – leave one free cell between them.';
+
+  @override
+  String get schiffeInvalidOffBoard => 'Does not fit on the board.';
+
+  @override
   String schiffeShipSunk(String ship) {
     return '$ship sunk';
   }

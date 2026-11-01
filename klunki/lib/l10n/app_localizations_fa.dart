@@ -715,6 +715,13 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get schiffeInvalidTouch =>
+      'کشتی‌ها نباید به هم بچسبند، حتی از گوشه – یک خانهٔ خالی بینشان بگذار.';
+
+  @override
+  String get schiffeInvalidOffBoard => 'در صفحه جا نمی‌شود.';
+
+  @override
   String schiffeShipSunk(String ship) {
     return '$ship غرق شد';
   }
