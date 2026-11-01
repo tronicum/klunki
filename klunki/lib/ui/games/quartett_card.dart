@@ -94,6 +94,10 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
 /// * [highlightStat] + [outcome] tint that row green/red/grey (trick reveal);
 ///   [highlightStat] alone tints it with the set colour (selection).
 /// * [dense] uses smaller text for side-by-side layouts.
+/// * [compact] (KLD-100, the choose view: 2–3 cards that must fit a phone
+///   screen together) is denser still: one-line header without the set
+///   name, a low photo band, tight stat rows. Every stat stays visible; with
+///   a [highlightStat] the other rows use a smaller font.
 /// * KLD-082: a card with a bundled photo shows it in a band between the
 ///   header and the stats (the stat rows are unchanged); without one the
 ///   header pictogram stands alone. [showLinks] (full-size views only, not
@@ -110,6 +114,7 @@ class QuartettCard extends StatelessWidget {
   final String? highlightStat;
   final QuartettOutcome? outcome;
   final bool dense;
+  final bool compact;
 
   /// Photo credit button and Wikipedia link (KLD-082).
   final bool showLinks;
@@ -133,6 +138,7 @@ class QuartettCard extends StatelessWidget {
     this.highlightStat,
     this.outcome,
     this.dense = false,
+    this.compact = false,
     this.showLinks = false,
   }) : count = null,
        label = null,
@@ -141,6 +147,7 @@ class QuartettCard extends StatelessWidget {
   /// Face-down card (back side). Never reveals a card.
   const QuartettCard.back({super.key, this.count, this.label, this.deck, this.dense = false})
     : card = null,
+      compact = false,
       onStatTap = null,
       enabled = false,
       statKeyPrefix = null,
@@ -183,36 +190,37 @@ class QuartettCard extends StatelessWidget {
                 colors: [color, Color.lerp(color, Colors.black, 0.18)!],
               ),
             ),
-            padding: EdgeInsets.all(dense ? 8 : 12),
+            padding: EdgeInsets.all(compact ? 5 : (dense ? 8 : 12)),
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: dense ? 6 : 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: compact ? 4 : (dense ? 6 : 8), vertical: compact ? 1 : 4),
                   decoration: BoxDecoration(color: onColor, borderRadius: BorderRadius.circular(6)),
                   child: Text(
                     c.id,
-                    style: (dense ? text.titleSmall : text.titleMedium)?.copyWith(
+                    style: (compact ? text.labelLarge : (dense ? text.titleSmall : text.titleMedium))?.copyWith(
                       color: color,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                SizedBox(width: dense ? 8 : 12),
+                SizedBox(width: compact ? 6 : (dense ? 8 : 12)),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        quartettSetName(AppLocalizations.of(context), c.set, c.deck),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.labelMedium?.copyWith(color: onColor.withValues(alpha: 0.85)),
-                      ),
+                      if (!compact)
+                        Text(
+                          quartettSetName(AppLocalizations.of(context), c.set, c.deck),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.labelMedium?.copyWith(color: onColor.withValues(alpha: 0.85)),
+                        ),
                       Text(
                         c.name,
-                        maxLines: 2,
+                        maxLines: compact ? 1 : 2,
                         overflow: TextOverflow.ellipsis,
-                        style: (dense ? text.titleSmall : text.titleMedium)?.copyWith(
+                        style: (compact ? text.labelLarge : (dense ? text.titleSmall : text.titleMedium))?.copyWith(
                           color: onColor,
                           fontWeight: FontWeight.w600,
                         ),
@@ -220,12 +228,12 @@ class QuartettCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(width: dense ? 6 : 8),
+                SizedBox(width: compact ? 4 : (dense ? 6 : 8)),
                 ExcludeSemantics(
                   child: Container(
-                    width: dense ? 40 : 52,
-                    height: dense ? 28 : 36,
-                    padding: const EdgeInsets.all(3),
+                    width: compact ? 28 : (dense ? 40 : 52),
+                    height: compact ? 18 : (dense ? 28 : 36),
+                    padding: EdgeInsets.all(compact ? 2 : 3),
                     decoration: BoxDecoration(color: onColor, borderRadius: BorderRadius.circular(6)),
                     child: CustomPaint(
                       key: Key('quartett-pictogram-${c.deck}'),
@@ -240,7 +248,7 @@ class QuartettCard extends StatelessWidget {
             QuartettCardPhoto(
               key: Key('quartett-photo-${c.deck}-${c.id}'),
               credit: img,
-              height: dense ? 72 : 132,
+              height: compact ? 38 : (dense ? 72 : 132),
               onInfo: showLinks ? () => showQuartettPhotoCredit(context, img) : null,
             ),
           for (final s in quartettDeckOf(c).stats) _statRow(context, c, s, color),
@@ -261,8 +269,10 @@ class QuartettCard extends StatelessWidget {
   Widget _statRow(BuildContext context, qe.Card c, qe.QuartettStat s, Color setColor) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final text = dense ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium;
     final highlighted = highlightStat == s.id;
+    final text = compact
+        ? (highlightStat != null && !highlighted ? theme.textTheme.labelSmall : theme.textTheme.bodySmall)
+        : (dense ? theme.textTheme.bodySmall : theme.textTheme.bodyMedium);
     final o = outcome;
     final palette = KlunkiPalette.of(context).quartett;
     final tint = !highlighted
@@ -273,8 +283,8 @@ class QuartettCard extends StatelessWidget {
     final value = c.stats[s.id];
     final tap = onStatTap;
     final row = Container(
-      constraints: BoxConstraints(minHeight: dense ? 36 : 44),
-      padding: EdgeInsets.symmetric(horizontal: dense ? 8 : 12, vertical: 4),
+      constraints: BoxConstraints(minHeight: compact ? 0 : (dense ? 36 : 44)),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 6 : (dense ? 8 : 12), vertical: compact ? 1.5 : 4),
       decoration: BoxDecoration(
         color: tint?.withValues(alpha: 0.18),
         border: BorderDirectional(
@@ -323,7 +333,7 @@ class QuartettCard extends StatelessWidget {
                 message: s.higherWins ? l10n.quartettHigherWins : l10n.quartettLowerWins,
                 child: Icon(
                   s.higherWins ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: dense ? 14 : 18,
+                  size: compact ? 12 : (dense ? 14 : 18),
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),

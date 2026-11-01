@@ -622,13 +622,36 @@ void main() {
   // the stat highlighted, and the round it decides.
   group('kld100', () {
     Player other(Player p) => p == Player.a ? Player.b : Player.a;
-    for (final (size, b) in [(phone, Brightness.light), (phone, Brightness.dark), (tablet, Brightness.light)]) {
-      final tag = _tag(size, b);
+    // A small iPhone (SE: 375×667), a large one (Pro Max: 430×932), a
+    // tablet; light and dark.
+    const sizes = {'small': Size(375, 667), 'large': Size(430, 932), 'tablet': tablet};
+    /// All choose cards on screen at once, without scrolling.
+    void expectAllCardsFit(WidgetTester tester, Size size) {
+      final cards = find.byWidgetPredicate((w) {
+        final k = w.key;
+        return k is ValueKey<String> && k.value.startsWith('qt-choose-') && k.value != 'qt-choose-hint';
+      });
+      expect(cards.evaluate().length, inInclusiveRange(2, 3));
+      expect(tester.state<ScrollableState>(find.byType(Scrollable).last).position.pixels, 0);
+      for (final e in cards.evaluate()) {
+        final box = e.renderObject! as RenderBox;
+        final bottom = box.localToGlobal(Offset(0, box.size.height)).dy;
+        expect(bottom, lessThanOrEqualTo(size.height), reason: 'card bottom at $bottom on ${size.height}');
+      }
+    }
+
+    for (final (name, size, b) in [
+      for (final MapEntry(key: name, value: size) in sizes.entries)
+        for (final b in Brightness.values) (name, size, b),
+    ]) {
+      final tag = '$name-${b.name}';
       testWidgets('kld100 picker chooses $tag', skip: skip != null, (tester) async {
         await _setup(tester, size, b);
         final (seed, moves) = _qtMovesTo((g) =>
             g.announcedStat == null && g.mustChoose && g.stackSize(g.picker) == 3 && !g.choosesCard(other(g.picker)));
         await _qtHotSeatAt(tester, seed, moves);
+        await tester.pump(const Duration(milliseconds: 300));
+        expectAllCardsFit(tester, size);
         await _shot(tester, 'kld100-picker-choose-$tag', settle: const Duration(milliseconds: 300));
       });
       testWidgets('kld100 defender chooses $tag', skip: skip != null, (tester) async {
@@ -647,6 +670,8 @@ void main() {
         debugDisableShadows = false;
         await tester.tap(find.byKey(const Key('handover-continue')));
         await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expectAllCardsFit(tester, size);
         await _shot(tester, 'kld100-defender-choose-$tag', settle: const Duration(milliseconds: 300));
         debugDisableShadows = false;
         final g = c.game as QuartettGame;

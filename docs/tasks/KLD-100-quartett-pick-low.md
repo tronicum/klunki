@@ -54,8 +54,13 @@ cards left, playing blindly from the top is no fun. House rule: a player with
 ## UI
 
 - Choose view (`qt-choose`, cards `qt-choose-<id>`, hint `qt-choose-hint`):
-  the 2–3 own cards face-up side by side (two per row below 3×190 px), tap to
-  choose. Picker: "Du hast nur noch 3 Karten – wähle eine aus." Defender:
+  the 2–3 own cards face-up, two side by side and the third centred below
+  (all three in a row from 3×190 px), tap to choose. The cards use
+  `QuartettCard.compact` (one-line header, low photo band, tight stat rows;
+  with an announced stat the other rows in a smaller font) so that all of
+  them fit a small iPhone (375×667) without scrolling; every stat stays
+  visible. The view always starts scrolled to the top. Checked by the
+  `kld100` screenshots (small/large iPhone, tablet, light/dark). Picker: "Du hast nur noch 3 Karten – wähle eine aus." Defender:
   "Anna (X) spielt Höchstgeschwindigkeit. Wähle deine Karte.", the stat
   highlighted on every card.
 - Hot-seat: the picker's choice is submitted at once; a pick with a low

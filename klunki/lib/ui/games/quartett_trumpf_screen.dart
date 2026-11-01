@@ -530,6 +530,9 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                 : null);
 
     return SingleChildScrollView(
+      // KLD-100: the choose view starts at the top (all cards in view), not
+      // at the scroll offset of the stat the picker tapped before the cover.
+      key: ValueKey(acting && game.mustChoose),
       padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -708,12 +711,12 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: 6),
           child: Text(
             _chooseHint(context, game),
             key: const Key('qt-choose-hint'),
             textAlign: TextAlign.center,
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
         LayoutBuilder(builder: (context, box) {
@@ -735,7 +738,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                       borderRadius: BorderRadius.circular(12),
                       onTap: _submitting ? null : () => _choose(card),
                       child: IgnorePointer(
-                        child: QuartettCard(card: card, dense: true, highlightStat: stat?.id),
+                        child: QuartettCard(card: card, compact: true, highlightStat: stat?.id),
                       ),
                     ),
                   ),
