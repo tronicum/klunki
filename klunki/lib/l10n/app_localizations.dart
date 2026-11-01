@@ -837,7 +837,7 @@ abstract class AppLocalizations {
   /// Hint during fleet placement.
   ///
   /// In de, this message translates to:
-  /// **'Tippe aufs Meer, um das Schiff zu setzen. Halte den Finger drauf, dann siehst du vorher, ob es passt. Schiffe dürfen sich nicht berühren.'**
+  /// **'Tippe aufs Meer, um das Schiff zu setzen.'**
   String get schiffeHintSetup;
 
   /// Hint when the game is over.
@@ -1053,13 +1053,13 @@ abstract class AppLocalizations {
   /// KLD-068. Schiffe setup hint while a placed ship is selected; ship = e.g. "Kreuzer (4)".
   ///
   /// In de, this message translates to:
-  /// **'{ship} ausgewählt: ziehe es oder tippe ein freies Feld, um es zu verschieben. Tippe es nochmal an, um es zu drehen.'**
+  /// **'{ship} ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.'**
   String schiffeHintSelected(String ship);
 
   /// KLD-068. Schiffe setup hint when all ships are placed.
   ///
   /// In de, this message translates to:
-  /// **'Flotte steht. Tippe ein Schiff an, um es zu verschieben oder zu drehen – oder „Fertig“.'**
+  /// **'Flotte steht. Schiff antippen zum Verschieben oder Drehen – oder „Fertig“.'**
   String get schiffeHintReady;
 
   /// KLD-068. Schiffe network setup hint while the opponent still places: the own fleet can be arranged already.
@@ -1101,7 +1101,7 @@ abstract class AppLocalizations {
   /// KLD-107. Schiffe setup hint once a ship is on the board and none is selected: how to place the next one and that placed ships can be moved and turned.
   ///
   /// In de, this message translates to:
-  /// **'Tippe aufs Meer für das nächste Schiff. Tippe ein gesetztes Schiff an, um es zu verschieben oder zu drehen.'**
+  /// **'Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.'**
   String get schiffeHintSetupMore;
 
   /// KLD-107. Schiffe setup: small one-time tip bubble next to the first placed ship (very short).

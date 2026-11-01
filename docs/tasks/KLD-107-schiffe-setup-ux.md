@@ -6,7 +6,8 @@
 - **Status:** DONE (awaiting maintainer review of the screenshots)
 - **Depends on:** KLD-068 (placement editor), KLD-103 (player names)
 - **Touched paths:**
-  - `klunki/lib/ui/games/schiffe/schiffe_setup.dart`, `klunki/lib/ui/games/schiffe/schiffe_grid.dart`
+  - `klunki/lib/ui/games/schiffe/{schiffe_setup,schiffe_grid,schiffe_draft}.dart`
+  - `klunki/lib/profile/seen_tips.dart` (new: one-time tips per install)
   - `klunki/lib/l10n/**` (5 new keys, 3 changed texts)
   - `klunki/test/ui/games/schiffe_screen_test.dart`, `klunki/test/l10n/english_ui_test.dart`
   - `klunki/test/screenshots/schiffe_setup_shots_test.dart` (new)
@@ -34,17 +35,20 @@ rules-version or protocol change.
 2. **Ghost:** the footprint while the finger is down now draws a translucent ship body in green cells
    (red stays a plain tint). Tap-to-place itself is unchanged (no extra confirm tap).
 3. **Discoverable turning/moving:**
-   - hint line once a ship is placed: "Tippe aufs Meer für das nächste Schiff. Tippe ein gesetztes Schiff an,
-     um es zu verschieben oder zu drehen."; selected: "… ziehe es oder tippe ein freies Feld … Tippe es nochmal
-     an, um es zu drehen."; complete: "Flotte steht. Tippe ein Schiff an, um es zu verschieben oder zu drehen –
-     oder „Fertig“."
-   - a **↻ badge** on the middle cell of the selected ship only; tapping it is the existing "tap the selected
-     ship again", so it turns the ship in place (around its middle); the badge spins a quarter on each turn; no
-     room: unchanged, shake + "Drehen geht hier nicht – zu wenig Platz."
+   - short hint lines (at most 2 lines on a 375 pt phone): "Tippe aufs Meer, um das Schiff zu setzen." /
+     "Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen." / selected:
+     "Kreuzer (4) ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen." / complete: "Flotte steht.
+     Schiff antippen zum Verschieben oder Drehen – oder „Fertig“." (No ↻ character in the texts: U+21BB is in
+     none of the bundled fonts and the subset rebuild needs a download.)
+   - a **↻ badge** on the middle cell of the selected ship only. Every tap on the selected ship (badge or any
+     other cell) and "Drehen" now turn it **around its middle** (before: around the tapped cell / the first
+     cell); other cells are still tried if the middle does not fit. The badge spins a quarter on each turn;
+     no room: unchanged, shake + "Drehen geht hier nicht – zu wenig Platz."
    - a **one-time tip bubble** ("Antippen: verschieben oder drehen") next to the first ship placed from the
-     harbour, gone with the next touch; once per player and setup.
+     harbour, gone with the next touch; **once per install** (`SeenTips`, shared_preferences key `seenTips`).
 4. **Dock** (phone): all 6 ships as small shapes in one row (no scrolling), placed ones ticked and faded, the
-   active one outlined; tap a waiting ship to make it the next one. Tablets keep the named list.
+   active one outlined; tap a waiting ship to make it the next one, right under the board (spare height on
+   tall phones goes above the action row instead of around the board). Tablets keep the named list.
    **"Fertig"** says why it is off: second line "noch 3 Schiffe".
 5. Hot-seat (cover) and network (private draft) unchanged; the board stays LTR in ar/fa as before.
 
@@ -56,8 +60,6 @@ rules-version or protocol change.
 - [x] 7 locales, RTL screenshot; zh only uses glyphs of the bundled subset (no font rebuild needed).
 - [x] Widget tests; screenshots small/large iPhone, iPad portrait/landscape, dark, Arabic.
 
-## Open questions (maintainer)
-- Should the tip bubble be once per app install (saved) instead of once per setup?
-- Two-step placement (first tap shows the ghost, second tap confirms) instead of tap-to-place + hold-to-preview?
-- Should every tap on the selected ship turn around its middle (like ↻) instead of around the tapped cell?
-- The phone header is ~14 px taller; the board on a 375×667 phone shrank a little.
+## Maintainer decisions (review 1)
+- Tip once per install; keep one-tap placement (no confirm tap); every turn around the middle; the smaller
+  board on a 375×667 phone is fine; hints at most 2 lines; no gap around the board on tall phones.

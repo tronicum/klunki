@@ -517,8 +517,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get quartettSetsMissingSlot => 'کم';
 
   @override
-  String get schiffeHintSetup =>
-      'روی دریا بزن تا کشتی را بگذاری. انگشتت را نگه دار تا اول ببینی جا می‌شود یا نه. کشتی‌ها نباید به هم بچسبند.';
+  String get schiffeHintSetup => 'روی دریا بزن تا کشتی را بگذاری.';
 
   @override
   String get schiffeHintAllSunk => 'همهٔ کشتی‌ها غرق شدند.';
@@ -657,12 +656,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship انتخاب شد: بکشش یا روی یک خانهٔ خالی بزن تا جابه‌جا شود. دوباره رویش بزن تا بچرخد.';
+    return '$ship انتخاب شد: بکش برای جابه‌جایی، دوباره بزن برای چرخاندن.';
   }
 
   @override
   String get schiffeHintReady =>
-      'ناوگان آماده است. روی یک کشتی بزن تا جابه‌جا یا چرخانده شود، یا «تمام».';
+      'ناوگان آماده است. روی کشتی بزن تا جابه‌جا یا چرخانده شود، یا «تمام».';
 
   @override
   String schiffeHintEarly(String player) {
@@ -687,7 +686,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get schiffeHintSetupMore =>
-      'برای کشتی بعدی روی دریا بزن. روی یک کشتی گذاشته‌شده بزن تا جابه‌جا یا چرخانده شود.';
+      'برای کشتی بعدی روی دریا بزن. روی کشتی بزن تا جابه‌جا یا چرخانده شود.';
 
   @override
   String get schiffeCoachTap => 'رویش بزن: جابه‌جا یا چرخاندن';

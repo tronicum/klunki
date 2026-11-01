@@ -18,6 +18,7 @@ import 'package:klunki/app/fonts.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -69,6 +70,7 @@ Future<GameController> _pump(WidgetTester tester, Size size,
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
+  SeenTips.debugReset();
   final c = GameController.hotSeat(const GameConfig('schiffe', seed: 7));
   addTearDown(c.dispose);
   final theme = brightness == Brightness.dark ? KlunkiTheme.dark : KlunkiTheme.light;

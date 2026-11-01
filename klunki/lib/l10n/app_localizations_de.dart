@@ -521,8 +521,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quartettSetsMissingSlot => 'fehlt';
 
   @override
-  String get schiffeHintSetup =>
-      'Tippe aufs Meer, um das Schiff zu setzen. Halte den Finger drauf, dann siehst du vorher, ob es passt. Schiffe dürfen sich nicht berühren.';
+  String get schiffeHintSetup => 'Tippe aufs Meer, um das Schiff zu setzen.';
 
   @override
   String get schiffeHintAllSunk => 'Alle Schiffe versenkt.';
@@ -661,12 +660,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '$ship ausgewählt: ziehe es oder tippe ein freies Feld, um es zu verschieben. Tippe es nochmal an, um es zu drehen.';
+    return '$ship ausgewählt: ziehen zum Verschieben, nochmal antippen zum Drehen.';
   }
 
   @override
   String get schiffeHintReady =>
-      'Flotte steht. Tippe ein Schiff an, um es zu verschieben oder zu drehen – oder „Fertig“.';
+      'Flotte steht. Schiff antippen zum Verschieben oder Drehen – oder „Fertig“.';
 
   @override
   String schiffeHintEarly(String player) {
@@ -692,7 +691,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get schiffeHintSetupMore =>
-      'Tippe aufs Meer für das nächste Schiff. Tippe ein gesetztes Schiff an, um es zu verschieben oder zu drehen.';
+      'Tippe aufs Meer für das nächste Schiff. Schiff antippen zum Verschieben oder Drehen.';
 
   @override
   String get schiffeCoachTap => 'Antippen: verschieben oder drehen';

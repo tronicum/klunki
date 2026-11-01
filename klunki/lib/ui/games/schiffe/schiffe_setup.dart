@@ -8,6 +8,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
+import '../../../profile/seen_tips.dart';
 import '../../shell/game_screen.dart';
 import 'schiffe_draft.dart';
 import 'schiffe_grid.dart';
@@ -20,8 +21,9 @@ const _wideBreakpoint = 600.0;
 /// fleet order) when the player taps "Fertig":
 ///
 /// * "Zufällig" sets the whole fleet; everything stays editable.
-/// * Tap a ship to select it (outlined), tap it again to turn it around the
-///   tapped cell (other cells are tried if that does not fit).
+/// * Tap a ship to select it (outlined, ↻ on its middle cell), tap it again
+///   to turn it around its middle (other cells are tried if that does not
+///   fit; KLD-107, before: around the tapped cell).
 /// * Drag a ship to move it, or tap a free cell to move the selected ship
 ///   there. The footprint is previewed green (fits) or red.
 /// * "Drehen" turns the selected ship, or switches the orientation of the
@@ -74,9 +76,9 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
   bool _submitting = false;
   bool _submitFailed = false;
 
-  /// The first ship placed from the harbour gets a one-time tip bubble
-  /// ("tap it: move or turn", KLD-107) until the next interaction.
-  bool _coachDone = false;
+  /// The first ship placed from the harbour gets a tip bubble ("tap it:
+  /// move or turn", KLD-107) until the next interaction; once per install
+  /// ([SeenTips.schiffeMove]).
   int? _coach;
 
   /// Next-ship preview: the ship it shows, its orientation and the quarter
@@ -146,24 +148,31 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final d = _draft!;
     final s = d.shipAt(r, c);
     if (s != null && !d.isLocked(s)) {
-      _tapShip(s, d[s]!.indexOf(r, c)!, l10n);
+      _tapShip(s, l10n);
     } else {
       _moveActiveTo(r, c, l10n);
     }
   }
 
-  void _tapShip(int s, int pivot, AppLocalizations l10n) {
-    final d = _draft!;
+  /// A tap on placed ship [s]: selects it, or turns it when it is selected.
+  void _tapShip(int s, AppLocalizations l10n) {
     if (_selected != s) {
       _selected = s;
       _ok();
       return;
     }
-    if (d.rotate(s, pivot: pivot)) {
+    _turn(s, l10n);
+  }
+
+  /// Turns placed ship [s] in place (around its middle, else another cell);
+  /// an invalid turn flashes where it would go and explains.
+  void _turn(int s, AppLocalizations l10n) {
+    final d = _draft!;
+    if (d.rotate(s)) {
       _ok();
       _spins++;
     } else {
-      _invalid(d[s]!.rotated(pivot: pivot).cells, l10n.schiffeInvalidRotate);
+      _invalid(d[s]!.rotated(pivot: SchiffeDraft.middle(d.fleet[s])).cells, l10n.schiffeInvalidRotate);
     }
   }
 
@@ -179,10 +188,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
       _ok();
       if (cur == null) {
         _selected = null; // next ship from the harbour
-        if (!_coachDone) {
-          _coachDone = true;
-          _coach = a;
-        }
+        if (SeenTips.shared.markFirst(SeenTips.schiffeMove)) _coach = a;
       }
     } else {
       _invalid(p.cells, l10n.schiffeInvalidPlace);
@@ -194,12 +200,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     final a = _active(d);
     setState(() {
       if (a != null && d[a] != null) {
-        if (d.rotate(a)) {
-          _ok();
-          _spins++;
-        } else {
-          _invalid(d[a]!.rotated().cells, l10n.schiffeInvalidRotate);
-        }
+        _turn(a, l10n);
       } else {
         _horizontal = !_horizontal;
         _ok();
@@ -668,14 +669,29 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
                 ],
               ),
               const SizedBox(height: 8),
-              Expanded(child: shaking),
-              const SizedBox(height: 8),
-              // The dock: every ship as a small shape, placed ones ticked
-              // and faded, the active one outlined (KLD-107).
-              Row(
-                children: [
-                  for (var i = 0; i < d.fleet.length; i++) Expanded(child: trayItem(i, dense: true)),
-                ],
+              // The board as large as fits, the dock right under it; spare
+              // height (a tall phone) goes above the action row, not into
+              // gaps around the board (KLD-107).
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Flexible(
+                      child: LayoutBuilder(
+                        builder: (context, box) =>
+                            SizedBox(height: min(box.maxWidth, box.maxHeight), child: shaking),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // The dock: every ship as a small shape, placed ones
+                    // ticked and faded, the active one outlined (KLD-107).
+                    Row(
+                      children: [
+                        for (var i = 0; i < d.fleet.length; i++) Expanded(child: trayItem(i, dense: true)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 8),
               Row(
@@ -930,9 +946,8 @@ class _ShipPreview extends StatelessWidget {
 }
 
 /// The ↻ badge on the middle cell of the selected ship (KLD-107). Only a
-/// picture: the setup's pointer handling turns the selected ship around the
-/// tapped cell, which for this cell is a turn in place. Spins a quarter on
-/// every turn.
+/// picture: a tap anywhere on the selected ship turns it around this cell.
+/// Spins a quarter on every turn.
 class _RotateBadge extends StatelessWidget {
   final ShipPlacement ship;
   final double unit;
@@ -943,7 +958,7 @@ class _RotateBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final k = ship.length ~/ 2;
+    final k = SchiffeDraft.middle(ship.length);
     final r = ship.horizontal ? ship.row : ship.row + k;
     final c = ship.horizontal ? ship.col + k : ship.col;
     final inset = unit * 0.1;

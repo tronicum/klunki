@@ -541,8 +541,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quartettSetsMissingSlot => 'ناقصة';
 
   @override
-  String get schiffeHintSetup =>
-      'انقر على البحر لوضع السفينة. أبقِ إصبعك ضاغطًا لترى أولًا هل تتسع. يجب ألا تتلامس السفن.';
+  String get schiffeHintSetup => 'انقر على البحر لوضع السفينة.';
 
   @override
   String get schiffeHintAllSunk => 'غرقت كل السفن.';
@@ -684,7 +683,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return 'تم اختيار $ship: اسحبها أو انقر على خانة فارغة لنقلها. انقر عليها مرة أخرى لتدويرها.';
+    return 'تم اختيار $ship: اسحب للنقل، وانقر مرة أخرى للتدوير.';
   }
 
   @override
@@ -715,7 +714,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get schiffeHintSetupMore =>
-      'انقر على البحر للسفينة التالية. انقر على سفينة موضوعة لنقلها أو تدويرها.';
+      'انقر على البحر للسفينة التالية. انقر على سفينة لنقلها أو تدويرها.';
 
   @override
   String get schiffeCoachTap => 'انقر عليها: نقل أو تدوير';

@@ -61,13 +61,19 @@ class SchiffeDraft {
     return true;
   }
 
-  /// Turns placed ship [i] by 90°: around cell [pivot] first, then around
-  /// every other cell of the ship (first cell first), taking the first
-  /// valid result. False (and no change) if no turn fits.
-  bool rotate(int i, {int pivot = 0}) {
+  /// The cell a turn of a ship of [length] goes around first: its middle
+  /// (KLD-107: every turn is "in place").
+  static int middle(int length) => length ~/ 2;
+
+  /// Turns placed ship [i] by 90°: around cell [pivot] (default: its
+  /// [middle]) first, then around every other cell of the ship (first cell
+  /// first), taking the first valid result. False (and no change) if no
+  /// turn fits.
+  bool rotate(int i, {int? pivot}) {
     final s = _slots[i];
     if (s == null || isLocked(i)) return false;
-    final pivots = [pivot, for (var k = 0; k < s.length; k++) if (k != pivot) k];
+    final first = pivot ?? middle(s.length);
+    final pivots = [first, for (var k = 0; k < s.length; k++) if (k != first) k];
     for (final k in pivots) {
       if (place(i, s.rotated(pivot: k))) return true;
     }

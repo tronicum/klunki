@@ -507,7 +507,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quartettSetsMissingSlot => '缺少';
 
   @override
-  String get schiffeHintSetup => '点击海面放置舰船。长按可以先看看能否放下。舰船之间不能相邻。';
+  String get schiffeHintSetup => '点击海面放置舰船。';
 
   @override
   String get schiffeHintAllSunk => '所有舰船已被击沉。';
@@ -643,7 +643,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String schiffeHintSelected(String ship) {
-    return '已选中$ship：拖动它或点击空格子来移动。再点一次可转向。';
+    return '已选中$ship：拖动来移动，再点一次转向。';
   }
 
   @override
@@ -670,7 +670,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get schiffeHarbour => '港口';
 
   @override
-  String get schiffeHintSetupMore => '点击海面放置下一艘。点击已放置的舰船可移动或转向。';
+  String get schiffeHintSetupMore => '点击海面放置下一艘。点击舰船可移动或转向。';
 
   @override
   String get schiffeCoachTap => '点它：移动或转向';
