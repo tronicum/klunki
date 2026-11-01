@@ -93,13 +93,13 @@ void main() {
       textDirection: TextDirection.ltr,
       child: Row(children: [device(_hostKey, host), device(_guestKey, guest)]),
     ));
-    await _until(tester, () => _on(_guestKey, find.text('Stelle deine Armee auf (O)')).evaluate().isNotEmpty,
+    await _until(tester, () => _on(_guestKey, find.text('Stelle deine Armee auf (Ben)')).evaluate().isNotEmpty,
         'guest shows its setup editor');
 
     // Both see their own editor at once. X sets up first; the guest may
     // arrange meanwhile but "Fertig" waits.
-    expect(_on(_hostKey, find.text('Stelle deine Armee auf (X)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Anna (X) stellt zuerst auf – du kannst schon vorbereiten.')), findsOneWidget);
+    expect(_on(_hostKey, find.text('Stelle deine Armee auf (Anna)')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Anna stellt zuerst auf – du kannst schon vorbereiten.')), findsOneWidget);
     expect(tester.widget<ButtonStyleButton>(_on(_guestKey, find.byKey(const Key('go-done')))).onPressed, isNull);
     await _tap(tester, _on(_guestKey, find.byKey(const Key('go-shuffle'))));
 
@@ -123,17 +123,17 @@ void main() {
     }
 
     await _tap(tester, _on(_hostKey, find.byKey(const Key('go-done'))));
-    await _until(tester, () => _controller(tester, _guestKey).moves.length == 1, 'guest receives X setup');
-    expect(_on(_hostKey, find.text('Warte, bis Ben (O) aufgestellt hat …')), findsOneWidget);
+    await _until(tester, () => _controller(tester, _guestKey).moves.length == 1, 'guest receives Anna setup');
+    expect(_on(_hostKey, find.text('Warte, bis Ben aufgestellt hat …')), findsOneWidget);
     expect(tester.widget<ButtonStyleButton>(_on(_guestKey, find.byKey(const Key('go-done')))).onPressed, isNotNull);
     await _tap(tester, _on(_guestKey, find.byKey(const Key('go-done'))));
-    await _until(tester, () => _controller(tester, _hostKey).moves.length == 2, 'host receives O setup');
+    await _until(tester, () => _controller(tester, _hostKey).moves.length == 2, 'host receives Ben setup');
 
     for (final d in [_hostKey, _guestKey]) {
       expect(_on(d, find.byKey(const Key('handover-cover'), skipOffstage: false)), findsNothing);
     }
     expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
 
     // KLD-081: on each device every piece stands on the square and at the
     // displayed place the editor showed; the host's engine agrees.
@@ -205,7 +205,7 @@ void main() {
           expect(_on(d, find.text(text)), findsWidgets);
           expect(_on(d, find.byKey(const Key('handover-cover'), skipOffstage: false)), findsNothing);
         }
-        expect(_on(_hostKey, find.text('Angriff von ${mover == _hostKey ? 'Anna (X)' : 'Ben (O)'}')), findsOneWidget);
+        expect(_on(_hostKey, find.text('Angriff von ${mover == _hostKey ? 'Anna' : 'Ben'}')), findsOneWidget);
         break;
       }
       final count = c.moves.length;
@@ -255,7 +255,7 @@ void main() {
   // GoStrategyView; both devices end with the result, and the host's reveal
   // verifies the game on the guest.
   for (final midGame in [false, true]) {
-    testWidgets(midGame ? 'resign mid-game: the guest gives up on X\'s turn' : 'resign during the setup: the host gives up',
+    testWidgets(midGame ? 'resign mid-game: the guest gives up on Anna\'s turn' : 'resign during the setup: the host gives up',
         (tester) async {
       tester.view.physicalSize = const Size(1000, 900);
       tester.view.devicePixelRatio = 1;
@@ -283,29 +283,29 @@ void main() {
         textDirection: TextDirection.ltr,
         child: Row(children: [device(_hostKey, host), device(_guestKey, guest)]),
       ));
-      await _until(tester, () => _on(_guestKey, find.text('Stelle deine Armee auf (O)')).evaluate().isNotEmpty,
+      await _until(tester, () => _on(_guestKey, find.text('Stelle deine Armee auf (Ben)')).evaluate().isNotEmpty,
           'guest shows its setup editor');
       expect(_controller(tester, _guestKey).game, isA<GoStrategyView>());
 
       var count = 0;
       if (midGame) {
         await _tap(tester, _on(_hostKey, find.byKey(const Key('go-done'))));
-        await _until(tester, () => _controller(tester, _guestKey).moves.length == 1, 'guest receives X setup');
+        await _until(tester, () => _controller(tester, _guestKey).moves.length == 1, 'guest receives Anna setup');
         await _tap(tester, _on(_guestKey, find.byKey(const Key('go-done'))));
-        await _until(tester, () => _controller(tester, _hostKey).moves.length == 2, 'host receives O setup');
+        await _until(tester, () => _controller(tester, _hostKey).moves.length == 2, 'host receives Ben setup');
         final hostC = _controller(tester, _hostKey);
         final g = hostC.game as GoStrategyGame;
         unawaited(hostC.submit(g.legalMoves.firstWhere((m) => g.board[m['to'] as int].isEmpty)));
-        await _until(tester, () => _controller(tester, _guestKey).moves.length == 3, 'guest receives X move');
+        await _until(tester, () => _controller(tester, _guestKey).moves.length == 3, 'guest receives Anna move');
         // O moves, then X is to move again: O resigns off turn.
         final guestC = _controller(tester, _guestKey);
         // Not awaited: the reply arrives over the real socket (see _until).
         unawaited(guestC.submit((guestC.game as GoStrategyGame).legalMoves.first));
-        await _until(tester, () => _controller(tester, _hostKey).moves.length == 4, 'host receives O move');
+        await _until(tester, () => _controller(tester, _hostKey).moves.length == 4, 'host receives Ben move');
         count = 4;
       }
       final (resigner, other) = midGame ? (_guestKey, _hostKey) : (_hostKey, _guestKey);
-      final (resignerName, otherName) = midGame ? ('Ben (O)', 'Anna (X)') : ('Anna (X)', 'Ben (O)');
+      final (resignerName, otherName) = midGame ? ('Ben', 'Anna') : ('Anna', 'Ben');
       final loser = midGame ? Player.b : Player.a;
       expect(_controller(tester, _hostKey).game.currentPlayer, Player.a);
 

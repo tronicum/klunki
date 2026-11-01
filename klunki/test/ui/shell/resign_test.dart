@@ -29,10 +29,10 @@ Future<void> _openResign(WidgetTester tester) async {
 void main() {
   group('hot-seat', () {
     for (final id in appGameSpecs.map((s) => s.id)) {
-      testWidgets('$id: the flag asks who resigns; O resigns on X\'s turn', (tester) async {
+      testWidgets('$id: the flag asks who resigns; Ben resigns on Anna\'s turn', (tester) async {
         final c = await pumpGame(tester, id);
-        // Chess names the sides "Weiß" / "Schwarz" instead of X / O (KLD-059).
-        final (x, o) = id == 'chess' ? ('Weiß', 'Schwarz') : ('X', 'O');
+        // Default names (KLD-102); chess adds the side (KLD-059).
+        final (x, o) = id == 'chess' ? ('Anna (Weiß)', 'Ben (Schwarz)') : ('Anna', 'Ben');
         expect(c.game.currentPlayer, Player.a);
         await _openResign(tester);
         expect(find.text('Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.'), findsOneWidget);
@@ -75,17 +75,17 @@ void main() {
       await tester.pump();
       await playMove(tester);
       await _openResign(tester);
-      expect(find.text('Anna (X) gibt auf'), findsOneWidget);
-      expect(find.text('Ben (O) gibt auf'), findsOneWidget);
-      await tester.tap(find.text('Anna (X) gibt auf'));
+      expect(find.text('Anna gibt auf'), findsOneWidget);
+      expect(find.text('Ben gibt auf'), findsOneWidget);
+      await tester.tap(find.text('Anna gibt auf'));
       await tester.pumpAndSettle();
-      expect(_inResult('Ben (O) gewinnt!'), findsOneWidget);
-      expect(_inResult('Anna (X) hat aufgegeben'), findsOneWidget);
+      expect(_inResult('Ben gewinnt!'), findsOneWidget);
+      expect(_inResult('Anna hat aufgegeben'), findsOneWidget);
       await tester.tap(find.text('Menü'));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
-      expect(find.text('Anna (X): Aufgeben'), findsOneWidget);
+      expect(find.text('Anna: Aufgeben'), findsOneWidget);
     });
 
     testWidgets('resigning while the handover cover is up ends the game and drops the cover', (tester) async {
@@ -160,7 +160,7 @@ void main() {
     expect(host.game.currentPlayer, Player.a);
     await tester.tap(on(guestKey, find.byKey(_resign)));
     await tester.pumpAndSettle();
-    expect(on(guestKey, find.text('Das Spiel endet für beide – Ada (X) gewinnt.')), findsOneWidget);
+    expect(on(guestKey, find.text('Das Spiel endet für beide – Ada gewinnt.')), findsOneWidget);
     expect(on(guestKey, find.byKey(const Key('resign-a'))), findsNothing, reason: 'one local player: no choice');
     await tester.tap(on(guestKey, find.byKey(const Key('resign-confirm'))));
     await tester.runAsync(() => until(() => host.moves.length == 1 && guest.moves.length == 1, what: 'resign travels'));
@@ -174,8 +174,8 @@ void main() {
     Finder result(Key device, String text) =>
         on(device, find.descendant(of: find.byKey(resultDialog), matching: find.text(text)));
     expect(result(hostKey, 'Du gewinnst!'), findsOneWidget);
-    expect(result(hostKey, 'Bea (O) hat aufgegeben'), findsOneWidget);
-    expect(result(guestKey, 'Ada (X) gewinnt!'), findsOneWidget);
+    expect(result(hostKey, 'Bea hat aufgegeben'), findsOneWidget);
+    expect(result(guestKey, 'Ada gewinnt!'), findsOneWidget);
     expect(result(guestKey, 'Du hast aufgegeben'), findsOneWidget);
   }, timeout: const Timeout(Duration(seconds: 30)));
 }

@@ -7,6 +7,16 @@ library;
 /// A player id. `A` / `B` for hot-seat, or a runtime id over the network.
 enum Player { a, b }
 
+/// English name of [p] in the engine's own texts (CLI, debug console, result
+/// reasons, test logs; KLD-102): "Anna" for A, "Ben" for B, the app's default
+/// names. The app shows its own, localized names; the protocol only knows
+/// `a` / `b`.
+String playerNameOf(Player? p) => switch (p) {
+      Player.a => 'Anna',
+      Player.b => 'Ben',
+      null => 'nobody',
+    };
+
 /// Result of applying a move.
 class GameEvent {
   final Player? winner;
@@ -131,7 +141,7 @@ abstract class Game {
     if (r == null) return playResult;
     return GameResult(
         winner: _other(r),
-        reason: '${r == Player.a ? 'X' : 'O'} resigned',
+        reason: '${playerNameOf(r)} resigned',
         code: GameEndReason.commonResigned,
         params: {'player': r.index});
   }

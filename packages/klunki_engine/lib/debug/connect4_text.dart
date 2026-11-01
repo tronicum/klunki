@@ -44,8 +44,8 @@ class Connect4Text extends TextGame {
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final row = (game.history.last['row'] as int) + 1;
-    final s = '${mark(mover)} drops into column ${move['col']} (lands in row $row from the bottom).';
-    if (event.winner != null) return '$s Four in a row: ${mark(mover)} wins!';
+    final s = '${playerName(mover)} drops into column ${move['col']} (lands in row $row from the bottom).';
+    if (event.winner != null) return '$s Four in a row: ${playerName(mover)} wins!';
     if (event.draw) return '$s The board is full: draw.';
     return s;
   }

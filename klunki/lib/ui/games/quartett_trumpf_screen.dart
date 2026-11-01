@@ -27,20 +27,20 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 ///    the opponent's face-down stack.
 /// 2. Tapping a stat shows the trick reveal (both cards, chosen stat
 ///    highlighted, winner text). While it is shown the shell's status line
-///    names the next picker ("O wählt als Nächstes", KLD-092) instead of the
-///    live "X ist am Zug". The move is *not* submitted yet: the reveal
+///    names the next picker ("Ben wählt als Nächstes", KLD-092) instead of the
+///    live "Anna ist am Zug". The move is *not* submitted yet: the reveal
 ///    is computed on a replayed copy of the engine, so the shell's handover
 ///    cover (which appears as soon as a move passes the turn) cannot hide it.
-/// 3. "Weiter – X wählt" submits the pick. If the turn passed (the other
+/// 3. "Weiter – Anna wählt" submits the pick. If the turn passed (the other
 ///    player won the trick), the shell's [HandoverCover] appears and says
-///    why ("O hat die Runde gewonnen", `qt-handover-reason`); otherwise (the
+///    why ("Ben hat die Runde gewonnen", `qt-handover-reason`); otherwise (the
 ///    picker won, or a tie) there is no cover: nothing has to be passed and
-///    the reveal already said "X wählt noch einmal" (KLD-091, reverses the
+///    the reveal already said "Anna wählt noch einmal" (KLD-091, reverses the
 ///    old KLD-029 plan).
 ///
 /// Every trick result names who picks next (`qt-next-picker`, KLD-091):
-/// "O wählt als Nächstes" when the other player won, "X wählt noch einmal"
-/// when the picker won, and after a tie "Karten in den Topf (jetzt 2), X wählt
+/// "Ben wählt als Nächstes" when the other player won, "Anna wählt noch einmal"
+/// when the picker won, and after a tie "Karten in den Topf (jetzt 2), Anna wählt
 /// noch einmal" under the headline "Gleichstand – Stechen!".
 ///
 /// Network (KLD-086): "Weiter" is local only, never a message, and the game
@@ -50,10 +50,10 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// The waiting player sees it for at least [quartettRevealGrace] (a tap skips
 /// it); a trick the opponent picks meanwhile is queued and shown next, in
 /// order. After the grace the table shows the own new top card and
-/// "X wählt …".
+/// "Anna wählt …".
 ///
 /// The waiting player's grace shows a countdown (`qt-grace`); a trick picked
-/// meanwhile is announced ("X hat gewählt: PS", `qt-queued-notice`).
+/// meanwhile is announced ("Anna hat gewählt: PS", `qt-queued-notice`).
 ///
 /// "Vorige Runde" (`qt-last-trick`, next to the stack counts, in every mode)
 /// opens a local overlay (`qt-last-trick-overlay`) with the most recent trick
@@ -427,9 +427,11 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     final t = _history.last;
     setState(() => _peeking = true);
     _grace.stop();
+    // The dialog route sits above the game's PlayerLabelsScope: pass it on.
+    final labels = PlayerLabelsScope.of(context);
     await showDialog<void>(
       context: context,
-      builder: (context) => _LastTrickDialog(trick: t),
+      builder: (context) => PlayerLabelsScope(labels: labels, child: _LastTrickDialog(trick: t)),
     );
     if (!mounted) return;
     setState(() {
@@ -488,8 +490,8 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   ///   queued behind the reveal), with a badge "noch 2 Runden".
   /// * KLD-092 (hot-seat): while a previewed round result is on screen. The
   ///   pick is only applied on "Weiter", so the live status would still name
-  ///   the picker ("X ist am Zug") while the result says "O wählt als
-  ///   Nächstes". It uses the cue's words ("O wählt als Nächstes" / "X wählt
+  ///   the picker ("Anna ist am Zug") while the result says "Ben wählt als
+  ///   Nächstes". It uses the cue's words ("Ben wählt als Nächstes" / "Anna wählt
   ///   noch einmal"), with the player's name if set. (A result of a move
   ///   that is already applied needs no override: the live status agrees.)
   ShellStatus? _statusOverride(BuildContext context) {
@@ -537,8 +539,8 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        chip('qt-count-a', Icons.person, l10n.quartettPlayerCards(playerMark(Player.a), game.stackSize(Player.a))),
-        chip('qt-count-b', Icons.person_outline, l10n.quartettPlayerCards(playerMark(Player.b), game.stackSize(Player.b))),
+        chip('qt-count-a', Icons.person, l10n.quartettPlayerCards(playerName(context, Player.a), game.stackSize(Player.a))),
+        chip('qt-count-b', Icons.person_outline, l10n.quartettPlayerCards(playerName(context, Player.b), game.stackSize(Player.b))),
         if (game.potSize > 0) chip('qt-pot', Icons.savings_outlined, l10n.quartettTrumpfPot(game.potSize)),
         ActionChip(
           key: const Key('qt-last-trick'),
@@ -582,7 +584,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          caption(l10n.quartettTrumpfOpponentStack(playerMark(opp))),
+          caption(l10n.quartettTrumpfOpponentStack(playerName(context, opp))),
           QuartettCard.back(
             key: const Key('qt-opponent-stack'),
             deck: game.deck.id,
@@ -596,7 +598,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     final ownColumn = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
-      children: [caption(l10n.quartettTrumpfYourCard(playerMark(me))), own],
+      children: [caption(l10n.quartettTrumpfYourCard(playerName(context, me))), own],
     );
     return LayoutBuilder(builder: (context, box) {
       if (box.maxWidth >= 520) {
@@ -639,7 +641,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
               children: [
                 Expanded(child: _TrickSummary(trick: t)),
                 const SizedBox(width: 12),
-                // At most half the row: a long "Weiter – X wählt" (fr, fa)
+                // At most half the row: a long "Weiter – Anna wählt" (fr, fa)
                 // wraps instead of overflowing.
                 ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: box.maxWidth / 2),
@@ -651,7 +653,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                         key: const Key('qt-continue'),
                         onPressed: _continue,
                         child: Text(
-                          l10n.quartettTrumpfContinuePicker(playerMark(t.nextPicker)),
+                          l10n.quartettTrumpfContinuePicker(playerName(context, t.nextPicker)),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -676,7 +678,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    l10n.quartettTrumpfQueuedPick(playerMark(queued.picker), localizedStatLabel(l10n, queued.stat.id)),
+                    l10n.quartettTrumpfQueuedPick(playerName(context, queued.picker), localizedStatLabel(l10n, queued.stat.id)),
                     style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -722,7 +724,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
 Color _trickColor(BuildContext context, _Trick t) => quartettOutcomeColor(
     t.winner == null ? QuartettOutcome.tie : QuartettOutcome.win, KlunkiPalette.of(context).quartett);
 
-/// "X wählt PS", who won (or the tie and the pot) and who picks next.
+/// "Anna wählt PS", who won (or the tie and the pot) and who picks next.
 class _TrickSummary extends StatelessWidget {
   final _Trick trick;
   const _TrickSummary({required this.trick});
@@ -733,14 +735,14 @@ class _TrickSummary extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final w = t.winner;
-    final headline = w == null ? l10n.quartettTrumpfTie : l10n.quartettTrumpfWinsTrick(playerMark(w));
-    final picker = playerMark(t.picker);
+    final headline = w == null ? l10n.quartettTrumpfTie : l10n.quartettTrumpfWinsTrick(playerName(context, w));
+    final picker = playerName(context, t.picker);
     // Who picks next (KLD-091): the winner, or the same player after a tie.
     final cue = w == null
         ? (t.pot > 0 ? l10n.quartettTrumpfPotAgain(t.pot, picker) : l10n.quartettTrumpfPicksAgain(picker))
         : w == t.picker
             ? l10n.quartettTrumpfPicksAgain(picker)
-            : l10n.quartettTrumpfNextPicker(playerMark(w));
+            : l10n.quartettTrumpfNextPicker(playerName(context, w));
     final color = _trickColor(context, t);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,7 +793,7 @@ class _TrickCards extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Text(
-              l10n.quartettTrumpfSideOutcome(playerMark(p), word),
+              l10n.quartettTrumpfSideOutcome(playerName(context, p), word),
               key: Key('qt-reveal-${p.name}-outcome'),
               textAlign: TextAlign.center,
               style: theme.textTheme.labelLarge
@@ -864,7 +866,7 @@ class _LastTrickDialog extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${localizedStatLabel(l10n, t.stat.id)}: '
-                '${playerMark(Player.a)} ${value(t.va)} – ${playerMark(Player.b)} ${value(t.vb)}',
+                '${playerName(context, Player.a)} ${value(t.va)} – ${playerName(context, Player.b)} ${value(t.vb)}',
                 key: const Key('qt-last-trick-values'),
                 style: theme.textTheme.bodyMedium,
               ),
@@ -873,8 +875,8 @@ class _LastTrickDialog extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
                     [
-                      l10n.quartettPlayerCards(playerMark(Player.a), ca),
-                      l10n.quartettPlayerCards(playerMark(Player.b), cb),
+                      l10n.quartettPlayerCards(playerName(context, Player.a), ca),
+                      l10n.quartettPlayerCards(playerName(context, Player.b), cb),
                       if (t.pot > 0) l10n.quartettTrumpfPot(t.pot),
                     ].join(' · '),
                     key: const Key('qt-last-trick-counts'),

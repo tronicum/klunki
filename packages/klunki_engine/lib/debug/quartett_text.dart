@@ -7,7 +7,8 @@ import 'text_game.dart';
 /// " – Züge" for a deck other than the default cars (KLD-069).
 String _deckSuffix(QuartettGame g) => g.deck.id == QuartettDeck.defaultId ? '' : ' – ${g.deck.name}';
 
-String _player(String key) => key == 'a' ? 'X' : 'O';
+/// The player named by a payload key `a` / `b` (KLD-102: Anna / Ben).
+String _player(String key) => playerNameOf(key == 'a' ? Player.a : Player.b);
 
 String _value(QuartettStat s, num v) => s.unit.isEmpty ? s.formatNumber(v) : '${s.formatNumber(v)} ${s.unit}';
 
@@ -39,12 +40,12 @@ class QuartettTrumpfText extends TextGame {
     final me = game.currentPlayer;
     final opp = me == Player.a ? Player.b : Player.a;
     final card = game.topCard(me);
-    final b = StringBuffer('Cards: ${mark(me)} ${game.stackSize(me)}, ${mark(opp)} ${game.stackSize(opp)}'
+    final b = StringBuffer('Cards: ${playerName(me)} ${game.stackSize(me)}, ${playerName(opp)} ${game.stackSize(opp)}'
         '${game.potSize > 0 ? ', pot ${game.potSize}' : ''}   (round ${game.tricks})');
     if (card != null && !game.isOver) {
       b
         ..writeln()
-        ..writeln("${mark(me)}'s top card: ${card.id} ${card.name} (${game.setNames[card.set]})");
+        ..writeln("${playerName(me)}'s top card: ${card.id} ${card.name} (${game.setNames[card.set]})");
       for (final (i, s) in game.stats.indexed) {
         b.writeln('  ${i + 1} ${s.id.padRight(9)} ${s.label.padRight(22)} '
             '${_value(s, card.stats[s.id]!).padLeft(10)}  ${s.higherWins ? 'higher wins' : 'lower wins'}');
@@ -76,14 +77,14 @@ class QuartettTrumpfText extends TextGame {
     final cards = p['cards'] as Map, values = p['values'] as Map;
     String side(String k) =>
         "${_player(k)}'s ${game.cardById(cards[k] as String)!.name} (${_value(stat, values[k] as num)})";
-    final me = mark(mover);
+    final me = playerName(mover);
     final first = mover == Player.a ? 'a' : 'b', second = first == 'a' ? 'b' : 'a';
     var s = '$me picks ${stat.label}: ${side(first)} vs ${side(second)}';
     final winner = p['trickWinner'] as String?;
     s += winner == null
         ? ' – tie, tie-break! Both cards go to the pot (${p['pot']}), $me picks again.'
-        : ' → ${_player(winner)} wins the round (X ${game.stackSize(Player.a)}, O ${game.stackSize(Player.b)} cards).';
-    if (event.winner != null) s += ' ${mark(event.winner)} wins: ${game.result.reason}.';
+        : ' → ${_player(winner)} wins the round (${playerName(Player.a)} ${game.stackSize(Player.a)}, ${playerName(Player.b)} ${game.stackSize(Player.b)} cards).';
+    if (event.winner != null) s += ' ${playerName(event.winner)} wins: ${game.result.reason}.';
     if (event.draw) s += ' Draw: ${game.result.reason}.';
     return s;
   }
@@ -143,10 +144,10 @@ class QuartettSetsText extends TextGame {
     }
 
     final b = StringBuffer()
-      ..writeln('Quartets: ${mark(Player.a)} ${quartets(Player.a)}, ${mark(Player.b)} ${quartets(Player.b)}'
-          '   |   ${mark(opp)} holds ${game.handOf(opp).length} cards, pile ${game.stockSize}');
+      ..writeln('Quartets: ${playerName(Player.a)} ${quartets(Player.a)}, ${playerName(Player.b)} ${quartets(Player.b)}'
+          '   |   ${playerName(opp)} holds ${game.handOf(opp).length} cards, pile ${game.stockSize}');
     if (!game.isOver) {
-      b.writeln("${mark(me)}'s hand:");
+      b.writeln("${playerName(me)}'s hand:");
       final bySet = <String, List<Card>>{};
       for (final c in game.handOf(me)) {
         (bySet[c.set] ??= []).add(c);
@@ -173,7 +174,7 @@ class QuartettSetsText extends TextGame {
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map;
-    final me = mark(mover), opp = _player(p['from'] as String);
+    final me = playerName(mover), opp = _player(p['from'] as String);
     final card = game.cardById(p['card'] as String)!;
     var s = '$me asks $opp for ${card.id} (${card.name}): ';
     if (p['hit'] == true) {
@@ -184,9 +185,9 @@ class QuartettSetsText extends TextGame {
     if (p['quartet'] case final String set) {
       s += ' $me completes quartet $set (${game.setNames[set]})!';
     }
-    if (event.winner != null) return '$s ${mark(event.winner)} wins: ${game.result.reason}.';
+    if (event.winner != null) return '$s ${playerName(event.winner)} wins: ${game.result.reason}.';
     if (event.draw) return '$s Draw: ${game.result.reason}.';
-    return '$s ${game.currentPlayer == mover ? '$me asks again.' : 'Now it is ${mark(game.currentPlayer)}\'s turn.'}';
+    return '$s ${game.currentPlayer == mover ? '$me asks again.' : 'Now it is ${playerName(game.currentPlayer)}\'s turn.'}';
   }
 
   /// Asks for a missing card of the set it holds most of.

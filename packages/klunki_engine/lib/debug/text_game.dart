@@ -44,7 +44,7 @@ abstract class TextGame {
   String narrateMove(Player mover, Map<String, dynamic> move, GameEvent event) {
     final r = Game.resignerOf(move);
     if (r == null) return narrate(mover, move, event);
-    return '${mark(r)} resigns. ${mark(event.winner)} wins.';
+    return '${playerName(r)} resigns. ${playerName(event.winner)} wins.';
   }
 
   /// The resign move typed as `resign` (for [byDefault], else the player to move)
@@ -54,7 +54,9 @@ abstract class TextGame {
     if (words.first != 'resign' || words.length > 2) return null;
     if (words.length == 1) return Game.resignMove(byDefault ?? game.currentPlayer);
     for (final p in Player.values) {
-      if (words[1] == mark(p).toLowerCase() || words[1] == p.name) return Game.resignMove(p);
+      if (words[1] == mark(p).toLowerCase() || words[1] == p.name || words[1] == playerName(p).toLowerCase()) {
+        return Game.resignMove(p);
+      }
     }
     return null;
   }
@@ -79,10 +81,21 @@ abstract class TextGame {
         null => '.',
       };
 
+  /// Player names for the sentences, e.g. the handles of a network game (the
+  /// CLI sets them); a player without one is [playerNameOf] ("Anna" / "Ben").
+  Map<Player, String> names = const {};
+
+  /// Name of [p] in sentences (KLD-102): [names], else "Anna" (A) / "Ben"
+  /// (B), the app's default names; [mark] stays the symbol on the board.
+  String playerName(Player? p) => names[p] ?? playerNameOf(p);
+
   String status() {
     final r = game.result;
     if (r.draw) return 'Draw (${r.reason})';
-    if (r.winner != null) return '${mark(r.winner)} wins (${r.reason})';
-    return '${mark(game.currentPlayer)} to move';
+    // A resignation names the player as this adapter does ([names]).
+    final resigned = r.code == GameEndReason.commonResigned ? game.resignedBy : null;
+    final reason = resigned != null ? '${playerName(resigned)} resigned' : r.reason;
+    if (r.winner != null) return '${playerName(r.winner)} wins ($reason)';
+    return '${playerName(game.currentPlayer)} to move';
   }
 }

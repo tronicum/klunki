@@ -27,9 +27,15 @@ typedef BoardBuilder = Widget Function(BuildContext context, GameController cont
 /// language of [l10n].
 typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move);
 
-/// Player marks used everywhere in the UI, consistent with the text console:
-/// player A is "X", player B is "O".
+/// Player marks (the symbol on a player's token, and widget keys): player A
+/// is "X", player B is "O". Texts name the players instead (KLD-102, see
+/// [PlayerLabels.label]).
 String playerMark(Player p) => PlayerLabels.markOf(p);
+
+/// [p] as named inside a sentence (KLD-102): the name ("Anna"), see
+/// [PlayerLabels.label], from the nearest [PlayerLabelsScope].
+String playerName(BuildContext context, Player p) =>
+    PlayerLabelsScope.of(context).label(context, AppLocalizations.of(context), p);
 
 /// A fresh random seed for a new game (seeded games reshuffle, the others
 /// ignore it).
@@ -94,16 +100,17 @@ class ShellStatus {
 ///   button, system/predictive back; over the network always, in hot-seat
 ///   once the game is under way. A confirm dialog closes itself when the
 ///   game ends underneath it (e.g. the opponent resigns),
-/// * status line ("X ist am Zug", with names "Anna (X) ist am Zug" or, on a
-///   network device, "Du bist am Zug (X)" / "Warte auf Ben (O)…") plus a
+/// * status line ("Anna ist am Zug" or, on a network device, "Du bist am
+///   Zug (X)" / "Warte auf Ben…") plus a
 ///   hint line the board can set
 ///   through [GameScreen.of] → [GameShell.setHint],
 /// * a [HandoverCover] over the body while the controller needs a handover,
 /// * a result dialog ("Nochmal" / "Menü") once the game is over.
 ///
-/// Players are named through the nearest [PlayerLabelsScope] (KLD-056):
-/// marks only by default, names in network games and, when the players typed
-/// some, in hot-seat games (app bar action "Spielernamen").
+/// Players are named through the nearest [PlayerLabelsScope] (KLD-056,
+/// KLD-102): the regional default names ("Anna" / "Ben") unless the players
+/// typed their own (hot-seat: at the start and through the app bar action
+/// "Spielernamen"; network: each device's player name).
 ///
 /// The screen does not own [controller]; whoever created it disposes it
 /// (see `openGame` in `screen_registry.dart`).
@@ -559,7 +566,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                   key: const Key('shell-names'),
                   tooltip: l10n.hotSeatNamesTitle,
                   icon: const Icon(Icons.people_outline),
-                  onPressed: () => showHotSeatNamesDialog(context),
+                  onPressed: () => showHotSeatNamesDialog(context, gameId: controller.spec.id),
                 ),
               if (_canRestart)
                 IconButton(
@@ -926,7 +933,7 @@ class _StatusBadge extends StatelessWidget {
 }
 
 /// Hot-seat (KLD-067): both players side by side, each as token + name
-/// (just the token when unnamed); the one to move at full strength with an
+/// (KLD-102: the default name when none was typed); the one to move at full strength with an
 /// underline in its colour, the other faded. Decorative: the status line
 /// already says whose turn it is.
 class _PlayersLegend extends StatelessWidget {
@@ -943,7 +950,7 @@ class _PlayersLegend extends StatelessWidget {
     final duration = reduceMotion(context) ? Duration.zero : const Duration(milliseconds: 250);
     Widget entry(Player p) {
       final on = current == p;
-      final name = labels.nameOf(p);
+      final name = labels.name(AppLocalizations.of(context), p);
       final color = playerColor(palette, gameId, p);
       return AnimatedOpacity(
         key: Key('shell-player-${playerMark(p)}'),
@@ -964,18 +971,16 @@ class _PlayersLegend extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               PlayerToken(gameId: gameId, player: p, size: 20),
-              if (name != null) ...[
-                const SizedBox(width: 4),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 72),
-                  child: Text(
-                    bidiName(context, name),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),
-                  ),
+              const SizedBox(width: 4),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 72),
+                child: Text(
+                  bidiName(context, name),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),
                 ),
-              ],
+              ),
             ],
           ),
         ),

@@ -22,14 +22,14 @@ void main() {
     await tester.tap(find.text('Debug-Konsole'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('X to move'), findsOneWidget);
+    expect(find.textContaining('Anna to move'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('debug-input')), '3');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
     expect(find.textContaining('|. . . X . . .|'), findsOneWidget);
-    expect(find.textContaining('O to move'), findsOneWidget);
+    expect(find.textContaining('Ben to move'), findsOneWidget);
   });
 
   testWidgets('debug console menu runs the narrated demo', (WidgetTester tester) async {
@@ -45,6 +45,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('DEMO: 4 Gewinnt'), findsOneWidget);
-    expect(find.textContaining('Four in a row: X wins!'), findsOneWidget);
+    expect(find.textContaining('Four in a row: Anna wins!'), findsOneWidget);
   });
 }

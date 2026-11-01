@@ -6,9 +6,12 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' show Player;
 
 import '../profile/player_name_controller.dart';
+import 'games/chess/chess_pieces.dart' show chessSideName;
+import 'shell/game_screen.dart' show PlayerToken;
 import 'shell/player_labels.dart';
 
 export '../profile/player_name_controller.dart';
+export 'shell/player_labels.dart' show defaultPlayerName;
 
 /// Limits typing to [maxPlayerNameLength] characters (the stored name is
 /// cleaned by [sanitizePlayerName] anyway).
@@ -138,71 +141,111 @@ class PlayerNameButton extends StatelessWidget {
       key: const Key('player-name-button'),
       icon: const Icon(Icons.person_outline),
       tooltip: AppLocalizations.of(context).playerNameLabel,
-      onPressed: () => showPlayerNameDialog(context, scope.controller),
+      // Prefilled with the default name of the room starter (KLD-102).
+      onPressed: () => showPlayerNameDialog(context, scope.controller,
+          suggestion: defaultPlayerName(AppLocalizations.of(context), Player.a)),
     );
   }
 }
 
-/// Hot-seat: optional names for X and O (KLD-056), prefilled with the last
-/// pair (X: the player name if there is no last X name). Saved to the app's
-/// [HotSeatNamesController]; empty fields mean "mark only".
-Future<void> showHotSeatNamesDialog(BuildContext context) async {
+/// Hot-seat player names (KLD-056, KLD-102): two fields prefilled with the
+/// names in use, i.e. the last typed ones or the regional default names
+/// ("Anna" / "Ben"). Saved to the app's [HotSeatNamesController]; a field
+/// left empty, or holding the default name, stores no name, so the default
+/// follows the app language. [gameId] shows the player tokens (colour and
+/// symbol) next to the fields and names the chess sides.
+///
+/// [start]: the dialog that opens a game on this device ("Wer spielt?",
+/// "Spielen"); completes with false when it was cancelled (no game then).
+/// Otherwise the in-game "Spielernamen" dialog (OK / Cancel). Without a
+/// [PlayerNameScope] there is nothing to edit: completes with true at once.
+Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool start = false}) async {
   final scope = PlayerNameScope.maybeOf(context);
-  if (scope == null) return;
+  if (scope == null) return true;
+  final l10n = AppLocalizations.of(context);
   final names = scope.hotSeat.value;
   final result = await showDialog<(String, String)>(
     context: context,
-    builder: (_) => _HotSeatNamesDialog(x: names.x ?? scope.controller.value ?? '', o: names.o ?? ''),
+    builder: (_) => _HotSeatNamesDialog(
+      a: names.x ?? defaultPlayerName(l10n, Player.a),
+      b: names.o ?? defaultPlayerName(l10n, Player.b),
+      gameId: gameId,
+      start: start,
+    ),
   );
-  if (result == null) return;
-  await scope.hotSeat.setNames(result.$1, result.$2);
+  if (result == null) return false;
+  // The default name is not stored: it follows the app language.
+  String? typed(String raw, Player p) {
+    final s = sanitizePlayerName(raw);
+    return s == defaultPlayerName(l10n, p) ? null : s;
+  }
+
+  await scope.hotSeat.setNames(typed(result.$1, Player.a), typed(result.$2, Player.b));
+  return true;
 }
 
 class _HotSeatNamesDialog extends StatefulWidget {
-  const _HotSeatNamesDialog({required this.x, required this.o});
+  const _HotSeatNamesDialog({required this.a, required this.b, this.gameId, this.start = false});
 
-  final String x;
-  final String o;
+  final String a;
+  final String b;
+  final String? gameId;
+  final bool start;
 
   @override
   State<_HotSeatNamesDialog> createState() => _HotSeatNamesDialogState();
 }
 
 class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
-  late final TextEditingController _x = TextEditingController(text: widget.x);
-  late final TextEditingController _o = TextEditingController(text: widget.o);
+  late final TextEditingController _a = TextEditingController(text: widget.a);
+  late final TextEditingController _b = TextEditingController(text: widget.b);
 
   @override
   void dispose() {
-    _x.dispose();
-    _o.dispose();
+    _a.dispose();
+    _b.dispose();
     super.dispose();
   }
 
-  void _ok() => Navigator.of(context).pop((_x.text, _o.text));
+  void _ok() => Navigator.of(context).pop((_a.text, _b.text));
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final material = MaterialLocalizations.of(context);
-    Widget field(String mark, TextEditingController c, TextInputAction action) => TextField(
-          key: Key('hot-seat-name-$mark'),
-          controller: c,
-          inputFormatters: playerNameInputFormatters,
-          decoration: InputDecoration(labelText: l10n.hotSeatNameLabel(mark)),
-          textInputAction: action,
-          onSubmitted: action == TextInputAction.done ? (_) => _ok() : null,
-        );
+    final gameId = widget.gameId;
+    Widget field(Player p, TextEditingController c, TextInputAction action) {
+      final mark = PlayerLabels.markOf(p);
+      return TextField(
+        key: Key('hot-seat-name-$mark'),
+        controller: c,
+        inputFormatters: playerNameInputFormatters,
+        decoration: InputDecoration(
+          labelText: l10n.hotSeatNameLabel(gameId == 'chess' ? chessSideName(l10n, p) : mark),
+          hintText: defaultPlayerName(l10n, p),
+          // The player's colour and symbol, as on the board (KLD-102).
+          prefixIcon: gameId == null
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: PlayerToken(gameId: gameId, player: p, size: 24),
+                ),
+        ),
+        textInputAction: action,
+        onSubmitted: action == TextInputAction.done ? (_) => _ok() : null,
+      );
+    }
+
     return AlertDialog(
-      key: const Key('hot-seat-names-dialog'),
-      title: Text(l10n.hotSeatNamesTitle),
+      key: Key(widget.start ? 'hot-seat-start-dialog' : 'hot-seat-names-dialog'),
+      title: Text(widget.start ? l10n.hotSeatStartTitle : l10n.hotSeatNamesTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          field(PlayerLabels.markOf(Player.a), _x, TextInputAction.next),
+          field(Player.a, _a, TextInputAction.next),
           const SizedBox(height: 8),
-          field(PlayerLabels.markOf(Player.b), _o, TextInputAction.done),
+          field(Player.b, _b, TextInputAction.done),
           const SizedBox(height: 12),
           Text(l10n.hotSeatNamesHelper, style: Theme.of(context).textTheme.bodySmall),
         ],
@@ -214,7 +257,11 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(material.cancelButtonLabel),
         ),
-        FilledButton(key: const Key('hot-seat-names-ok'), onPressed: _ok, child: Text(material.okButtonLabel)),
+        FilledButton(
+          key: const Key('hot-seat-names-ok'),
+          onPressed: _ok,
+          child: Text(widget.start ? l10n.hotSeatStartPlay : material.okButtonLabel),
+        ),
       ],
     );
   }

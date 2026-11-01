@@ -16,7 +16,7 @@ void main() {
     expect(r.draw, isFalse);
     expect(r.code, GameEndReason.commonResigned);
     expect(r.params, {'player': by.index});
-    expect(r.reason, '${by == Player.a ? 'X' : 'O'} resigned');
+    expect(r.reason, '${by == Player.a ? 'Anna' : 'Ben'} resigned');
   }
 
   test('resign move shape and parsing', () {
@@ -134,13 +134,13 @@ void main() {
       final c = DebugConsole('connect4');
       c.handle('3');
       final out = c.handle('resign x');
-      expect(out, contains('X resigns. O wins.'));
-      expect(out, contains('O wins (X resigned)'));
+      expect(out, contains('Anna resigns. Ben wins.'));
+      expect(out, contains('Ben wins (Anna resigned)'));
       expect(c.handle('history'), contains('2. resign X'));
       expect(c.handle('3'), contains('Illegal move'));
       c.handle('undo');
       expect(c.current.game.isOver, isFalse);
-      expect(c.handle('resign').split('\n').first, 'O resigns. X wins.');
+      expect(c.handle('resign').split('\n').first, 'Ben resigns. Anna wins.');
     });
 
     test('unknown resign target is not a move', () {

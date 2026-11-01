@@ -39,6 +39,9 @@ void main() {
           await tester.tap(find.byKey(const Key('quartett-deck-play')));
           await tester.pumpAndSettle();
         }
+        // "Wer spielt?" (KLD-102), prefilled with the default names.
+        await tester.tap(find.text('Spielen'));
+        await tester.pumpAndSettle();
         expect(find.byType(GameScreen), findsOneWidget);
         expect(
             find.descendant(
@@ -46,7 +49,7 @@ void main() {
                 matching: find.text(spec.usesDeck ? '${spec.title} · Autos' : spec.title)),
             findsOneWidget);
         // Chess names the sides (KLD-059).
-        expect(find.text(spec.id == 'chess' ? 'Weiß ist am Zug' : 'X ist am Zug'), findsOneWidget);
+        expect(find.text(spec.id == 'chess' ? 'Anna (Weiß) ist am Zug' : 'Anna ist am Zug'), findsOneWidget);
         expect(controllerOf(tester).config.gameId, spec.id);
 
         await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip
@@ -59,6 +62,8 @@ void main() {
     testWidgets('"Menü" in the result dialog returns to the menu', (tester) async {
       await tester.pumpWidget(klunkiApp());
       await tester.tap(find.text('4 Gewinnt'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Spielen'));
       await tester.pumpAndSettle();
       await playToEnd(tester);
       await tester.tap(find.text('Menü'));
@@ -98,7 +103,7 @@ void main() {
       await playToEnd(tester);
       expect(c.game.isOver, isTrue);
       final r = c.game.result;
-      final headline = r.winner == null ? 'Unentschieden' : '${playerMark(r.winner!)} gewinnt!';
+      final headline = r.winner == null ? 'Unentschieden' : '${testName(r.winner!)} gewinnt!';
       expect(find.text(headline), findsOneWidget);
       expect(find.text(localizedResultReason(deL10n, r)), findsOneWidget);
 
@@ -108,7 +113,7 @@ void main() {
       expect(find.byKey(resultDialog), findsNothing);
       expect(c.moves, isEmpty);
       expect(c.game.isOver, isFalse);
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
       // New game uses a fresh seed (matters for the seeded Quartett games).
       expect(c.config.seed, isNot(oldSeed));
     });
@@ -127,14 +132,14 @@ void main() {
 
   group('handover cover', () {
     for (final id in ['quartett-trumpf', 'quartett-sets', 'schiffe']) {
-      testWidgets('$id: cover hides the board until O acknowledges', (tester) async {
+      testWidgets('$id: cover hides the board until Ben acknowledges', (tester) async {
         final c = await pumpGame(tester, id);
         expect(find.byKey(handoverContinue), findsNothing);
 
         await playUntilHandover(tester);
         expect(c.needsHandover, isTrue);
-        expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
-        expect(find.text('Ich bin O – weiter'), findsOneWidget);
+        expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
+        expect(find.text('Ich bin Ben – weiter'), findsOneWidget);
 
         // Board area stays mounted but is neither visible nor hit-testable.
         const status = Key('shell-status');
@@ -155,7 +160,7 @@ void main() {
         expect(c.needsHandover, isFalse);
         expect(find.byKey(handoverContinue), findsNothing);
         expect(find.byKey(status).hitTestable(), findsOneWidget);
-        expect(find.text('O ist am Zug'), findsOneWidget);
+        expect(find.text('Ben ist am Zug'), findsOneWidget);
       });
     }
 
@@ -164,7 +169,7 @@ void main() {
       await playMove(tester);
       expect(c.game.currentPlayer, Player.b);
       expect(find.byKey(handoverContinue), findsNothing);
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
     });
   });
 
@@ -181,7 +186,7 @@ void main() {
       await tester.tap(undo);
       await tester.pump();
       expect(c.moves, isEmpty);
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
       expect(tester.widget<IconButton>(undo).onPressed, isNull);
     });
 
@@ -200,7 +205,7 @@ void main() {
       await tester.tap(find.text('Neu starten'));
       await tester.pumpAndSettle();
       expect(c.moves, isEmpty);
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
     });
 
     testWidgets('history sheet lists moves readably', (tester) async {
@@ -217,8 +222,8 @@ void main() {
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('history-sheet')), findsOneWidget);
-      expect(find.text('X: Spalte 1'), findsOneWidget);
-      expect(find.text('O: Spalte 4'), findsOneWidget);
+      expect(find.text('Anna: Spalte 1'), findsOneWidget);
+      expect(find.text('Ben: Spalte 4'), findsOneWidget);
     });
 
     testWidgets('history falls back to the move map', (tester) async {
@@ -229,7 +234,7 @@ void main() {
       await playMove(tester);
       await tester.tap(find.byKey(const Key('shell-history')));
       await tester.pumpAndSettle();
-      expect(find.textContaining('X: {col: '), findsOneWidget);
+      expect(find.textContaining('Anna: {col: '), findsOneWidget);
     });
   });
 

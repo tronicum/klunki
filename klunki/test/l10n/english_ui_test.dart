@@ -29,9 +29,12 @@ void main() {
     await tester.pumpWidget(klunkiApp(locale: _en));
     await tester.tap(find.text('Four in a Row'));
     await tester.pumpAndSettle();
+    expect(find.text('Who is playing?'), findsOneWidget);
+    await tester.tap(find.text('Play'));
+    await tester.pumpAndSettle();
 
     expect(find.descendant(of: find.byType(AppBar), matching: find.text('Four in a Row')), findsOneWidget);
-    expect(find.text("X's turn"), findsOneWidget);
+    expect(find.text('Anna to move'), findsOneWidget);
     expect(find.text('Tap a column'), findsOneWidget);
     expect(find.byTooltip('Undo move'), findsOneWidget);
     expect(find.byTooltip('New game'), findsOneWidget);
@@ -39,11 +42,11 @@ void main() {
 
     await tester.tap(find.byKey(const Key('c4-column-3')));
     await tester.pumpAndSettle();
-    expect(find.text("O's turn"), findsOneWidget);
+    expect(find.text('Ben to move'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('shell-history')));
     await tester.pumpAndSettle();
-    expect(find.text('X: Column 4'), findsOneWidget);
+    expect(find.text('Anna: Column 4'), findsOneWidget);
   });
 
   testWidgets('Sink the Fleet setup in English', (tester) async {
@@ -56,7 +59,7 @@ void main() {
     expect(find.text('Random'), findsOneWidget);
     expect(find.text('Horizontal'), findsOneWidget);
     expect(find.textContaining('Setup: tap the sea'), findsOneWidget);
-    expect(find.textContaining('X is placing'), findsOneWidget);
+    expect(find.textContaining('Anna is placing'), findsOneWidget);
   });
 
   test('move descriptions follow the AppLocalizations passed in', () async {

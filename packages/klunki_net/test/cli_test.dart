@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:klunki_engine/debug.dart';
-import 'package:klunki_engine/klunki_engine.dart' show QuartettDeck;
+import 'package:klunki_engine/klunki_engine.dart' show Player, QuartettDeck;
 import 'package:klunki_net/relay_server.dart';
 import 'package:klunki_net/src/cli/cli.dart';
 import 'package:klunki_net/src/cli/open_urls.dart';
@@ -93,6 +93,9 @@ class Proxy {
   }
 }
 
+/// The players of [hostAndJoin] (KLD-102: the narration uses their names).
+const _names = {Player.a: 'Ada', Player.b: 'Bea'};
+
 Future<(Terminal, Terminal)> hostAndJoin(List<String> hostArgs) async {
   final host = Terminal('host', ['host', ...hostArgs, '--port', '0', '--name', 'Ada']);
   final port = (await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting for a guest')))[1]!;
@@ -152,20 +155,20 @@ void main() {
 
   test('two terminals play Four in a Row to the end over loopback', () async {
     final (host, guest) = await hostAndJoin(['connect4']);
-    await host.waitFor('Your turn (X). X to move\n> ');
-    await guest.waitFor('Waiting for X…');
+    await host.waitFor('Your turn (X). Ada to move\n> ');
+    await guest.waitFor('Waiting for Ada…');
 
     // Out of turn: refused locally, nothing is sent.
     guest.type('1');
-    await guest.waitFor('Not your turn — waiting for X.');
+    await guest.waitFor('Not your turn — waiting for Ada.');
     // An illegal move on the host's own turn.
     host.type('9');
     await host.waitFor('Illegal move "9" (illegal move).');
 
     for (var i = 0; i < 3; i++) {
       host.type('0');
-      await host.waitFor('X drops into column 0');
-      await guest.waitFor('X drops into column 0');
+      await host.waitFor('Ada drops into column 0');
+      await guest.waitFor('Ada drops into column 0');
       await guest.waitFor('Your turn (O).');
       if (i == 0) {
         // Rejected by the host over the wire (column 9 does not exist).
@@ -173,8 +176,8 @@ void main() {
         await guest.waitFor('Illegal move "9" (illegal move).');
       }
       guest.type('1');
-      await guest.waitFor('O drops into column 1');
-      await host.waitFor('O drops into column 1');
+      await guest.waitFor('Bea drops into column 1');
+      await host.waitFor('Bea drops into column 1');
       await host.waitFor('Your turn (X).');
     }
     host.type('moves');
@@ -182,8 +185,8 @@ void main() {
     host.type('0');
 
     for (final t in [host, guest]) {
-      await t.waitFor('Four in a row: X wins!');
-      await t.waitFor('X wins (four in a row)');
+      await t.waitFor('Four in a row: Ada wins!');
+      await t.waitFor('Ada wins (four in a row)');
       await t.waitFor('Game over.');
     }
     expect(host.text, contains('you win!'));
@@ -205,10 +208,10 @@ void main() {
 
   test('networked Quartett renders the seeded deal and only your own cards', () async {
     final (host, guest) = await hostAndJoin(['quartett-trumpf', '--seed', '42']);
-    await host.waitFor(QuartettTrumpfText(42).render());
+    await host.waitFor((QuartettTrumpfText(42)..names = _names).render());
     await host.waitFor('> ');
-    await guest.waitFor('Waiting for X…');
-    expect(guest.text, isNot(contains("X's top card")));
+    await guest.waitFor('Waiting for Ada…');
+    expect(guest.text, isNot(contains("Ada's top card")));
     host.type('quit');
     await guest.waitFor('Opponent left (host left).');
     expect(await host.exitCode, 0);
@@ -238,7 +241,7 @@ void main() {
     final (host, guest) = await hostAndJoin(['quartett-sets', '--seed', '42', '--deck', 'trains']);
     expect(host.text, contains('Hosting Quartett (Sets) – Züge'));
     expect(host.text, contains('"deck":"trains"'));
-    await host.waitFor(QuartettSetsText(42, 8, QuartettDeck.trains).render());
+    await host.waitFor((QuartettSetsText(42, 8, QuartettDeck.trains)..names = _names).render());
     expect(guest.text, contains("Joined Ada's game: Quartett (Sets) – Züge"));
     expect(guest.text, contains('"deck":"trains"'));
     expect(guest.text, isNot(contains('"seed":42')), reason: 'the seed stays secret');
@@ -252,11 +255,11 @@ void main() {
     final (host, guest) = await hostAndJoin(['schiffe']);
     await host.waitFor('> ');
     host.type('A1h');
-    await host.waitFor('X places a Schlachtschiff (5) at A1 horizontally.');
-    await guest.waitFor('X places a ship.');
+    await host.waitFor('Ada places a Schlachtschiff (5) at A1 horizontally.');
+    await guest.waitFor('Ada places a ship.');
     host.type('fleet 3');
     await host.waitFor('fleet at random (seed 3).');
-    await guest.waitFor("X places the rest of their fleet. X's fleet is ready.");
+    await guest.waitFor("Ada places the rest of their fleet. Ada's fleet is ready.");
     await guest.waitFor('Your turn (O).');
     expect(guest.text, isNot(contains('at A1')));
     expect(guest.text, isNot(contains('seed 3')));
@@ -269,14 +272,14 @@ void main() {
     final (host, guest) = await hostAndJoin(['gostrategy']);
     await host.waitFor('> ');
     host.type('setup 3');
-    await host.waitFor('X sets up their army at random (seed 3).');
-    await guest.waitFor('X has set up their army.');
+    await host.waitFor('Ada sets up their army at random (seed 3).');
+    await guest.waitFor('Ada has set up their army.');
     await guest.waitFor('Your turn (O).');
     expect(guest.text, isNot(contains('seed 3')));
     expect(guest.text, contains('X?'), reason: "X's pieces render hidden for O");
     guest.type('setup 4');
-    await guest.waitFor('O sets up their army at random (seed 4).');
-    await host.waitFor('O has set up their army. Both armies are ready: X moves first.');
+    await guest.waitFor('Bea sets up their army at random (seed 4).');
+    await host.waitFor('Bea has set up their army. Both armies are ready: Ada moves first.');
     await host.waitFor('Your turn (X).');
     expect(host.text, isNot(contains('seed 4')));
     guest.type('quit');
@@ -287,14 +290,14 @@ void main() {
   test('resign: the guest gives up off turn during the Schiffe setup (KLD-065)', () async {
     final (host, guest) = await hostAndJoin(['schiffe']);
     await host.waitFor('> ');
-    await guest.waitFor('Waiting for X…');
+    await guest.waitFor('Waiting for Ada…');
     guest.type('resign');
     for (final t in [host, guest]) {
-      await t.waitFor('X wins (O resigned)');
+      await t.waitFor('Ada wins (Bea resigned)');
       await t.waitFor('Game over.');
     }
-    expect(guest.text, contains('You resign. X wins.'));
-    expect(host.text, contains('O resigns. You win!'));
+    expect(guest.text, contains('You resign. Ada wins.'));
+    expect(host.text, contains('Bea resigns. You win!'));
     expect(host.text, contains('you win!'));
     expect(guest.text, contains('you lose.'));
     expect(await host.exitCode, 0);
@@ -308,10 +311,10 @@ void main() {
     await host.waitFor('resign  give up');
     host.type('resign');
     for (final t in [host, guest]) {
-      await t.waitFor('O wins (X resigned)');
+      await t.waitFor('Bea wins (Ada resigned)');
       await t.waitFor('Game over.');
     }
-    expect(guest.text, contains('X resigns. You win!'));
+    expect(guest.text, contains('Ada resigns. You win!'));
     expect(await host.exitCode, 0);
     expect(await guest.exitCode, 0);
   });
@@ -334,7 +337,7 @@ void main() {
     host.type('3');
     await ben.waitFor('Your turn (O).');
     ben.type('4');
-    await host.waitFor('O drops into column 4');
+    await host.waitFor('Ben drops into column 4');
     expect(host.text, isNot(contains('Lost the connection')));
     ben.type('quit');
     await host.waitFor('Opponent left (guest left).');
@@ -364,7 +367,7 @@ void main() {
     await guest.waitFor('Your turn (O).');
     await host.waitFor('Bea rejoined.');
     guest.type('4');
-    await host.waitFor('O drops into column 4');
+    await host.waitFor('Bea drops into column 4');
     await host.waitFor('Your turn (X).');
 
     guest.type('quit');
@@ -382,10 +385,10 @@ void main() {
     await guest.waitFor("Joined Ada's game: 4 Gewinnt on $wsUrl");
     await host.waitFor('> ');
     host.type('3');
-    await guest.waitFor('X drops into column 3');
+    await guest.waitFor('Ada drops into column 3');
     await guest.waitFor('Your turn (O).');
     guest.type('4');
-    await host.waitFor('O drops into column 4');
+    await host.waitFor('Web drops into column 4');
     guest.type('quit');
     await host.waitFor('Opponent left (guest left).');
     expect(await guest.exitCode, 0);
@@ -414,9 +417,9 @@ void main() {
     await guest.waitFor("Joined Ada's game: 4 Gewinnt on room $code on $url/relay");
     await host.waitFor('> ');
     host.type('3');
-    await guest.waitFor('X drops into column 3');
+    await guest.waitFor('Ada drops into column 3');
     guest.type('4');
-    await host.waitFor('O drops into column 4');
+    await host.waitFor('Bea drops into column 4');
     guest.type('quit');
     await host.waitFor('Opponent left (guest left).');
     expect(await guest.exitCode, 0);

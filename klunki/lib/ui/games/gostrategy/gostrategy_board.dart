@@ -254,7 +254,7 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
               : picked == null
                   ? l10n.goSetupHint
                   : l10n.goSetupSelected(goPieceName(l10n, picked)));
-      return _Setup(state: this, me: me, canSubmit: mine, title: l10n.goSetupTitle(playerMark(me)));
+      return _Setup(state: this, me: me, canSubmit: mine, title: l10n.goSetupTitle(label(me)));
     }
 
     final selected = _selected;
@@ -881,7 +881,7 @@ class _ArmyPanel extends StatelessWidget {
           ),
         side(opp, l10n.goArmyEnemy(labels.label(context, l10n, opp))),
         const SizedBox(height: 8),
-        side(me, l10n.goArmyOwn(playerMark(me))),
+        side(me, l10n.goArmyOwn(labels.label(context, l10n, me))),
       ],
     );
   }

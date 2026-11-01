@@ -32,6 +32,10 @@ class ChessText extends TextGame {
         null => '.',
       };
 
+  /// "Anna (White)": the name plus the side, which matters in chess.
+  @override
+  String playerName(Player? p) => p == null ? super.playerName(p) : '${super.playerName(p)} (${mark(p)})';
+
   @override
   String render() {
     final board = game.board;
@@ -40,7 +44,7 @@ class ChessText extends TextGame {
       b.writeln('${r + 1}  ${[for (var f = 0; f < 8; f++) board[r * 8 + f]?.fen ?? '.'].join(' ')}');
     }
     b.write('   a b c d e f g h');
-    if (game.isInCheck && !game.isOver) b.write('\n${mark(game.currentPlayer)} is in check.');
+    if (game.isInCheck && !game.isOver) b.write('\n${playerName(game.currentPlayer)} is in check.');
     return b.toString();
   }
 
@@ -75,7 +79,7 @@ class ChessText extends TextGame {
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map<String, dynamic>;
-    final me = mark(mover);
+    final me = playerName(mover);
     var s = '$me plays ${p['san']}';
     if (p['castle'] != null) {
       s += ' (castles ${p['castle']})';

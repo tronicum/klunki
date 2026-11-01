@@ -174,7 +174,7 @@ void main() {
     await tester.pumpAndSettle();
     final c = controllerOf(tester);
     final transport = c.transport as NetworkTransport;
-    expect(transport.me, me, reason: 'the host plays X, the guest O');
+    expect(transport.me, me, reason: 'the host plays Anna, the guest Ben');
     expect(c.config.gameId, 'muehle');
     expect(c.config.seed, E2eMode.seed, reason: 'the fixed seed of the test mode');
     log('E2E_START $tag me=${playerMark(me)} seed=${c.config.seed}');
@@ -229,7 +229,7 @@ void main() {
     expect(g.result.reason, muehleScriptReason);
     // O (the guest) wins: the guest reads "Du gewinnst!", the host the
     // guest's name with its mark (KLD-056).
-    final headline = me == muehleScriptWinner ? 'Du gewinnst!' : '$guestName (O) gewinnt!';
+    final headline = me == muehleScriptWinner ? 'Du gewinnst!' : '$guestName gewinnt!';
     expect(find.descendant(of: find.byKey(resultDialog), matching: find.text(headline)), findsOneWidget);
     await screenshot(binding, tester, 'net_${tag}_result');
 

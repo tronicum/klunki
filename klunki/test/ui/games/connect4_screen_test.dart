@@ -73,10 +73,10 @@ void main() {
     expect(piece.color, Connect4Colors.of(ctx).red);
   });
 
-  testWidgets('turns alternate between X (red) and O (yellow)', (tester) async {
+  testWidgets('turns alternate between Anna (red X) and Ben (yellow O)', (tester) async {
     final c = await _pump(tester);
     await _drop(tester, 3);
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
     await _drop(tester, 3);
     await _drop(tester, 4);
     expect(_cell(tester, 0, 3).owner, Player.a);
@@ -112,7 +112,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.game.result.winner, Player.a);
     expect(find.byKey(const Key('result-dialog')), findsOneWidget);
-    expect(find.text('X gewinnt!'), findsOneWidget);
+    expect(find.text('Anna gewinnt!'), findsOneWidget);
 
     final winning = tester.widgetList<Connect4Cell>(find.byType(Connect4Cell)).where((w) => w.winning).toList();
     expect(winning, hasLength(4));
@@ -141,12 +141,12 @@ void main() {
     expect(tester.widget<GestureDetector>(_col(5)).onTap, isNull);
   });
 
-  testWidgets('history describes moves as "X: Spalte 4"', (tester) async {
+  testWidgets('history describes moves as "Anna: Spalte 4"', (tester) async {
     await _pump(tester);
     await _drop(tester, 3);
     await tester.tap(find.byKey(const Key('shell-history')));
     await tester.pumpAndSettle();
-    expect(find.text('X: Spalte 4'), findsOneWidget);
+    expect(find.text('Anna: Spalte 4'), findsOneWidget);
   });
 
   for (final (name, size) in [

@@ -131,7 +131,7 @@ Future<NetworkTransport> loopbackJoin(CreatedTransports created, String host, in
 PairingDeps testDeps({
   required FakeDiscovery discovery,
   required CreatedTransports created,
-  String name = 'Testgerät',
+  String? name = 'Testgerät',
   List<String> addresses = const ['192.168.0.10', '10.0.0.7'],
   int preferredPort = 0,
   int preferredWsPort = 0,
@@ -151,7 +151,7 @@ PairingDeps testDeps({
       joinTransport:
           joinTransport ?? (host, port, {required name}) => loopbackJoin(created, host, port, name: name),
       localAddresses: () async => addresses,
-      deviceName: () => name,
+      deviceName: name == null ? null : () => name,
       seed: () => 7,
       preferredPort: preferredPort,
       preferredWsPort: preferredWsPort,

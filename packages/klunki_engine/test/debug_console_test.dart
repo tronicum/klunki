@@ -10,14 +10,14 @@ void main() {
       expect(lines.first, '4 Gewinnt');
       expect(lines[1], ' 0 1 2 3 4 5 6');
       expect(lines.where((l) => l == '|. . . . . . .|'), hasLength(6));
-      expect(lines.last, 'X to move');
+      expect(lines.last, 'Anna to move');
     });
 
     test('a move is narrated, shows up on the bottom row and passes the turn', () {
       final out = DebugConsole().handle('3');
-      expect(out, startsWith('X drops into column 3 (lands in row 1 from the bottom).'));
+      expect(out, startsWith('Anna drops into column 3 (lands in row 1 from the bottom).'));
       expect(out, contains('|. . . X . . .|\n+'));
-      expect(out, endsWith('O to move'));
+      expect(out, endsWith('Ben to move'));
     });
 
     test('reports a win', () {
@@ -25,7 +25,7 @@ void main() {
       for (final m in ['0', '0', '1', '1', '3', '3']) {
         c.handle(m);
       }
-      expect(c.handle('2'), contains('X wins (four in a row)'));
+      expect(c.handle('2'), contains('Anna wins (four in a row)'));
     });
 
     test('illegal and unknown input do not change the game', () {
@@ -42,13 +42,13 @@ void main() {
         ..handle('4');
       final out = c.handle('undo');
       expect(out, contains('|. . . X . . .|'));
-      expect(out, endsWith('O to move'));
+      expect(out, endsWith('Ben to move'));
       expect(c.handle('history'), '1. 3');
     });
 
     test('new restarts; unknown game is rejected', () {
       final c = DebugConsole()..handle('3');
-      expect(c.handle('new'), endsWith('X to move'));
+      expect(c.handle('new'), endsWith('Anna to move'));
       expect(c.handle('history'), 'No moves yet.');
       expect(c.handle('new nope'), startsWith('Unknown game'));
     });
@@ -64,8 +64,8 @@ void main() {
     test('renders board, point numbers and per-player status', () {
       final out = DebugConsole('muehle').screen;
       expect(out, contains('21----------22----------23'));
-      expect(out, contains('X: placing, hand 9, board 0'));
-      expect(out, endsWith('X to move'));
+      expect(out, contains('Anna: placing, hand 9, board 0'));
+      expect(out, endsWith('Anna to move'));
     });
 
     test('place, mill, remove', () {
@@ -74,12 +74,12 @@ void main() {
         c.handle(m);
       }
       final mill = c.handle('2');
-      expect(mill, contains('Mill! X must remove'));
-      expect(mill, contains('Mill on 0-1-2! X may remove a piece.'));
+      expect(mill, contains('Mill! Anna must remove'));
+      expect(mill, contains('Mill on 0-1-2! Anna may remove a piece.'));
       final removed = c.handle('x9');
-      expect(removed, startsWith("X removes O's piece on point 9"));
-      expect(removed, contains('O: placing, hand 7, board 1'));
-      expect(removed, contains('O to move'));
+      expect(removed, startsWith("Anna removes Ben's piece on point 9"));
+      expect(removed, contains('Ben: placing, hand 7, board 1'));
+      expect(removed, contains('Ben to move'));
     });
 
     test('parses move and remove syntax', () {
@@ -94,7 +94,7 @@ void main() {
   group('DebugConsole commands', () {
     test('moves lists legal moves in typed form', () {
       final c = DebugConsole();
-      expect(c.handle('moves'), 'Legal moves for X: 0 1 2 3 4 5 6');
+      expect(c.handle('moves'), 'Legal moves for Anna: 0 1 2 3 4 5 6');
       for (var i = 0; i < 6; i++) {
         c.handle('0');
       }
@@ -125,11 +125,11 @@ void main() {
     });
 
     test('scripted demos tell the expected story', () {
-      expect(DebugConsole().demo('connect4'), contains('Four in a row: X wins!'));
+      expect(DebugConsole().demo('connect4'), contains('Four in a row: Anna wins!'));
       final m = DebugConsole().demo('muehle');
       expect(m, contains('Mill on 1-4-7!'));
-      expect(m, contains('X flies from 20 to 9.'));
-      expect(m, endsWith('Result: O wins (opponent has fewer than 3 pieces) after 33 moves.'));
+      expect(m, contains('Anna flies from 20 to 9.'));
+      expect(m, endsWith('Result: Ben wins (opponent has fewer than 3 pieces) after 33 moves.'));
     });
 
     test('demo rejects unknown games', () {
@@ -151,10 +151,10 @@ void main() {
 
     test('placing and firing are narrated', () {
       final c = DebugConsole('schiffe');
-      expect(c.handle('A1h'), startsWith('X places a Schlachtschiff (5) at A1 horizontally.'));
-      expect(c.handle('fleet 1'), contains('Now O places their fleet (X looks away).'));
-      expect(c.handle('fleet 2'), contains('the battle begins, X fires first.'));
-      expect(c.handle('E5'), startsWith('X fires at E5:'));
+      expect(c.handle('A1h'), startsWith('Anna places a Schlachtschiff (5) at A1 horizontally.'));
+      expect(c.handle('fleet 1'), contains('Now Ben places their fleet (Anna looks away).'));
+      expect(c.handle('fleet 2'), contains('the battle begins, Anna fires first.'));
+      expect(c.handle('E5'), startsWith('Anna fires at E5:'));
     });
 
     test("the screen never shows the opponent's ships", () {
@@ -168,7 +168,7 @@ void main() {
         final target = row.substring(row.lastIndexOf(RegExp(r'[A-J] ')) + 1);
         expect(target, isNot(contains('#')));
       }
-      expect(screen, contains('ships left: X 6, O 6'));
+      expect(screen, contains('ships left: Anna 6, Ben 6'));
     });
 
     test('auto play hunts down a whole fleet', () {
@@ -198,14 +198,14 @@ void main() {
     test('setup and moves are narrated; the screen hides enemy ranks', () {
       final c = DebugConsole('gostrategy');
       expect(c.screen, contains('"setup" or "setup <seed>"'));
-      expect(c.handle('setup 1'), startsWith('X sets up their army at random (seed 1). Now O sets up'));
-      expect(c.handle('setup 2'), startsWith('O sets up their army at random (seed 2). Both armies are ready'));
+      expect(c.handle('setup 1'), startsWith('Anna sets up their army at random (seed 1). Now Ben sets up (Anna looks away).'));
+      expect(c.handle('setup 2'), startsWith('Ben sets up their army at random (seed 2). Both armies are ready'));
       final screen = c.screen;
       expect(screen, contains('O?'));
       expect(RegExp(r'O[^?\s]').hasMatch(screen.split('\n').skip(2).take(10).join('\n')), isFalse);
-      expect(screen, contains('Pieces left: X 40, O 40'));
+      expect(screen, contains('Pieces left: Anna 40, Ben 40'));
       final legal = c.current.legalMoves.first;
-      expect(c.handle(c.current.format(legal)), startsWith('X moves '));
+      expect(c.handle(c.current.format(legal)), startsWith('Anna moves '));
       expect(c.handle('a1 a2'), startsWith('Illegal move'));
     });
 
@@ -220,7 +220,7 @@ void main() {
       final t = GoStrategyText(game: g);
       final move = t.parse('f4 f5')!;
       final e = g.applyMove(move)!;
-      expect(t.narrate(Player.a, move, e), "X's Major (7) on f4 attacks O's Captain (6) on f5: Major (7) wins.");
+      expect(t.narrate(Player.a, move, e), "Anna's Major (7) on f4 attacks Ben's Captain (6) on f5: Major (7) wins.");
       expect(t.render(), contains('X7'));
     });
 
@@ -237,8 +237,8 @@ void main() {
       expect(t.parse('kg'), {'action': 'pick', 'stat': 'kg'});
       expect(t.parse('6'), isNull);
       final c = DebugConsole('quartett-trumpf');
-      expect(c.screen, contains("X's top card:"));
-      expect(c.handle('ps'), matches(RegExp(r"^X picks Leistung: X's .+ vs O's .+")));
+      expect(c.screen, contains("Anna's top card:"));
+      expect(c.handle('ps'), matches(RegExp(r"^Anna picks Leistung: Anna's .+ vs Ben's .+")));
     });
 
     test('sets: asks are narrated, the opponent hand stays hidden', () {
@@ -247,7 +247,7 @@ void main() {
       final opponentCard = g.handOf(Player.b).first;
       expect(c.screen, isNot(contains(opponentCard.name)));
       final ask = c.current.format(c.current.legalMoves.first);
-      expect(c.handle(ask), startsWith('X asks O for $ask'));
+      expect(c.handle(ask), startsWith('Anna asks Ben for $ask'));
       expect(QuartettSetsText().parse('b3'), {'action': 'ask', 'card': 'B3'});
       expect(QuartettSetsText().parse('Z9'), isNull);
     });

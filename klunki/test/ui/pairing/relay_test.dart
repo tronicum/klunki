@@ -89,7 +89,7 @@ void main() {
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
       await tester.pump();
       await tester.pump();
-      expect(r.calls.single, (_pageRelay, 'K7Q2M', 'Browser'));
+      expect(r.calls.single, (_pageRelay, 'K7Q2M', 'Ben'));
       expect(find.textContaining('Ungültiger Raumcode'), findsNothing);
       expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data,
           'Kein Raum mit dem Code K7Q 2M. Stimmt der Code, und ist der Raum noch offen?');
@@ -273,7 +273,7 @@ void main() {
       await tester.tap(find.byKey(const Key('player-name-ok')));
       await tester.pumpAndSettle();
       expect(tester.widget<TextField>(find.byKey(const Key('room-code'))).controller!.text, 'K7Q2M');
-      expect(r.calls.single, (_pageRelay, 'K7Q2M', 'Browser'));
+      expect(r.calls.single, (_pageRelay, 'K7Q2M', 'Ben'));
       expect(find.byKey(const Key('room-error')), findsOneWidget);
     });
 
@@ -557,7 +557,7 @@ void main() {
     await pumpUntil(tester, () => has(hostKey, find.byKey(resultDialog)) && has(guestKey, find.byKey(resultDialog)),
         what: 'result on both');
     expect(on(hostKey, find.textContaining('Du gewinnst')), findsWidgets);
-    expect(on(guestKey, find.textContaining('Ada (X) gewinnt')), findsWidgets);
+    expect(on(guestKey, find.textContaining('Ada gewinnt')), findsWidgets);
 
     // The host leaves ("Menü" in its result dialog): the guest is told the
     // room is closed, without a pointless "Neu verbinden".

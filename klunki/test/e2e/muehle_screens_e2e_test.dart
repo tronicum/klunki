@@ -115,12 +115,12 @@ Future<void> _waitFor(WidgetTester tester, AppStack s, int count, String what) a
 }
 
 void main() {
-  testWidgets('both MuehleScreens play the scripted game by taps; boards follow; "O gewinnt!" on both',
+  testWidgets('both MuehleScreens play the scripted game by taps; boards follow; "Ben gewinnt!" on both',
       timeout: _timeout, (tester) async {
     final d = await _pumpBoth(tester);
     expect(_point(_iosKey, 0), findsOneWidget);
     expect(_point(_androidKey, 0), findsOneWidget);
-    expect(_status(tester, _iosKey), 'X ist am Zug');
+    expect(_status(tester, _iosKey), 'Anna ist am Zug');
     _expectScreensInSync(tester, d, 'at the start');
 
     for (final s in muehleScript) {
@@ -142,7 +142,7 @@ void main() {
     await tester.pumpAndSettle(); // mill flash, dialog route transitions
     for (final key in [_iosKey, _androidKey]) {
       expect(_on(key, find.byKey(const Key('result-dialog'))), findsOneWidget, reason: '$key');
-      expect(_on(key, find.text('O gewinnt!')), findsOneWidget, reason: '$key');
+      expect(_on(key, find.text('Ben gewinnt!')), findsOneWidget, reason: '$key');
       expect(_on(key, find.text('Gegner hat weniger als 3 Steine')), findsOneWidget, reason: '$key');
     }
     for (final s in [d.ios, d.android]) {
@@ -185,22 +185,22 @@ void main() {
     }
 
     // X to move: Android taps empty points (would be legal placements for O).
-    await tapsIgnored(d.android, [3, 15, 0], 'on X\'s turn (placing)');
+    await tapsIgnored(d.android, [3, 15, 0], 'on Anna\'s turn (placing)');
     expect(_on(_iosKey, find.byKey(const Key('shell-hint'))), findsOneWidget, reason: 'iOS shows its hint');
 
     // O to move: iOS taps.
     await play(1);
-    await tapsIgnored(d.ios, [16, 1], 'on O\'s turn (placing)');
+    await tapsIgnored(d.ios, [16, 1], 'on Ben\'s turn (placing)');
 
     // O owes a removal after the mill 1-4-7 (#7): iOS taps its own stones.
     await play(8);
     expect(d.android.game.pendingRemoval, isTrue);
-    await tapsIgnored(d.ios, [8, 21], 'while O owes a removal');
+    await tapsIgnored(d.ios, [8, 21], 'while Ben owes a removal');
 
     // Moving phase, X to move ("21-9"): Android tries a select + move.
     await play(21);
     expect(d.ios.controller.canAct, isTrue);
-    await tapsIgnored(d.android, [15, 16], 'on X\'s turn (moving)');
+    await tapsIgnored(d.android, [15, 16], 'on Anna\'s turn (moving)');
     expect(_on(_androidKey, find.byKey(const Key('muehle-selected-15'))), findsNothing);
 
     // The proper device can still play the very move that was ignored.

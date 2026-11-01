@@ -440,6 +440,20 @@ class _Play {
   Player get _opponent => otherPlayer(_me);
   String get _meMark => _view.mark(_me);
   String get _oppMark => _view.mark(_opponent);
+  String get _oppName => _view.playerName(_opponent);
+
+  /// Both handles once known (KLD-102): the narration names the players.
+  Map<Player, String> get _names {
+    final own = _host?.name ?? _guest!.name;
+    final peer = _host != null ? _host.guestName : _guest!.hostName;
+    return {
+      if (own.isNotEmpty) _me: own,
+      if (peer != null && peer.isNotEmpty) _opponent: peer,
+    };
+  }
+
+  /// Shows [view] with the players' names.
+  set _shown(TextGame view) => _view = view..names = _names;
   bool get _hidden => specById(_config.gameId)!.hiddenInformation;
   String get _leftReason => _host != null ? 'host left' : 'guest left';
   bool get _myTurn => !_view.game.isOver && _view.game.currentPlayer == _me;
@@ -456,12 +470,12 @@ class _Play {
 
   void _rebuild(List<Map<String, dynamic>> moves) {
     if (_redactedGuest) {
-      _view = DebugConsole.forGame(_config.gameId, _guest!.game);
+      _shown = DebugConsole.forGame(_config.gameId, _guest!.game);
       _applied = _guest.entries.length;
       return;
     }
     final game = replay(_config, [for (final m in moves) _copy(m)]) ?? createGame(_config);
-    _view = DebugConsole.forGame(_config.gameId, game);
+    _shown = DebugConsole.forGame(_config.gameId, game);
     _applied = moves.length;
   }
 
@@ -474,6 +488,7 @@ class _Play {
     switch (e) {
       case PeerConnected(:final name, :final reconnect):
         _opponentHere = true;
+        _view.names = _names;
         _out.writeln(reconnect ? '$name rejoined.' : '$name joined: you are $_meMark, $name is $_oppMark.');
         _showTurn();
       case MoveAccepted():
@@ -521,7 +536,7 @@ class _Play {
 
   /// A guest of a hidden-information game: the view comes from the host.
   void _onRedactedAccepted(MoveAccepted e) {
-    _view = DebugConsole.forGame(_config.gameId, _guest!.game);
+    _shown = DebugConsole.forGame(_config.gameId, _guest!.game);
     _applied = e.index + 1;
     final event = e.event;
     if (event != null) _out.writeln(_narrate(e.player, e.move, event));
@@ -581,20 +596,20 @@ class _Play {
   String _narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final game = _view.game;
     if (Game.resignerOf(move) != null) {
-      return mover == _me ? 'You resign. ${_view.mark(event.winner)} wins.' : '$_oppMark resigns. You win!';
+      return mover == _me ? 'You resign. ${_view.playerName(event.winner)} wins.' : '$_oppName resigns. You win!';
     }
     if (mover != _me && game is GoStrategyGame && move['action'] != 'move') {
-      final m = _view.mark(mover);
+      final m = _view.playerName(mover);
       return game.phase == GoStrategyPhase.play
-          ? '$m has set up their army. Both armies are ready: X moves first.'
+          ? '$m has set up their army. Both armies are ready: ${_view.playerName(Player.a)} moves first.'
           : '$m has set up their army.';
     }
     if (mover != _me && game is SchiffeGame && move['action'] != 'fire') {
-      final m = _view.mark(mover);
+      final m = _view.playerName(mover);
       var s = move['action'] == 'place' ? '$m places a ship.' : '$m places the rest of their fleet.';
       if (game.nextShipIndex(mover) == null) {
         s += game.phase == SchiffePhase.battle
-            ? ' Both fleets are ready: the battle begins, X fires first.'
+            ? ' Both fleets are ready: the battle begins, ${_view.playerName(Player.a)} fires first.'
             : " $m's fleet is ready.";
       }
       return s;
@@ -711,7 +726,7 @@ class _Play {
     if (_view.game.isOver) {
       _out.writeln('The game is over.');
     } else {
-      _out.writeln('Not your turn — waiting for $_oppMark.');
+      _out.writeln('Not your turn — waiting for $_oppName.');
     }
   }
 
@@ -742,7 +757,7 @@ class _Play {
           ..writeln()
           ..writeln(_view.render());
       }
-      _out.writeln('Waiting for $_oppMark…');
+      _out.writeln('Waiting for $_oppName…');
     }
   }
 

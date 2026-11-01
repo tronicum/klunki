@@ -140,7 +140,7 @@ String _valuesLine(int seed, List<String> stats) {
   }
   final v = p!['values'] as Map;
   final stat = stats.last;
-  return '${localizedStatLabel(deL10n, stat)}: X ${_valueOf(stat, v['a'] as num)} – O ${_valueOf(stat, v['b'] as num)}';
+  return '${localizedStatLabel(deL10n, stat)}: Anna ${_valueOf(stat, v['a'] as num)} – Ben ${_valueOf(stat, v['b'] as num)}';
 }
 
 Future<void> _openOverlay(WidgetTester tester) async {
@@ -220,7 +220,7 @@ void main() {
     expect(t.sent, [_pickMove(s1)], reason: 'sent on the tap, not on "Weiter"');
     expect(c.moves, hasLength(1));
     expect(find.byKey(_reveal), findsOneWidget);
-    expect(find.text('X gewinnt die Runde'), findsOneWidget);
+    expect(find.text('Anna gewinnt die Runde'), findsOneWidget);
     expect(find.byKey(_grace), findsNothing, reason: 'no countdown for the next picker');
 
     // The next picker's reveal does not run away.
@@ -242,13 +242,13 @@ void main() {
       (tester) async {
     final (seed, s1, s2) = _twoTricks('a');
     final (c, t) = await _pumpDevice(tester, seed, Player.b);
-    expect(find.text('X wählt …'), findsOneWidget);
+    expect(find.text('Anna wählt …'), findsOneWidget);
 
     t.remote(s1);
     await tester.pump();
     expect(find.byKey(_reveal), findsOneWidget);
-    expect(find.text(_picked('X', s1)), findsOneWidget);
-    expect(find.text('X gewinnt die Runde'), findsOneWidget);
+    expect(find.text(_picked('Anna', s1)), findsOneWidget);
+    expect(find.text('Anna gewinnt die Runde'), findsOneWidget);
     expect(find.byKey(_grace), findsOneWidget);
     expect(find.text(_graceText(5)), findsOneWidget);
     expect(find.byKey(_notice), findsNothing);
@@ -259,16 +259,16 @@ void main() {
     t.remote(s2);
     await tester.pump();
     expect(c.moves, hasLength(2));
-    expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'the first trick stays for the grace period');
-    expect(find.text(_picked('X', s2)), findsNothing);
-    expect(find.text('X hat gewählt: ${localizedStatLabel(deL10n, s2)}'), findsOneWidget);
+    expect(find.text(_picked('Anna', s1)), findsOneWidget, reason: 'the first trick stays for the grace period');
+    expect(find.text(_picked('Anna', s2)), findsNothing);
+    expect(find.text('Anna hat gewählt: ${localizedStatLabel(deL10n, s2)}'), findsOneWidget);
     expect(find.text(_graceText(4)), findsOneWidget, reason: 'the countdown keeps running');
 
     await tester.pump(quartettRevealGrace - const Duration(seconds: 1) - const Duration(milliseconds: 20));
-    expect(find.text(_picked('X', s1)), findsOneWidget);
+    expect(find.text(_picked('Anna', s1)), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 40));
-    expect(find.text(_picked('X', s1)), findsNothing);
-    expect(find.text(_picked('X', s2)), findsOneWidget, reason: 'the queued trick comes next');
+    expect(find.text(_picked('Anna', s1)), findsNothing);
+    expect(find.text(_picked('Anna', s2)), findsOneWidget, reason: 'the queued trick comes next');
     expect(find.byKey(_notice), findsNothing);
     expect(find.text(_graceText(5)), findsOneWidget, reason: 'with its own grace');
 
@@ -281,7 +281,7 @@ void main() {
     expect(find.byKey(_ownCard), findsOneWidget);
     final top = (c.game as QuartettGame).topCard(Player.b)!;
     expect(find.text(top.name), findsOneWidget);
-    expect(find.text('X wählt …'), findsOneWidget);
+    expect(find.text('Anna wählt …'), findsOneWidget);
     expect(t.sent, isEmpty);
   });
 
@@ -293,18 +293,18 @@ void main() {
     await tester.pump();
     t.remote(s2); // O wins this one
     await tester.pump();
-    expect(find.text(_picked('X', s1)), findsOneWidget);
+    expect(find.text(_picked('Anna', s1)), findsOneWidget);
     expect(find.byKey(_notice), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 500));
     await _tap(tester, _cont);
-    expect(find.text(_picked('X', s2)), findsOneWidget);
-    expect(find.text('O gewinnt die Runde'), findsOneWidget);
-    expect(find.byKey(_grace), findsNothing, reason: 'O picks next: no countdown');
+    expect(find.text(_picked('Anna', s2)), findsOneWidget);
+    expect(find.text('Ben gewinnt die Runde'), findsOneWidget);
+    expect(find.byKey(_grace), findsNothing, reason: 'Ben picks next: no countdown');
 
     // O picks next: this reveal stays until "Weiter".
     await tester.pump(const Duration(seconds: 10));
-    expect(find.text(_picked('X', s2)), findsOneWidget);
+    expect(find.text(_picked('Anna', s2)), findsOneWidget);
     await _tap(tester, _cont);
     expect(find.byKey(_reveal), findsNothing);
     expect(c.canAct, isTrue);
@@ -341,10 +341,10 @@ void main() {
 
       // Close button.
       await _openOverlay(tester);
-      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
-      expect(_inOverlay(find.text('X gewinnt die Runde')), findsOneWidget);
+      expect(_inOverlay(find.text(_picked('Anna', s1))), findsOneWidget);
+      expect(_inOverlay(find.text('Anna gewinnt die Runde')), findsOneWidget);
       expect(_inOverlay(find.text(_valuesLine(seed, [s1]))), findsOneWidget);
-      expect(_inOverlay(find.text('X: $ca Karten · O: $cb Karten')), findsOneWidget);
+      expect(_inOverlay(find.text('Anna: $ca Karten · Ben: $cb Karten')), findsOneWidget);
       expect(_inOverlay(find.byKey(const Key('qt-reveal-a'))), findsOneWidget);
       expect(_inOverlay(find.byKey(const Key('qt-reveal-b'))), findsOneWidget);
       await tester.tap(find.byKey(const Key('qt-last-trick-close')));
@@ -370,9 +370,9 @@ void main() {
       final (ca, cb) = (g.stackSize(Player.a), g.stackSize(Player.b));
       // Reachable during the reveal too.
       await _openOverlay(tester);
-      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
+      expect(_inOverlay(find.text(_picked('Anna', s1))), findsOneWidget);
       expect(_inOverlay(find.text(_valuesLine(seed, [s1]))), findsOneWidget);
-      expect(_inOverlay(find.text('X: $ca Karten · O: $cb Karten')), findsOneWidget);
+      expect(_inOverlay(find.text('Anna: $ca Karten · Ben: $cb Karten')), findsOneWidget);
       await tester.tap(find.byKey(const Key('qt-last-trick-close')));
       await _settleClose(tester);
       expect(find.byKey(_reveal), findsOneWidget);
@@ -389,12 +389,12 @@ void main() {
       await _openOverlay(tester);
       t.remote(s2);
       await tester.pump(const Duration(seconds: 10));
-      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget, reason: 'keeps what the player looks at');
-      expect(find.text(_picked('X', s2)), findsNothing);
+      expect(_inOverlay(find.text(_picked('Anna', s1))), findsOneWidget, reason: 'keeps what the player looks at');
+      expect(find.text(_picked('Anna', s2)), findsNothing);
 
       await tester.tap(find.byKey(const Key('qt-last-trick-close')));
       await _settleClose(tester);
-      expect(find.text(_picked('X', s2)), findsOneWidget, reason: 'nothing skipped');
+      expect(find.text(_picked('Anna', s2)), findsOneWidget, reason: 'nothing skipped');
       expect(find.byKey(_grace), findsOneWidget);
     });
 
@@ -409,10 +409,10 @@ void main() {
       await tester.pump(const Duration(seconds: 20));
       await tester.binding.handlePopRoute();
       await _settleClose(tester);
-      expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'the countdown was paused');
+      expect(find.text(_picked('Anna', s1)), findsOneWidget, reason: 'the countdown was paused');
       expect(find.byKey(_notice), findsOneWidget);
       await _tap(tester, _cont);
-      expect(find.text(_picked('X', s2)), findsOneWidget);
+      expect(find.text(_picked('Anna', s2)), findsOneWidget);
     });
 
     testWidgets('hot-seat: shows the last submitted trick, not the preview', (tester) async {
@@ -427,8 +427,8 @@ void main() {
       await _tap(tester, _cont);
       await _tap(tester, _statKey(s2)); // preview of trick 2
       await _openOverlay(tester);
-      expect(_inOverlay(find.text(_picked('X', s1))), findsOneWidget);
-      expect(_inOverlay(find.text('X: 17 Karten · O: 15 Karten')), findsOneWidget);
+      expect(_inOverlay(find.text(_picked('Anna', s1))), findsOneWidget);
+      expect(_inOverlay(find.text('Anna: 17 Karten · Ben: 15 Karten')), findsOneWidget);
       await tester.tap(find.byKey(const Key('qt-last-trick-close')));
       await _settleClose(tester);
       expect(c.moves, hasLength(1));
@@ -458,18 +458,18 @@ void main() {
       return (c, t);
     }
 
-    testWidgets('waiting player: "Anna (X) wählt als Nächstes" + "noch n Runden" until the queue is empty',
+    testWidgets('waiting player: "Anna wählt als Nächstes" + "noch n Runden" until the queue is empty',
         (tester) async {
       final (seed, s1, s2) = _twoTricks('a');
       final (c, t) = await pumpNamed(tester, seed, Player.b);
       await tester.pump();
-      expect(status(tester), 'Warte auf Anna (X)…');
+      expect(status(tester), 'Warte auf Anna…');
 
       t.remote(s1);
       await tester.pump();
       await tester.pump();
-      expect(find.text(_picked('X', s1)), findsOneWidget);
-      expect(status(tester), 'Warte auf Anna (X)…', reason: 'the newest trick: live status');
+      expect(find.text(_picked('Anna', s1)), findsOneWidget);
+      expect(status(tester), 'Warte auf Anna…', reason: 'the newest trick: live status');
       expect(find.byKey(badge), findsNothing);
 
       // X goes on twice while O still looks at the first trick.
@@ -478,19 +478,19 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(c.moves, hasLength(3));
-      expect(find.text(_picked('X', s1)), findsOneWidget, reason: 'still the first trick');
-      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(find.text(_picked('Anna', s1)), findsOneWidget, reason: 'still the first trick');
+      expect(status(tester), 'Anna wählt als Nächstes');
       expect(badgeText(tester), 'noch 2 Runden');
 
       await _tap(tester, _cont);
-      expect(find.text(_picked('X', s2)), findsOneWidget);
-      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(find.text(_picked('Anna', s2)), findsOneWidget);
+      expect(status(tester), 'Anna wählt als Nächstes');
       expect(badgeText(tester), 'noch 1 Runde');
 
       await _tap(tester, _cont);
       expect(find.byKey(_reveal), findsOneWidget, reason: 'the third trick');
       expect(find.byKey(badge), findsNothing);
-      final live = c.game.currentPlayer == Player.b ? 'Du bist am Zug (O)' : 'Warte auf Anna (X)…';
+      final live = c.game.currentPlayer == Player.b ? 'Du bist am Zug (O)' : 'Warte auf Anna…';
       expect(status(tester), live, reason: 'queue empty: live status again');
     });
 
@@ -507,15 +507,15 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(c.moves, hasLength(3));
-      expect(find.text(_picked('X', s1)), findsOneWidget);
-      expect(status(tester), 'Anna (X) wählt als Nächstes');
+      expect(find.text(_picked('Anna', s1)), findsOneWidget);
+      expect(status(tester), 'Anna wählt als Nächstes');
       expect(badgeText(tester), 'noch 2 Runden');
       await _tap(tester, _cont);
-      expect(find.text(_picked('X', s2)), findsOneWidget);
+      expect(find.text(_picked('Anna', s2)), findsOneWidget);
       expect(status(tester), 'Du wählst als Nächstes (O)');
       expect(badgeText(tester), 'noch 1 Runde');
       await _tap(tester, _cont);
-      expect(find.text(_picked('O', s1)), findsOneWidget);
+      expect(find.text(_picked('Ben', s1)), findsOneWidget);
       expect(find.byKey(badge), findsNothing);
     });
 
@@ -525,7 +525,7 @@ void main() {
       await tester.pump();
       await _tap(tester, _statKey(s1));
       expect(find.byKey(_reveal), findsOneWidget);
-      expect(tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data, 'X wählt noch einmal');
+      expect(tester.widget<Text>(find.byKey(const Key('qt-next-picker'))).data, 'Anna wählt noch einmal');
       expect(status(tester), 'Du bist am Zug (X)');
       expect(find.byKey(badge), findsNothing);
     });
@@ -542,7 +542,7 @@ void main() {
       final winner = pickers.last;
       final me = winner == Player.a ? Player.b : Player.a;
       final (c, t) = await _pumpNearEnd(tester, seed, me, stats, 2);
-      final mark = playerMark(winner);
+      final mark = testName(winner);
 
       t.remote(stats[stats.length - 2]);
       await tester.pump();
@@ -593,7 +593,7 @@ void main() {
       expect(t.sent, [_pickMove(stats.last)]);
       await tester.pump(const Duration(seconds: 10));
       expect(find.byKey(_reveal), findsOneWidget);
-      expect(find.text('${playerMark(winner)} gewinnt die Runde'), findsOneWidget);
+      expect(find.text('${testName(winner)} gewinnt die Runde'), findsOneWidget);
       expect(find.byKey(_resultDialog), findsNothing);
       await _tap(tester, _cont);
       await tester.pump(const Duration(milliseconds: 300));
@@ -706,8 +706,8 @@ void main() {
       await tapOn(tester, hostKey, _statKey(s1));
       expect(hc.moves, hasLength(1), reason: 'the host applies its own pick at once');
       await until(tester, () => gc.moves.length == 1, 'guest receives the pick without any "Weiter"');
-      expect(on(guestKey, find.text('X gewinnt die Runde')), findsOneWidget);
-      expect(on(hostKey, find.text('X gewinnt die Runde')), findsOneWidget);
+      expect(on(guestKey, find.text('Anna gewinnt die Runde')), findsOneWidget);
+      expect(on(hostKey, find.text('Anna gewinnt die Runde')), findsOneWidget);
       expect(on(guestKey, find.byKey(_grace)), findsOneWidget);
       expect(on(hostKey, find.byKey(_grace)), findsNothing);
 
@@ -719,15 +719,15 @@ void main() {
         await tapOn(tester, d, _lastTrick);
         await tester.pump(const Duration(milliseconds: 300));
         final line = tester.widget<Text>(on(d, find.byKey(const Key('qt-last-trick-values')))).data!;
-        expect(line, startsWith('${localizedStatLabel(deL10n, s1)}: X '));
-        expect(on(d, find.descendant(of: find.byKey(_overlay), matching: find.text(_picked('X', s1)))),
+        expect(line, startsWith('${localizedStatLabel(deL10n, s1)}: Anna '));
+        expect(on(d, find.descendant(of: find.byKey(_overlay), matching: find.text(_picked('Anna', s1)))),
             findsOneWidget);
         await tester.tap(on(d, find.byKey(const Key('qt-last-trick-close'))));
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 300));
       }
       expect(
-          tester.widget<Text>(on(hostKey, find.byKey(const Key('qt-reveal-text')))).data, 'X gewinnt die Runde');
+          tester.widget<Text>(on(hostKey, find.byKey(const Key('qt-reveal-text')))).data, 'Anna gewinnt die Runde');
 
       // The host continues at once and picks again during the guest's grace.
       await tapOn(tester, hostKey, _cont);
@@ -735,8 +735,8 @@ void main() {
       final s2 = QuartettDeck.cars.stats.first.id;
       await tapOn(tester, hostKey, _statKey(s2));
       await until(tester, () => gc.moves.length == 2, 'guest receives the second pick');
-      final s1Text = _picked('X', s1);
-      final s2Text = _picked('X', s2);
+      final s1Text = _picked('Anna', s1);
+      final s2Text = _picked('Anna', s2);
       expect(on(guestKey, find.text(s1Text)), findsOneWidget, reason: 'still in the grace period');
       expect(on(guestKey, find.text(s2Text)), findsNothing);
       expect(on(guestKey, find.byKey(_notice)), findsOneWidget);

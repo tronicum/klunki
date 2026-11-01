@@ -440,8 +440,8 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return 'کوارتت‌ها X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return 'کوارتت‌ها $nameA $a : $b $nameB';
   }
 
   @override
@@ -710,6 +710,18 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => 'آرزو';
+
+  @override
+  String get playerDefaultNameB => 'بابک';
+
+  @override
+  String get hotSeatStartTitle => 'چه کسی بازی می‌کند؟';
+
+  @override
+  String get hotSeatStartPlay => 'شروع';
+
+  @override
   String get hotSeatNamesTitle => 'نام بازیکنان';
 
   @override
@@ -718,8 +730,7 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper =>
-      'اختیاری – خالی بگذار تا فقط X و O نمایش داده شود.';
+  String get hotSeatNamesHelper => 'خالی بگذار تا نام پیش‌فرض استفاده شود.';
 
   @override
   String get pairingChooseGame => 'انتخاب بازی';

@@ -61,13 +61,13 @@ void _expectMatchesEngine(WidgetTester tester, GameController c) {
     final text = tester.widget<Text>(find.byKey(Key('chess-move-$i'))).textSpan!.toPlainText();
     expect(text, endsWith(san[i]));
   }
-  if (!g.isOver) expect(_status(tester), g.currentPlayer == Player.a ? 'Weiß ist am Zug' : 'Schwarz ist am Zug');
+  if (!g.isOver) expect(_status(tester), g.currentPlayer == Player.a ? 'Anna (Weiß) ist am Zug' : 'Ben (Schwarz) ist am Zug');
 }
 
 void main() {
   testWidgets('select a piece, see its legal targets, move it; the board turns to Black', (tester) async {
     final c = await pumpGame(tester, 'chess');
-    expect(_status(tester), 'Weiß ist am Zug');
+    expect(_status(tester), 'Anna (Weiß) ist am Zug');
     expect(_rank0(tester), '8', reason: 'White at the bottom');
     expect(_view(tester, 'e1').piece, const ChessPiece(Player.a, ChessPieceType.king));
 
@@ -89,7 +89,7 @@ void main() {
     await _move(tester, 'e2', 'e4');
     expect(_game(c).pieceAt('e4'), const ChessPiece(Player.a, ChessPieceType.pawn));
     expect(_where(tester, (v) => v.lastMove), {'e2', 'e4'});
-    expect(_status(tester), 'Schwarz ist am Zug');
+    expect(_status(tester), 'Ben (Schwarz) ist am Zug');
     expect(_rank0(tester), '1', reason: 'turned to Black');
     _expectMatchesEngine(tester, c);
   });
@@ -145,7 +145,7 @@ void main() {
     expect(find.byKey(const Key('chess-promotion')), findsNothing);
     expect(_game(c).pieceAt('b7'), const ChessPiece(Player.a, ChessPieceType.pawn));
     expect(c.moves, hasLength(8));
-    expect(_status(tester), 'Weiß ist am Zug');
+    expect(_status(tester), 'Anna (Weiß) ist am Zug');
 
     await _move(tester, 'b7', 'a8');
     await tester.tap(find.byKey(const Key('chess-promote-n')));
@@ -179,7 +179,7 @@ void main() {
     await _move(tester, 'd8', 'h4');
     await tester.pumpAndSettle();
     expect(_game(c).result.code, GameEndReason.chessCheckmate);
-    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Schwarz gewinnt!')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Ben (Schwarz) gewinnt!')), findsOneWidget);
     expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Schachmatt')), findsOneWidget);
     expect(_where(tester, (v) => v.check), {'e1'}, reason: 'the mated king stays marked');
   });
@@ -198,16 +198,16 @@ void main() {
     expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Patt')), findsOneWidget);
   });
 
-  testWidgets('resign names the side ("Weiß hat aufgegeben")', (tester) async {
+  testWidgets('resign names the side ("Anna (Weiß) hat aufgegeben")', (tester) async {
     final c = await pumpGame(tester, 'chess');
     await tester.tap(find.byKey(const Key('shell-resign')));
     await tester.pumpAndSettle();
-    expect(find.text('Weiß gibt auf'), findsOneWidget);
+    expect(find.text('Anna (Weiß) gibt auf'), findsOneWidget);
     await tester.tap(find.byKey(const Key('resign-a')));
     await tester.pumpAndSettle();
     expect(c.game.isOver, isTrue);
-    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Weiß hat aufgegeben')), findsOneWidget);
-    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Schwarz gewinnt!')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Anna (Weiß) hat aufgegeben')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Ben (Schwarz) gewinnt!')), findsOneWidget);
   });
 
   testWidgets('flip button and the auto-turn toggle', (tester) async {
@@ -271,7 +271,7 @@ void main() {
       }
       expect(_game(c).sanHistory, ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5', 'Nf6', 'Qxf7#']);
       await tester.pumpAndSettle();
-      expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Weiß gewinnt!')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Anna (Weiß) gewinnt!')), findsOneWidget);
       expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Schachmatt')), findsOneWidget);
       await tester.tap(find.text('Menü'));
       await tester.pumpAndSettle();

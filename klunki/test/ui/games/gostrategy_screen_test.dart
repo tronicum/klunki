@@ -138,7 +138,7 @@ void main() {
         (tester) async {
       phone(tester);
       final c = await pumpGame(tester, 'gostrategy');
-      expect(find.text('Stelle deine Armee auf (X)'), findsOneWidget);
+      expect(find.text('Stelle deine Armee auf (Anna)'), findsOneWidget);
       expect(
           find.text('Tippe zwei Figuren an oder ziehe eine auf ein anderes Feld deiner vier Reihen, um sie zu tauschen. '
               'Dann „Fertig“.'),
@@ -248,12 +248,12 @@ void main() {
       final c = await pumpGame(tester, 'gostrategy');
       await tapKey(tester, 'go-done');
       expect(c.needsHandover, isTrue);
-      expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
+      expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
       expect(find.byKey(const Key('go-cover-fight')), findsNothing, reason: 'no fight yet');
       expect(cell(60).hitTestable(), findsNothing);
       await acknowledge(tester);
 
-      expect(find.text('Stelle deine Armee auf (O)'), findsOneWidget);
+      expect(find.text('Stelle deine Armee auf (Ben)'), findsOneWidget);
       expect(shown(tester, Player.b), GoStrategyGame.setupToSquares(Player.b, GoStrategyGame.randomSetup(c.config.seed * 2 + 1)));
       // Only O's own (blue) tiles anywhere; X's rows are dimmed and empty.
       for (final t in tester.widgetList<GoPieceTile>(find.byType(GoPieceTile))) {
@@ -269,11 +269,11 @@ void main() {
       await tapKey(tester, 'go-done');
       expect(c.needsHandover, isTrue);
       await acknowledge(tester);
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
       for (final sq in GoStrategyGame.homeSquares(Player.b)) {
         final v = squareOf(tester, sq);
         expect(v.cell.owner, Player.b);
-        expect(v.cell.piece, isNull, reason: 'O piece on $sq is hidden');
+        expect(v.cell.piece, isNull, reason: 'Ben piece on $sq is hidden');
       }
       for (final sq in GoStrategyGame.homeSquares(Player.a)) {
         expect(squareOf(tester, sq).cell.piece, isNotNull);
@@ -330,11 +330,11 @@ void main() {
       await tapOn(tester, cell(move['from'] as int));
       await tapOn(tester, cell(move['to'] as int));
       await acknowledge(tester);
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
       await checkView(Player.b);
     });
 
-    testWidgets('O\'s board is turned by 180°: coordinates and squares mirror X\'s', (tester) async {
+    testWidgets('Ben\'s board is turned by 180°: coordinates and squares mirror Anna\'s', (tester) async {
       phone(tester);
       await pumpGame(tester, 'gostrategy');
       String label(String key) => tester.widget<Text>(find.byKey(Key(key))).data!;
@@ -350,7 +350,7 @@ void main() {
       expect(label('go-rank-0'), '1');
       expect(label('go-rank-9'), '10');
       final pos = displayed(tester, cell);
-      expect(pos[9], (9, 0), reason: 'j10 is O\'s bottom-left corner');
+      expect(pos[9], (9, 0), reason: 'j10 is Ben\'s bottom-left corner');
       expect(pos[0], (9, 9));
       expect(pos[99], (0, 0));
       for (var sq = 0; sq < 100; sq++) {
@@ -375,7 +375,7 @@ void main() {
       await tapOn(tester, cell(m['from'] as int));
       await tapOn(tester, cell(m['to'] as int));
       await acknowledge(tester);
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
       expect(tester.getCenter(cell(0)).dy, greaterThan(tester.getCenter(cell(99)).dy));
       expect(tester.getCenter(cell(0)).dx, greaterThan(tester.getCenter(cell(9)).dx));
       // O's own front row (squares 30–39) is now just above the lakes, below them O's back row.
@@ -460,7 +460,7 @@ void main() {
   // KLD-081: attacking hidden enemies works by taps (piece, then the enemy),
   // for O on the turned board and for a scout at the end of a free line.
   group('attacks on hidden pieces', () {
-    testWidgets('O attacks an adjacent hidden X piece on the turned board', (tester) async {
+    testWidgets('Ben attacks an adjacent hidden Anna piece on the turned board', (tester) async {
       phone(tester);
       final c = await pumpPosition(
         tester,
@@ -472,7 +472,7 @@ void main() {
           90: (Player.a, GoPiece.miner),
         }, toMove: Player.b),
       );
-      expect(tester.getCenter(cell(0)).dy, greaterThan(tester.getCenter(cell(99)).dy), reason: 'O\'s board is turned');
+      expect(tester.getCenter(cell(0)).dy, greaterThan(tester.getCenter(cell(99)).dy), reason: 'Ben\'s board is turned');
       expect(squareOf(tester, 45).cell.hidden, isTrue);
       await tapOn(tester, cell(35));
       expect(squareOf(tester, 45).target, isTrue);
@@ -486,7 +486,7 @@ void main() {
       await acknowledge(tester);
       expect(find.byKey(reveal), findsOneWidget);
       await finishReveal(tester);
-      expect(squareOf(tester, 45).cell.piece, GoPiece.colonel, reason: 'X now knows the colonel');
+      expect(squareOf(tester, 45).cell.piece, GoPiece.colonel, reason: 'Anna now knows the colonel');
     });
 
     testWidgets('a scout attacks a hidden piece at the end of a free line', (tester) async {
@@ -519,7 +519,7 @@ void main() {
           9: (Player.b, GoPiece.miner),
         });
 
-    testWidgets('attack: the cover shows the outcome, then O sees the animated reveal', (tester) async {
+    testWidgets('attack: the cover shows the outcome, then Ben sees the animated reveal', (tester) async {
       phone(tester);
       final c = await pumpPosition(tester, duel());
       await tapOn(tester, cell(64));
@@ -532,7 +532,7 @@ void main() {
       expect(find.byKey(const Key('go-cover-fight')), findsOneWidget);
       expect(find.descendant(of: find.byKey(const Key('go-cover-fight')), matching: find.text('Hauptmann (6) schlägt Leutnant (5)')),
           findsOneWidget);
-      expect(find.text('Angriff von X'), findsOneWidget);
+      expect(find.text('Angriff von Anna'), findsOneWidget);
 
       await acknowledge(tester);
       expect(find.byKey(reveal), findsOneWidget);
@@ -655,7 +655,7 @@ void main() {
       expect(find.byKey(reveal), findsOneWidget);
       await tester.pumpAndSettle();
       expect(find.byKey(resultDialog), findsOneWidget);
-      expect(find.text('X gewinnt!'), findsOneWidget);
+      expect(find.text('Anna gewinnt!'), findsOneWidget);
       expect(find.text('Fahne erobert'), findsOneWidget);
     });
 
@@ -682,7 +682,7 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    testWidgets('during the setup, with the cover up: O resigns, the cover goes, X\'s army stays hidden',
+    testWidgets('during the setup, with the cover up: Ben resigns, the cover goes, Anna\'s army stays hidden',
         (tester) async {
       phone(tester);
       final c = await pumpGame(tester, 'gostrategy');
@@ -695,8 +695,8 @@ void main() {
       expect(c.moves.last.move, {'action': 'resign', 'player': 'b'});
       expect(c.needsHandover, isFalse);
       expect(find.byKey(const Key('handover-cover'), skipOffstage: false), findsNothing);
-      expect(inResult('X gewinnt!'), findsOneWidget);
-      expect(inResult('O hat aufgegeben'), findsOneWidget);
+      expect(inResult('Anna gewinnt!'), findsOneWidget);
+      expect(inResult('Ben hat aufgegeben'), findsOneWidget);
       await tester.tap(find.text('Menü'));
       await tester.pumpAndSettle();
       // No setup editor any more, and the board still shows only O's view.
@@ -704,7 +704,7 @@ void main() {
       expect(find.byKey(const Key('shell-resign')), findsNothing);
       for (final sq in GoStrategyGame.homeSquares(Player.a)) {
         expect(squareOf(tester, sq).cell.owner, Player.a);
-        expect(squareOf(tester, sq).cell.piece, isNull, reason: 'X piece on $sq stays hidden');
+        expect(squareOf(tester, sq).cell.piece, isNull, reason: 'Anna piece on $sq stays hidden');
       }
       expect(tester.takeException(), isNull);
     });
@@ -733,8 +733,8 @@ void main() {
       expect(c.needsHandover, isFalse);
       expect(find.byKey(const Key('handover-cover'), skipOffstage: false), findsNothing);
       expect(find.byKey(reveal), findsNothing, reason: 'the resign is the last move, not the fight');
-      expect(inResult('O gewinnt!'), findsOneWidget);
-      expect(inResult('X hat aufgegeben'), findsOneWidget);
+      expect(inResult('Ben gewinnt!'), findsOneWidget);
+      expect(inResult('Anna hat aufgegeben'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   });

@@ -66,6 +66,9 @@ void main() {
 
   Future<void> openGameFromMenu(WidgetTester tester, String id) async {
     await tapAndSettle(tester, find.byKey(Key('menu-$id')));
+    // "Wer spielt?" (KLD-102): start with the default names.
+    await pumpUntilFound(tester, find.byKey(const Key('hot-seat-names-ok')), what: '$id player names');
+    await tapAndSettle(tester, find.byKey(const Key('hot-seat-names-ok')));
     await pumpUntilFound(tester, find.byKey(const Key('shell-status')), what: '$id screen');
   }
 
@@ -152,12 +155,12 @@ void main() {
           // Both fleets with "Zufällig" + "Fertig", with the handover in between.
           await tapAndSettle(tester, find.byKey(const Key('sv-random')));
           await tapAndSettle(tester, find.byKey(const Key('sv-done')));
-          await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after X fleet');
+          await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after Anna fleet');
           await screenshot(binding, tester, 'handover_cover');
           await tapAndSettle(tester, find.byKey(handoverContinue));
           await tapAndSettle(tester, find.byKey(const Key('sv-random')));
           await tapAndSettle(tester, find.byKey(const Key('sv-done')));
-          await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after O fleet');
+          await pumpUntilFound(tester, find.byKey(handoverContinue), what: 'handover after Ben fleet');
           await tapAndSettle(tester, find.byKey(handoverContinue));
           handovers = 2;
           expect((controllerOf(tester).game as SchiffeGame).phase, SchiffePhase.battle);

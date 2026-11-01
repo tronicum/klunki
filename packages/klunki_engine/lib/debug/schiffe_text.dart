@@ -36,7 +36,7 @@ class SchiffeText extends TextGame {
     final target = game.targetGrid(me);
     final header = [for (var c = 1; c <= SchiffeGame.size; c++) '$c'.padLeft(3)].join();
     final b = StringBuffer()
-      ..writeln('    ${'${mark(me)}: own fleet'.padRight(35)}${mark(me)}: shots at ${mark(opp)}')
+      ..writeln('    ${'${playerName(me)}: own fleet'.padRight(35)}${playerName(me)}: shots at ${playerName(opp)}')
       ..writeln('  $header     $header');
     for (var r = 0; r < SchiffeGame.size; r++) {
       final left = own[r].map((c) => '  ${_ownSymbol[c.index]}').join();
@@ -44,11 +44,11 @@ class SchiffeText extends TextGame {
       b.writeln('${_rows[r]} $left   ${_rows[r]} $right');
     }
     b.write('# ship  o miss  x hit  * sunk   |   ships left: '
-        '${mark(me)} ${game.shipsRemaining(me)}, ${mark(opp)} ${game.shipsRemaining(opp)}');
+        '${playerName(me)} ${game.shipsRemaining(me)}, ${playerName(opp)} ${game.shipsRemaining(opp)}');
     final next = game.nextShipIndex(me);
     if (!game.isOver && next != null) {
       final len = game.fleet[next];
-      b.write('\n${mark(me)} places ship ${next + 1}/${game.fleet.length}: '
+      b.write('\n${playerName(me)} places ship ${next + 1}/${game.fleet.length}: '
           '${SchiffeGame.shipName(len)} ($len), e.g. "A1h" or "fleet"');
     }
     return b.toString();
@@ -84,7 +84,7 @@ class SchiffeText extends TextGame {
 
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
-    final me = mark(mover);
+    final me = playerName(mover);
     final opp = _other(mover);
     final p = event.payload as Map;
     switch (move['action']) {
@@ -101,9 +101,9 @@ class SchiffeText extends TextGame {
     final s = switch (p['result']) {
       'miss' => '$me fires at $at: miss.',
       'hit' => '$me fires at $at: hit on a $name!',
-      _ => '$me fires at $at: $name sunk! (${mark(opp)} has ${game.shipsRemaining(opp)} ships left)',
+      _ => '$me fires at $at: $name sunk! (${playerName(opp)} has ${game.shipsRemaining(opp)} ships left)',
     };
-    if (event.winner != null) return '$s All of ${mark(opp)}\'s ships are sunk: $me wins!';
+    if (event.winner != null) return '$s All of ${playerName(opp)}\'s ships are sunk: $me wins!';
     if (p['result'] != 'miss' && game.currentPlayer == mover) return '$s $me fires again.';
     return s;
   }
@@ -111,8 +111,8 @@ class SchiffeText extends TextGame {
   String _setupDone(Player mover) {
     if (game.nextShipIndex(mover) != null) return '';
     return game.phase == SchiffePhase.battle
-        ? ' Both fleets are ready: the battle begins, X fires first.'
-        : ' Now ${mark(_other(mover))} places their fleet (X looks away).';
+        ? ' Both fleets are ready: the battle begins, ${playerName(Player.a)} fires first.'
+        : ' Now ${playerName(_other(mover))} places their fleet (${playerName(mover)} looks away).';
   }
 
   /// Board when the battle starts and at the end; every shot would be too much.

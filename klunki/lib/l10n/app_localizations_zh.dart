@@ -431,8 +431,8 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return '套数 X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return '套数 $nameA $a : $b $nameB';
   }
 
   @override
@@ -694,6 +694,18 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => '小红';
+
+  @override
+  String get playerDefaultNameB => '小明';
+
+  @override
+  String get hotSeatStartTitle => '谁来玩？';
+
+  @override
+  String get hotSeatStartPlay => '开始';
+
+  @override
   String get hotSeatNamesTitle => '玩家名字';
 
   @override
@@ -702,7 +714,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper => '可选 – 留空则只显示 X 和 O。';
+  String get hotSeatNamesHelper => '留空则使用默认名字。';
 
   @override
   String get pairingChooseGame => '选择游戏';

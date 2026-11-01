@@ -616,7 +616,7 @@ void main() {
       expect(r.split('\n').first, '8  r n b q k b n r');
       expect(r, contains('1  R N B Q K B N R'));
       expect(r, endsWith('   a b c d e f g h'));
-      expect(ChessText(game: play(['e4', 'f5', 'Qh5+'])).render(), endsWith('Black is in check.'));
+      expect(ChessText(game: play(['e4', 'f5', 'Qh5+'])).render(), endsWith('Ben (Black) is in check.'));
     });
 
     test('autoMove takes a mate in one, else the biggest capture', () {
@@ -630,21 +630,21 @@ void main() {
 
     test('narrates castling, en passant, promotion and the end', () {
       final c = DebugConsole('chess');
-      expect(c.handle('e4'), startsWith('White plays e4 (pawn e2-e4).'));
+      expect(c.handle('e4'), startsWith('Anna (White) plays e4 (pawn e2-e4).'));
       c.handle('a6');
       c.handle('e5');
       c.handle('d5');
-      expect(c.handle('exd6'), startsWith('White plays exd6 (pawn e5-d6, takes the pawn en passant).'));
-      expect(c.handle('resign'), startsWith('Black resigns. White wins.'));
+      expect(c.handle('exd6'), startsWith('Anna (White) plays exd6 (pawn e5-d6, takes the pawn en passant).'));
+      expect(c.handle('resign'), startsWith('Ben (Black) resigns. Anna (White) wins.'));
       final p = DebugConsole('chess');
-      expect(p.current.status(), 'White to move');
+      expect(p.current.status(), 'Anna (White) to move');
     });
 
     test('the demo replays a famous short game to mate', () {
       final out = DebugConsole().demo('chess');
-      expect(out, contains('White plays O-O-O (castles queenside).'));
-      expect(out, contains('Black plays Nbd7'));
-      expect(out, endsWith('Result: White wins (checkmate) after 33 moves.'));
+      expect(out, contains('Anna (White) plays O-O-O (castles queenside).'));
+      expect(out, contains('Ben (Black) plays Nbd7'));
+      expect(out, endsWith('Result: Anna (White) wins (checkmate) after 33 moves.'));
     });
 
     test('random games end with a known code', () {

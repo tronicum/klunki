@@ -64,7 +64,7 @@ void main() {
       expect(_pill(tester).color, red);
       expect(_edge(tester), red);
       expect(_statusColor(tester), inkOn(red));
-      expect(find.text('X ist am Zug'), findsOneWidget, reason: 'the text stays');
+      expect(find.text('Anna ist am Zug'), findsOneWidget, reason: 'the text stays');
       expect(find.byKey(const Key('shell-waiting')), findsNothing);
 
       await playMove(tester);
@@ -72,7 +72,7 @@ void main() {
       expect(_pill(tester).color, yellow);
       expect(_edge(tester), yellow);
       expect(_statusColor(tester), inkOn(yellow));
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
     });
 
     testWidgets('the legend shows both players with their colours, the one to move in front', (tester) async {
@@ -91,7 +91,7 @@ void main() {
       expect([for (final t in tokens) t.player], [Player.a, Player.b]);
     });
 
-    testWidgets('games without piece colours: accent for X, second player colour for O', (tester) async {
+    testWidgets('games without piece colours: accent for Anna, second player colour for Ben', (tester) async {
       await _pump(tester, 'schiffe');
       // Schiffe starts with placement by X.
       expect(_pill(tester).color, _palette.accent('schiffe').color);
@@ -114,7 +114,7 @@ void main() {
 
       await playMove(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Warte auf Ben (O)…'), findsOneWidget);
+      expect(find.text('Warte auf Ben…'), findsOneWidget);
       expect(find.byKey(const Key('shell-waiting')), findsOneWidget);
       final pill = _pill(tester);
       expect(pill.color, isNot(yellow), reason: 'not filled while waiting');

@@ -4,11 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
+import 'package:klunki_engine/klunki_engine.dart' show Player;
 
 /// Locale the widget tests run in: German, the source language, so the tests
 /// can keep finding the German texts (the test binding's system locale would
 /// be en-US).
 const testLocale = Locale('de');
+
+/// The German default player names (KLD-102): A is "Anna", B is "Ben".
+String testName(Player p) => p == Player.a ? 'Anna' : 'Ben';
 
 /// German strings, for code under test that takes an [AppLocalizations]
 /// without a [BuildContext] (e.g. `describeMove`).
