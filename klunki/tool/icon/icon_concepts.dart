@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
@@ -22,6 +23,12 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'b': ('Kartenfächer mit Chip', paintConceptB),
   'c': ('Tasche mit Spielsteinen', paintConceptC),
   'd': ('Vier-Gewinnt-K', paintConceptD),
+  // Variants of (c), the user's pick.
+  'c1': ('Tasche: Chip-Nieten, Karte, Bauer, Fahne, Chip', paintConceptC1),
+  'c2': ('Tasche mit Klappe, Mühlestein-Knopf, Karte, Springer, Schiff', paintConceptC2),
+  'c3': ('Schräge Tasche, 5 Teile mit K-Buchstabenstein', paintConceptC3),
+  'c4': ('Minimal: 3 große Teile, Chip-Nieten', paintConceptC4),
+  'c5': ('Jeanstasche (Denim) wie c1', paintConceptC5),
 };
 
 // ---------------------------------------------------------------- shared --
@@ -79,31 +86,160 @@ void _chip(Canvas c, Offset o, double r, Color color, {bool outline = true}) {
   if (outline) c.drawCircle(o, r, _stroke(_ink, r * 0.1));
 }
 
-/// A chess pawn (shape of `chess_pieces.dart`, bolder outline) in a 100 box
-/// placed at [box].
-void _pawn(Canvas c, Rect box, {required Color fill, Color line = _ink, double lineWidth = 5}) {
+/// Fills and outlines [parts] (designed in a 100 box) placed at [box], with a
+/// soft drop shadow, like the chess pieces in `chess_pieces.dart`.
+void _piece(Canvas c, Rect box, List<Path> parts, {required Color fill, Color line = _ink, double lineWidth = 5}) {
+  _inBox(c, box, (c) {
+    for (final p in parts) {
+      c.drawPath(p.shift(const Offset(2, 3)), _fill(_shadow));
+    }
+    for (final p in parts) {
+      c.drawPath(p, _fill(fill));
+      c.drawPath(p, _stroke(line, lineWidth));
+    }
+  });
+}
+
+/// Draws [body] in a 100 box placed at [box].
+void _inBox(Canvas c, Rect box, void Function(Canvas c) body) {
   c.save();
   c.translate(box.left, box.top);
   c.scale(box.width / 100, box.height / 100);
-  final parts = [
-    Path()
-      ..moveTo(29, 81)
-      ..cubicTo(29, 68, 41, 63, 43, 55)
-      ..lineTo(57, 55)
-      ..cubicTo(59, 63, 71, 68, 71, 81)
-      ..close(),
-    Path()..addRRect(RRect.fromLTRBR(35, 47, 65, 56, const Radius.circular(3))),
-    Path()..addOval(Rect.fromCircle(center: const Offset(50, 33), radius: 14)),
-    Path()..addRRect(RRect.fromLTRBR(21, 80, 79, 91, const Radius.circular(4))),
-  ];
-  for (final p in parts) {
-    c.drawPath(p.shift(const Offset(2, 3)), _fill(_shadow));
-  }
-  for (final p in parts) {
-    c.drawPath(p, _fill(fill));
-    c.drawPath(p, _stroke(line, lineWidth));
-  }
-  c.drawCircle(const Offset(45, 28), 4, _fill(const Color(0xFFFFFFFF).withValues(alpha: 0.7)));
+  body(c);
+  c.restore();
+}
+
+/// A chess pawn (shape of `chess_pieces.dart`, bolder outline) in a 100 box
+/// placed at [box].
+void _pawn(Canvas c, Rect box, {required Color fill, Color line = _ink, double lineWidth = 5}) {
+  _piece(
+    c,
+    box,
+    [
+      Path()
+        ..moveTo(29, 81)
+        ..cubicTo(29, 68, 41, 63, 43, 55)
+        ..lineTo(57, 55)
+        ..cubicTo(59, 63, 71, 68, 71, 81)
+        ..close(),
+      Path()..addRRect(RRect.fromLTRBR(35, 47, 65, 56, const Radius.circular(3))),
+      Path()..addOval(Rect.fromCircle(center: const Offset(50, 33), radius: 14)),
+      Path()..addRRect(RRect.fromLTRBR(21, 80, 79, 91, const Radius.circular(4))),
+    ],
+    fill: fill,
+    line: line,
+    lineWidth: lineWidth,
+  );
+  _inBox(c, box, (c) => c.drawCircle(const Offset(45, 28), 4, _fill(const Color(0xB3FFFFFF))));
+}
+
+/// A chess knight (shape of `chess_pieces.dart`).
+void _knight(Canvas c, Rect box, {required Color fill, Color line = _ink, Color eye = _ink, double lineWidth = 5}) {
+  _piece(
+    c,
+    box,
+    [
+      Path()
+        ..moveTo(30, 81)
+        ..cubicTo(30, 68, 38, 61, 46, 55)
+        ..cubicTo(40, 55, 32, 58, 27, 59)
+        ..cubicTo(19, 60, 14, 55, 18, 48)
+        ..lineTo(35, 27)
+        ..cubicTo(39, 22, 45, 20, 49, 19)
+        ..lineTo(53, 9)
+        ..lineTo(59, 19)
+        ..cubicTo(74, 25, 81, 50, 76, 81)
+        ..close(),
+      Path()..addRRect(RRect.fromLTRBR(21, 80, 79, 91, const Radius.circular(4))),
+    ],
+    fill: fill,
+    line: line,
+    lineWidth: lineWidth,
+  );
+  _inBox(c, box, (c) => c.drawCircle(const Offset(41, 32), 4, _fill(eye)));
+}
+
+/// A Mühle stone seen from above: flat disc with a soft highlight.
+void _stone(Canvas c, Offset o, double r, {required bool white}) {
+  final m = _p.muehle;
+  c.drawCircle(o.translate(r * 0.06, r * 0.12), r, _fill(_shadow));
+  c.drawCircle(
+    o,
+    r,
+    Paint()
+      ..shader = ui.Gradient.radial(o.translate(-r * 0.3, -r * 0.35), r * 1.4, [
+        white ? m.light : m.darkShine,
+        white ? m.lightShade : m.dark,
+      ]),
+  );
+  c.drawCircle(o, r * 0.6, _stroke(const Color(0x33000000), r * 0.08));
+  c.drawCircle(o, r, _stroke(_ink, r * 0.1));
+}
+
+/// A small grey warship in side view with a red waterline (Schiffe).
+void _ship(Canvas c, Rect box, {double lineWidth = 4}) {
+  final hull = Path()
+    ..moveTo(3, 52)
+    ..lineTo(97, 52)
+    ..lineTo(85, 76)
+    ..lineTo(14, 76)
+    ..close();
+  final deck = Path()..addRRect(RRect.fromLTRBR(26, 36, 70, 52, const Radius.circular(3)));
+  final bridge = Path()..addRRect(RRect.fromLTRBR(36, 22, 56, 36, const Radius.circular(3)));
+  final funnel = Path()..addRRect(RRect.fromLTRBR(59, 24, 67, 36, const Radius.circular(2)));
+  _piece(c, box, [funnel, bridge, deck], fill: const Color(0xFFB7C1CA), lineWidth: lineWidth);
+  _piece(c, box, [hull], fill: _p.schiffe.ship, lineWidth: lineWidth);
+  _inBox(c, box, (c) {
+    c.drawLine(const Offset(14, 68), const Offset(86, 68), _stroke(_p.schiffe.hit, 5));
+    for (final x in [42.0, 50.0]) {
+      c.drawCircle(Offset(x, 29), 2.4, _fill(_ink));
+    }
+  });
+}
+
+/// A GoStrategy flag: wooden pole and foot, pennant in the army colour.
+void _flag(Canvas c, Rect box, Color color, {double lineWidth = 5}) {
+  final wood = _p.muehle.boardLight;
+  _piece(
+    c,
+    box,
+    [
+      Path()
+        ..moveTo(34, 12)
+        ..quadraticBezierTo(60, 8, 88, 22)
+        ..quadraticBezierTo(62, 34, 34, 46)
+        ..close(),
+    ],
+    fill: color,
+    lineWidth: lineWidth,
+  );
+  _piece(
+    c,
+    box,
+    [
+      Path()..addRRect(RRect.fromLTRBR(26, 6, 35, 88, const Radius.circular(4))),
+      Path()..addRRect(RRect.fromLTRBR(12, 82, 49, 94, const Radius.circular(5))),
+    ],
+    fill: wood,
+    lineWidth: lineWidth,
+  );
+}
+
+/// A wooden letter tile with a drawn "K" (no font) for the word game.
+void _tile(Canvas c, Rect box, {double angle = 0}) {
+  c.save();
+  c.translate(box.center.dx, box.center.dy);
+  c.rotate(angle);
+  c.translate(-box.center.dx, -box.center.dy);
+  final face = RRect.fromLTRBR(6, 6, 94, 94, const Radius.circular(14));
+  _piece(c, box, [Path()..addRRect(face)], fill: _p.muehle.boardLight);
+  _inBox(c, box, (c) {
+    c.drawRRect(RRect.fromLTRBR(9, 80, 91, 91, const Radius.circular(10)), _fill(const Color(0x22000000)));
+    final k = _stroke(_p.muehle.line, 12);
+    c.drawLine(const Offset(34, 24), const Offset(34, 72), k);
+    c.drawLine(const Offset(66, 24), const Offset(38, 50), k);
+    c.drawLine(const Offset(46, 44), const Offset(68, 72), k);
+  });
   c.restore();
 }
 
@@ -258,6 +394,213 @@ void paintConceptD(Canvas canvas, double size) => _grid(canvas, size, (c) {
       }
     }
   }
+});
+
+// ---------------------------------------------------- variants of (c) --
+
+/// Pocket leather: gradient top → bottom, stitching colour.
+typedef _Leather = ({Color top, Color bottom, Color stitch});
+
+final _Leather _brown = (top: const Color(0xFF9E4A22), bottom: _p.quartett.backA, stitch: _p.quartett.onBack);
+const _Leather _denim = (top: Color(0xFF3B6A9E), bottom: Color(0xFF244873), stitch: Color(0xFFF2B33D));
+
+/// Outline of the (c) pocket in its own 1024 design (opening at y 470).
+Path _pocketOutline() => Path()
+  ..moveTo(236, 470)
+  ..lineTo(788, 470)
+  ..lineTo(770, 740)
+  ..quadraticBezierTo(766, 772, 736, 786)
+  ..lineTo(540, 862)
+  ..quadraticBezierTo(512, 872, 484, 862)
+  ..lineTo(288, 786)
+  ..quadraticBezierTo(258, 772, 254, 740)
+  ..close();
+
+/// The jeans-style back pocket of (c), scaled by [k] around [topCenter] (the
+/// middle of its opening). [pieces] are drawn first, clipped so nothing pokes
+/// out below the opening beside the pocket (they sit *in* it). [rivets] are
+/// drawn on the two top corners; [flap] adds a front flap with [button] on
+/// its tip.
+void _pocket(
+  Canvas c,
+  Offset topCenter,
+  double k,
+  _Leather leather, {
+  void Function(Canvas c)? pieces,
+  void Function(Canvas c, Offset at, double r)? rivets,
+  bool flap = false,
+  void Function(Canvas c, Offset at)? button,
+}) {
+  if (pieces != null) {
+    final m = Float64List.fromList([
+      k, 0, 0, 0, //
+      0, k, 0, 0,
+      0, 0, 1, 0,
+      topCenter.dx - 512 * k, topCenter.dy - 470 * k, 0, 1,
+    ]);
+    c.save();
+    c.clipPath(
+      Path.combine(
+        PathOperation.union,
+        Path()..addRect(Rect.fromLTRB(-1024, -1024, 2048, topCenter.dy + 4)),
+        _pocketOutline().transform(m),
+      ),
+    );
+    pieces(c);
+    c.restore();
+  }
+  c.save();
+  c.translate(topCenter.dx, topCenter.dy);
+  c.scale(k);
+  c.translate(-512, -470);
+  final pocket = _pocketOutline();
+  final shader = ui.Gradient.linear(const Offset(0, 470), const Offset(0, 870), [leather.top, leather.bottom]);
+  c.drawPath(pocket.shift(const Offset(6, 16)), _fill(_shadow));
+  c.drawPath(pocket, Paint()..shader = shader);
+  c.drawPath(pocket, _stroke(_ink, 14));
+  final stitchPaint = _stroke(leather.stitch, 9);
+  if (!flap) {
+    c.drawLine(const Offset(244, 516), const Offset(780, 516), _stroke(const Color(0x33000000), 10));
+    final stitch = Path()
+      ..moveTo(284, 546)
+      ..lineTo(740, 546)
+      ..lineTo(726, 732)
+      ..quadraticBezierTo(722, 752, 702, 760)
+      ..lineTo(530, 826)
+      ..quadraticBezierTo(512, 832, 494, 826)
+      ..lineTo(322, 760)
+      ..quadraticBezierTo(302, 752, 298, 732)
+      ..close();
+    _dashed(c, stitch, stitchPaint, 30, 22);
+  } else {
+    final stitch = Path()
+      ..moveTo(300, 740)
+      ..lineTo(500, 814)
+      ..quadraticBezierTo(512, 818, 524, 814)
+      ..lineTo(724, 740);
+    _dashed(c, stitch, stitchPaint, 30, 22);
+    final f = Path()
+      ..moveTo(222, 458)
+      ..lineTo(802, 458)
+      ..lineTo(790, 600)
+      ..lineTo(540, 676)
+      ..quadraticBezierTo(512, 684, 484, 676)
+      ..lineTo(234, 600)
+      ..close();
+    c.drawPath(f.shift(const Offset(0, 16)), _fill(const Color(0x55000000)));
+    c.drawPath(f, Paint()..shader = shader);
+    c.drawPath(f, _stroke(_ink, 14));
+    final fs = Path()
+      ..moveTo(262, 494)
+      ..lineTo(762, 494)
+      ..lineTo(754, 574)
+      ..lineTo(524, 642)
+      ..quadraticBezierTo(512, 646, 500, 642)
+      ..lineTo(270, 574)
+      ..close();
+    _dashed(c, fs, stitchPaint, 30, 22);
+    button?.call(c, const Offset(512, 616));
+  }
+  if (rivets != null) {
+    rivets(c, const Offset(286, 522), 42);
+    rivets(c, const Offset(738, 522), 42);
+  }
+  c.restore();
+}
+
+/// (c1) Smaller pocket with chip rivets; card, pawn, flag and chip peek out.
+void paintConceptC1(Canvas canvas, double size) => _grid(canvas, size, (c) => _c1(c, _brown));
+
+/// (c5) As c1, in denim blue with orange stitching (contrast test).
+void paintConceptC5(Canvas canvas, double size) => _grid(canvas, size, (c) => _c1(c, _denim));
+
+void _c1(Canvas c, _Leather leather) {
+  _table(c);
+  _fit(c, 1.04, dy: -18); // group ≈ 66 % of the icon, centred
+  final c4 = _p.connect4;
+  _pocket(
+    c,
+    const Offset(512, 560),
+    0.74,
+    leather,
+    pieces: (c) {
+      _flag(c, const Rect.fromLTWH(470, 196, 360, 360), _p.gostrategy.red, lineWidth: 4.5);
+      _card(c, const Offset(404, 446), const Size(214, 330), -0.2, _p.quartett.sets['F']!, outline: 13);
+      _pawn(c, const Rect.fromLTWH(344, 262, 330, 330), fill: _p.chess.whiteFill, lineWidth: 4.5);
+      _chip(c, const Offset(624, 540), 90, c4.red);
+    },
+    rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
+  );
+}
+
+/// (c2) Pocket with a front flap and a white Mühle stone as its button;
+/// card, knight and ship peek out.
+void paintConceptC2(Canvas canvas, double size) => _grid(canvas, size, (c) {
+  _table(c);
+  _fit(c, 1.04, dy: -18);
+  _pocket(
+    c,
+    const Offset(512, 560),
+    0.74,
+    _brown,
+    flap: true,
+    button: (c, at) => _stone(c, at, 56, white: true),
+    pieces: (c) {
+      _card(c, const Offset(404, 436), const Size(214, 330), -0.2, _p.quartett.sets['A']!, outline: 13);
+      _knight(
+        c,
+        const Rect.fromLTWH(452, 214, 340, 340),
+        fill: _p.chess.blackFill,
+        eye: _p.chess.blackDetail,
+        lineWidth: 4,
+      );
+      _ship(c, const Rect.fromLTWH(380, 392, 260, 260), lineWidth: 3.8);
+    },
+  );
+});
+
+/// (c3) A slightly tilted pocket, fuller: flag, card, pawn, letter tile "K"
+/// and chip; Mühle stones as rivets.
+void paintConceptC3(Canvas canvas, double size) => _grid(canvas, size, (c) {
+  _table(c);
+  _fit(c, 1.04, dy: -20);
+  c.translate(512, 512);
+  c.rotate(-0.1);
+  c.translate(-512, -512);
+  _pocket(
+    c,
+    const Offset(512, 566),
+    0.74,
+    _brown,
+    pieces: (c) {
+      _flag(c, const Rect.fromLTWH(276, 222, 340, 340), _p.gostrategy.blue, lineWidth: 4.5);
+      _card(c, const Offset(628, 440), const Size(204, 310), 0.2, _p.quartett.sets['E']!, outline: 13);
+      _pawn(c, const Rect.fromLTWH(330, 300, 280, 280), fill: _p.chess.whiteFill, lineWidth: 4.5);
+      _tile(c, const Rect.fromLTWH(470, 400, 184, 184), angle: -0.12);
+      _chip(c, const Offset(386, 540), 76, _p.connect4.red);
+    },
+    rivets: (c, at, r) => _stone(c, at, r, white: false),
+  );
+});
+
+/// (c4) Minimal: smaller pocket, three big pieces (card, pawn, chip), chip
+/// rivets.
+void paintConceptC4(Canvas canvas, double size) => _grid(canvas, size, (c) {
+  _table(c);
+  _fit(c, 1.04, dy: -22);
+  final c4 = _p.connect4;
+  _pocket(
+    c,
+    const Offset(512, 576),
+    0.7,
+    _brown,
+    pieces: (c) {
+      _card(c, const Offset(420, 424), const Size(250, 370), -0.22, _p.quartett.sets['F']!, outline: 15);
+      _pawn(c, const Rect.fromLTWH(304, 214, 400, 400), fill: _p.chess.whiteFill, lineWidth: 4);
+      _chip(c, const Offset(606, 520), 110, c4.red);
+    },
+    rivets: (c, at, r) => _chip(c, at, r, c4.yellow),
+  );
 });
 
 void _dashed(Canvas c, Path path, Paint paint, double dash, double gap) {

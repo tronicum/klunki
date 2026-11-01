@@ -60,6 +60,16 @@ void _sheet(Canvas c, ui.Image icon) {
         _drawIcon(c, icon, Rect.fromLTWH(x, top + (_rowH - s) / 2, s, s), null);
         x += s + _pad;
       }
+      // Safe-zone guide: the central 66 % circle (Android adaptive icons)
+      // and the 80 % circle (PWA maskable icons).
+      x += _pad;
+      final r = Rect.fromLTWH(x, top + _pad, 180, 180);
+      _drawIcon(c, icon, r, null);
+      final guide = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      c.drawCircle(r.center, 90 * 0.66, guide..color = const Color(0xFF00E5FF));
+      c.drawCircle(r.center, 90 * 0.8, guide..color = const Color(0xCCFFFFFF));
       continue;
     }
     for (final s in _sizes) {

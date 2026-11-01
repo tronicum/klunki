@@ -32,7 +32,11 @@ light/dark home screen). See `klunki/tool/icon/README.md`.
 | c | Stitched leather pocket with a card, a pawn and a chip peeking out |
 | d | Four-in-a-Row board whose yellow discs form a "K" |
 
-**The user picks one** (or asks for changes) before step 2 starts.
+**The user picked c (the pocket).** Variants c1–c5 followed: a smaller pocket
+with more pieces peeking out (card, pawn/knight, chip, Mühle stone, ship,
+GoStrategy flag, a "K" letter tile), game pieces as rivets or as the flap
+button, and a denim test. See the table in `klunki/tool/icon/README.md`. The
+user picks the final variant before step 2 starts.
 
 ## Step 2 — apply the chosen concept everywhere
 
