@@ -533,5 +533,11 @@
   "wordtilesPremiumDoubleWord": "2M",
   "wordtilesPremiumTripleWord": "3M",
   "engineReasonWordtilesPlayedOut": "Toutes les tuiles posées, score final {a} : {b}",
-  "engineReasonWordtilesScoreless": "{turns} tours sans points, score final {a} : {b}"
+  "engineReasonWordtilesScoreless": "{turns} tours sans points, score final {a} : {b}",
+  "webBetaBadge": "Bêta",
+  "aboutWebBeta": "Version web bêta – les parties sur plusieurs appareils se jouent dans l'app.",
+  "networkUnavailableWeb": "Pas encore disponible dans le navigateur – avec l'app, vous pouvez jouer sur plusieurs appareils.",
+  "appBetaTeaser": "Bêta de l'app en préparation.",
+  "appBetaIos": "Essayer l'app pour iPhone et iPad",
+  "appBetaAndroid": "Obtenir l'app Android"
 }

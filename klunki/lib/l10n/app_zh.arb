@@ -533,5 +533,11 @@
   "wordtilesPremiumDoubleWord": "组×2",
   "wordtilesPremiumTripleWord": "组×3",
   "engineReasonWordtilesPlayedOut": "所有牌已出完，比分 {a} : {b}",
-  "engineReasonWordtilesScoreless": "连续 {turns} 轮没有得分，比分 {a} : {b}"
+  "engineReasonWordtilesScoreless": "连续 {turns} 轮没有得分，比分 {a} : {b}",
+  "webBetaBadge": "试用版",
+  "aboutWebBeta": "网页试用版 – 多设备对战请使用应用。",
+  "networkUnavailableWeb": "浏览器中暂不可用 – 使用应用可在多台设备上玩。",
+  "appBetaTeaser": "应用试用版即将推出。",
+  "appBetaIos": "试用 iPhone 和 iPad 应用",
+  "appBetaAndroid": "下载 Android 应用"
 }

@@ -533,5 +533,11 @@
   "wordtilesPremiumDoubleWord": "ك×2",
   "wordtilesPremiumTripleWord": "ك×3",
   "engineReasonWordtilesPlayedOut": "وُضعت كل البلاطات، النتيجة النهائية {a} : {b}",
-  "engineReasonWordtilesScoreless": "{turns} أدوار بلا نقاط، النتيجة النهائية {a} : {b}"
+  "engineReasonWordtilesScoreless": "{turns} أدوار بلا نقاط، النتيجة النهائية {a} : {b}",
+  "webBetaBadge": "تجريبي",
+  "aboutWebBeta": "نسخة الويب التجريبية – اللعب على عدة أجهزة متاح في التطبيق.",
+  "networkUnavailableWeb": "غير متاح في المتصفح بعد – مع التطبيق يمكن اللعب على عدة أجهزة.",
+  "appBetaTeaser": "النسخة التجريبية من التطبيق قيد التحضير.",
+  "appBetaIos": "تجربة التطبيق على iPhone وiPad",
+  "appBetaAndroid": "تنزيل التطبيق على Android"
 }

@@ -155,8 +155,12 @@ jobs:
   # so it needs --base-href /<repo>/, while the `klunki-pwa` artifact stays a
   # root build for `klunki relay --web`.
   # Note: Pages serves https, and browsers block ws:// from https pages, so the
-  # Pages-hosted PWA plays on one device and joins only wss:// relays (the app
-  # says so on its join and host screens; see docs/BUILDING.md).
+  # Pages-hosted PWA plays on one device and joins only wss:// relays. KLD-108:
+  # this build alone gets KLUNKI_WEB_CHANNEL=pages-beta (a "Beta" badge and a
+  # line in "Über Klunki"); network play is greyed out there until a wss://
+  # relay is set. KLUNKI_IOS_BETA_URL / KLUNKI_ANDROID_URL come from the
+  # optional repository variables of the same names (empty: no app buttons,
+  # only the "App-Beta in Vorbereitung." teaser). See docs/BUILDING.md.
   pages-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
     name: Pages site (PWA under /<repo>/ + static pages)
@@ -174,7 +178,12 @@ jobs:
           cache: true
           pub-cache: true
       - run: flutter pub get
-      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - run: >-
+          flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+          --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --dart-define=KLUNKI_WEB_CHANNEL=pages-beta
+          --dart-define=KLUNKI_IOS_BETA_URL=${{ vars.KLUNKI_IOS_BETA_URL }}
+          --dart-define=KLUNKI_ANDROID_URL=${{ vars.KLUNKI_ANDROID_URL }}
       - run: python3 -I build/web/pwa_finalize.py
       # privacy/, support/, impressum/ (contact email from site/site.json).
       - run: python3 -I ../site/build_site.py build/web

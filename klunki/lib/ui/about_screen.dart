@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/site_links.dart';
+import 'package:klunki/app/web_channel.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/ltr.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
@@ -61,6 +62,10 @@ Future<void> _open(BuildContext context, Uri uri) async {
   if (!ok) messenger?.showSnackBar(SnackBar(content: Text(failed)));
 }
 
+/// Opens [uri] outside the app with [aboutLinkOpener]; a snackbar if that
+/// fails. Also used by the "not in the browser yet" sheet (KLD-108).
+Future<void> openExternalLink(BuildContext context, Uri uri) => _open(context, uri);
+
 /// Opens the About screen.
 void openAboutScreen(BuildContext context) =>
     Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AboutScreen()));
@@ -110,6 +115,17 @@ class AboutScreen extends StatelessWidget {
                     style: theme.textTheme.bodySmall?.copyWith(color: muted),
                   ),
                 ),
+                // KLD-108: the GitHub Pages build says what it can't do.
+                if (isPagesBeta)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: Text(
+                      l10n.aboutWebBeta,
+                      key: const Key('about-web-beta'),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
                 const SizedBox(height: 16),
                 const Divider(),
                 // Stored in the app (chevron); Support opens the web page (open_in_new).

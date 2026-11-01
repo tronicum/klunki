@@ -533,5 +533,11 @@
   "wordtilesPremiumDoubleWord": "2P",
   "wordtilesPremiumTripleWord": "3P",
   "engineReasonWordtilesPlayedOut": "Todas las fichas colocadas, resultado final {a} : {b}",
-  "engineReasonWordtilesScoreless": "{turns} turnos sin puntos, resultado final {a} : {b}"
+  "engineReasonWordtilesScoreless": "{turns} turnos sin puntos, resultado final {a} : {b}",
+  "webBetaBadge": "Beta",
+  "aboutWebBeta": "Beta web: las partidas en varios dispositivos están en la app.",
+  "networkUnavailableWeb": "Aún no está disponible en el navegador: con la app se puede jugar en varios dispositivos.",
+  "appBetaTeaser": "Beta de la app en preparación.",
+  "appBetaIos": "Probar la app para iPhone y iPad",
+  "appBetaAndroid": "Descargar la app para Android"
 }

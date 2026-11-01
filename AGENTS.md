@@ -92,6 +92,10 @@ troubleshooting: `docs/BUILDING.md`.
   `python3 -I tool/check_pwa_external_urls.py build/web` (no CDN URLs); `flutter build apk|appbundle|ios`.
   Add `--dart-define=KLUNKI_BUILD=<commit>` to put the commit into the version line and handshake label.
 - Relay + PWA locally: `dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/build/web`.
+- Web channels (KLD-108): only the GitHub Pages job builds with `--dart-define=KLUNKI_WEB_CHANNEL=pages-beta`
+  ("Beta" badge, About line; optional `KLUNKI_IOS_BETA_URL` / `KLUNKI_ANDROID_URL`, empty = no app buttons).
+  On any https page without a usable `wss://` relay (`browserCannotPlayOnline`) the network entries are greyed
+  out and explain why; the http relay-served build plays over the network as before. Details: `docs/BUILDING.md` §7.1.
 - Fingerprint goldens: `cd packages/klunki_engine && dart run tool/print_fingerprints.dart`.
 
 ## Conventions

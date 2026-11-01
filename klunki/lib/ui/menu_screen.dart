@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/theme.dart';
+import 'package:klunki/app/web_channel.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/net/room_link.dart';
+import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/ui/about_screen.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
@@ -11,6 +13,7 @@ import 'package:klunki/ui/game_visuals.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
 import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/ltr.dart';
+import 'package:klunki/ui/pairing/network_unavailable.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoinScreen;
@@ -35,6 +38,13 @@ bool menuShowsDebugConsole = !kReleaseMode;
 /// from there lands in the menu. [initialRoom] (`?room=CODE`, KLD-057b) does
 /// the same for a relay room: the join screen with the code filled in, joined
 /// right away when the code is valid.
+///
+/// KLD-108: on a browser page that can't reach any relay
+/// ([browserCannotPlayOnline]: https without a `wss://` relay in the relay
+/// settings) the "Mit anderen" links and the room buttons stay visible but
+/// greyed out; tapping one explains why ([showNetworkUnavailableSheet]).
+/// They come back as soon as a usable relay is chosen. The GitHub Pages
+/// build ([isPagesBeta]) shows a "Beta" badge next to the title.
 class MenuScreen extends StatefulWidget {
   final String? initialJoinLink;
   final RoomLink? initialRoom;
@@ -43,7 +53,19 @@ class MenuScreen extends StatefulWidget {
   /// Test hook for the `?join=` flow (default: the real WebSocket join).
   final WebJoinDeps? webJoinDeps;
 
-  const MenuScreen({super.key, this.initialJoinLink, this.initialRoom, this.pageUrl, this.webJoinDeps});
+  /// The relay settings that decide whether an https page can play over the
+  /// network (KLD-108). Default: the app's shared settings on an https page,
+  /// none otherwise.
+  final RelaySettings? relaySettings;
+
+  const MenuScreen({
+    super.key,
+    this.initialJoinLink,
+    this.initialRoom,
+    this.pageUrl,
+    this.webJoinDeps,
+    this.relaySettings,
+  });
 
   @override
   State<MenuScreen> createState() => _MenuScreenState();
@@ -64,9 +86,27 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  /// Null where the relay can't matter (native, http pages).
+  late final RelaySettings? _relaySettings =
+      widget.relaySettings ?? (widget.pageUrl?.scheme == 'https' ? RelaySettings.shared() : null);
+
+  /// KLD-108: network play can't work on this page (see [MenuScreen]).
+  bool get _networkBlocked => browserCannotPlayOnline(pageUrl: widget.pageUrl, chosenRelay: _relaySettings?.value);
+
+  void _onRelayChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _relaySettings?.removeListener(_onRelayChanged);
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
+    _relaySettings?.addListener(_onRelayChanged);
     final room = widget.initialRoom;
     final link = widget.initialJoinLink;
     if (room != null) {
@@ -97,6 +137,8 @@ class _MenuScreenState extends State<MenuScreen> {
     final palette = KlunkiPalette.of(context);
     final start = roomStartScreenBuilder, join = roomJoinScreenBuilder;
     final startFor = roomStartForGameBuilder;
+    final blocked = _networkBlocked;
+    void explain() => showNetworkUnavailableSheet(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: palette.backgroundTop,
@@ -110,6 +152,7 @@ class _MenuScreenState extends State<MenuScreen> {
             Flexible(
               child: Text(l10n.appTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
+            if (isPagesBeta) ...[const SizedBox(width: 8), const _BetaBadge()],
           ],
         ),
         actions: const [PlayerNameButton(), LanguageButton()],
@@ -137,8 +180,11 @@ class _MenuScreenState extends State<MenuScreen> {
                       onLocal: (id) => _launch(() => openGameFromMenu(context, id)),
                       onNetwork: startFor == null
                           ? null
+                          : blocked
+                          ? (_) => explain()
                           : (id) => _launch(() => Navigator.of(context)
                               .push(MaterialPageRoute<void>(builder: (_) => startFor(id)))),
+                      networkBlocked: blocked,
                     ),
                     // View-only Quartett card gallery (KLD-069).
                     Padding(
@@ -163,8 +209,13 @@ class _MenuScreenState extends State<MenuScreen> {
                       const SizedBox(height: 8),
                       _RoomButtons(
                         accent: palette.networkAccent,
-                        onStart: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: start)),
-                        onJoin: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: join)),
+                        blocked: blocked,
+                        onStart: blocked
+                            ? explain
+                            : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: start)),
+                        onJoin: blocked
+                            ? explain
+                            : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: join)),
                       ),
                     ],
                     // Text frontend for engine testing; hidden in release builds.
@@ -264,7 +315,10 @@ class _GameGrid extends StatelessWidget {
 
   /// Null: no network play on this platform.
   final void Function(String id)? onNetwork;
-  const _GameGrid({required this.specs, required this.onLocal, required this.onNetwork});
+
+  /// KLD-108: the "Mit anderen" links are greyed out.
+  final bool networkBlocked;
+  const _GameGrid({required this.specs, required this.onLocal, required this.onNetwork, this.networkBlocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -305,6 +359,7 @@ class _GameGrid extends StatelessWidget {
       spec: spec,
       onLocal: () => onLocal(spec.id),
       onNetwork: network == null || hotSeatOnlyGames.contains(spec.id) ? null : () => network(spec.id),
+      networkBlocked: networkBlocked,
     );
   }
 }
@@ -317,7 +372,8 @@ class _GameTile extends StatelessWidget {
   final GameSpec spec;
   final VoidCallback onLocal;
   final VoidCallback? onNetwork;
-  const _GameTile({required this.spec, required this.onLocal, required this.onNetwork});
+  final bool networkBlocked;
+  const _GameTile({required this.spec, required this.onLocal, required this.onNetwork, this.networkBlocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -397,6 +453,7 @@ class _GameTile extends StatelessWidget {
                     icon: Icons.wifi,
                     label: l10n.menuPlayWithOthers,
                     onTap: network,
+                    blocked: networkBlocked,
                   ),
                 ],
               ],
@@ -417,7 +474,17 @@ class _PlayLink extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _PlayLink({super.key, required this.accent, required this.icon, required this.label, required this.onTap});
+
+  /// Greyed out (KLD-108); a tap still calls [onTap] (the explanation).
+  final bool blocked;
+  const _PlayLink({
+    super.key,
+    required this.accent,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.blocked = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -429,7 +496,7 @@ class _PlayLink extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       side: BorderSide(color: accent.color.withValues(alpha: dark ? 0.7 : 0.45)),
     );
-    return Material(
+    final link = Material(
       color: dark ? accent.container : accent.container.withValues(alpha: 0.55),
       shape: shape,
       clipBehavior: Clip.antiAlias,
@@ -456,6 +523,7 @@ class _PlayLink extends StatelessWidget {
         ),
       ),
     );
+    return Greyed(blocked: blocked, child: link);
   }
 }
 
@@ -465,7 +533,8 @@ class _RoomButtons extends StatelessWidget {
   final GameAccent accent;
   final VoidCallback onStart;
   final VoidCallback onJoin;
-  const _RoomButtons({required this.accent, required this.onStart, required this.onJoin});
+  final bool blocked;
+  const _RoomButtons({required this.accent, required this.onStart, required this.onJoin, this.blocked = false});
 
   @override
   Widget build(BuildContext context) {
@@ -477,6 +546,7 @@ class _RoomButtons extends StatelessWidget {
       title: l10n.roomStart,
       subtitle: l10n.roomStartSubtitle,
       onTap: onStart,
+      blocked: blocked,
     );
     final join = _RoomButton(
       key: const Key('menu-room-join'),
@@ -485,6 +555,7 @@ class _RoomButtons extends StatelessWidget {
       title: l10n.roomJoin,
       subtitle: l10n.roomJoinSubtitle,
       onTap: onJoin,
+      blocked: blocked,
     );
     return LayoutBuilder(
       builder: (context, box) {
@@ -511,6 +582,7 @@ class _RoomButton extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final bool blocked;
   const _RoomButton({
     super.key,
     required this.accent,
@@ -518,12 +590,13 @@ class _RoomButton extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.blocked = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
+    final card = Card(
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
@@ -548,6 +621,49 @@ class _RoomButton extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+    return Greyed(blocked: blocked, child: card);
+  }
+}
+
+/// KLD-108: [child] greyed out (no colour, faded) when [blocked]: visible
+/// and still tappable (the tap explains why it doesn't work here).
+@visibleForTesting
+class Greyed extends StatelessWidget {
+  final bool blocked;
+  final Widget child;
+  const Greyed({super.key, required this.blocked, required this.child});
+
+  static const ColorFilter _greyscale = ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0, //
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0, 0, 0, 1, 0,
+  ]);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!blocked) return child;
+    return Opacity(opacity: 0.5, child: ColorFiltered(colorFilter: _greyscale, child: child));
+  }
+}
+
+/// KLD-108: "Beta" next to "Klunki" in the GitHub Pages build.
+class _BetaBadge extends StatelessWidget {
+  const _BetaBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      key: const Key('menu-beta-badge'),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(color: scheme.tertiaryContainer, borderRadius: BorderRadius.circular(8)),
+      child: Text(
+        AppLocalizations.of(context).webBetaBadge,
+        style: theme.textTheme.labelMedium?.copyWith(color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700),
       ),
     );
   }

@@ -47,6 +47,8 @@ const sameAsEnglish = {
   // Photo credits (KLD-082): French spells these the same.
   'Licence',
   'Source',
+  // KLD-108: the web beta badge (Spanish spells it the same).
+  'Beta',
 };
 
 Map<String, dynamic> _arb(String locale) =>

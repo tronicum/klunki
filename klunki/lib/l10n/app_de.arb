@@ -3086,5 +3086,29 @@
         "type": "int"
       }
     }
+  },
+  "webBetaBadge": "Beta",
+  "@webBetaBadge": {
+    "description": "KLD-108: small badge next to \"Klunki\" in the menu app bar, only in the GitHub Pages web build (KLUNKI_WEB_CHANNEL=pages-beta)."
+  },
+  "aboutWebBeta": "Web-Beta – Spiele mit mehreren Geräten gibt es in der App.",
+  "@aboutWebBeta": {
+    "description": "KLD-108: one line in \"Über Klunki\", only in the GitHub Pages web build."
+  },
+  "networkUnavailableWeb": "Im Browser noch nicht verfügbar – mit der App könnt ihr auf mehreren Geräten spielen.",
+  "@networkUnavailableWeb": {
+    "description": "KLD-108: sheet when a greyed-out \"Mit anderen\" / \"Raum starten\" / \"Raum beitreten\" is tapped in a browser that cannot reach a relay (https page, no wss:// relay)."
+  },
+  "appBetaTeaser": "App-Beta in Vorbereitung.",
+  "@appBetaTeaser": {
+    "description": "KLD-108: teaser line under networkUnavailableWeb."
+  },
+  "appBetaIos": "App für iPhone und iPad testen",
+  "@appBetaIos": {
+    "description": "KLD-108: button in the sheet, only when a test link for iPhone/iPad is configured (KLUNKI_IOS_BETA_URL)."
+  },
+  "appBetaAndroid": "App für Android laden",
+  "@appBetaAndroid": {
+    "description": "KLD-108: button in the sheet, only when an Android download link is configured (KLUNKI_ANDROID_URL)."
   }
 }

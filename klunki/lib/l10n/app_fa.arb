@@ -533,5 +533,11 @@
   "wordtilesPremiumDoubleWord": "و×2",
   "wordtilesPremiumTripleWord": "و×3",
   "engineReasonWordtilesPlayedOut": "همهٔ کاشی‌ها گذاشته شد، نتیجهٔ نهایی {a} : {b}",
-  "engineReasonWordtilesScoreless": "{turns} نوبت بدون امتیاز، نتیجهٔ نهایی {a} : {b}"
+  "engineReasonWordtilesScoreless": "{turns} نوبت بدون امتیاز، نتیجهٔ نهایی {a} : {b}",
+  "webBetaBadge": "آزمایشی",
+  "aboutWebBeta": "نسخهٔ آزمایشی وب – بازی روی چند دستگاه در اپ ممکن است.",
+  "networkUnavailableWeb": "هنوز در مرورگر در دسترس نیست – با اپ می‌شود روی چند دستگاه بازی کرد.",
+  "appBetaTeaser": "نسخهٔ آزمایشی اپ در حال آماده‌سازی است.",
+  "appBetaIos": "امتحان اپ برای iPhone و iPad",
+  "appBetaAndroid": "دریافت اپ برای Android"
 }

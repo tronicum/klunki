@@ -121,6 +121,17 @@ final RegExp _loopbackV4 = RegExp(r'^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$');
 bool browserBlocksWebSocket({required Uri? pageUrl, required Uri target}) =>
     pageUrl != null && pageUrl.scheme == 'https' && target.scheme == 'ws' && !isLoopbackHost(target.host);
 
+/// Whether network play can't work at all on this browser page (KLD-108):
+/// the page is `https:` and the relay chosen in the relay settings
+/// ([chosenRelay], null: none) is missing or one the browser would block
+/// ([browserBlocksWebSocket]). The page's own `wss://<host>/relay` does not
+/// count: a static https host (GitHub Pages) runs no relay. False natively
+/// (no [pageUrl]) and on `http:` pages (the relay serving the PWA on the LAN).
+bool browserCannotPlayOnline({required Uri? pageUrl, required Uri? chosenRelay}) =>
+    pageUrl != null &&
+    pageUrl.scheme == 'https' &&
+    (chosenRelay == null || browserBlocksWebSocket(pageUrl: pageUrl, target: chosenRelay));
+
 /// The loopback host in the room link for [relay] (see [roomJoinLink]), or
 /// null when other devices can reach it: the page's host in the browser,
 /// else the relay's host (which is also in the link, as host or `&relay=`).

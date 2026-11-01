@@ -1972,4 +1972,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String engineReasonWordtilesScoreless(int turns, int a, int b) {
     return '连续 $turns 轮没有得分，比分 $a : $b';
   }
+
+  @override
+  String get webBetaBadge => '试用版';
+
+  @override
+  String get aboutWebBeta => '网页试用版 – 多设备对战请使用应用。';
+
+  @override
+  String get networkUnavailableWeb => '浏览器中暂不可用 – 使用应用可在多台设备上玩。';
+
+  @override
+  String get appBetaTeaser => '应用试用版即将推出。';
+
+  @override
+  String get appBetaIos => '试用 iPhone 和 iPad 应用';
+
+  @override
+  String get appBetaAndroid => '下载 Android 应用';
 }

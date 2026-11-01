@@ -359,6 +359,26 @@ content), except to `localhost`. So the Pages PWA plays on one device (hot-seat,
 **`wss://`** relay; for a LAN relay or a host in the Wi-Fi use the apps or open the PWA from the relay over http
 (§6.2). The join and host screens say so on an https page and do not try a `ws://` connection there.
 
+**Web channels (KLD-108).** There are two web builds, told apart by build-time defines:
+
+| Build | Defines | Network play |
+|---|---|---|
+| Local / `pwa` artifact, served by `klunki relay --web` over **http** on the LAN | `KLUNKI_BUILD` only | works ("Raum starten" / "Raum beitreten" through the page's own relay) |
+| GitHub Pages (`pages-build` job), **https** | `KLUNKI_WEB_CHANNEL=pages-beta`, plus `KLUNKI_IOS_BETA_URL` / `KLUNKI_ANDROID_URL` from the repository variables of the same names (empty by default) | greyed out (see below) |
+
+`pages-beta` (`lib/app/web_channel.dart`) only adds a **"Beta" badge** next to "Klunki" in the menu and the line
+"Web-Beta – Spiele mit mehreren Geräten gibt es in der App." in "Über Klunki". Independently of the channel,
+the menu greys out every "Mit anderen" link and the "Raum starten" / "Raum beitreten" cards when
+`browserCannotPlayOnline` (`lib/net/room_link.dart`) is true: the page is `https:` and the relay settings hold no
+relay the browser may open (none, or a `ws://` one that `browserBlocksWebSocket` refuses; the page's own
+`wss://<host>/relay` does not count, a static host runs no relay). They stay visible; a tap opens a sheet
+"Im Browser noch nicht verfügbar – mit der App könnt ihr auf mehreren Geräten spielen." + "App-Beta in
+Vorbereitung." With `KLUNKI_IOS_BETA_URL` / `KLUNKI_ANDROID_URL` set (https links only) the sheet also shows
+buttons to them; empty means no buttons. A saved `wss://` relay (or a `?room=CODE&relay=wss://…` link, which
+opens the join screen directly) enables network play again. Try the Pages look locally:
+`flutter build web --release --base-href /klunki/ --dart-define=KLUNKI_WEB_CHANNEL=pages-beta` (served over
+http it shows the badge but keeps network play on).
+
 ## 8. Troubleshooting
 
 | Symptom | Cause | Fix |

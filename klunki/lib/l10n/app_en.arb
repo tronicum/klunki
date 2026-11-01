@@ -532,5 +532,11 @@
   "wordtilesPremiumDoubleWord": "2W",
   "wordtilesPremiumTripleWord": "3W",
   "engineReasonWordtilesPlayedOut": "All tiles played, final score {a} : {b}",
-  "engineReasonWordtilesScoreless": "{turns} turns without points, final score {a} : {b}"
+  "engineReasonWordtilesScoreless": "{turns} turns without points, final score {a} : {b}",
+  "webBetaBadge": "Beta",
+  "aboutWebBeta": "Web beta – games on several devices are in the app.",
+  "networkUnavailableWeb": "Not available in the browser yet – with the app you can play on several devices.",
+  "appBetaTeaser": "App beta coming soon.",
+  "appBetaIos": "Try the iPhone and iPad app",
+  "appBetaAndroid": "Get the Android app"
 }

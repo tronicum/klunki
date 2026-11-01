@@ -2056,4 +2056,24 @@ class AppLocalizationsAr extends AppLocalizations {
   String engineReasonWordtilesScoreless(int turns, int a, int b) {
     return '$turns أدوار بلا نقاط، النتيجة النهائية $a : $b';
   }
+
+  @override
+  String get webBetaBadge => 'تجريبي';
+
+  @override
+  String get aboutWebBeta =>
+      'نسخة الويب التجريبية – اللعب على عدة أجهزة متاح في التطبيق.';
+
+  @override
+  String get networkUnavailableWeb =>
+      'غير متاح في المتصفح بعد – مع التطبيق يمكن اللعب على عدة أجهزة.';
+
+  @override
+  String get appBetaTeaser => 'النسخة التجريبية من التطبيق قيد التحضير.';
+
+  @override
+  String get appBetaIos => 'تجربة التطبيق على iPhone وiPad';
+
+  @override
+  String get appBetaAndroid => 'تنزيل التطبيق على Android';
 }

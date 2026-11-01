@@ -3305,6 +3305,42 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{turns} Züge ohne Punkte, Endstand {a} : {b}'**
   String engineReasonWordtilesScoreless(int turns, int a, int b);
+
+  /// KLD-108: small badge next to "Klunki" in the menu app bar, only in the GitHub Pages web build (KLUNKI_WEB_CHANNEL=pages-beta).
+  ///
+  /// In de, this message translates to:
+  /// **'Beta'**
+  String get webBetaBadge;
+
+  /// KLD-108: one line in "Über Klunki", only in the GitHub Pages web build.
+  ///
+  /// In de, this message translates to:
+  /// **'Web-Beta – Spiele mit mehreren Geräten gibt es in der App.'**
+  String get aboutWebBeta;
+
+  /// KLD-108: sheet when a greyed-out "Mit anderen" / "Raum starten" / "Raum beitreten" is tapped in a browser that cannot reach a relay (https page, no wss:// relay).
+  ///
+  /// In de, this message translates to:
+  /// **'Im Browser noch nicht verfügbar – mit der App könnt ihr auf mehreren Geräten spielen.'**
+  String get networkUnavailableWeb;
+
+  /// KLD-108: teaser line under networkUnavailableWeb.
+  ///
+  /// In de, this message translates to:
+  /// **'App-Beta in Vorbereitung.'**
+  String get appBetaTeaser;
+
+  /// KLD-108: button in the sheet, only when a test link for iPhone/iPad is configured (KLUNKI_IOS_BETA_URL).
+  ///
+  /// In de, this message translates to:
+  /// **'App für iPhone und iPad testen'**
+  String get appBetaIos;
+
+  /// KLD-108: button in the sheet, only when an Android download link is configured (KLUNKI_ANDROID_URL).
+  ///
+  /// In de, this message translates to:
+  /// **'App für Android laden'**
+  String get appBetaAndroid;
 }
 
 class _AppLocalizationsDelegate
