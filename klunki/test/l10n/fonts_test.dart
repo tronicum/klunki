@@ -22,12 +22,15 @@ void main() {
     expect(appFontFallback, [arabicFontFamily, symbolFontFamily, chineseFontFamily]);
   });
 
+  // KLD-093: on iOS a fallback list displaced the system font (Latin from the
+  // Noto Sans SC subset, umlauts from the system fallback: a bold "ä"). The
+  // tests run as a native (non-web) app, like Android/iOS.
   for (final code in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) {
-    testWidgets('$code: text falls back to the bundled fonts', (tester) async {
+    testWidgets('$code: native text uses no bundled fallback ahead of the platform font', (tester) async {
       await tester.pumpWidget(klunkiApp(locale: Locale(code)));
       await tester.pumpAndSettle();
-      expect(themeFallback(tester), appFontFallback);
-      expect(appBarTitleFallback(tester), containsAll(appFontFallback));
+      expect(themeFallback(tester), isNull);
+      expect(appBarTitleFallback(tester), anyOf(isNull, isEmpty));
     });
   }
 
@@ -41,20 +44,34 @@ void main() {
     }
   });
 
-  test('native: the platform font stays the primary family', () {
-    final base = ThemeData(useMaterial3: true);
-    final native = withAppFonts(base, web: false);
-    expect(native.textTheme.bodyMedium!.fontFamily, base.textTheme.bodyMedium!.fontFamily);
-    expect(native.textTheme.bodyMedium!.fontFamilyFallback, appFontFallback);
+  test('platformFontFallback: bundled fonts on the web only', () {
+    expect(platformFontFallback(web: true), appFontFallback);
+    expect(platformFontFallback(web: false), isNull);
   });
 
-  testWidgets('language picker endonyms use the bundled fallback in any locale', (tester) async {
+  for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
+    test('native ${platform.name}: no text style lists a bundled fallback family', () {
+      final base = ThemeData(useMaterial3: true, platform: platform);
+      final native = withAppFonts(base, web: false);
+      for (final t in [native.textTheme, native.primaryTextTheme]) {
+        for (final style in [t.titleSmall, t.bodyMedium, t.labelLarge, t.headlineSmall]) {
+          for (final f in [arabicFontFamily, symbolFontFamily, chineseFontFamily]) {
+            expect(style!.fontFamilyFallback ?? const <String>[], isNot(contains(f)));
+          }
+        }
+      }
+      // The platform typography (CupertinoSystemText / Roboto) is untouched.
+      expect(native.textTheme, base.textTheme);
+    });
+  }
+
+  testWidgets('language picker endonyms: no bundled fallback on native', (tester) async {
     await tester.pumpWidget(klunkiApp());
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('language-button')));
     await tester.pumpAndSettle();
     for (final name in ['العربية', '简体中文']) {
-      expect(tester.widget<Text>(find.text(name)).style?.fontFamilyFallback, appFontFallback, reason: name);
+      expect(tester.widget<Text>(find.text(name)).style?.fontFamilyFallback, isNull, reason: name);
     }
   });
 

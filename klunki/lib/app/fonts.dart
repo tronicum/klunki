@@ -14,12 +14,21 @@ import 'package:flutter/services.dart';
 ///    skips its own Roboto download.
 ///  * Noto Sans Arabic (ar, fa), a Noto Sans SC subset (the zh strings and
 ///    "简体中文") and a Noto Sans Math subset (symbols Roboto lacks, e.g. →):
-///    the [appFontFallback] of every text theme, in every locale. Text that
-///    resolves through it never reaches the engine's download service.
+///    the [appFontFallback] of every text theme on the web, in every locale.
+///    Text that resolves through it never reaches the download service.
 /// The subsets are rebuilt by `tool/update_web_fonts.py subset`;
 /// `test/l10n/glyph_coverage_test.dart` fails when a string needs a rerun.
-/// On Android/iOS the fallbacks apply too (same look); the system font stays
-/// the primary family there.
+///
+/// On Android/iOS the fallbacks are NOT applied (KLD-093): the platform's own
+/// font cascade covers Arabic, Chinese and symbols. On iOS a fallback list
+/// pushes the system font out entirely: the Material iOS typography names
+/// "CupertinoSystemText", which the text engine does not resolve as a family,
+/// so the first family that does resolve is Noto Sans Arabic (digits,
+/// punctuation), then the Noto Sans SC subset (printable ASCII): Latin text
+/// rendered in Noto Sans SC Regular, and every letter neither has (ä, ö, ü,
+/// ß, é, ...) came from the per-character system fallback in a heavier face,
+/// so "Geräte" showed a bold "ä". Android's primary family is the bundled
+/// Roboto (Material typography), which needs no fallback either.
 
 /// Family names declared in pubspec.yaml.
 const String robotoFontFamily = 'Roboto';
@@ -27,8 +36,9 @@ const String arabicFontFamily = 'NotoSansArabic';
 const String chineseFontFamily = 'NotoSansSC';
 const String symbolFontFamily = 'NotoSansMath';
 
-/// `fontFamilyFallback` for all app text: Arabic script, symbols, then the
-/// Chinese subset (last, so symbols such as → never take its CJK widths).
+/// `fontFamilyFallback` for all app text on the web: Arabic script, symbols,
+/// then the Chinese subset (last, so symbols such as → never take its CJK
+/// widths). Use [platformFontFallback] in widgets.
 const List<String> appFontFallback = [
   arabicFontFamily,
   symbolFontFamily,
@@ -43,11 +53,17 @@ const Map<String, String> fontLicenseAssets = {
   'Noto Sans Math': 'assets/fonts/NotoSansMath/OFL.txt',
 };
 
-/// [theme] with the bundled fonts: [appFontFallback] on its text themes and,
-/// on the web ([web]), Roboto as the primary family.
+/// The `fontFamilyFallback` for app text: [appFontFallback] on the web, none
+/// on Android/iOS (see the library comment: a fallback list there displaces
+/// the system font).
+List<String>? platformFontFallback({bool web = kIsWeb}) => web ? appFontFallback : null;
+
+/// [theme] with the bundled fonts on the web ([web]): Roboto as the primary
+/// family and [appFontFallback] on its text themes. Unchanged on Android/iOS.
 ThemeData withAppFonts(ThemeData theme, {bool web = kIsWeb}) {
+  if (!web) return theme;
   TextTheme apply(TextTheme t) => t.apply(
-        fontFamily: web ? robotoFontFamily : null,
+        fontFamily: robotoFontFamily,
         fontFamilyFallback: appFontFallback,
       );
   return theme.copyWith(
