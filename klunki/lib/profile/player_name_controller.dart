@@ -8,7 +8,7 @@ export 'package:klunki_net/klunki_net.dart' show maxPlayerNameLength, sanitizePl
 
 /// The user's player name (handle) for network games (KLD-056).
 ///
-/// `null` = not chosen yet: "Über WLAN spielen" then asks once ("Wie heißt
+/// `null` = not chosen yet: a room screen then asks once ("Wie heißt
 /// du?", prefilled with [suggestion]). Stored values are always cleaned by
 /// [sanitizePlayerName] (1–20 characters, any script, no control or bidi
 /// characters) and persisted under [prefsKey].

@@ -258,15 +258,18 @@ flutter devices                         # both devices listed (USB or "Connect v
 flutter run --release -d <iphone-id>    # install standalone build
 flutter run --release -d <ipad-id>
 ```
-Then on the devices (TODO: confirm the labels from KLD-034):
-1. iPhone: Menu → **Über WLAN spielen** → **Hosten** → pick "4 Gewinnt". It shows name, `IP:port`, QR, "Warte auf Mitspieler…".
+Then on the devices (labels since KLD-098: one model, "a room with a code"):
+1. iPhone: Menu → **Raum starten** → pick "4 Gewinnt" → **Raum starten**. The room runs on the iPhone itself
+   (default). It shows "Raum von …: 4 Gewinnt", a QR code and "Warte auf Mitspieler…"; `IP:port` and the
+   browser link are under **Erweitert**.
 2. First time only: the iOS prompt "„Klunki“ möchte Geräte in deinem lokalen Netzwerk finden" → 🧑 **Erlauben** (on both devices).
-3. iPad: **Über WLAN spielen** → **Beitreten** → tap the iPhone's entry (or type `IP:port`).
-4. Play to the end. Then swap: the iPad hosts, the iPhone joins. Repeat for each game (Mühle, Quartett Trumpf, Quartett Sets, Schiffe,
+3. iPad: **Raum beitreten** → the camera opens: scan the iPhone's QR code; or close it and tap the room under
+   **Räume in der Nähe** (or type `IP:port` under **Erweitert**).
+4. Play to the end. Then swap: the iPad starts the room, the iPhone joins. Repeat for each game (Mühle, Quartett Trumpf, Quartett Sets, Schiffe,
    GoStrategy: the guest can arrange its army while the host sets up; "Fertig" unlocks once the host is done).
 
 ### What the audience sees
-- The iPad's join list shows the iPhone within a few seconds. After a tap, both screens switch to the game.
+- The iPad's "Räume in der Nähe" list shows the iPhone's room within a few seconds. After a tap, both screens switch to the game.
 - A move on one device appears on the other almost instantly. Each device only lets its own player (X = host, O = guest) move.
 - Quartett/Schiffe/GoStrategy: each device shows only its owner's cards/fleet/army ranks (GoStrategy: own army at the bottom on both).
   **No handover cover** over the network.
@@ -375,12 +378,12 @@ The host listens on TCP 4747 (apps, CLI) and WebSocket 4748 (browsers); a busy p
    cd klunki && flutter build web --release && python3 build/web/pwa_finalize.py
    python3 -m http.server 8080 --bind 0.0.0.0 --directory build/web   # laptop: http://<mac-ip>:8080/
    ```
-2. Start a host, either
-   - **iPhone/iPad/Android:** Menu → **Über WLAN spielen** → **Hosten** → pick a game. Under
-     "Im Browser beitreten" it shows `IP:wsPort` and the `klunki://join?…&w=<wsPort>` link (copy button), or
+2. Start a room on a device, either
+   - **iPhone/iPad/Android:** Menu → **Raum starten** → pick a game → **Raum starten**. Under **Erweitert**,
+     "Im Browser beitreten" shows `IP:wsPort` and the `klunki://join?…&w=<wsPort>` link (copy button), or
    - **Terminal:** `dart run packages/klunki_net/bin/klunki.dart host connect4` (prints
      `Browsers and WebSocket guests join at ws://<ip>:4748`).
-3. In the browser: Menu → **Über WLAN spielen** (join-only: no host tab, no search list) → type `IP`
+3. In the browser: Menu → **Raum beitreten** → **Erweitert** (relay line and the direct connection) → type `IP`
    (WebSocket port 4748), `IP:port` (the port is the **WebSocket** port), `ws://ip:port`, or paste the
    `klunki://` link → **Verbinden**. Device name defaults to "Browser".
 4. Shortcut for links/QR codes: `http://<pwa>/?join=<urlencoded klunki:// link>` opens the join screen and
@@ -419,29 +422,31 @@ also serves the PWA. The host stays authoritative; the relay only forwards messa
    address; the `.local` name is under System Settings › General › Sharing, "Local hostname"); Windows `ipconfig`
    in cmd ("IPv4 Address" of the Wi-Fi adapter; `<computer name>.local` on Windows 10/11); Linux `hostname -I` or
    `ip -4 addr show` (`<hostname>.local` with Avahi). See `docs/BUILDING.md` §6.2.
-2. **Browser A** opens `http://<mac-ip>:8000/` → **Über WLAN spielen** → **Spiel hosten** → picks a game →
-   **Spiel hosten**. It shows the **room code** large (e.g. `K7Q 2M`), a QR code and the link
+2. **Browser A** opens `http://<mac-ip>:8000/` → **Raum starten** → picks a game →
+   **Raum starten**. It shows the **room code** large (e.g. `K7Q 2M`), a QR code and the link
    `http://<mac-ip>:8000/?room=K7Q2M` (copy button).
 3. **Browser B** (phone or laptop on the same Wi-Fi) scans the QR code / opens the link, **or** opens
-   `http://<mac-ip>:8000/` → **Über WLAN spielen** → types the code under **Mit Raumcode beitreten** (case, spaces
+   `http://<mac-ip>:8000/` → **Raum beitreten** → types the code under **Raumcode eintippen** (case, spaces
    and dashes do not matter) → **Raum beitreten**. Both switch to the game.
 
 The PWA uses its own origin as the relay (`ws://<location.host>/relay`). Hosting and joining share **one**
-relay setting, shown as the line "Relay: <mac-ip>:8000 · ändern" under **Über Relay spielen (Raumcode)** and on
-the host setup; "ändern" takes another relay (`host:port`, "Standard: …" goes back to the page's own), and the
-host's link then carries `&relay=…`. The iOS/Android apps can join a browser's room too: **Über WLAN spielen**
-→ **Beitreten** → type the code under **Mit Raumcode beitreten**; the first time the app asks for the relay
-address (`<mac-ip>:8000`) and remembers it. Or scan the host's QR code (next section).
+relay setting, shown as the line "Relay: <mac-ip>:8000 · ändern" under **Erweitert** on both room screens;
+"ändern" takes another relay (`host:port`, "Standard: …" goes back to the page's own), and the room's link then
+carries `&relay=…`. The iOS/Android apps can join a browser's room too: **Raum beitreten** → close the camera →
+type the code under **Raumcode eintippen**; the first time the app asks for the relay address (`<mac-ip>:8000`)
+and remembers it. Or scan the room's QR code (next section). An app can also open a relay room itself:
+**Raum starten** → **Erweitert** → **Raum über ein Relay öffnen** (remembered; off by default, then the room
+runs directly on the device).
 
 ### Join by scanning (KLD-052)
-In the iOS/Android app: **Über WLAN spielen** → **Beitreten** → **QR-Code scannen** (camera icon). Point the
-camera at the QR code of either kind of host:
-- another app hosting on the Wi-Fi (its `klunki://join?…` code) → joins it directly;
-- a browser hosting through the relay (its `http://<mac-ip>:8000/?room=K7Q2M` code) → joins the room and
-  remembers the relay for the room-code field and later games.
+In the iOS/Android app: **Raum beitreten** opens the camera right away (later: **QR-Code scannen**). Point the
+camera at the QR code of either kind of room:
+- a room running on another app on the Wi-Fi (its `klunki://join?…` code) → joins it directly;
+- a relay room (its `http://<mac-ip>:8000/?room=K7Q2M` code) → joins the room through the relay of the code,
+  for this join only (KLD-075: "Als Standard speichern" keeps it).
 
 Any other QR code shows "Kein Klunki-Code" and the scanner keeps looking. The first scan asks for camera access;
-if it was denied, the scanner says so and "Code eintippen" goes back to the fields (allow the camera later in the
+if it was denied, the scanner says so and "Code eintippen" goes back to the code field (allow the camera later in the
 system settings → Klunki). The PWA has no scan button: use the phone's camera app on the QR code instead.
 
 What the audience sees: the host's waiting screen with the code, then both browsers in the game with the

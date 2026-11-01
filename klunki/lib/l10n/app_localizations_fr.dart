@@ -31,9 +31,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuDebugConsole => 'Console de débogage';
 
   @override
-  String get menuPlayOverWifi => 'Jouer en Wi-Fi';
-
-  @override
   String get menuGameConnect4 => 'Quatre en ligne';
 
   @override
@@ -71,10 +68,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get menuSectionHotSeat => 'À deux sur un appareil';
 
   @override
-  String get menuSectionNetwork => 'Avec deux appareils';
+  String get menuSectionNetwork => 'Jouer avec d’autres appareils';
 
   @override
-  String get menuNetworkSubtitle => 'Héberger ou rejoindre une partie';
+  String get roomStartSubtitle => 'Les autres entrent avec le code de salle';
+
+  @override
+  String get roomJoinSubtitle => 'Scanne ou saisis le code';
+
+  @override
+  String get roomAdvanced => 'Avancé';
+
+  @override
+  String get roomDirectWaitingHint =>
+      'Les autres touchent « Rejoindre une salle » et scannent ce code QR. Les appareils du même Wi-Fi trouvent aussi la salle sous « Salles à proximité ».';
+
+  @override
+  String get roomViaRelay => 'Ouvrir la salle via un relais';
+
+  @override
+  String get roomViaRelayHelper =>
+      'Avec un code de salle, aussi pour les joueurs dans un navigateur. Il faut un ordinateur qui exécute « klunki relay ». Désactivé, la salle tourne sur cet appareil et les appareils du même Wi-Fi la trouvent tout seuls.';
+
+  @override
+  String get roomTypeCode => 'Saisir le code de salle';
 
   @override
   String get menuHiddenInfo =>
@@ -691,9 +708,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get debugDemo => 'Démo : tous les jeux';
 
   @override
-  String get pairingTitle => 'Jouer en Wi-Fi';
-
-  @override
   String get pairingDeviceNameHelper =>
       'C’est ainsi que l’autre joueur te voit';
 
@@ -721,33 +735,27 @@ class AppLocalizationsFr extends AppLocalizations {
       'Facultatif – laisse vide pour afficher seulement X et O.';
 
   @override
-  String get pairingModeHost => 'Héberger';
-
-  @override
-  String get pairingModeJoin => 'Rejoindre';
-
-  @override
   String get pairingChooseGame => 'Choisis un jeu';
 
   @override
-  String get pairingHostGame => 'Héberger la partie';
+  String get roomStart => 'Ouvrir une salle';
 
   @override
-  String pairingHostStartFailed(String error) {
-    return 'Impossible de lancer la partie : $error';
+  String roomStartFailed(String error) {
+    return 'Impossible d’ouvrir la salle : $error';
   }
 
   @override
   String get pairingNotAdvertised =>
-      'Pas visible automatiquement – l’autre joueur saisit l’adresse.';
+      'Pas visible automatiquement – les autres scannent le code QR.';
 
   @override
   String get pairingNoDiscoveryHost =>
-      'Pas de recherche automatique sur cet appareil – l’autre joueur saisit l’adresse.';
+      'Pas de recherche automatique sur cet appareil – les autres scannent le code QR.';
 
   @override
-  String pairingHosting(String name, String game) {
-    return '$name héberge $game';
+  String roomOfPlayer(String name, String game) {
+    return 'Salle de $name : $game';
   }
 
   @override
@@ -768,24 +776,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pairingCancel => 'Annuler';
 
   @override
-  String get pairingGamesOnNetwork => 'Parties sur le réseau';
+  String get roomNearby => 'Salles à proximité';
 
   @override
   String get pairingNoDiscoveryJoin =>
-      'La recherche automatique n’est pas disponible sur cet appareil. Saisis l’adresse ci-dessous.';
+      'La recherche automatique n’est pas disponible sur cet appareil. Scanne le code QR ou saisis l’adresse sous « Avancé ».';
 
   @override
   String get pairingBrowseFailed =>
-      'Impossible de chercher sur le réseau. Saisis l’adresse ci-dessous.';
+      'Impossible de chercher sur le réseau. Scanne le code QR ou saisis l’adresse sous « Avancé ».';
 
   @override
-  String get pairingSearching => 'Recherche de parties…';
+  String get pairingSearching => 'Recherche de salles…';
 
   @override
   String get pairingOtherVersion => 'autre version de Klunki';
-
-  @override
-  String get pairingOrEnterAddress => 'Ou saisis une adresse';
 
   @override
   String get pairingManualLabel => 'IP, IP:port ou lien klunki://';
@@ -859,7 +864,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pairingReconnectFailed =>
-      'Échec de la reconnexion. L’hôte est-il encore dans la partie ?';
+      'La reconnexion a échoué. L’autre appareil est-il encore dans la partie ?';
 
   @override
   String get pairingBrowserJoin =>
@@ -872,10 +877,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pairingLinkCopied => 'Lien copié';
 
   @override
-  String get webJoinIntro =>
-      'Rejoins dans le navigateur une partie hébergée par un iPhone, un iPad, un appareil Android ou le terminal (klunki host). L’hôte affiche l’adresse et le lien sous « Rejoindre depuis un navigateur ».';
-
-  @override
   String get webJoinHttpsWarning =>
       'Cette page est ouverte en https. Depuis là, les navigateurs bloquent les connexions ws:// vers le réseau local. Ouvre Klunki en http://.';
 
@@ -884,7 +885,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String webJoinAddressHelper(int port) {
-    return 'Le port est le port navigateur (WebSocket) de l’hôte ; sans port : $port.';
+    return 'Le port est le port navigateur (WebSocket) de l’autre appareil ; $port par défaut.';
   }
 
   @override
@@ -893,7 +894,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get webJoinHints =>
-      'Conseils : cet appareil est-il sur le même Wi-Fi que l’hôte ? Les réseaux invités bloquent souvent les connexions entre appareils. La page doit être ouverte en http://, pas en https://. L’hôte doit utiliser une version de Klunki compatible avec les navigateurs (elle affiche « Rejoindre depuis un navigateur »).';
+      'Conseils : cet appareil est-il sur le même Wi-Fi que l’appareil de la salle ? Les réseaux invités bloquent souvent les connexions entre appareils. La page doit être ouverte en http://, pas en https://. L’autre appareil doit utiliser une version de Klunki compatible avec les navigateurs (elle affiche « Rejoindre depuis un navigateur »).';
 
   @override
   String get engineReasonConnect4FourInARow => 'Quatre alignés';
@@ -1220,15 +1221,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get engineShipOther => 'Navire';
 
   @override
-  String get relayHostIntro =>
-      'Un second navigateur sur le même Wi-Fi rejoint la partie avec le code de salle.';
+  String get roomStartIntro =>
+      'Les autres touchent « Rejoindre une salle » et saisissent le code de salle.';
 
   @override
   String get relayRoomCode => 'Code de salle';
 
   @override
   String get relayWaitingHint =>
-      'Ouvre le lien sur le second appareil ou scanne le code QR. Ou ouvre Klunki dessus et saisis le code de salle.';
+      'Les autres touchent « Rejoindre une salle » et scannent le code QR ou saisissent le code de salle. Ou ils ouvrent le lien.';
 
   @override
   String relayInfo(String address) {
@@ -1236,18 +1237,15 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get relayJoinTitle => 'Rejoindre avec un code de salle';
-
-  @override
-  String get relayCodeHelper =>
-      '5 caractères. Le navigateur qui héberge la partie affiche le code.';
+  String get roomCodeHelper =>
+      '5 caractères – l’autre appareil affiche le code avec sa salle.';
 
   @override
   String get relayCodeInvalid =>
       'Code de salle invalide : 5 lettres ou chiffres (sans 0, O, 1, I, L).';
 
   @override
-  String get relayJoin => 'Rejoindre la salle';
+  String get roomJoin => 'Rejoindre une salle';
 
   @override
   String relayJoining(String code) {
@@ -1262,15 +1260,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ordinateur du Wi-Fi qui exécute « klunki relay », p. ex. 192.168.1.20:4749';
 
   @override
-  String get relayAddressAdvanced => 'Avancé : adresse du relais';
-
-  @override
   String get relayAddressInvalid =>
       'Adresse de relais invalide. Exemple : 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
-    return 'Aucune salle avec le code $code. Le code est-il juste, et l’hôte attend-il encore ?';
+    return 'Aucune salle avec le code $code. Le code est-il juste, et la salle est-elle encore ouverte ?';
   }
 
   @override
@@ -1279,8 +1274,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get relayErrorHostLeft =>
-      'L’hôte a quitté la salle. La partie est terminée.';
+  String get relayErrorRoomClosed =>
+      'La salle a été fermée : la personne qui l’a ouverte est partie. La partie est terminée.';
 
   @override
   String get relayErrorExpired =>
@@ -1296,11 +1291,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get relayStartHint =>
-      'Navigateur contre navigateur nécessite un relais. Lance-le sur un ordinateur du Wi-Fi et ouvre Klunki depuis son adresse :';
+      'Les salles avec code ont besoin d’un relais. Lance-le sur un ordinateur du Wi-Fi et ouvre Klunki depuis son adresse :';
 
   @override
   String relayRoomLost(String reason) {
-    return '$reason Lance une nouvelle partie.';
+    return '$reason Ouvre une nouvelle salle.';
   }
 
   @override
@@ -1323,18 +1318,15 @@ class AppLocalizationsFr extends AppLocalizations {
       'Place occupée : quelqu’un joue déjà cette partie. Seul le joueur qui l’a rejointe en premier peut revenir.';
 
   @override
-  String get webJoinDirectTitle =>
-      'Ou se connecter à un appareil hôte (appli ou terminal)';
-
-  @override
   String get qrScanButton => 'Scanner le QR code';
 
   @override
-  String get qrScanHint => 'Pointe la caméra vers le QR code de l\'hôte.';
+  String get qrScanHint =>
+      'Pointe la caméra vers le code QR de l’autre appareil.';
 
   @override
   String get qrScanNotKlunki =>
-      'Ce n\'est pas un code Klunki. Scanne le QR code que le jeu affiche quand il héberge une partie.';
+      'Ce n’est pas un code Klunki. Scanne le code QR que l’autre appareil affiche avec sa salle.';
 
   @override
   String get qrScanTorchOn => 'Allumer la lumière';
@@ -1357,9 +1349,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get qrScanTypeInstead => 'Saisir le code';
 
   @override
-  String get relayGroupTitle => 'Jouer via le relais (code de salle)';
-
-  @override
   String get relayChange => 'modifier';
 
   @override
@@ -1374,15 +1363,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get relaySave => 'Appliquer';
 
   @override
-  String get relayJoinIntro =>
-      'Le code de salle vient d’un navigateur qui a choisi « Héberger la partie ».';
-
-  @override
   String get joinDirectTitle => 'Se connecter directement à un appareil';
 
   @override
   String get joinDirectHelper =>
-      'Pour un téléphone, une tablette ou un terminal qui héberge lui-même : saisis l’adresse de l’appareil (IP).';
+      'Pour un appareil sur lequel la salle tourne directement (appli ou terminal) : saisis son adresse (IP).';
 
   @override
   String get shellResign => 'Abandonner';

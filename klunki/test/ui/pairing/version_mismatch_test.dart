@@ -15,13 +15,18 @@ import 'pairing_test_utils.dart';
 
 const _timeout = Timeout(Duration(seconds: 30));
 
-Future<void> _openPairing(WidgetTester tester, PairingDeps deps) async {
+Future<void> _openPairing(WidgetTester tester, PairingDeps deps, {bool join = false}) async {
   tester.view.physicalSize = const Size(800, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(launcherApp(deps));
-  await tester.tap(find.byKey(const Key('open-pairing')));
-  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(Key(join ? 'open-join' : 'open-pairing')));
+  if (join) {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // the "searching" spinner never settles
+  } else {
+    await tester.pumpAndSettle();
+  }
 }
 
 NetException _refused(PeerAge peer) => NetException('incompatible versions (incompatible-content): …',
@@ -35,9 +40,9 @@ Future<void> _joinFailing(WidgetTester tester, NetException error) async {
       created: CreatedTransports(),
       joinTransport: (host, port, {required name}) => Future.error(error),
     ),
+    join: true,
   );
-  await tester.tap(find.text('Beitreten'));
-  await tester.pump();
+  await openAdvanced(tester, 'pair-join-advanced');
   await tester.enterText(find.byKey(const Key('pair-manual')), '192.168.1.20');
   await tester.tap(find.byKey(const Key('pair-manual-connect')));
   await tester.pump();

@@ -19,7 +19,7 @@ final List<TextInputFormatter> playerNameInputFormatters = [
 /// Asks for the player name ("Wie heißt du?", KLD-056), prefilled with the
 /// saved name or [suggestion] (default: the controller's suggestion), and
 /// saves it. [firstRun]: only "OK", no way around it (the first visit of
-/// "Über WLAN spielen"); otherwise there is a "Cancel" too (menu button).
+/// "Raum starten" / "Raum beitreten"); otherwise there is a "Cancel" too (menu button).
 /// Completes with true if a name was saved.
 Future<bool> showPlayerNameDialog(
   BuildContext context,

@@ -28,10 +28,6 @@
   "@menuDebugConsole": {
     "description": "Menu button that opens the text debug console (debug builds only)."
   },
-  "menuPlayOverWifi": "Über WLAN spielen",
-  "@menuPlayOverWifi": {
-    "description": "Menu card that opens the pairing screen for network play on the local Wi-Fi (not on web)."
-  },
   "menuGameConnect4": "4 Gewinnt",
   "@menuGameConnect4": {
     "description": "Game title: connect four in a row (generic name, no brand)."
@@ -76,13 +72,37 @@
   "@menuSectionHotSeat": {
     "description": "Menu section header above the hot-seat game tiles (KLD-062)."
   },
-  "menuSectionNetwork": "Mit zwei Geräten",
+  "menuSectionNetwork": "Mit anderen Geräten spielen",
   "@menuSectionNetwork": {
-    "description": "Menu section header above the network entry (KLD-062)."
+    "description": "Menu: heading of the device-vs-device section with the two room buttons (KLD-098)."
   },
-  "menuNetworkSubtitle": "Spiel hosten oder beitreten",
-  "@menuNetworkSubtitle": {
-    "description": "Subtitle of the network entry \"Über WLAN spielen\" (KLD-062)."
+  "roomStartSubtitle": "Andere kommen mit dem Raumcode dazu",
+  "@roomStartSubtitle": {
+    "description": "KLD-098: subtitle of the menu button roomStart."
+  },
+  "roomJoinSubtitle": "Code scannen oder eintippen",
+  "@roomJoinSubtitle": {
+    "description": "KLD-098: subtitle of the menu button roomJoin."
+  },
+  "roomAdvanced": "Erweitert",
+  "@roomAdvanced": {
+    "description": "KLD-098: collapsible section with the technical details (relay address, IP addresses, direct connection)."
+  },
+  "roomDirectWaitingHint": "Andere tippen auf „Raum beitreten“ und scannen diesen QR-Code. Geräte im selben WLAN finden den Raum auch unter „Räume in der Nähe“.",
+  "@roomDirectWaitingHint": {
+    "description": "KLD-098: waiting screen of a room running directly on this device (no room code): how the others get in. Quoted texts are roomJoin and roomNearby."
+  },
+  "roomViaRelay": "Raum über ein Relay öffnen",
+  "@roomViaRelay": {
+    "description": "KLD-098: app, start-a-room screen, under \"Erweitert\": switch to open the room through the relay (with a room code) instead of directly on this device. Remembered."
+  },
+  "roomViaRelayHelper": "Mit Raumcode, auch für Mitspieler im Browser. Dafür muss auf einem Rechner „klunki relay“ laufen. Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.",
+  "@roomViaRelayHelper": {
+    "description": "KLD-098: explanation below roomViaRelay. \"klunki relay\" is the command and stays as is."
+  },
+  "roomTypeCode": "Raumcode eintippen",
+  "@roomTypeCode": {
+    "description": "KLD-098: join screen: heading above the room code field."
   },
   "menuHiddenInfo": "Geheime Karten oder Flotte – ihr reicht das Gerät weiter",
   "@menuHiddenInfo": {
@@ -1061,10 +1081,6 @@
   "@debugDemo": {
     "description": "Debug menu entry: narrated demo of all games."
   },
-  "pairingTitle": "Über WLAN spielen",
-  "@pairingTitle": {
-    "description": "App bar title of the pairing screen (host or join a game on the local Wi-Fi)."
-  },
   "pairingDeviceNameHelper": "So sieht dich dein Mitspieler",
   "@pairingDeviceNameHelper": {
     "description": "Helper text below the device name field."
@@ -1106,42 +1122,34 @@
   "@hotSeatNamesHelper": {
     "description": "Hot-seat player names dialog: hint that the names are optional."
   },
-  "pairingModeHost": "Hosten",
-  "@pairingModeHost": {
-    "description": "Segmented button: host a game on this device."
-  },
-  "pairingModeJoin": "Beitreten",
-  "@pairingModeJoin": {
-    "description": "Segmented button: join a game hosted on another device."
-  },
   "pairingChooseGame": "Spiel wählen",
   "@pairingChooseGame": {
-    "description": "Heading above the game list when hosting."
+    "description": "Heading above the game list when starting a room."
   },
-  "pairingHostGame": "Spiel hosten",
-  "@pairingHostGame": {
-    "description": "Button: start hosting the chosen game."
+  "roomStart": "Raum starten",
+  "@roomStart": {
+    "description": "KLD-098: menu button, screen title and start button: open a room others join (over the relay or directly on this device). No \"host\" wording."
   },
-  "pairingHostStartFailed": "Spiel konnte nicht gestartet werden: {error}",
-  "@pairingHostStartFailed": {
-    "description": "Error when the host session could not be started; error = technical message.",
+  "roomStartFailed": "Raum konnte nicht gestartet werden: {error}",
+  "@roomStartFailed": {
+    "description": "KLD-098: the room could not be opened; error = technical message.",
     "placeholders": {
       "error": {
         "type": "String"
       }
     }
   },
-  "pairingNotAdvertised": "Nicht automatisch sichtbar – Mitspieler gibt die Adresse ein.",
+  "pairingNotAdvertised": "Nicht automatisch sichtbar – andere scannen den QR-Code.",
   "@pairingNotAdvertised": {
-    "description": "Host: advertising via mDNS failed; the guest has to type the address."
+    "description": "Room on this device: advertising via mDNS failed; others scan the QR code."
   },
-  "pairingNoDiscoveryHost": "Keine automatische Suche auf diesem Gerät – Mitspieler gibt die Adresse ein.",
+  "pairingNoDiscoveryHost": "Keine automatische Suche auf diesem Gerät – andere scannen den QR-Code.",
   "@pairingNoDiscoveryHost": {
-    "description": "Host: this device has no mDNS discovery; the guest has to type the address."
+    "description": "Room on this device: no mDNS discovery here; others scan the QR code."
   },
-  "pairingHosting": "{name} hostet {game}",
-  "@pairingHosting": {
-    "description": "Host waiting screen headline; name = device name, game = game title.",
+  "roomOfPlayer": "Raum von {name}: {game}",
+  "@roomOfPlayer": {
+    "description": "KLD-098: a room's headline (waiting screen) and a room found nearby; name = player name of whoever started it, game = game title.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1153,7 +1161,7 @@
   },
   "pairingNoAddress": "Keine WLAN-Adresse gefunden. Ist das Gerät mit dem WLAN verbunden? Port: {port}",
   "@pairingNoAddress": {
-    "description": "Host: no LAN address found, so no QR code; port = TCP port.",
+    "description": "Room on this device: no LAN address found, so no QR code; port = TCP port.",
     "placeholders": {
       "port": {
         "type": "int"
@@ -1162,7 +1170,7 @@
   },
   "pairingAddresses": "Adressen (zum Eintippen):",
   "@pairingAddresses": {
-    "description": "Host: heading above the list of IP:port addresses."
+    "description": "Room on this device, under \"Erweitert\": heading above the list of IP:port addresses."
   },
   "pairingProbablyWifi": "wahrscheinlich WLAN",
   "@pairingProbablyWifi": {
@@ -1170,35 +1178,31 @@
   },
   "pairingWaitingForGuest": "Warte auf Mitspieler…",
   "@pairingWaitingForGuest": {
-    "description": "Host status while no guest has joined yet."
+    "description": "Room waiting screen: status while nobody has joined yet."
   },
   "pairingCancel": "Abbrechen",
   "@pairingCancel": {
-    "description": "Button: stop hosting / stop connecting."
+    "description": "Button: close the room / stop connecting."
   },
-  "pairingGamesOnNetwork": "Spiele im Netzwerk",
-  "@pairingGamesOnNetwork": {
-    "description": "Join: heading above the discovered hosts."
+  "roomNearby": "Räume in der Nähe",
+  "@roomNearby": {
+    "description": "KLD-098: join screen (app): heading above the rooms found on the local Wi-Fi."
   },
-  "pairingNoDiscoveryJoin": "Automatische Suche ist auf diesem Gerät nicht verfügbar. Adresse unten eingeben.",
+  "pairingNoDiscoveryJoin": "Automatische Suche ist auf diesem Gerät nicht verfügbar. Scanne den QR-Code oder gib unter „Erweitert“ die Adresse ein.",
   "@pairingNoDiscoveryJoin": {
-    "description": "Join: this device has no mDNS discovery."
+    "description": "Join screen: this device has no mDNS discovery. The quoted word is roomAdvanced."
   },
-  "pairingBrowseFailed": "Suche im Netzwerk nicht möglich. Adresse unten eingeben.",
+  "pairingBrowseFailed": "Suche im Netzwerk nicht möglich. Scanne den QR-Code oder gib unter „Erweitert“ die Adresse ein.",
   "@pairingBrowseFailed": {
-    "description": "Join: mDNS browsing failed."
+    "description": "Join screen: mDNS browsing failed. The quoted word is roomAdvanced."
   },
-  "pairingSearching": "Suche nach Spielen…",
+  "pairingSearching": "Suche nach Räumen…",
   "@pairingSearching": {
-    "description": "Join: no host found yet, still searching."
+    "description": "Join screen: no room found nearby yet, still searching."
   },
   "pairingOtherVersion": "andere Klunki-Version",
   "@pairingOtherVersion": {
-    "description": "Join: a discovered host speaks another protocol version and cannot be joined."
-  },
-  "pairingOrEnterAddress": "Oder Adresse eingeben",
-  "@pairingOrEnterAddress": {
-    "description": "Join: heading above the manual address field."
+    "description": "Join screen: a room found nearby runs another protocol version and cannot be joined."
   },
   "pairingManualLabel": "IP, IP:Port oder klunki://-Link",
   "@pairingManualLabel": {
@@ -1320,13 +1324,13 @@
   "@networkVerificationFailed": {
     "description": "Guest's banner after a hidden-information network game (KLD-064) when the host's revealed secrets do not match its commitments or the replayed game differs from what the host reported."
   },
-  "pairingReconnectFailed": "Neu verbinden fehlgeschlagen. Ist der Host noch im Spiel?",
+  "pairingReconnectFailed": "Neu verbinden fehlgeschlagen. Ist das andere Gerät noch im Spiel?",
   "@pairingReconnectFailed": {
     "description": "Error below the connection banner when reconnecting failed."
   },
   "pairingBrowserJoin": "Im Browser beitreten (Adresse eingeben oder Link einfügen):",
   "@pairingBrowserJoin": {
-    "description": "Host waiting view: heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code)."
+    "description": "Room on this device, under \"Erweitert\": heading above the WebSocket address and the klunki:// link for browser guests (the PWA cannot scan the QR code)."
   },
   "pairingCopyLink": "Link kopieren",
   "@pairingCopyLink": {
@@ -1336,10 +1340,6 @@
   "@pairingLinkCopied": {
     "description": "Snackbar after copying the join link."
   },
-  "webJoinIntro": "Tritt im Browser einem Spiel bei, das ein iPhone, iPad, Android-Gerät oder das Terminal (klunki host) hostet. Der Host zeigt Adresse und Link unter „Im Browser beitreten“.",
-  "@webJoinIntro": {
-    "description": "Browser (PWA) join screen: what it does. \"klunki host\" is the terminal command and stays as is; the quoted text is pairingBrowserJoin without its parenthesis."
-  },
   "webJoinHttpsWarning": "Diese Seite ist über https geöffnet. Von dort erlauben Browser keine ws://-Verbindung ins WLAN. Öffne Klunki über http://.",
   "@webJoinHttpsWarning": {
     "description": "Browser join screen: warning when the page was opened over https (browsers block ws:// from https pages)."
@@ -1348,7 +1348,7 @@
   "@webJoinAddressLabel": {
     "description": "Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link)."
   },
-  "webJoinAddressHelper": "Der Port ist der Browser-Port (WebSocket) des Hosts, ohne Angabe {port}.",
+  "webJoinAddressHelper": "Der Port ist der Browser-Port (WebSocket) des anderen Geräts, ohne Angabe {port}.",
   "@webJoinAddressHelper": {
     "description": "Browser join screen: helper below the address field; port = the default WebSocket port (4748).",
     "placeholders": {
@@ -1361,9 +1361,9 @@
   "@webJoinInvalidAddress": {
     "description": "Browser join screen: the typed address could not be parsed."
   },
-  "webJoinHints": "Tipps: Ist dieses Gerät im selben WLAN wie der Host? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem Host muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).",
+  "webJoinHints": "Tipps: Ist dieses Gerät im selben WLAN wie das Gerät mit dem Raum? Gäste-WLANs blockieren oft Verbindungen zwischen Geräten. Die Seite muss über http:// geöffnet sein, nicht über https://. Auf dem anderen Gerät muss eine Klunki-Version mit Browser-Unterstützung laufen (sie zeigt „Im Browser beitreten“).",
   "@webJoinHints": {
-    "description": "Troubleshooting hints shown with every failed browser join (same Wi-Fi, http not https, host version with browser support)."
+    "description": "Troubleshooting hints shown with every failed direct browser join (same Wi-Fi, http not https, version with browser support)."
   },
   "engineReasonConnect4FourInARow": "Vier in einer Reihe",
   "@engineReasonConnect4FourInARow": {
@@ -1894,17 +1894,17 @@
   "@engineShipOther": {
     "description": "Schiffe versenken: name of a ship with a length outside the default fleet."
   },
-  "relayHostIntro": "Ein zweiter Browser im selben WLAN tritt mit dem Raumcode bei.",
-  "@relayHostIntro": {
-    "description": "Web pairing screen, under the \"Spiel hosten\" button (KLD-057)."
+  "roomStartIntro": "Andere tippen auf „Raum beitreten“ und geben den Raumcode ein.",
+  "@roomStartIntro": {
+    "description": "KLD-098: start-a-room screen (relay room): how the others get in. The quoted text is roomJoin."
   },
   "relayRoomCode": "Raumcode",
   "@relayRoomCode": {
-    "description": "Label of the room code (host waiting screen and the join field)."
+    "description": "Room code: label above the code on the waiting screen and of the code field."
   },
-  "relayWaitingHint": "Öffne den Link auf dem zweiten Gerät oder scanne den QR-Code. Oder öffne dort Klunki und gib den Raumcode ein.",
+  "relayWaitingHint": "Andere tippen auf „Raum beitreten“ und scannen den QR-Code oder geben den Raumcode ein. Oder sie öffnen den Link.",
   "@relayWaitingHint": {
-    "description": "Host waiting screen: how the second player joins."
+    "description": "KLD-098: relay room waiting screen: how the others get in (the quoted text is roomJoin)."
   },
   "relayInfo": "Relay: {address}",
   "@relayInfo": {
@@ -1915,21 +1915,17 @@
       }
     }
   },
-  "relayJoinTitle": "Mit Raumcode beitreten",
-  "@relayJoinTitle": {
-    "description": "Heading of the room-code join section."
-  },
-  "relayCodeHelper": "5 Zeichen. Der Browser, der das Spiel hostet, zeigt den Code.",
-  "@relayCodeHelper": {
-    "description": "Helper text under the room code field."
+  "roomCodeHelper": "5 Zeichen – das andere Gerät zeigt den Code bei seinem Raum.",
+  "@roomCodeHelper": {
+    "description": "KLD-098: helper below the room code field."
   },
   "relayCodeInvalid": "Ungültiger Raumcode: 5 Buchstaben oder Ziffern (ohne 0, O, 1, I, L).",
   "@relayCodeInvalid": {
     "description": "Error for a malformed room code."
   },
-  "relayJoin": "Raum beitreten",
-  "@relayJoin": {
-    "description": "Button: join the room."
+  "roomJoin": "Raum beitreten",
+  "@roomJoin": {
+    "description": "KLD-098: menu button, screen title and join button: join someone else's room (scan the QR code or type the room code)."
   },
   "relayJoining": "Trete Raum {code} bei…",
   "@relayJoining": {
@@ -1948,17 +1944,13 @@
   "@relayAddressHelper": {
     "description": "Helper under the relay address field."
   },
-  "relayAddressAdvanced": "Erweitert: Relay-Adresse",
-  "@relayAddressAdvanced": {
-    "description": "Expandable section with the relay address (web)."
-  },
   "relayAddressInvalid": "Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749",
   "@relayAddressInvalid": {
     "description": "Error for a malformed relay address."
   },
-  "relayErrorUnknownCode": "Kein Raum mit dem Code {code}. Stimmt der Code, und wartet der Host noch?",
+  "relayErrorUnknownCode": "Kein Raum mit dem Code {code}. Stimmt der Code, und ist der Raum noch offen?",
   "@relayErrorUnknownCode": {
-    "description": "Relay error: no room with this code; code grouped like \"K7Q 2M\".",
+    "description": "Room-code join: no open room with this code; code = the grouped code.",
     "placeholders": {
       "code": {
         "type": "String"
@@ -1974,9 +1966,9 @@
       }
     }
   },
-  "relayErrorHostLeft": "Der Host hat den Raum verlassen. Das Spiel ist beendet.",
-  "@relayErrorHostLeft": {
-    "description": "Relay: the host closed the room (guest banner / join error)."
+  "relayErrorRoomClosed": "Der Raum wurde geschlossen: Wer ihn gestartet hat, ist gegangen. Das Spiel ist beendet.",
+  "@relayErrorRoomClosed": {
+    "description": "KLD-098: the room was closed because whoever started it left; the game is over."
   },
   "relayErrorExpired": "Der Raum ist abgelaufen (10 Minuten ohne Aktivität).",
   "@relayErrorExpired": {
@@ -1995,13 +1987,13 @@
   "@relayErrorLost": {
     "description": "Relay: the connection to the relay broke (relay stopped, network loss)."
   },
-  "relayStartHint": "Browser gegen Browser braucht ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:",
+  "relayStartHint": "Räume mit Raumcode brauchen ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:",
   "@relayStartHint": {
-    "description": "Shown when the page is not served by a relay; the start command follows on its own line."
+    "description": "Shown when no relay is reachable, followed by the start command."
   },
-  "relayRoomLost": "{reason} Starte ein neues Spiel.",
+  "relayRoomLost": "{reason} Starte einen neuen Raum.",
   "@relayRoomLost": {
-    "description": "Host banner when the relay room is gone; reason = relayErrorExpired / relayErrorLost.",
+    "description": "Relay room lost while waiting; reason = the relay error text.",
     "placeholders": {
       "reason": {
         "type": "String"
@@ -2033,19 +2025,15 @@
   "@pairingSeatTaken": {
     "description": "KLD-071: joining failed because the host's seat is taken (\"session full\"): only the original guest (with its session token) can rejoin."
   },
-  "webJoinDirectTitle": "Oder mit einem Host-Gerät verbinden (App oder Terminal)",
-  "@webJoinDirectTitle": {
-    "description": "Web join screen: heading of the direct address section (native host)."
-  },
   "qrScanButton": "QR-Code scannen",
   "@qrScanButton": {
-    "description": "Join tab (app): button that opens the camera to scan the host's QR code; also the scanner screen title."
+    "description": "Join screen (app): button that opens the camera to scan the other device's QR code; also the scanner screen title."
   },
-  "qrScanHint": "Richte die Kamera auf den QR-Code des Gastgebers.",
+  "qrScanHint": "Richte die Kamera auf den QR-Code des anderen Geräts.",
   "@qrScanHint": {
     "description": "Scanner screen: instruction below the viewfinder."
   },
-  "qrScanNotKlunki": "Kein Klunki-Code. Scanne den QR-Code, den das Spiel beim Hosten zeigt.",
+  "qrScanNotKlunki": "Kein Klunki-Code. Scanne den QR-Code, den das andere Gerät bei seinem Raum zeigt.",
   "@qrScanNotKlunki": {
     "description": "Scanner screen: the scanned QR code is not a Klunki join code; scanning continues."
   },
@@ -2071,11 +2059,7 @@
   },
   "qrScanTypeInstead": "Code eintippen",
   "@qrScanTypeInstead": {
-    "description": "Scanner screen: button back to the join tab to type the code or address instead."
-  },
-  "relayGroupTitle": "Über Relay spielen (Raumcode)",
-  "@relayGroupTitle": {
-    "description": "Join screens: heading of the group with \"Spiel hosten\" and \"Mit Raumcode beitreten\" (both go through the relay)."
+    "description": "Scanner screen: button back to the join screen to type the room code instead."
   },
   "relayChange": "ändern",
   "@relayChange": {
@@ -2098,17 +2082,13 @@
   "@relaySave": {
     "description": "Relay dialog: confirm button."
   },
-  "relayJoinIntro": "Der Raumcode kommt von einem Browser, der „Spiel hosten“ gewählt hat.",
-  "@relayJoinIntro": {
-    "description": "Room-code join: where the code comes from."
-  },
   "joinDirectTitle": "Direkt mit einem Gerät verbinden",
   "@joinDirectTitle": {
-    "description": "Join screens: heading of the secondary group that connects directly to a device that hosts itself (IP address)."
+    "description": "Join screens, under \"Erweitert\": heading of the direct connection to a device the room runs on (IP address)."
   },
-  "joinDirectHelper": "Für ein Handy, Tablet oder Terminal, das selbst hostet: Geräte-Adresse (IP) eingeben.",
+  "joinDirectHelper": "Für ein Gerät, auf dem der Raum direkt läuft (App oder Terminal): seine Adresse (IP) eingeben.",
   "@joinDirectHelper": {
-    "description": "Join screens: helper below joinDirectTitle."
+    "description": "Join screens, under \"Erweitert\": helper below joinDirectTitle."
   },
   "shellResign": "Aufgeben",
   "@shellResign": {
