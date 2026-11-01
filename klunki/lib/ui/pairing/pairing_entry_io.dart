@@ -7,3 +7,7 @@ WidgetBuilder? get roomStartScreenBuilder => (_) => PairingScreen(mode: RoomMode
 
 /// Native: "Raum beitreten" (scanner, room code, rooms nearby).
 WidgetBuilder? get roomJoinScreenBuilder => (_) => PairingScreen(mode: RoomMode.join);
+
+/// Native: "Raum starten" for one game (KLD-105, a tile's "Mit anderen").
+Widget Function(String gameId)? get roomStartForGameBuilder =>
+    (gameId) => PairingScreen(mode: RoomMode.start, gameId: gameId);

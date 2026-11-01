@@ -65,7 +65,7 @@ void main() {
   AppLocalizations l10nAt(WidgetTester tester, Finder f) => AppLocalizations.of(tester.element(f.first));
 
   Future<void> openGameFromMenu(WidgetTester tester, String id) async {
-    await tapAndSettle(tester, find.byKey(Key('menu-$id')));
+    await tapAndSettle(tester, find.byKey(Key('menu-$id-local'))); // KLD-105: "Ein Gerät"
     // "Wer spielt?" (KLD-103): start with the default names.
     await pumpUntilFound(tester, find.byKey(const Key('hot-seat-names-ok')), what: '$id player names');
     await tapAndSettle(tester, find.byKey(const Key('hot-seat-names-ok')));

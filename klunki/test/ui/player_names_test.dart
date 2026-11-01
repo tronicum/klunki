@@ -279,7 +279,7 @@ void main() {
     testWidgets('"Wer spielt?" opens first, prefilled with Anna / Ben; defaults are not stored', (tester) async {
       final hotSeat = HotSeatNamesController.memory();
       await tester.pumpWidget(_app(hotSeat: hotSeat));
-      await tester.tap(find.byKey(const Key('menu-connect4')));
+      await tester.tap(find.byKey(const Key('menu-connect4-tile')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget);
       expect(find.text('Wer spielt?'), findsOneWidget);
@@ -297,7 +297,7 @@ void main() {
 
     testWidgets('cancel in "Wer spielt?" starts nothing', (tester) async {
       await tester.pumpWidget(_app());
-      await tester.tap(find.byKey(const Key('menu-connect4')));
+      await tester.tap(find.byKey(const Key('menu-connect4-tile')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('hot-seat-names-cancel')));
       await tester.pumpAndSettle();
@@ -308,7 +308,7 @@ void main() {
         (tester) async {
       final hotSeat = HotSeatNamesController.memory();
       await tester.pumpWidget(_app(hotSeat: hotSeat));
-      await tester.tap(find.byKey(const Key('menu-connect4')));
+      await tester.tap(find.byKey(const Key('menu-connect4-tile')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('hot-seat-name-X')), ' Lena ');
       await tester.enterText(find.byKey(const Key('hot-seat-name-O')), 'Max\u202E');
@@ -337,7 +337,7 @@ void main() {
       // The next game from the menu offers the last pair.
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('menu-muehle')));
+      await tester.tap(find.byKey(const Key('menu-muehle-tile')));
       await tester.pumpAndSettle();
       expect(tester.widget<TextField>(find.byKey(const Key('hot-seat-name-X'))).controller!.text, 'Lena');
       expect(tester.widget<TextField>(find.byKey(const Key('hot-seat-name-O'))).controller!.text, 'Max');
@@ -350,7 +350,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final hotSeat = await HotSeatNamesController.load();
       await tester.pumpWidget(_app(hotSeat: hotSeat));
-      await tester.tap(find.byKey(const Key('menu-connect4')));
+      await tester.tap(find.byKey(const Key('menu-connect4-tile')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('hot-seat-name-X')), 'Lena');
       await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
@@ -364,7 +364,7 @@ void main() {
     testWidgets('empty names in the game fall back to the default names', (tester) async {
       final hotSeat = HotSeatNamesController.memory(const HotSeatNames(x: 'Lena', o: 'Max'));
       await tester.pumpWidget(_app(hotSeat: hotSeat));
-      await tester.tap(find.byKey(const Key('menu-connect4')));
+      await tester.tap(find.byKey(const Key('menu-connect4-tile')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
       await tester.pumpAndSettle();
@@ -382,7 +382,7 @@ void main() {
 
     testWidgets('Quartett: deck first, then "Wer spielt?"; the handover cover uses the name', (tester) async {
       await tester.pumpWidget(_app());
-      await tester.tap(find.byKey(const Key('menu-quartett-trumpf')));
+      await tester.tap(find.byKey(const Key('menu-quartett-trumpf-tile')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('quartett-deck-play'))); // deck picker (KLD-069)
       await tester.pumpAndSettle();

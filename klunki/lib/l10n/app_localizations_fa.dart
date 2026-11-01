@@ -25,9 +25,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get menuChooseGame => 'یک بازی انتخاب کن';
 
   @override
-  String get menuPassDevice => 'دستگاه را دست‌به‌دست کنید';
-
-  @override
   String get menuDebugConsole => 'کنسول اشکال‌زدایی';
 
   @override
@@ -63,10 +60,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get menuDescSchiffe => 'ناوگان‌تان را پنهان کنید و به نوبت شلیک کنید.';
 
   @override
-  String get menuSectionHotSeat => 'دو نفر، یک دستگاه';
+  String get menuSectionNetwork => 'بازی با دستگاه‌های دیگر';
 
   @override
-  String get menuSectionNetwork => 'بازی با دستگاه‌های دیگر';
+  String get menuPlayOnOneDevice => 'روی یک دستگاه';
+
+  @override
+  String get menuPlayWithOthers => 'با دیگران';
+
+  @override
+  String get hotSeatPassDeviceHint =>
+      'دستگاه را دست‌به‌دست می‌کنید – چیزهای پنهان مخفی می‌مانند.';
 
   @override
   String get roomStartSubtitle => 'بقیه با کد اتاق می‌آیند';
@@ -90,10 +94,6 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get roomTypeCode => 'تایپ کد اتاق';
-
-  @override
-  String get menuHiddenInfo =>
-      'کارت‌ها یا ناوگان مخفی – دستگاه را دست‌به‌دست کنید';
 
   @override
   String shellToMove(String player) {

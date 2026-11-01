@@ -167,7 +167,7 @@ flutter run -d chrome                  # web, hot-seat works there too
 
 ### Steps
 1. The menu **Wähle ein Spiel** lists **4 Gewinnt**, **Mühle**, **Quartett (Trumpf)**, **Quartett (Sets)**, **Schiffe versenken**
-   and **GoStrategy**. The four hidden-information games carry the eye-off badge and "Gerät weitergeben". Tap a game.
+   and **GoStrategy**. Each tile has the links "Ein Gerät" and "Mit anderen" (KLD-105). Tap a game.
 2. Play. The status line shows "X ist am Zug" (X always starts), with a hint line below it:
    - **4 Gewinnt:** tap a column. The disc drops, and the winning four are highlighted.
    - **Mühle:** "Setze einen Stein" (tap a point), then "Wähle einen Stein zum Ziehen" → "Wähle ein Ziel" ("… zum Springen" with three stones left).

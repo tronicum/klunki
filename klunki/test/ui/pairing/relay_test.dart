@@ -205,6 +205,28 @@ void main() {
       expect(find.text('Kein Relay erreichbar unter 10.0.0.9:4749.'), findsOneWidget);
     });
 
+    testWidgets('KLD-105: "Mit anderen" on the web: the relay room for the tile\'s game, no game choice',
+        (tester) async {
+      await _setSize(tester, const Size(800, 1600));
+      final games = <String>[];
+      await tester.pumpWidget(localizedApp(webRoomStartScreen(
+          pageUrl: _page,
+          gameId: 'muehle',
+          deps: WebJoinDeps(
+            joinTransport: _noJoin,
+            relayHost: (config, relay, {required name}) {
+              games.add(config.gameId);
+              return Future.error(const NetException('cannot connect: nope'));
+            },
+          ))));
+      await tester.pump();
+      expect(find.byKey(const Key('relay-game-fixed')), findsOneWidget);
+      expect(find.byKey(const Key('relay-game-connect4')), findsNothing);
+      await _tapVisible(tester, find.byKey(const Key('relay-host-start')));
+      await tester.pumpAndSettle();
+      expect(games, ['muehle']);
+    });
+
     testWidgets('native join tab: no relay yet → "Kein Relay eingerichtet", joining asks for one, then remembers it',
         (tester) async {
       await _setSize(tester, const Size(800, 2000));

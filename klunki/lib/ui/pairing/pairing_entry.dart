@@ -19,6 +19,11 @@ WidgetBuilder? get roomStartScreenBuilder => impl.roomStartScreenBuilder;
 /// Builds "Raum beitreten" for this platform (null: no network play).
 WidgetBuilder? get roomJoinScreenBuilder => impl.roomJoinScreenBuilder;
 
+/// Builds "Raum starten" with [gameId] already chosen (KLD-105: a game
+/// tile's "Mit anderen" link; web: through the page's relay). Null: no
+/// network play.
+Widget Function(String gameId)? get roomStartForGameBuilder => impl.roomStartForGameBuilder;
+
 /// The join screen for a `?join=<link>` page URL parameter (KLD-055): opens
 /// the browser join flow and connects right away. Works natively too (the
 /// join goes over WebSocket either way); the app only calls it on the web.

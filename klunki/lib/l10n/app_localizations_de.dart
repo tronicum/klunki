@@ -25,9 +25,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get menuChooseGame => 'Wähle ein Spiel';
 
   @override
-  String get menuPassDevice => 'Gerät weitergeben';
-
-  @override
   String get menuDebugConsole => 'Debug-Konsole';
 
   @override
@@ -66,10 +63,17 @@ class AppLocalizationsDe extends AppLocalizations {
       'Versteckt eure Flotten und schießt abwechselnd.';
 
   @override
-  String get menuSectionHotSeat => 'Zu zweit an einem Gerät';
+  String get menuSectionNetwork => 'Mit anderen Geräten spielen';
 
   @override
-  String get menuSectionNetwork => 'Mit anderen Geräten spielen';
+  String get menuPlayOnOneDevice => 'Ein Gerät';
+
+  @override
+  String get menuPlayWithOthers => 'Mit anderen';
+
+  @override
+  String get hotSeatPassDeviceHint =>
+      'Ihr gebt das Gerät weiter – was verdeckt ist, bleibt geheim.';
 
   @override
   String get roomStartSubtitle => 'Andere kommen mit dem Raumcode dazu';
@@ -93,10 +97,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get roomTypeCode => 'Raumcode eintippen';
-
-  @override
-  String get menuHiddenInfo =>
-      'Geheime Karten oder Flotte – ihr reicht das Gerät weiter';
 
   @override
   String shellToMove(String player) {

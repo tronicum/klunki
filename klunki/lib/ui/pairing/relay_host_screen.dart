@@ -20,6 +20,7 @@ import 'network_game_session.dart';
 import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
+import 'room_game_choice.dart';
 import 'room_join.dart';
 
 /// Hosts [config] through the relay at [relay] and completes once the relay
@@ -78,6 +79,10 @@ class RelayHostScreen extends StatefulWidget {
   /// Opens the room as soon as the screen is shown.
   final bool autoStart;
 
+  /// Shows [initialGameId] instead of the game choice (KLD-105: started from
+  /// a game tile's "Mit anderen" link).
+  final bool fixedGame;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -90,6 +95,7 @@ class RelayHostScreen extends StatefulWidget {
     this.nameController,
     this.initialGameId,
     this.autoStart = false,
+    this.fixedGame = false,
   });
 
 
@@ -252,23 +258,12 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       ],
       playerNameField(key: const Key('relay-host-name'), enabled: !_starting),
       const SizedBox(height: 16),
-      Text(l10n.pairingChooseGame, style: theme.textTheme.titleMedium),
-      const SizedBox(height: 8),
-      RadioGroup<String>(
-        groupValue: _gameId,
-        onChanged: (v) {
-          if (v != null && !_starting) setState(() => _gameId = v);
-        },
-        child: Column(
-          children: [
-            for (final spec in networkGameSpecs)
-              RadioListTile<String>(
-                key: Key('relay-game-${spec.id}'),
-                value: spec.id,
-                title: Text(localizedGameTitle(l10n, spec.id, fallback: spec.title)),
-              ),
-          ],
-        ),
+      RoomGameChoice(
+        gameId: _gameId,
+        fixed: widget.fixedGame && widget.initialGameId != null,
+        enabled: !_starting,
+        keyPrefix: 'relay-game-',
+        onChanged: (id) => setState(() => _gameId = id),
       ),
       if (_hostDeck != null) ...[
         const SizedBox(height: 8),

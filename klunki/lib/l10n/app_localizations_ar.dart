@@ -25,9 +25,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuChooseGame => 'اختر لعبة';
 
   @override
-  String get menuPassDevice => 'تمرير الجهاز';
-
-  @override
   String get menuDebugConsole => 'وحدة تصحيح الأخطاء';
 
   @override
@@ -64,10 +61,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get menuDescSchiffe => 'أخفوا أساطيلكم وأطلقوا النار بالتناوب.';
 
   @override
-  String get menuSectionHotSeat => 'لاعبان على جهاز واحد';
+  String get menuSectionNetwork => 'العب مع أجهزة أخرى';
 
   @override
-  String get menuSectionNetwork => 'العب مع أجهزة أخرى';
+  String get menuPlayOnOneDevice => 'على جهاز واحد';
+
+  @override
+  String get menuPlayWithOthers => 'مع الآخرين';
+
+  @override
+  String get hotSeatPassDeviceHint => 'تتبادلون الجهاز – ما هو مخفي يبقى سرًا.';
 
   @override
   String get roomStartSubtitle => 'ينضم الآخرون برمز الغرفة';
@@ -91,9 +94,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get roomTypeCode => 'اكتب رمز الغرفة';
-
-  @override
-  String get menuHiddenInfo => 'بطاقات أو أسطول سري – تتبادلون الجهاز';
 
   @override
   String shellToMove(String player) {

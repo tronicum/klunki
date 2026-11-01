@@ -25,9 +25,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuChooseGame => '选择游戏';
 
   @override
-  String get menuPassDevice => '轮流传递设备';
-
-  @override
   String get menuDebugConsole => '调试控制台';
 
   @override
@@ -61,10 +58,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get menuDescSchiffe => '布置舰队，轮流开火。';
 
   @override
-  String get menuSectionHotSeat => '两人用一台设备';
+  String get menuSectionNetwork => '与其他设备一起玩';
 
   @override
-  String get menuSectionNetwork => '与其他设备一起玩';
+  String get menuPlayOnOneDevice => '一台设备';
+
+  @override
+  String get menuPlayWithOthers => '和其他人一起';
+
+  @override
+  String get hotSeatPassDeviceHint => '轮流传递设备——隐藏的牌不能给对方看。';
 
   @override
   String get roomStartSubtitle => '其他人用房间码加入';
@@ -88,9 +91,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get roomTypeCode => '输入房间码';
-
-  @override
-  String get menuHiddenInfo => '手牌或舰队不能给对方看——轮流传递设备';
 
   @override
   String shellToMove(String player) {

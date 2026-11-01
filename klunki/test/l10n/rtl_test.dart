@@ -49,9 +49,15 @@ void main() {
     final row = find.byKey(const Key('menu-connect4'));
     expect(row, findsOneWidget);
     expect(dirOf(tester, row), TextDirection.rtl);
-    // The trailing chevron sits on the left in RTL.
-    final chevron = find.descendant(of: row, matching: find.byIcon(Icons.chevron_right));
-    expect(tester.getCenter(chevron).dx, lessThan(tester.getCenter(row).dx));
+    // KLD-105: the play-mode links: icon on the right, chevron on the left.
+    for (final (link, icon) in [('local', Icons.smartphone), ('network', Icons.wifi)]) {
+      final l = find.byKey(Key('menu-connect4-$link'));
+      expect(dirOf(tester, l), TextDirection.rtl);
+      final chevron = find.descendant(of: l, matching: find.byIcon(Icons.chevron_right));
+      final lead = find.descendant(of: l, matching: find.byIcon(icon));
+      expect(tester.getCenter(chevron).dx, lessThan(tester.getCenter(l).dx), reason: link);
+      expect(tester.getCenter(lead).dx, greaterThan(tester.getCenter(l).dx), reason: link);
+    }
   });
 
   for (final locale in [ar, fa]) {

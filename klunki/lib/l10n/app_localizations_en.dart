@@ -25,9 +25,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuChooseGame => 'Choose a game';
 
   @override
-  String get menuPassDevice => 'Pass the device';
-
-  @override
   String get menuDebugConsole => 'Debug console';
 
   @override
@@ -64,10 +61,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get menuDescSchiffe => 'Hide your fleets and take turns firing.';
 
   @override
-  String get menuSectionHotSeat => 'Two players, one device';
+  String get menuSectionNetwork => 'Play with other devices';
 
   @override
-  String get menuSectionNetwork => 'Play with other devices';
+  String get menuPlayOnOneDevice => 'One device';
+
+  @override
+  String get menuPlayWithOthers => 'With others';
+
+  @override
+  String get hotSeatPassDeviceHint =>
+      'You pass the device around – hidden things stay secret.';
 
   @override
   String get roomStartSubtitle => 'Others join with the room code';
@@ -91,9 +95,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roomTypeCode => 'Type the room code';
-
-  @override
-  String get menuHiddenInfo => 'Secret cards or fleet – you pass the device';
 
   @override
   String shellToMove(String player) {
