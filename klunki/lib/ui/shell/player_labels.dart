@@ -4,7 +4,7 @@ import 'package:klunki_engine/klunki_engine.dart';
 
 import '../ltr.dart';
 
-/// How the game shell names the players (KLD-056, KLD-102). The [GameScreen]
+/// How the game shell names the players (KLD-056, KLD-103). The [GameScreen]
 /// asks the nearest [PlayerLabelsScope]; without one it uses [defaults].
 ///
 /// * [names]: display names per player (network: both handles; hot-seat:
@@ -82,7 +82,7 @@ class PlayerLabels {
       );
 }
 
-/// The regional default name of [p] (KLD-102): in German "Anna" for A and
+/// The regional default name of [p] (KLD-103): in German "Anna" for A and
 /// "Ben" for B; every locale has its own pair (`playerDefaultNameA` / `B`).
 /// Presentation only: the engine and the protocol still know the players as
 /// A and B; a room only sends the name its player confirmed (KLD-056).

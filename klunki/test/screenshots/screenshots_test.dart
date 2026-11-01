@@ -684,13 +684,13 @@ void main() {
     }
   });
 
-  // KLD-102: default player names (Anna / Ben, regional per locale) instead
+  // KLD-103: default player names (Anna / Ben, regional per locale) instead
   // of X / O. "Wer spielt?" at the start of a hot-seat game, the Quartett
   // (Trumpf) status line, a 4 Gewinnt status, and RTL sentences with names.
-  group('kld102', () {
+  group('kld103', () {
     for (final locale in const [Locale('de'), Locale('ar')]) {
       final l = locale.languageCode;
-      testWidgets('kld102 start dialog $l', skip: skip != null, (tester) async {
+      testWidgets('kld103 start dialog $l', skip: skip != null, (tester) async {
         await _setup(tester, phone, Brightness.light);
         if (l == 'de') {
           await tester.pumpWidget(_wrap(KlunkiApp(localeController: LocaleController.memory(locale))));
@@ -719,25 +719,25 @@ void main() {
           await tester.tap(find.text('open'));
         }
         await tester.pumpAndSettle();
-        await _shot(tester, 'kld102-start-dialog-$l-phone-light', settle: const Duration(milliseconds: 1));
+        await _shot(tester, 'kld103-start-dialog-$l-phone-light', settle: const Duration(milliseconds: 1));
       });
-      testWidgets('kld102 trumpf status $l', skip: skip != null, (tester) async {
+      testWidgets('kld103 trumpf status $l', skip: skip != null, (tester) async {
         await _setup(tester, phone, Brightness.light);
         final (seed, stat) = _qtOpening((s, va, vb) => s.beats(vb, va));
         await _qtHotSeat(tester, seed, stat, locale, webFonts: true);
-        await _shot(tester, 'kld102-trumpf-status-$l-phone-light', settle: const Duration(milliseconds: 300));
+        await _shot(tester, 'kld103-trumpf-status-$l-phone-light', settle: const Duration(milliseconds: 300));
       });
     }
-    testWidgets('kld102 connect4 de', skip: skip != null, (tester) async {
+    testWidgets('kld103 connect4 de', skip: skip != null, (tester) async {
       await _setup(tester, phone, Brightness.light);
       final c = await _game(tester, 'connect4', 3);
       await tester.pump();
       expect(c.game.currentPlayer, Player.b);
-      await _shot(tester, 'kld102-connect4-de-phone-light');
+      await _shot(tester, 'kld103-connect4-de-phone-light');
     });
     // A typed Latin name in a Persian sentence, the other player keeps the
     // Persian default name.
-    testWidgets('kld102 connect4 fa mixed', skip: skip != null, (tester) async {
+    testWidgets('kld103 connect4 fa mixed', skip: skip != null, (tester) async {
       await _setup(tester, phone, Brightness.light);
       final c = GameController.hotSeat(const GameConfig('connect4', seed: 7));
       addTearDown(c.dispose);
@@ -748,7 +748,7 @@ void main() {
         webFonts: true,
       )));
       await tester.pump();
-      await _shot(tester, 'kld102-connect4-fa-mixed-phone-light');
+      await _shot(tester, 'kld103-connect4-fa-mixed-phone-light');
     });
   });
   // KLD-100: "3 or fewer cards: choose". The low picker's cards face-up, the

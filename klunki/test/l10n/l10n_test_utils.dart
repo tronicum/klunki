@@ -11,7 +11,7 @@ import 'package:klunki_engine/klunki_engine.dart' show Player;
 /// be en-US).
 const testLocale = Locale('de');
 
-/// The German default player names (KLD-102): A is "Anna", B is "Ben".
+/// The German default player names (KLD-103): A is "Anna", B is "Ben".
 String testName(Player p) => p == Player.a ? 'Anna' : 'Ben';
 
 /// German strings, for code under test that takes an [AppLocalizations]

@@ -241,7 +241,7 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
     await tester.tap(find.byKey(const Key('quartett-deck-play')));
     await tester.pumpAndSettle();
   }
-  // "Wer spielt?" (KLD-102): both names, prefilled with the default names.
+  // "Wer spielt?" (KLD-103): both names, prefilled with the default names.
   audit.check(tester, '$id player names');
   await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
   await tester.pumpAndSettle();

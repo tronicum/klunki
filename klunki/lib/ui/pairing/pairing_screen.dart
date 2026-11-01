@@ -64,7 +64,7 @@ class PairingDeps {
 
   /// Suggestion for the player name ("Wie heißt du?") when none is saved;
   /// null (the app): the regional default name, "Anna" when starting a room,
-  /// "Ben" when joining one (KLD-102).
+  /// "Ben" when joining one (KLD-103).
   final String Function()? deviceName;
 
   /// Seed for a hosted game.

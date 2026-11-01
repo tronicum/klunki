@@ -141,14 +141,14 @@ class PlayerNameButton extends StatelessWidget {
       key: const Key('player-name-button'),
       icon: const Icon(Icons.person_outline),
       tooltip: AppLocalizations.of(context).playerNameLabel,
-      // Prefilled with the default name of the room starter (KLD-102).
+      // Prefilled with the default name of the room starter (KLD-103).
       onPressed: () => showPlayerNameDialog(context, scope.controller,
           suggestion: defaultPlayerName(AppLocalizations.of(context), Player.a)),
     );
   }
 }
 
-/// Hot-seat player names (KLD-056, KLD-102): two fields prefilled with the
+/// Hot-seat player names (KLD-056, KLD-103): two fields prefilled with the
 /// names in use, i.e. the last typed ones or the regional default names
 /// ("Anna" / "Ben"). Saved to the app's [HotSeatNamesController]; a field
 /// left empty, or holding the default name, stores no name, so the default
@@ -223,7 +223,7 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
         decoration: InputDecoration(
           labelText: l10n.hotSeatNameLabel(gameId == 'chess' ? chessSideName(l10n, p) : mark),
           hintText: defaultPlayerName(l10n, p),
-          // The player's colour and symbol, as on the board (KLD-102).
+          // The player's colour and symbol, as on the board (KLD-103).
           prefixIcon: gameId == null
               ? null
               : Padding(

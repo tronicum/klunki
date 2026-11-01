@@ -31,7 +31,7 @@ const _result = Key('result-dialog');
 const _choose = Key('qt-choose');
 const _chooseHint = Key('qt-choose-hint');
 
-/// The player as the texts name it (KLD-102): the default names, which
+/// The player as the texts name it (KLD-103): the default names, which
 /// the live network devices use too.
 String _name(Player p) => p == Player.a ? 'Anna' : 'Ben';
 

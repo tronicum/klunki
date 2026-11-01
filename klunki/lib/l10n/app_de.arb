@@ -1147,19 +1147,19 @@
   },
   "playerDefaultNameA": "Anna",
   "@playerDefaultNameA": {
-    "description": "KLD-102: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences (\"Anna ist am Zug\"). Must differ from playerDefaultNameB. Avoid names that read as a common word."
+    "description": "KLD-103: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences (\"Anna ist am Zug\"). Must differ from playerDefaultNameB. Avoid names that read as a common word."
   },
   "playerDefaultNameB": "Ben",
   "@playerDefaultNameB": {
-    "description": "KLD-102: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA."
+    "description": "KLD-103: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA."
   },
   "hotSeatStartTitle": "Wer spielt?",
   "@hotSeatStartTitle": {
-    "description": "KLD-102: title of the player names dialog shown when a game on this device starts."
+    "description": "KLD-103: title of the player names dialog shown when a game on this device starts."
   },
   "hotSeatStartPlay": "Spielen",
   "@hotSeatStartPlay": {
-    "description": "KLD-102: button of the player names dialog at the start of a game on this device: start the game with these names."
+    "description": "KLD-103: button of the player names dialog at the start of a game on this device: start the game with these names."
   },
   "hotSeatNamesTitle": "Spielernamen",
   "@hotSeatNamesTitle": {
@@ -1693,7 +1693,7 @@
   },
   "goArmyOwn": "Deine Armee ({mark})",
   "@goArmyOwn": {
-    "description": "GoStrategy panel heading: the viewer's army. mark = player name, e.g. \"Anna\" (KLD-102; the key keeps its old placeholder name).",
+    "description": "GoStrategy panel heading: the viewer's army. mark = player name, e.g. \"Anna\" (KLD-103; the key keeps its old placeholder name).",
     "placeholders": {
       "mark": {
         "type": "String"

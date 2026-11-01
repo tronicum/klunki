@@ -28,11 +28,11 @@ typedef BoardBuilder = Widget Function(BuildContext context, GameController cont
 typedef MoveDescriber = String Function(AppLocalizations l10n, AcceptedMove move);
 
 /// Player marks (the symbol on a player's token, and widget keys): player A
-/// is "X", player B is "O". Texts name the players instead (KLD-102, see
+/// is "X", player B is "O". Texts name the players instead (KLD-103, see
 /// [PlayerLabels.label]).
 String playerMark(Player p) => PlayerLabels.markOf(p);
 
-/// [p] as named inside a sentence (KLD-102): the name ("Anna"), see
+/// [p] as named inside a sentence (KLD-103): the name ("Anna"), see
 /// [PlayerLabels.label], from the nearest [PlayerLabelsScope].
 String playerName(BuildContext context, Player p) =>
     PlayerLabelsScope.of(context).label(context, AppLocalizations.of(context), p);
@@ -108,7 +108,7 @@ class ShellStatus {
 /// * a result dialog ("Nochmal" / "Menü") once the game is over.
 ///
 /// Players are named through the nearest [PlayerLabelsScope] (KLD-056,
-/// KLD-102): the regional default names ("Anna" / "Ben") unless the players
+/// KLD-103): the regional default names ("Anna" / "Ben") unless the players
 /// typed their own (hot-seat: at the start and through the app bar action
 /// "Spielernamen"; network: each device's player name).
 ///
@@ -933,7 +933,7 @@ class _StatusBadge extends StatelessWidget {
 }
 
 /// Hot-seat (KLD-067): both players side by side, each as token + name
-/// (KLD-102: the default name when none was typed); the one to move at full strength with an
+/// (KLD-103: the default name when none was typed); the one to move at full strength with an
 /// underline in its colour, the other faded. Decorative: the status line
 /// already says whose turn it is.
 class _PlayersLegend extends StatelessWidget {

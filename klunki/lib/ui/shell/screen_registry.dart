@@ -85,7 +85,7 @@ Future<void> openGame(BuildContext context, String gameId, {int? seed, String? d
 }
 
 /// The menu's way into a game: Quartett first asks for the deck
-/// (KLD-069, [showQuartettDeckPicker]); then "Wer spielt?" (KLD-102) asks
+/// (KLD-069, [showQuartettDeckPicker]); then "Wer spielt?" (KLD-103) asks
 /// for both player names, prefilled with the last ones or the default names
 /// (only with the app's [PlayerNameScope]). Cancelling either starts nothing.
 Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
@@ -122,7 +122,7 @@ class _GameSessionState extends State<GameSession> {
     final screen = buildGameScreen(_controller);
     final hotSeat = PlayerNameScope.maybeOf(context)?.hotSeat;
     if (hotSeat == null) return screen;
-    // Hot-seat names (KLD-056, KLD-102); "Nochmal" keeps them (same store).
+    // Hot-seat names (KLD-056, KLD-103); "Nochmal" keeps them (same store).
     return ValueListenableBuilder<HotSeatNames>(
       valueListenable: hotSeat,
       builder: (context, names, child) => PlayerLabelsScope(labels: hotSeatLabels(names), child: child!),

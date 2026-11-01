@@ -64,7 +64,7 @@ class PlayerNameController extends ValueNotifier<String?> {
 }
 
 /// Names the two hot-seat players typed, player A ([x], mark X) and player B
-/// ([o], mark O); null = the regional default name ("Anna" / "Ben", KLD-102),
+/// ([o], mark O); null = the regional default name ("Anna" / "Ben", KLD-103),
 /// which is never stored so it follows the app language.
 @immutable
 class HotSeatNames {
@@ -86,7 +86,7 @@ class HotSeatNames {
 }
 
 /// The last-used hot-seat names (KLD-056). Starting a hot-seat game shows
-/// them in "Wer spielt?" (KLD-102); the players change them there or through
+/// them in "Wer spielt?" (KLD-103); the players change them there or through
 /// the game's "Spielernamen" action.
 /// Same cleaning as [PlayerNameController]; persisted under [prefsKeyX] /
 /// [prefsKeyO].

@@ -8,7 +8,7 @@ library;
 enum Player { a, b }
 
 /// English name of [p] in the engine's own texts (CLI, debug console, result
-/// reasons, test logs; KLD-102): "Anna" for A, "Ben" for B, the app's default
+/// reasons, test logs; KLD-103): "Anna" for A, "Ben" for B, the app's default
 /// names. The app shows its own, localized names; the protocol only knows
 /// `a` / `b`.
 String playerNameOf(Player? p) => switch (p) {

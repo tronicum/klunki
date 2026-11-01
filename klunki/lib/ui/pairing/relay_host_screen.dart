@@ -66,7 +66,7 @@ class RelayHostScreen extends StatefulWidget {
   final int Function() seed;
 
   /// Suggestion for the player name when none is saved; null: the regional
-  /// default name of the room starter ("Anna", KLD-102).
+  /// default name of the room starter ("Anna", KLD-103).
   final String Function()? deviceName;
 
   /// Overrides the app's player name controller (tests).

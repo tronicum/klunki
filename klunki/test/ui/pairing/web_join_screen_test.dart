@@ -56,7 +56,7 @@ Uri _ws(String host, int port) => Uri(scheme: 'ws', host: host, port: port);
 
 void main() {
   group('web join screen', () {
-    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Ben" (KLD-102)', (tester) async {
+    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Ben" (KLD-103)', (tester) async {
       final r = _Recorder();
       await _pumpScreen(tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join)));
       expect(find.widgetWithText(AppBar, 'Raum beitreten'), findsOneWidget);

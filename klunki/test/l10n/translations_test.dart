@@ -27,7 +27,7 @@ const sameAsEnglish = {
   'Horizontal',
   'Vertical',
   'Point {point}, {player}',
-  // KLD-102: the default player names (de, en, fr, and Ben in es).
+  // KLD-103: the default player names (de, en, fr, and Ben in es).
   'Anna',
   'Ben',
   // KLD-085: the menu's version line ("Version" is French too).

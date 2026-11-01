@@ -1,6 +1,6 @@
-# KLD-102 — Default player names Anna / Ben instead of X / O
+# KLD-103 — Default player names Anna / Ben instead of X / O
 
-- **ID:** `KLD-102`
+- **ID:** `KLD-103`
 - **Title:** Players are named in every text ("Anna ist am Zug"); regional default names per locale; own names at the hot-seat start
 - **Status:** DONE (waiting for the user's step-by-step review)
 - **Depends on:** KLD-056 (player names), KLD-091/092 (Trumpf hot-seat texts)
@@ -78,7 +78,7 @@ is **Ben** by default; players can type their own names.
   {player} …", "Attaque par {player}". fa, zh and es needed no change.
 - **RTL:** names stay bidi-isolated (`bidiName`, FSI … PDI) inside
   sentences, so a Latin name in a Persian sentence keeps its place (see the
-  `kld102-connect4-fa-mixed` shot).
+  `kld103-connect4-fa-mixed` shot).
 
 ### Protocol and compatibility
 
@@ -100,6 +100,6 @@ localizes by `GameEndReason`).
 
 ## Screenshots
 
-`klunki/test/screenshots/screenshots_test.dart`, group `kld102`:
-`kld102-start-dialog-{de,ar}`, `kld102-trumpf-status-{de,ar}`,
-`kld102-connect4-de`, `kld102-connect4-fa-mixed` (all phone, light).
+`klunki/test/screenshots/screenshots_test.dart`, group `kld103`:
+`kld103-start-dialog-{de,ar}`, `kld103-trumpf-status-{de,ar}`,
+`kld103-connect4-de`, `kld103-connect4-fa-mixed` (all phone, light).

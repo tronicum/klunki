@@ -85,7 +85,7 @@ abstract class TextGame {
   /// CLI sets them); a player without one is [playerNameOf] ("Anna" / "Ben").
   Map<Player, String> names = const {};
 
-  /// Name of [p] in sentences (KLD-102): [names], else "Anna" (A) / "Ben"
+  /// Name of [p] in sentences (KLD-103): [names], else "Anna" (A) / "Ben"
   /// (B), the app's default names; [mark] stays the symbol on the board.
   String playerName(Player? p) => names[p] ?? playerNameOf(p);
 

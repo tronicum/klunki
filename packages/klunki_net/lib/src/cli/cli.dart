@@ -442,7 +442,7 @@ class _Play {
   String get _oppMark => _view.mark(_opponent);
   String get _oppName => _view.playerName(_opponent);
 
-  /// Both handles once known (KLD-102): the narration names the players.
+  /// Both handles once known (KLD-103): the narration names the players.
   Map<Player, String> get _names {
     final own = _host?.name ?? _guest!.name;
     final peer = _host != null ? _host.guestName : _guest!.hostName;

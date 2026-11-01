@@ -1170,25 +1170,25 @@ abstract class AppLocalizations {
   /// **'{name} ({mark})'**
   String playerLabel(String name, String mark);
 
-  /// KLD-102: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences ("Anna ist am Zug"). Must differ from playerDefaultNameB. Avoid names that read as a common word.
+  /// KLD-103: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences ("Anna ist am Zug"). Must differ from playerDefaultNameB. Avoid names that read as a common word.
   ///
   /// In de, this message translates to:
   /// **'Anna'**
   String get playerDefaultNameA;
 
-  /// KLD-102: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA.
+  /// KLD-103: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA.
   ///
   /// In de, this message translates to:
   /// **'Ben'**
   String get playerDefaultNameB;
 
-  /// KLD-102: title of the player names dialog shown when a game on this device starts.
+  /// KLD-103: title of the player names dialog shown when a game on this device starts.
   ///
   /// In de, this message translates to:
   /// **'Wer spielt?'**
   String get hotSeatStartTitle;
 
-  /// KLD-102: button of the player names dialog at the start of a game on this device: start the game with these names.
+  /// KLD-103: button of the player names dialog at the start of a game on this device: start the game with these names.
   ///
   /// In de, this message translates to:
   /// **'Spielen'**
@@ -1734,7 +1734,7 @@ abstract class AppLocalizations {
   /// **'Noch {moves} Züge ohne Kampf, dann ist es unentschieden.'**
   String goMoveLimit(String moves);
 
-  /// GoStrategy panel heading: the viewer's army. mark = player name, e.g. "Anna" (KLD-102; the key keeps its old placeholder name).
+  /// GoStrategy panel heading: the viewer's army. mark = player name, e.g. "Anna" (KLD-103; the key keeps its old placeholder name).
   ///
   /// In de, this message translates to:
   /// **'Deine Armee ({mark})'**

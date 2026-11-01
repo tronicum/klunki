@@ -150,7 +150,7 @@ void main() {
       expect(name.value, 'Bea');
     });
 
-    testWidgets('without a saved name the button suggests the default name (KLD-102)', (tester) async {
+    testWidgets('without a saved name the button suggests the default name (KLD-103)', (tester) async {
       await tester.pumpWidget(_app(name: PlayerNameController.memory(suggestion: () => 'Pixel 7')));
       await tester.tap(find.byKey(const Key('player-name-button')));
       await tester.pumpAndSettle();
@@ -158,7 +158,7 @@ void main() {
     });
   });
 
-  group('room name suggestion (KLD-102)', () {
+  group('room name suggestion (KLD-103)', () {
     for (final (key, expected) in [('open-pairing', 'Anna'), ('open-join', 'Ben')]) {
       testWidgets('$key suggests "$expected"', (tester) async {
         tester.view.physicalSize = const Size(800, 1400);
@@ -185,7 +185,7 @@ void main() {
     }
   });
 
-  group('default names per locale (KLD-102)', () {
+  group('default names per locale (KLD-103)', () {
     const defaults = {
       'de': ('Anna', 'Ben'),
       'en': ('Anna', 'Ben'),

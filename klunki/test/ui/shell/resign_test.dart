@@ -31,7 +31,7 @@ void main() {
     for (final id in appGameSpecs.map((s) => s.id)) {
       testWidgets('$id: the flag asks who resigns; Ben resigns on Anna\'s turn', (tester) async {
         final c = await pumpGame(tester, id);
-        // Default names (KLD-102); chess adds the side (KLD-059).
+        // Default names (KLD-103); chess adds the side (KLD-059).
         final (x, o) = id == 'chess' ? ('Anna (Weiß)', 'Ben (Schwarz)') : ('Anna', 'Ben');
         expect(c.game.currentPlayer, Player.a);
         await _openResign(tester);

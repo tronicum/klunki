@@ -39,7 +39,7 @@ void main() {
           await tester.tap(find.byKey(const Key('quartett-deck-play')));
           await tester.pumpAndSettle();
         }
-        // "Wer spielt?" (KLD-102), prefilled with the default names.
+        // "Wer spielt?" (KLD-103), prefilled with the default names.
         await tester.tap(find.text('Spielen'));
         await tester.pumpAndSettle();
         expect(find.byType(GameScreen), findsOneWidget);

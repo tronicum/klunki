@@ -7,7 +7,7 @@ import 'text_game.dart';
 /// " – Züge" for a deck other than the default cars (KLD-069).
 String _deckSuffix(QuartettGame g) => g.deck.id == QuartettDeck.defaultId ? '' : ' – ${g.deck.name}';
 
-/// The player named by a payload key `a` / `b` (KLD-102: Anna / Ben).
+/// The player named by a payload key `a` / `b` (KLD-103: Anna / Ben).
 String _player(String key) => playerNameOf(key == 'a' ? Player.a : Player.b);
 
 String _value(QuartettStat s, num v) => s.unit.isEmpty ? s.formatNumber(v) : '${s.formatNumber(v)} ${s.unit}';

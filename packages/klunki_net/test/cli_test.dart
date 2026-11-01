@@ -93,7 +93,7 @@ class Proxy {
   }
 }
 
-/// The players of [hostAndJoin] (KLD-102: the narration uses their names).
+/// The players of [hostAndJoin] (KLD-103: the narration uses their names).
 const _names = {Player.a: 'Ada', Player.b: 'Bea'};
 
 Future<(Terminal, Terminal)> hostAndJoin(List<String> hostArgs) async {

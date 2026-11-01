@@ -42,7 +42,7 @@ class WebJoinDeps {
   final int Function() seed;
 
   /// Suggestion for the player name when none is saved; null: the regional
-  /// default name ("Ben" when joining, "Anna" when starting a room, KLD-102).
+  /// default name ("Ben" when joining, "Anna" when starting a room, KLD-103).
   final String Function()? deviceName;
 
   /// Upper bound for a join attempt (also covers a WebSocket that never
