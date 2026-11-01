@@ -43,9 +43,10 @@ class LanguagePicker extends StatelessWidget {
       return ListTile(
         key: Key('language-$key'),
         // Endonyms include Arabic and Chinese script in every app language
-        // (the theme carries the same fallback; explicit for robustness).
+        // (on the web the theme carries the same fallback; explicit for
+        // robustness; none on Android/iOS, see fonts.dart).
         title: Text(label,
-            style: const TextStyle(fontFamilyFallback: appFontFallback)),
+            style: TextStyle(fontFamilyFallback: platformFontFallback())),
         trailing: selected ? const Icon(Icons.check) : null,
         selected: selected,
         onTap: () {
