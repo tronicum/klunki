@@ -78,7 +78,7 @@
   },
   {
    "t": "p",
-   "x": "Den Namen gibst du selbst ein. In der App kann er mit dem Gerätenamen vorausgefüllt sein; du kannst ihn jederzeit ändern. Der Name wird nur bei einem Spiel über das Netzwerk an das Gerät deiner Mitspielerin bzw. deines Mitspielers übertragen, entweder direkt im lokalen Netzwerk oder über ein Relay (siehe unten). Wenn du in der App ein Spiel im WLAN hostest, werden dein Name und das gewählte Spiel im lokalen Netzwerk angekündigt (Bonjour/mDNS), damit andere Geräte das Spiel finden. Das können alle Geräte in diesem Netzwerk sehen, solange du hostest."
+   "x": "Den Namen gibst du selbst ein. In der App kann er mit dem Gerätenamen vorausgefüllt sein; du kannst ihn jederzeit ändern. Der Name wird nur bei einem Spiel über das Netzwerk an das Gerät deiner Mitspielerin bzw. deines Mitspielers übertragen, entweder direkt im lokalen Netzwerk oder über ein Relay (siehe unten). Wenn du in der App einen Raum im WLAN startest, werden dein Name und das gewählte Spiel im lokalen Netzwerk angekündigt (Bonjour/mDNS), damit andere Geräte den Raum finden. Das können alle Geräte in diesem Netzwerk sehen, solange dein Raum offen ist."
   },
   {
    "t": "h2",
@@ -94,7 +94,7 @@
   },
   {
    "t": "li",
-   "x": "Über ein Relay: Ein Relay ist ein kleines Programm, das die Spielenden selbst betreiben, z. B. auf einem Computer im eigenen WLAN (klunki relay). Wir betreiben kein Relay. Das Relay verbindet zwei Geräte über einen kurzen Raumcode und leitet die Spielnachrichten nur weiter. Es speichert sie nicht und schreibt keine Protokolle (weder Nachrichteninhalte noch IP-Adressen noch Raumcodes). Technisch bedingt kennt es die IP-Adressen der verbundenen Geräte, solange die Verbindung besteht. Ein Raum wird gelöscht, wenn der Host ihn verlässt oder er 10 Minuten lang nicht benutzt wird. Nutzt du ein Relay, das jemand anderes betreibt, ist diese Person dafür verantwortlich."
+   "x": "Über ein Relay: Ein Relay ist ein kleines Programm, das die Spielenden selbst betreiben, z. B. auf einem Computer im eigenen WLAN (klunki relay). Wir betreiben kein Relay. Das Relay verbindet zwei Geräte über einen kurzen Raumcode und leitet die Spielnachrichten nur weiter. Es speichert sie nicht und schreibt keine Protokolle (weder Nachrichteninhalte noch IP-Adressen noch Raumcodes). Technisch bedingt kennt es die IP-Adressen der verbundenen Geräte, solange die Verbindung besteht. Ein Raum wird gelöscht, wenn das Gerät, das ihn gestartet hat, ihn verlässt oder er 10 Minuten lang nicht benutzt wird. Nutzt du ein Relay, das jemand anderes betreibt, ist diese Person dafür verantwortlich."
   },
   {
    "t": "h2",
@@ -102,7 +102,7 @@
   },
   {
    "t": "p",
-   "x": "Die App fragt nach Zugriff auf das lokale Netzwerk. Er wird nur verwendet, um Spiele im WLAN zu finden und anzukündigen (Bonjour/mDNS) und um direkt mit dem anderen Gerät zu spielen. Für nichts anderes."
+   "x": "Die App fragt nach Zugriff auf das lokale Netzwerk. Er wird nur verwendet, um Räume im WLAN zu finden und anzukündigen (Bonjour/mDNS) und um direkt mit dem anderen Gerät zu spielen. Für nichts anderes."
   },
   {
    "t": "h2",
@@ -110,7 +110,7 @@
   },
   {
    "t": "p",
-   "x": "Die App nutzt die Kamera nur, wenn du einen QR-Code scannst, um einem Spiel beizutreten. Das Bild wird auf dem Gerät ausgewertet und weder gespeichert noch übertragen. Die Web-App nutzt die Kamera nicht."
+   "x": "Die App nutzt die Kamera nur, wenn du einen QR-Code scannst, um einem Raum beizutreten. Das Bild wird auf dem Gerät ausgewertet und weder gespeichert noch übertragen. Die Web-App nutzt die Kamera nicht."
   },
   {
    "t": "h2",
@@ -232,7 +232,7 @@
   },
   {
    "t": "p",
-   "x": "You type the name yourself. In the app it may be pre-filled with the device name; you can change it at any time. The name is only sent to the other player's device in a network game, either directly on the local network or through a relay (see below). When you host a game over Wi-Fi in the app, your name and the chosen game are announced on the local network (Bonjour/mDNS) so other devices can find the game. Every device on that network can see this while you are hosting."
+   "x": "You type the name yourself. In the app it may be pre-filled with the device name; you can change it at any time. The name is only sent to the other player's device in a network game, either directly on the local network or through a relay (see below). When you start a room on the Wi-Fi in the app, your name and the chosen game are announced on the local network (Bonjour/mDNS) so other devices can find the room. Every device on that network can see this while your room is open."
   },
   {
    "t": "h2",
@@ -248,7 +248,7 @@
   },
   {
    "t": "li",
-   "x": "Through a relay: a relay is a small program that the players run themselves, e.g. on a computer on their own Wi-Fi (klunki relay). We do not run a relay. The relay pairs two devices by a short room code and only passes the game messages on. It does not store them and writes no logs (no message contents, no IP addresses, no room codes). For technical reasons it knows the IP addresses of the connected devices while the connection is open. A room is deleted when the host leaves or after 10 minutes without use. If you use a relay run by someone else, that person is responsible for it."
+   "x": "Through a relay: a relay is a small program that the players run themselves, e.g. on a computer on their own Wi-Fi (klunki relay). We do not run a relay. The relay pairs two devices by a short room code and only passes the game messages on. It does not store them and writes no logs (no message contents, no IP addresses, no room codes). For technical reasons it knows the IP addresses of the connected devices while the connection is open. A room is deleted when the device that started it leaves or after 10 minutes without use. If you use a relay run by someone else, that person is responsible for it."
   },
   {
    "t": "h2",
@@ -256,7 +256,7 @@
   },
   {
    "t": "p",
-   "x": "The app asks for local network access. It is used only to find and announce games on the Wi-Fi (Bonjour/mDNS) and to play directly with the other device. Nothing else."
+   "x": "The app asks for local network access. It is used only to find and announce rooms on the Wi-Fi (Bonjour/mDNS) and to play directly with the other device. Nothing else."
   },
   {
    "t": "h2",
@@ -264,7 +264,7 @@
   },
   {
    "t": "p",
-   "x": "The app uses the camera only when you scan a QR code to join a game. The image is processed on the device and is neither stored nor sent anywhere. The web app does not use the camera."
+   "x": "The app uses the camera only when you scan a QR code to join a room. The image is processed on the device and is neither stored nor sent anywhere. The web app does not use the camera."
   },
   {
    "t": "h2",

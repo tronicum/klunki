@@ -60,18 +60,23 @@
   <h2>Häufige Fragen</h2>
 
   <h3>Wie spielen wir im WLAN?</h3>
-  <p>Beide Geräte müssen im selben WLAN sein. Auf einem Gerät „Über WLAN spielen“ → „Spiel hosten“ wählen und ein
-    Spiel aussuchen. Das andere Gerät findet das Spiel in der Liste oder scannt den QR-Code des Hosts. Gäste-WLANs
-    blockieren oft Verbindungen zwischen Geräten; dann ein anderes WLAN oder den Hotspot eines Handys nutzen.</p>
+  <p>Beide Geräte müssen im selben WLAN sein. Jedes Spiel im Menü hat zwei Links: „Ein Gerät“ (ihr spielt
+    abwechselnd auf diesem Gerät) und „Mit anderen“. Auf einem Gerät beim Spiel „Mit anderen“ antippen, oder unten
+    unter „Mit anderen Geräten spielen“ auf „Raum starten“ tippen und ein Spiel wählen. Auf dem anderen Gerät
+    „Raum beitreten“ antippen und den QR-Code scannen oder den Raumcode eintippen. Geräte im selben WLAN finden den
+    Raum auch unter „Räume in der Nähe“. Gäste-WLANs blockieren oft Verbindungen zwischen Geräten; dann ein anderes
+    WLAN oder den Hotspot eines Handys nutzen.</p>
 
   <h3>Was sind Relay und Raumcode?</h3>
   <p>Zwei Browser können sich nicht direkt verbinden. Dafür gibt es ein Relay: ein kleines Programm, das ihr auf
-    einem Computer im WLAN startet (<code>klunki relay</code>). Es leitet nur die Spielzüge weiter. Wer „Spiel
-    hosten“ wählt, bekommt einen kurzen Raumcode (z. B. <code>K7Q 2M</code>), einen QR-Code und einen Link. Das
-    andere Gerät gibt den Raumcode ein oder öffnet den Link. Die Apps können ebenfalls über ein Relay spielen.</p>
+    einem Computer im WLAN startet (<code>klunki relay</code>). Es leitet nur die Spielzüge weiter. Wer einen
+    Raum über das Relay startet, bekommt einen kurzen Raumcode (z. B. <code>K7Q 2M</code>), einen QR-Code und einen
+    Link. Das andere Gerät tippt auf „Raum beitreten“ und gibt den Raumcode ein oder öffnet den Link. In der Web-App
+    läuft jeder Raum über ein Relay; in der App, wenn unter „Erweitert“ „Raum über ein Relay öffnen“ eingeschaltet
+    ist. Die Relay-Adresse lässt sich ebenfalls unter „Erweitert“ ändern.</p>
 
   <h3>Wie funktioniert der QR-Code?</h3>
-  <p>In der App „QR-Code scannen“ antippen und die Kamera auf den QR-Code des anderen Geräts halten. Klunki
+  <p>In der App „Raum beitreten“ und dann „QR-Code scannen“ antippen und die Kamera auf den QR-Code des anderen Geräts halten. Klunki
     verbindet sich dann von selbst, direkt oder über das Relay mit dem Raumcode. Die Web-App kann nicht scannen;
     dort den Raumcode eintippen oder den Link öffnen.</p>
 
@@ -84,15 +89,17 @@
   <h3>Warum fragt die App nach Kamera und lokalem Netzwerk?</h3>
   <ul>
     <li><strong>Kamera:</strong> nur zum Scannen des QR-Codes. Bilder werden nicht gespeichert oder gesendet.</li>
-    <li><strong>Lokales Netzwerk:</strong> um Spiele im WLAN zu finden und direkt mit dem anderen Gerät zu spielen.
+    <li><strong>Lokales Netzwerk:</strong> um Räume im WLAN zu finden und direkt mit dem anderen Gerät zu spielen.
       Ohne diese Erlaubnis geht nur das Spiel auf einem Gerät oder über ein Relay.</li>
   </ul>
   <p>Beides lässt sich in den Einstellungen des Geräts jederzeit ändern.</p>
 
-  <h3>Die Web-App findet mein Relay nicht</h3>
-  <p>Im Browser über https (wie auf dieser Website) kann Klunki nur sichere Relays (<code>wss://</code>) erreichen.
-    Für ein Relay im eigenen WLAN die App nutzen oder die Web-App direkt vom Relay öffnen
-    (<code>http://&lt;Adresse des Computers&gt;:4749/</code>).</p>
+  <h3>Warum sind „Mit anderen“ und die Räume in der Web-App ausgegraut?</h3>
+  <p>Die Web-App auf dieser Website ist eine Beta. Im Browser über https (wie hier) kann Klunki nur sichere Relays
+    (<code>wss://</code>) erreichen, und ein solches gibt es noch nicht. Deshalb gehen hier nur Spiele auf einem
+    Gerät. Für Spiele mit mehreren Geräten die App nutzen oder die Web-App direkt vom Relay im eigenen WLAN öffnen
+    (<code>http://&lt;Adresse des Computers&gt;:4749/</code>); dort funktionieren „Raum starten“ und „Raum
+    beitreten“.</p>
 
   <p><a href="../privacy/#de">Datenschutzerklärung</a> · <a href="../impressum/#de">Impressum</a></p>
 </article>
@@ -116,18 +123,22 @@
   <h2>Frequently asked questions</h2>
 
   <h3>How do we play over Wi-Fi?</h3>
-  <p>Both devices must be on the same Wi-Fi. On one device choose “Play over Wi-Fi” → “Host game” and pick a game.
-    The other device finds the game in the list or scans the host's QR code. Guest networks often block connections
+  <p>Both devices must be on the same Wi-Fi. Every game in the menu has two links: “One device” (take turns on this
+    device) and “With others”. On one device tap “With others” on the game, or tap “Start a room” under “Play with
+    other devices” and pick a game. On the other device tap “Join a room” and scan the QR code or type the room code.
+    Devices on the same Wi-Fi also find the room under “Rooms nearby”. Guest networks often block connections
     between devices; then use another Wi-Fi or a phone's hotspot.</p>
 
   <h3>What are the relay and the room code?</h3>
   <p>Two browsers cannot connect to each other directly. That is what the relay is for: a small program you start
-    on a computer on the Wi-Fi (<code>klunki relay</code>). It only passes the moves on. Whoever chooses “Host game”
-    gets a short room code (e.g. <code>K7Q 2M</code>), a QR code and a link. The other device enters the room code or
-    opens the link. The apps can play through a relay as well.</p>
+    on a computer on the Wi-Fi (<code>klunki relay</code>). It only passes the moves on. Whoever starts a room through
+    the relay gets a short room code (e.g. <code>K7Q 2M</code>), a QR code and a link. The other device taps “Join a
+    room” and enters the room code or opens the link. In the web app every room goes through a relay; in the app when
+    “Open the room through a relay” is switched on under “Advanced”. The relay address can be changed under
+    “Advanced” as well.</p>
 
   <h3>How does the QR code work?</h3>
-  <p>In the app tap “Scan QR code” and point the camera at the other device's QR code. Klunki then connects by
+  <p>In the app tap “Join a room”, then “Scan QR code”, and point the camera at the other device's QR code. Klunki then connects by
     itself, directly or through the relay with the room code. The web app cannot scan; type the room code or open
     the link there.</p>
 
@@ -139,15 +150,16 @@
   <h3>Why does the app ask for the camera and the local network?</h3>
   <ul>
     <li><strong>Camera:</strong> only to scan the QR code. Images are neither stored nor sent.</li>
-    <li><strong>Local network:</strong> to find games on the Wi-Fi and to play directly with the other device.
+    <li><strong>Local network:</strong> to find rooms on the Wi-Fi and to play directly with the other device.
       Without it, only playing on one device or through a relay works.</li>
   </ul>
   <p>You can change both at any time in the device settings.</p>
 
-  <h3>The web app can't reach my relay</h3>
-  <p>In a browser over https (like this website) Klunki can only reach secure relays (<code>wss://</code>). For a
-    relay on your own Wi-Fi, use the app or open the web app directly from the relay
-    (<code>http://&lt;computer address&gt;:4749/</code>).</p>
+  <h3>Why are “With others” and the rooms greyed out in the web app?</h3>
+  <p>The web app on this website is a beta. In a browser over https (like here) Klunki can only reach secure relays
+    (<code>wss://</code>), and there is none yet. So only games on one device work here. To play on several devices,
+    use the app or open the web app directly from the relay on your own Wi-Fi
+    (<code>http://&lt;computer address&gt;:4749/</code>); “Start a room” and “Join a room” work there.</p>
 
   <p><a href="../privacy/#en">Privacy policy</a> · <a href="../impressum/#en">Legal notice (Impressum)</a></p>
 </article>
