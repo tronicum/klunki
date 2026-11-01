@@ -102,7 +102,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shellHasWon(String player) {
-    return 'فاز $player';
+    return 'الفوز لـ$player';
   }
 
   @override
@@ -123,7 +123,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shellWins(String player) {
-    return '$player يفوز!';
+    return 'الفوز لـ$player!';
   }
 
   @override
@@ -332,14 +332,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfWinsTrick(String player) {
-    return '$player يربح الجولة';
+    return 'الجولة لصالح $player';
   }
 
   @override
-  String get quartettTrumpfOutcomeWin => 'يفوز';
+  String get quartettTrumpfOutcomeWin => 'فوز';
 
   @override
-  String get quartettTrumpfOutcomeLose => 'يخسر';
+  String get quartettTrumpfOutcomeLose => 'خسارة';
 
   @override
   String get quartettTrumpfOutcomeTie => 'تعادل';
@@ -351,17 +351,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfPicked(String player, String stat) {
-    return '$player يختار $stat';
+    return 'اختيار $player: $stat';
   }
 
   @override
   String quartettTrumpfPotAgain(int count, String player) {
-    return 'البطاقات إلى الوعاء (الآن $count)، $player يختار مرة أخرى';
+    return 'البطاقات إلى الوعاء (الآن $count)، والاختيار مرة أخرى لـ$player';
   }
 
   @override
   String quartettTrumpfHintWaiting(String player) {
-    return '$player يختار …';
+    return 'بانتظار اختيار $player …';
   }
 
   @override
@@ -374,22 +374,22 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfQueuedPick(String player, String stat) {
-    return '$player اختار: $stat';
+    return 'اختيار $player: $stat';
   }
 
   @override
   String quartettTrumpfNextPicker(String player) {
-    return '$player يختار التالي';
+    return 'الاختيار التالي لـ$player';
   }
 
   @override
   String quartettTrumpfPicksAgain(String player) {
-    return '$player يختار مرة أخرى';
+    return 'الاختيار مرة أخرى لـ$player';
   }
 
   @override
   String quartettTrumpfContinuePicker(String player) {
-    return 'متابعة – $player يختار';
+    return 'متابعة – الاختيار لـ$player';
   }
 
   @override
@@ -414,7 +414,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfHandoverReason(String player) {
-    return '$player ربح الجولة';
+    return 'الجولة كانت لصالح $player';
   }
 
   @override
@@ -424,7 +424,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfChooseDefend(String player, String stat) {
-    return '$player يلعب $stat. اختر بطاقتك.';
+    return 'اختيار $player: $stat. اختر بطاقتك.';
   }
 
   @override
@@ -432,7 +432,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String quartettTrumpfHintDefending(String player) {
-    return '$player يختار بطاقة …';
+    return 'بانتظار بطاقة $player …';
   }
 
   @override
@@ -478,18 +478,18 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return 'الرباعيات X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return 'الرباعيات $nameA $a : $b $nameB';
   }
 
   @override
   String quartettSetsOtherAsked(String player, String card, String result) {
-    return '$player يطلب $card: $result';
+    return 'سؤال $player عن $card: $result';
   }
 
   @override
   String quartettSetsHitGives(String player, String card) {
-    return 'إصابة! $player يعطيك $card';
+    return 'إصابة! تحصل على $card من $player';
   }
 
   @override
@@ -679,7 +679,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String schiffeSetupCount(int placed, int total, String player) {
-    return 'تم وضع $placed من $total سفن · $player يوزّع';
+    return 'تم وضع $placed من $total سفن · دور $player في التوزيع';
   }
 
   @override
@@ -756,6 +756,18 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => 'أمل';
+
+  @override
+  String get playerDefaultNameB => 'باسم';
+
+  @override
+  String get hotSeatStartTitle => 'من يلعب؟';
+
+  @override
+  String get hotSeatStartPlay => 'ابدأ';
+
+  @override
   String get hotSeatNamesTitle => 'أسماء اللاعبين';
 
   @override
@@ -764,7 +776,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper => 'اختياري – اتركه فارغًا لعرض X و O فقط.';
+  String get hotSeatNamesHelper => 'اتركه فارغًا لاستخدام الاسم الافتراضي.';
 
   @override
   String get pairingChooseGame => 'اختر لعبة';
@@ -1056,7 +1068,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String goSetupFirst(String player) {
-    return '$player يرتّب أولًا – يمكنك التحضير في الأثناء.';
+    return 'الترتيب أولًا لـ$player – يمكنك التحضير في الأثناء.';
   }
 
   @override
@@ -1419,12 +1431,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String shellResignPlayer(String player) {
-    return '$player يستسلم';
+    return 'استسلام $player';
   }
 
   @override
   String engineReasonCommonResigned(String player) {
-    return 'استسلم $player';
+    return 'استسلام $player';
   }
 
   @override

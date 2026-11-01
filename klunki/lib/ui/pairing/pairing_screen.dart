@@ -23,7 +23,6 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
-import 'device_name.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
@@ -63,9 +62,10 @@ class PairingDeps {
   /// This device's LAN IPv4 addresses, best first.
   final Future<List<String>> Function() localAddresses;
 
-  /// Suggestion for the player name ("Wie heißt du?") when none is saved:
-  /// the device name.
-  final String Function() deviceName;
+  /// Suggestion for the player name ("Wie heißt du?") when none is saved;
+  /// null (the app): the regional default name, "Anna" when starting a room,
+  /// "Ben" when joining one (KLD-102).
+  final String Function()? deviceName;
 
   /// Seed for a hosted game.
   final int Function() seed;
@@ -100,7 +100,7 @@ class PairingDeps {
     this.relayHost = platformRelayHost,
     this.roomSettings = RoomSettings.memory,
     required this.localAddresses,
-    required this.deviceName,
+    this.deviceName,
     this.seed = newGameSeed,
     this.preferredPort = klunkiDefaultPort,
     this.preferredWsPort = klunkiDefaultWebSocketPort,
@@ -117,7 +117,6 @@ class PairingDeps {
             NetworkTransport.host(config, name: name, port: port, wsPort: wsPort),
         joinTransport: (host, port, {required name}) => NetworkTransport.join(host, port, name: name),
         localAddresses: localIPv4Addresses,
-        deviceName: defaultDeviceName,
         // E2E test mode (--dart-define KLUNKI_E2E_*): fixed port and seed.
         seed: E2eMode.enabled ? () => E2eMode.seed : newGameSeed,
         preferredPort: E2eMode.enabled ? E2eMode.port : klunkiDefaultPort,
@@ -176,7 +175,9 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
   PlayerNameController? get explicitNameController => widget.nameController;
 
   @override
-  String playerNameSuggestion() => widget.deps.deviceName();
+  String playerNameSuggestion() =>
+      widget.deps.deviceName?.call() ??
+      defaultPlayerName(AppLocalizations.of(context), widget.mode == RoomMode.start ? Player.a : Player.b);
 
   @override
   void dispose() {

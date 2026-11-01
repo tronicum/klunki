@@ -41,6 +41,7 @@ import 'package:klunki/ui/games/quartett_media_data.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart';
+import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/shell/game_screen.dart' show PlayerLabels, PlayerLabelsScope;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/transport/game_transport.dart';
@@ -682,6 +683,74 @@ void main() {
       }
     }
   });
+
+  // KLD-102: default player names (Anna / Ben, regional per locale) instead
+  // of X / O. "Wer spielt?" at the start of a hot-seat game, the Quartett
+  // (Trumpf) status line, a 4 Gewinnt status, and RTL sentences with names.
+  group('kld102', () {
+    for (final locale in const [Locale('de'), Locale('ar')]) {
+      final l = locale.languageCode;
+      testWidgets('kld102 start dialog $l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        if (l == 'de') {
+          await tester.pumpWidget(_wrap(KlunkiApp(localeController: LocaleController.memory(locale))));
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const Key('menu-connect4')));
+        } else {
+          // The bundled Arabic font needs the web fallback here (KLD-093).
+          await tester.pumpWidget(_wrap(_themed(
+            PlayerNameScope(
+              controller: PlayerNameController.memory(),
+              hotSeat: HotSeatNamesController.memory(),
+              child: Builder(
+                builder: (context) => Scaffold(
+                  body: Center(
+                    child: TextButton(
+                      onPressed: () => openGameFromMenu(context, 'connect4'),
+                      child: const Text('open'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            locale: locale,
+            webFonts: true,
+          )));
+          await tester.tap(find.text('open'));
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld102-start-dialog-$l-phone-light', settle: const Duration(milliseconds: 1));
+      });
+      testWidgets('kld102 trumpf status $l', skip: skip != null, (tester) async {
+        await _setup(tester, phone, Brightness.light);
+        final (seed, stat) = _qtOpening((s, va, vb) => s.beats(vb, va));
+        await _qtHotSeat(tester, seed, stat, locale, webFonts: true);
+        await _shot(tester, 'kld102-trumpf-status-$l-phone-light', settle: const Duration(milliseconds: 300));
+      });
+    }
+    testWidgets('kld102 connect4 de', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final c = await _game(tester, 'connect4', 3);
+      await tester.pump();
+      expect(c.game.currentPlayer, Player.b);
+      await _shot(tester, 'kld102-connect4-de-phone-light');
+    });
+    // A typed Latin name in a Persian sentence, the other player keeps the
+    // Persian default name.
+    testWidgets('kld102 connect4 fa mixed', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final c = GameController.hotSeat(const GameConfig('connect4', seed: 7));
+      addTearDown(c.dispose);
+      _play(c, 4);
+      await tester.pumpWidget(_wrap(_themed(
+        PlayerLabelsScope(labels: const PlayerLabels(names: {Player.a: 'Lena'}), child: buildGameScreen(c)),
+        locale: const Locale('fa'),
+        webFonts: true,
+      )));
+      await tester.pump();
+      await _shot(tester, 'kld102-connect4-fa-mixed-phone-light');
+    });
+  });
   // KLD-100: "3 or fewer cards: choose". The low picker's cards face-up, the
   // defender's handover cover naming the stat, the defender's choice with
   // the stat highlighted, and the round it decides.
@@ -805,10 +874,11 @@ Future<GameController> _qtHotSeatAt(WidgetTester tester, int seed, List<Map<Stri
 
 /// A hot-seat Quartett (Trumpf) game of [seed] with [stat] picked: the
 /// result is on screen, "Weiter" scrolled into view.
-Future<GameController> _qtHotSeat(WidgetTester tester, int seed, String stat, Locale locale) async {
+Future<GameController> _qtHotSeat(WidgetTester tester, int seed, String stat, Locale locale,
+    {bool webFonts = false}) async {
   final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
   addTearDown(c.dispose);
-  await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
+  await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale, webFonts: webFonts)));
   await tester.pump();
   await _precachePhotos(tester);
   await tester.ensureVisible(find.byKey(Key('qt-stat-$stat')));

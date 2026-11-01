@@ -1,6 +1,8 @@
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'shell/player_labels.dart';
+
 /// Localized texts for strings that come from the engine (I18N-05).
 ///
 /// The engine keeps its own English / German texts for the CLI, the debug
@@ -9,12 +11,12 @@ import 'package:klunki_engine/klunki_engine.dart';
 /// not translated.
 
 /// Localized text for a [GameEndReason] with its [params] (see the enum docs).
-/// [playerLabel] names a player for reasons about one (resign: "Anna (X) hat
-/// aufgegeben"); default: the mark.
+/// [playerLabel] names a player for reasons about one (resign: "Anna hat
+/// aufgegeben"); default: the regional default name ([defaultPlayerName]).
 String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     [Map<String, int> params = const {}, String Function(Player p)? playerLabel]) {
   int p(String name) => params[name] ?? 0;
-  String label(Player player) => playerLabel?.call(player) ?? (player == Player.a ? 'X' : 'O');
+  String label(Player player) => playerLabel?.call(player) ?? defaultPlayerName(l10n, player);
   return switch (code) {
     GameEndReason.commonResigned => l10n.engineReasonCommonResigned(label(p('player') == 1 ? Player.b : Player.a)),
     GameEndReason.connect4FourInARow => l10n.engineReasonConnect4FourInARow,

@@ -100,7 +100,7 @@ void main() {
       await pumpGame(tester, 'schiffe');
       expect(find.byKey(const Key('sv-next-ship')), findsOneWidget);
       expect(find.text('Schlachtschiff (5)'), findsWidgets);
-      expect(find.text('0 von 6 Schiffen gesetzt · X stellt auf'), findsOneWidget);
+      expect(find.text('0 von 6 Schiffen gesetzt · Anna stellt auf'), findsOneWidget);
       expect(find.text('A'), findsOneWidget);
       expect(find.text('J'), findsOneWidget);
       expect(find.text('10'), findsOneWidget);
@@ -116,7 +116,7 @@ void main() {
       expect(buttonEnabled(tester, 'sv-reset'), isFalse);
     });
 
-    testWidgets('"Zufällig" sets all 6 ships but submits nothing; "Fertig" submits, the cover hides X',
+    testWidgets('"Zufällig" sets all 6 ships but submits nothing; "Fertig" submits, the cover hides Anna',
         (tester) async {
       final c = await pumpGame(tester, 'schiffe');
       await tapKey(tester, 'sv-random');
@@ -140,14 +140,14 @@ void main() {
 
       // Handover to O: X's fleet is hidden behind the cover.
       expect(c.needsHandover, isTrue);
-      expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
+      expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
       expect(own(0, 0).hitTestable(), findsNothing);
       await acknowledge(tester);
 
       // O sees an empty ocean (not X's ships) and a fresh harbour.
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
       expect(find.byKey(svShipMarkerKey), findsNothing);
-      expect(find.text('0 von 6 Schiffen gesetzt · O stellt auf'), findsOneWidget);
+      expect(find.text('0 von 6 Schiffen gesetzt · Ben stellt auf'), findsOneWidget);
       expect(doneEnabled(tester), isFalse);
       await tapKey(tester, 'sv-random');
       await done(tester);
@@ -156,7 +156,7 @@ void main() {
       await acknowledge(tester);
 
       expect(gameOf(c).phase, SchiffePhase.battle);
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
       expect(find.text('Gegner'), findsOneWidget);
       expect(find.text('Dein Meer'), findsOneWidget);
       expect(find.byKey(svShipMarkerKey), findsNWidgets(19));
@@ -194,7 +194,7 @@ void main() {
       expect(shipCells(tester), row(0, 0, 5));
       expect(c.moves, isEmpty);
       expect(find.text('Kreuzer (4)'), findsWidgets, reason: 'the next ship from the harbour is active');
-      expect(find.text('1 von 6 Schiffen gesetzt · X stellt auf'), findsOneWidget);
+      expect(find.text('1 von 6 Schiffen gesetzt · Anna stellt auf'), findsOneWidget);
 
       // Kreuzer touching the Schlachtschiff at B2: invalid.
       await tapCell(tester, 1, 1);
@@ -351,7 +351,7 @@ void main() {
       if (c.needsHandover) await acknowledge(tester);
       expect(gameOf(c).currentPlayer, Player.a);
       expect(shipCells(tester), hasLength(17));
-      expect(find.text('5 von 6 Schiffen gesetzt · X stellt auf'), findsOneWidget);
+      expect(find.text('5 von 6 Schiffen gesetzt · Anna stellt auf'), findsOneWidget);
       expect(doneEnabled(tester), isFalse);
       // A locked ship cannot be selected, reset keeps it.
       final locked = gameOf(c).placements(Player.a).first;
@@ -377,7 +377,7 @@ void main() {
       await tapKey(tester, 'sv-remove');
       expect(shipCells(tester), hasLength(15));
       expect(doneEnabled(tester), isFalse);
-      expect(find.text('5 von 6 Schiffen gesetzt · X stellt auf'), findsOneWidget);
+      expect(find.text('5 von 6 Schiffen gesetzt · Anna stellt auf'), findsOneWidget);
       expect(find.text('Kreuzer (4)'), findsWidgets, reason: 'the removed ship is the active one');
 
       await tapKey(tester, 'sv-reset');
@@ -458,7 +458,7 @@ void main() {
       await acknowledge(tester);
 
       // O's view: X's shots show up on O's own grid; O's target grid is unknown.
-      expect(find.text('O ist am Zug'), findsOneWidget);
+      expect(find.text('Ben ist am Zug'), findsOneWidget);
       expect(cellOf(tester, own(missCell ~/ 10, missCell % 10)).look, SvLook.miss);
       expect(cellOf(tester, own(hitCell ~/ 10, hitCell % 10)).look, anyOf(SvLook.shipHit, SvLook.sunk));
       expect(find.byKey(const Key('sv-incoming')), findsOneWidget);
@@ -480,7 +480,7 @@ void main() {
       }
       expect(sunkShips(g.targetGrid(Player.a)).single.cells, sub.cells);
       expect(find.textContaining('U-Boot versenkt – Treffer! Nochmal'), findsOneWidget);
-      expect(find.text('Deine Flotte: 6 · Gegner (O): 5 Schiffe übrig'), findsOneWidget);
+      expect(find.text('Deine Flotte: 6 · Gegner (Ben): 5 Schiffe übrig'), findsOneWidget);
       expect(describeSchiffeMove(deL10n, c.moves.last), endsWith(': U-Boot versenkt'));
     });
 
@@ -525,7 +525,7 @@ void main() {
       expect(gameOf(c).isOver, isTrue);
       expect(find.byKey(resultDialog), findsOneWidget);
       final winner = gameOf(c).result.winner!;
-      expect(find.text('${playerMark(winner)} gewinnt!'), findsOneWidget);
+      expect(find.text('${testName(winner)} gewinnt!'), findsOneWidget);
       expect(gameOf(c).shipsRemaining(winner == Player.a ? Player.b : Player.a), 0);
     });
 
@@ -588,8 +588,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(c.moves.single.move, {'action': 'resign', 'player': 'a'}, reason: 'the draft was never submitted');
-      expect(inResult('O gewinnt!'), findsOneWidget);
-      expect(inResult('X hat aufgegeben'), findsOneWidget);
+      expect(inResult('Ben gewinnt!'), findsOneWidget);
+      expect(inResult('Anna hat aufgegeben'), findsOneWidget);
       await tester.tap(find.text('Menü'));
       await tester.pumpAndSettle();
       expect(doneEnabled(tester), isFalse);
@@ -615,7 +615,7 @@ void main() {
       expect(c.moves, hasLength(7));
       expect(c.game.resignedBy, Player.a);
       expect(c.needsHandover, isFalse);
-      expect(inResult('O gewinnt!'), findsOneWidget);
+      expect(inResult('Ben gewinnt!'), findsOneWidget);
     });
 
     testWidgets('network: the guest resigns in its editor; the host never sees the draft; the guest verifies',
@@ -667,7 +667,7 @@ void main() {
       await tester.tap(on(hostKey, find.byKey(const Key('sv-random'))));
       await tester.pump();
       await tester.tap(on(hostKey, find.byKey(const Key('sv-done'))));
-      await until(() => ctrl(guestKey).moves.length == 6, 'X fleet on the guest');
+      await until(() => ctrl(guestKey).moves.length == 6, 'Anna fleet on the guest');
       expect(tester.widget<ButtonStyleButton>(on(guestKey, find.byKey(const Key('sv-done')))).enabled, isTrue);
 
       await tester.tap(on(guestKey, find.byKey(const Key('shell-resign'))));
@@ -684,15 +684,15 @@ void main() {
       await tester.pump();
 
       expect(ctrl(hostKey).moves.where((m) => m.player == Player.b).map((m) => m.move).toList(),
-          [{'action': 'resign', 'player': 'b'}], reason: "O's draft never left the guest");
+          [{'action': 'resign', 'player': 'b'}], reason: "Ben's draft never left the guest");
       for (final d in [hostKey, guestKey]) {
         expect(ctrl(d).game.resignedBy, Player.b);
         expect(on(d, find.text('Spielverlauf konnte nicht bestätigt werden')), findsNothing);
       }
       Finder result(Key d, String text) => on(d, find.descendant(of: find.byKey(resultDialog), matching: find.text(text)));
       expect(result(hostKey, 'Du gewinnst!'), findsOneWidget);
-      expect(result(hostKey, 'Ben (O) hat aufgegeben'), findsOneWidget);
-      expect(result(guestKey, 'Anna (X) gewinnt!'), findsOneWidget);
+      expect(result(hostKey, 'Ben hat aufgegeben'), findsOneWidget);
+      expect(result(guestKey, 'Anna gewinnt!'), findsOneWidget);
       expect(result(guestKey, 'Du hast aufgegeben'), findsOneWidget);
       expect(tester.widget<ButtonStyleButton>(on(guestKey, find.byKey(const Key('sv-done')))).enabled, isFalse);
     }, timeout: const Timeout(Duration(seconds: 60)));

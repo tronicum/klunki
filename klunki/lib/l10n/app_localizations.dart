@@ -270,7 +270,7 @@ abstract class AppLocalizations {
   /// **'Geheime Karten oder Flotte – ihr reicht das Gerät weiter'**
   String get menuHiddenInfo;
 
-  /// Status line: whose turn it is. player = mark X or O.
+  /// Status line: whose turn it is (game on this device). player = player name, e.g. "Anna" (any name: keep the sentence free of grammatical gender and possessive endings).
   ///
   /// In de, this message translates to:
   /// **'{player} ist am Zug'**
@@ -288,7 +288,7 @@ abstract class AppLocalizations {
   /// **'Du bist am Zug ({mark})'**
   String shellYourTurn(String mark);
 
-  /// Status line in a network game while the other player is to move; player = "Ben (O)".
+  /// Status line in a network game while the other player is to move; player = "Ben".
   ///
   /// In de, this message translates to:
   /// **'Warte auf {player}…'**
@@ -624,7 +624,7 @@ abstract class AppLocalizations {
   /// **'Karten in den Topf (jetzt {count}), {player} wählt noch einmal'**
   String quartettTrumpfPotAgain(int count, String player);
 
-  /// Quartett (Trumpf), network: hint while the opponent picks a stat. player = "Ben (O)".
+  /// Quartett (Trumpf), network: hint while the opponent picks a stat. player = "Ben".
   ///
   /// In de, this message translates to:
   /// **'{player} wählt …'**
@@ -648,7 +648,7 @@ abstract class AppLocalizations {
   /// **'{player} hat gewählt: {stat}'**
   String quartettTrumpfQueuedPick(String player, String stat);
 
-  /// Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = mark (reveal) or "Ben (O)" (status line).
+  /// Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = player name, e.g. "Ben".
   ///
   /// In de, this message translates to:
   /// **'{player} wählt als Nächstes'**
@@ -678,7 +678,7 @@ abstract class AppLocalizations {
   /// **'noch {count, plural, =1{1 Runde} other{{count} Runden}}'**
   String quartettTrumpfTricksBehind(int count);
 
-  /// Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = "Ben (O)" or the mark.
+  /// Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = player name, e.g. "Ben".
   ///
   /// In de, this message translates to:
   /// **'{player} hat die Runde gewonnen'**
@@ -756,11 +756,11 @@ abstract class AppLocalizations {
   /// **'Stapel: {count, plural, =1{1 Karte} other{{count} Karten}}'**
   String quartettSetsStock(int count);
 
-  /// Chip: quartets laid down by X and O.
+  /// Chip: quartets laid down by player A and player B. nameA / nameB = player names ("Anna", "Ben").
   ///
   /// In de, this message translates to:
-  /// **'Quartette X {a} : {b} O'**
-  String quartettSetsScore(int a, int b);
+  /// **'Quartette {nameA} {a} : {b} {nameB}'**
+  String quartettSetsScore(String nameA, String nameB, int a, int b);
 
   /// Feedback for a move that arrived from the other device.
   ///
@@ -1164,28 +1164,52 @@ abstract class AppLocalizations {
   /// **'Dein Name'**
   String get playerNameLabel;
 
-  /// A named player with its mark, e.g. "Anna (X)"; used inside other sentences (status line, result, history).
+  /// A player name with its mark, e.g. "Anna (Weiß)" in chess, or "Anna (X)" when both players have the same name; used inside other sentences (status line, result, history).
   ///
   /// In de, this message translates to:
   /// **'{name} ({mark})'**
   String playerLabel(String name, String mark);
 
-  /// Hot-seat game: title of the player names dialog and tooltip of its app bar button.
+  /// KLD-102: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences ("Anna ist am Zug"). Must differ from playerDefaultNameB. Avoid names that read as a common word.
+  ///
+  /// In de, this message translates to:
+  /// **'Anna'**
+  String get playerDefaultNameA;
+
+  /// KLD-102: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA.
+  ///
+  /// In de, this message translates to:
+  /// **'Ben'**
+  String get playerDefaultNameB;
+
+  /// KLD-102: title of the player names dialog shown when a game on this device starts.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer spielt?'**
+  String get hotSeatStartTitle;
+
+  /// KLD-102: button of the player names dialog at the start of a game on this device: start the game with these names.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielen'**
+  String get hotSeatStartPlay;
+
+  /// Game on this device: title of the player names dialog (app bar button during the game) and tooltip of that button.
   ///
   /// In de, this message translates to:
   /// **'Spielernamen'**
   String get hotSeatNamesTitle;
 
-  /// Hot-seat player names dialog: label of the name field of one player; mark = X or O.
+  /// Player names dialog (game on this device): label of the name field of one player; mark = X or O (chess: Weiß / Schwarz), shown next to the player's token.
   ///
   /// In de, this message translates to:
   /// **'Spieler {mark}'**
   String hotSeatNameLabel(String mark);
 
-  /// Hot-seat player names dialog: hint that the names are optional.
+  /// Player names dialog (game on this device): an empty field means the default name (playerDefaultNameA / playerDefaultNameB).
   ///
   /// In de, this message translates to:
-  /// **'Optional – leer lassen, um nur X und O zu zeigen.'**
+  /// **'Leer lassen für den Standardnamen.'**
   String get hotSeatNamesHelper;
 
   /// Heading above the game list when starting a room.
@@ -1626,7 +1650,7 @@ abstract class AppLocalizations {
   /// **'{piece} ({rank})'**
   String goPieceRank(String piece, String rank);
 
-  /// GoStrategy setup headline. player = mark X or O.
+  /// GoStrategy setup headline. player = player name, e.g. "Anna".
   ///
   /// In de, this message translates to:
   /// **'Stelle deine Armee auf ({player})'**
@@ -1656,13 +1680,13 @@ abstract class AppLocalizations {
   /// **'Fertig'**
   String get goSetupDone;
 
-  /// GoStrategy network: the other player sets up first; this player can already arrange. player = "Anna (X)".
+  /// GoStrategy network: the other player sets up first; this player can already arrange. player = "Anna".
   ///
   /// In de, this message translates to:
   /// **'{player} stellt zuerst auf – du kannst schon vorbereiten.'**
   String goSetupFirst(String player);
 
-  /// GoStrategy network: waiting for the other player's setup. player = "Ben (O)".
+  /// GoStrategy network: waiting for the other player's setup. player = "Ben".
   ///
   /// In de, this message translates to:
   /// **'Warte, bis {player} aufgestellt hat …'**
@@ -1698,7 +1722,7 @@ abstract class AppLocalizations {
   /// **'{piece} kann gerade nicht ziehen.'**
   String goHintNoTargets(String piece);
 
-  /// GoStrategy hint while the other player moves. player = "Ben (O)".
+  /// GoStrategy hint while the other player moves. player = "Ben".
   ///
   /// In de, this message translates to:
   /// **'Warte auf {player} …'**
@@ -1710,13 +1734,13 @@ abstract class AppLocalizations {
   /// **'Noch {moves} Züge ohne Kampf, dann ist es unentschieden.'**
   String goMoveLimit(String moves);
 
-  /// GoStrategy panel heading: the viewer's army. mark = X or O.
+  /// GoStrategy panel heading: the viewer's army. mark = player name, e.g. "Anna" (KLD-102; the key keeps its old placeholder name).
   ///
   /// In de, this message translates to:
   /// **'Deine Armee ({mark})'**
   String goArmyOwn(String mark);
 
-  /// GoStrategy panel heading: the opponent's army. player = "Ben (O)" or "O".
+  /// GoStrategy panel heading: the opponent's army. player = "Ben" or "O".
   ///
   /// In de, this message translates to:
   /// **'Gegner: {player}'**
@@ -1728,7 +1752,7 @@ abstract class AppLocalizations {
   /// **'{left} von {total} übrig'**
   String goArmyLeft(String left, String total);
 
-  /// GoStrategy fight reveal headline. player = "Anna (X)" or "X".
+  /// GoStrategy fight reveal headline. player = "Anna" or "X".
   ///
   /// In de, this message translates to:
   /// **'Angriff von {player}'**
@@ -1800,7 +1824,7 @@ abstract class AppLocalizations {
   /// **'See'**
   String get goCellLake;
 
-  /// GoStrategy square content: an enemy piece of unknown rank. player = "O" or "Ben (O)".
+  /// GoStrategy square content: an enemy piece of unknown rank. player = "O" or "Ben".
   ///
   /// In de, this message translates to:
   /// **'verdeckte Figur von {player}'**
@@ -2208,7 +2232,7 @@ abstract class AppLocalizations {
   /// **'Wirklich aufgeben?'**
   String get shellResignTitle;
 
-  /// KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. "Anna (X)".
+  /// KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. "Anna".
   ///
   /// In de, this message translates to:
   /// **'Das Spiel endet für beide – {player} gewinnt.'**
@@ -2238,13 +2262,13 @@ abstract class AppLocalizations {
   /// **'Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.'**
   String get shellResignWho;
 
-  /// KLD-065 resign dialog (hot-seat): button for one player; player = label, e.g. "Anna (X)" or "X".
+  /// KLD-065 resign dialog (hot-seat): button for one player; player = label, e.g. "Anna" or "X".
   ///
   /// In de, this message translates to:
   /// **'{player} gibt auf'**
   String shellResignPlayer(String player);
 
-  /// Result reason (any game): a player resigned; player = label, e.g. "Anna (X)" or "X".
+  /// Result reason (any game): a player resigned; player = label, e.g. "Anna" or "X".
   ///
   /// In de, this message translates to:
   /// **'{player} hat aufgegeben'**

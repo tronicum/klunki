@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/games/muehle_screen.dart';
-import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../l10n/l10n_test_utils.dart';
@@ -48,14 +47,14 @@ void main() {
     expect(find.text('Setzen'), findsNWidgets(2));
   });
 
-  testWidgets('placing alternates between X and O', (tester) async {
+  testWidgets('placing alternates between Anna and Ben', (tester) async {
     final c = await pumpMuehle(tester);
     await tapPoint(tester, 5);
     expect(stone(5, 'X'), findsOneWidget);
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
     await tapPoint(tester, 16);
     expect(stone(16, 'O'), findsOneWidget);
-    expect(find.text('X ist am Zug'), findsOneWidget);
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
     await tapPoint(tester, 0);
     expect(stone(0, 'X'), findsOneWidget);
     expect(c.moves, hasLength(3));
@@ -73,15 +72,15 @@ void main() {
     expect(stone(7, 'O'), findsNothing);
   });
 
-  testWidgets('a mill switches to removal mode; tapping O on 9 removes it', (tester) async {
+  testWidgets('a mill switches to removal mode; tapping the stone of Ben on 9 removes it', (tester) async {
     final c = await pumpMuehle(tester);
     for (final p in [0, 9, 1, 10, 2]) {
       await tapPoint(tester, p);
     }
     final g = gameOf(c);
     expect(g.pendingRemoval, isTrue);
-    expect(find.text('X ist am Zug'), findsOneWidget);
-    expect(hint('Mühle! Entferne einen Stein von O'), findsOneWidget);
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
+    expect(hint('Mühle! Entferne einen Stein von Ben'), findsOneWidget);
     expect(find.byKey(const Key('muehle-removable-9')), findsOneWidget);
     expect(find.byKey(const Key('muehle-removable-10')), findsOneWidget);
 
@@ -94,7 +93,7 @@ void main() {
     expect(g.board[9], isNull);
     expect(stone(9, 'O'), findsNothing);
     expect(g.pendingRemoval, isFalse);
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-removable-10')), findsNothing);
     expect(find.text('Geschlagen: 1'), findsOneWidget);
     expect(describeMuehleMove(deL10n, c.moves, c.moves.last), 'entfernt Stein auf 9');
@@ -136,12 +135,12 @@ void main() {
     expect(c.moves, hasLength(19));
     expect(stone(11, 'X'), findsOneWidget);
     expect(stone(10, 'X'), findsNothing);
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
     expect(find.byKey(const Key('muehle-selected-10')), findsNothing);
     expect(describeMuehleMove(deL10n, c.moves, c.moves.last), 'zieht 10→11');
   });
 
-  testWidgets('full demo script through taps ends with "O gewinnt!"', (tester) async {
+  testWidgets('full demo script through taps ends with "Ben gewinnt!"', (tester) async {
     final c = await pumpMuehle(tester);
     final demo = MuehleText().demoScript;
     for (final cmd in demo) {
@@ -160,14 +159,14 @@ void main() {
     }
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('result-dialog')), findsOneWidget);
-    expect(find.text('O gewinnt!'), findsOneWidget);
+    expect(find.text('Ben gewinnt!'), findsOneWidget);
     expect(c.canAct, isFalse);
 
-    final texts = [for (final m in c.moves) '${playerMark(m.player)}: ${describeMuehleMove(deL10n, c.moves, m)}'];
-    expect(texts.first, 'X: setzt auf 21');
-    expect(texts, contains('O: entfernt Stein auf 8'));
-    expect(texts, contains('O: zieht 15→16'));
-    expect(texts, contains('X: springt 20→9'));
+    final texts = [for (final m in c.moves) '${testName(m.player)}: ${describeMuehleMove(deL10n, c.moves, m)}'];
+    expect(texts.first, 'Anna: setzt auf 21');
+    expect(texts, contains('Ben: entfernt Stein auf 8'));
+    expect(texts, contains('Ben: zieht 15→16'));
+    expect(texts, contains('Anna: springt 20→9'));
   });
 
   testWidgets('board ignores taps when the controller cannot act', (tester) async {

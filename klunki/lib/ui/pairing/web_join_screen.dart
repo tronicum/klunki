@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_engine/klunki_engine.dart' show Player;
 import 'package:klunki_net/guest_web.dart' show relayUriForPage;
 
 import '../../net/join_payload.dart';
@@ -40,8 +41,9 @@ class WebJoinDeps {
   /// Seed of a game in a relay room.
   final int Function() seed;
 
-  /// Suggestion for the player name when none is saved ("Browser").
-  final String Function() deviceName;
+  /// Suggestion for the player name when none is saved; null: the regional
+  /// default name ("Ben" when joining, "Anna" when starting a room, KLD-102).
+  final String Function()? deviceName;
 
   /// Upper bound for a join attempt (also covers a WebSocket that never
   /// opens, e.g. a host on another network).
@@ -55,12 +57,10 @@ class WebJoinDeps {
     this.relayJoin = platformRelayJoin,
     this.relayHost = platformRelayHost,
     this.seed = newGameSeed,
-    this.deviceName = _browser,
+    this.deviceName,
     this.joinTimeout = const Duration(seconds: 12),
     this.relaySettings = RelaySettings.memory,
   });
-
-  static String _browser() => webDefaultDeviceName;
 
   /// The real thing: `NetworkTransport.joinWebSocket`.
   factory WebJoinDeps.platform() =>
@@ -158,7 +158,8 @@ class _WebJoinScreenState extends State<WebJoinScreen> with PlayerNameField {
   PlayerNameController? get explicitNameController => widget.nameController;
 
   @override
-  String playerNameSuggestion() => widget.deps.deviceName();
+  String playerNameSuggestion() =>
+      widget.deps.deviceName?.call() ?? defaultPlayerName(AppLocalizations.of(context), Player.b);
 
   @override
   void dispose() {

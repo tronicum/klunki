@@ -65,8 +65,9 @@ class RelayHostScreen extends StatefulWidget {
   /// Seed of the hosted game.
   final int Function() seed;
 
-  /// Suggestion for the player name when none is saved.
-  final String Function() deviceName;
+  /// Suggestion for the player name when none is saved; null: the regional
+  /// default name of the room starter ("Anna", KLD-102).
+  final String Function()? deviceName;
 
   /// Overrides the app's player name controller (tests).
   final PlayerNameController? nameController;
@@ -85,13 +86,12 @@ class RelayHostScreen extends StatefulWidget {
     this.deckSettings,
     this.pageUrl,
     this.seed = newGameSeed,
-    this.deviceName = _browser,
+    this.deviceName,
     this.nameController,
     this.initialGameId,
     this.autoStart = false,
   });
 
-  static String _browser() => 'Browser';
 
   @override
   State<RelayHostScreen> createState() => _RelayHostScreenState();
@@ -117,7 +117,8 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   PlayerNameController? get explicitNameController => widget.nameController;
 
   @override
-  String playerNameSuggestion() => widget.deviceName();
+  String playerNameSuggestion() =>
+      widget.deviceName?.call() ?? defaultPlayerName(AppLocalizations.of(context), Player.a);
 
   @override
   void initState() {

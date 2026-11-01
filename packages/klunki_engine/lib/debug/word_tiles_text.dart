@@ -144,7 +144,7 @@ class WordTilesText extends TextGame {
     };
     final r = game.result;
     if (!r.isOver) return text;
-    return '$text ${r.draw ? 'Draw' : '${mark(r.winner)} wins'} (${r.reason}).';
+    return '$text ${r.draw ? 'Draw' : '${playerName(r.winner)} wins'} (${r.reason}).';
   }
 
   /// Accepts open placements, else the best-scoring legal placement, else

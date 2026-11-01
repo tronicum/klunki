@@ -264,7 +264,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     final hint = game.isOver
         ? null
         : f?.pending != null
-            ? l10n.quartettSetsHintContinue(playerMark(_other(viewer)))
+            ? l10n.quartettSetsHintContinue(playerName(context, _other(viewer)))
             : _canAsk
                 ? l10n.quartettSetsHintAsk
                 : null;
@@ -308,11 +308,16 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
             key: Key('qs-quartets-${p.name}'),
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 36,
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 36, maxWidth: 96),
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text('${playerMark(p)}:', style: theme.textTheme.labelLarge),
+                  padding: const EdgeInsetsDirectional.only(top: 4, end: 6),
+                  child: Text(
+                    '${playerName(context, p)}:',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelLarge,
+                  ),
                 ),
               ),
               Expanded(
@@ -338,9 +343,9 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
           runSpacing: 4,
           alignment: WrapAlignment.center,
           children: [
-            chip('qs-opponent-count', Icons.back_hand_outlined, l10n.quartettPlayerCards(playerMark(opp), game.handOf(opp).length)),
+            chip('qs-opponent-count', Icons.back_hand_outlined, l10n.quartettPlayerCards(playerName(context, opp), game.handOf(opp).length)),
             chip('qs-stock', Icons.layers_outlined, l10n.quartettSetsStock(game.stockSize)),
-            chip('qs-score', Icons.emoji_events_outlined, l10n.quartettSetsScore(qa.length, qb.length)),
+            chip('qs-score', Icons.emoji_events_outlined, l10n.quartettSetsScore(playerName(context, Player.a), playerName(context, Player.b), qa.length, qb.length)),
           ],
         ),
         quartets(Player.a, qa),
@@ -364,10 +369,10 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
   Widget _feedbackView(BuildContext context, _Feedback f, Player viewer) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final opp = playerMark(_other(f.asker));
+    final opp = playerName(context, _other(f.asker));
     final String headline;
     if (!f.own) {
-      headline = l10n.quartettSetsOtherAsked(playerMark(f.asker), f.card, f.hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss);
+      headline = l10n.quartettSetsOtherAsked(playerName(context, f.asker), f.card, f.hit ? l10n.quartettSetsHit : l10n.quartettSetsMiss);
     } else if (f.hit) {
       headline = l10n.quartettSetsHitGives(opp, f.card);
     } else if (f.drew != null) {
@@ -456,7 +461,7 @@ class _QuartettSetsBoardState extends State<_QuartettSetsBoard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.quartettSetsYourCards(playerMark(viewer), hand.length), style: theme.textTheme.titleSmall),
+        Text(l10n.quartettSetsYourCards(playerName(context, viewer), hand.length), style: theme.textTheme.titleSmall),
         const SizedBox(height: 4),
         for (final s in sets) _setGroup(context, s, held, askable),
       ],

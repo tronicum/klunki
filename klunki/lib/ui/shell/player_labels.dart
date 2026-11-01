@@ -4,27 +4,29 @@ import 'package:klunki_engine/klunki_engine.dart';
 
 import '../ltr.dart';
 
-/// How the game shell names the players (KLD-056). The [GameScreen] asks the
-/// nearest [PlayerLabelsScope]; without one it uses [marks] ("X" / "O", the
-/// look before KLD-056).
+/// How the game shell names the players (KLD-056, KLD-102). The [GameScreen]
+/// asks the nearest [PlayerLabelsScope]; without one it uses [defaults].
 ///
-/// * [names]: optional display names per player (network: both handles;
-///   hot-seat: the names the players typed). A player without a name is
-///   shown by its mark only.
+/// * [names]: display names per player (network: both handles; hot-seat:
+///   the names the players typed). A player without a name gets the
+///   regional default name ([defaultPlayerName]: "Anna" / "Ben").
 /// * [local]: the one player on this device (network), so the shell can say
 ///   "Du bist am Zug" / "Du gewinnst!". Null when both play here (hot-seat).
 ///
-/// The mark stays visible next to every name ("Anna (X)"): it is what maps
-/// a player to colours and pieces on the board.
+/// Sentences show the name only ("Anna ist am Zug"); the player's colour and
+/// symbol stay next to it as tokens (players legend, pieces, the turn pill).
+/// The mark joins the name ("Anna (Weiß)") only where it carries meaning or
+/// is needed to tell the players apart ([withMark]):
 ///
 /// * [markNames]: a game's own words for the marks (chess, KLD-059: "Weiß" /
-///   "Schwarz" instead of X / O); see [withMarkNames].
+///   "Schwarz" instead of X / O); see [withMarkNames];
+/// * both players have the same name ("Anna (X)" / "Anna (O)").
 @immutable
 class PlayerLabels {
   const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}});
 
-  /// Marks only, no local player: hot-seat without names.
-  static const PlayerLabels marks = PlayerLabels();
+  /// Default names only, no local player: hot-seat without typed names.
+  static const PlayerLabels defaults = PlayerLabels();
 
   final Map<Player, String> names;
   final Player? local;
@@ -37,21 +39,31 @@ class PlayerLabels {
   /// [markOf].
   String mark(Player p) => markNames[p] ?? markOf(p);
 
-  /// The player mark, as everywhere in the UI: A is "X", B is "O".
+  /// The player mark (the symbol on the player's token): A is "X", B is "O".
   static String markOf(Player p) => p == Player.a ? 'X' : 'O';
 
+  /// The name given for [p], or null (then [name] is the default name).
   String? nameOf(Player p) {
     final n = names[p];
     return n == null || n.isEmpty ? null : n;
   }
 
+  /// The name shown for [p]: [nameOf], else the regional default name.
+  String name(AppLocalizations l10n, Player p) => nameOf(p) ?? defaultPlayerName(l10n, p);
+
   bool isLocal(Player p) => local == p;
 
-  /// "Anna (X)" (the name bidi-isolated where needed, see [bidiName]) or "X".
+  /// The player inside a sentence: "Anna" (bidi-isolated where needed, see
+  /// [bidiName]), with the mark when [withMark] ("Anna (Weiß)").
   String label(BuildContext context, AppLocalizations l10n, Player p) {
-    final n = nameOf(p);
-    return n == null ? mark(p) : l10n.playerLabel(bidiName(context, n), mark(p));
+    final n = bidiName(context, name(l10n, p));
+    return withMark(l10n) ? l10n.playerLabel(n, mark(p)) : n;
   }
+
+  /// Whether [label] adds the mark: the game names its marks, or both
+  /// players have the same name (ignoring case).
+  bool withMark(AppLocalizations l10n) =>
+      markNames.isNotEmpty || name(l10n, Player.a).toLowerCase() == name(l10n, Player.b).toLowerCase();
 
   @override
   bool operator ==(Object other) =>
@@ -70,15 +82,22 @@ class PlayerLabels {
       );
 }
 
+/// The regional default name of [p] (KLD-102): in German "Anna" for A and
+/// "Ben" for B; every locale has its own pair (`playerDefaultNameA` / `B`).
+/// Presentation only: the engine and the protocol still know the players as
+/// A and B; a room only sends the name its player confirmed (KLD-056).
+String defaultPlayerName(AppLocalizations l10n, Player p) =>
+    p == Player.a ? l10n.playerDefaultNameA : l10n.playerDefaultNameB;
+
 /// Provides [PlayerLabels] to the game shell below it.
 class PlayerLabelsScope extends InheritedWidget {
   const PlayerLabelsScope({super.key, required this.labels, required super.child});
 
   final PlayerLabels labels;
 
-  /// The nearest labels, [PlayerLabels.marks] if there is no scope.
+  /// The nearest labels, [PlayerLabels.defaults] if there is no scope.
   static PlayerLabels of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<PlayerLabelsScope>()?.labels ?? PlayerLabels.marks;
+      context.dependOnInheritedWidgetOfExactType<PlayerLabelsScope>()?.labels ?? PlayerLabels.defaults;
 
   @override
   bool updateShouldNotify(PlayerLabelsScope oldWidget) => labels != oldWidget.labels;

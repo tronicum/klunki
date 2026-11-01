@@ -63,8 +63,9 @@ class PlayerNameController extends ValueNotifier<String?> {
   }
 }
 
-/// Optional names for the two hot-seat players, X ([x]) and O ([o]); null =
-/// show the mark only.
+/// Names the two hot-seat players typed, player A ([x], mark X) and player B
+/// ([o], mark O); null = the regional default name ("Anna" / "Ben", KLD-102),
+/// which is never stored so it follows the app language.
 @immutable
 class HotSeatNames {
   const HotSeatNames({this.x, this.o});
@@ -85,7 +86,8 @@ class HotSeatNames {
 }
 
 /// The last-used hot-seat names (KLD-056). Starting a hot-seat game shows
-/// them; the players change them through the game's "Spielernamen" action.
+/// them in "Wer spielt?" (KLD-102); the players change them there or through
+/// the game's "Spielernamen" action.
 /// Same cleaning as [PlayerNameController]; persisted under [prefsKeyX] /
 /// [prefsKeyO].
 class HotSeatNamesController extends ValueNotifier<HotSeatNames> {
@@ -105,7 +107,7 @@ class HotSeatNamesController extends ValueNotifier<HotSeatNames> {
         p, HotSeatNames(x: _orNull(p.getString(prefsKeyX)), o: _orNull(p.getString(prefsKeyO))));
   }
 
-  /// Cleans and saves both names; an empty one is cleared (mark only).
+  /// Cleans and saves both names; an empty one is cleared (default name).
   Future<void> setNames(String? x, String? o) async {
     final next = HotSeatNames(x: _orNull(x), o: _orNull(o));
     value = next;

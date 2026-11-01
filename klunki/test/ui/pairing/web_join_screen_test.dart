@@ -56,7 +56,7 @@ Uri _ws(String host, int port) => Uri(scheme: 'ws', host: host, port: port);
 
 void main() {
   group('web join screen', () {
-    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Browser"', (tester) async {
+    testWidgets('"Raum beitreten": no start button, no discovery list; name defaults to "Ben" (KLD-102)', (tester) async {
       final r = _Recorder();
       await _pumpScreen(tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join)));
       expect(find.widgetWithText(AppBar, 'Raum beitreten'), findsOneWidget);
@@ -64,7 +64,7 @@ void main() {
       expect(find.byKey(const Key('web-host')), findsNothing);
       expect(find.byKey(const Key('pair-host-panel')), findsNothing);
       expect(find.text('Suche nach Räumen…'), findsNothing);
-      expect(tester.widget<TextField>(find.byKey(const Key('web-join-name'))).controller!.text, 'Browser');
+      expect(tester.widget<TextField>(find.byKey(const Key('web-join-name'))).controller!.text, 'Ben');
       expect(find.textContaining('Browser-Port (WebSocket)'), findsOneWidget, reason: 'helper explains the port');
       expect(find.byKey(const Key('web-join-https')), findsNothing);
     });
@@ -83,7 +83,7 @@ void main() {
       };
       for (final MapEntry(key: input, value: uri) in cases.entries) {
         await _enterAndConnect(tester, input);
-        expect(r.calls.last, (uri, 'Browser'), reason: input);
+        expect(r.calls.last, (uri, 'Ben'), reason: input);
         expect(find.byKey(const Key('web-join-error')), findsOneWidget, reason: 'the recorder fails');
       }
       expect(r.calls, hasLength(cases.length));
@@ -208,12 +208,12 @@ void main() {
       expect(find.byKey(const Key('player-name-dialog')), findsOneWidget);
       expect(find.text('Wie heißt du?'), findsOneWidget);
       expect(r.calls, isEmpty);
-      expect(tester.widget<TextField>(find.byKey(const Key('player-name-field'))).controller!.text, 'Browser');
+      expect(tester.widget<TextField>(find.byKey(const Key('player-name-field'))).controller!.text, 'Ben');
       await tester.tap(find.byKey(const Key('player-name-ok')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('player-name-dialog')), findsNothing);
       expect(tester.widget<TextField>(find.byKey(const Key('web-join-address'))).controller!.text, link);
-      expect(r.calls.single, (_ws('10.0.0.7', 4800), 'Browser'));
+      expect(r.calls.single, (_ws('10.0.0.7', 4800), 'Ben'));
       expect(find.byKey(const Key('web-join-error')), findsOneWidget);
 
       // Back goes to the menu.
@@ -306,17 +306,17 @@ void main() {
     expect(on(webKey, netStatus('Du (\u2068علی\u2069, O) · Gegner: Host-iPhone (X)')), findsOneWidget);
     expect(on(hostKey, netStatus('Du (Host-iPhone, X) · Gegner: \u2068علی\u2069 (O)')), findsOneWidget);
     expect(on(hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
-    expect(on(webKey, find.text('Warte auf Host-iPhone (X)…')), findsOneWidget);
+    expect(on(webKey, find.text('Warte auf Host-iPhone…')), findsOneWidget);
 
     Connect4Cell cell(Key d, int r, int c) => tester.widget<Connect4Cell>(on(d, find.byKey(Key('c4-cell-$r-$c'))));
     GameScreen screen(Key d) => tester.widget<GameScreen>(on(d, find.byType(GameScreen)));
 
     await tester.tap(on(hostKey, find.byKey(const Key('c4-column-3'))));
-    await pumpUntil(tester, () => cell(webKey, 0, 3).owner == Player.a, what: 'X move in the browser');
+    await pumpUntil(tester, () => cell(webKey, 0, 3).owner == Player.a, what: 'Anna move in the browser');
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
 
     await tester.tap(on(webKey, find.byKey(const Key('c4-column-4'))));
-    await pumpUntil(tester, () => cell(hostKey, 0, 4).owner == Player.b, what: 'O move on the host');
+    await pumpUntil(tester, () => cell(hostKey, 0, 4).owner == Player.b, what: 'Ben move on the host');
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
     expect(screen(hostKey).controller.moves.length, 2);
     expect(screen(webKey).controller.moves.length, 2);

@@ -287,7 +287,7 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
     if (d.hasKey(const Key('handover-cover'))) {
       final cover = _coverText(tester, d);
       log.note(d, 'cover "$cover"');
-      expect(cover, deL10n.shellHandoverPass(playerMark(c.game.currentPlayer)),
+      expect(cover, deL10n.shellHandoverPass(c.game.currentPlayer == Player.a ? 'Anna' : 'Ben'),
           reason: '${log.label}: the handover cover names the player to move');
       a.checkCover(tester, d, c);
       coversAt.add(c.moves.length);

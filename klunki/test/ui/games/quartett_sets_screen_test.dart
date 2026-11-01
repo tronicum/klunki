@@ -76,10 +76,10 @@ void main() {
       expect(find.byKey(askKey(m['card'] as String), skipOffstage: false), findsOneWidget);
     }
 
-    expect(find.text('O: ${opp.length} Karten'), findsOneWidget);
+    expect(find.text('Ben: ${opp.length} Karten'), findsOneWidget);
     expect(find.text('Stapel: ${g.stockSize} Karten'), findsOneWidget);
     expect(
-        find.text('Quartette X ${g.quartetsOf(Player.a).length} : ${g.quartetsOf(Player.b).length} O'), findsOneWidget);
+        find.text('Quartette Anna ${g.quartetsOf(Player.a).length} : ${g.quartetsOf(Player.b).length} Ben'), findsOneWidget);
     expect(find.text('Tippe auf eine fehlende Karte, um danach zu fragen'), findsOneWidget);
   });
 
@@ -92,11 +92,11 @@ void main() {
     expect(c.game.currentPlayer, Player.a);
     expect(c.needsHandover, isFalse);
     expect(find.byKey(handoverContinue), findsNothing);
-    expect(find.text('Treffer! O gibt dir $card'), findsOneWidget);
+    expect(find.text('Treffer! Ben gibt dir $card'), findsOneWidget);
     if (c.moves.last.event.payload['quartet'] == null) {
       expect(find.byKey(handKey(card), skipOffstage: false), findsOneWidget);
     }
-    expect(find.text('X ist am Zug'), findsOneWidget);
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
   });
 
   testWidgets('a hit that completes a set announces the quartet', (tester) async {
@@ -156,7 +156,7 @@ void main() {
       expect(find.byKey(handKey(card.id), skipOffstage: false), findsNothing);
     }
     expect(find.byKey(feedback), findsNothing);
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
   });
 
   testWidgets('history describes asks without the drawn card', (tester) async {
@@ -173,7 +173,7 @@ void main() {
     await tester.pumpAndSettle();
     final drew = c.moves.single.event.payload['drew'] as String;
     final sheet = find.byKey(const Key('history-sheet'));
-    expect(find.descendant(of: sheet, matching: find.textContaining('X: fragt nach $card: Fehlanzeige')),
+    expect(find.descendant(of: sheet, matching: find.textContaining('Anna: fragt nach $card: Fehlanzeige')),
         findsOneWidget);
     expect(find.descendant(of: sheet, matching: find.textContaining(drew)), findsNothing);
   });

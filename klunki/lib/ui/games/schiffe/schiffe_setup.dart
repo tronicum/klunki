@@ -321,11 +321,11 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
     if (game.isOver) return null; // resigned during the setup: the shell shows the result
     if (_submitFailed) return l10n.schiffeSubmitFailed;
     if (game.nextShipIndex(me) == null) {
-      return game.phase == SchiffePhase.setup ? l10n.schiffeHintWaiting(playerMark(opp)) : null;
+      return game.phase == SchiffePhase.setup ? l10n.schiffeHintWaiting(playerName(context, opp)) : null;
     }
     if (_submitting) return null;
     if (_message != null) return _message;
-    if (!canAct) return l10n.schiffeHintEarly(playerMark(opp));
+    if (!canAct) return l10n.schiffeHintEarly(playerName(context, opp));
     if (active != null && activePlaced && _selected != null) return l10n.schiffeHintSelected(shipLabel(active));
     if (active != null) return l10n.schiffeHintSetup;
     return l10n.schiffeHintReady;
@@ -422,7 +422,7 @@ class _SchiffeSetupState extends State<SchiffeSetup> with SingleTickerProviderSt
           key: const Key('sv-next-ship'),
           style: theme.textTheme.titleLarge,
         ),
-        Text(l10n.schiffeSetupCount(d.placedCount, d.fleet.length, playerMark(me))),
+        Text(l10n.schiffeSetupCount(d.placedCount, d.fleet.length, playerName(context, me))),
       ],
     );
 

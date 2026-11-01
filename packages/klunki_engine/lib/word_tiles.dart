@@ -549,7 +549,7 @@ class WordTilesGame extends Game {
       for (var s = 0; s < playerCount && s < 2; s++) Player.values[s].name: _scores[s],
       if (_endCode == GameEndReason.wordtilesScoreless) 'turns': scorelessLimit,
     };
-    final mark = ['X', 'O', 'P3', 'P4'];
+    final mark = [playerNameOf(Player.a), playerNameOf(Player.b), 'P3', 'P4'];
     final scoreText = [for (var s = 0; s < playerCount; s++) '${mark[s]} ${_scores[s]}'].join(', ');
     final why = _endCode == GameEndReason.wordtilesPlayedOut
         ? '${mark[_outSeat!]} played out'

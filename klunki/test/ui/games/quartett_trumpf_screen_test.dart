@@ -63,8 +63,8 @@ void main() {
           findsOneWidget);
     }
     expect(find.text('Wähle eine Eigenschaft deiner Karte'), findsOneWidget);
-    expect(find.text('X: 16 Karten'), findsOneWidget);
-    expect(find.text('O: 16 Karten'), findsOneWidget);
+    expect(find.text('Anna: 16 Karten'), findsOneWidget);
+    expect(find.text('Ben: 16 Karten'), findsOneWidget);
     expect(find.byKey(const Key('qt-pot')), findsNothing);
   });
 
@@ -91,11 +91,11 @@ void main() {
     await pick(tester, stat.id);
     expect(find.byKey(reveal), findsOneWidget);
     expect(c.moves, isEmpty, reason: 'the pick is submitted only on "Weiter"');
-    expect(find.text('X gewinnt die Runde'), findsOneWidget);
+    expect(find.text('Anna gewinnt die Runde'), findsOneWidget);
     expect(find.text(a.name), findsOneWidget);
     expect(find.text(b.name), findsOneWidget);
-    expect(find.text('X – gewinnt'), findsOneWidget);
-    expect(find.text('O – verliert'), findsOneWidget);
+    expect(find.text('Anna – gewinnt'), findsOneWidget);
+    expect(find.text('Ben – verliert'), findsOneWidget);
     // The chosen stat is highlighted on both cards in the outcome colours.
     final aValue = find.descendant(
         of: find.byKey(const Key('qt-reveal-a')), matching: find.text(formatQuartettValue(stat, a.stats[stat.id]!)));
@@ -112,12 +112,12 @@ void main() {
     expect((c.lastEvent!.payload as Map)['trickWinner'], expected['trickWinner']);
     expect(find.byKey(reveal), findsNothing);
     expect(c.needsHandover, isFalse); // X won, X picks again
-    expect(find.text('X: 17 Karten'), findsOneWidget);
-    expect(find.text('O: 15 Karten'), findsOneWidget);
+    expect(find.text('Anna: 17 Karten'), findsOneWidget);
+    expect(find.text('Ben: 15 Karten'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('shell-history')));
     await tester.pumpAndSettle();
-    expect(find.text('X: wählt ${stat.label}'), findsOneWidget);
+    expect(find.text('Anna: wählt ${stat.label}'), findsOneWidget);
     expect(find.textContaining(a.name), findsNothing);
   });
 
@@ -126,8 +126,8 @@ void main() {
     final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
     await pick(tester, stat.id);
     expect(find.text('Gleichstand – Stechen!'), findsOneWidget);
-    expect(find.text('X – Gleichstand'), findsOneWidget);
-    expect(find.text('O – Gleichstand'), findsOneWidget);
+    expect(find.text('Anna – Gleichstand'), findsOneWidget);
+    expect(find.text('Ben – Gleichstand'), findsOneWidget);
     final a = (c.game as QuartettGame).topCard(Player.a)!;
     final value = find.descendant(
         of: find.byKey(const Key('qt-reveal-a')), matching: find.text(formatQuartettValue(stat, a.stats[stat.id]!)));
@@ -137,8 +137,8 @@ void main() {
     expect((c.lastEvent!.payload as Map)['trickWinner'], isNull);
     expect(c.needsHandover, isFalse);
     expect(find.text('Topf: 2 Karten'), findsOneWidget);
-    expect(find.text('X: 15 Karten'), findsOneWidget);
-    expect(find.text('X ist am Zug'), findsOneWidget);
+    expect(find.text('Anna: 15 Karten'), findsOneWidget);
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
     expect(find.byKey(statKey(stat.id)), findsOneWidget);
   });
 
@@ -146,12 +146,12 @@ void main() {
     final (seed, stat) = findOpening((s, va, vb) => s.beats(vb, va));
     final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
     await pick(tester, stat.id);
-    expect(find.text('O gewinnt die Runde'), findsOneWidget);
+    expect(find.text('Ben gewinnt die Runde'), findsOneWidget);
     expect(find.byKey(handoverContinue), findsNothing, reason: 'both players watch the reveal');
 
     await tapContinue(tester);
     expect(c.needsHandover, isTrue);
-    expect(find.text('Gib das Gerät an O weiter'), findsOneWidget);
+    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
     final g = c.game as QuartettGame;
     final oTop = g.topCard(Player.b)!, xTop = g.topCard(Player.a)!;
     expect(find.text(oTop.name), findsNothing);
@@ -159,7 +159,7 @@ void main() {
 
     await tester.tap(find.byKey(handoverContinue));
     await tester.pump();
-    expect(find.text('O ist am Zug'), findsOneWidget);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
     expect(find.text(oTop.name), findsOneWidget);
     expect(find.text(xTop.name, skipOffstage: false), findsNothing);
   });
@@ -209,51 +209,51 @@ void main() {
     // live "X ist am Zug".
     String status(WidgetTester tester) => tester.widget<Text>(find.byKey(const Key('shell-status'))).data!;
 
-    testWidgets('win: "X wählt noch einmal", no cover, X goes on', (tester) async {
+    testWidgets('win: "Anna wählt noch einmal", no cover, Anna goes on', (tester) async {
       final (seed, stat) = findOpening((s, va, vb) => s.beats(va, vb));
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
-      expect(find.text('X gewinnt die Runde'), findsOneWidget);
-      expect(cue(tester), 'X wählt noch einmal');
-      expect(button(tester), 'Weiter – X wählt');
-      expect(status(tester), 'X wählt noch einmal');
-      expect(find.text('X ist am Zug'), findsNothing);
+      expect(find.text('Anna gewinnt die Runde'), findsOneWidget);
+      expect(cue(tester), 'Anna wählt noch einmal');
+      expect(button(tester), 'Weiter – Anna wählt');
+      expect(status(tester), 'Anna wählt noch einmal');
+      expect(find.text('Anna ist am Zug'), findsNothing);
 
       await tapContinue(tester);
       expect(c.needsHandover, isFalse);
       expect(find.byKey(const Key('handover-cover')), findsNothing, reason: 'nothing has to be passed');
       final top = (c.game as QuartettGame).topCard(Player.a)!;
-      expect(find.text(top.name), findsOneWidget, reason: 'X picks again at once');
-      expect(find.text('X ist am Zug'), findsOneWidget);
+      expect(find.text(top.name), findsOneWidget, reason: 'Anna picks again at once');
+      expect(find.text('Anna ist am Zug'), findsOneWidget);
     });
 
-    testWidgets('loss: "O wählt als Nächstes", then the cover names O and why', (tester) async {
+    testWidgets('loss: "Ben wählt als Nächstes", then the cover names Ben and why', (tester) async {
       final (seed, stat) = findOpening((s, va, vb) => s.beats(vb, va));
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
-      expect(find.text('O gewinnt die Runde'), findsOneWidget);
-      expect(cue(tester), 'O wählt als Nächstes');
-      expect(button(tester), 'Weiter – O wählt');
-      expect(status(tester), 'O wählt als Nächstes');
-      expect(find.text('X ist am Zug'), findsNothing, reason: 'no contradiction to the result');
+      expect(find.text('Ben gewinnt die Runde'), findsOneWidget);
+      expect(cue(tester), 'Ben wählt als Nächstes');
+      expect(button(tester), 'Weiter – Ben wählt');
+      expect(status(tester), 'Ben wählt als Nächstes');
+      expect(find.text('Anna ist am Zug'), findsNothing, reason: 'no contradiction to the result');
 
       await tapContinue(tester);
       expect(c.needsHandover, isTrue);
       final cover = find.byKey(const Key('handover-cover'));
-      expect(find.descendant(of: cover, matching: find.text('Gib das Gerät an O weiter')), findsOneWidget);
-      expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, 'O hat die Runde gewonnen');
-      expect(find.descendant(of: cover, matching: find.text('Ich bin O – weiter')), findsOneWidget);
+      expect(find.descendant(of: cover, matching: find.text('Gib das Gerät an Ben weiter')), findsOneWidget);
+      expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, 'Ben hat die Runde gewonnen');
+      expect(find.descendant(of: cover, matching: find.text('Ich bin Ben – weiter')), findsOneWidget);
     });
 
-    testWidgets('tie: "Gleichstand – Stechen!", "Karten in den Topf (jetzt 2), X wählt noch einmal", no cover',
+    testWidgets('tie: "Gleichstand – Stechen!", "Karten in den Topf (jetzt 2), Anna wählt noch einmal", no cover',
         (tester) async {
       final (seed, stat) = findOpening((s, va, vb) => va == vb);
       final c = await pumpGame(tester, 'quartett-trumpf', seed: seed);
       await pick(tester, stat.id);
       expect(find.text('Gleichstand – Stechen!'), findsOneWidget);
-      expect(cue(tester), 'Karten in den Topf (jetzt 2), X wählt noch einmal');
-      expect(button(tester), 'Weiter – X wählt');
-      expect(status(tester), 'X wählt noch einmal');
+      expect(cue(tester), 'Karten in den Topf (jetzt 2), Anna wählt noch einmal');
+      expect(button(tester), 'Weiter – Anna wählt');
+      expect(status(tester), 'Anna wählt noch einmal');
       await tapContinue(tester);
       expect(c.needsHandover, isFalse);
       expect(find.byKey(const Key('handover-cover')), findsNothing);
@@ -274,7 +274,7 @@ void main() {
         expect(covered, next != picker, reason: 'trick $i: cover only when ${next.name} != ${picker.name}');
         if (covered) {
           covers++;
-          final mark = next == Player.a ? 'X' : 'O';
+          final mark = testName(next);
           expect(find.text('Gib das Gerät an $mark weiter'), findsOneWidget);
           expect(tester.widget<Text>(find.byKey(const Key('qt-handover-reason'))).data, '$mark hat die Runde gewonnen');
           await tester.tap(find.byKey(handoverContinue));

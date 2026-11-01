@@ -33,10 +33,10 @@ class MuehleText extends TextGame {
       b.writeln('${pieces[i].padRight(26)}    ${numbers[i]}');
     }
     for (final p in Player.values) {
-      b.writeln('${mark(p)}: ${game.phaseOf(p).name}, '
+      b.writeln('${playerName(p)}: ${game.phaseOf(p).name}, '
           'hand ${game.piecesInHand(p)}, board ${game.piecesOnBoard(p)}');
     }
-    if (game.pendingRemoval) b.writeln('Mill! ${mark(game.currentPlayer)} must remove a piece (x<p>).');
+    if (game.pendingRemoval) b.writeln('Mill! ${playerName(game.currentPlayer)} must remove a piece (x<p>).');
     return b.toString().trimRight();
   }
 
@@ -93,13 +93,13 @@ class MuehleText extends TextGame {
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final opp = mover == Player.a ? Player.b : Player.a;
-    final me = mark(mover);
+    final me = playerName(mover);
     var s = switch (move['action']) {
       'place' => '$me places a piece on point ${move['to']} (${game.piecesInHand(mover)} left in hand).',
       'move' => '$me ${game.phaseOf(mover) == MuehlePhase.flying ? 'flies' : 'moves'} '
           'from ${move['from']} to ${move['to']}.',
-      _ => '$me removes ${mark(opp)}\'s piece on point ${move['at']} '
-          '(${mark(opp)} has ${game.piecesOnBoard(opp) + game.piecesInHand(opp)} left).',
+      _ => '$me removes ${playerName(opp)}\'s piece on point ${move['at']} '
+          '(${playerName(opp)} has ${game.piecesOnBoard(opp) + game.piecesInHand(opp)} left).',
     };
     if (event.payload case {'mill': true}) {
       final to = move['to'] as int;

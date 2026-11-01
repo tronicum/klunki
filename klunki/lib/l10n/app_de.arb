@@ -110,7 +110,7 @@
   },
   "shellToMove": "{player} ist am Zug",
   "@shellToMove": {
-    "description": "Status line: whose turn it is. player = mark X or O.",
+    "description": "Status line: whose turn it is (game on this device). player = player name, e.g. \"Anna\" (any name: keep the sentence free of grammatical gender and possessive endings).",
     "placeholders": {
       "player": {
         "type": "String"
@@ -137,7 +137,7 @@
   },
   "shellWaitingFor": "Warte auf {player}…",
   "@shellWaitingFor": {
-    "description": "Status line in a network game while the other player is to move; player = \"Ben (O)\".",
+    "description": "Status line in a network game while the other player is to move; player = \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -513,7 +513,7 @@
   },
   "quartettTrumpfHintWaiting": "{player} wählt …",
   "@quartettTrumpfHintWaiting": {
-    "description": "Quartett (Trumpf), network: hint while the opponent picks a stat. player = \"Ben (O)\".",
+    "description": "Quartett (Trumpf), network: hint while the opponent picks a stat. player = \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -547,7 +547,7 @@
   },
   "quartettTrumpfNextPicker": "{player} wählt als Nächstes",
   "@quartettTrumpfNextPicker": {
-    "description": "Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = mark (reveal) or \"Ben (O)\" (status line).",
+    "description": "Quartett (Trumpf) reveal and network status line: who picks after the round shown, when that is not the picker (the winner). player = player name, e.g. \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -592,7 +592,7 @@
   },
   "quartettTrumpfHandoverReason": "{player} hat die Runde gewonnen",
   "@quartettTrumpfHandoverReason": {
-    "description": "Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = \"Ben (O)\" or the mark.",
+    "description": "Quartett (Trumpf), hot-seat handover cover: why the device goes to that player. player = player name, e.g. \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -694,10 +694,16 @@
       }
     }
   },
-  "quartettSetsScore": "Quartette X {a} : {b} O",
+  "quartettSetsScore": "Quartette {nameA} {a} : {b} {nameB}",
   "@quartettSetsScore": {
-    "description": "Chip: quartets laid down by X and O.",
+    "description": "Chip: quartets laid down by player A and player B. nameA / nameB = player names (\"Anna\", \"Ben\").",
     "placeholders": {
+      "nameA": {
+        "type": "String"
+      },
+      "nameB": {
+        "type": "String"
+      },
       "a": {
         "type": "int"
       },
@@ -1129,7 +1135,7 @@
   },
   "playerLabel": "{name} ({mark})",
   "@playerLabel": {
-    "description": "A named player with its mark, e.g. \"Anna (X)\"; used inside other sentences (status line, result, history).",
+    "description": "A player name with its mark, e.g. \"Anna (Weiß)\" in chess, or \"Anna (X)\" when both players have the same name; used inside other sentences (status line, result, history).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -1139,22 +1145,38 @@
       }
     }
   },
+  "playerDefaultNameA": "Anna",
+  "@playerDefaultNameA": {
+    "description": "KLD-102: default name of player A (moves first; mark X, chess White) in hot-seat games and the suggested own name when starting a room. A short, common given name of the region, used inside sentences (\"Anna ist am Zug\"). Must differ from playerDefaultNameB. Avoid names that read as a common word."
+  },
+  "playerDefaultNameB": "Ben",
+  "@playerDefaultNameB": {
+    "description": "KLD-102: default name of player B (mark O, chess Black) in hot-seat games and the suggested own name when joining a room; see playerDefaultNameA."
+  },
+  "hotSeatStartTitle": "Wer spielt?",
+  "@hotSeatStartTitle": {
+    "description": "KLD-102: title of the player names dialog shown when a game on this device starts."
+  },
+  "hotSeatStartPlay": "Spielen",
+  "@hotSeatStartPlay": {
+    "description": "KLD-102: button of the player names dialog at the start of a game on this device: start the game with these names."
+  },
   "hotSeatNamesTitle": "Spielernamen",
   "@hotSeatNamesTitle": {
-    "description": "Hot-seat game: title of the player names dialog and tooltip of its app bar button."
+    "description": "Game on this device: title of the player names dialog (app bar button during the game) and tooltip of that button."
   },
   "hotSeatNameLabel": "Spieler {mark}",
   "@hotSeatNameLabel": {
-    "description": "Hot-seat player names dialog: label of the name field of one player; mark = X or O.",
+    "description": "Player names dialog (game on this device): label of the name field of one player; mark = X or O (chess: Weiß / Schwarz), shown next to the player's token.",
     "placeholders": {
       "mark": {
         "type": "String"
       }
     }
   },
-  "hotSeatNamesHelper": "Optional – leer lassen, um nur X und O zu zeigen.",
+  "hotSeatNamesHelper": "Leer lassen für den Standardnamen.",
   "@hotSeatNamesHelper": {
-    "description": "Hot-seat player names dialog: hint that the names are optional."
+    "description": "Player names dialog (game on this device): an empty field means the default name (playerDefaultNameA / playerDefaultNameB)."
   },
   "pairingChooseGame": "Spiel wählen",
   "@pairingChooseGame": {
@@ -1575,7 +1597,7 @@
   },
   "goSetupTitle": "Stelle deine Armee auf ({player})",
   "@goSetupTitle": {
-    "description": "GoStrategy setup headline. player = mark X or O.",
+    "description": "GoStrategy setup headline. player = player name, e.g. \"Anna\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1605,7 +1627,7 @@
   },
   "goSetupFirst": "{player} stellt zuerst auf – du kannst schon vorbereiten.",
   "@goSetupFirst": {
-    "description": "GoStrategy network: the other player sets up first; this player can already arrange. player = \"Anna (X)\".",
+    "description": "GoStrategy network: the other player sets up first; this player can already arrange. player = \"Anna\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1614,7 +1636,7 @@
   },
   "goWaitingSetup": "Warte, bis {player} aufgestellt hat …",
   "@goWaitingSetup": {
-    "description": "GoStrategy network: waiting for the other player's setup. player = \"Ben (O)\".",
+    "description": "GoStrategy network: waiting for the other player's setup. player = \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1653,7 +1675,7 @@
   },
   "goHintWaiting": "Warte auf {player} …",
   "@goHintWaiting": {
-    "description": "GoStrategy hint while the other player moves. player = \"Ben (O)\".",
+    "description": "GoStrategy hint while the other player moves. player = \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1671,7 +1693,7 @@
   },
   "goArmyOwn": "Deine Armee ({mark})",
   "@goArmyOwn": {
-    "description": "GoStrategy panel heading: the viewer's army. mark = X or O.",
+    "description": "GoStrategy panel heading: the viewer's army. mark = player name, e.g. \"Anna\" (KLD-102; the key keeps its old placeholder name).",
     "placeholders": {
       "mark": {
         "type": "String"
@@ -1680,7 +1702,7 @@
   },
   "goArmyEnemy": "Gegner: {player}",
   "@goArmyEnemy": {
-    "description": "GoStrategy panel heading: the opponent's army. player = \"Ben (O)\" or \"O\".",
+    "description": "GoStrategy panel heading: the opponent's army. player = \"Ben\" or \"O\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1701,7 +1723,7 @@
   },
   "goFightBy": "Angriff von {player}",
   "@goFightBy": {
-    "description": "GoStrategy fight reveal headline. player = \"Anna (X)\" or \"X\".",
+    "description": "GoStrategy fight reveal headline. player = \"Anna\" or \"X\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -1799,7 +1821,7 @@
   },
   "goCellHidden": "verdeckte Figur von {player}",
   "@goCellHidden": {
-    "description": "GoStrategy square content: an enemy piece of unknown rank. player = \"O\" or \"Ben (O)\".",
+    "description": "GoStrategy square content: an enemy piece of unknown rank. player = \"O\" or \"Ben\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -2134,7 +2156,7 @@
   },
   "shellResignBody": "Das Spiel endet für beide – {player} gewinnt.",
   "@shellResignBody": {
-    "description": "KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. \"Anna (X)\".",
+    "description": "KLD-065/KLD-099 resign dialog (network game): the game ends for both devices; player = the opponent's label, e.g. \"Anna\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -2159,7 +2181,7 @@
   },
   "shellResignPlayer": "{player} gibt auf",
   "@shellResignPlayer": {
-    "description": "KLD-065 resign dialog (hot-seat): button for one player; player = label, e.g. \"Anna (X)\" or \"X\".",
+    "description": "KLD-065 resign dialog (hot-seat): button for one player; player = label, e.g. \"Anna\" or \"X\".",
     "placeholders": {
       "player": {
         "type": "String"
@@ -2168,7 +2190,7 @@
   },
   "engineReasonCommonResigned": "{player} hat aufgegeben",
   "@engineReasonCommonResigned": {
-    "description": "Result reason (any game): a player resigned; player = label, e.g. \"Anna (X)\" or \"X\".",
+    "description": "Result reason (any game): a player resigned; player = label, e.g. \"Anna\" or \"X\".",
     "placeholders": {
       "player": {
         "type": "String"

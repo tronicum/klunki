@@ -462,8 +462,8 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return 'Quartette X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return 'Quartette $nameA $a : $b $nameB';
   }
 
   @override
@@ -733,6 +733,18 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => 'Anna';
+
+  @override
+  String get playerDefaultNameB => 'Ben';
+
+  @override
+  String get hotSeatStartTitle => 'Wer spielt?';
+
+  @override
+  String get hotSeatStartPlay => 'Spielen';
+
+  @override
   String get hotSeatNamesTitle => 'Spielernamen';
 
   @override
@@ -741,8 +753,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper =>
-      'Optional – leer lassen, um nur X und O zu zeigen.';
+  String get hotSeatNamesHelper => 'Leer lassen für den Standardnamen.';
 
   @override
   String get pairingChooseGame => 'Spiel wählen';

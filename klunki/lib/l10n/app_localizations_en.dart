@@ -97,7 +97,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String shellToMove(String player) {
-    return '$player\'s turn';
+    return '$player to move';
   }
 
   @override
@@ -307,7 +307,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String quartettTrumpfOpponentStack(String player) {
-    return '$player\'s stack';
+    return 'Stack of $player';
   }
 
   @override
@@ -458,8 +458,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return 'Quartets X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return 'Quartets $nameA $a : $b $nameB';
   }
 
   @override
@@ -729,6 +729,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => 'Anna';
+
+  @override
+  String get playerDefaultNameB => 'Ben';
+
+  @override
+  String get hotSeatStartTitle => 'Who is playing?';
+
+  @override
+  String get hotSeatStartPlay => 'Play';
+
+  @override
   String get hotSeatNamesTitle => 'Player names';
 
   @override
@@ -737,8 +749,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper =>
-      'Optional – leave empty to show just X and O.';
+  String get hotSeatNamesHelper => 'Leave empty for the default name.';
 
   @override
   String get pairingChooseGame => 'Choose a game';

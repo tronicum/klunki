@@ -123,7 +123,7 @@ class DebugConsole {
         final legal = _current.legalMoves.map(_current.format).toList();
         if (legal.isEmpty) return 'No legal moves (${_current.status()}).';
         final shown = legal.length > 60 ? [...legal.take(60), '… (${legal.length} total)'] : legal;
-        return 'Legal moves for ${_current.mark(_current.game.currentPlayer)}: ${shown.join(' ')}';
+        return 'Legal moves for ${_current.playerName(_current.game.currentPlayer)}: ${shown.join(' ')}';
       case 'auto':
         final n = words.length > 1 ? int.tryParse(words[1]) : null;
         if (words.length > 1 && n == null) return 'Usage: auto [n]';

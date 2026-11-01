@@ -110,7 +110,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(_resignDialog), findsOneWidget);
       expect(find.text('Wirklich aufgeben?'), findsOneWidget);
-      expect(find.text('Das Spiel endet für beide – Ada (X) gewinnt.'), findsOneWidget);
+      expect(find.text('Das Spiel endet für beide – Ada gewinnt.'), findsOneWidget);
       expect(find.widgetWithText(TextButton, 'Abbrechen'), findsOneWidget);
       final confirm = tester.widget<FilledButton>(find.byKey(const Key('resign-confirm')));
       expect(confirm.style?.backgroundColor?.resolve({}), Theme.of(tester.element(find.byKey(_resignDialog))).colorScheme.error,

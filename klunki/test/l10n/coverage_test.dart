@@ -241,14 +241,18 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
     await tester.tap(find.byKey(const Key('quartett-deck-play')));
     await tester.pumpAndSettle();
   }
+  // "Wer spielt?" (KLD-102): both names, prefilled with the default names.
+  audit.check(tester, '$id player names');
+  await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
+  await tester.pumpAndSettle();
   audit.check(tester, '$id start');
   if (id == 'connect4') {
     // Hot-seat player names (KLD-056): dialog, then names in the status line.
     await tester.tap(find.byKey(const Key('shell-names')));
     await tester.pumpAndSettle();
     audit.check(tester, '$id names dialog');
-    await tester.enterText(find.byKey(const Key('hot-seat-name-X')), 'Anna');
-    await tester.enterText(find.byKey(const Key('hot-seat-name-O')), 'Ben');
+    await tester.enterText(find.byKey(const Key('hot-seat-name-X')), 'Lena');
+    await tester.enterText(find.byKey(const Key('hot-seat-name-O')), 'Max');
     await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
     await tester.pumpAndSettle();
     audit.check(tester, '$id with names');

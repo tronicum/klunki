@@ -66,13 +66,13 @@ class GoStrategyText extends TextGame {
       ];
       b.writeln('${'${GoStrategyGame.size - r}'.padLeft(3)}  ${cells.join()}');
     }
-    b.write('${mark(me)} sees: own pieces, enemy ? until revealed. '
+    b.write('${playerName(me)} sees: own pieces, enemy ? until revealed. '
         '10–2 ranks, S spy, B bomb, F flag, ~ lake');
     if (game.phase == GoStrategyPhase.play) {
-      final left = [for (final p in Player.values) '${mark(p)} ${_count(p)}'].join(', ');
+      final left = [for (final p in Player.values) '${playerName(p)} ${_count(p)}'].join(', ');
       b.write('\nPieces left: $left; moves without a capture: ${game.movesSinceCapture}');
     } else if (!game.isOver && !game.hasSetup(me)) {
-      b.write('\n${mark(me)} sets up 40 pieces on ranks ${me == Player.a ? '1–4' : '7–10'}: "setup" or "setup <seed>"');
+      b.write('\n${playerName(me)} sets up 40 pieces on ranks ${me == Player.a ? '1–4' : '7–10'}: "setup" or "setup <seed>"');
     }
     return b.toString();
   }
@@ -107,7 +107,7 @@ class GoStrategyText extends TextGame {
 
   @override
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
-    final me = mark(mover);
+    final me = playerName(mover);
     final opp = _other(mover);
     final p = event.payload as Map;
     if (move['action'] != 'move') {
@@ -122,7 +122,7 @@ class GoStrategyText extends TextGame {
     } else {
       final a = pieceName(GoPiece.fromId(fight['attacker'])!);
       final d = pieceName(GoPiece.fromId(fight['defender'])!);
-      s = "$me's $a on $from attacks ${mark(opp)}'s $d on $to: ${switch (fight['outcome']) {
+      s = "$me's $a on $from attacks ${playerName(opp)}'s $d on $to: ${switch (fight['outcome']) {
         'attacker' => '$a wins.',
         'defender' => '$a is removed.',
         'both' => 'both are removed.',
@@ -133,15 +133,15 @@ class GoStrategyText extends TextGame {
   }
 
   String _afterSetup(GameEvent event) {
-    if (game.phase == GoStrategyPhase.setup) return ' Now O sets up (X looks away).';
-    return ' Both armies are ready: X moves first.${_ending(event, Player.b)}';
+    if (game.phase == GoStrategyPhase.setup) return ' Now ${playerName(Player.b)} sets up (${playerName(Player.a)} looks away).';
+    return ' Both armies are ready: ${playerName(Player.a)} moves first.${_ending(event, Player.b)}';
   }
 
   String _ending(GameEvent event, Player mover) {
     final r = game.result;
     return switch (r.code) {
-      GameEndReason.gostrategyFlagCaptured => ' ${mark(mover)} wins!',
-      GameEndReason.gostrategyNoMoves => ' ${mark(_other(r.winner!))} cannot move: ${mark(r.winner)} wins!',
+      GameEndReason.gostrategyFlagCaptured => ' ${playerName(mover)} wins!',
+      GameEndReason.gostrategyNoMoves => ' ${playerName(_other(r.winner!))} cannot move: ${playerName(r.winner)} wins!',
       GameEndReason.gostrategyBothBlocked => ' Neither side can move: draw.',
       GameEndReason.gostrategyMoveLimit => ' ${r.params['moves']} moves without a capture: draw.',
       _ => '',

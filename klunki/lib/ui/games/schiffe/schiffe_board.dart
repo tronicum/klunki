@@ -52,7 +52,7 @@ class _SchiffeBoardState extends State<SchiffeBoard> {
 
   String? _battleHint(AppLocalizations l10n, SchiffeGame g) {
     if (g.isOver) return l10n.schiffeHintAllSunk;
-    if (!controller.canAct) return l10n.schiffeHintWaiting(playerMark(g.currentPlayer));
+    if (!controller.canAct) return l10n.schiffeHintWaiting(playerName(context, g.currentPlayer));
     if (_extraShot(g) != null) return l10n.schiffeHintExtraShot;
     return l10n.schiffeHintFire;
   }
@@ -186,7 +186,7 @@ class _Battle extends StatelessWidget {
             ),
           );
     final remaining = Text(
-      l10n.schiffeRemaining(g.shipsRemaining(me), playerMark(opp), g.shipsRemaining(opp)),
+      l10n.schiffeRemaining(g.shipsRemaining(me), playerName(context, opp), g.shipsRemaining(opp)),
       key: const Key('sv-remaining'),
       style: theme.textTheme.bodyMedium,
     );
@@ -195,7 +195,7 @@ class _Battle extends StatelessWidget {
         ? null
         : Text(
             l10n.schiffeIncoming(
-              playerMark(opp),
+              playerName(context, opp),
               svCellName(incoming.move['row'] as int, incoming.move['col'] as int),
               switch ((incoming.event.payload as Map)['result']) {
                 'miss' => l10n.schiffeLookWater,

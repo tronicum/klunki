@@ -109,7 +109,7 @@ void main() {
     expect(_on(_guestKey, find.byKey(const Key('shell-waiting'))), findsOneWidget);
     // The status line names the players (KLD-056).
     expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
     for (final d in [_hostKey, _guestKey]) {
       expect(_on(d, find.byKey(const Key('shell-undo'))), findsNothing);
       expect(_on(d, find.byKey(const Key('shell-restart'))), findsNothing);
@@ -121,26 +121,26 @@ void main() {
 
     // X (host) drops into column 3; it shows up on the guest.
     await tester.tap(_on(_hostKey, find.byKey(const Key('c4-column-3'))));
-    await pumpUntil(tester, () => cell(_guestKey, 0, 3).owner == Player.a, what: 'X move on the guest');
+    await pumpUntil(tester, () => cell(_guestKey, 0, 3).owner == Player.a, what: 'Anna move on the guest');
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
     expect(cell(_hostKey, 0, 3).owner, Player.a);
 
     // O (guest) answers in column 4; it shows up on the host.
     await tester.tap(_on(_guestKey, find.byKey(const Key('c4-column-4'))));
-    await pumpUntil(tester, () => cell(_hostKey, 0, 4).owner == Player.b, what: 'O move on the host');
+    await pumpUntil(tester, () => cell(_hostKey, 0, 4).owner == Player.b, what: 'Ben move on the host');
     await tester.pump(connect4DropDuration + const Duration(milliseconds: 50));
     expect(_controller(tester, _hostKey).moves.length, 2);
     expect(_controller(tester, _guestKey).moves.length, 2);
     expect(_on(_hostKey, find.text('Du bist am Zug (X)')), findsOneWidget);
-    expect(_on(_guestKey, find.text('Warte auf Anna (X)…')), findsOneWidget);
+    expect(_on(_guestKey, find.text('Warte auf Anna…')), findsOneWidget);
 
     // The history names who moved, on both sides.
     for (final d in [_hostKey, _guestKey]) {
       await tester.tap(_on(d, find.byKey(const Key('shell-history'))));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(_on(d, find.textContaining('Anna (X): ')), findsOneWidget);
-      expect(_on(d, find.textContaining('Ben (O): ')), findsOneWidget);
+      expect(_on(d, find.textContaining('Anna: ')), findsOneWidget);
+      expect(_on(d, find.textContaining('Ben: ')), findsOneWidget);
       await tester.tapAt(tester.getTopLeft(find.byKey(d)) + const Offset(8, 8)); // close the sheet
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
@@ -252,13 +252,13 @@ void main() {
     await tester.pump();
     expect(doneEnabled(_hostKey), isTrue);
     await tester.tap(_on(_hostKey, find.byKey(const Key('sv-done'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 6, what: 'X fleet on the guest');
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 6, what: 'Anna fleet on the guest');
     await tester.pump();
     expect(doneEnabled(_guestKey), isTrue);
     // The guest's arrangement survived X's moves; confirm it.
     expect(_on(_guestKey, find.byKey(svShipMarkerKey)), findsNWidgets(19));
     await tester.tap(_on(_guestKey, find.byKey(const Key('sv-done'))));
-    await pumpUntil(tester, () => _controller(tester, _hostKey).moves.length == 12, what: 'O fleet on the host');
+    await pumpUntil(tester, () => _controller(tester, _hostKey).moves.length == 12, what: 'Ben fleet on the host');
     await tester.pump();
 
     final guestC = _controller(tester, _guestKey);
@@ -266,7 +266,7 @@ void main() {
     expect(guestC.game, isA<SchiffeView>(), reason: 'the guest holds a view, not the engine');
     final truth = _controller(tester, _hostKey).game as SchiffeGame;
     for (var i = 0; i < 6; i++) {
-      expect(guestC.moves[i].move, {'action': 'place', 'ship': i}, reason: "X's positions never reach the guest");
+      expect(guestC.moves[i].move, {'action': 'place', 'ship': i}, reason: "Anna's positions never reach the guest");
     }
 
     // The guest's own grid shows its own fleet; its target grid shows no
@@ -286,14 +286,14 @@ void main() {
           if (mine[r][c] == SchiffeCell.empty) (r, c)
     ].first;
     await tester.tap(_on(_hostKey, find.byKey(Key('sv-target-${water.$1}-${water.$2}'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 13, what: 'X shot on the guest');
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 13, what: 'Anna shot on the guest');
     await tester.pump();
     expect(look(_guestKey, 'own', water.$1, water.$2), SvLook.miss);
 
     // O fires at one of X's ship squares: the hit comes from the host's event.
     final hostShip = truth.placements(Player.a).first.cells.first;
     await tester.tap(_on(_guestKey, find.byKey(Key('sv-target-${hostShip[0]}-${hostShip[1]}'))));
-    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 14, what: 'O shot');
+    await pumpUntil(tester, () => _controller(tester, _guestKey).moves.length == 14, what: 'Ben shot');
     await tester.pump();
     expect(look(_guestKey, 'target', hostShip[0], hostShip[1]), anyOf(SvLook.hit, SvLook.sunk));
     expect((_controller(tester, _guestKey).moves.last.event.payload as Map)['result'], isNot('miss'));

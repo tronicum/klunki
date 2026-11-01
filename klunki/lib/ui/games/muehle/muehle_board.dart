@@ -135,7 +135,7 @@ class _MuehleBoardState extends State<MuehleBoard> with SingleTickerProviderStat
     if (g.isOver || !_c.canAct) return null;
     final me = g.currentPlayer;
     if (g.pendingRemoval) {
-      return l10n.muehleHintRemove(playerMark(me == Player.a ? Player.b : Player.a));
+      return l10n.muehleHintRemove(playerName(context, me == Player.a ? Player.b : Player.a));
     }
     final phase = g.phaseOf(me);
     if (phase == MuehlePhase.placing) return l10n.muehleHintPlace;
@@ -337,7 +337,7 @@ class _Point extends StatelessWidget {
       );
     }
     final l10n = AppLocalizations.of(context);
-    final label = o == null ? l10n.muehlePointEmpty(point) : l10n.muehlePointOwned(point, playerMark(o));
+    final label = o == null ? l10n.muehlePointEmpty(point) : l10n.muehlePointOwned(point, playerName(context, o));
     return Semantics(
       button: true,
       label: label,
@@ -396,7 +396,15 @@ class _PlayerPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              Text(mark, style: theme.textTheme.titleMedium),
+              Flexible(
+                child: Text(
+                  playerName(context, player),
+                  key: Key('muehle-name-$mark'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium,
+                ),
+              ),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(

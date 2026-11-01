@@ -13,6 +13,7 @@ import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
 import '../../profile/player_name_controller.dart';
+import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../../profile/quartett_deck_settings.dart';
 import 'game_screen.dart';
 
@@ -84,11 +85,17 @@ Future<void> openGame(BuildContext context, String gameId, {int? seed, String? d
 }
 
 /// The menu's way into a game: Quartett first asks for the deck
-/// (KLD-069, [showQuartettDeckPicker]); other games start right away.
+/// (KLD-069, [showQuartettDeckPicker]); then "Wer spielt?" (KLD-102) asks
+/// for both player names, prefilled with the last ones or the default names
+/// (only with the app's [PlayerNameScope]). Cancelling either starts nothing.
 Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
-  if (specById(gameId)?.usesDeck != true) return openGame(context, gameId);
-  final deck = await showQuartettDeckPicker(context, settings: deckSettings);
-  if (deck == null || !context.mounted) return;
+  String? deck;
+  if (specById(gameId)?.usesDeck == true) {
+    deck = await showQuartettDeckPicker(context, settings: deckSettings);
+    if (deck == null || !context.mounted) return;
+  }
+  final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
+  if (!go || !context.mounted) return;
   return openGame(context, gameId, deck: deck);
 }
 
@@ -115,7 +122,7 @@ class _GameSessionState extends State<GameSession> {
     final screen = buildGameScreen(_controller);
     final hotSeat = PlayerNameScope.maybeOf(context)?.hotSeat;
     if (hotSeat == null) return screen;
-    // Optional hot-seat names (KLD-056); "Nochmal" keeps them (same store).
+    // Hot-seat names (KLD-056, KLD-102); "Nochmal" keeps them (same store).
     return ValueListenableBuilder<HotSeatNames>(
       valueListenable: hotSeat,
       builder: (context, names, child) => PlayerLabelsScope(labels: hotSeatLabels(names), child: child!),
@@ -124,7 +131,8 @@ class _GameSessionState extends State<GameSession> {
   }
 }
 
-/// Labels for a hot-seat game: both players on this device, names optional.
+/// Labels for a hot-seat game: both players on this device; a player
+/// without a typed name gets the default name ([defaultPlayerName]).
 PlayerLabels hotSeatLabels(HotSeatNames names) => PlayerLabels(names: {
       Player.a: ?names.x,
       Player.b: ?names.o,

@@ -99,7 +99,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String shellToMove(String player) {
-    return 'Au tour de $player';
+    return 'À $player de jouer';
   }
 
   @override
@@ -114,7 +114,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String shellWaitingFor(String player) {
-    return 'En attente de $player…';
+    return 'On attend $player…';
   }
 
   @override
@@ -215,7 +215,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String muehleHintRemove(String player) {
-    return 'Moulin ! Retire un pion de $player';
+    return 'Moulin ! Retire un pion à $player';
   }
 
   @override
@@ -312,7 +312,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String quartettTrumpfOpponentStack(String player) {
-    return 'Pile de $player';
+    return 'Pile adverse ($player)';
   }
 
   @override
@@ -466,8 +466,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String quartettSetsScore(int a, int b) {
-    return 'Familles X $a : $b O';
+  String quartettSetsScore(String nameA, String nameB, int a, int b) {
+    return 'Familles $nameA $a : $b $nameB';
   }
 
   @override
@@ -534,7 +534,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String schiffeHintWaiting(String player) {
-    return 'En attente de $player…';
+    return 'On attend $player…';
   }
 
   @override
@@ -676,7 +676,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String schiffeHintEarly(String player) {
-    return 'Tu peux déjà placer tes navires. « Terminé » fonctionne dès que $player a fini.';
+    return 'Tu peux déjà placer tes navires. « Terminé » fonctionne quand $player aura fini.';
   }
 
   @override
@@ -741,6 +741,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get playerDefaultNameA => 'Anna';
+
+  @override
+  String get playerDefaultNameB => 'Ben';
+
+  @override
+  String get hotSeatStartTitle => 'Qui joue ?';
+
+  @override
+  String get hotSeatStartPlay => 'Jouer';
+
+  @override
   String get hotSeatNamesTitle => 'Noms des joueurs';
 
   @override
@@ -749,8 +761,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get hotSeatNamesHelper =>
-      'Facultatif – laisse vide pour afficher seulement X et O.';
+  String get hotSeatNamesHelper => 'Laisse vide pour garder le nom par défaut.';
 
   @override
   String get pairingChooseGame => 'Choisis un jeu';
@@ -773,7 +784,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String roomOfPlayer(String name, String game) {
-    return 'Salle de $name : $game';
+    return 'Chez $name : $game';
   }
 
   @override
@@ -1051,7 +1062,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String goWaitingSetup(String player) {
-    return 'En attente du placement de $player …';
+    return 'Placement en cours : $player …';
   }
 
   @override
@@ -1076,7 +1087,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String goHintWaiting(String player) {
-    return 'En attente de $player …';
+    return 'On attend $player …';
   }
 
   @override
@@ -1101,7 +1112,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String goFightBy(String player) {
-    return 'Attaque de $player';
+    return 'Attaque par $player';
   }
 
   @override
@@ -1151,12 +1162,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String goCellHidden(String player) {
-    return 'pièce cachée de $player';
+    return 'pièce cachée ($player)';
   }
 
   @override
   String goCellPiece(String piece, String player) {
-    return '$piece de $player';
+    return '$piece ($player)';
   }
 
   @override

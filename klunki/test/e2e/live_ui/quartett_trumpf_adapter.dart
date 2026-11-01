@@ -1,6 +1,6 @@
 // Quartett (Trumpf) adapter for the live UI driver (KLD-089).
 //
-// Reads what a QuartettTrumpfScreen shows (the reveal's "X wählt PS", the
+// Reads what a QuartettTrumpfScreen shows (the reveal's "Anna wählt PS", the
 // headline, both revealed cards; the own card on the table and its caption)
 // and plays by tapping `qt-stat-<id>` on the own card, "Weiter"
 // (`qt-continue`) and, as a fidget, "Vorige Runde". KLD-100 (on by default):
@@ -31,7 +31,11 @@ const _result = Key('result-dialog');
 const _choose = Key('qt-choose');
 const _chooseHint = Key('qt-choose-hint');
 
-String _outcome(Player? winner) => winner == null ? 'tie' : '${playerMark(winner)} wins';
+/// The player as the texts name it (KLD-102): the default names, which
+/// the live network devices use too.
+String _name(Player p) => p == Player.a ? 'Anna' : 'Ben';
+
+String _outcome(Player? winner) => winner == null ? 'tie' : '${_name(winner)} wins';
 
 /// The stat in which [card] ranks best within [deck]: what a player who only
 /// sees their own card would pick.
@@ -53,7 +57,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
   @override
   String get gameId => 'quartett-trumpf';
 
-  final _picked = RegExp(r'^(X|O) wählt (.+)$');
+  final _picked = RegExp(r'^(Anna|Ben) wählt (.+)$');
 
   @override
   TurnRecord? observe(WidgetTester tester, UiDevice d, Game engine, {required bool inSync}) {
@@ -61,8 +65,8 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     final reveal = d.on(find.byKey(_reveal));
     if (reveal.evaluate().isNotEmpty) {
       Finder inReveal(Finder f) => find.descendant(of: reveal, matching: f);
-      // "X wählt PS": exactly one such line (the cue "X wählt noch einmal"
-      // / "O wählt als Nächstes" names no stat), and it is the picked line.
+      // "Anna wählt PS": exactly one such line (the cue "Anna wählt noch einmal"
+      // / "Ben wählt als Nächstes" names no stat), and it is the picked line.
       final texts = [for (final e in inReveal(find.byType(Text)).evaluate()) (e.widget as Text).data ?? ''];
       final labels = {for (final s in g.deck.stats) localizedStatLabel(deL10n, s.id): s.id};
       final picks = [
@@ -71,31 +75,31 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       ];
       expect(picks, hasLength(1), reason: '${d.name}: one "… wählt <stat>" line in the reveal: $texts');
       expect(tester.widget<Text>(inReveal(find.byKey(const Key('qt-reveal-picked')))).data, picks.single.group(0));
-      final picker = picks.single.group(1) == 'X' ? Player.a : Player.b;
+      final picker = picks.single.group(1) == 'Anna' ? Player.a : Player.b;
       final label = picks.single.group(2)!;
       final stats = [for (final s in g.deck.stats) if (localizedStatLabel(deL10n, s.id) == label) s.id];
       expect(stats, hasLength(1), reason: '${d.name}: stat label "$label" in deck ${g.deck.id}');
       // Headline: who won.
       final headline = tester.widget<Text>(inReveal(find.byKey(const Key('qt-reveal-text')))).data!;
       final Player? winner = switch (headline) {
-        _ when headline == deL10n.quartettTrumpfWinsTrick('X') => Player.a,
-        _ when headline == deL10n.quartettTrumpfWinsTrick('O') => Player.b,
+        _ when headline == deL10n.quartettTrumpfWinsTrick('Anna') => Player.a,
+        _ when headline == deL10n.quartettTrumpfWinsTrick('Ben') => Player.b,
         _ when headline == deL10n.quartettTrumpfTie => null,
         _ => throw TestFailure('${d.name}: unknown headline "$headline"'),
       };
       // KLD-091: the cue names who picks next, and so does "Weiter".
       final next = winner ?? picker;
       final cue = tester.widget<Text>(inReveal(find.byKey(const Key('qt-next-picker')))).data!;
-      final pm = playerMark(picker);
+      final pm = _name(picker);
       if (winner == null) {
         expect(_potAgain(cue, pm), isTrue, reason: '${d.name}: tie cue "$cue" says $pm picks again');
       } else if (winner == picker) {
         expect(cue, deL10n.quartettTrumpfPicksAgain(pm), reason: '${d.name}: the picker won');
       } else {
-        expect(cue, deL10n.quartettTrumpfNextPicker(playerMark(winner)), reason: '${d.name}: the other player won');
+        expect(cue, deL10n.quartettTrumpfNextPicker(_name(winner)), reason: '${d.name}: the other player won');
       }
       final button = tester.widget<Text>(find.descendant(of: d.on(find.byKey(_cont)), matching: find.byType(Text))).data;
-      expect(button, deL10n.quartettTrumpfContinuePicker(playerMark(next)), reason: '${d.name}: "Weiter" names the next picker');
+      expect(button, deL10n.quartettTrumpfContinuePicker(_name(next)), reason: '${d.name}: "Weiter" names the next picker');
       // Both cards as revealed (X's card under qt-reveal-a).
       String cardId(String side) => tester.widget<QuartettCard>(inReveal(find.byKey(Key('qt-reveal-$side')))).card!.id;
       return TurnRecord(
@@ -103,7 +107,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
         actor: picker,
         action: stats.single,
         outcome: _outcome(winner),
-        detail: 'X:${cardId('a')} O:${cardId('b')}',
+        detail: 'Anna:${cardId('a')} Ben:${cardId('b')}',
         nextActor: winner ?? picker,
       );
     }
@@ -114,7 +118,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       expect(g.currentPlayer, viewer, reason: '${d.name}: only the player to act chooses');
       expect(g.mustChoose, isTrue, reason: '${d.name}: the choose view only when a choice is due');
       expect(_shownChoices(tester, choose), [for (final c in g.stackOf(viewer)) c.id],
-          reason: '${d.name}: ${playerMark(viewer)} sees its own cards');
+          reason: '${d.name}: ${_name(viewer)} sees its own cards');
       final hint = tester.widget<Text>(d.on(find.byKey(_chooseHint))).data!;
       final stat = g.announcedStat;
       expect(
@@ -132,14 +136,14 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       final viewer = d.me ?? g.currentPlayer;
       final shown = tester.widget<QuartettCard>(own).card!;
       expect(shown.id, g.playedCard(viewer)!.id,
-          reason: '${d.name}: the table shows ${playerMark(viewer)}\'s card');
-      expect(d.has(find.text(deL10n.quartettTrumpfYourCard(playerMark(viewer)))), isTrue,
-          reason: '${d.name}: caption names ${playerMark(viewer)}');
+          reason: '${d.name}: the table shows ${_name(viewer)}\'s card');
+      expect(d.has(find.text(deL10n.quartettTrumpfYourCard(_name(viewer)))), isTrue,
+          reason: '${d.name}: caption names ${_name(viewer)}');
       if (d.networked && g.currentPlayer != d.me) {
-        // The status line names the picker ("Warte auf Anna (X)…").
-        final mark = playerMark(g.currentPlayer);
+        // The status line names the picker ("Warte auf Anna…").
+        final name = _name(g.currentPlayer);
         final status = tester.widget<Text>(d.on(find.byKey(const Key('shell-status')))).data!;
-        expect(status, contains('($mark)'), reason: '${d.name}: the status names $mark as the picker');
+        expect(status, contains(name), reason: '${d.name}: the status names $name as the picker');
       }
     }
     return null;
@@ -156,7 +160,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
   int chooseTaps = 0;
   int defenderViews = 0;
 
-  /// "Karten in den Topf (jetzt n), X wählt noch einmal" for some pot size n >= 2.
+  /// "Karten in den Topf (jetzt n), Anna wählt noch einmal" for some pot size n >= 2.
   bool _potAgain(String cue, String mark) => [
         for (var n = 2; n <= 64; n++) deL10n.quartettTrumpfPotAgain(n, mark),
       ].contains(cue);
@@ -167,13 +171,13 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
       tester.widget<Text>(d.on(find.byKey(const Key('shell-status')))).data!;
 
   /// KLD-091, network: while newer tricks are queued behind the one shown,
-  /// the status line describes the shown one ("Anna (X) wählt als
+  /// the status line describes the shown one ("Anna wählt als
   /// Nächstes" / "Du wählst als Nächstes (O)") with "noch n Runden";
   /// otherwise it is the live status and there is no badge.
   ///
   /// KLD-092, hot-seat: while a result is shown (applied only on "Weiter")
-  /// the status line uses the cue's words ("O wählt als Nächstes" / "X
-  /// wählt noch einmal"), never the live "X ist am Zug"; no badge.
+  /// the status line uses the cue's words ("Ben wählt als Nächstes" / "Anna
+  /// wählt noch einmal"), never the live "Anna ist am Zug"; no badge.
   @override
   void checkShown(WidgetTester tester, UiDevice d, TurnRecord shown, {required int behind}) {
     final status = _status(tester, d);
@@ -181,7 +185,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     if (!d.networked) {
       expect(badge, findsNothing, reason: '${d.name}: no badge in hot-seat ($shown)');
       final next = shown.nextActor!;
-      final mark = playerMark(next);
+      final mark = _name(next);
       String words(String label) =>
           next == shown.actor ? deL10n.quartettTrumpfPicksAgain(label) : deL10n.quartettTrumpfNextPicker(label);
       expect(status, anyOf(words(mark), endsWith(words('($mark)'))),
@@ -198,11 +202,10 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     }
     expect(d.networked, isTrue, reason: '${d.name}: queued tricks only on a network device');
     final next = shown.nextActor!;
-    final mark = playerMark(next);
     if (next == d.me) {
-      expect(status, deL10n.quartettTrumpfYouPickNext(mark), reason: '${d.name}: status follows $shown');
+      expect(status, deL10n.quartettTrumpfYouPickNext(playerMark(next)), reason: '${d.name}: status follows $shown');
     } else {
-      expect(status, anyOf(deL10n.quartettTrumpfNextPicker(mark), endsWith(deL10n.quartettTrumpfNextPicker('($mark)'))),
+      expect(status, deL10n.quartettTrumpfNextPicker(_name(next)),
           reason: '${d.name}: status follows $shown ($behind behind)');
     }
     expect(tester.widget<Text>(badge).data, deL10n.quartettTrumpfTricksBehind(behind),
@@ -229,15 +232,15 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
     final payload = last.event.payload as Map;
     final reason = tester.widget<Text>(d.on(find.byKey(const Key('qt-handover-reason')))).data;
     if (payload['announced'] == true) {
-      expect(reason, deL10n.quartettTrumpfChooseDefend(playerMark(g.picker), localizedStatLabel(deL10n, '${payload['stat']}')),
+      expect(reason, deL10n.quartettTrumpfChooseDefend(_name(g.picker), localizedStatLabel(deL10n, '${payload['stat']}')),
           reason: '${d.name}: the cover names the stat the defender chooses for');
       defenderCovers++;
     } else if (payload['trickWinner'] == null) {
       expect(payload['picker'], next.name, reason: "${d.name}: a tie the defender's choice completed");
-      expect(reason, deL10n.quartettTrumpfPicksAgain(playerMark(next)), reason: '${d.name}: the cover says why');
+      expect(reason, deL10n.quartettTrumpfPicksAgain(_name(next)), reason: '${d.name}: the cover says why');
     } else {
       expect(payload['trickWinner'], next.name);
-      expect(reason, deL10n.quartettTrumpfHandoverReason(playerMark(next)), reason: '${d.name}: the cover says why');
+      expect(reason, deL10n.quartettTrumpfHandoverReason(_name(next)), reason: '${d.name}: the cover says why');
     }
   }
 
@@ -359,7 +362,7 @@ class QuartettTrumpfAdapter extends LiveUiAdapter {
                 actor: picker,
                 action: stat,
                 outcome: _outcome(w == null ? null : Player.values.byName(w as String)),
-                detail: 'X:${cards['a']} O:${cards['b']}',
+                detail: 'Anna:${cards['a']} Ben:${cards['b']}',
                 nextActor: w == null ? picker : Player.values.byName(w as String),
                 source: 'engine',
               ),
