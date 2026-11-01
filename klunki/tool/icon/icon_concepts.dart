@@ -41,6 +41,15 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-k4': ('c5-p1 + "Klunki" gelb im Bogen mittig', paintConceptC5K4),
   'c5-k5': ('c5-p1 + Banner "Klunki" unten', paintConceptC5K5),
   'c5-k6': ('c5-p1 + "Klunki" auf größerer Fahne', paintConceptC5K6),
+  // The user's pick k1 (leather patch): patch / lettering styles and cards.
+  'c5-k1a': ('k1: dunkles Leder, Goldprägung', (c, s) => _k1(c, s, _patchA)),
+  'c5-k1b': ('k1: helles Leder, Ton-in-Ton geprägt', (c, s) => _k1(c, s, _patchB)),
+  'c5-k1c': ('k1: weiße Versalien, gesperrt', (c, s) => _k1(c, s, _patchC)),
+  'c5-k1d': ('k1: dünne Schrift creme', (c, s) => _k1(c, s, _patchD)),
+  'c5-k1e': ('k1: rotbraunes Leder, schmale Gold-Versalien', (c, s) => _k1(c, s, _patchE)),
+  'c5-k1f': ('k1: kursiv, erhaben mit Kontur', (c, s) => _k1(c, s, _patchF)),
+  'c5-k1-card-a': ('k1: Karte statt Handy', paintConceptC5K1CardA),
+  'c5-k1-card-b': ('k1: Karte hinter dem Handy', paintConceptC5K1CardB),
 };
 
 /// Concepts that letter the word "Klunki" with Roboto: the renderer must load
@@ -567,7 +576,7 @@ void paintConceptC5P2(Canvas canvas, double size) => _grid(canvas, size, (c) => 
 /// of its lit screen.
 void paintConceptC5P3(Canvas canvas, double size) => _grid(canvas, size, (c) => _c5(c, _C5Phone.behind));
 
-enum _C5Phone { none, insteadOfCard, embroidered, behind }
+enum _C5Phone { none, insteadOfCard, embroidered, behind, cardAndPhone }
 
 void _c5(
   Canvas c,
@@ -591,9 +600,12 @@ void _c5(
       }
       _flag(c, flagBox, _p.gostrategy.red, lineWidth: 4.5 * 360 / flagBox.width);
       if (flagWord) _flagWord(c, flagBox);
-      if (phone == _C5Phone.insteadOfCard) {
+      if (phone == _C5Phone.cardAndPhone) {
+        _card(c, const Offset(364, 392), const Size(190, 290), -0.46, _p.quartett.sets['E']!, outline: 12);
+      }
+      if (phone == _C5Phone.insteadOfCard || phone == _C5Phone.cardAndPhone) {
         _phone(c, const Offset(404, 440), const Size(204, 344), -0.2, screen: _screenBoard);
-      } else if (phone != _C5Phone.behind) {
+      } else if (phone == _C5Phone.none || phone == _C5Phone.embroidered) {
         _card(c, const Offset(404, 446), const Size(214, 330), -0.2, _p.quartett.sets['F']!, outline: 13);
       }
       _pawn(c, const Rect.fromLTWH(344, 262, 330, 330), fill: _p.chess.whiteFill, lineWidth: 4.5);
@@ -610,6 +622,21 @@ void _c5(
 /// pressed into it (cream letters with a dark bevel above them).
 void paintConceptC5K1(Canvas canvas, double size) =>
     _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: _leatherPatch));
+
+/// c5-k1a…f: c5-p1 with a restyled leather patch.
+void _k1(Canvas canvas, double size, void Function(Canvas c, _Leather leather) patch) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.insteadOfCard, emblem: patch));
+
+/// The patch style used with the cards (the pick of the k1 styles).
+const _cardPatch = _patchA;
+
+/// (c5-k1-card-a) The Quartett card back in the phone's place, k1 patch.
+void paintConceptC5K1CardA(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.none, emblem: _cardPatch));
+
+/// (c5-k1-card-b) Phone in front, the Quartett card peeking out behind it.
+void paintConceptC5K1CardB(Canvas canvas, double size) =>
+    _grid(canvas, size, (c) => _c5(c, _C5Phone.cardAndPhone, emblem: _cardPatch));
 
 /// (c5-k2) "Klunki" embroidered straight on the denim in the yellow thread
 /// (satin stitch: diagonal thread stripes, raised by a small shadow).
@@ -636,39 +663,92 @@ void paintConceptC5K6(Canvas canvas, double size) => _grid(
   (c) => _c5(c, _C5Phone.insteadOfCard, flagBox: const Rect.fromLTWH(440, 150, 450, 450), flagWord: true),
 );
 
-/// Lays out "Klunki" in Roboto Bold.
-TextPainter _wordPainter(double fontSize, {Paint? foreground, Color? color, double spacing = 0}) => TextPainter(
+/// A lettering face: text, family, weight, slant and cap height (em, for
+/// centring).
+typedef _Face = ({String text, String family, FontWeight weight, bool italic, double cap});
+
+const _Face _robotoBold = (text: 'Klunki', family: iconFontFamily, weight: FontWeight.w700, italic: false, cap: 0.711);
+const _Face _robotoCaps = (text: 'KLUNKI', family: iconFontFamily, weight: FontWeight.w500, italic: false, cap: 0.711);
+const _Face _robotoItalic = (text: 'Klunki', family: iconFontFamily, weight: FontWeight.w700, italic: true, cap: 0.711);
+
+const _Face _robotoRegular = (
+  text: 'Klunki',
+  family: iconFontFamily,
+  weight: FontWeight.w400,
+  italic: false,
+  cap: 0.711,
+);
+const _Face _robotoBoldCaps = (
+  text: 'KLUNKI',
+  family: iconFontFamily,
+  weight: FontWeight.w700,
+  italic: false,
+  cap: 0.711,
+);
+
+/// Lays out [face] at [fontSize] with [foreground].
+TextPainter _wordPainter(_Face face, double fontSize, Paint foreground, double spacing) => TextPainter(
   text: TextSpan(
-    text: 'Klunki',
+    text: face.text,
     style: TextStyle(
-      fontFamily: iconFontFamily,
-      fontWeight: FontWeight.w700,
+      fontFamily: face.family,
+      fontWeight: face.weight,
+      fontStyle: face.italic ? FontStyle.italic : FontStyle.normal,
       fontSize: fontSize,
       letterSpacing: spacing,
       height: 1,
-      color: foreground == null ? color : null,
       foreground: foreground,
     ),
   ),
   textDirection: TextDirection.ltr,
 )..layout();
 
-/// Paints "Klunki" centred at [center] with each paint in [paints] in turn
+/// Paints the word centred at [center] with each paint in [paints] in turn
 /// (and the matching offset), so outlines, shadows and fills line up.
-void _word(Canvas c, Offset center, double fontSize, List<(Paint, Offset)> paints, {double spacing = 0}) {
+void _word(
+  Canvas c,
+  Offset center,
+  double fontSize,
+  List<(Paint, Offset)> paints, {
+  double spacing = 0,
+  _Face face = _robotoBold,
+  double stretch = 1,
+}) {
+  c.save();
+  // Horizontal stretch around the centre (< 1: condensed).
+  c.translate(center.dx, 0);
+  c.scale(stretch, 1);
+  c.translate(-center.dx, 0);
   for (final (paint, shift) in paints) {
-    final tp = _wordPainter(fontSize, foreground: paint, spacing: spacing);
-    // Centre on the cap height, not the line box (no descenders in "Klunki");
-    // Roboto's cap height is 0.711 em. Trailing letter spacing is dropped.
+    final tp = _wordPainter(face, fontSize, paint, spacing);
+    // Centre on the cap height, not the line box (no descenders in "Klunki").
+    // Trailing letter spacing is dropped.
     final base = tp.computeDistanceToActualBaseline(TextBaseline.alphabetic);
-    tp.paint(c, center + shift - Offset((tp.width - spacing) / 2, base - fontSize * 0.711 / 2));
+    tp.paint(c, center + shift - Offset((tp.width - spacing) / 2, base - fontSize * face.cap / 2));
   }
+  c.restore();
 }
 
 /// Centre of the pocket front between the stitching (pocket design coords).
 const _front = Offset(512, 664);
 
-void _leatherPatch(Canvas c, _Leather leather) {
+/// Lettering on the patch: (paint, offset) layers from back to front.
+typedef _Letters = List<(Paint, Offset)>;
+
+/// A leather jeans patch centred on the pocket front, slightly tilted, with
+/// its own stitching, lettered with [face] in [letters].
+void _patch(
+  Canvas c, {
+  Color top = const Color(0xFFB0662F),
+  Color bottom = const Color(0xFF7E3A18),
+  Color stitch = const Color(0xFFF7DDB0),
+  _Face face = _robotoBold,
+  double fontSize = 110,
+  double spacing = 2,
+  Offset nudge = Offset.zero,
+  double stretch = 1,
+  required _Letters letters,
+}) {
   final r = RRect.fromRectAndRadius(
     Rect.fromCenter(center: _front, width: 408, height: 180),
     const Radius.circular(22),
@@ -678,22 +758,98 @@ void _leatherPatch(Canvas c, _Leather leather) {
   c.rotate(-0.035);
   c.translate(-_front.dx, -_front.dy);
   c.drawRRect(r.shift(const Offset(4, 10)), _fill(const Color(0x55000000)));
-  c.drawRRect(
-    r,
-    Paint()
-      ..shader = ui.Gradient.linear(r.outerRect.topCenter, r.outerRect.bottomCenter, [
-        const Color(0xFFB0662F),
-        const Color(0xFF7E3A18),
-      ]),
-  );
-  _dashed(c, Path()..addRRect(r.deflate(16)), _stroke(const Color(0xFFF7DDB0), 6), 18, 12);
+  c.drawRRect(r, Paint()..shader = ui.Gradient.linear(r.outerRect.topCenter, r.outerRect.bottomCenter, [top, bottom]));
+  _dashed(c, Path()..addRRect(r.deflate(16)), _stroke(stitch, 6), 18, 12);
   c.drawRRect(r, _stroke(_ink, 10));
-  _word(c, _front, 110, [
-    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
-    (_fill(const Color(0xFFFFE7BF)), const Offset(0, 2)),
-  ], spacing: 2);
+  _word(c, _front + nudge, fontSize, letters, spacing: spacing, face: face, stretch: stretch);
   c.restore();
 }
+
+/// k1: mid-brown leather, cream Roboto Bold pressed in (dark edge above).
+void _leatherPatch(Canvas c, _Leather leather) => _patch(
+  c,
+  letters: [
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -4)),
+    (_fill(const Color(0xFFFFE7BF)), const Offset(0, 2)),
+  ],
+);
+
+/// Gold foil: vertical gradient, light top, deep amber bottom.
+Paint _gold(double fontSize) => Paint()
+  ..shader = ui.Gradient.linear(
+    Offset(0, _front.dy - fontSize * 0.4),
+    Offset(0, _front.dy + fontSize * 0.4),
+    [const Color(0xFFFFE9A0), const Color(0xFFE6B34A), const Color(0xFFB07A1E)],
+    [0, 0.5, 1],
+  );
+
+/// k1a: dark chocolate leather, gold foil letters, gold stitching.
+void _patchA(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFF5E2E16),
+  bottom: const Color(0xFF3A1A0B),
+  stitch: const Color(0xFFE6B34A),
+  letters: [(_fill(const Color(0xFF1E0C04)), const Offset(0, 5)), (_gold(110), Offset.zero)],
+);
+
+/// k1b: light tan leather, classic tonal deboss (letters pressed in, darker
+/// than the leather, with a light lip below).
+void _patchB(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFFE2AE72),
+  bottom: const Color(0xFFC08347),
+  stitch: const Color(0xFF7A4520),
+  letters: [
+    (_fill(const Color(0xFFF6D6A8)), const Offset(0, 4)),
+    (_fill(const Color(0xFF4A2410)), const Offset(0, -3)),
+    (_fill(const Color(0xFF8A4E22)), Offset.zero),
+  ],
+);
+
+/// k1c: mid leather, white caps print with wide spacing (Roboto Medium).
+void _patchC(Canvas c, _Leather leather) => _patch(
+  c,
+  face: _robotoCaps,
+  fontSize: 84,
+  spacing: 9,
+  letters: [(_fill(const Color(0x88000000)), const Offset(0, 4)), (_fill(const Color(0xFFFFFFFF)), Offset.zero)],
+);
+
+/// k1d: mid leather, light cream Roboto Regular, a bit larger, printed.
+void _patchD(Canvas c, _Leather leather) => _patch(
+  c,
+  face: _robotoRegular,
+  fontSize: 122,
+  spacing: 1,
+  letters: [(_fill(const Color(0xFF3A1A0B)), const Offset(0, 5)), (_fill(const Color(0xFFFFEFD2)), Offset.zero)],
+);
+
+/// k1e: dark red-brown leather, tall condensed gold caps (Roboto Bold
+/// squeezed to 78 %), workwear-label style.
+void _patchE(Canvas c, _Leather leather) => _patch(
+  c,
+  top: const Color(0xFF7A2E1A),
+  bottom: const Color(0xFF4E1A0E),
+  stitch: const Color(0xFFE6B34A),
+  face: _robotoBoldCaps,
+  fontSize: 116,
+  spacing: 4,
+  stretch: 0.78,
+  letters: [(_fill(const Color(0xFF1E0C04)), const Offset(0, 5)), (_gold(116), Offset.zero)],
+);
+
+/// k1f: mid leather, raised cream Roboto Bold Italic with a dark outline and
+/// a shadow down-right.
+void _patchF(Canvas c, _Leather leather) => _patch(
+  c,
+  fontSize: 112,
+  face: _robotoItalic,
+  letters: [
+    (_fill(const Color(0xAA2A1206)), const Offset(4, 6)),
+    (_stroke(_ink, 9), Offset.zero),
+    (_fill(const Color(0xFFFFE7BF)), Offset.zero),
+  ],
+);
 
 void _embroideredWord(Canvas c, _Leather leather) {
   final hsl = HSLColor.fromColor(leather.stitch);

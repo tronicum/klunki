@@ -7,8 +7,9 @@
 // without KLUNKI_ICON_OUT it is skipped as well. Writes per concept
 // `concept-<id>-1024.png` (RGB, no alpha channel) and `concept-<id>-preview.png`
 // (sizes 180/120/60/40 unmasked, iOS rounded square and Android circle on a
-// light and a dark home screen). Also writes `c5-k-compare.png`: the c5-k
-// variants side by side at 256, 180 and 60 px (iOS mask on the small rows).
+// light and a dark home screen). Also writes `c5-k-compare.png` and
+// `c5-k1-compare.png`: variant groups side by side at 256, 180 and 60 px
+// (iOS mask on the small rows).
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -23,53 +24,42 @@ import 'icon_concepts.dart';
 final String? _out = Platform.environment['KLUNKI_ICON_OUT'];
 
 Future<void> _loadFont() async {
-  final loader = FontLoader(iconFontFamily);
-  for (final w in ['Regular', 'Medium', 'Bold']) {
-    loader.addFont(Future.value(ByteData.sublistView(File('assets/fonts/Roboto/Roboto-$w.ttf').readAsBytesSync())));
+  Future<void> family(String name, List<String> files) async {
+    final loader = FontLoader(name);
+    for (final f in files) {
+      loader.addFont(Future.value(ByteData.sublistView(File('assets/fonts/$f').readAsBytesSync())));
+    }
+    await loader.load();
   }
-  await loader.load();
+
+  await family(iconFontFamily, ['Roboto/Roboto-Regular.ttf', 'Roboto/Roboto-Medium.ttf', 'Roboto/Roboto-Bold.ttf']);
 }
 
 void main() {
   setUpAll(() async {
     if (_out != null) await _loadFont();
   });
-  testWidgets('c5-k compare sheet', skip: _out == null, (tester) async {
-    await tester.runAsync(() async {
-      final ids = [
-        for (final id in iconConcepts.keys)
-          if (id.startsWith('c5-k')) id,
-      ];
-      final icons = [for (final id in ids) await _render(1024, 1024, (c) => iconConcepts[id]!.$2(c, 1024))];
-      const gap = 32.0, label = 44.0;
-      const rows = [256.0, 180.0, 60.0];
-      final w = gap + ids.length * (256 + gap);
-      final h = gap + rows.fold(0.0, (a, s) => a + s + gap) + label;
-      final sheet = await _render(w.toInt(), h.toInt(), (c) {
-        c.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = const Color(0xFFF2F2F7));
-        var y = gap;
-        for (var i = 0; i < ids.length; i++) {
-          final tp = TextPainter(
-            text: TextSpan(
-              text: ids[i],
-              style: const TextStyle(fontFamily: iconFontFamily, fontSize: 26, color: Color(0xFF1C1C1E)),
-            ),
-            textDirection: TextDirection.ltr,
-          )..layout();
-          tp.paint(c, Offset(gap + i * (256 + gap) + (256 - tp.width) / 2, y));
-        }
-        y += label;
-        for (final s in rows) {
-          for (var i = 0; i < ids.length; i++) {
-            final r = Rect.fromLTWH(gap + i * (256 + gap) + (256 - s) / 2, y, s, s);
-            _drawIcon(c, icons[i], r, s == 256 ? null : _squircle(r));
-          }
-          y += s + gap;
-        }
+  final ids = iconConcepts.keys;
+  final compare = {
+    // The first wordmark round: c5-k1 … c5-k6.
+    'c5-k-compare': [
+      for (final id in ids)
+        if (RegExp(r'^c5-k\d$').hasMatch(id)) id,
+    ],
+    // The leather patch (k1) styles and the card variants.
+    'c5-k1-compare': [
+      for (final id in ids)
+        if (id.startsWith('c5-k1')) id,
+    ],
+  };
+  for (final MapEntry(key: name, value: ids) in compare.entries) {
+    testWidgets('$name sheet', skip: _out == null, (tester) async {
+      await tester.runAsync(() async {
+        final icons = [for (final id in ids) await _render(1024, 1024, (c) => iconConcepts[id]!.$2(c, 1024))];
+        await _writePng(await _compareSheet(ids, icons), '$_out/$name.png');
       });
-      await _writePng(sheet, '$_out/c5-k-compare.png');
     });
-  });
+  }
   for (final MapEntry(key: id, value: (title, paint)) in iconConcepts.entries) {
     testWidgets('icon concept $id ($title)', skip: _out == null, (tester) async {
       await tester.runAsync(() async {
@@ -80,6 +70,36 @@ void main() {
       });
     });
   }
+}
+
+/// [icons] side by side at 256 px (no mask), 180 and 60 px (iOS mask).
+Future<ui.Image> _compareSheet(List<String> ids, List<ui.Image> icons) {
+  const gap = 32.0, label = 44.0;
+  const rows = [256.0, 180.0, 60.0];
+  final w = gap + ids.length * (256 + gap);
+  final h = gap + rows.fold(0.0, (a, s) => a + s + gap) + label;
+  return _render(w.toInt(), h.toInt(), (c) {
+    c.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = const Color(0xFFF2F2F7));
+    var y = gap;
+    for (var i = 0; i < ids.length; i++) {
+      final tp = TextPainter(
+        text: TextSpan(
+          text: ids[i],
+          style: const TextStyle(fontFamily: iconFontFamily, fontSize: 26, color: Color(0xFF1C1C1E)),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      tp.paint(c, Offset(gap + i * (256 + gap) + (256 - tp.width) / 2, y));
+    }
+    y += label;
+    for (final s in rows) {
+      for (var i = 0; i < ids.length; i++) {
+        final r = Rect.fromLTWH(gap + i * (256 + gap) + (256 - s) / 2, y, s, s);
+        _drawIcon(c, icons[i], r, s == 256 ? null : _squircle(r));
+      }
+      y += s + gap;
+    }
+  });
 }
 
 Future<ui.Image> _render(int w, int h, void Function(Canvas c) body) {

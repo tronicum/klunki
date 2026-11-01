@@ -57,6 +57,25 @@ pieces carry the icon there. k6's pennant text is already small at 180 px.
 `c5-k-compare.png` (written by the render test) shows all k variants at 256,
 180 and 60 px side by side.
 
+The user then picked **c5-k1** (leather patch, matches the pocket). Patch and
+lettering styles, all Roboto (the bundled Noto Sans Math is only a symbol
+subset, so script or Fraktur letters are not available without a new font):
+
+| id | variant |
+|---|---|
+| c5-k1a | Dark chocolate leather, gold-foil Roboto Bold, gold stitching |
+| c5-k1b | Light tan leather, classic tonal deboss (letters pressed in, darker brown); weakest contrast, soft at 180 px |
+| c5-k1c | Mid leather, white caps "KLUNKI" in Roboto Medium, wide letter spacing |
+| c5-k1d | Mid leather, cream Roboto Regular (thin), slightly larger |
+| c5-k1e | Red-brown leather, tall condensed gold caps (Roboto Bold squeezed to 78 %), workwear-label look |
+| c5-k1f | Mid leather, raised cream Roboto Bold Italic with a dark outline |
+| c5-k1-card-a | The Quartett card back in the phone's place (as c5-final), k1a patch |
+| c5-k1-card-b | Phone in front, a green Quartett card fanned out behind it to the left, k1a patch |
+
+All patch styles read at 180 px (k1b and k1d least well); at 60 px the patch
+is a brown block with a light smudge. `c5-k1-compare.png` shows k1, k1a–f and
+both card variants at 256, 180 and 60 px.
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for
