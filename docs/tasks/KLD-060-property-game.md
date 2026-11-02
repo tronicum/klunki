@@ -80,8 +80,10 @@ trade > turn phase. Moves (JSON maps, illegal → `null`, no state change): `rol
 - Building: whole group, nothing mortgaged in it, even building, 4 small then 1 big building; selling evenly
   for half the cost; mortgage only with no buildings in the group (value = half the price); lifting +10 %.
 - Debts: an amount larger than the cash becomes a queued debt; the debtor (may be another seat, e.g. the
-  birthday card) can only sell buildings or mortgage, and the debt is paid automatically once the cash suffices,
-  or declares `bankrupt`. **Cash never goes negative.**
+  birthday card) can only sell buildings or mortgage, and the debt is paid automatically once the cash suffices.
+  **Bankruptcy only when unavoidable** (maintainer decision): `bankrupt` is refused (and not in `legalMoves`)
+  while selling every building and mortgaging everything could still pay the first debt (`raisable(seat)`,
+  `canDeclareBankruptcy`). **Cash never goes negative.** (Resign stays possible at any time.)
 - Bankruptcy to a player: buildings go back to the bank for half, then cash, properties (mortgages included)
   and free cards to the creditor. To the bank: cash to the bank, properties back unmortgaged, free cards under
   their decks. Other debts of/to that seat lapse.
@@ -91,8 +93,31 @@ trade > turn phase. Moves (JSON maps, illegal → `null`, no state change): `rol
 - Default: no round limit, play until one is left. Optional `maxRounds`: after that many full rounds the highest net worth wins (cash + prices, mortgaged at
   half + building costs); equal leaders → draw.
 - Simplified compared with the classic rules (open questions below): no building shortage (32/12), no auction
-  of a bankrupt's properties to the bank, no 10 % fee on received mortgaged properties, no free-parking pot,
-  the "nearest station" card charges normal rent.
+  of a bankrupt's properties to the bank, no 10 % fee on received mortgaged properties, the "nearest station"
+  card charges normal rent.
+
+### House rules (config options, theme-independent)
+**Free square** (`freeSquare`, `freeSquareAmount`; Berlin: "Späti-Pause"), maintainer decision. German labels for
+the later UI in brackets; config keys for step 2: `free` (name, absent = `none`) and `freeAmount`:
+
+| `PropertyFreeSquare` | What happens | UI label (de) |
+|---|---|---|
+| `none` (default) | nothing (classic) | "Späti-Pause: nichts" |
+| `pot` | taxes (tax squares) and card fines (`pay`, `repairs`) go into a pot in the middle instead of the bank; landing on the free square takes the pot | "Topf mit Steuern" |
+| `potWithSeed` | like `pot`, but the pot starts with `freeSquareAmount` (default 500) from the bank and is refilled with it after every pick-up | "Topf + 500" |
+| `fixedBonus` | landing there pays `freeSquareAmount` (default 200; e.g. 400) from the bank | "feste 200" |
+
+Rent, bail and the cash of a bankruptcy to the bank never go into the pot. The pot is public (`pot` in the view)
+and counts in the money invariant: Σ cash + bank balance + pot = players × 1500 (checked after every bot move,
+with all four variants in the bot games).
+
+**Further popular house rules, design only (not built):** each would be one more optional config key, default off:
+- Double salary when landing exactly on Start (`startDouble`: 400 instead of 200).
+- No rent while the owner sits in the pause (`noRentInPause`: `rentFor` returns 0 when the owner is in it).
+- Auction of a bankrupt's properties when going bankrupt to the bank (`bankruptAuction`: one auction per
+  property in board order, reusing the open-bid auction before the turn moves on).
+- Others mentioned before: building shortage 32/12, 10 % fee on received mortgages, double rent from the
+  "nearest station" card.
 
 ### Hidden information (for the redaction step)
 Money, properties and held cards are public. **Secret: the seed and the deck order** (`toJson` leaves out both,
@@ -140,15 +165,17 @@ for families elsewhere and as a neutral theme).
   "Heute wird getanzt! Fahr zur Revaler Straße." and "Lange an der Tür angestanden und doch nicht reingekommen.
   Geh 3 Felder zurück." No alcohol, no drugs in any text.
 - Cards: Berliner Schnauze for all ages (S-Bahn punctuality, Ringbahn Innenring/Außenring, Currywurst mit
-  Pommes Schranke, Pfannkuchen, Schrippen, Kiezfest, Mauerpark karaoke, "Kiek mal", "Det Buch …").
+  Pommes Schranke, Pfannkuchen, Schrippen, Mauerpark karaoke, "Kiek mal"). Maintainer-approved local jokes:
+  **Bürgeramt** (tax square "Bürgeramt-Gebühr"; "Endlich ein Termin im Bürgeramt – für nächstes Jahr!", "Det
+  Formular bitte dreifach!"), **S-Bahn disruptions** (Weichenstörung, Signalstörung, Ersatzverkehr, "Die
+  Ringbahn steht …", "Die S-Bahn fällt aus, du fährst Rad …") and one mild **airport-delay** card ("so lange
+  auf die Eröffnung des neuen Flughafens gewartet, dass dein Sparschwein voll ist"); no blame, no real people
+  or companies.
 - The "Bar → Kiezkneipe" pair for a Simon-Dach-Straße group was not used: no free group slot with a coherent
   area, and it centres on alcohol (for the maintainer to decide).
 
-**For the maintainer to decide** (kept out on purpose; current controversies or close to them): jokes about the
-new airport's long opening delay; the Tempelhofer Feld building debate; Görlitzer Park; anything about rents,
-housing or expropriation referendums (especially touchy in a property game); waiting times for Bürgeramt
-appointments (the tax square "Bürgeramt-Gebühr" is a mild nod: keep or rename?); S-Bahn disruption jokes are in
-(Weichenstörung, Ersatzverkehr): acceptable?
+**Kept out** (maintainer decision): rents, housing or expropriation referendums, Görlitzer Park, the
+Tempelhofer Feld building debate.
 
 ### Texts and localisation
 Theme texts are German first and live in the theme data (like Quartett card names). For the UI step: built-in
@@ -175,7 +202,8 @@ separate private helpers in `property.dart` so they can be moved into a shared "
 - [x] Own board (40 squares, 8 groups, 4 stations, 2 utilities, taxes, start, pause, free, go to pause), own
       prices/rents, two decks of 16 own cards shuffled from the seed; as validated theme data (Berlin, Fantasie).
 - [x] Doubles, pause rules, buy/decline/auction, rent incl. whole-group double, even building, mortgages,
-      debts, bankruptcy to bank or player, trades, resign, last solvent wins, optional round limit.
+      debts, bankruptcy (only when unavoidable) to bank or player, trades, resign, last solvent wins (default),
+      optional round limit, free-square house rules (`none` / `pot` / `potWithSeed` / `fixedBonus`).
 - [x] JSON view without seed and deck order.
 - [x] CLI: `dart run klunki_engine:klunki property --players 4 --seed 7 'auto 50'` (`PropertyText`).
 - [x] Bots (`PropertyBot`, greedy and random) play 80 full games (2–6 players) with invariants checked after
@@ -189,11 +217,10 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 ## Open questions
 - ~~English title~~: decided: "Housing Corp" (working title).
 - ~~Default game length~~: decided: until one player is left; round limit optional (20 / 30 / 40 in the UI).
-- House rules: free-parking pot (off now)? building shortage 32/12 (off)? auction of a bankrupt's properties
-  (off, they go back to the bank)? 10 % fee when receiving mortgaged properties (off)? double rent from the
-  "nearest station" card (off)?
+- ~~Free-parking pot~~: decided: free-square house rules as config, default nothing.
+- ~~Bankruptcy while selling could still pay~~: decided: refused, sell and mortgage first.
+- Which of the further house rules (above) should the UI offer?
 - Start money 1500 and salary 200 kept; currency "Taler" for Berlin too?
 - Should non-current players be allowed to offer trades (needs a "pending offers" list instead of one actor)?
-- Bankruptcy is allowed whenever in debt, even if selling could still pay: OK, or force selling first?
 - Network: timeouts for auction bids and trade answers (step 2).
-- The "for the maintainer to decide" Berlin ideas above.
+- The "Bar → Kiezkneipe" building pair (not used, see above).

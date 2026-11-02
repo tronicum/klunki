@@ -48,6 +48,26 @@ export 'property_theme.dart';
 /// What the game waits for. See the library docs.
 enum PropertyPhase { roll, buy, auction, trade, debt, end, over }
 
+/// House rule for the free square (Berlin: "Späti-Pause"). Theme-independent.
+enum PropertyFreeSquare {
+  /// Classic: nothing happens (default).
+  none,
+
+  /// Taxes and card fines go into a pot in the middle instead of the bank;
+  /// landing on the free square takes the pot.
+  pot,
+
+  /// Like [pot], but the pot starts with [PropertyGame.freeSquareAmount]
+  /// from the bank and is refilled with it after every pick-up.
+  potWithSeed,
+
+  /// Landing on the free square pays [PropertyGame.freeSquareAmount] from
+  /// the bank.
+  fixedBonus;
+
+  static PropertyFreeSquare? byName(Object? name) => values.where((v) => v.name == name).firstOrNull;
+}
+
 /// One player's state. Public information.
 class PropertySeat {
   int cash;
@@ -235,6 +255,20 @@ class PropertyGame {
   /// only one player is left; the limit is an opt-in setting.
   final int? maxRounds;
 
+  /// House rule for the free square; [PropertyFreeSquare.none] by default.
+  final PropertyFreeSquare freeSquare;
+
+  /// The seed of [PropertyFreeSquare.potWithSeed] or the bonus of
+  /// [PropertyFreeSquare.fixedBonus] (defaults 500 and 200); unused otherwise.
+  final int freeSquareAmount;
+
+  /// Default [freeSquareAmount] per rule.
+  static int defaultFreeSquareAmount(PropertyFreeSquare rule) => switch (rule) {
+        PropertyFreeSquare.potWithSeed => 500,
+        PropertyFreeSquare.fixedBonus => 200,
+        _ => 0,
+      };
+
   final Random _rng;
   List<PropertySquare> get _board => theme.squares;
   List<List<int>> get _groups => theme.groups;
@@ -251,6 +285,9 @@ class PropertyGame {
   /// Net money the bank received (negative: paid out). Σcash + [_bank] is
   /// always `playerCount × startCash`.
   int _bank = 0;
+
+  /// Money in the middle ([PropertyFreeSquare.pot] / `potWithSeed`).
+  int _pot = 0;
   int _current = 0;
   PropertyPhase _turnPhase = PropertyPhase.roll;
   bool _rollAgain = false;
@@ -265,15 +302,28 @@ class PropertyGame {
   PropertyResult _result = const PropertyResult();
   late List<Map<String, dynamic>> _ev;
 
-  /// A new game. Throws [ArgumentError] for a player count outside 2–6 or a
-  /// [maxRounds] below 1.
+  /// A new game. Throws [ArgumentError] for a player count outside 2–6, a
+  /// [maxRounds] below 1, a [freeSquareAmount] outside 0–5000 or an invalid
+  /// theme.
+  ///
+  /// [maxRounds] null (default) plays until only one player is left;
+  /// [freeSquare] picks the free-square house rule, [freeSquareAmount] its
+  /// amount (null = [defaultFreeSquareAmount]).
   ///
   /// [dice] and [deckOrder] are for tests and scripted demos only: dice
   /// values (1–6) used before the seeded ones, and a deck order (card ids,
   /// top first; the deck's other cards follow in seeded order).
-  PropertyGame({this.playerCount = 2, this.seed = 0, this.maxRounds, PropertyTheme? theme, List<int> dice = const [],
+  PropertyGame(
+      {this.playerCount = 2,
+      this.seed = 0,
+      this.maxRounds,
+      this.freeSquare = PropertyFreeSquare.none,
+      int? freeSquareAmount,
+      PropertyTheme? theme,
+      List<int> dice = const [],
       Map<PropertyDeck, List<String>> deckOrder = const {}})
       : theme = theme ?? PropertyTheme.berlin,
+        freeSquareAmount = freeSquareAmount ?? defaultFreeSquareAmount(freeSquare),
         _rng = Random(seed),
         _scriptedDice = List.of(dice),
         _seats = List.generate(playerCount.clamp(0, maxPlayers), (_) => PropertySeat(startCash)) {
@@ -282,6 +332,10 @@ class PropertyGame {
     }
     if (maxRounds != null && maxRounds! < 1) throw ArgumentError.value(maxRounds, 'maxRounds', 'must be at least 1');
     if (dice.any((d) => d < 1 || d > 6)) throw ArgumentError.value(dice, 'dice', 'values must be 1–6');
+    if (this.freeSquareAmount < 0 || this.freeSquareAmount > 5000) {
+      throw ArgumentError.value(this.freeSquareAmount, 'freeSquareAmount', 'must be 0–5000');
+    }
+    if (freeSquare == PropertyFreeSquare.potWithSeed) _refillPot();
     final problems = this.theme.validate();
     if (problems.isNotEmpty) throw ArgumentError.value(this.theme.id, 'theme', problems.join('; '));
     for (final deck in PropertyDeck.values) {
@@ -300,8 +354,17 @@ class PropertyGame {
   /// Rebuilds a game from its settings and move list; null if a move is
   /// refused (the logs disagree).
   static PropertyGame? replay(int playerCount, int seed, Iterable<Map<String, dynamic>> moves,
-      {int? maxRounds, PropertyTheme? theme}) {
-    final g = PropertyGame(playerCount: playerCount, seed: seed, maxRounds: maxRounds, theme: theme);
+      {int? maxRounds,
+      PropertyFreeSquare freeSquare = PropertyFreeSquare.none,
+      int? freeSquareAmount,
+      PropertyTheme? theme}) {
+    final g = PropertyGame(
+        playerCount: playerCount,
+        seed: seed,
+        maxRounds: maxRounds,
+        freeSquare: freeSquare,
+        freeSquareAmount: freeSquareAmount,
+        theme: theme);
     for (final m in moves) {
       if (g.applyMove(m) == null) return null;
     }
@@ -320,6 +383,27 @@ class PropertyGame {
   PropertyResult get result => _result;
   bool get isOver => _result.isOver;
   int get bankBalance => _bank;
+
+  /// Money in the middle (pot house rules), else 0. Σcash + [bankBalance] +
+  /// [pot] is always `playerCount × startCash`.
+  int get pot => _pot;
+
+  bool get _usesPot => freeSquare == PropertyFreeSquare.pot || freeSquare == PropertyFreeSquare.potWithSeed;
+
+  /// What [seat] could still raise: cash, half the cost of every building
+  /// and the mortgage value of every unmortgaged property.
+  int raisable(int seat) {
+    var v = _seats[seat].cash;
+    for (final i in ownedBy(seat)) {
+      v += _houses[i] * (_board[i].houseCost ~/ 2);
+      if (!_mortgaged[i]) v += _board[i].mortgageValue;
+    }
+    return v;
+  }
+
+  /// Whether the debtor may declare bankruptcy: only when even selling every
+  /// building and mortgaging everything could not pay the first debt.
+  bool get canDeclareBankruptcy => phase == PropertyPhase.debt && raisable(_debts.first.debtor) < _debts.first.amount;
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
 
   int? ownerOf(int square) => _owner[square];
@@ -474,7 +558,7 @@ class PropertyGame {
     switch (phase) {
       case PropertyPhase.debt:
         manage(raiseOnly: true);
-        out.add({'action': 'bankrupt'});
+        if (canDeclareBankruptcy) out.add({'action': 'bankrupt'});
       case PropertyPhase.auction:
         final m = _auction!.minBid;
         for (final b in {m, m + 50, m + 100}) {
@@ -629,10 +713,37 @@ class PropertyGame {
       case PropertyKind.goToPause:
         _sendToPause();
         return;
-      case PropertyKind.start || PropertyKind.pause || PropertyKind.free:
+      case PropertyKind.free:
+        _freeSquare();
+      case PropertyKind.start || PropertyKind.pause:
         break;
     }
     _afterLanding();
+  }
+
+  /// The free-square house rule ([freeSquare]).
+  void _freeSquare() {
+    final s = _seats[_current];
+    switch (freeSquare) {
+      case PropertyFreeSquare.none:
+        return;
+      case PropertyFreeSquare.fixedBonus:
+        s.cash += freeSquareAmount;
+        _bank -= freeSquareAmount;
+        _ev.add({'type': 'collected', 'seat': _current, 'amount': freeSquareAmount});
+      case PropertyFreeSquare.pot || PropertyFreeSquare.potWithSeed:
+        final amount = _pot;
+        s.cash += amount;
+        _pot = 0;
+        _ev.add({'type': 'pot', 'seat': _current, 'amount': amount});
+        if (freeSquare == PropertyFreeSquare.potWithSeed) _refillPot();
+    }
+  }
+
+  /// Puts [freeSquareAmount] from the bank into the pot.
+  void _refillPot() {
+    _pot += freeSquareAmount;
+    _bank -= freeSquareAmount;
   }
 
   void _afterLanding() => _turnPhase = _rollAgain ? PropertyPhase.roll : PropertyPhase.end;
@@ -715,7 +826,12 @@ class PropertyGame {
   void _settleDebts() {
     while (_debts.isNotEmpty && _seats[_debts.first.debtor].cash >= _debts.first.amount) {
       final d = _debts.removeAt(0);
-      _transfer(d.debtor, d.creditor, d.amount);
+      if (d.creditor == null && _usesPot && (d.reason == 'tax' || d.reason == 'card')) {
+        _seats[d.debtor].cash -= d.amount;
+        _pot += d.amount;
+      } else {
+        _transfer(d.debtor, d.creditor, d.amount);
+      }
       _ev.add({'type': 'paid', ...d.toJson()});
     }
   }
@@ -909,7 +1025,7 @@ class PropertyGame {
   }
 
   bool _bankrupt() {
-    if (phase != PropertyPhase.debt) return false;
+    if (!canDeclareBankruptcy) return false;
     final d = _debts.first;
     _ev.add({'type': 'bankrupt', 'seat': d.debtor, if (d.creditor != null) 'to': d.creditor});
     _eliminate(d.debtor, d.creditor);
@@ -1048,6 +1164,9 @@ class PropertyGame {
         'players': playerCount,
         'theme': theme.id,
         if (maxRounds != null) 'maxRounds': maxRounds,
+        if (freeSquare != PropertyFreeSquare.none) 'freeSquare': freeSquare.name,
+        if (freeSquare != PropertyFreeSquare.none) 'freeSquareAmount': freeSquareAmount,
+        if (_usesPot) 'pot': _pot,
         'rounds': _rounds,
         'current': _current,
         'phase': phase.name,

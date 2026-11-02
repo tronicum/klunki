@@ -56,6 +56,7 @@ class PropertyText {
           '${seat.freeCards.isEmpty ? '' : '  free cards: ${seat.freeCards.length}'}'
           '${owned.isEmpty ? '' : '  owns ${owned.join(' ')}'}');
     }
+    if (game.pot > 0) b.writeln('Pot: ${game.pot} ${game.theme.currency}');
     b.write(status());
     return b.toString();
   }
@@ -156,6 +157,7 @@ class PropertyText {
       'salary' => '$who passes Start: +${e['amount']}.',
       'card' => 'Card: "${game.theme.card(e['id'])!.text}"',
       'collected' => '$who gets ${e['amount']}.',
+      'pot' => '$who takes the pot: ${e['amount']}.',
       'paid' => '${seatName(e['debtor'] as int)} pays ${e['amount']} ${e['reason']} '
           'to ${e['creditor'] == null ? 'the bank' : seatName(e['creditor'] as int)}.',
       'bought' => '$who buys ${squareName(e['square'] as int)} for ${e['price']}.',

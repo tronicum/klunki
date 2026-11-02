@@ -29,7 +29,7 @@ void main() {
   final board = PropertyTheme.berlin.squares;
   final groups = PropertyTheme.berlin.groups;
 
-  int total(PropertyGame g) => g.seats.fold(0, (s, p) => s + p.cash) + g.bankBalance;
+  int total(PropertyGame g) => g.seats.fold(0, (s, p) => s + p.cash) + g.bankBalance + g.pot;
 
   group('board', () {
     test('40 squares in classic layout positions, own names', () {
@@ -459,7 +459,8 @@ void main() {
       final rent = board[3].rents[1];
       expect(g.phase, PropertyPhase.debt);
       expect(g.debts.single.amount, rent);
-      expect(g.legalMoves, [mv('mortgage', {'square': 39}), mv('bankrupt')]);
+      expect(g.legalMoves, [mv('mortgage', {'square': 39})]);
+      refused(g, mv('bankrupt')); // mortgaging can still pay
       refused(g, mv('endTurn'));
       refused(g, mv('unmortgage', {'square': 39}));
       play(g, [mv('mortgage', {'square': 39})]);
@@ -496,7 +497,7 @@ void main() {
       });
       g
         ..debugSetCash(1, 5)
-        ..debugSetSquare(19, 1);
+        ..debugSetSquare(19, 1, mortgaged: true);
       play(g, ['roll']);
       expect(g.phase, PropertyPhase.debt);
       expect(g.actor, 1);
@@ -526,6 +527,93 @@ void main() {
       expect(g.phase, PropertyPhase.over);
       expect(g.legalMoves, isEmpty);
       refused(g, mv('roll'));
+    });
+  });
+
+  group('bankruptcy only when unavoidable', () {
+    test('sell and mortgage first; bankrupt only when even that cannot pay', () {
+      final g = PropertyGame(dice: [1, 3, 1, 3, 1, 3]);
+      g
+        ..debugSetSquare(1, 0, houses: 1)
+        ..debugSetSquare(3, 0, houses: 1)
+        ..debugSetCash(0, 100);
+      expect(g.raisable(0), 100 + 25 + 25 + 30 + 35);
+      play(g, ['roll']); // tax 200
+      expect(g.phase, PropertyPhase.debt);
+      expect(g.canDeclareBankruptcy, isFalse);
+      refused(g, mv('bankrupt'));
+      expect(g.legalMoves.map((m) => m['action']), isNot(contains('bankrupt')));
+      play(g, [
+        mv('sell', {'square': 1}),
+        mv('sell', {'square': 3}),
+        mv('mortgage', {'square': 1}),
+        mv('mortgage', {'square': 3}),
+      ]);
+      expect(g.debts, isEmpty);
+      expect(g.seats[0].cash, 15);
+      play(g, ['endTurn', 'roll', 'endTurn']);
+      g.debugSetCash(0, 0, pos: 0);
+      play(g, ['roll']); // tax 200 with nothing left to raise
+      expect(g.canDeclareBankruptcy, isTrue);
+      expect(g.legalMoves, [mv('bankrupt')]);
+      play(g, ['bankrupt']);
+      expect(g.result.winner, 1);
+    });
+  });
+
+  group('free square house rules', () {
+    test('default: nothing happens', () {
+      final g = PropertyGame(dice: [4, 6])..debugSetCash(0, 1500, pos: 10);
+      expect(g.freeSquare, PropertyFreeSquare.none);
+      play(g, ['roll']);
+      expect(g.seats[0].pos, 20);
+      expect(g.seats[0].cash, 1500);
+      expect(g.pot, 0);
+      expect(g.toJson().containsKey('pot'), isFalse);
+    });
+
+    test('pot: taxes and card fines go in, landing takes it; rent does not', () {
+      final g = PropertyGame(freeSquare: PropertyFreeSquare.pot, dice: [1, 3, 3, 4, 4, 6], deckOrder: {
+        PropertyDeck.surprise: ['s15']
+      });
+      play(g, ['roll', 'endTurn']); // P1: tax 200
+      expect(g.pot, 200);
+      expect(g.bankBalance, 0);
+      play(g, ['roll']); // P2 to 7: card fine 20
+      expect(g.pot, 220);
+      play(g, ['endTurn']);
+      g.debugSetCash(0, g.seats[0].cash, pos: 10);
+      play(g, ['roll']); // P1 to 20
+      expect(g.seats[0].cash, 1300 + 220);
+      expect(g.pot, 0);
+      expect(total(g), 3000);
+      expect(g.toJson()['pot'], 0);
+    });
+
+    test('pot with a seed: starts with it and is refilled', () {
+      final g = PropertyGame(freeSquare: PropertyFreeSquare.potWithSeed, dice: [1, 3, 4, 6]);
+      expect(g.pot, 500);
+      expect(g.bankBalance, -500);
+      expect(total(g), 3000);
+      play(g, ['roll', 'endTurn']);
+      g.debugSetCash(1, 1500, pos: 10);
+      play(g, ['roll']);
+      expect(g.seats[1].cash, 1500 + 700);
+      expect(g.pot, 500);
+      expect(total(g), 3000);
+    });
+
+    test('fixed bonus from the bank; amounts are checked', () {
+      for (final (amount, expected) in [(null, 200), (400, 400)]) {
+        final g = PropertyGame(freeSquare: PropertyFreeSquare.fixedBonus, freeSquareAmount: amount, dice: [4, 6])
+          ..debugSetCash(0, 1500, pos: 10);
+        play(g, ['roll']);
+        expect(g.seats[0].cash, 1500 + expected);
+        expect(g.pot, 0);
+      }
+      expect(() => PropertyGame(freeSquare: PropertyFreeSquare.fixedBonus, freeSquareAmount: -1), throwsArgumentError);
+      expect(() => PropertyGame(freeSquareAmount: 5001), throwsArgumentError);
+      expect(PropertyFreeSquare.byName('potWithSeed'), PropertyFreeSquare.potWithSeed);
     });
   });
 
@@ -733,7 +821,8 @@ void main() {
       for (var players = 2; players <= 6; players++) {
         for (var seed = 0; seed < 16; seed++) {
           final greedy = seed.isEven;
-          final g = PropertyGame(playerCount: players, seed: seed, maxRounds: 60);
+          final free = PropertyFreeSquare.values[seed ~/ 2 % PropertyFreeSquare.values.length];
+          final g = PropertyGame(playerCount: players, seed: seed, maxRounds: 60, freeSquare: free);
           final bot = PropertyBot(Random(seed * 31 + players), greedy: greedy);
           var moves = 0;
           while (!g.isOver) {
@@ -745,7 +834,7 @@ void main() {
           }
           if (g.result.code == 'property.lastSolvent') finishedEarly++;
           expect(g.rounds, lessThanOrEqualTo(60));
-          final r = PropertyGame.replay(players, seed, g.history, maxRounds: 60)!;
+          final r = PropertyGame.replay(players, seed, g.history, maxRounds: 60, freeSquare: free)!;
           expect(jsonEncode(r.toJson()), jsonEncode(g.toJson()));
         }
       }
