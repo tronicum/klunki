@@ -45,7 +45,15 @@ Future<void> _start(WidgetTester tester, Size size) async {
   addTearDown(c.dispose);
   await tester.pumpWidget(localizedApp(buildGameScreen(c)));
   await _pump(tester);
-  expect(tester.takeException(), isNull, reason: '$size: no overflow (bench closed)');
+  expect(tester.takeException(), isNull, reason: '$size: no overflow at the start');
+}
+
+bool _benchShown() => find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isNotEmpty;
+
+/// Opens or closes the bench (whatever it started as).
+Future<void> _setBench(WidgetTester tester, Size size, {required bool open}) async {
+  if (_benchShown() != open) await _toggleBench(tester, size);
+  expect(_benchShown(), open);
 }
 
 Future<void> _toggleBench(WidgetTester tester, Size size) async {
@@ -68,18 +76,23 @@ void main() {
   setUp(SeenTips.debugReset);
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
 
-  // Large phones keep the full board with the bench open; a mid-size phone
-  // (390 × 844, 375 × 812) gives up a little board for the bench below the
-  // actions instead of the overlay (at most 15 %).
+  // Large phones keep the full board with the bench open, so it starts
+  // open there (KLD-094 step 8c); a mid-size phone (390 × 844, 375 × 812)
+  // gives up a little board for the bench below the actions instead of the
+  // overlay (at most 15 %), so it starts closed.
   for (final (size, keepsBoard) in [
     (const Size(430, 932), true),
     (const Size(412, 915), true),
+    (const Size(402, 874), true),
+    (const Size(393, 852), false),
     (const Size(390, 844), false),
     (const Size(375, 812), false),
   ]) {
     testWidgets('phone $size: board under the score row, rack under the board, the open bench fully visible',
         (tester) async {
       await _start(tester, size);
+      expect(_benchShown(), keepsBoard, reason: 'open from the start exactly when the board keeps its size');
+      await _setBench(tester, size, open: false);
       void expectTight(String state) {
         final board = _board(tester);
         final scoreRow = _rect(tester, 'wordtiles-help');
@@ -95,7 +108,7 @@ void main() {
       // The leftover space is at the very bottom, below the controls.
       expect(_rect(tester, 'wordtiles-bench').bottom, lessThan(size.height - 40));
 
-      await _toggleBench(tester, size);
+      await _setBench(tester, size, open: true);
       expect(find.byKey(_overlay), findsNothing);
       expectTight('open');
       final open = _board(tester);
@@ -116,6 +129,7 @@ void main() {
   for (final size in [const Size(375, 667), const Size(320, 568), const Size(360, 640), const Size(360, 760)]) {
     testWidgets('small phone $size: the open bench lies over the lower board; no gaps, no overflow', (tester) async {
       await _start(tester, size);
+      expect(_benchShown(), isFalse, reason: 'closed at first: the overlay would cover the board');
       final closed = _board(tester);
       expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
       expect(_rect(tester, 'wordtiles-rack').top - closed.bottom, inInclusiveRange(0, 32));
@@ -133,22 +147,30 @@ void main() {
   testWidgets('tablet portrait: the bench below the actions, the board a little smaller', (tester) async {
     const size = Size(820, 1180);
     await _start(tester, size);
-    final closed = _board(tester);
-    expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
-    await _toggleBench(tester, size);
+    // Open from the start although the board gets a little smaller: the
+    // empty slots invite to use it (maintainer, KLD-094 step 8c).
+    expect(_benchShown(), isTrue, reason: 'a tablet in portrait starts open');
     expect(find.byKey(_overlay), findsNothing, reason: 'room enough for the bench below');
     final open = _board(tester);
-    expect(open.top, closed.top);
-    expect(open.width, greaterThan(closed.width * 0.8));
     expect(_rect(tester, 'wordtiles-rack').top - open.bottom, inInclusiveRange(0, 32));
     expect(_rect(tester, 'wordtiles-bench').bottom, lessThanOrEqualTo(size.height));
+    await _setBench(tester, size, open: false);
+    final closed = _board(tester);
+    expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
+    expect(open.top, closed.top);
+    expect(open.width, greaterThan(closed.width * 0.8));
   });
 
-  for (final size in [const Size(1180, 820), const Size(932, 430), const Size(568, 320)]) {
+  for (final (size, startsOpen) in [
+    (const Size(1180, 820), true),
+    (const Size(932, 430), false),
+    (const Size(568, 320), false),
+  ]) {
     testWidgets('landscape $size: board left, panel right, no overflow', (tester) async {
       await _start(tester, size);
+      expect(_benchShown(), startsOpen, reason: 'open from the start when the panel shows it without scrolling');
       expect(_rect(tester, 'wordtiles-rack').left, greaterThanOrEqualTo(_board(tester).right));
-      await _toggleBench(tester, size);
+      await _setBench(tester, size, open: true);
       expect(find.byKey(_overlay), findsNothing);
       expect(_rect(tester, 'wordtiles-bench').left, greaterThanOrEqualTo(_board(tester).right));
     });

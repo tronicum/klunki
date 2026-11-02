@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/profile/seen_tips.dart';
 
 import '../ui/shell/shell_test_utils.dart';
 import 'l10n_test_utils.dart';
@@ -80,6 +81,13 @@ void main() {
   }
 
   group('phone width 390×844', () {
+    // The one-time Bänkchen explanation is seen: where the bench starts
+    // open (KLD-094 step 8c) it would come up before the first turn.
+    setUp(() {
+      SeenTips.debugReset();
+      SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+    });
+
     Future<void> phone(WidgetTester tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;

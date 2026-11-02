@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -65,6 +66,12 @@ Future<void> _continue(WidgetTester tester) async {
 }
 
 void main() {
+  // The one-time bench explanation is seen (the bench starts open on a
+  // large screen, KLD-094 step 8c; wordtiles_playtest_test covers it).
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
   testWidgets('tap a rack tile, then a square; the preview scores the word; "Legen" plays it', (tester) async {
     _tablet(tester);
     final c = await _start(tester);

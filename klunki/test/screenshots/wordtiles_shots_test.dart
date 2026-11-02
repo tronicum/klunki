@@ -313,9 +313,14 @@ void main() {
       testWidgets('layout $name', skip: skip, (tester) async {
         SeenTips.debugReset(); // a fresh install: the explanation shows
         final c = await _pump(tester, size, locale: locale, appFonts: true, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
-        await _shot(tester, 'kld094-bench/$name-1-start');
-        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
         await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-bench/$name-1-start');
+        // Open from the start on a large phone (KLD-094 step 8c): the
+        // explanation is already up; elsewhere it comes with the first open.
+        if (find.byKey(const Key('wordtiles-coach')).evaluate().isEmpty) {
+          await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pumpAndSettle();
+        }
         for (var step = 1; step <= 3; step++) {
           expect(find.byKey(Key('wordtiles-coach-step-$step')), findsOneWidget);
           await _shot(tester, 'kld094-bench/$name-2-coach-$step');
@@ -343,19 +348,31 @@ void main() {
   // actions right under the board, the open bench below them, the space
   // left over at the bottom; bench closed and open with tiles. Phones,
   // tablet portrait and landscape in German (`--plain-name kld094-layout`).
+  // Step 8c: `-1-start` is the game start, the bench open where it fits
+  // without making the board smaller (large phones, tablet in landscape),
+  // closed elsewhere; `-2-bench-closed` the large ones closed by hand.
   group('kld094-layout', () {
     const anna = ['B', 'A', 'U', 'M', 'E', 'N', '?'];
     for (final (name, size) in [
       ('de-iphone-se', Size(375, 667)),
       ('de-iphone', Size(390, 844)),
+      ('de-pixel', Size(412, 915)),
       ('de-iphone-max', Size(430, 932)),
       ('de-ipad-portrait', Size(820, 1180)),
       ('de-ipad-landscape', Size(1180, 820)),
     ]) {
       testWidgets('layout $name', skip: skip, (tester) async {
         final c = await _pump(tester, size, appFonts: true, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
-        await _shot(tester, 'kld094-layout/$name-1-bench-closed');
-        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        await _shot(tester, 'kld094-layout/$name-1-start');
+        final toggle = find.byKey(const Key('wordtiles-bench-toggle'));
+        if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isNotEmpty) {
+          await tester.ensureVisible(toggle);
+          await _tap(tester, toggle);
+          await tester.pumpAndSettle();
+          await _shot(tester, 'kld094-layout/$name-2-bench-closed');
+        }
+        await tester.ensureVisible(toggle);
+        await _tap(tester, toggle);
         await tester.pumpAndSettle();
         for (final (t, s) in [('B', 1), ('A', 2), ('U', 3), ('M', 4)]) {
           await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
@@ -363,7 +380,7 @@ void main() {
           await _tap(tester, find.byKey(Key('wordtiles-bench-0-$s')));
         }
         await tester.pumpAndSettle();
-        await _shot(tester, 'kld094-layout/$name-2-bench-open');
+        await _shot(tester, 'kld094-layout/$name-3-bench-open');
       });
     }
   });
