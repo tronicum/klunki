@@ -146,24 +146,29 @@ jobs:
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
 
-  # GitHub Pages (KLD-096): the PWA at the site root and the static pages
-  # (privacy/, support/, impressum/ from site/) next to it, at
-  # https://<owner>.github.io/<repo>/. Only on pushes to main and only when the
+  # GitHub Pages (KLD-096, KLD-115): the landing page at the site root
+  # (site/index.html), the PWA under play/ and the static pages (privacy/,
+  # support/, impressum/ from site/), at https://<owner>.github.io/<repo>/.
+  # Merging to main publishes the site. Only on pushes to main and only when the
   # repository variable PAGES_ENABLED is 'true' (Settings > Secrets and
   # variables > Actions > Variables); Pages source must be "GitHub Actions".
   # A separate build from the `pwa` job: a project site lives under /<repo>/,
-  # so it needs --base-href /<repo>/, while the `klunki-pwa` artifact stays a
-  # root build for `klunki relay --web`.
+  # so the app needs --base-href /<repo>/play/, while the `klunki-pwa` artifact
+  # stays a root build for `klunki relay --web`. A second web build (a later
+  # preview channel, see docs/tasks/KLD-115-landing-page.md) would be one more
+  # build step with its own --base-href and output dir plus one more
+  # `--app <sub-path>=<dir>` for build_site.py.
   # Note: Pages serves https, and browsers block ws:// from https pages, so the
   # Pages-hosted PWA plays on one device and joins only wss:// relays. KLD-108:
   # this build alone gets KLUNKI_WEB_CHANNEL=pages-beta (a "Beta" badge and a
   # line in "Über Klunki"); network play is greyed out there until a wss://
   # relay is set. KLUNKI_IOS_BETA_URL / KLUNKI_ANDROID_URL come from the
   # optional repository variables of the same names (empty: no app buttons,
-  # only the "App-Beta in Vorbereitung." teaser). See docs/BUILDING.md.
+  # only the "App-Beta in Vorbereitung." teaser; on the landing page the store
+  # entries stay greyed out as "Geschlossene Beta"). See docs/BUILDING.md.
   pages-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true'
-    name: Pages site (PWA under /<repo>/ + static pages)
+    name: Pages site (landing page + PWA under /<repo>/play/ + static pages)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -179,19 +184,27 @@ jobs:
           pub-cache: true
       - run: flutter pub get
       - run: >-
-          flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+          flutter build web --release --base-href "/${{ github.event.repository.name }}/play/"
           --dart-define=KLUNKI_BUILD=${{ github.sha }}
           --dart-define=KLUNKI_WEB_CHANNEL=pages-beta
           --dart-define=KLUNKI_IOS_BETA_URL=${{ vars.KLUNKI_IOS_BETA_URL }}
           --dart-define=KLUNKI_ANDROID_URL=${{ vars.KLUNKI_ANDROID_URL }}
       - run: python3 -I build/web/pwa_finalize.py
-      # privacy/, support/, impressum/ (contact email from site/site.json).
-      - run: python3 -I ../site/build_site.py build/web
-      - name: No external URLs in the build
+      - name: No external URLs in the app build
         run: python3 -I tool/check_pwa_external_urls.py build/web
+      - run: python3 -I ../site/test_build_site.py
+      # Landing page (games and FAQ from the ARB files, store entries from the
+      # variables below), privacy/, support/, impressum/ (contact email from
+      # site/site.json), the app under play/. build_site.py also fails on any
+      # page that loads something from another host.
+      - name: Assemble the site
+        env:
+          KLUNKI_IOS_BETA_URL: ${{ vars.KLUNKI_IOS_BETA_URL }}
+          KLUNKI_ANDROID_URL: ${{ vars.KLUNKI_ANDROID_URL }}
+        run: python3 -I ../site/build_site.py build/site --app play=build/web
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: klunki/build/web
+          path: klunki/build/site
 
   pages:
     needs: pages-build

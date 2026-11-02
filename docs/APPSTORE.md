@@ -198,7 +198,7 @@ repeated):
 - **Privacy policy URL:** <https://tronicum.github.io/klunki/privacy/>. In the app (guideline 5.1.1): menu (bottom) →
   "Über Klunki" → Datenschutz and Impressum (texts stored in the app, readable offline and without the web pages,
   each with a link to its page; exported by `site/export_legal_text.py`), Support (opens the web page) (KLD-102).
-- **Marketing URL** (optional): <https://tronicum.github.io/klunki/>
+- **Marketing URL** (optional): <https://tronicum.github.io/klunki/> (the landing page since KLD-115; the PWA is at `play/`)
 - **Contact email** (App Review contact and **TestFlight beta feedback email**): `contact@tronicum.com`. It can be
   switched to a dedicated alias later.
 - **App Review notes** (suggestion): "All games work offline on one device. Network play needs two devices on
