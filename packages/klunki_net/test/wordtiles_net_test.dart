@@ -419,4 +419,12 @@ void main() {
     expect(_guestView(guest).unknownWords(WordTilesGame.placeMove([const PlacedTile(7, 7, 'A')])), isEmpty);
     expect(configProblem(const GameConfig('wordtiles', tiles: 'xx'), wordList: false), isNotNull);
   });
+
+  test('a 3–4 player word tile game is one-device only for now (KLD-088): the host refuses it', () async {
+    for (final n in [3, 4]) {
+      final config = GameConfig('wordtiles', seed: 1, players: n);
+      expect(configProblem(config), isNull);
+      await expectLater(KlunkiHost.start(config, wsPort: null), throwsArgumentError);
+    }
+  });
 }

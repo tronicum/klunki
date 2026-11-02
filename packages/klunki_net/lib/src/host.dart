@@ -135,8 +135,13 @@ class KlunkiHost {
   }
 
   /// Throws [ArgumentError] (before anything is bound) if [moves] do not
-  /// replay for [config].
+  /// replay for [config], or if [config] is for more than two players (the
+  /// session is host + one guest; 3–4 seats are one-device only until the
+  /// n-player protocol, KLD-088).
   static void _validateLog(GameConfig config, List<Map<String, dynamic>> moves) {
+    if (config.players != 2) {
+      throw ArgumentError.value(config.players, 'players', 'network play is for 2 players (KLD-088)');
+    }
     if (replay(config, [for (final m in moves) jsonDecode(jsonEncode(m)) as Map<String, dynamic>]) == null) {
       throw ArgumentError.value(moves, 'moves', 'do not replay for $config');
     }

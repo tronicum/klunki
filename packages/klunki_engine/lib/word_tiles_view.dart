@@ -10,10 +10,14 @@ class WordTilesView extends WordTilesGame {
   /// Stands for a tile the viewer may not see (other racks, the bag).
   static const String hiddenTile = '#';
 
-  /// The player whose view this is.
-  final Player viewer;
+  /// The seat whose view this is (KLD-088).
+  final int viewerSeat;
 
-  WordTilesView._(this.viewer, TileSet tileSet, int players, WordCheck check, WordValidator? validator, int limit)
+  /// The player whose view this is; throws for seat 2+ (use [viewerSeat]).
+  Player get viewer =>
+      WordTilesGame.playerOfSeat(viewerSeat) ?? (throw StateError('seat $viewerSeat has no Player (KLD-088)'));
+
+  WordTilesView._(this.viewerSeat, TileSet tileSet, int players, WordCheck check, WordValidator? validator, int limit)
       : super._view(tileSet, players, check, validator, limit);
 
   /// Rebuilds the view from [WordTilesGame.viewJson]; throws
@@ -21,12 +25,13 @@ class WordTilesView extends WordTilesGame {
   /// for a dictionary game (the word list is not part of the view).
   factory WordTilesView.fromJson(Map<String, dynamic> j, {WordValidator? validator}) {
     try {
-      final viewer = playerIn(j['viewer']);
+      final viewerSeat = j['viewerSeat'] as int? ?? WordTilesGame.seatOf(playerIn(j['viewer']));
       final tileSet = TileSet.byId(j['tileSet']) ?? (throw BadViewException('unknown tile set ${j['tileSet']}'));
       final players = j['players'] as int;
       if (players < 2 || players > 4) throw BadViewException('bad player count $players');
       final check = WordCheck.values.byName(j['check'] as String);
-      final v = WordTilesView._(viewer, tileSet, players, check,
+      if (viewerSeat < 0 || viewerSeat >= players) throw BadViewException('bad viewer seat $viewerSeat');
+      final v = WordTilesView._(viewerSeat, tileSet, players, check,
           validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int)
         .._lazyList = validator == null;
       final rows = (j['board'] as List).cast<String>();
@@ -49,7 +54,7 @@ class WordTilesView extends WordTilesGame {
         throw const BadViewException('bad seat lists');
       }
       final rack = (j['rack'] as List).cast<String>();
-      final me = WordTilesGame.seatOf(viewer);
+      final me = viewerSeat;
       if (me >= players || rack.length != racks[me]) throw const BadViewException('rack size mismatch');
       for (final t in rack) {
         if (t != TileSet.blank && !tileSet.counts.containsKey(t)) throw BadViewException('bad tile $t');
@@ -89,13 +94,21 @@ class WordTilesView extends WordTilesGame {
       if (end != null) {
         final e = end as Map<String, dynamic>;
         final code = GameEndReason.fromCode(e['code'] as String);
-        if (code != GameEndReason.wordtilesPlayedOut && code != GameEndReason.wordtilesScoreless) {
+        if (code != GameEndReason.wordtilesPlayedOut &&
+            code != GameEndReason.wordtilesScoreless &&
+            (code != GameEndReason.commonResigned || players == 2)) {
           throw BadViewException('bad end ${e['code']}');
         }
         v
           .._over = true
           .._endCode = code
           .._outSeat = e['out'] as int?;
+      }
+      for (final s in j['out'] as List? ?? const []) {
+        if (s is! int || s < 0 || s >= players || players == 2 || v._outOrder.contains(s)) {
+          throw BadViewException('bad out seat $s');
+        }
+        v._outOrder.add(s);
       }
       final resigned = j['resigned'];
       if (resigned != null) v._restoreResign(resigned);
@@ -113,13 +126,13 @@ class WordTilesView extends WordTilesGame {
   /// The viewer's own rack; empty for every other seat (only its size,
   /// [rackSizeOf], is known).
   @override
-  List<String> rackOf(int seat) => seat == WordTilesGame.seatOf(viewer) ? super.rackOf(seat) : const [];
+  List<String> rackOf(int seat) => seat == viewerSeat ? super.rackOf(seat) : const [];
 
   /// The viewer's legal moves on its turn (or the answers to the other
   /// player's open request); empty otherwise.
   @override
   List<Map<String, dynamic>> get legalMoves {
-    final me = WordTilesGame.seatOf(viewer);
+    final me = viewerSeat;
     final answerer = allowRequestAnswerer;
     if (answerer != null) return answerer == me ? super.legalMoves : const [];
     return _seat == me ? super.legalMoves : const [];
@@ -149,11 +162,11 @@ class WordTilesView extends WordTilesGame {
   void _restoreResign(Object? name) => super.applyMove(Game.resignMove(playerIn(name)));
 
   @override
-  Map<String, dynamic> viewJson(Player viewer) {
-    if (viewer != this.viewer) throw ArgumentError.value(viewer, 'viewer', 'not the view of this player');
-    return super.viewJson(viewer);
+  Map<String, dynamic> seatViewJson(int v) {
+    if (v != viewerSeat) throw ArgumentError.value(v, 'viewer', 'not the view of this seat');
+    return super.seatViewJson(v);
   }
 
   @override
-  String toString() => 'WordTilesView(${viewer.name}, ${tileSet.id})';
+  String toString() => 'WordTilesView(seat $viewerSeat, ${tileSet.id})';
 }

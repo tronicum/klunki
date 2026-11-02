@@ -34,6 +34,14 @@ import 'word_tiles.dart';
 /// before). The network host is always A; with `white: "b"` it plays Black
 /// and the guest moves first. A random choice is made by the host before
 /// the game: the config always holds the result.
+///
+/// [players] (KLD-088): the number of seats, 2 by default; JSON `players`,
+/// written only when not 2, so every 2-player config (and with it the
+/// protocol) is unchanged. Only games with [GameSpec.maxPlayers] above 2
+/// accept more ([configProblem]); for now that is the word tile game, on one
+/// device only (the network session is 2-player and refuses such a config).
+/// Player names are not part of the config (they are presentation, like in
+/// the 2-player games).
 class GameConfig {
   final String gameId;
   final int seed;
@@ -42,13 +50,15 @@ class GameConfig {
   final String? tiles;
   final bool dictionary;
   final Player chessWhite;
+  final int players;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
       this.pickLowCards = true,
       this.tiles,
       this.dictionary = false,
-      this.chessWhite = Player.a});
+      this.chessWhite = Player.a,
+      this.players = 2});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -62,6 +72,7 @@ class GameConfig {
         if (tiles != null) 'tiles': tiles,
         if (dictionary) 'dict': true,
         if (chessWhite == Player.b) 'white': 'b',
+        if (players != 2) 'players': players,
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -70,15 +81,17 @@ class GameConfig {
       pickLowCards: json['pickLow'] != false,
       tiles: json['tiles'] as String?,
       dictionary: json['dict'] == true,
-      chessWhite: json['white'] == 'b' ? Player.b : Player.a);
+      chessWhite: json['white'] == 'b' ? Player.b : Player.a,
+      players: json['players'] as int? ?? 2);
 
-  GameConfig copyWith({int? seed}) => GameConfig(gameId,
+  GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
       deck: deck,
       pickLowCards: pickLowCards,
       tiles: tiles,
       dictionary: dictionary,
-      chessWhite: chessWhite);
+      chessWhite: chessWhite,
+      players: players ?? this.players);
 
   @override
   bool operator ==(Object other) =>
@@ -89,16 +102,17 @@ class GameConfig {
       other.pickLowCards == pickLowCards &&
       other.tiles == tiles &&
       other.dictionary == dictionary &&
-      other.chessWhite == chessWhite;
+      other.chessWhite == chessWhite &&
+      other.players == players;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, chessWhite);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, chessWhite, players);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}'
-      '${chessWhite == Player.b ? ', white: b' : ''})';
+      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -127,13 +141,23 @@ class GameSpec {
   /// changed move or view format). Network peers must have the same value
   /// ([fingerprintOf]); the higher one is the newer build.
   final int rulesVersion;
+
+  /// The most seats this game supports (KLD-088); 2 for every game but the
+  /// word tile game. A game with more creates a [SeatGame] for
+  /// [GameConfig.players] above 2. Not part of the fingerprint: a
+  /// 2-player game is the same on both sides.
+  final int maxPlayers;
   final Game Function(GameConfig config, QuartettDeck deck) _create;
   const GameSpec(this.id, this.title, this._create,
       {this.hiddenInformation = false,
       this.appReady = true,
       this.redaction,
       this.usesDeck = false,
-      this.rulesVersion = 1});
+      this.rulesVersion = 1,
+      this.maxPlayers = 2});
+
+  /// The fewest seats; 2 for every game.
+  int get minPlayers => 2;
 
   /// A new game; [deck] (games with [usesDeck]) defaults to the car deck.
   /// [pickLowCards]: see [GameConfig.pickLowCards]. Throws [ArgumentError]
@@ -179,18 +203,21 @@ final List<GameSpec> gameSpecs = [
   // the other player's agreement (`requestAllow` / `acceptAllow` /
   // `declineAllow`; a `place` with `allow` is refused), and the word lists'
   // file hashes are in the fingerprint. Step 7: released in the app (a menu
-  // tile; `appReady` is not part of the fingerprint).
+  // tile; `appReady` is not part of the fingerprint). KLD-088 step 1: 2–4
+  // seats (GameConfig.players, JSON `players` only when not 2; one device
+  // only for now). Two seats are unchanged, so still rules 3.
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 3),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 3, maxPlayers: 4),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
   final tileSet = TileSet.byId(c.tiles ?? TileSet.german.id) ??
       (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
-  if (!c.dictionary) return WordTilesGame(seed: c.seed, tileSet: tileSet);
+  if (!c.dictionary) return WordTilesGame(seed: c.seed, tileSet: tileSet, playerCount: c.players);
   final list = WordLists.of(tileSet.id) ??
       (throw ArgumentError.value(tileSet.id, 'tiles', 'no word list loaded for this tile set'));
-  return WordTilesGame(seed: c.seed, tileSet: tileSet, check: WordCheck.dictionary, validator: list);
+  return WordTilesGame(
+      seed: c.seed, tileSet: tileSet, check: WordCheck.dictionary, validator: list, playerCount: c.players);
 }
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a
@@ -199,7 +226,8 @@ List<GameSpec> get appGameSpecs => [for (final s in gameSpecs) if (s.appReady) s
 
 GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
 
-/// Why [config] cannot be played (unknown game or deck), or null if it can.
+/// Why [config] cannot be played (unknown game or deck, a player count the
+/// game does not support), or null if it can.
 /// [wordList] false skips the check that a dictionary game's word list is
 /// loaded ([WordLists]): a network guest of a word tile game creates no
 /// engine when it joins and loads the list afterwards (KLD-094 step 6).
@@ -207,6 +235,10 @@ String? configProblem(GameConfig config, {bool wordList = true}) {
   final spec = specById(config.gameId);
   if (spec == null) return 'unknown game "${config.gameId}"';
   if (spec.usesDeck && QuartettDeck.byId(config.deck) == null) return 'unknown deck "${config.deck}"';
+  if (config.players < spec.minPlayers || config.players > spec.maxPlayers) {
+    final range = spec.maxPlayers == spec.minPlayers ? '${spec.minPlayers}' : '${spec.minPlayers}–${spec.maxPlayers}';
+    return '"${config.gameId}" is for $range players, not ${config.players}';
+  }
   if (config.gameId == 'wordtiles') {
     final tiles = config.tiles ?? TileSet.german.id;
     if (TileSet.byId(tiles) == null) return 'unknown tile set "$tiles"';

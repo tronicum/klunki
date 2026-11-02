@@ -182,8 +182,11 @@ when it took substantial investment: use licensed lists, never scraped ones.
 ## Players
 The engine runs 2–4 seats (`playerCount`, `currentSeat`, `scoreOf`, `rackOf(seat)`, `winnerSeats`); turn order,
 end-game penalties and the view are per seat. The shared `Game` interface knows `Player.a` / `Player.b` only, so
-seat 0/1 map to A/B, `currentPlayer` throws for seat 2+, and the registry creates 2 seats. KLD-088 (3–4 players)
-widens `Player`, `GameResult` and the protocol; the engine then only needs its seat mapping opened up.
+seat 0/1 map to A/B and `currentPlayer` throws for seat 2+. **KLD-088 step 1:** `WordTilesGame implements
+SeatGame` (`actorSeat`, `seatOfMove`, `seatResult` with places, `isSeatOut`), the registry creates
+`GameConfig.players` seats (2–4, `maxPlayers: 4`), seat resign and seat-named allow moves with 3–4 seats,
+`seatViewJson(seat)`, scoreless limit `max(6, 2n)`. Two seats are byte-identical to before (rules 3 unchanged).
+One device only for now (the network refuses `players != 2`). Details in `docs/tasks/KLD-088-more-players.md`.
 
 ## Secrecy (KLD-064 pattern)
 Racks and the bag order are hidden: `WordTilesRedaction` (`secretSeed: true`, the seed decides the bag).
@@ -197,7 +200,7 @@ Racks and the bag order are hidden: `WordTilesRedaction` (`secretSeed: true`, th
 
 ## Engine API (for step 2)
 - `WordTilesGame({seed, tileSet = TileSet.german, playerCount = 2, check = WordCheck.challenge, validator,
-  scorelessLimit = 6})`; `debugSetup(racks:, bag:, board:)` for tests.
+  scorelessLimit})` (null limit = `defaultScorelessLimit(playerCount)`: 6 for 2–3 seats, 8 for 4); `debugSetup(racks:, bag:, board:)` for tests.
 - Moves: `{'action': 'place', 'tiles': [{'row', 'col', 'tile', 'letter'?}]}` (`WordTilesGame.placeMove`),
   `{'action': 'exchange', 'tiles': [...]}`, `{'action': 'pass'}`, `{'action': 'challenge'}`, `{'action': 'accept'}`,
   common resign.
@@ -518,7 +521,7 @@ The maintainer released Wortgewandt in the app (2026-11-02, for the first bigger
 - **Screenshots** (`--plain-name kld094release` in `wordtiles_shots_test.dart`): the menu scrolled to the
   Wortgewandt tile on a small (375 × 667) and a large phone (430 × 932), de light and dark, ar.
 
-## 3–4 players on one device (assessment, not built)
+## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
 - **Engine interface:** `enum Player { a, b }`; `GameResult.winner` is one `Player`; `Game.currentPlayer`,
@@ -563,7 +566,7 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 3. **Challenge without a list:** should the challenger's call be final (current), or should the placer be able to
    insist (then a tie-break, e.g. the word stands and the challenger loses the turn)?
 4. ~~**Unsuccessful challenge penalty**~~ (with a list): moot, with a list the check at "Legen" replaces the challenge (maintainer, 2026-11-02).
-5. **Who may challenge with 3–4 players:** only the next player (current) or anyone?
+5. **Who may challenge with 3–4 players:** only the next player (current) or anyone? (moved to KLD-088)
 6. **Exchange threshold:** at least 7 tiles in the bag (current) or at least as many as exchanged?
 7. **Layout:** keep the layout above, or tune after playing it in step 2?
 8. ~~**Tile language per game**~~: picked at game start, default from the app language (step 4).
