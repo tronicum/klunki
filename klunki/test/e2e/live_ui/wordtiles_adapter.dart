@@ -92,6 +92,21 @@ class WordTilesAdapter extends LiveUiAdapter {
     return shown; // already reported (or a stale frame); the driver logs a change
   }
 
+  /// The game-ending step can bring the device's own last turn with it (a
+  /// guest's final pass and the host's answer that ends the game in one
+  /// frame): the result dialog then opens before the line showed it. The
+  /// device's history has it.
+  @override
+  List<TurnRecord> unseenAtEnd(WidgetTester tester, UiDevice d, int shown) {
+    final c = d.controller(tester);
+    if (!c.game.isOver) return const [];
+    final turns = engineTurns(c);
+    if (shown >= turns.length) return const [];
+    _reported[c] = turns.length;
+    historyReads += turns.length - shown;
+    return turns.sublist(shown);
+  }
+
   TurnRecord? _shownTurn(WidgetTester tester, UiDevice d, Game engine) {
     final line = _text(tester, d, const Key('wordtiles-cover-turn')) ?? _text(tester, d, const Key('wordtiles-last-turn'));
     if (line != null) {

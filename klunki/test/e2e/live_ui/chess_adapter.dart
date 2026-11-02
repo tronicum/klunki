@@ -94,6 +94,26 @@ class ChessAdapter extends LiveUiAdapter {
     return _record(k - 1, _moveText(tester, d, k - 1) ?? '?', d.name, (c.game as ChessGame).whitePlayer);
   }
 
+  /// The device's own move before the game-ending one can arrive with it in
+  /// one frame, the result dialog over the board before the next look: the
+  /// move list under the dialog still shows it.
+  @override
+  List<TurnRecord> unseenAtEnd(WidgetTester tester, UiDevice d, int shown) {
+    final c = d.controller(tester);
+    if (!c.game.isOver) return const [];
+    final cap = engineTurns(c).length;
+    final g = c.game as ChessGame;
+    final out = <TurnRecord>[];
+    for (var k = _reported[c] ?? 0; k < cap; k++) {
+      final san = _moveText(tester, d, k);
+      if (san == null) break; // not on screen: the driver reports it missing
+      _reported[c] = k + 1;
+      expect(san, g.sanHistory[k], reason: '${d.name}: move $k on screen');
+      out.add(_record(k, san, d.name, g.whitePlayer));
+    }
+    return out;
+  }
+
   void _checkBoard(WidgetTester tester, UiDevice d, ChessGame g) {
     final board = g.board;
     for (var i = 0; i < 64; i++) {
