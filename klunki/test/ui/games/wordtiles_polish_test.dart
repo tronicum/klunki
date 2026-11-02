@@ -127,9 +127,7 @@ void main() {
   testWidgets('tablet: the bench stays in the panel (no overlay), below the actions', (tester) async {
     _size(tester, const Size(1180, 820));
     await _start(tester);
-    expect(find.byKey(const Key('wordtiles-bench-0-0')), findsNothing, reason: 'closed at first (KLD-094 step 8)');
-    await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
-    expect(find.byKey(const Key('wordtiles-bench-0-0')), findsOneWidget);
+    expect(find.byKey(const Key('wordtiles-bench-0-0')), findsOneWidget, reason: 'open from the start (KLD-094 step 8c)');
     expect(tester.getTopLeft(find.byKey(const Key('wordtiles-bench'))).dy,
         greaterThan(tester.getBottomLeft(find.byKey(const Key('wordtiles-play'))).dy));
     expect(find.byKey(const Key('wordtiles-bench-overlay')), findsNothing);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -11,6 +12,9 @@ import 'shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
 
 void main() {
+  // The one-time Bänkchen explanation is seen: where the bench starts open
+  // (KLD-094 step 8c) it would come up over the first word tile turn.
+  setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
     expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id, ...previewGames});
     expect(appGameSpecs.map((s) => s.id), contains('gostrategy'), reason: 'KLD-058b');

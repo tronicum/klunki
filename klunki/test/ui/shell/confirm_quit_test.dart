@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -103,6 +104,9 @@ Future<void> _back(WidgetTester tester) async {
 bool get _onHome => find.byKey(_home).evaluate().isNotEmpty && find.byType(GameScreen).evaluate().isEmpty;
 
 void main() {
+  // The one-time Bänkchen explanation is seen: where the bench starts open
+  // (KLD-094 step 8c) it would come up over the first word tile turn.
+  setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   group('network', () {
     testWidgets('resign: dialog, cancel keeps the game running', (tester) async {
       final (c, t) = await _network(tester);

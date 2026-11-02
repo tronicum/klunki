@@ -2,7 +2,10 @@
 // engine holds. Before, tiles left on a collapsed Bänkchen (the default on
 // a small phone) vanished from the screen: the rack looked short although
 // the engine had refilled it to 7 from the bag.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
@@ -47,6 +50,20 @@ Future<GameController> _start(WidgetTester tester, Size size) async {
   return c;
 }
 
+bool _benchShown() => _slot(0, 0).evaluate().isNotEmpty;
+
+/// Opens the bench where it is closed (it starts open on a large phone,
+/// KLD-094 step 8c).
+Future<void> _openBench(WidgetTester tester) async {
+  if (!_benchShown()) await _tap(tester, find.byKey(_toggle));
+  expect(_benchShown(), isTrue);
+}
+
+Future<void> _pass(WidgetTester tester) async {
+  await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+  await _tap(tester, find.byKey(const Key('wordtiles-pass-confirm')));
+}
+
 /// Every tile of the rack on screen is somewhere a finger reaches: in the
 /// rack row or on the open bench, each exactly once.
 void _expectWholeRack(WidgetTester tester, GameController c, {String reason = ''}) {
@@ -57,7 +74,18 @@ void _expectWholeRack(WidgetTester tester, GameController c, {String reason = ''
   }
 }
 
+/// The bundled Roboto: the layout's heights (and so whether the bench
+/// starts open, KLD-094 step 8c) are those of the real app.
+Future<void> _loadRoboto() async {
+  final loader = FontLoader('Roboto');
+  for (final w in ['Regular', 'Medium', 'Bold']) {
+    loader.addFont(Future.value(ByteData.sublistView(File('assets/fonts/Roboto/Roboto-$w.ttf').readAsBytesSync())));
+  }
+  await loader.load();
+}
+
 void main() {
+  setUpAll(_loadRoboto);
   // A fresh install; the one-time bench explanation already seen, except
   // in its own group below.
   setUp(SeenTips.debugReset);
@@ -66,7 +94,7 @@ void main() {
   for (final (name, size) in [('small phone', Size(375, 667)), ('large phone', Size(430, 932))]) {
     testWidgets('$name: tiles left on the bench come back into the rack when it is closed', (tester) async {
       final c = await _start(tester, size);
-      await _tap(tester, find.byKey(_toggle));
+      await _openBench(tester);
       for (final (i, s) in [(2, 0), (3, 1)]) {
         await _tap(tester, _rack(i));
         await _tap(tester, _slot(0, s));
@@ -121,6 +149,7 @@ void main() {
       final c = await _start(tester, const Size(375, 667));
       expect(find.byKey(const Key('wordtiles-coach')), findsNothing, reason: 'not before the bench is opened');
       await _tap(tester, find.byKey(_toggle));
+      await tester.pumpAndSettle(); // it waits a frame for the layout to settle
       expect(find.byKey(const Key('wordtiles-coach')), findsOneWidget);
       expect(find.byKey(const Key('wordtiles-coach-step-1')), findsOneWidget);
       expect(find.text('1 von 3'), findsOneWidget);
@@ -154,7 +183,7 @@ void main() {
 
     testWidgets('"Überspringen" closes it on any step and counts as seen', (tester) async {
       await _start(tester, const Size(1180, 820));
-      await _tap(tester, find.byKey(_toggle));
+      // Open from the start on the tablet: the explanation comes right away.
       expect(find.byKey(const Key('wordtiles-coach')), findsOneWidget);
       await _tap(tester, find.byKey(const Key('wordtiles-coach-skip')));
       await tester.pumpAndSettle();
@@ -164,5 +193,77 @@ void main() {
       await _tap(tester, find.byKey(_toggle));
       expect(find.byKey(const Key('wordtiles-coach')), findsNothing);
     });
+
+    for (final size in [const Size(430, 932), const Size(412, 915)]) {
+      testWidgets('large phone $size: open from the start, the explanation without a tap, once', (tester) async {
+        final c = await _start(tester, size);
+        expect(_benchShown(), isTrue);
+        expect(find.byKey(const Key('wordtiles-coach-step-1')), findsOneWidget);
+        expect(SeenTips.shared.has(SeenTips.wordtilesBench), isTrue);
+        await _tap(tester, find.byKey(const Key('wordtiles-coach-skip')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('wordtiles-coach')), findsNothing);
+        // Ben's turn (bench open too): not again.
+        await _pass(tester);
+        await _tap(tester, find.byKey(handoverContinue));
+        await tester.pumpAndSettle();
+        expect(_game(c).currentSeat, 1);
+        expect(_benchShown(), isTrue);
+        expect(find.byKey(const Key('wordtiles-coach')), findsNothing);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('hot-seat: not under the handover cover, right after it', (tester) async {
+      // Anna on a small phone: closed, no explanation.
+      final c = await _start(tester, const Size(375, 667));
+      expect(_benchShown(), isFalse);
+      await _pass(tester);
+      expect(find.byKey(handoverContinue), findsOneWidget);
+      // Now a large screen (e.g. the device turned): the bench is open under
+      // the cover, but the explanation waits for Ben to continue.
+      tester.view.physicalSize = const Size(430, 932);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('wordtiles-coach')), findsNothing, reason: 'the cover is up');
+      expect(SeenTips.shared.has(SeenTips.wordtilesBench), isFalse);
+      await _tap(tester, find.byKey(handoverContinue));
+      await tester.pumpAndSettle();
+      expect(_game(c).currentSeat, 1);
+      expect(find.byKey(const Key('wordtiles-coach')), findsOneWidget);
+      expect(_benchShown(), isTrue);
+    });
+  });
+
+  group('open or closed at the start (KLD-094 step 8c)', () {
+    for (final (size, open) in [
+      (const Size(430, 932), true),
+      (const Size(412, 915), true),
+      (const Size(1180, 820), true),
+      (const Size(390, 844), false),
+      (const Size(375, 667), false),
+      (const Size(820, 1180), true), // a tablet in portrait: open, the board a little smaller
+    ]) {
+      testWidgets('$size: ${open ? 'open' : 'closed'}', (tester) async {
+        await _start(tester, size);
+        expect(_benchShown(), open);
+        expect(find.byKey(const Key('wordtiles-bench-overlay')), findsNothing);
+      });
+    }
+
+    for (final (size, open) in [(const Size(430, 932), true), (const Size(375, 667), false)]) {
+      testWidgets('$size: the choice holds across turns', (tester) async {
+        final c = await _start(tester, size);
+        expect(_benchShown(), open);
+        await _tap(tester, find.byKey(_toggle)); // the other way round
+        expect(_benchShown(), !open);
+        for (final seat in [1, 0, 1]) {
+          await _pass(tester);
+          await _tap(tester, find.byKey(handoverContinue));
+          expect(_game(c).currentSeat, seat);
+          expect(_benchShown(), !open, reason: 'seat $seat');
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 }
