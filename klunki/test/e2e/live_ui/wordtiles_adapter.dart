@@ -57,8 +57,42 @@ class WordTilesAdapter extends LiveUiAdapter {
     return f.evaluate().isEmpty ? null : tester.widget<Text>(f).data;
   }
 
+  /// Turns of each device's log already reported, in order.
+  final Expando<int> _reported = Expando('reported');
+
+  /// Turns taken from the device's history instead of its screen: they were
+  /// replaced on screen before the driver looked (see [observe]).
+  int historyReads = 0;
+
+  /// The turn the screen shows, in turn order: the screen holds only the
+  /// latest turn, and two steps can arrive in one frame (a network guest
+  /// gets the echo of its own placement and the host's quick answer between
+  /// two looks of the driver, KLD-094 step 6 under load). That is no loss for
+  /// the player (the history sheet lists every move of the controller), but
+  /// the screen line skipped one: such a turn is reported from the device's
+  /// own history ([GameController.moves], what the history sheet shows)
+  /// before the line on screen. A line matching no turn the device knows is
+  /// returned as it is, so the driver still catches a wrong screen.
   @override
   TurnRecord? observe(WidgetTester tester, UiDevice d, Game engine, {required bool inSync}) {
+    final shown = _shownTurn(tester, d, engine);
+    if (shown == null) return null;
+    final c = d.controller(tester);
+    final turns = engineTurns(c);
+    final k = _reported[c] ?? 0;
+    if (k < turns.length && turns[k] == shown) {
+      _reported[c] = k + 1;
+      return shown;
+    }
+    if (turns.skip(k + 1).contains(shown)) {
+      _reported[c] = k + 1;
+      historyReads++;
+      return turns[k];
+    }
+    return shown; // already reported (or a stale frame); the driver logs a change
+  }
+
+  TurnRecord? _shownTurn(WidgetTester tester, UiDevice d, Game engine) {
     final line = _text(tester, d, const Key('wordtiles-cover-turn')) ?? _text(tester, d, const Key('wordtiles-last-turn'));
     if (line != null) {
       final m = _line.firstMatch(line);

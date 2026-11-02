@@ -481,6 +481,15 @@ request; mismatched list / rules refused; a guest without its list joins); app w
 request both ways, decline, the rejected second ask); a live-UI network game through the Wi-Fi proxy with the
 German list (seed 3: 102 moves, one request declined, one accepted, verified) besides the hot-seat games.
 
+**Fix after merge (2026-11-02, CI on main failed under load):** the live-UI network game failed with the guest's
+log one turn behind ("# 31 X … expected # 31 O …"). Harness, not product: the adapter read only the screen's
+last-turn line, and under load the echo of the guest's own move and the host's quick answer reached the guest in
+one frame, so the line went from turn 30 to 32 between two looks. The guest's controller and history sheet held
+every move (the driver's "N newer trick(s) already played" counted them). The adapter now reports turns in order
+like the chess one: a turn already replaced on screen comes from the device's own history before the line on
+screen. Regression: `test/e2e/live_ui/wordtiles_adapter_test.dart` (two steps in one guest frame; both reported;
+the history sheet lists both). `tool/stress_test.sh -n 5` on the live test: 5/5 (before: 0/3).
+
 ## 3–4 players on one device (assessment, not built)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
