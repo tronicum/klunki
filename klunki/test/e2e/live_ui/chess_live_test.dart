@@ -5,7 +5,8 @@
 // through the picker, draw offers through the handshake button and the
 // answer dialog. Each device must show every board move once, in order,
 // and match its engine; the host must have applied exactly the tapped
-// moves (draw offers included), by the device that tapped them.
+// moves (draw offers included), by the device that tapped them. Step 4a: one
+// network game with the host on Black (the guest opens).
 //
 //   cd klunki && flutter test test/e2e/live_ui/chess_live_test.dart
 //   KLUNKI_LIVE_UI_VERBOSE=1 flutter test test/e2e/live_ui/chess_live_test.dart   # move logs
@@ -31,8 +32,10 @@ import 'live_ui_driver.dart';
 /// The result dialog on [device] gives the engine's reason.
 void _expectResult(WidgetTester tester, UiDevice device, Game game) {
   final reason = device.on(find.byKey(const Key('result-reason')));
-  expect(tester.widget<Text>(reason).data,
-      localizedResultReason(deL10n, game.result, playerLabel: (p) => '${p == Player.a ? 'Anna' : 'Ben'} (${p == Player.a ? 'Weiß' : 'Schwarz'})'),
+  final chess = game as ChessGame;
+  String label(Player p) =>
+      '${p == Player.a ? 'Anna' : 'Ben'} (${chess.colorOf(p) == ChessColor.white ? 'Weiß' : 'Schwarz'})';
+  expect(tester.widget<Text>(reason).data, localizedResultReason(deL10n, game.result, playerLabel: label),
       reason: device.name);
 }
 
@@ -64,6 +67,28 @@ void main() {
       ends.add(hc.game.result.code);
     }, timeout: liveUiTimeout);
   }
+
+  testWidgets('network, the host plays Black (step 4a): the guest opens, every move once, the same end',
+      (tester) async {
+    final black = ChessAdapter();
+    final log = await playNetwork(tester, black, const GameConfig('chess', seed: 9, chessWhite: Player.b),
+        rng: Random(9 * 13), behaviour: const NetBehaviour(dawdle: 0.3, wait: 0.1, fidget: 0.03));
+    log.printIfVerbose();
+    final host = UiDevice('host', scope: const Key('device-host'), me: Player.a);
+    final guest = UiDevice('guest', scope: const Key('device-guest'), me: Player.b);
+    final hc = host.controller(tester), gc = guest.controller(tester);
+    expect((hc.game as ChessGame).whitePlayer, Player.b);
+    expect((gc.game as ChessGame).whitePlayer, Player.b);
+    expect(hc.moves.first.player, Player.b, reason: 'the guest (White) moved first');
+    expect((gc.game as ChessGame).fen, (hc.game as ChessGame).fen);
+    expect(hc.game.isOver, isTrue);
+    for (final d in [host, guest]) {
+      expect(d.resultShown(), isTrue, reason: d.name);
+      _expectResult(tester, d, d.controller(tester).game);
+    }
+    expect(black.tapped['move'] ?? 0, greaterThan(10), reason: '${black.tapped}');
+    expect(black.boardChecks, greaterThan(5));
+  }, timeout: liveUiTimeout);
 
   testWidgets('network, an eager peacemaker: draw offers until one is accepted', (tester) async {
     final eager = ChessAdapter(offerRate: 0.5, acceptRate: 0.3, minDeclines: 2);

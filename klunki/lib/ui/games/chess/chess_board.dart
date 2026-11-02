@@ -24,7 +24,9 @@ import 'chess_pieces.dart';
 /// * Orientation: in hot-seat the board turns to the side to move (like
 ///   GoStrategy turns to its player), unless "turn automatically" is off;
 ///   the flip button turns it by 180° on top of that. On a network device
-///   the own side is at the bottom.
+///   the own colour is at the bottom (KLD-059 step 4a: the host may play
+///   Black, so that is not always A = White), and the hint line says "Du
+///   spielst Weiß/Schwarz" until the first board move.
 /// * Captured pieces per side with the material balance, and the move list
 ///   in SAN (one scrollable line, the latest move always visible).
 /// * Draw offer (KLD-059 step 3): on the own turn the handshake button
@@ -255,11 +257,20 @@ class _ChessBoardState extends State<ChessBoard> {
     return l10n.chessHintDrawDeclined(playerName(context, moves.last.player));
   }
 
-  /// The side shown at the bottom.
+  /// The player shown at the bottom: the own player on a network device; in
+  /// hot-seat the player to move, or White with auto-turn off.
   Player get _bottom {
     final local = controller.transport.localPlayers;
-    final base = local.length == 1 ? local.single : (_autoFlip ? game.currentPlayer : Player.a);
-    return _flipped ? (base == Player.a ? Player.b : Player.a) : base;
+    final base = local.length == 1 ? local.single : (_autoFlip ? game.currentPlayer : game.seatOf(ChessColor.white));
+    return _flipped ? _other(base) : base;
+  }
+
+  /// "Du spielst Weiß/Schwarz." on a network device until the first board
+  /// move (KLD-059 step 4a: the host chooses the colours), else null.
+  String? _colorHint(AppLocalizations l10n) {
+    final local = controller.transport.localPlayers;
+    if (local.length != 1 || game.sanHistory.isNotEmpty) return null;
+    return chessYouPlay(l10n, game.colorOf(local.single));
   }
 
   /// Pieces move on the own turn, not while the promotion picker is up or a
@@ -276,7 +287,7 @@ class _ChessBoardState extends State<ChessBoard> {
     if (from != null && _tryMove(from, sq)) return;
     final piece = game.pieceAt(sq);
     setState(() {
-      _selected = piece != null && piece.color == game.currentPlayer && sq != from ? sq : null;
+      _selected = piece != null && piece.color == game.sideToMove && sq != from ? sq : null;
     });
   }
 
@@ -295,7 +306,7 @@ class _ChessBoardState extends State<ChessBoard> {
   }
 
   Future<void> _promote(String from, String to) async {
-    final color = game.currentPlayer;
+    final color = game.sideToMove;
     setState(() {
       _selected = from;
       _promoting = true;
@@ -309,7 +320,7 @@ class _ChessBoardState extends State<ChessBoard> {
       _promoting = false;
       _selected = null;
     });
-    if (letter == null || game.currentPlayer != color || controller.game.isOver) return;
+    if (letter == null || game.sideToMove != color || controller.game.isOver) return;
     controller.submit({'action': 'move', 'from': from, 'to': to, 'promotion': letter});
   }
 
@@ -327,6 +338,7 @@ class _ChessBoardState extends State<ChessBoard> {
     GameScreen.of(context).setHint(g.isOver
         ? null
         : _drawHint(l10n) ??
+            (_selected == null ? _colorHint(l10n) : null) ??
             (!controller.canAct
                 ? null
                 : _selected == null
@@ -334,7 +346,7 @@ class _ChessBoardState extends State<ChessBoard> {
                     : l10n.chessHintTarget));
 
     final bottom = _bottom;
-    final top = bottom == Player.a ? Player.b : Player.a;
+    final top = _other(bottom);
     final check = !g.isOver && g.isInCheck;
 
     final controls = Row(
@@ -434,7 +446,7 @@ class _ChessBoardState extends State<ChessBoard> {
     final legal = _movesFrom(selected);
     final targets = {for (final m in legal) m['to'] as String};
     final last = _lastMove(controller.moves);
-    final checkSquare = g.isInCheck ? _kingSquare(board, g.currentPlayer) : null;
+    final checkSquare = g.isInCheck ? _kingSquare(board, g.sideToMove) : null;
     final canMove = _canMove;
 
     Widget square(String name, double size) {
@@ -460,7 +472,7 @@ class _ChessBoardState extends State<ChessBoard> {
         semanticLabel: label,
         onTap: canMove ? () => _tap(name) : null,
       );
-      final movable = canMove && piece != null && piece.color == g.currentPlayer;
+      final movable = canMove && piece != null && piece.color == g.sideToMove;
       Widget child = view;
       if (movable) {
         child = Draggable<String>(
@@ -495,10 +507,10 @@ class _ChessBoardState extends State<ChessBoard> {
       );
     }
 
-    return ChessBoardFrame(flip: bottom == Player.b, extent: extent, square: square);
+    return ChessBoardFrame(flip: g.colorOf(bottom) == ChessColor.black, extent: extent, square: square);
   }
 
-  static String? _kingSquare(List<ChessPiece?> board, Player color) {
+  static String? _kingSquare(List<ChessPiece?> board, ChessColor color) {
     for (var i = 0; i < 64; i++) {
       final p = board[i];
       if (p != null && p.type == ChessPieceType.king && p.color == color) return ChessGame.squareName(i);
@@ -731,7 +743,7 @@ class ChessSquareView extends StatelessWidget {
 /// The promotion picker: queen, rook, bishop, knight in [color]; pops the
 /// letter (`q`, `r`, `b`, `n`) or null (cancel: the pawn stays).
 class ChessPromotionDialog extends StatelessWidget {
-  final Player color;
+  final ChessColor color;
   const ChessPromotionDialog({super.key, required this.color});
 
   @override
@@ -874,7 +886,7 @@ class _Captured extends StatelessWidget {
     int value(List<ChessPieceType> l) => l.fold(0, (s, t) => s + chessPieceValue(t));
     final lead = value(mine) - value(theirs);
     mine.sort((a, b) => chessPieceValue(b).compareTo(chessPieceValue(a)));
-    final opponent = player == Player.a ? Player.b : Player.a;
+    final opponent = (controller.game as ChessGame).colorOf(player).opposite;
     final chip = KlunkiPalette.of(context).chess.lightSquare;
     return SizedBox(
       key: Key('chess-captured-${player.name}'),

@@ -221,7 +221,9 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
         inputFormatters: playerNameInputFormatters,
         decoration: InputDecoration(
           // Numbered in turn order: player A (1) makes the first move in
-          // every game, including the setup phases and chess (White).
+          // every hot-seat game, including the setup phases and chess
+          // (White; only a network chess host may choose Black, KLD-059
+          // step 4a).
           labelText: l10n.hotSeatNameLabel(p == Player.a ? 1 : 2),
           helperText: p == Player.a ? l10n.hotSeatStartsHint : null,
           hintText: defaultPlayerName(l10n, p),

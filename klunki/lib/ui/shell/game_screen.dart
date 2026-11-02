@@ -685,7 +685,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   Color _edgeColor(BuildContext context, TurnMood mood, Player? p) {
     if (p == null) return Colors.transparent;
     final palette = KlunkiPalette.of(context);
-    final c = visibleOn(context, playerColor(palette, controller.spec.id, p));
+    final c = visibleOn(context, playerColor(palette, controller.spec.id, PlayerLabelsScope.of(context).tokenOf(p)));
     return mood == TurnMood.waiting ? c.withValues(alpha: 0.35) : c;
   }
 }
@@ -716,6 +716,9 @@ class PlayerToken extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = KlunkiPalette.of(context);
     final icon = visualsOf(gameId).tokenIcon;
+    // Network chess with the host on Black shows the other side's token
+    // (PlayerLabels.tokens, KLD-059 step 4a).
+    final player = PlayerLabelsScope.of(context).tokenOf(this.player);
     if (icon != null) {
       // A game's own token (chess: the side's king on a light square).
       return ExcludeSemantics(child: SizedBox.square(dimension: size, child: icon(context, player, size)));
@@ -843,7 +846,9 @@ class _TurnIndicatorState extends State<_TurnIndicator> with SingleTickerProvide
     final palette = KlunkiPalette.of(context);
     final p = widget.player;
     final mood = widget.mood;
-    final color = p == null ? theme.colorScheme.outline : playerColor(palette, widget.gameId, p);
+    final color = p == null
+        ? theme.colorScheme.outline
+        : playerColor(palette, widget.gameId, PlayerLabelsScope.of(context).tokenOf(p));
 
     final Color fill;
     final Color border;
@@ -978,7 +983,7 @@ class _PlayersLegend extends StatelessWidget {
       // in games with pieces the token shows no number.
       final n = bidiName(context, labels.name(l10n, p));
       final name = labels.sameNames(l10n) ? l10n.playerLabel(n, PlayerLabels.numberOf(p)) : n;
-      final color = playerColor(palette, gameId, p);
+      final color = playerColor(palette, gameId, labels.tokenOf(p));
       return AnimatedOpacity(
         key: Key('shell-player-${playerMark(p)}'),
         opacity: current == null || on ? 1 : 0.6,

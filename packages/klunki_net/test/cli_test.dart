@@ -251,6 +251,24 @@ void main() {
     expect(await guest.exitCode, 0);
   });
 
+  test('chess --color black: the host plays Black, the guest (White) moves first (KLD-059 step 4a)', () async {
+    final host = Terminal('host', ['host', 'chess', '--color', 'black', '--port', '0', '--name', 'Ada']);
+    final port = (await host.waitFor(RegExp(r'on 127\.0\.0\.1:(\d+) — waiting for a guest')))[1]!;
+    final guest = Terminal('guest', ['join', '127.0.0.1', port, '--name', 'Bea']);
+    await host.waitFor('Bea joined: you are Black, Bea is White.');
+    await guest.waitFor("Joined Ada's game");
+    expect(host.text, contains('"white":"b"'));
+    expect(host.text, contains('you play Black, the guest plays White'));
+    expect(guest.text, contains('you play White, the host plays Black'));
+    await guest.waitFor('> ');
+    guest.type('e4');
+    await host.waitFor('Bea (White) plays e4');
+    host.type('quit');
+    await guest.waitFor('Opponent left (host left).');
+    expect(await host.exitCode, 0);
+    expect(await guest.exitCode, 0);
+  });
+
   test('Schiffe: the opponent\'s ship placements are not narrated', () async {
     final (host, guest) = await hostAndJoin(['schiffe']);
     await host.waitFor('> ');
@@ -474,6 +492,9 @@ void main() {
       ['host', 'quartett-trumpf', '--deck'],
       ['host', 'connect4', '--deck', 'trains'],
       ['join', '1.2.3.4', '--deck', 'trains'],
+      ['host', 'connect4', '--color', 'black'],
+      ['host', 'chess', '--color', 'blue'],
+      ['join', '1.2.3.4', '--color', 'white'],
     ]) {
       final err = StringBuffer();
       expect(await runCli(args, err: err, out: err, input: const Stream.empty()), usageExit, reason: '$args');

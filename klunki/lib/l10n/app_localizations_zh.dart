@@ -1736,6 +1736,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chessBlack => '黑方';
 
   @override
+  String get chessColorLabel => '选一方';
+
+  @override
+  String get chessColorRandom => '随机';
+
+  @override
+  String get chessColorHelper => '白方先走。选“随机”时，会随机分配。';
+
+  @override
+  String get chessYouPlayWhite => '你是白方。';
+
+  @override
+  String get chessYouPlayBlack => '你是黑方。';
+
+  @override
   String get chessCheck => '将军！';
 
   @override

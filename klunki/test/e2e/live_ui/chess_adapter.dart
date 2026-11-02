@@ -1,4 +1,5 @@
-// Chess adapter for the live UI driver (KLD-059 step 3).
+// Chess adapter for the live UI driver (KLD-059 step 3). Step 4a: the host
+// may play Black, so White (the first mover) is the game's `whitePlayer`.
 //
 // Reads the move list a ChessBoard shows (`chess-move-<i>`, SAN): every
 // board move is one turn, reported in order, one per observation, so a
@@ -56,13 +57,15 @@ class ChessAdapter extends LiveUiAdapter {
 
   static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
 
-  TurnRecord _record(int i, String san, String source) => TurnRecord(
+  /// Board move [i]: from the start position White moves first, and White is
+  /// [white] (`GameConfig.chessWhite`; B when the host plays Black).
+  TurnRecord _record(int i, String san, String source, Player white) => TurnRecord(
         index: i,
-        actor: i.isEven ? Player.a : Player.b, // from the start position, White first
+        actor: i.isEven ? white : _other(white),
         action: 'move',
         outcome: san,
         detail: '#$i',
-        nextActor: i.isEven ? Player.b : Player.a,
+        nextActor: i.isEven ? _other(white) : white,
         source: source,
       );
 
@@ -84,11 +87,11 @@ class ChessAdapter extends LiveUiAdapter {
         _reported[c] = k + 1;
         expect(san, (c.game as ChessGame).sanHistory[k], reason: '${d.name}: move $k on screen');
         if (inSync && k + 1 == cap) _checkBoard(tester, d, c.game as ChessGame);
-        return _record(k, san, d.name);
+        return _record(k, san, d.name, (c.game as ChessGame).whitePlayer);
       }
     }
     if (k == 0) return null;
-    return _record(k - 1, _moveText(tester, d, k - 1) ?? '?', d.name);
+    return _record(k - 1, _moveText(tester, d, k - 1) ?? '?', d.name, (c.game as ChessGame).whitePlayer);
   }
 
   void _checkBoard(WidgetTester tester, UiDevice d, ChessGame g) {
@@ -98,7 +101,6 @@ class ChessAdapter extends LiveUiAdapter {
       expect(tester.widget<ChessSquareView>(d.on(find.byKey(Key('chess-sq-$name')))).piece, board[i],
           reason: '${d.name}: $name');
     }
-    // The own side at the bottom on a network device (no flip in between).
     boardChecks++;
   }
 
@@ -197,6 +199,6 @@ class ChessAdapter extends LiveUiAdapter {
     // The game ended with a board move: the result dialog covers it.
     final endedOnBoard = g.isOver && c.moves.isNotEmpty && c.moves.last.move['action'] == 'move';
     final shown = endedOnBoard ? san.length - 1 : san.length;
-    return [for (var i = 0; i < shown; i++) _record(i, san[i], 'engine')];
+    return [for (var i = 0; i < shown; i++) _record(i, san[i], 'engine', g.whitePlayer)];
   }
 }

@@ -4,6 +4,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/network_transport.dart';
+import '../game_visuals.dart' show tokenSidesOf;
 import '../games/wordtiles/wordtiles_options.dart' show loadWordListWithProgress;
 import '../ltr.dart';
 import 'relay_errors.dart';
@@ -74,7 +75,8 @@ class _NetworkGameSessionState extends State<NetworkGameSession> {
 }
 
 /// Labels for a network game: this device's player is [NetworkTransport.me]
-/// ("Du"), both players carry their names.
+/// ("Du"), both players carry their names; the tokens follow the config
+/// (chess with the host on Black, KLD-059 step 4a: [tokenSidesOf]).
 PlayerLabels networkLabels(NetworkTransport t) {
   final peer = t.peerName;
   return PlayerLabels(
@@ -83,6 +85,7 @@ PlayerLabels networkLabels(NetworkTransport t) {
       t.me: t.localName,
       _otherPlayer(t.me): ?peer,
     },
+    tokens: tokenSidesOf(t.config),
   );
 }
 
@@ -222,35 +225,43 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                       // Each player as token (colour + number or piece, KLD-067,
                       // KLD-106) and name; read out as "Du: Anna · Gegner: Ben".
                       Expanded(
-                        child: Semantics(
-                          key: const Key('net-status'),
-                          label: l10n.pairingStatus(bidiName(context, t.localName), peer),
-                          excludeSemantics: true,
-                          child: Row(
-                            children: [
-                              PlayerToken(key: const Key('net-you-token'), gameId: gameId, player: me, size: 20),
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  l10n.netBarYou(bidiName(context, t.localName)),
-                                  key: const Key('net-you'),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                        // The bar sits outside the game's labels scope: its
+                        // tokens need the same token sides.
+                        child: PlayerLabelsScope(
+                          labels: networkLabels(t),
+                          child: Semantics(
+                            key: const Key('net-status'),
+                            label: l10n.pairingStatus(bidiName(context, t.localName), peer),
+                            excludeSemantics: true,
+                            child: Row(
+                              children: [
+                                PlayerToken(key: const Key('net-you-token'), gameId: gameId, player: me, size: 20),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    l10n.netBarYou(bidiName(context, t.localName)),
+                                    key: const Key('net-you'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                              const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('·')),
-                              PlayerToken(
-                                  key: const Key('net-peer-token'), gameId: gameId, player: _otherPlayer(me), size: 20),
-                              const SizedBox(width: 6),
-                              Flexible(
-                                child: Text(
-                                  l10n.netBarOpponent(peer),
-                                  key: const Key('net-peer'),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Text('·')),
+                                PlayerToken(
+                                    key: const Key('net-peer-token'),
+                                    gameId: gameId,
+                                    player: _otherPlayer(me),
+                                    size: 20),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    l10n.netBarOpponent(peer),
+                                    key: const Key('net-peer'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

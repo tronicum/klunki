@@ -11,6 +11,8 @@ import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
+import '../games/chess/chess_color_picker.dart';
+import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../games/wordtiles/wordtiles_options.dart';
 import '../ltr.dart';
@@ -88,6 +90,10 @@ class RelayHostScreen extends StatefulWidget {
   /// them over, KLD-094 step 6); null: the defaults of the app language.
   final WordTilesOptions? initialWordTiles;
 
+  /// The host's colour in chess already chosen (KLD-059 step 4a); null: the
+  /// default ([defaultChessColorChoice]).
+  final ChessColorChoice? initialChessColor;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -102,6 +108,7 @@ class RelayHostScreen extends StatefulWidget {
     this.autoStart = false,
     this.fixedGame = false,
     this.initialWordTiles,
+    this.initialChessColor,
   });
 
 
@@ -120,6 +127,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   /// Wortgewandt's tile language and word list (KLD-094 step 6).
   late WordTilesOptions? _words = widget.initialWordTiles;
   WordTilesOptions get _wordOptions => _words ??= defaultWordTilesOptions(Localizations.localeOf(context));
+
+  /// The host's colour in chess (KLD-059 step 4a).
+  late ChessColorChoice _chessColor = widget.initialChessColor ?? defaultChessColorChoice;
   late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
@@ -184,8 +194,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       return;
     }
     if (!mounted) return;
+    final seed = widget.seed();
+    // Chess: "Zufällig" is decided here, from the seed (KLD-059 step 4a).
     final config = GameConfig(_gameId,
-        seed: widget.seed(), deck: _hostDeck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
+        seed: seed,
+        deck: _hostDeck,
+        tiles: words?.tiles,
+        dictionary: words?.dictionary ?? false,
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -308,6 +324,16 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           onChanged: (o) => setState(() => _words = o),
         ),
       ],
+      if (_gameId == 'chess') ...[
+        const SizedBox(height: 12),
+        ChessColorPicker(
+          key: const Key('relay-chess-color'),
+          keyPrefix: 'relay-chess-color-',
+          value: _chessColor,
+          enabled: !_starting,
+          onChanged: (c) => setState(() => _chessColor = c),
+        ),
+      ],
       const SizedBox(height: 16),
       FilledButton.icon(
         key: const Key('relay-host-start'),
@@ -360,6 +386,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           ),
           if (_gameId == 'wordtiles')
             Text(wordTilesOptionsSummary(l10n, t.config),
+                key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+          if (_gameId == 'chess')
+            Text(chessYouPlay(l10n, chessColorIn(t.config, t.me)),
                 key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
           Text(l10n.relayRoomCode, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),

@@ -234,8 +234,12 @@ String chessPieceName(AppLocalizations l10n, ChessPieceType t) => switch (t) {
       ChessPieceType.king => l10n.chessPieceKing,
     };
 
-/// Localized side name: "Weiß" (player A) / "Schwarz" (player B).
-String chessSideName(AppLocalizations l10n, Player p) => p == Player.a ? l10n.chessWhite : l10n.chessBlack;
+/// Localized side name: "Weiß" / "Schwarz".
+String chessSideName(AppLocalizations l10n, ChessColor c) => c == ChessColor.white ? l10n.chessWhite : l10n.chessBlack;
+
+/// "Du spielst Weiß." / "Du spielst Schwarz." (network chess, KLD-059 step 4a).
+String chessYouPlay(AppLocalizations l10n, ChessColor c) =>
+    c == ChessColor.white ? l10n.chessYouPlayWhite : l10n.chessYouPlayBlack;
 
 /// Material value for the captured-pieces balance.
 int chessPieceValue(ChessPieceType t) => switch (t) {

@@ -64,9 +64,9 @@ void main() {
       expect(g.isOver, isFalse);
       expect(g.history, isEmpty);
       expect(g.board, hasLength(64));
-      expect(g.board[0], const ChessPiece(Player.a, ChessPieceType.rook));
-      expect(g.board[4], const ChessPiece(Player.a, ChessPieceType.king));
-      expect(g.board[59], const ChessPiece(Player.b, ChessPieceType.queen));
+      expect(g.board[0], const ChessPiece(ChessColor.white, ChessPieceType.rook));
+      expect(g.board[4], const ChessPiece(ChessColor.white, ChessPieceType.king));
+      expect(g.board[59], const ChessPiece(ChessColor.black, ChessPieceType.queen));
       expect(g.board[27], isNull);
       expect(g.pieceAt('e8')!.fen, 'k');
       expect(g.pieceAt('d1')!.fen, 'Q');
@@ -267,7 +267,7 @@ void main() {
       expect(g.applyMove(mv('e7', 'e8', 'p')), isNull);
       expect(g.fen, before);
       final e = g.applyMove(mv('e7', 'e8', 'n'))!;
-      expect(g.pieceAt('e8'), const ChessPiece(Player.a, ChessPieceType.knight));
+      expect(g.pieceAt('e8'), const ChessPiece(ChessColor.white, ChessPieceType.knight));
       expect(e.payload, containsPair('promotion', 'n'));
       expect(e.payload, containsPair('piece', 'p'));
       expect(g.sanHistory, ['e8=N']);
@@ -285,7 +285,7 @@ void main() {
 
     test('Black promotes on the first rank; no promotion on other moves', () {
       final g = ChessGame.fromFen('K7/8/8/8/8/8/4p3/k7 b - - 0 1')..applyMove(mv('e2', 'e1', 'r'));
-      expect(g.pieceAt('e1'), const ChessPiece(Player.b, ChessPieceType.rook));
+      expect(g.pieceAt('e1'), const ChessPiece(ChessColor.black, ChessPieceType.rook));
       expect(ChessGame().applyMove(mv('e2', 'e4', 'q')), isNull);
     });
   });
@@ -738,6 +738,86 @@ void main() {
       expect(t.parse('accept'), ChessGame.acceptDrawMove(Player.b));
       expect(t.parse('decline'), ChessGame.declineDrawMove(Player.b));
       expect(t.format(ChessGame.acceptDrawMove(Player.b)), 'acceptDraw Black');
+    });
+  });
+
+  group('colours per player (KLD-059 step 4a)', () {
+    test('default: A plays White and moves first', () {
+      final g = ChessGame();
+      expect(g.whitePlayer, Player.a);
+      expect(g.colorOf(Player.a), ChessColor.white);
+      expect(g.seatOf(ChessColor.black), Player.b);
+      expect(g.currentPlayer, Player.a);
+      expect(g.sideToMove, ChessColor.white);
+      expect(ChessColor.white.opposite, ChessColor.black);
+    });
+
+    test('B plays White: B moves first, pieces keep their colour, mate wins for the mating player', () {
+      final g = ChessGame(white: Player.b);
+      expect(g.colorOf(Player.a), ChessColor.black);
+      expect(g.seatOf(ChessColor.white), Player.b);
+      expect(g.currentPlayer, Player.b);
+      expect(g.pieceAt('e1'), const ChessPiece(ChessColor.white, ChessPieceType.king));
+      expect(g.playerOf(mv('e2', 'e4')), Player.b);
+      // Fool's mate: Black (A) mates White (B).
+      play(['f3', 'e5', 'g4', 'Qh4'], g);
+      expect(g.result.winner, Player.a);
+      expect(g.result.code, GameEndReason.chessCheckmate);
+      expect(g.fen.split(' ')[1], 'w', reason: 'the FEN is about colours, not players');
+    });
+
+    test('resign and draw offer name players, not colours', () {
+      final g = ChessGame(white: Player.b);
+      expect(g.canOfferDraw(Player.b), isTrue);
+      expect(g.canOfferDraw(Player.a), isFalse);
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.b)), isNotNull);
+      expect(g.applyMove(ChessGame.declineDrawMove(Player.a))!.payload, {'drawDeclined': 'a'});
+      play(['e4'], g);
+      expect(g.currentPlayer, Player.a);
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.a)), isNotNull);
+      expect(g.applyMove(ChessGame.acceptDrawMove(Player.b))!.draw, isTrue);
+      final r = ChessGame(white: Player.b)..applyMove(Game.resignMove(Player.b));
+      expect(r.result.winner, Player.a);
+    });
+
+    test('GameConfig.chessWhite: JSON "white", absent = A; createGame and replay follow it', () {
+      const swapped = GameConfig('chess', chessWhite: Player.b);
+      expect(swapped.toJson(), {'game': 'chess', 'seed': 0, 'white': 'b'});
+      expect(const GameConfig('chess').toJson(), {'game': 'chess', 'seed': 0});
+      expect(GameConfig.fromJson(swapped.toJson()), swapped);
+      expect(GameConfig.fromJson({'game': 'chess'}).chessWhite, Player.a);
+      expect(GameConfig.fromJson({'game': 'chess', 'white': 'a'}).chessWhite, Player.a);
+      expect(swapped.copyWith(seed: 5).chessWhite, Player.b);
+      expect(swapped == const GameConfig('chess'), isFalse);
+      expect(swapped.publicJson()['white'], 'b');
+      expect((createGame(swapped) as ChessGame).whitePlayer, Player.b);
+      expect(createGame(const GameConfig('chess')).currentPlayer, Player.a);
+      final g = replay(swapped, [mv('e2', 'e4'), mv('e7', 'e5')])! as ChessGame;
+      expect(g.currentPlayer, Player.b);
+      expect(replay(swapped, [mv('e2', 'e4'), mv('e2', 'e4')]), isNull);
+      expect(specById('chess')!.rulesVersion, 3);
+    });
+
+    test('ChessColorChoice: the host (A) plays the chosen colour; random follows the seed', () {
+      expect(ChessColorChoice.white.whitePlayer(7), Player.a);
+      expect(ChessColorChoice.black.whitePlayer(8), Player.b);
+      expect(ChessColorChoice.random.whitePlayer(8), Player.a);
+      expect(ChessColorChoice.random.whitePlayer(7), Player.b);
+      final seen = {for (var seed = 0; seed < 64; seed++) ChessColorChoice.random.whitePlayer(seed)};
+      expect(seen, {Player.a, Player.b}, reason: 'both outcomes occur');
+      for (var seed = 0; seed < 16; seed++) {
+        final config = GameConfig('chess', seed: seed, chessWhite: ChessColorChoice.random.whitePlayer(seed));
+        expect(GameConfig.fromJson(config.toJson()), config, reason: 'the result travels in the config');
+        expect((createGame(GameConfig.fromJson(config.toJson())) as ChessGame).whitePlayer, config.chessWhite);
+      }
+    });
+
+    test('text adapter names the colours of the players; restart keeps them', () {
+      final t = ChessText(game: ChessGame(white: Player.b));
+      expect(t.mark(Player.a), 'Black');
+      expect(t.mark(Player.b), 'White');
+      expect(t.parse('draw'), ChessGame.offerDrawMove(Player.b));
+      expect(t.restart().game.whitePlayer, Player.b);
     });
   });
 }

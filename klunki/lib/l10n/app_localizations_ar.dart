@@ -1812,6 +1812,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chessBlack => 'الأسود';
 
   @override
+  String get chessColorLabel => 'لونك';
+
+  @override
+  String get chessColorRandom => 'عشوائي';
+
+  @override
+  String get chessColorHelper => 'الأبيض يبدأ. مع «عشوائي» تقرّر القرعة.';
+
+  @override
+  String get chessYouPlayWhite => 'أنت تلعب بالأبيض.';
+
+  @override
+  String get chessYouPlayBlack => 'أنت تلعب بالأسود.';
+
+  @override
   String get chessCheck => 'كش ملك!';
 
   @override

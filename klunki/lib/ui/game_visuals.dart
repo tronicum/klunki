@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' show ChessPiece, ChessPieceType, Player;
+import 'package:klunki_engine/klunki_engine.dart' show ChessColor, ChessPiece, ChessPieceType, GameConfig, Player;
 
 import '../app/theme.dart';
 import 'game_illustrations.dart';
@@ -121,7 +121,8 @@ Widget _muehleToken(BuildContext context, Player player, double size) {
   );
 }
 
-/// Chess token: the side's king on a light square disc.
+/// Chess token: the side's king on a light square disc (A's token is the
+/// white king; see [tokenSidesOf] for a game where B plays White).
 Widget _chessToken(BuildContext context, Player player, double size) {
   final c = KlunkiPalette.of(context).chess;
   return Container(
@@ -133,11 +134,20 @@ Widget _chessToken(BuildContext context, Player player, double size) {
       border: Border.all(color: Colors.black26, width: size * 0.08),
       boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 2, offset: Offset(0, 1))],
     ),
-    child: ChessPieceIcon(piece: ChessPiece(player, ChessPieceType.king), size: size),
+    child: ChessPieceIcon(
+        piece: ChessPiece(player == Player.a ? ChessColor.white : ChessColor.black, ChessPieceType.king), size: size),
   );
 }
 
 GameVisuals visualsOf(String gameId) => gameVisuals[gameId] ?? GameVisuals.fallback;
+
+/// [PlayerLabels.tokens] for a game started with [config]: in chess the
+/// tokens show the colours (A's token is the white king), so when B plays
+/// White (KLD-059 step 4a, [GameConfig.chessWhite]) the two swap. Empty for
+/// every other game.
+Map<Player, Player> tokenSidesOf(GameConfig config) => config.gameId == 'chess' && config.chessWhite == Player.b
+    ? const {Player.a: Player.b, Player.b: Player.a}
+    : const {};
 
 /// The colour of [player] in [gameId] (KLD-067): the piece colour where the
 /// game has one ([GameVisuals.token]: 4 Gewinnt red / yellow, Mühle light /

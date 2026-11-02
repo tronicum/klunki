@@ -2686,11 +2686,31 @@
   },
   "chessWhite": "Weiß",
   "@chessWhite": {
-    "description": "Chess: the side name of player A (moves first), used instead of the mark X in the status line, result and resign dialog (\"Weiß ist am Zug\", \"Anna (Weiß)\")."
+    "description": "Chess: the side name White (moves first; player A unless a network host chose Black, KLD-059 step 4a), used instead of the mark X in the status line, result and resign dialog (\"Weiß ist am Zug\", \"Anna (Weiß)\")."
   },
   "chessBlack": "Schwarz",
   "@chessBlack": {
-    "description": "Chess: the side name of player B, used instead of the mark O."
+    "description": "Chess: the side name Black (player B unless a network host chose Black), used instead of the mark O."
+  },
+  "chessColorLabel": "Deine Farbe",
+  "@chessColorLabel": {
+    "description": "KLD-059 step 4a: title of the colour choice when starting a chess room (the host's own colour: Weiß / Schwarz / Zufällig)."
+  },
+  "chessColorRandom": "Zufällig",
+  "@chessColorRandom": {
+    "description": "KLD-059 step 4a: the third option of the colour choice: the app decides at random who plays White."
+  },
+  "chessColorHelper": "Weiß beginnt. Bei „Zufällig“ wird ausgelost.",
+  "@chessColorHelper": {
+    "description": "KLD-059 step 4a: line under the colour choice: White moves first; Random draws lots."
+  },
+  "chessYouPlayWhite": "Du spielst Weiß.",
+  "@chessYouPlayWhite": {
+    "description": "KLD-059 step 4a: network chess: this device plays White (waiting room and the hint line at game start)."
+  },
+  "chessYouPlayBlack": "Du spielst Schwarz.",
+  "@chessYouPlayBlack": {
+    "description": "KLD-059 step 4a: network chess: this device plays Black (waiting room and the hint line at game start)."
   },
   "chessCheck": "Schach!",
   "@chessCheck": {

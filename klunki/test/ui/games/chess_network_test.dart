@@ -4,6 +4,8 @@
 // is turned, coordinates included), names the players ("Du bist am Zug",
 // "Warte auf Anna (Weiß)…"), has no undo, restart or auto-turn, and plays
 // by taps; the draw offer goes from one device to the other.
+// Step 4a: the host may play Black (GameConfig.chessWhite): then the guest
+// is White, moves first and sees its board un-turned, the host's is turned.
 @Timeout(Duration(seconds: 90))
 library;
 
@@ -14,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/chess/chess_board.dart';
+import 'package:klunki/ui/games/chess/chess_pieces.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -65,12 +68,13 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 /// Starts host and guest and pumps both sessions side by side.
-Future<(NetworkTransport, NetworkTransport)> _start(WidgetTester tester) async {
+Future<(NetworkTransport, NetworkTransport)> _start(WidgetTester tester,
+    [GameConfig config = const GameConfig('chess')]) async {
   tester.view.physicalSize = const Size(1400, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final (host, guest) = (await tester.runAsync(() async {
-    final h = await NetworkTransport.host(const GameConfig('chess'),
+    final h = await NetworkTransport.host(config,
         name: 'Anna', address: InternetAddress.loopbackIPv4, wsPort: null, pingInterval: _ping, timeout: _timeout);
     final g = await NetworkTransport.join(InternetAddress.loopbackIPv4, h.port!,
         name: 'Ben', pingInterval: _ping, timeout: _timeout);
@@ -229,7 +233,8 @@ void main() {
     await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-promote-q'))));
     await _until(tester, () => hc.moves.length == 10, 'the promotion reaches the host');
     expect(hc.moves.last.move, {'action': 'move', 'from': 'a2', 'to': 'b1', 'promotion': 'q'});
-    expect(tester.widget<ChessSquareView>(_sq(_hostKey, 'b1')).piece, const ChessPiece(Player.b, ChessPieceType.queen));
+    expect(tester.widget<ChessSquareView>(_sq(_hostKey, 'b1')).piece,
+        const ChessPiece(ChessColor.black, ChessPieceType.queen));
 
     // The host offers, then resigns instead: the guest's offer dialog closes.
     await _tap(tester, _on(_hostKey, find.byKey(const Key('chess-offer-draw'))));
@@ -243,5 +248,74 @@ void main() {
     expect(_on(_guestKey, find.byKey(const Key('chess-draw-offer-dialog'))), findsNothing);
     expect(find.descendant(of: _on(_guestKey, find.byKey(const Key('result-dialog'))), matching: find.text('Du gewinnst!')),
         findsOneWidget);
+  });
+
+  testWidgets('host plays Black (step 4a): the guest (White) opens, boards turned to each own colour; host mates',
+      (tester) async {
+    await _start(tester, const GameConfig('chess', chessWhite: Player.b));
+    // Orientation follows the own colour: the host (Black) is turned now.
+    expect(_text(tester, _hostKey, const Key('chess-rank-0')), '1');
+    expect(_text(tester, _hostKey, const Key('chess-file-0')), 'h');
+    expect(_text(tester, _guestKey, const Key('chess-rank-0')), '8');
+    expect(_text(tester, _guestKey, const Key('chess-file-0')), 'a');
+    for (final (device, bottomLeft, topRight) in [(_hostKey, 'h8', 'a1'), (_guestKey, 'a1', 'h8')]) {
+      final bl = tester.getCenter(_sq(device, bottomLeft)), tr = tester.getCenter(_sq(device, topRight));
+      expect(bl.dx, lessThan(tr.dx), reason: '$device: $bottomLeft left of $topRight');
+      expect(bl.dy, greaterThan(tr.dy), reason: '$device: $bottomLeft below $topRight');
+    }
+    // "Du spielst …" until the first move; the status texts stay name-based.
+    expect(_text(tester, _hostKey, const Key('shell-hint')), 'Du spielst Schwarz.');
+    expect(_text(tester, _guestKey, const Key('shell-hint')), 'Du spielst Weiß.');
+    expect(_text(tester, _guestKey, const Key('shell-status')), 'Du bist am Zug');
+    expect(_text(tester, _hostKey, const Key('shell-status')), 'Warte auf Ben (Weiß)…');
+    // The tokens are the kings of the own colour (connection bar).
+    ChessPiece token(Key device, String key) => tester
+        .widget<ChessPieceIcon>(find.descendant(of: _on(device, find.byKey(Key(key))), matching: find.byType(ChessPieceIcon)))
+        .piece;
+    expect(token(_hostKey, 'net-you-token'), const ChessPiece(ChessColor.black, ChessPieceType.king));
+    expect(token(_hostKey, 'net-peer-token'), const ChessPiece(ChessColor.white, ChessPieceType.king));
+    expect(token(_guestKey, 'net-you-token'), const ChessPiece(ChessColor.white, ChessPieceType.king));
+    // The host cannot pick up a piece before White has moved.
+    await _tap(tester, _sq(_hostKey, 'e7'));
+    expect(tester.widget<ChessSquareView>(_sq(_hostKey, 'e7')).selected, isFalse);
+
+    await _move(tester, _guestKey, 'f2', 'f3');
+    expect(_text(tester, _hostKey, const Key('shell-status')), 'Du bist am Zug');
+    expect(_text(tester, _hostKey, const Key('shell-hint')), 'Tippe eine Figur an, um sie zu ziehen.');
+    expect(_on(_guestKey, find.text('Du spielst Weiß.')), findsNothing);
+    await _move(tester, _hostKey, 'e7', 'e5');
+    await _move(tester, _guestKey, 'g2', 'g4');
+    await _move(tester, _hostKey, 'd8', 'h4');
+    final hc = _controller(tester, _hostKey), gc = _controller(tester, _guestKey);
+    expect((gc.game as ChessGame).fen, (hc.game as ChessGame).fen);
+    expect(hc.moves.first.player, Player.b, reason: 'the guest moved first');
+    await _settle(tester);
+    final hostResult = _on(_hostKey, find.byKey(const Key('result-dialog')));
+    final guestResult = _on(_guestKey, find.byKey(const Key('result-dialog')));
+    expect(find.descendant(of: hostResult, matching: find.text('Du gewinnst!')), findsOneWidget);
+    expect(find.descendant(of: guestResult, matching: find.text('Anna (Schwarz) gewinnt!')), findsOneWidget);
+  });
+
+  testWidgets('host plays Black: the guest (White) offers a draw on its first turn, the host accepts', (tester) async {
+    await _start(tester, const GameConfig('chess', chessWhite: Player.b));
+    expect(tester.widget<IconButton>(_on(_hostKey, find.byKey(const Key('chess-offer-draw')))).onPressed, isNull);
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-offer-draw'))));
+    await _settle(tester);
+    expect(_on(_guestKey, find.text('Anna (Schwarz) kann annehmen oder ablehnen. Bei Annahme endet das Spiel unentschieden.')),
+        findsOneWidget);
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-offer-confirm'))));
+    await _until(tester, () => _on(_hostKey, find.byKey(const Key('chess-draw-offer-dialog'))).evaluate().isNotEmpty,
+        'the offer reaches the host');
+    await _settle(tester);
+    expect(_on(_hostKey, find.text('Ben (Weiß) bietet ein Remis an. Bei Annahme endet das Spiel unentschieden.')),
+        findsOneWidget);
+    expect(_text(tester, _guestKey, const Key('shell-hint')), 'Remis angeboten – Anna (Schwarz) entscheidet.');
+    await _tap(tester, _on(_hostKey, find.byKey(const Key('chess-draw-accept'))));
+    await _until(tester, () => _controller(tester, _guestKey).game.isOver, 'the guest sees the agreed draw');
+    for (final d in [_hostKey, _guestKey]) {
+      expect(_controller(tester, d).game.result.code, GameEndReason.chessDrawAgreed);
+    }
+    expect([for (final m in _controller(tester, _hostKey).moves) (m.player, m.move['action'])],
+        [(Player.b, 'offerDraw'), (Player.a, 'acceptDraw')]);
   });
 }

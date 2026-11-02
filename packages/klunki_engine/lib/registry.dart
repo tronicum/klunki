@@ -28,6 +28,12 @@ import 'word_tiles.dart';
 /// when on) checks every word against the list registered in [WordLists]
 /// for that tile set ([WordCheck.dictionary]); off = challenge mode. Other
 /// games ignore both.
+///
+/// [chessWhite] (KLD-059 step 4a, chess only): the player who plays White,
+/// JSON `white` (`"b"`), written only when it is [Player.b] (absent = A, as
+/// before). The network host is always A; with `white: "b"` it plays Black
+/// and the guest moves first. A random choice is made by the host before
+/// the game: the config always holds the result.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -35,8 +41,14 @@ class GameConfig {
   final bool pickLowCards;
   final String? tiles;
   final bool dictionary;
+  final Player chessWhite;
   const GameConfig(this.gameId,
-      {this.seed = 0, this.deck, this.pickLowCards = true, this.tiles, this.dictionary = false});
+      {this.seed = 0,
+      this.deck,
+      this.pickLowCards = true,
+      this.tiles,
+      this.dictionary = false,
+      this.chessWhite = Player.a});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -49,6 +61,7 @@ class GameConfig {
         if (!pickLowCards) 'pickLow': false,
         if (tiles != null) 'tiles': tiles,
         if (dictionary) 'dict': true,
+        if (chessWhite == Player.b) 'white': 'b',
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -56,10 +69,16 @@ class GameConfig {
       deck: json['deck'] as String?,
       pickLowCards: json['pickLow'] != false,
       tiles: json['tiles'] as String?,
-      dictionary: json['dict'] == true);
+      dictionary: json['dict'] == true,
+      chessWhite: json['white'] == 'b' ? Player.b : Player.a);
 
   GameConfig copyWith({int? seed}) => GameConfig(gameId,
-      seed: seed ?? this.seed, deck: deck, pickLowCards: pickLowCards, tiles: tiles, dictionary: dictionary);
+      seed: seed ?? this.seed,
+      deck: deck,
+      pickLowCards: pickLowCards,
+      tiles: tiles,
+      dictionary: dictionary,
+      chessWhite: chessWhite);
 
   @override
   bool operator ==(Object other) =>
@@ -69,15 +88,17 @@ class GameConfig {
       other.deck == deck &&
       other.pickLowCards == pickLowCards &&
       other.tiles == tiles &&
-      other.dictionary == dictionary;
+      other.dictionary == dictionary &&
+      other.chessWhite == chessWhite;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, chessWhite);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
-      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''})';
+      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}'
+      '${chessWhite == Player.b ? ', white: b' : ''})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -147,8 +168,9 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true, redaction: const GoStrategyRedaction()),
   // KLD-059: hot-seat in the app since step 2, network play since step 3.
   // Rules 2 (step 3): the draw offer moves (`offerDraw`, `acceptDraw`,
-  // `declineDraw`).
-  GameSpec('chess', 'Schach', (_, __) => ChessGame(), rulesVersion: 2),
+  // `declineDraw`). Rules 3 (step 4a): the colours per player
+  // (GameConfig.chessWhite, JSON `white`): B may play White and move first.
+  GameSpec('chess', 'Schach', (c, _) => ChessGame(white: c.chessWhite), rulesVersion: 3),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
   // title "Wortgewandt" (chosen by the maintainer, 2026-11-01). Rules 2
   // (step 4): tile set and word list per game (GameConfig.tiles /
