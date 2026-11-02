@@ -137,6 +137,9 @@ class AppLocalizationsFa extends AppLocalizations {
   String get shellUndo => 'برگرداندن حرکت';
 
   @override
+  String get shellTakeBack => 'برگشت';
+
+  @override
   String get shellNewGame => 'بازی جدید';
 
   @override

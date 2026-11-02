@@ -39,6 +39,7 @@
   "shellMenu": "القائمة",
   "shellPlayAgain": "مرة أخرى",
   "shellUndo": "تراجع عن الحركة",
+  "shellTakeBack": "تراجع",
   "shellNewGame": "لعبة جديدة",
   "shellNewGameTitle": "لعبة جديدة؟",
   "shellNewGameBody": "سيتم إلغاء اللعبة الحالية.",

@@ -352,6 +352,8 @@ class _ChessBoardState extends State<ChessBoard> {
     final controls = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // "Zug zurück" (hot-seat, KLD-117) next to the board buttons.
+        const UndoMoveButton(),
         IconButton(
           key: const Key('chess-flip'),
           tooltip: l10n.chessFlipBoard,
@@ -377,6 +379,23 @@ class _ChessBoardState extends State<ChessBoard> {
       ],
     );
     final checkBadge = check ? const _CheckBadge() : const SizedBox.shrink();
+    // The check badge at the start, the buttons at the end. With "Zug
+    // zurück" (KLD-117) the buttons can be wider than a narrow board: they
+    // shrink to fit then, the badge takes what is left.
+    Widget controlRow(double width) => Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: FittedBox(fit: BoxFit.scaleDown, child: checkBadge),
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: width),
+              child: FittedBox(fit: BoxFit.scaleDown, child: controls),
+            ),
+          ],
+        );
     final moves = _MoveList(san: g.sanHistory, wrap: true);
 
     return LayoutBuilder(builder: (context, box) {
@@ -397,7 +416,7 @@ class _ChessBoardState extends State<ChessBoard> {
                   children: [
                     _Captured(controller: controller, player: top),
                     const SizedBox(height: 8),
-                    Row(children: [checkBadge, const Spacer(), controls]),
+                    controlRow(300),
                     const SizedBox(height: 8),
                     Expanded(child: _MovePane(child: moves)),
                     const SizedBox(height: 8),
@@ -424,7 +443,7 @@ class _ChessBoardState extends State<ChessBoard> {
             SizedBox(
               width: extent,
               height: 48,
-              child: Row(children: [checkBadge, const Spacer(), controls]),
+              child: controlRow(extent),
             ),
             Expanded(
               child: SizedBox(

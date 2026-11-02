@@ -140,6 +140,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellUndo => 'Zug zurück';
 
   @override
+  String get shellTakeBack => 'Zug zurück';
+
+  @override
   String get shellNewGame => 'Neues Spiel';
 
   @override

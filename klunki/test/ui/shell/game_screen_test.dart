@@ -190,20 +190,20 @@ void main() {
   });
 
   group('app bar actions', () {
-    testWidgets('undo takes back the last move', (tester) async {
+    testWidgets('"Zug zurück" (in the game area, KLD-117) takes back the last move', (tester) async {
       final c = await pumpGame(tester, 'connect4');
       final undo = find.byKey(const Key('shell-undo'));
-      expect(tester.widget<IconButton>(undo).onPressed, isNull);
+      expect(tester.widget<TextButton>(undo).onPressed, isNull);
 
       await playMove(tester);
       expect(c.moves, hasLength(1));
-      expect(tester.widget<IconButton>(undo).onPressed, isNotNull);
+      expect(tester.widget<TextButton>(undo).onPressed, isNotNull);
 
       await tester.tap(undo);
       await tester.pump();
       expect(c.moves, isEmpty);
       expect(find.text('Anna ist am Zug'), findsOneWidget);
-      expect(tester.widget<IconButton>(undo).onPressed, isNull);
+      expect(tester.widget<TextButton>(undo).onPressed, isNull);
     });
 
     testWidgets('restart asks while a game is running, then starts fresh', (tester) async {

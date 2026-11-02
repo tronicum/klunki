@@ -38,6 +38,7 @@
   "shellMenu": "Menu",
   "shellPlayAgain": "Play again",
   "shellUndo": "Undo move",
+  "shellTakeBack": "Take back",
   "shellNewGame": "New game",
   "shellNewGameTitle": "New game?",
   "shellNewGameBody": "The current game will be abandoned.",

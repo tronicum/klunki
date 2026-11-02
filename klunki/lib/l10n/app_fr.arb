@@ -39,6 +39,7 @@
   "shellMenu": "Menu",
   "shellPlayAgain": "Rejouer",
   "shellUndo": "Annuler le coup",
+  "shellTakeBack": "Reprendre",
   "shellNewGame": "Nouvelle partie",
   "shellNewGameTitle": "Nouvelle partie ?",
   "shellNewGameBody": "La partie en cours sera abandonnée.",

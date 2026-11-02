@@ -39,6 +39,7 @@
   "shellMenu": "Menú",
   "shellPlayAgain": "Otra vez",
   "shellUndo": "Deshacer jugada",
+  "shellTakeBack": "Deshacer",
   "shellNewGame": "Nueva partida",
   "shellNewGameTitle": "¿Nueva partida?",
   "shellNewGameBody": "La partida en curso se abandonará.",

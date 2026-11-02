@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../game/game_controller.dart';
+import 'game_screen.dart' show UndoMoveButton;
 import 'player_labels.dart';
 
 /// Hides [child] behind an opaque full-size cover while
@@ -78,6 +79,10 @@ class _Cover extends StatelessWidget {
                 onPressed: controller.acknowledgeHandover,
                 child: Text(l10n.shellHandoverContinue(mark)),
               ),
+              // The player who just moved may take it back before passing
+              // the device (KLD-117); the board stays covered meanwhile.
+              const SizedBox(height: 16),
+              const UndoMoveButton(),
             ],
           ),
         ),

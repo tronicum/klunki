@@ -97,7 +97,7 @@ class ShellStatus {
 
 /// The shared frame every game screen plugs into:
 ///
-/// * app bar with the game title, undo (hot-seat), restart, resign
+/// * app bar with the game title, player names (hot-seat), restart, resign
 ///   ("Aufgeben", KLD-065: with a confirmation; in hot-seat the dialog asks
 ///   which player gives up) and move history,
 /// * leaving a running game asks first ("Spiel verlassen?", KLD-099): back
@@ -108,7 +108,12 @@ class ShellStatus {
 ///   Zug (X)" / "Warte auf Ben…") plus a
 ///   hint line the board can set
 ///   through [GameScreen.of] → [GameShell.setHint],
-/// * a [HandoverCover] over the body while the controller needs a handover,
+/// * "Zug zurück" ([UndoMoveButton], hot-seat only, KLD-117) in the game
+///   area: in a small row under the board, unless the board places the
+///   button in its own control row ([boardPlacesUndo]),
+/// * a [HandoverCover] over the body while the controller needs a handover
+///   (the cover offers "Zug zurück" too, so the player who just moved can
+///   take the move back before passing the device, without seeing secrets),
 /// * a result dialog ("Nochmal" / "Menü") once the game is over.
 ///
 /// Players are named through the nearest [PlayerLabelsScope] (KLD-056,
@@ -137,6 +142,11 @@ class GameScreen extends StatefulWidget {
   /// (e.g. the final scores of a word game). Public info only.
   final WidgetBuilder? resultDetail;
 
+  /// The board shows the [UndoMoveButton] in its own control row (chess next
+  /// to the flip buttons, the word game under its actions); otherwise
+  /// the shell puts it in a small row under the board (KLD-117).
+  final bool boardPlacesUndo;
+
   const GameScreen({
     super.key,
     required this.controller,
@@ -145,6 +155,7 @@ class GameScreen extends StatefulWidget {
     this.title,
     this.handoverDetail,
     this.resultDetail,
+    this.boardPlacesUndo = false,
   });
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
@@ -574,13 +585,6 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
             foregroundColor: accent.onColor,
             title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
-              if (controller.transport is HotSeatTransport)
-                IconButton(
-                  key: const Key('shell-undo'),
-                  tooltip: l10n.shellUndo,
-                  icon: const Icon(Icons.undo),
-                  onPressed: controller.canUndo ? controller.undo : null,
-                ),
               // Hot-seat names (KLD-056), when the app provides the store.
               if (_canRestart && PlayerNameScope.maybeOf(context) != null)
                 IconButton(
@@ -667,6 +671,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                               ),
                             ),
                           Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
+                          // Inside the cover: hidden while the device is
+                          // passed on (KLD-117).
+                          if (!widget.boardPlacesUndo && _canRestart)
+                            const Padding(
+                              key: Key('shell-actions'),
+                              padding: EdgeInsets.fromLTRB(8, 0, 8, 4),
+                              child: Align(alignment: AlignmentDirectional.centerEnd, child: UndoMoveButton()),
+                            ),
                         ],
                       ),
                     ),
@@ -687,6 +699,68 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final palette = KlunkiPalette.of(context);
     final c = visibleOn(context, playerColor(palette, controller.spec.id, PlayerLabelsScope.of(context).tokenOf(p)));
     return mood == TurnMood.waiting ? c.withValues(alpha: 0.35) : c;
+  }
+}
+
+/// "Zug zurück" (KLD-117): takes back the last move, hot-seat only; nothing
+/// on a network device. One look for every game: the ↶ icon (mirrored in
+/// right-to-left locales) plus the label. Disabled while there is nothing
+/// to take back. Must sit inside a [GameScreen]; the shell places it under
+/// the board unless the board shows it in its own control row
+/// ([GameScreen.boardPlacesUndo]). Key `shell-undo` on the button.
+class UndoMoveButton extends StatelessWidget {
+  /// Compact by default; a board row of denser buttons passes its own
+  /// density, so the row keeps its height.
+  final VisualDensity visualDensity;
+
+  /// Only the ↶ icon, the label as its tooltip: for a full board row on a
+  /// small phone (Wortgewandt), where a line of its own would cost the
+  /// board space.
+  final bool iconOnly;
+
+  const UndoMoveButton({super.key, this.visualDensity = VisualDensity.compact, this.iconOnly = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = GameScreen.of(context).controller;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) => _UndoButton(controller: controller, visualDensity: visualDensity, iconOnly: iconOnly),
+    );
+  }
+}
+
+class _UndoButton extends StatelessWidget {
+  final GameController controller;
+  final VisualDensity visualDensity;
+  final bool iconOnly;
+  const _UndoButton({required this.controller, required this.visualDensity, required this.iconOnly});
+
+  @override
+  Widget build(BuildContext context) {
+    if (controller.transport is! HotSeatTransport) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
+    final onPressed = controller.canUndo ? controller.undo : null;
+    if (iconOnly) {
+      return IconButton(
+        key: const Key('shell-undo'),
+        tooltip: l10n.shellTakeBack,
+        visualDensity: visualDensity,
+        icon: const Icon(Icons.undo), // matchTextDirection: mirrored in RTL
+        onPressed: onPressed,
+      );
+    }
+    return Tooltip(
+      message: l10n.shellUndo,
+      excludeFromSemantics: true,
+      child: TextButton.icon(
+        key: const Key('shell-undo'),
+        style: TextButton.styleFrom(visualDensity: visualDensity),
+        icon: const Icon(Icons.undo), // matchTextDirection: mirrored in RTL
+        label: Text(l10n.shellTakeBack),
+        onPressed: onPressed,
+      ),
+    );
   }
 }
 

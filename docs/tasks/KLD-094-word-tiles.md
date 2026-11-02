@@ -600,6 +600,32 @@ Maintainer: "why not have the Bänkchen open by default, if space allows it".
   Screenshots `--plain-name kld094-layout`: `-1-start` (open on 412 × 915, 430 × 932, iPad portrait and landscape;
   closed on 375 × 667, 390 × 844), `-2-bench-closed`, `-3-bench-open`. No rules change.
 
+## Step 8d (move laid tiles by long-press): what was built
+Maintainer playtest on an iPhone 15 Pro ("very nice: seamless zoom, scrollable board"): a tile laid this turn
+should move by long-press and drag, besides tap to take it back.
+- **Long-press and drag** a tile laid this turn (not yet "Legen"): onto a free square it moves there, the chosen
+  letter of a blank goes with it (no second picker); onto another tile laid this turn the two **swap** places;
+  onto the rack it goes back, onto the Bänkchen into that slot. Onto a tile of an earlier turn, or anywhere else,
+  nothing happens and the tile stays on its square. Tiles of earlier turns never move. The preview line follows
+  every move.
+- **Gestures:** a tap still takes the tile back; a plain pan (no long press) still scrolls the zoomed board, pinch
+  still zooms. The dragged tile is at least finger size and as big as on screen when zoomed in. The board is
+  left-to-right in every locale, so the drop square is the one under the finger in RTL too.
+- **Tests:** `wordtiles_move_tiles_test.dart` (tap removes, move, swap, back to rack and onto the bench, refused onto
+  an earlier tile, blank keeps its letter, zoomed phone: drag moves and a pan scrolls, Arabic). Screenshots
+  `--plain-name kld094-8d` (`-drag-de-phone` mid-drag, `-dropped-de-phone`). No rules change (UI only).
+
+## Step 8e (Bänkchen tiles as big as the rack where there is room): what was built
+Maintainer playtest in a desktop browser: "you pick a letter in big and it shrinks to an artificially smaller bench
+size". Correction: on phones smaller bench tiles are fine (no scrolling); where there is room they should match.
+- **Size:** the bench may use up to 600 px (`WordTilesBoard.benchMaxWidth`, the rack keeps 420) and its tiles grow up
+  to the rack tile size (`tileMax` 54, `_rackTileSize`); wider than a phone (> 440 px) the slots sit a little closer
+  (gap 3, score column 30). Bench tile / rack tile: 1440 × 900 and 1280 × 800 100 %, 820 × 1180 100 %, 1180 × 820 ≈ 90 %
+  (the side panel next to the board); phones unchanged (390 × 844 ≈ 64 %, both rows without scrolling).
+- **Tests:** `wordtiles_bench_size_test.dart` (bench tile ≤ rack tile everywhere, ≥ 90 % on tablets and browser widths,
+  no overflow); layout tests unchanged and green. Screenshots `--plain-name kld094-8e` (`-bench-de-desktop-1280x800`,
+  `-desktop-1440x900`, `-tablet-landscape`, `-tablet-portrait`, `-phone`). No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -636,7 +662,7 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 5. **Hot-seat polish (done, see "Step 5").**
 6. **Network (done, see "Step 6").**
 7. **Release (done, see "Step 7").**
-8. **Playtest fixes (done, see "Step 8"; layout follow-up "Step 8b").**
+8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8e").**
 9. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 

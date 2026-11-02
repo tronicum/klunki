@@ -45,6 +45,8 @@ class ChessScreen extends StatelessWidget {
         controller: controller,
         // History sheet: "Weiß: e4" (the shell prefixes the player).
         describeMove: (l10n, m) => describeChessMove(m, l10n),
+        // "Zug zurück" sits next to the flip buttons (KLD-117).
+        boardPlacesUndo: true,
         boardBuilder: (context, controller) => ChessBoard(controller: controller),
       ),
     );

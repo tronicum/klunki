@@ -111,6 +111,15 @@ class WordTilesBoard extends StatefulWidget {
   static const int benchRows = 2;
   static const int benchSlots = 9;
 
+  /// The largest rack tile (logical pixels). Bench tiles grow up to this
+  /// size where there is room (tablets, the landscape panel, browsers); on
+  /// a phone they stay smaller so both rows fit without scrolling (KLD-094
+  /// step 8e).
+  static const double tileMax = 54;
+
+  /// The bench may use up to this width (the rack keeps 420).
+  static const double benchMaxWidth = 600;
+
   /// The height around the board on a phone with the bench open: score
   /// row, last-turn line, preview line, rack, actions, the open bench and
   /// their gaps (about 320–340 px with the app fonts).
@@ -638,15 +647,21 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     });
   }
 
+  /// A dragged tile lands on [sq]. A tile laid this turn moves with its
+  /// letter (a blank keeps the one chosen); onto another such tile the two
+  /// swap places (KLD-094 step 8d). A rack or bench tile is laid.
   void _drop(_Drag d, int sq) {
     final from = d.square;
     if (from != null) {
       final p = _pending[from];
-      if (p == null) return;
+      if (p == null || from == sq || !_canLay) return;
       setState(() {
+        final there = _pending.remove(sq);
         _pending.remove(from);
         _pending[sq] = p;
+        if (there != null) _pending[from] = there;
         _tried = false;
+        _notice = null;
       });
     } else {
       _lay(sq, d.rackIndex);
@@ -980,11 +995,17 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       final info = _infoLine(context, l10n);
       // KLD-094 step 8: the bench below the actions (rack and actions right
       // under the board, the bench is the optional extra).
+      // KLD-117: "Zug zurück" (hot-seat) right under the actions, at the end
+      // of the bench line (the actions row is full on a phone; as dense as
+      // the bench line). On a small phone, where the bench button is in the
+      // score row, just the ↶ icon in the actions row, so the board keeps
+      // its size. Nothing in network play.
+      const undo = UndoMoveButton(visualDensity: VisualDensity(horizontal: -4, vertical: -4));
       final Widget bench = compact
           ? const SizedBox.shrink()
           : LayoutBuilder(
               builder: (context, benchBox) =>
-                  _benchView(context, l10n, min(benchBox.maxWidth, 420.0), benchOpen),
+                  _benchView(context, l10n, min(benchBox.maxWidth, WordTilesBoard.benchMaxWidth), benchOpen, trailing: undo),
             );
       final controls = Column(
         mainAxisSize: MainAxisSize.min,
@@ -995,7 +1016,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           LayoutBuilder(
               builder: (context, rackBox) => _rackView(context, min(rackBox.maxWidth, 420.0), benchShown: benchOpen)),
           const SizedBox(height: 6),
-          _actions(context, l10n),
+          _actions(context, l10n, undoIcon: compact),
           const SizedBox(height: 6),
           bench,
         ],
@@ -1061,7 +1082,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
                           child: LayoutBuilder(
-                            builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, 420.0), true),
+                            builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, WordTilesBoard.benchMaxWidth), true),
                           ),
                         ),
                       ),
@@ -1466,7 +1487,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           onWillAcceptWithDetails: (d) => _canLay,
           onAcceptWithDetails: (d) {
             if (d.data.square == sq) return;
-            _takeBack(sq);
+            // A rack or bench tile replaces this one (back to the rack); a
+            // tile from another square swaps with it ([_drop]).
+            if (d.data.square == null) _takeBack(sq);
             _drop(d.data, sq);
           },
           builder: (context, _, _) => GestureDetector(
@@ -1474,7 +1497,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             child: LongPressDraggable<_Drag>(
               data: _Drag(pending.rackIndex, sq),
               maxSimultaneousDrags: _canLay ? 1 : 0,
-              feedback: _feedback(context, pending.letter, pending.tile, 52),
+              // At least finger size, as big as the tile on screen when
+              // zoomed in further.
+              feedback: _feedback(context, pending.letter, pending.tile,
+                  max(52.0, (cell - 2 * inset) * _zoom.value.getMaxScaleOnAxis())),
               childWhenDragging: const SizedBox(),
               child: Padding(padding: EdgeInsets.all(inset), child: face),
             ),
@@ -1542,6 +1568,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         ),
       );
 
+  /// The rack tile size for a controls column [width] wide (the rack uses
+  /// at most 420 px of it); the bench tiles grow up to it (step 8e).
+  double _rackTileSize(double width) {
+    const gap = 6.0;
+    // Padding (6 + 6) and border (1 + 1) of the rack, plus a little air.
+    return min(WordTilesBoard.tileMax,
+        (min(width, 420.0) - 18 - gap * (WordTilesGame.rackSize - 1)) / WordTilesGame.rackSize);
+  }
+
   /// [benchShown]: the bench is open; its tiles leave a gap in the rack
   /// (`wordtiles-rack-gap-<rack index>`, a tap brings the tile back). A
   /// closed bench hides nothing: its tiles are in the rack (KLD-094 step 8:
@@ -1554,8 +1589,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final bench = benchShown ? _onBench : const <int>{};
     final shown = [for (final i in _order) if (!laid.contains(i)) i];
     const gap = 6.0;
-    // Padding (6 + 6) and border (1 + 1) of the rack, plus a little air.
-    final size = min(54.0, (width - 18 - gap * (WordTilesGame.rackSize - 1)) / WordTilesGame.rackSize);
+    final size = _rackTileSize(width);
     final active = _myTurn && !game.endPending;
     return DragTarget<_Drag>(
       onWillAcceptWithDetails: (d) => d.data.square != null || d.data.slot != null,
@@ -1643,11 +1677,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// rows with their base scores.
   /// On a small phone the open bench is an overlay over the board and the
   /// collapsed one a button in the score row (`build`).
-  Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open) {
+  ///
+  /// [trailing] (the take-back button, KLD-117) sits at the end of the header.
+  Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open, {Widget? trailing}) {
     final hasTiles = _onBench.isNotEmpty;
     const compact = VisualDensity(horizontal: -4, vertical: -4);
     final header = Row(
-      mainAxisSize: open ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: open || trailing != null ? MainAxisSize.max : MainAxisSize.min,
       children: [
         Flexible(
           child: Semantics(
@@ -1661,7 +1697,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             ),
           ),
         ),
-        if (open) const Spacer(),
+        if (open || trailing != null) const Spacer(),
         if (open && hasTiles)
           IconButton(
             key: const Key('wordtiles-bench-clear'),
@@ -1671,6 +1707,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             icon: const Icon(Icons.vertical_align_bottom),
             onPressed: _benchActive ? _clearBench : null,
           ),
+        ?trailing,
       ],
     );
     if (!open) return KeyedSubtree(key: const Key('wordtiles-bench'), child: header);
@@ -1720,10 +1757,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final c = WordTilesColors.of(context);
     final rack = _rack;
     final hasTiles = _onBench.isNotEmpty;
-    const gap = 4.0;
-    const scoreWidth = 34.0;
+    // KLD-094 step 8e: where there is room (wider than a phone) the tiles
+    // grow up to the rack tile size, with tighter spacing; on a phone they
+    // stay smaller so both rows fit as before.
+    final roomy = width > 440;
+    final gap = roomy ? 3.0 : 4.0;
+    final scoreWidth = roomy ? 30.0 : 34.0;
+    final slack = roomy ? 0.0 : 12.0; // the row is gap narrower than width anyway
     const slots = WordTilesBoard.benchSlots;
-    final size = min(44.0, (width - 12 - scoreWidth - gap * slots) / slots);
+    final size = min(_rackTileSize(width), (width - slack - scoreWidth - gap * slots) / slots);
     final active = _benchActive;
     Widget slotView(int r, int s) {
       final i = _bench[r][s];
@@ -1753,11 +1795,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     Widget row(int r) {
       final w = _benchWords(r);
       return Padding(
-        padding: const EdgeInsets.only(top: gap),
+        padding: EdgeInsets.only(top: gap),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var s = 0; s < slots; s++) ...[if (s > 0) const SizedBox(width: gap), slotView(r, s)],
+            for (var s = 0; s < slots; s++) ...[if (s > 0) SizedBox(width: gap), slotView(r, s)],
             SizedBox(
               width: scoreWidth,
               child: w.words.isEmpty
@@ -1788,7 +1830,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           if (!hasTiles)
             IgnorePointer(
               child: Padding(
-                padding: const EdgeInsets.only(right: scoreWidth),
+                padding: EdgeInsets.only(right: scoreWidth),
                 child: Text(
                   l10n.wordtilesBenchHint,
                   textAlign: TextAlign.center,
@@ -1802,7 +1844,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     );
   }
 
-  Widget _actions(BuildContext context, AppLocalizations l10n) {
+  /// [undoIcon]: the icon-only "Zug zurück" at the start of the row (small
+  /// phone, KLD-117).
+  Widget _actions(BuildContext context, AppLocalizations l10n, {bool undoIcon = false}) {
     if (_exchanging) {
       return Wrap(
         alignment: WrapAlignment.center,
@@ -1837,6 +1881,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         constraints: const BoxConstraints(maxWidth: 560),
         child: Row(
           children: [
+            if (undoIcon) const UndoMoveButton(visualDensity: compact, iconOnly: true),
             IconButton(
               key: const Key('wordtiles-recall'),
               tooltip: l10n.wordtilesRecall,
