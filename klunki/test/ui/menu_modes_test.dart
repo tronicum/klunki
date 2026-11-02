@@ -43,6 +43,11 @@ Future<void> _withOthers(WidgetTester tester, Finder link, String title, Finder 
   expect(find.descendant(of: _choiceStart, matching: find.text('Andere kommen mit dem Raumcode dazu')), findsOneWidget);
   expect(find.descendant(of: _choiceJoin, matching: find.text('Raum beitreten')), findsOneWidget);
   expect(find.descendant(of: _choiceJoin, matching: find.text('Code scannen oder eintippen')), findsOneWidget);
+  // "Raum starten" first and prominent, "Raum beitreten" below, both full width.
+  final start = tester.getRect(_choiceStart), join = tester.getRect(_choiceJoin);
+  expect(start.bottom, lessThanOrEqualTo(join.top));
+  expect(start.width, join.width);
+  expect(start.width, greaterThan(tester.getSize(_choice).width - 40));
   await tester.tap(button);
   // Not pumpAndSettle: the join screen keeps a progress indicator running.
   await _frames(tester);

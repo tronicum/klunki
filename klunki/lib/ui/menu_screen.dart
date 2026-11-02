@@ -579,22 +579,13 @@ class _RoomButtons extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onJoin;
   final bool blocked;
-
-  /// Keys `<keyPrefix>-start` / `<keyPrefix>-join` of the two buttons.
-  final String keyPrefix;
-  const _RoomButtons({
-    required this.accent,
-    required this.onStart,
-    required this.onJoin,
-    this.blocked = false,
-    this.keyPrefix = 'menu-room',
-  });
+  const _RoomButtons({required this.accent, required this.onStart, required this.onJoin, this.blocked = false});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final start = _RoomButton(
-      key: Key('$keyPrefix-start'),
+      key: const Key('menu-room-start'),
       accent: accent,
       icon: Icons.meeting_room_outlined,
       title: l10n.roomStart,
@@ -603,7 +594,7 @@ class _RoomButtons extends StatelessWidget {
       blocked: blocked,
     );
     final join = _RoomButton(
-      key: Key('$keyPrefix-join'),
+      key: const Key('menu-room-join'),
       accent: accent,
       icon: Icons.qr_code_scanner,
       title: l10n.roomJoin,
@@ -633,8 +624,9 @@ class _RoomButtons extends StatelessWidget {
 enum _RoomChoice { start, join }
 
 /// KLD-111: the sheet behind a game's "Mit anderen": the game's name, then
-/// "Raum starten" and "Raum beitreten" as in the room section, in the
-/// game's accent. Pops the chosen [_RoomChoice].
+/// "Raum starten" (prominent, filled in the game's accent) above "Raum
+/// beitreten" (outlined, secondary), both full width. Pops the chosen
+/// [_RoomChoice].
 class _RoomChoiceSheet extends StatelessWidget {
   final String title;
   final GameAccent accent;
@@ -666,13 +658,99 @@ class _RoomChoiceSheet extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
-            _RoomButtons(
-              keyPrefix: 'menu-room-choice',
+            _RoomChoiceButton(
+              key: const Key('menu-room-choice-start'),
               accent: accent,
-              onStart: () => nav.pop(_RoomChoice.start),
-              onJoin: () => nav.pop(_RoomChoice.join),
+              icon: Icons.meeting_room_outlined,
+              title: l10n.roomStart,
+              subtitle: l10n.roomStartSubtitle,
+              primary: true,
+              onTap: () => nav.pop(_RoomChoice.start),
+            ),
+            const SizedBox(height: 12),
+            _RoomChoiceButton(
+              key: const Key('menu-room-choice-join'),
+              accent: accent,
+              icon: Icons.qr_code_scanner,
+              title: l10n.roomJoin,
+              subtitle: l10n.roomJoinSubtitle,
+              primary: false,
+              onTap: () => nav.pop(_RoomChoice.join),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One full-width entry of the [_RoomChoiceSheet]: icon disc, title and
+/// subtitle, chevron (mirrored in RTL). [primary]: filled with the accent
+/// colour; otherwise outlined in it on the sheet's surface.
+class _RoomChoiceButton extends StatelessWidget {
+  final GameAccent accent;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool primary;
+  final VoidCallback onTap;
+  const _RoomChoiceButton({
+    super.key,
+    required this.accent,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.primary,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
+    final fg = primary ? accent.onColor : theme.colorScheme.onSurface;
+    final muted = primary ? accent.onColor.withValues(alpha: 0.85) : theme.colorScheme.onSurfaceVariant;
+    final outline = primary ? accent.color : accent.onSurface(theme.brightness);
+    return Material(
+      color: primary ? accent.color : (dark ? accent.container : theme.colorScheme.surface),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: outline, width: 2),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsetsDirectional.fromSTEB(14, primary ? 16 : 12, 8, primary ? 16 : 12),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: primary ? accent.onColor.withValues(alpha: 0.18) : accent.color,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: accent.onColor),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: (primary ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
+                          ?.copyWith(fontWeight: FontWeight.w700, color: fg),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: muted)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: primary ? accent.onColor : outline),
+            ],
+          ),
         ),
       ),
     );

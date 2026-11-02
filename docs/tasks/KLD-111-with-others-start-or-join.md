@@ -5,7 +5,7 @@
 - **Status:** DONE (waiting for the maintainer's screenshot review, step-by-step UX)
 - **Depends on:** KLD-098 (room flow), KLD-105 (tile links), KLD-108 (blocked network on https)
 - **Touched paths:**
-  - `klunki/lib/ui/menu_screen.dart` (`_withOthers`, `_RoomChoiceSheet`, `_RoomButtons.keyPrefix`)
+  - `klunki/lib/ui/menu_screen.dart` (`_withOthers`, `_RoomChoiceSheet`, `_RoomChoiceButton`)
   - tests: `klunki/test/ui/menu_modes_test.dart`, `klunki/test/ui/web_beta_test.dart`,
     `klunki/test/screenshots/menu_modes_shots_test.dart` (group `kld111`)
 
@@ -19,11 +19,12 @@ section further down.
 ## What changed
 
 - "Mit anderen" on a tile (and the debug preview's "Mit anderen" for Wortgewandt) opens a bottom sheet:
-  the game's name, "Mit anderen Geräten spielen" under it, and the two room buttons as in the room
-  section, in the game's accent colour:
-  - **"Raum starten"** ("Andere kommen mit dem Raumcode dazu", `menu-room-choice-start`): the room
+  the game's name, "Mit anderen Geräten spielen" under it, and two full-width entries in the game's
+  accent colour (maintainer review 1: start on top and prominent, join below and secondary; the room
+  section further down keeps its two side-by-side cards):
+  - **"Raum starten"** (filled in the accent, larger title; "Andere kommen mit dem Raumcode dazu", `menu-room-choice-start`): the room
     screen with this game chosen, as before (KLD-105).
-  - **"Raum beitreten"** ("Code scannen oder eintippen", `menu-room-choice-join`): the same join screen
+  - **"Raum beitreten"** (outlined in the accent; "Code scannen oder eintippen", `menu-room-choice-join`): the same join screen
     as the room section (native: scanner first; web: room code). The game is not passed on: the
     host decides it. No protocol change.
 - Closing the sheet (swipe, tap outside, back) goes nowhere; the double-start guard covers the sheet.
