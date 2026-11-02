@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
-import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -289,13 +288,12 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('debug menu: the preview button opens the word tile game', (tester) async {
-    expect(menuShowsDebugConsole, isTrue);
+  testWidgets('menu: the Wortgewandt tile opens the word tile game (KLD-094 step 7: released)', (tester) async {
     await tester.pumpWidget(klunkiApp());
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('menu-wordtiles')), findsNothing, reason: 'not in the game grid (appReady false)');
-    await tester.ensureVisible(find.byKey(const Key('menu-preview-wordtiles')));
-    await tester.tap(find.byKey(const Key('menu-preview-wordtiles')));
+    expect(find.byKey(const Key('menu-preview-wordtiles')), findsNothing, reason: 'a tile now, no debug preview');
+    await tester.ensureVisible(find.byKey(const Key('menu-wordtiles-tile')));
+    await tester.tap(find.byKey(const Key('menu-wordtiles-tile')));
     await tester.pumpAndSettle();
     // KLD-094 step 4: the start options first (word list off here: the
     // loading is tested in wordtiles_dictionary_bench_test.dart).

@@ -178,9 +178,10 @@ final List<GameSpec> gameSpecs = [
   // fingerprint. Rules 3 (step 6, network play): "Trotzdem zulassen" needs
   // the other player's agreement (`requestAllow` / `acceptAllow` /
   // `declineAllow`; a `place` with `allow` is refused), and the word lists'
-  // file hashes are in the fingerprint.
+  // file hashes are in the fingerprint. Step 7: released in the app (a menu
+  // tile; `appReady` is not part of the fingerprint).
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false, rulesVersion: 3),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 3),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

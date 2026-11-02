@@ -77,8 +77,10 @@ void main() {
     expect(_local('chess'), findsOneWidget);
     expect(_network('chess'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('chess')));
-    // KLD-094 step 6: the word tile game plays over the network too (it is
-    // a debug preview with its own "Mit anderen" link until it is a tile).
+    // KLD-094 step 6: the word tile game plays over the network too; step
+    // 7: released, a tile with both links.
+    expect(_local('wordtiles'), findsOneWidget);
+    expect(_network('wordtiles'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('wordtiles')));
     expect(hotSeatOnlyGames, isEmpty);
   });
@@ -145,8 +147,8 @@ void main() {
     Navigator.of(tester.element(joinScreen)).popUntil((r) => r.isFirst);
     await _frames(tester);
     expect(find.byKey(const Key('menu-chess')), findsOneWidget);
-    // Wortgewandt preview link too.
-    await _withOthers(tester, find.byKey(const Key('menu-preview-wordtiles-network')), 'Wortgewandt', _choiceJoin);
+    // Wortgewandt's tile too (KLD-094 step 7).
+    await _withOthers(tester, _network('wordtiles'), 'Wortgewandt', _choiceJoin);
     expect(tester.widget<PairingScreen>(joinScreen).mode, RoomMode.join);
   });
 
@@ -163,10 +165,11 @@ void main() {
     expect(tester.widget<PairingScreen>(find.byType(PairingScreen)).gameId, 'connect4');
   });
 
-  testWidgets('Wortgewandt preview: "Mit anderen" -> "Raum starten" with the game and its start options',
+  testWidgets('Wortgewandt tile: "Mit anderen" -> "Raum starten" with the game and its start options',
       (tester) async {
     await _pumpMenu(tester, size: const Size(800, 3000));
-    final link = find.byKey(const Key('menu-preview-wordtiles-network'));
+    expect(find.byKey(const Key('menu-preview-wordtiles-network')), findsNothing);
+    final link = _network('wordtiles');
     expect(link, findsOneWidget);
     expect(find.descendant(of: link, matching: find.text('Mit anderen')), findsOneWidget);
     await _withOthers(tester, link, 'Wortgewandt', _choiceStart);
@@ -229,6 +232,11 @@ void main() {
       if (spec.usesDeck) {
         // Quartett asks for the deck first.
         await tester.tap(find.byKey(const Key('quartett-deck-play')));
+        await tester.pumpAndSettle();
+      }
+      if (spec.id == 'wordtiles') {
+        // Wortgewandt: its start options first (KLD-094).
+        await tester.tap(find.byKey(const Key('wordtiles-options-next')));
         await tester.pumpAndSettle();
       }
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget, reason: spec.id);

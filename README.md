@@ -7,7 +7,9 @@ Cross-platform casual game app (**iOS, Android, PWA**) for classic two-player ga
 - **Mühle** (Nine Men's Morris)
 - **Quartett** (superlative card game) in two variants: **Trumpf** and **Sets**
 - **Schiffe versenken** (sink-the-fleet guessing game)
-- **GoStrategy** (hidden-rank capture-the-flag; engine and terminal only so far)
+- **GoStrategy** (hidden-rank capture-the-flag)
+- **Schach** (Chess)
+- **Wortgewandt** (Wordsmith, a word tile game with German and English word lists)
 
 Built with **Flutter**: one codebase compiles to Android, iOS and the web (PWA). No Node.js.
 

@@ -14,11 +14,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/fonts.dart' show withAppFonts;
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_options.dart';
+import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -386,6 +390,62 @@ void main() {
         expect(find.byKey(const Key('wordtiles-result-allowed')), findsOneWidget);
         await _shot(tester, 'polish-result-$name');
       });
+    }
+  });
+
+  // KLD-094 step 7 (release): the menu with the Wortgewandt tile, as in a
+  // release build, on a small and a large phone, German light and dark and
+  // Arabic (RTL) (`--plain-name kld094release`).
+  group('kld094release', () {
+    for (final (device, size) in [('small-phone', Size(375, 667)), ('large-phone', Size(430, 932))]) {
+      for (final (tag, locale, brightness) in [
+        ('de-light', Locale('de'), Brightness.light),
+        ('de-dark', Locale('de'), Brightness.dark),
+        ('ar-light', Locale('ar'), Brightness.light),
+      ]) {
+        testWidgets('menu $device $tag', skip: skip, (tester) async {
+          tester.view.physicalSize = size * 2;
+          tester.view.devicePixelRatio = 2;
+          tester.platformDispatcher.platformBrightnessTestValue = brightness;
+          addTearDown(tester.view.reset);
+          addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+          menuShowsDebugConsole = false;
+          addTearDown(() => menuShowsDebugConsole = true);
+          debugDisableShadows = false; // real tile shadows, not the test outlines
+          // The app's menu with the bundled fonts as on the web: the test
+          // has no platform font cascade for Arabic (KLD-093).
+          await tester.pumpWidget(RepaintBoundary(
+            key: _boundary,
+            child: PlayerNameScope(
+              controller: PlayerNameController.memory(),
+              hotSeat: HotSeatNamesController.memory(),
+              child: LocaleScope(
+                controller: LocaleController.memory(locale),
+                child: MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  theme: withAppFonts(KlunkiTheme.light, web: true),
+                  darkTheme: withAppFonts(KlunkiTheme.dark, web: true),
+                  locale: locale,
+                  localizationsDelegates: const [
+                    AppLocalizations.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  home: const MenuScreen(),
+                ),
+              ),
+            ),
+          ));
+          await tester.pumpAndSettle();
+          await tester.ensureVisible(find.byKey(const Key('menu-wordtiles')));
+          await tester.pumpAndSettle();
+          expect(find.byKey(const Key('menu-wordtiles-local')), findsOneWidget);
+          expect(find.byKey(const Key('menu-wordtiles-network')), findsOneWidget);
+          await _shot(tester, 'kld094release/menu-$device-$tag');
+        });
+      }
     }
   });
 }

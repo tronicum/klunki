@@ -25,7 +25,7 @@ proposals WortSalat and KlunkerKombi are kept for future games.
 | `schiffe` | Schiffe versenken | hidden info; fleet of 6 ships |
 | `gostrategy` | GoStrategy | hidden ranks, capture the flag |
 | `chess` | Schach | network: yes (KLD-059 step 3); the host chooses Weiß / Schwarz / Zufällig (step 4a, `GameConfig.chessWhite`, config key `white`); rules version 3; no clocks yet |
-| `wordtiles` | Wortgewandt | word tile game; hidden racks; rules version 3 (KLD-094 step 6: "Trotzdem zulassen" needs the other player; word list hashes in the fingerprint); network (step 6); `appReady: false` (debug preview "Vorschau: Wortgewandt", KLD-094) |
+| `wordtiles` | Wortgewandt | word tile game; hidden racks; rules version 3 (KLD-094 step 6: "Trotzdem zulassen" needs the other player; word list hashes in the fingerprint); network (step 6); released in the app (step 7); word lists load on demand (not precached in the PWA), licences in `docs/legal/third-party-data.md` |
 
 **Generic names only.** Never use publisher or brand names for games, in code, ARB strings, docs, store
 texts or commit messages (say "Four in a Row", "Sink the Fleet", "word tile game"). Real vehicle names on

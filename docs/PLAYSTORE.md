@@ -224,6 +224,7 @@ claims like "Nr. 1", prices or emoji.
 > • Schach: der Klassiker, mit markierten Zügen und Zugliste
 > • Schiffe versenken: versteckt eure Flotten und schießt abwechselnd
 > • GoStrategy: verdeckte Armeen auf einem 10×10-Feld, finde und erobere die gegnerische Fahne
+> • Wortgewandt: legt Wörter aus Buchstabensteinen, auf Deutsch oder Englisch, mit eingebautem Wörterbuch
 > • Quartett (Trumpf): vergleicht Werte, der bessere Wert gewinnt beide Karten
 > • Quartett (Sets): erfrage Karten und sammle vollständige Vierer-Sets
 >
@@ -232,7 +233,7 @@ claims like "Nr. 1", prices or emoji.
 > Wikipedia-Artikel. Alle Karten kannst du auch ohne Spiel in der Galerie ansehen.
 >
 > ZU ZWEIT AN EINEM GERÄT
-> Ihr spielt abwechselnd. Bei Spielen mit geheimen Karten oder Flotten verdeckt Klunki den Bildschirm, bis das
+> Ihr spielt abwechselnd. Bei Spielen mit geheimen Karten, Buchstaben oder Flotten verdeckt Klunki den Bildschirm, bis das
 > Gerät weitergereicht ist.
 >
 > ÜBER WLAN SPIELEN
@@ -269,6 +270,7 @@ names in it matter. Avoid keyword lists and repetition: the metadata policy forb
 > • Chess: the classic, with highlighted moves and a move list
 > • Sink the Fleet: hide your fleets and take turns firing
 > • GoStrategy: hidden armies on a 10×10 board, find and capture the enemy flag
+> • Wordsmith: lay words from letter tiles, in German or English, with a built-in dictionary
 > • Quartett (Trumps): compare values, the better value wins both cards
 > • Quartett (Sets): ask for cards and collect complete sets of four
 >
@@ -277,7 +279,7 @@ names in it matter. Avoid keyword lists and repetition: the metadata policy forb
 > Wikipedia article. Browse every card in the gallery, no game needed.
 >
 > TWO PLAYERS, ONE DEVICE
-> Take turns. In games with secret cards or fleets, Klunki covers the screen until the device has been passed on.
+> Take turns. In games with secret cards, letters or fleets, Klunki covers the screen until the device has been passed on.
 >
 > PLAY OVER WI-FI
 > One device opens a room, the other joins by QR code or address: Android, iPhone, iPad or a browser on the same
@@ -314,9 +316,9 @@ ratio rule**. Hence a separate set.
 
 ### Generating the screenshots
 
-The `playstore` group of `klunki/test/screenshots/screenshots_test.dart` renders the same eight scenes as the App
+The `playstore` group of `klunki/test/screenshots/screenshots_test.dart` renders the same nine scenes as the App
 Store set (see [APPSTORE.md](APPSTORE.md#generating-them): menu, Quartett round, card gallery, Schiffe versenken,
-GoStrategy, Chess, room hosting with QR code, Mühle) in light mode, German and English, as RGB PNGs without alpha,
+GoStrategy, Chess, room hosting with QR code, Mühle, Wortgewandt) in light mode, German and English, as RGB PNGs without alpha,
 and checks the pixel size. Without `KLUNKI_PLAYSTORE` the group is skipped.
 
 ```bash
@@ -328,7 +330,8 @@ KLUNKI_PLAYSTORE=/tmp/playstore flutter test test/screenshots --plain-name "play
 sips -g pixelWidth -g pixelHeight -g hasAlpha /tmp/playstore/*/*/*.png
 ```
 
-Output: `<dir>/{phone,tablet-7,tablet-10}/{de,en}/NN-scene.png`, 48 files, about 20 MB. The phone set is rendered at
+Output: `<dir>/{phone,tablet-7,tablet-10}/{de,en}/NN-scene.png`, 54 files, about 22 MB. Play takes at most 8
+screenshots per device type: leave one out (e.g. 03, the card gallery). The phone set is rendered at
 411 × 731 dp × 2.625 (a typical Android phone width); the tablets at 600 × 960 and 800 × 1280 dp × 2.
 
 ## App content

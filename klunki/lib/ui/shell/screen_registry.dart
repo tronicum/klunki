@@ -37,9 +37,10 @@ final Map<String, GameScreenBuilder> gameScreens = {
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
-/// false): only debug builds offer them, from the menu's debug section
-/// (KLD-094: the word tile game until its name and word list are decided).
-const Set<String> previewGames = {'wordtiles'};
+/// false): only debug builds offer them, from the menu's debug section.
+/// Empty since Wortgewandt was released (KLD-094 step 7); kept for the next
+/// game that gets a screen before its release.
+const Set<String> previewGames = {};
 
 /// Games the app plays in hot-seat only for now: hidden from the host
 /// pickers of "Über WLAN spielen" and the relay host. A guest joining a host

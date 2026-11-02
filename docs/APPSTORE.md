@@ -51,7 +51,7 @@ KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name "appsto
 sips -g pixelWidth -g pixelHeight -g hasAlpha /tmp/appstore/*/*/*.png
 ```
 
-Output: `<dir>/{iphone-6.9,iphone-6.3,ipad-13}/{de,en}/NN-scene.png`, about 25 MB for all 48 files.
+Output: `<dir>/{iphone-6.9,iphone-6.3,ipad-13}/{de,en}/NN-scene.png`, about 28 MB for all 54 files.
 
 | # | Scene | Setup |
 |---|---|---|
@@ -63,10 +63,11 @@ Output: `<dir>/{iphone-6.9,iphone-6.3,ipad-13}/{de,en}/NN-scene.png`, about 25 M
 | 06 | Chess | Italian opening, both sides castled, the f3 knight selected with its targets |
 | 07 | "Über WLAN spielen", host | Waiting for a guest: QR code, `192.168.1.20:4747`, player name "Anna" |
 | 08 | Mühle | Seed 7, 13 moves (placing phase) |
+| 09 | Wortgewandt / Wordsmith | Tiles in the store language: HAUS, STERN, BIRNE (de) or GAME, EARTH, LIGHT (en), the last word accepted; the next player's rack |
 
-The word-tile game (not `appReady`) is not shown. No real addresses or device names are used.
+No real addresses or device names are used. Apple allows up to 10 screenshots per device size.
 
-Upload order: 01, 02, 04, 05, 06, 08, 03, 07 works well too (games first, then gallery and network play).
+Upload order: 01, 02, 09, 04, 05, 06, 08, 03, 07 works well too (games first, then gallery and network play).
 
 ## Store texts (German)
 
@@ -84,10 +85,10 @@ Alternative with a keyword, if "Klunki" alone is taken or too bare: `Klunki – 
 
 **Werbetext** (≤ 170, can be changed without a new review):
 
-> Sieben Klassiker in einer App: 4 Gewinnt, Mühle, Schach, Schiffe versenken, Quartett und mehr. Zu zweit an
-> einem Gerät oder über WLAN. Ohne Werbung, ohne Konto.
+> Acht Spiele in einer App: 4 Gewinnt, Mühle, Schach, Wortgewandt, Schiffe versenken, Quartett und mehr. Zu
+> zweit an einem Gerät oder über WLAN. Ohne Werbung, ohne Konto.
 
-(160 characters)
+(168 characters)
 
 **Beschreibung**:
 
@@ -100,6 +101,7 @@ Alternative with a keyword, if "Klunki" alone is taken or too bare: `Klunki – 
 > • Schach: der Klassiker, mit markierten Zügen und Zugliste
 > • Schiffe versenken: versteckt eure Flotten und schießt abwechselnd
 > • GoStrategy: verdeckte Armeen auf einem 10×10-Feld, finde und erobere die gegnerische Fahne
+> • Wortgewandt: legt Wörter aus Buchstabensteinen, auf Deutsch oder Englisch, mit eingebautem Wörterbuch
 > • Quartett (Trumpf): vergleicht Werte, der bessere Wert gewinnt beide Karten
 > • Quartett (Sets): erfrage Karten und sammle vollständige Vierer-Sets
 >
@@ -108,7 +110,7 @@ Alternative with a keyword, if "Klunki" alone is taken or too bare: `Klunki – 
 > Wikipedia-Artikel. Alle Karten kannst du auch ohne Spiel in der Galerie ansehen.
 >
 > ZU ZWEIT AN EINEM GERÄT
-> Ihr spielt abwechselnd. Bei Spielen mit geheimen Karten oder Flotten verdeckt Klunki den Bildschirm, bis das
+> Ihr spielt abwechselnd. Bei Spielen mit geheimen Karten, Buchstaben oder Flotten verdeckt Klunki den Bildschirm, bis das
 > Gerät weitergereicht ist.
 >
 > ÜBER WLAN SPIELEN
@@ -123,7 +125,7 @@ Alternative with a keyword, if "Klunki" alone is taken or too bare: `Klunki – 
 **Schlüsselwörter** (≤ 100, comma-separated, no spaces after the commas; the name and the category need not be
 repeated):
 
-`brettspiel,zu zweit,offline,mühle,schach,4 gewinnt,quartett,schiffe versenken,strategie,familie`
+`brettspiel,zu zweit,offline,mühle,schach,4 gewinnt,quartett,schiffe versenken,wortspiel,familie`
 (95 characters)
 
 ## Store texts (English)
@@ -134,10 +136,10 @@ repeated):
 
 **Promotional text** (≤ 170):
 
-> Seven classics in one app: Four in a Row, Mill, Chess, Sink the Fleet, Quartett and more. Two players on one
-> device or over Wi-Fi. No ads, no account.
+> Eight games in one app: Four in a Row, Mill, Chess, Wordsmith, Sink the Fleet, Quartett and more. Two players
+> on one device or over Wi-Fi. No ads, no account.
 
-(150 characters)
+(158 characters)
 
 **Description**:
 
@@ -149,6 +151,7 @@ repeated):
 > • Chess: the classic, with highlighted moves and a move list
 > • Sink the Fleet: hide your fleets and take turns firing
 > • GoStrategy: hidden armies on a 10×10 board, find and capture the enemy flag
+> • Wordsmith: lay words from letter tiles, in German or English, with a built-in dictionary
 > • Quartett (Trumps): compare values, the better value wins both cards
 > • Quartett (Sets): ask for cards and collect complete sets of four
 >
@@ -157,7 +160,7 @@ repeated):
 > Wikipedia article. Browse every card in the gallery, no game needed.
 >
 > TWO PLAYERS, ONE DEVICE
-> Take turns. In games with secret cards or fleets, Klunki covers the screen until the device has been passed on.
+> Take turns. In games with secret cards, letters or fleets, Klunki covers the screen until the device has been passed on.
 >
 > PLAY OVER WI-FI
 > One device hosts, the other joins by QR code or address: iPhone, iPad, Android or a browser on the same Wi-Fi.
@@ -170,8 +173,8 @@ repeated):
 
 **Keywords** (≤ 100):
 
-`board game,two player,offline,mill,chess,four in a row,quartett,sink the fleet,strategy,family`
-(94 characters)
+`board game,two player,offline,mill,chess,four in a row,quartett,sink the fleet,word game,family`
+(95 characters)
 
 ## Category, age rating, contact
 

@@ -6,8 +6,9 @@
 - **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
   (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); step 4 DONE for
   hot-seat (word lists de + en, check at "Legen" with "Trotzdem zulassen", tile language per game, the bench
-  "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); step 6 network (2 devices) DONE (see "Step 6"), still
-  `appReady: false`; 3–4 players assessed (see "3–4 players on one device")
+  "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); step 6 network (2 devices) DONE (see "Step 6"); **step 7
+  release DONE ✅** (`appReady: true`, a menu tile with "Ein Gerät" and "Mit anderen", see "Step 7"); 3–4 players
+  assessed (see "3–4 players on one device")
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -481,6 +482,28 @@ request; mismatched list / rules refused; a guest without its list joins); app w
 request both ways, decline, the rejected second ask); a live-UI network game through the Wi-Fi proxy with the
 German list (seed 3: 102 moves, one request declined, one accepted, verified) besides the hot-seat games.
 
+## Step 7 (release): what was built
+The maintainer released Wortgewandt in the app (2026-11-02, for the first bigger TestFlight release).
+- **Registry:** `GameSpec('wordtiles', …)` without `appReady: false`. `appReady` is not part of the compat
+  fingerprint (`compat.dart` hashes rules version and gameplay data only), so the rules version (3) and the
+  goldens in `compat_test.dart` are unchanged; old and new builds still play together.
+- **Menu:** the game is in `appGameSpecs`, so it gets a tile in registry order (the last one, next to Schach) with
+  the illustration, accent and one-liner it already had (`game_visuals.dart`, `theme.dart`, `menuDescWordTiles`
+  in 7 locales) and both links: "Ein Gerät" (start options, "Wer spielt?") and "Mit anderen" (the KLD-111
+  start/join sheet; the room pickers list it via `networkGameSpecs`). `previewGames` is empty now; the debug
+  preview mechanism ("Vorschau: {game}" in debug builds) stays for the next game.
+- **Word lists:** still on demand in the PWA (`pwa_finalize.py` `ON_DEMAND`); `tool/check_pwa_external_urls.py`
+  now also fails if `klunki_sw.js` precaches a `words.txt.gz` or misses the list licences. The licence page
+  lists both lists (`registerWordListLicenses`: de enz/german-wordlist CC0-1.0, en English Speller Database /
+  SCOWL by Kevin Atkinson), now covered by `test/app/third_party_licenses_test.dart`; the licences are also in
+  `docs/legal/third-party-data.md` and the README.
+- **Store:** App Store / Play scene `09-wordtiles` (`screenshots_test.dart`, store language tiles), texts in
+  `docs/APPSTORE.md` and `docs/PLAYSTORE.md` (eight games, a Wortgewandt line, keyword "wortspiel" / "word
+  game"; Play takes 8 screenshots per device type, so one of the nine is left out there).
+- **Tests:** menu, pairing, l10n and web-beta tests now expect the tile instead of the preview link.
+- **Screenshots** (`--plain-name kld094release` in `wordtiles_shots_test.dart`): the menu scrolled to the
+  Wortgewandt tile on a small (375 × 667) and a large phone (430 × 932), de light and dark, ar.
+
 ## 3–4 players on one device (assessment, not built)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -516,7 +539,8 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
    "Wörterbuch"); recalibrate the tile sets on the list's letter frequencies (rules + compat bump).
 5. **Hot-seat polish (done, see "Step 5").**
 6. **Network (done, see "Step 6").**
-7. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
+7. **Release (done, see "Step 7").**
+8. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 
 ## Open questions (🧑)

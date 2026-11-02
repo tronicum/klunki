@@ -43,6 +43,14 @@ void main() {
           await tester.tap(find.byKey(const Key('quartett-deck-play')));
           await tester.pumpAndSettle();
         }
+        if (spec.id == 'wordtiles') {
+          // Wortgewandt asks for its start options first (KLD-094); without
+          // the word list here (its loading is tested elsewhere).
+          await tester.tap(find.byKey(const Key('wordtiles-dict')));
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const Key('wordtiles-options-next')));
+          await tester.pumpAndSettle();
+        }
         // "Wer spielt?" (KLD-103), prefilled with the default names.
         await tester.tap(find.text('Spielen'));
         await tester.pumpAndSettle();

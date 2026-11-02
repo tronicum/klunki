@@ -39,7 +39,7 @@ Future<void> _pumpMenu(WidgetTester tester, {Uri? pageUrl, RelaySettings? relay,
 List<Finder> _networkEntries() => [
   for (final spec in appGameSpecs)
     if (!hotSeatOnlyGames.contains(spec.id)) find.byKey(Key('menu-${spec.id}-network')),
-  // KLD-094 step 6: the debug preview's link (Wortgewandt online) too.
+  // Debug preview games' links (none since KLD-094 step 7) too.
   for (final id in previewGames)
     if (!hotSeatOnlyGames.contains(id)) find.byKey(Key('menu-preview-$id-network')),
   find.byKey(const Key('menu-room-start')),

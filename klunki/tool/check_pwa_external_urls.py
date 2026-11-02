@@ -73,6 +73,13 @@ def main() -> int:
     if os.path.isdir(photos):
         with open(os.path.join(build, 'klunki_sw.js'), encoding='utf-8') as f:
             need('assets/assets/quartett/' in f.read(), 'klunki_sw.js does not precache the Quartett card photos')
+    # KLD-094: the Wortgewandt word lists (~1.9 MB) load on demand only; their
+    # LICENSE / SOURCE.txt stay precached for the licence page.
+    if os.path.isdir(os.path.join(build, 'assets', 'assets', 'wordlists')):
+        with open(os.path.join(build, 'klunki_sw.js'), encoding='utf-8') as f:
+            sw = f.read()
+        need('words.txt.gz' not in sw, 'klunki_sw.js precaches a word list (they load on demand)')
+        need('assets/assets/wordlists/de/LICENSE' in sw, 'klunki_sw.js does not precache the word list licences')
 
     for root, dirs, names in os.walk(build):
         dirs.sort()
