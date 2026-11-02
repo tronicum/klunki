@@ -1782,6 +1782,22 @@ class AppLocalizationsFa extends AppLocalizations {
   String get chessBlack => 'سیاه';
 
   @override
+  String get chessColorLabel => 'رنگ تو';
+
+  @override
+  String get chessColorRandom => 'تصادفی';
+
+  @override
+  String get chessColorHelper =>
+      'سفید شروع می‌کند. با «تصادفی» قرعه تصمیم می‌گیرد.';
+
+  @override
+  String get chessYouPlayWhite => 'تو با سفید بازی می‌کنی.';
+
+  @override
+  String get chessYouPlayBlack => 'تو با سیاه بازی می‌کنی.';
+
+  @override
   String get chessCheck => 'کیش!';
 
   @override

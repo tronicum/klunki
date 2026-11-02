@@ -29,20 +29,22 @@ Klunki over the network: two terminals play each other.
 Run from the repo root (inside packages/klunki_net, `dart run klunki_net:klunki` works too).
 
 Usage:
-  dart run packages/klunki_net/bin/klunki.dart host <game> [--port N] [--ws-port N] [--seed S] [--deck D] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart host <game> [--port N] [--ws-port N] [--seed S] [--deck D] [--color C] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join <ip>[:port] [port] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join ws://<ip>[:port] [--name NAME]
 
 Through a relay (browser vs browser, or terminals that cannot reach each other):
   dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR]
-  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--deck D] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--deck D] [--color C] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--name NAME]
 
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
 Quartett decks (--deck, default ${QuartettDeck.defaultId}): ${QuartettDeck.all.map((d) => d.id).join(', ')}
+Chess (--color): the host's colour, white (default), black or random; White moves first.
 Default ports: $defaultPort (TCP), $defaultWsPort (WebSocket, for browsers); 0 picks a free one
 (--port 0 alone frees both).
-The host accepts TCP and WebSocket guests. The host plays X and moves first.
+The host accepts TCP and WebSocket guests. The host plays X and moves first
+(chess: White moves first, see --color).
 relay: pairs a host and a guest by a 5-character room code and forwards their
 messages (WebSocket at /relay, default port $defaultRelayPort). --web DIR also serves a
 built PWA (klunki/build/web), so browsers use the same address. Ctrl+C stops it.
@@ -86,7 +88,7 @@ Future<int> runCli(
 
   if (parsed.command == 'host' && parsed.relay != null) {
     final relay = parsed.relay!;
-    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30), deck: parsed.deck);
+    final config = _config(parsed);
     final KlunkiHost host;
     try {
       host = await KlunkiHost.startRelay(config, relay,
@@ -99,14 +101,14 @@ Future<int> runCli(
     out
       ..writeln('Room code: ${host.roomCode}')
       ..writeln('Hosting $title in relay room ${host.roomCode} on $relay — waiting for a guest…')
-      ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
+      ..writeln('Game config: ${jsonEncode(config.toJson())} (${_sides(config, Player.a)})')
       ..writeln('Join from another terminal with:')
       ..writeln('  dart run packages/klunki_net/bin/klunki.dart join --relay $relay --room ${host.roomCode}');
     return _Play.host(host, input, out).run();
   }
 
   if (parsed.command == 'host') {
-    final config = GameConfig(parsed.target, seed: parsed.seed ?? Random().nextInt(1 << 30), deck: parsed.deck);
+    final config = _config(parsed);
     final port = parsed.port ?? defaultPort;
     // `--port 0` without `--ws-port`: both ports are picked freely.
     final wsPort = parsed.wsPort ?? (port == 0 ? 0 : defaultWsPort);
@@ -127,7 +129,7 @@ Future<int> runCli(
     final ips = await _addresses(bindAddress);
     out
       ..writeln('Hosting $title on ${ips.map((ip) => '$ip:${host.port}').join(', ')} — waiting for a guest…')
-      ..writeln('Game config: ${jsonEncode(config.toJson())} (you play X, the guest plays O)')
+      ..writeln('Game config: ${jsonEncode(config.toJson())} (${_sides(config, Player.a)})')
       ..writeln('Join from another terminal with:');
     for (final ip in ips) {
       out.writeln('  dart run packages/klunki_net/bin/klunki.dart join $ip ${host.port}'
@@ -166,8 +168,18 @@ Future<int> runCli(
   final title = _title(guest.config);
   out
     ..writeln("Joined ${guest.hostName ?? 'the host'}'s game: $title on $where")
-    ..writeln('Game config: ${jsonEncode(guest.config.toJson())} (you play ${guest.me == Player.a ? 'X' : 'O'})');
+    ..writeln('Game config: ${jsonEncode(guest.config.toJson())} (${_sides(guest.config, guest.me)})');
   return _Play.guest(guest, input, out).run();
+}
+
+/// "you play X, the other plays O"; chess names the colours (KLD-059
+/// step 4a: the host may play Black, then the guest moves first).
+String _sides(GameConfig config, Player me) {
+  String mark(Player p) => config.gameId == 'chess'
+      ? (p == config.chessWhite ? 'White' : 'Black')
+      : (p == Player.a ? 'X' : 'O');
+  final other = me == Player.a ? Player.b : Player.a;
+  return 'you play ${mark(me)}, the ${me == Player.a ? 'guest' : 'host'} plays ${mark(other)}';
 }
 
 /// Game title, with the Quartett deck when it is not the default (KLD-069).
@@ -178,6 +190,15 @@ String _title(GameConfig config) {
   return deck == null || deck.id == QuartettDeck.defaultId ? title : '$title – ${deck.name}';
 }
 
+/// The game config of `host`: a random seed unless `--seed`, the deck, and
+/// for chess the colours (`--color random`: decided by the seed, the config
+/// carries the result).
+GameConfig _config(_Args parsed) {
+  final seed = parsed.seed ?? Random().nextInt(1 << 30);
+  final choice = ChessColorChoice.values.byName(parsed.color ?? 'white');
+  return GameConfig(parsed.target, seed: seed, deck: parsed.deck, chessWhite: choice.whitePlayer(seed));
+}
+
 class _Args {
   final String command, target;
   final int? port, wsPort, seed;
@@ -185,6 +206,9 @@ class _Args {
 
   /// `host --deck`: the Quartett deck id (KLD-069).
   final String? deck;
+
+  /// `host chess --color`: `white`, `black` or `random` (KLD-059 step 4a).
+  final String? color;
 
   /// `join ws://…`: the WebSocket URL (then [target] / [port] are unused).
   final Uri? webSocket;
@@ -195,7 +219,7 @@ class _Args {
   /// `join --room`: the normalised room code.
   final String? room;
   _Args(this.command, this.target, this.port, this.seed, this.name,
-      {this.wsPort, this.webSocket, this.relay, this.room, this.deck});
+      {this.wsPort, this.webSocket, this.relay, this.room, this.deck, this.color});
 }
 
 _Args? _parse(List<String> args) {
@@ -207,9 +231,11 @@ _Args? _parse(List<String> args) {
   Uri? relay;
   String? room;
   String? deck;
+  String? color;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room' || a == '--deck') {
+    if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room' || a == '--deck' ||
+        a == '--color') {
       if (i + 1 >= args.length) return null;
       final v = args[++i];
       switch (a) {
@@ -228,6 +254,9 @@ _Args? _parse(List<String> args) {
         case '--deck':
           deck = v;
           if (QuartettDeck.byId(v) == null || command != 'host') return null;
+        case '--color':
+          color = v;
+          if (!const {'white', 'black', 'random'}.contains(v) || command != 'host') return null;
         case '--seed':
           seed = int.tryParse(v);
           if (seed == null || command != 'host') return null;
@@ -244,7 +273,9 @@ _Args? _parse(List<String> args) {
     if (positional.length != 1 || specById(positional.first) == null) return null;
     if (relay != null && (port != null || wsPort != null)) return null;
     if (deck != null && !specById(positional.first)!.usesDeck) return null;
-    return _Args(command, positional.first, port, seed, name, wsPort: wsPort, relay: relay, deck: deck);
+    if (color != null && positional.first != 'chess') return null;
+    return _Args(command, positional.first, port, seed, name,
+        wsPort: wsPort, relay: relay, deck: deck, color: color);
   }
   if (relay != null || room != null) {
     // `join --relay URL --room CODE`: both, and nothing else.

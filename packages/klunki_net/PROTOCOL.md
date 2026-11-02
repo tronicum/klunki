@@ -59,7 +59,7 @@ compatible; a host without WebSocket support simply omits them.
 |---|---|---|---|
 | `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
-| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
+| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
@@ -148,13 +148,33 @@ redacted, the guest's `view` carries `"resigned":"a"|"b"`, and the host sends
 (moves never made have no commitment). The guest's end-of-game replay
 attributes each step with `playerOf` as well.
 
-**Chess (KLD-059 step 3).** Plain messages, no redaction: the host plays
-White (A, moves first), the guest Black (B). A move is
+**Chess (KLD-059 step 3).** Plain messages, no redaction. The host is A
+and the guest B as in every game; who plays which colour is config (step
+4a, below). A move is
 `{"action":"move","from":"e2","to":"e4"}`; a pawn reaching the last rank
 must carry `"promotion":"q"|"r"|"b"|"n"` (the host refuses it without one,
 or with one on any other move: `"illegal move"`). All draws by rule
 (stalemate, insufficient material, 75 moves, threefold repetition) are
 automatic, so nobody claims anything. There are no clocks (a follow-up).
+
+**Chess colours (KLD-059 step 4a).** The host chooses its colour when it
+starts the room: White, Black or random. The seats do not change (host = A,
+`you: "b"` for the guest); the config says who plays White: `"white": "b"`
+in `config` (written only then; absent = A plays White, as before) makes B
+White. White moves first, so with `white: "b"` the guest makes the first
+move and the host's first own move is refused with `"not your turn"`. The
+host resolves "random" before it creates the game (the apps and the CLI:
+from the config's seed, even = the host plays White), so the config always
+holds the result and both sides build the same game from it; a rejoining
+guest gets the same config again. **No commitment:** the host could pick
+its colour and call it random, and the guest cannot check that. That is
+fine here: the colour is public as soon as the game starts, nothing is
+hidden afterwards, and the host could simply have chosen the colour
+openly. Resign and the draw offer moves name players (`"a"`/`"b"`), not
+colours, so they are unchanged. No protocol bump: the new key is
+config, and chess rules version 3 (KLD-085 fingerprint) makes a build
+that ignores `white` (rules 2, which would play a diverging game) refuse
+with `incompatible-rules`.
 
 **Chess draw offer.** Three ordinary moves that, like a resign, name their
 player (`playerOf` = the named player; the guest only for itself, else

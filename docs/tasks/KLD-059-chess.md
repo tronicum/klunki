@@ -4,7 +4,7 @@
 - **Title:** Chess with the full standard rules (id `chess`)
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (engine, text adapter, tests), step 2 DONE (hot-seat board UI), step 3 DONE (network
-  play, draw offer); step 4 open, see "Step plan"
+  play, draw offer), step 4a DONE (colour choice for network chess); step 4 open, see "Step plan"
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021)
 - **Touched paths (step 1):**
   - `packages/klunki_engine/lib/chess.dart` (new), `lib/debug/chess_text.dart` (new), `test/chess_test.dart` (new)
@@ -23,11 +23,13 @@ existing games (map moves, `GameEndReason` codes, history).
 1. **Engine (done).** Full FIDE rules, FEN, SAN, perft-tested; `ChessText` for the debug console and CLI.
 2. **Hot-seat board UI (done ✅).** See "Board UI (step 2)" below.
 3. **Network play (done ✅).** See "Network play (step 3)" below.
+4a. **Colour choice for network chess (done ✅).** See "Colours (step 4a)" below.
 4. **Later:** clocks / time control, pause and resume (KLD-079: `fen` + move log), a simple computer opponent,
    take-back requests over the network.
 
 ## Design (step 1)
-- **Players:** White = `Player.a` (moves first, like every Klunki game), Black = `Player.b`. A game from a FEN can
+- **Players:** White = `Player.a` (moves first, like every Klunki game), Black = `Player.b`. Since step 4a
+  `ChessGame(white: Player.b)` lets B play White (network host on Black); hot-seat stays A = White. A game from a FEN can
   start with Black to move.
 - **Squares:** algebraic names `a1`…`h8` in moves (readable in logs, the network protocol and tests; the console
   needs no conversion). `board` and the internal state use index `rank * 8 + file` (`a1` = 0, `h8` = 63);
@@ -104,9 +106,7 @@ The whole file runs in under a second (`dart test`), so no tag is needed.
   `test/screenshots`.
 
 ## Network play (step 3)
-- **Colours:** the host plays White (A, moves first), the guest Black (B), as the protocol's default seat
-  assignment for every game. No choice or random colours yet (would need a `GameConfig` option and a seat swap
-  in the host; kept simple). Open information, so the plain protocol: no redaction, the guest replays the log.
+- **Colours:** in step 3 the host always played White (A), the guest Black (B); step 4a adds the choice (below). Open information, so the plain protocol: no redaction, the guest replays the log.
 - **App:** `chess` left `hotSeatOnlyGames`, so the menu tile shows "Mit anderen" (KLD-105), the room flow takes
   it preselected and the room game choice lists it (`networkGameSpecs`). The web beta greys out network play by
   channel, not by game (KLD-108): nothing chess-specific.
@@ -143,7 +143,35 @@ The whole file runs in under a second (`dart test`), so no tag is needed.
   names, no undo, Fool's mate by taps, draw offer between devices, promotion picker, resign closes the offer
   dialog), hot-seat draw offer tests in `chess_screen_test.dart`, live UI `test/e2e/live_ui/chess_live_test.dart`
   with `chess_adapter.dart` (whole games by taps on two devices through the Wi-Fi proxy, plus hot-seat).
-- **Follow-ups:** clocks (step 4); choosing colours; a take-back request over the network.
+- **Follow-ups:** clocks (step 4); ~~choosing colours~~ (step 4a); a take-back request over the network.
+
+## Colours (step 4a)
+- **Choice:** on "Raum starten" (app and relay room screen) chess shows "Deine Farbe" with **Weiß / Schwarz /
+  Zufällig** (segmented, kings as icons) and "Weiß beginnt. Bei „Zufällig“ wird ausgelost." Default **Zufällig**:
+  fair for two kids, nobody always gets the first move; one constant (`defaultChessColorChoice`) to switch to
+  Weiß. Not remembered between rooms (no setting yet). Hot-seat is unchanged: Spieler 1 = Weiß.
+- **Engine / protocol:** seats stay as they are (host = A). `GameConfig.chessWhite` (JSON `white: "b"`, only when
+  B is White) says who plays White; `ChessGame(white:)`, `whitePlayer`, `colorOf(player)`, `seatOf(color)`,
+  `sideToMove`. Pieces carry a `ChessColor` (white/black) instead of a `Player`, so a piece's colour and its
+  owner can no longer be mixed up. `currentPlayer`, results, resign and the draw offer stay player-based. The
+  host resolves Zufällig before creating the game (`ChessColorChoice.whitePlayer(seed)`: even seed = host
+  White) and the config carries the result; no commitment (the colour is public anyway, see PROTOCOL.md).
+  Rules version 3 (a rules-2 build would ignore `white` and diverge, so it is refused). CLI:
+  `host chess --color white|black|random`.
+- **App:** the board's bottom is the own colour (host on Black: turned); "Du spielst Weiß." / "Du spielst
+  Schwarz." in the host's waiting room and as the hint line on both devices until the first board move (the
+  guest has no waiting room: it joins straight into the game). Tokens follow the colours (`PlayerLabels.tokens`,
+  `tokenSidesOf(config)`: the host on Black shows the black king, in the connection bar too); "Weiß"/"Schwarz"
+  in the status texts follow `colorOf`; texts stay name-based ("Warte auf Ben (Weiß)…"). 5 new strings in 7
+  locales (no new zh glyphs).
+- **Tests:** engine `chess_test.dart` group "colours per player" (6 tests: B as White, mate/resign/draw offer by
+  player, config JSON, random from the seed, text adapter); net `chess_net_test.dart` (host Black: fool's mate
+  by the host and the draw offer both ways over TCP, WebSocket and relay; welcome carries `white`, rejoin keeps
+  it; rules 2 refused) and `cli_test.dart` (`--color black`); app `chess_network_test.dart` (host Black:
+  boards and coordinates by own colour, "Du spielst …", king tokens, guest opens, host mates; draw offer by the
+  guest as White), `pairing_screen_test.dart` (the choice → `chessWhite`, waiting room line, relay hand-over),
+  live UI `chess_live_test.dart` one network game with the host on Black. Screenshots:
+  `KLUNKI_SHOTS=… flutter test test/screenshots/chess_net_shots_test.dart --plain-name "kld059 colours"`.
 
 ## Open questions
 - Figurine notation (painted pieces) instead of SAN letters, or localized

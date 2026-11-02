@@ -1786,6 +1786,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chessBlack => 'Black';
 
   @override
+  String get chessColorLabel => 'Your colour';
+
+  @override
+  String get chessColorRandom => 'Random';
+
+  @override
+  String get chessColorHelper => 'White starts. “Random” lets chance decide.';
+
+  @override
+  String get chessYouPlayWhite => 'You play White.';
+
+  @override
+  String get chessYouPlayBlack => 'You play Black.';
+
+  @override
   String get chessCheck => 'Check!';
 
   @override

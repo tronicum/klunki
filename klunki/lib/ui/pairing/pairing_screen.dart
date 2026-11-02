@@ -22,6 +22,8 @@ import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
+import '../games/chess/chess_color_picker.dart';
+import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../games/wordtiles/wordtiles_options.dart';
 import 'network_game_session.dart';
@@ -295,6 +297,9 @@ class _HostPanelState extends State<_HostPanel> {
   /// the host; null until first shown (the default follows the app language).
   WordTilesOptions? _words;
   WordTilesOptions get _wordOptions => _words ??= defaultWordTilesOptions(Localizations.localeOf(context));
+
+  /// The host's colour in chess (KLD-059 step 4a); random by default.
+  ChessColorChoice _chessColor = defaultChessColorChoice;
   bool _starting = false;
   String? _error;
 
@@ -341,6 +346,7 @@ class _HostPanelState extends State<_HostPanel> {
           nameController: widget.nameController,
           initialGameId: _gameId,
           initialWordTiles: _gameId == 'wordtiles' ? _wordOptions : null,
+          initialChessColor: _chessColor,
           fixedGame: widget.gameId != null,
           autoStart: true,
         ),
@@ -359,8 +365,15 @@ class _HostPanelState extends State<_HostPanel> {
       return;
     }
     if (!mounted) return;
+    final seed = deps.seed();
+    // Chess: "Zufällig" is decided here, from the seed; the config carries
+    // the result to the guest (KLD-059 step 4a).
     final config = GameConfig(_gameId,
-        seed: deps.seed(), deck: _hostDeck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
+        seed: seed,
+        deck: _hostDeck,
+        tiles: words?.tiles,
+        dictionary: words?.dictionary ?? false,
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -498,6 +511,16 @@ class _HostPanelState extends State<_HostPanel> {
             onChanged: (o) => setState(() => _words = o),
           ),
         ],
+        if (_gameId == 'chess') ...[
+          const SizedBox(height: 12),
+          ChessColorPicker(
+            key: const Key('pair-chess-color'),
+            keyPrefix: 'pair-chess-color-',
+            value: _chessColor,
+            enabled: !_starting,
+            onChanged: (c) => setState(() => _chessColor = c),
+          ),
+        ],
         const SizedBox(height: 16),
         FilledButton.icon(
           key: const Key('pair-host-start'),
@@ -557,6 +580,9 @@ class _HostPanelState extends State<_HostPanel> {
             key: const Key('pair-hosting'), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
         if (_gameId == 'wordtiles')
           Text(wordTilesOptionsSummary(l10n, t.config),
+              key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+        if (_gameId == 'chess')
+          Text(chessYouPlay(l10n, chessColorIn(t.config, t.me)),
               key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
         const SizedBox(height: 12),
         if (payload != null)

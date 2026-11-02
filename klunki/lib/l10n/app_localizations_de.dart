@@ -1793,6 +1793,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get chessBlack => 'Schwarz';
 
   @override
+  String get chessColorLabel => 'Deine Farbe';
+
+  @override
+  String get chessColorRandom => 'Zufällig';
+
+  @override
+  String get chessColorHelper => 'Weiß beginnt. Bei „Zufällig“ wird ausgelost.';
+
+  @override
+  String get chessYouPlayWhite => 'Du spielst Weiß.';
+
+  @override
+  String get chessYouPlayBlack => 'Du spielst Schwarz.';
+
+  @override
   String get chessCheck => 'Schach!';
 
   @override

@@ -4,7 +4,13 @@ import 'game.dart';
 
 /// Schach (chess, KLD-059) with the full FIDE rules.
 ///
-/// **Players:** White is [Player.a] and moves first, Black is [Player.b].
+/// **Players:** White moves first. By default White is [Player.a] and Black
+/// [Player.b] (hot-seat: Spieler 1 is White). [whitePlayer] (KLD-059 step 4a,
+/// rules version 3, `GameConfig.chessWhite`) lets [Player.b] play White, so a
+/// network host (always [Player.a]) can play Black: then [Player.b] moves
+/// first. Pieces carry their [ChessColor]; [colorOf] and [seatOf] map
+/// between colours and players. [currentPlayer], results,
+/// resigns and the draw offer moves are about players, as in every game.
 ///
 /// **Squares** are algebraic names `a1` … `h8`. Internally (and in [board])
 /// a square is an index `rank * 8 + file`: `a1` = 0, `h1` = 7, `a8` = 56,
@@ -69,6 +75,9 @@ class ChessGame extends Game {
   /// The position this game started from (for a restart or replay).
   final String startPosition;
 
+  /// The player who plays White (default [Player.a]); the other plays Black.
+  final Player whitePlayer;
+
   // Board: 0 empty, +type White, -type Black.
   final Int8List _b = Int8List(64);
   int _stm = 1; // side to move: 1 White, -1 Black
@@ -86,8 +95,8 @@ class ChessGame extends Game {
   Player? _drawOffer;
   final Map<Player, int> _offeredAt = {};
 
-  /// The standard starting position.
-  ChessGame() : this._(startFen);
+  /// The standard starting position; [white] plays White (KLD-059 step 4a).
+  ChessGame({Player white = Player.a}) : this._(startFen, white);
 
   /// A game from a FEN string. Castling rights whose king or rook is not on
   /// its home square are dropped. Throws [FormatException] for anything
@@ -95,9 +104,9 @@ class ChessGame extends Game {
   /// last rank, an en passant square without the pawn that just moved, or the
   /// side not to move in check). The half-move and full-move fields may be
   /// left out (0 and 1).
-  factory ChessGame.fromFen(String fen) => ChessGame._(fen.trim());
+  factory ChessGame.fromFen(String fen, {Player white = Player.a}) => ChessGame._(fen.trim(), white);
 
-  ChessGame._(this.startPosition) {
+  ChessGame._(this.startPosition, this.whitePlayer) {
     _loadFen(startPosition);
     _afterPositionChange();
   }
@@ -119,7 +128,17 @@ class ChessGame extends Game {
   // ------------------------------------------------------------- public API
 
   @override
-  Player get currentPlayer => _stm == 1 ? Player.a : Player.b;
+  Player get currentPlayer => seatOf(sideToMove);
+
+  /// The colour to move.
+  ChessColor get sideToMove => _stm == 1 ? ChessColor.white : ChessColor.black;
+
+  /// The colour [player] plays.
+  ChessColor colorOf(Player player) => player == whitePlayer ? ChessColor.white : ChessColor.black;
+
+  /// The player who plays [color].
+  Player seatOf(ChessColor color) =>
+      color == ChessColor.white ? whitePlayer : (whitePlayer == Player.a ? Player.b : Player.a);
 
   /// Piece per square, index `rank * 8 + file` (`a1` = 0, `h8` = 63).
   List<ChessPiece?> get board => List.unmodifiable([for (final p in _b) _pieceOf(p)]);
@@ -558,7 +577,7 @@ class ChessGame extends Game {
     final key = _positionKey();
     final seen = (_seen[key] ?? 0) + 1;
     _seen[key] = seen;
-    final mover = _stm == 1 ? Player.b : Player.a;
+    final mover = seatOf(_stm == 1 ? ChessColor.black : ChessColor.white);
     if (_legal.isEmpty) {
       _result = _inCheck()
           ? GameResult(winner: mover, reason: 'checkmate', code: GameEndReason.chessCheckmate)
@@ -655,7 +674,7 @@ class ChessGame extends Game {
 
   static ChessPiece? _pieceOf(int p) {
     if (p == 0) return null;
-    return ChessPiece(p > 0 ? Player.a : Player.b, ChessPieceType.values[p.abs() - 1]);
+    return ChessPiece(p > 0 ? ChessColor.white : ChessColor.black, ChessPieceType.values[p.abs() - 1]);
   }
 
   String _placement() {
@@ -777,13 +796,41 @@ enum ChessPieceType {
   const ChessPieceType(this.letter);
 }
 
-/// A piece of [color] (White = [Player.a]).
+/// The two sides of the board. Which player plays which colour is the
+/// game's ([ChessGame.colorOf], [ChessGame.seatOf]).
+enum ChessColor {
+  white,
+  black;
+
+  ChessColor get opposite => this == white ? black : white;
+}
+
+/// What a network host chooses for its own colour when it starts a chess
+/// room (KLD-059 step 4a). The host is always [Player.a]; [whitePlayer]
+/// turns the choice into `GameConfig.chessWhite` before the game starts, so
+/// the config carries the result and both devices create the same game.
+enum ChessColorChoice {
+  white,
+  black,
+  random;
+
+  /// The player who plays White when the host ([Player.a]) chose this.
+  /// [random] is decided by [seed] (the config's seed: even = the host plays
+  /// White), so it is fixed once the config is: nothing is drawn later.
+  Player whitePlayer(int seed) => switch (this) {
+        white => Player.a,
+        black => Player.b,
+        random => seed.isEven ? Player.a : Player.b,
+      };
+}
+
+/// A piece of [color].
 class ChessPiece {
-  final Player color;
+  final ChessColor color;
   final ChessPieceType type;
   const ChessPiece(this.color, this.type);
 
-  bool get isWhite => color == Player.a;
+  bool get isWhite => color == ChessColor.white;
 
   /// FEN letter: upper case for White (`N`), lower case for Black (`n`).
   String get fen => isWhite ? type.letter.toUpperCase() : type.letter;

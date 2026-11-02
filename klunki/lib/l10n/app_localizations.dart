@@ -2904,17 +2904,47 @@ abstract class AppLocalizations {
   /// **'Der Klassiker: setze den gegnerischen König matt.'**
   String get menuDescChess;
 
-  /// Chess: the side name of player A (moves first), used instead of the mark X in the status line, result and resign dialog ("Weiß ist am Zug", "Anna (Weiß)").
+  /// Chess: the side name White (moves first; player A unless a network host chose Black, KLD-059 step 4a), used instead of the mark X in the status line, result and resign dialog ("Weiß ist am Zug", "Anna (Weiß)").
   ///
   /// In de, this message translates to:
   /// **'Weiß'**
   String get chessWhite;
 
-  /// Chess: the side name of player B, used instead of the mark O.
+  /// Chess: the side name Black (player B unless a network host chose Black), used instead of the mark O.
   ///
   /// In de, this message translates to:
   /// **'Schwarz'**
   String get chessBlack;
+
+  /// KLD-059 step 4a: title of the colour choice when starting a chess room (the host's own colour: Weiß / Schwarz / Zufällig).
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Farbe'**
+  String get chessColorLabel;
+
+  /// KLD-059 step 4a: the third option of the colour choice: the app decides at random who plays White.
+  ///
+  /// In de, this message translates to:
+  /// **'Zufällig'**
+  String get chessColorRandom;
+
+  /// KLD-059 step 4a: line under the colour choice: White moves first; Random draws lots.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiß beginnt. Bei „Zufällig“ wird ausgelost.'**
+  String get chessColorHelper;
+
+  /// KLD-059 step 4a: network chess: this device plays White (waiting room and the hint line at game start).
+  ///
+  /// In de, this message translates to:
+  /// **'Du spielst Weiß.'**
+  String get chessYouPlayWhite;
+
+  /// KLD-059 step 4a: network chess: this device plays Black (waiting room and the hint line at game start).
+  ///
+  /// In de, this message translates to:
+  /// **'Du spielst Schwarz.'**
+  String get chessYouPlayBlack;
 
   /// Chess: badge while the side to move is in check.
   ///

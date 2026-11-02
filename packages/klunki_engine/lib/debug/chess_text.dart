@@ -24,12 +24,12 @@ class ChessText extends TextGame {
 
   /// A fresh game from the same start position.
   @override
-  ChessText restart() => ChessText(game: ChessGame.fromFen(game.startPosition));
+  ChessText restart() => ChessText(game: ChessGame.fromFen(game.startPosition, white: game.whitePlayer));
 
   @override
-  String mark(Player? p) => switch (p) {
-        Player.a => 'White',
-        Player.b => 'Black',
+  String mark(Player? p) => switch (p == null ? null : game.colorOf(p)) {
+        ChessColor.white => 'White',
+        ChessColor.black => 'Black',
         null => '.',
       };
 

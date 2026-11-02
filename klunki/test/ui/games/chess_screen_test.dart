@@ -69,7 +69,7 @@ void main() {
     final c = await pumpGame(tester, 'chess');
     expect(_status(tester), 'Anna (Weiß) ist am Zug');
     expect(_rank0(tester), '8', reason: 'White at the bottom');
-    expect(_view(tester, 'e1').piece, const ChessPiece(Player.a, ChessPieceType.king));
+    expect(_view(tester, 'e1').piece, const ChessPiece(ChessColor.white, ChessPieceType.king));
 
     await _tap(tester, 'g1');
     expect(_view(tester, 'g1').selected, isTrue);
@@ -87,7 +87,7 @@ void main() {
     expect(_view(tester, 'e7').selected, isFalse);
 
     await _move(tester, 'e2', 'e4');
-    expect(_game(c).pieceAt('e4'), const ChessPiece(Player.a, ChessPieceType.pawn));
+    expect(_game(c).pieceAt('e4'), const ChessPiece(ChessColor.white, ChessPieceType.pawn));
     expect(_where(tester, (v) => v.lastMove), {'e2', 'e4'});
     expect(_status(tester), 'Ben (Schwarz) ist am Zug');
     expect(_rank0(tester), '1', reason: 'turned to Black');
@@ -101,9 +101,9 @@ void main() {
     expect(_where(tester, (v) => v.captureTarget), {'d5'});
     expect(_where(tester, (v) => v.target), {'e5'});
     await _tap(tester, 'd5');
-    expect(_game(c).pieceAt('d5'), const ChessPiece(Player.a, ChessPieceType.pawn));
+    expect(_game(c).pieceAt('d5'), const ChessPiece(ChessColor.white, ChessPieceType.pawn));
     final captured = find.descendant(of: find.byKey(const Key('chess-captured-a')), matching: find.byType(ChessPieceIcon));
-    expect(tester.widget<ChessPieceIcon>(captured).piece, const ChessPiece(Player.b, ChessPieceType.pawn));
+    expect(tester.widget<ChessPieceIcon>(captured).piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
     _expectMatchesEngine(tester, c);
   });
 
@@ -113,8 +113,8 @@ void main() {
     await _tap(tester, 'e1');
     expect(_where(tester, (v) => v.target), containsAll(['f1', 'g1', 'e2']));
     await _tap(tester, 'g1');
-    expect(_game(c).pieceAt('g1'), const ChessPiece(Player.a, ChessPieceType.king));
-    expect(_game(c).pieceAt('f1'), const ChessPiece(Player.a, ChessPieceType.rook));
+    expect(_game(c).pieceAt('g1'), const ChessPiece(ChessColor.white, ChessPieceType.king));
+    expect(_game(c).pieceAt('f1'), const ChessPiece(ChessColor.white, ChessPieceType.rook));
     expect(_game(c).sanHistory.last, 'O-O');
     _expectMatchesEngine(tester, c);
   });
@@ -126,7 +126,7 @@ void main() {
     expect(_where(tester, (v) => v.captureTarget), {'d6'});
     await _tap(tester, 'd6');
     expect(_game(c).pieceAt('d5'), isNull);
-    expect(_game(c).pieceAt('d6'), const ChessPiece(Player.a, ChessPieceType.pawn));
+    expect(_game(c).pieceAt('d6'), const ChessPiece(ChessColor.white, ChessPieceType.pawn));
     expect(_game(c).sanHistory.last, 'exd6');
     _expectMatchesEngine(tester, c);
   });
@@ -138,19 +138,19 @@ void main() {
     expect(find.byKey(const Key('chess-promotion')), findsOneWidget);
     for (final l in ['q', 'r', 'b', 'n']) {
       final icon = find.descendant(of: find.byKey(Key('chess-promote-$l')), matching: find.byType(ChessPieceIcon));
-      expect(tester.widget<ChessPieceIcon>(icon).piece.color, Player.a);
+      expect(tester.widget<ChessPieceIcon>(icon).piece.color, ChessColor.white);
     }
     await tester.tap(find.byKey(const Key('chess-promote-cancel')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('chess-promotion')), findsNothing);
-    expect(_game(c).pieceAt('b7'), const ChessPiece(Player.a, ChessPieceType.pawn));
+    expect(_game(c).pieceAt('b7'), const ChessPiece(ChessColor.white, ChessPieceType.pawn));
     expect(c.moves, hasLength(8));
     expect(_status(tester), 'Anna (Weiß) ist am Zug');
 
     await _move(tester, 'b7', 'a8');
     await tester.tap(find.byKey(const Key('chess-promote-n')));
     await tester.pumpAndSettle();
-    expect(_game(c).pieceAt('a8'), const ChessPiece(Player.a, ChessPieceType.knight));
+    expect(_game(c).pieceAt('a8'), const ChessPiece(ChessColor.white, ChessPieceType.knight));
     expect(_game(c).sanHistory.last, 'bxa8=N');
     _expectMatchesEngine(tester, c);
   });
@@ -238,7 +238,7 @@ void main() {
     final c = await pumpGame(tester, 'chess');
     await tester.drag(_sq('g1'), tester.getCenter(_sq('f3')) - tester.getCenter(_sq('g1')));
     await tester.pumpAndSettle();
-    expect(_game(c).pieceAt('f3'), const ChessPiece(Player.a, ChessPieceType.knight));
+    expect(_game(c).pieceAt('f3'), const ChessPiece(ChessColor.white, ChessPieceType.knight));
     _expectMatchesEngine(tester, c);
   });
 

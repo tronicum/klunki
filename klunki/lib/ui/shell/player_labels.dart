@@ -23,9 +23,13 @@ import '../ltr.dart';
 ///   "Schwarz"); see [withMarkNames];
 /// * both players have the same name: the player number, as on the token
 ///   and in "Spieler 1 / 2" ("Anna (1)" / "Anna (2)", KLD-106).
+///
+/// [tokens]: whose token (colour, piece) a player shows, when it is not
+/// its own: in network chess the host (A) may play Black (KLD-059 step 4a),
+/// then A shows B's black king and B the white one ([tokenSidesOf]).
 @immutable
 class PlayerLabels {
-  const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}});
+  const PlayerLabels({this.names = const {}, this.local, this.markNames = const {}, this.tokens = const {}});
 
   /// Default names only, no local player: hot-seat without typed names.
   static const PlayerLabels defaults = PlayerLabels();
@@ -33,16 +37,23 @@ class PlayerLabels {
   final Map<Player, String> names;
   final Player? local;
   final Map<Player, String> markNames;
+  final Map<Player, Player> tokens;
 
-  /// These labels with the marks shown as [marks] (e.g. "Weiß" / "Schwarz").
-  PlayerLabels withMarkNames(Map<Player, String> marks) => PlayerLabels(names: names, local: local, markNames: marks);
+  /// These labels with the marks shown as [marks] (e.g. "Weiß" / "Schwarz")
+  /// and, when given, the token sides [tokens].
+  PlayerLabels withMarkNames(Map<Player, String> marks, {Map<Player, Player>? tokens}) =>
+      PlayerLabels(names: names, local: local, markNames: marks, tokens: tokens ?? this.tokens);
+
+  /// The player whose token [p] shows (see [tokens]); [p] itself by default.
+  Player tokenOf(Player p) => tokens[p] ?? p;
 
   /// The mark of [p] as shown in texts: the game's [markNames] word, else
   /// the player number [numberOf].
   String mark(Player p) => markNames[p] ?? numberOf(p);
 
   /// The player number shown on the player's token and in "Spieler 1 / 2"
-  /// (KLD-106): A (who starts in every game) is "1", B is "2".
+  /// (KLD-106): A (who starts in every game but network chess with the
+  /// host on Black) is "1", B is "2".
   static String numberOf(Player p) => p == Player.a ? '1' : '2';
 
   /// The internal player mark: A is "X", B is "O". Widget keys, preference
@@ -81,13 +92,16 @@ class PlayerLabels {
       other.names.length == names.length &&
       names.entries.every((e) => other.names[e.key] == e.value) &&
       other.markNames.length == markNames.length &&
-      markNames.entries.every((e) => other.markNames[e.key] == e.value);
+      markNames.entries.every((e) => other.markNames[e.key] == e.value) &&
+      other.tokens.length == tokens.length &&
+      tokens.entries.every((e) => other.tokens[e.key] == e.value);
 
   @override
   int get hashCode => Object.hash(
         local,
         Object.hashAllUnordered(names.entries.map((e) => Object.hash(e.key, e.value))),
         Object.hashAllUnordered(markNames.entries.map((e) => Object.hash(e.key, e.value))),
+        Object.hashAllUnordered(tokens.entries.map((e) => Object.hash(e.key, e.value))),
       );
 }
 

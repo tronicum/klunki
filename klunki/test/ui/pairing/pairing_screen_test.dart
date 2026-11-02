@@ -15,7 +15,7 @@ import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart' show RelayHostScreen;
 import 'package:klunki/ui/shell/screen_registry.dart' show networkGameSpecs;
-import 'package:klunki_engine/klunki_engine.dart' show GameConfig;
+import 'package:klunki_engine/klunki_engine.dart' show ChessColorChoice, GameConfig, Player;
 import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -399,6 +399,74 @@ void main() {
       expect(created.hosts.single.config.gameId, 'chess');
       await unmountAndSettleSockets(tester, created);
     }, timeout: _timeout);
+
+    // KLD-059 step 4a: the host chooses its colour; "Zufällig" (the default)
+    // is decided by the seed (7 in the tests: the host plays Black).
+    for (final (choice, white, text) in [
+      (null, Player.b, 'Du spielst Schwarz.'),
+      ('white', Player.a, 'Du spielst Weiß.'),
+      ('black', Player.b, 'Du spielst Schwarz.'),
+      ('random', Player.b, 'Du spielst Schwarz.'),
+    ]) {
+      testWidgets('chess: colour ${choice ?? 'default (Zufällig)'} -> the config says who plays White (step 4a)',
+          (tester) async {
+        final created = CreatedTransports();
+        await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'chess');
+        expect(find.byKey(const Key('pair-chess-color')), findsOneWidget);
+        expect(find.text('Deine Farbe'), findsOneWidget);
+        expect(find.byKey(const Key('pair-chess-color-helper')), findsOneWidget);
+        final picker = find.descendant(
+            of: find.byKey(const Key('pair-chess-color')), matching: find.byType(SegmentedButton<ChessColorChoice>));
+        expect(tester.widget<SegmentedButton<ChessColorChoice>>(picker).selected, {ChessColorChoice.random});
+        if (choice != null) {
+          await tester.tap(find.byKey(Key('pair-chess-color-$choice')));
+          await tester.pump();
+          expect(tester.widget<SegmentedButton<ChessColorChoice>>(picker).selected,
+              {ChessColorChoice.values.byName(choice)});
+        }
+        await _startHosting(tester);
+        final config = created.hosts.single.config;
+        expect(config.chessWhite, white);
+        expect(config.toJson().containsKey('white'), white == Player.b);
+        expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data, text);
+        await unmountAndSettleSockets(tester, created);
+      }, timeout: _timeout);
+    }
+
+    testWidgets('other games show no colour choice', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'muehle');
+      expect(find.byKey(const Key('pair-chess-color')), findsNothing);
+      await _startHosting(tester);
+      expect(created.hosts.single.config.chessWhite, Player.a);
+      await unmountAndSettleSockets(tester, created);
+    }, timeout: _timeout);
+
+    testWidgets('chess through the relay: the colour chosen goes along to the relay room screen', (tester) async {
+      final created = CreatedTransports();
+      final configs = <GameConfig>[];
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        roomSettings: RoomSettings.memory(true),
+        relaySettings: RelaySettings.memory(Uri.parse('ws://127.0.0.1:9/')),
+        relayHost: (config, relay, {required name}) async {
+          configs.add(config);
+          throw const SocketLikeError('no relay');
+        },
+      );
+      await pumpFor(tester, deps, 'chess');
+      await tester.tap(find.byKey(const Key('pair-chess-color-white')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RelayHostScreen), findsOneWidget);
+      expect(configs.single.chessWhite, Player.a, reason: 'seed 7 would have made the host Black');
+      final picker = find.descendant(
+          of: find.byKey(const Key('relay-chess-color')), matching: find.byType(SegmentedButton<ChessColorChoice>));
+      expect(tester.widget<SegmentedButton<ChessColorChoice>>(picker).selected, {ChessColorChoice.white});
+      await unmountAndSettleSockets(tester, created);
+    });
 
     testWidgets('Quartett: the deck is still chosen', (tester) async {
       final created = CreatedTransports();

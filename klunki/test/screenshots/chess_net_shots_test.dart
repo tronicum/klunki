@@ -1,7 +1,9 @@
 // KLD-059 step 3 screenshots: chess over the network, two phones side by side
 // (host White, guest Black with the board turned), the draw offer on both
-// devices and the results. Real NetworkTransports on 127.0.0.1. Skipped
-// unless KLUNKI_SHOTS=<output dir> is set:
+// devices and the results. Real NetworkTransports on 127.0.0.1. Step 4a
+// (`--plain-name kld059 colours`): the colour choice on "Raum starten" (de,
+// ar), the waiting room, and a game with the host on Black. Skipped unless
+// KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/chess-net flutter test test/screenshots/chess_net_shots_test.dart
 import 'dart:io';
@@ -16,9 +18,14 @@ import 'package:klunki/app/theme.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/chess/chess_board.dart';
+import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
+import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+import '../ui/pairing/pairing_test_utils.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _hostKey = Key('device-host');
@@ -39,6 +46,11 @@ Future<void> _loadFonts() async {
     'assets/fonts/Roboto/Roboto-Regular.ttf',
     'assets/fonts/Roboto/Roboto-Medium.ttf',
     'assets/fonts/Roboto/Roboto-Bold.ttf',
+  ]);
+  // The Arabic shots (step 4a).
+  await family('NotoSansArabic', [
+    'assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf',
+    'assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf',
   ]);
   final flutterRoot = Platform.environment['FLUTTER_ROOT'] ?? '';
   final icons = File('$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
@@ -83,12 +95,39 @@ Future<void> _shot(WidgetTester tester, Key device, String name) async {
   debugDisableShadows = true;
 }
 
-Future<void> _start(WidgetTester tester) async {
+/// The light theme; with Noto Sans Arabic as the fallback for Arabic (the
+/// app applies its fallbacks on the web only, see `fonts.dart`).
+ThemeData _theme(Locale locale) {
+  final t = KlunkiTheme.light;
+  if (locale.languageCode != 'ar') return t;
+  const fallback = ['NotoSansArabic'];
+  return t.copyWith(
+    textTheme: t.textTheme.apply(fontFamilyFallback: fallback),
+    primaryTextTheme: t.primaryTextTheme.apply(fontFamilyFallback: fallback),
+  );
+}
+
+Widget _app(Widget home, {Locale locale = const Locale('de')}) => MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: _theme(locale),
+      locale: locale,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: home,
+    );
+
+Future<void> _start(WidgetTester tester,
+    {GameConfig config = const GameConfig('chess'), Locale guestLocale = const Locale('de')}) async {
   tester.view.physicalSize = const Size(2 * 390, 844) * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final (host, guest) = (await tester.runAsync(() async {
-    final h = await NetworkTransport.host(const GameConfig('chess'),
+    final h = await NetworkTransport.host(config,
         name: 'Anna', address: InternetAddress.loopbackIPv4, wsPort: null, pingInterval: _ping, timeout: _timeout);
     final g = await NetworkTransport.join(InternetAddress.loopbackIPv4, h.port!,
         name: 'Ben', pingInterval: _ping, timeout: _timeout);
@@ -103,27 +142,12 @@ Future<void> _start(WidgetTester tester) async {
       await tester.pump();
     }
   });
-  Widget device(Key key, NetworkTransport t) => Expanded(
-        child: RepaintBoundary(
-          key: key,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: KlunkiTheme.light,
-            locale: const Locale('de'),
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: NetworkGameSession(transport: t),
-          ),
-        ),
+  Widget device(Key key, NetworkTransport t, Locale locale) => Expanded(
+        child: RepaintBoundary(key: key, child: _app(NetworkGameSession(transport: t), locale: locale)),
       );
   await tester.pumpWidget(Directionality(
     textDirection: TextDirection.ltr,
-    child: Row(children: [device(_hostKey, host), device(_guestKey, guest)]),
+    child: Row(children: [device(_hostKey, host, const Locale('de')), device(_guestKey, guest, guestLocale)]),
   ));
   await _until(tester, () => _on(_guestKey, find.byType(ChessBoard)).evaluate().isNotEmpty, 'guest board');
   await _until(tester, () => _on(_hostKey, find.byType(ChessBoard)).evaluate().isNotEmpty, 'host board');
@@ -212,4 +236,59 @@ void main() {
     await _shot(tester, _hostKey, '09-host-result-mate');
     await _shot(tester, _guestKey, '10-guest-result-mated');
   });
+
+  // KLD-059 step 4a: the host chooses its colour.
+  for (final locale in const [Locale('de'), Locale('ar')]) {
+    testWidgets('kld059 colours: "Raum starten" with the colour choice, waiting room (${locale.languageCode})',
+        skip: skip, (tester) async {
+      tester.view.physicalSize = const Size(390, 1100) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final created = CreatedTransports();
+      // Seed 7: "Zufällig" makes the host Black.
+      final deps = testDeps(discovery: FakeDiscovery(), created: created, name: 'Anna');
+      final names = PlayerNameController.memory(name: 'Anna');
+      await tester.pumpWidget(RepaintBoundary(
+          key: _hostKey, child: _app(PairingScreen(deps: deps, nameController: names, gameId: 'chess'), locale: locale)));
+      await tester.pump();
+      final lang = locale.languageCode;
+      await _shot(tester, _hostKey, '11-start-colour-random-$lang');
+      if (lang == 'de') {
+        await tester.tap(find.byKey(const Key('pair-chess-color-black')));
+        await tester.pump();
+        await _shot(tester, _hostKey, '12-start-colour-black-de');
+        await tester.tap(find.byKey(const Key('pair-chess-color-random')));
+        await tester.pump();
+      }
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty);
+      await _shot(tester, _hostKey, '13-waiting-you-play-black-$lang');
+      await unmountAndSettleSockets(tester, created);
+    });
+  }
+
+  for (final guestLocale in const [Locale('de'), Locale('ar')]) {
+    final lang = guestLocale.languageCode;
+    testWidgets('kld059 colours: host Black, guest White opens; boards by own colour; host mates (guest $lang)',
+        skip: skip, (tester) async {
+      await _start(tester, config: const GameConfig('chess', chessWhite: Player.b), guestLocale: guestLocale);
+      await _shot(tester, _hostKey, '14-host-black-start');
+      await _shot(tester, _guestKey, '15-guest-white-start-$lang');
+      if (lang != 'de') return;
+      for (final (d, from, to) in [(_guestKey, 'f2', 'f3'), (_hostKey, 'e7', 'e5'), (_guestKey, 'g2', 'g4')]) {
+        await _move(tester, d, from, to);
+      }
+      await _tap(tester, _on(_hostKey, find.byKey(const Key('chess-sq-d8'))));
+      await _shot(tester, _hostKey, '16-host-black-turn');
+      await _shot(tester, _guestKey, '17-guest-white-waiting');
+      await _tap(tester, _on(_hostKey, find.byKey(const Key('chess-sq-h4'))));
+      await _until(
+          tester,
+          () => _on(_guestKey, find.byKey(const Key('result-dialog'))).evaluate().isNotEmpty &&
+              _on(_hostKey, find.byKey(const Key('result-dialog'))).evaluate().isNotEmpty,
+          'result on both');
+      await _shot(tester, _hostKey, '18-host-black-wins');
+      await _shot(tester, _guestKey, '19-guest-white-mated');
+    });
+  }
 }
