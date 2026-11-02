@@ -518,6 +518,15 @@ relay and a client, never forwarded.
   open rooms (`maxRooms`); text frames only. A guest breaking a rule loses
   its own connection; a host breaking one closes the room.
 - The relay keeps no logs, names or addresses beyond the open connections.
+- **Keepalive is end to end:** `ping` / `pong` are game messages between host and
+  guest, and a relay must forward them like any other line. A relay that
+  answered them itself (e.g. a Cloudflare WebSocket auto-response) would hide
+  a lost player from the other side (KLD-114).
+- **Implementations:** this Dart relay (the reference) and a Cloudflare Worker
+  port (`deploy/cloudflare`, KLD-114, prepared). Both are tested against the
+  same vectors, `test/relay_vectors.json` (`relay_vectors_test.dart` here).
+  The Worker's wrong-code limit counts per client address as Cloudflare
+  reports it (`CF-Connecting-IP`), per isolate.
 
 ### Club codes (KLD-112): a gated relay
 

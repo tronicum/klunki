@@ -1,0 +1,13 @@
+name: klunki_relay_image
+description: The `klunki relay` entry point of the Docker image (KLD-114). Same CLI as packages/klunki_net/bin/klunki.dart, plus `healthcheck`.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+# Path dependencies only (no dev_dependencies), so `dart pub get --offline`
+# works in the image build without downloading anything.
+dependencies:
+  klunki_net:
+    path: ../../../packages/klunki_net

@@ -279,7 +279,13 @@ An unreadable or deleted file refuses everyone until it is back. The console sho
 never a code. Players enter the code in the app under "Erweitert" › "ändern" › "Clubcode"; it is saved for that
 relay address only and is never part of room links or QR codes, so share it separately. Terminals:
 `host … --relay ws://… --club CODE`, `join --relay ws://… --room CODE --club CODE`. Protocol details: PROTOCOL.md,
-"Relay", "Club codes". Packaging this for the internet (Docker image, Cloudflare tunnel, `wss://`) is KLD-051.
+"Relay", "Club codes".
+
+For the internet (`wss://`), two packages are prepared but not yet built or deployed by the project (KLD-114):
+`deploy/docker/` (container image with Caddy for automatic TLS) and `deploy/cloudflare/` (a Cloudflare Worker port
+you deploy to your own account). Each has a step-by-step README. Their tests: `cd deploy/cloudflare && node --test test/`
+(Node 22+, nothing to install); `packages/klunki_net/test/relay_vectors.json` holds the protocol vectors both relays
+are tested against.
 
 ### 6.4 Offline and updates
 - The service worker (`klunki_sw.js`) only registers in a **secure context**: `http://localhost:<port>`, or

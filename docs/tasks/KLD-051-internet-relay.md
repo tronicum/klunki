@@ -67,3 +67,4 @@ Not scheduled yet; collected here so the internet relay is designed for it.
   - Our keepalive pings must be answered without waking the object (WebSocket auto-response), otherwise rooms never hibernate.
   - The relay protocol has to be ported to TypeScript/JS (a few hundred lines) and tested against the Dart relay's protocol tests. Club codes go in a Worker secret or KV.
   - Each user deploys to their own Cloudflare account (button or `wrangler deploy`); we host nothing.
+- **Prepared in KLD-114** (not deployed): `deploy/docker/` (image + Caddy) and `deploy/cloudflare/` (Worker + Durable Objects, club codes as a secret). The auto-response idea above does not fit: `ping`/`pong` are end-to-end game messages; see `deploy/cloudflare/README.md`, "Keepalive, hibernation and why there is no auto-response".
