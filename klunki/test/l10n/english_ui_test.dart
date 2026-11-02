@@ -20,7 +20,9 @@ void main() {
       expect(find.text(title), findsOneWidget, reason: title);
     }
     expect(find.text('One device'), findsNWidgets(appGameSpecs.length));
-    expect(find.text('With others'), findsNWidgets(networkGameSpecs.length));
+    // Plus the debug preview's link (KLD-094 step 6: Wortgewandt online).
+    expect(find.text('With others'),
+        findsNWidgets(networkGameSpecs.length + previewGames.where((id) => !hotSeatOnlyGames.contains(id)).length));
     expect(find.text('Pass the device'), findsNothing);
     expect(find.text('Debug console'), findsOneWidget);
     expect(find.text('Wähle ein Spiel'), findsNothing);

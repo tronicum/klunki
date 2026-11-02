@@ -88,6 +88,7 @@ class GameController extends ChangeNotifier {
     if (!t.undo()) return false;
     final log = t.moves;
     _lastEvent = log.isEmpty ? null : log.last.event;
+    _toMove = game.isOver ? null : game.currentPlayer;
     if (_sharedDeviceSecrets && game.currentPlayer != before) _needsHandover = true;
     notifyListeners();
     return true;
@@ -107,6 +108,7 @@ class GameController extends ChangeNotifier {
   }
 
   void _attach() {
+    _toMove = game.isOver ? null : game.currentPlayer;
     _sub = _transport.accepted.listen(_onAccepted);
   }
 
@@ -118,13 +120,22 @@ class GameController extends ChangeNotifier {
   void _onAccepted(AcceptedMove m) {
     if (_disposed) return;
     _lastEvent = m.event;
+    final before = _toMove;
+    _toMove = game.isOver ? null : game.currentPlayer;
     if (game.isOver) {
       _needsHandover = false; // e.g. a resign while the cover was up
-    } else if (_sharedDeviceSecrets && game.currentPlayer != m.player) {
+    } else if (_sharedDeviceSecrets && game.currentPlayer != before) {
+      // The turn passed to the other player. Usually by the mover's own
+      // move; with KLD-094 step 6 also by the other player's answer
+      // ("Trotzdem zulassen" agreed, then the turn passes), while a move
+      // that leaves the turn where it was needs no cover.
       _needsHandover = true;
     }
     notifyListeners();
   }
+
+  /// The player to move after the last accepted move (null once over).
+  Player? _toMove;
 
   @override
   void dispose() {

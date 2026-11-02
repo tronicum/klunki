@@ -593,5 +593,20 @@
   "networkUnavailableWeb": "Aún no está disponible en el navegador: con la app se puede jugar en varios dispositivos.",
   "appBetaTeaser": "Beta de la app en preparación.",
   "appBetaIos": "Probar la app para iPhone y iPad",
-  "appBetaAndroid": "Descargar la app para Android"
+  "appBetaAndroid": "Descargar la app para Android",
+  "wordtilesOptionsSummaryDict": "{language} · con diccionario",
+  "wordtilesOptionsSummaryFree": "{language} · sin diccionario",
+  "wordtilesUnknownAskNet": "Puedes retirar las fichas o preguntar a {player} si cuenta igualmente.",
+  "wordtilesUnknownDeclinedBefore": "{player} ya lo rechazó. Retira las fichas.",
+  "wordtilesAllowTitle": "¿Permitir igualmente?",
+  "wordtilesAllowBody": "{player} quiere permitir «{words}». ¿De acuerdo?",
+  "wordtilesAllowAccept": "Aceptar",
+  "wordtilesAllowDecline": "Rechazar",
+  "wordtilesAllowDeciding": "Decide {player}…",
+  "wordtilesAllowYouDecide": "Te toca decidir",
+  "wordtilesAllowLine": "{player} quiere permitir «{words}» ({score} puntos).",
+  "wordtilesAllowDeclined": "{player} rechaza «{words}».",
+  "wordtilesMoveAllowRequest": "pide permitir {words} ({score} puntos)",
+  "wordtilesMoveAllowAccept": "de acuerdo: {words} cuenta ({score} puntos)",
+  "wordtilesMoveAllowDecline": "rechazado: {words}"
 }

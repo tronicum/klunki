@@ -71,7 +71,7 @@ String compatKey(GameConfig config) {
 /// The fingerprint of the game [config] names; null if this build does not
 /// know the game or deck ([configProblem]).
 GameFingerprint? fingerprintOf(GameConfig config) {
-  if (configProblem(config) != null) return null;
+  if (configProblem(config, wordList: false) != null) return null;
   final spec = specById(config.gameId)!;
   final deck = spec.usesDeck ? QuartettDeck.byId(config.deck)! : null;
   return GameFingerprint(rules: spec.rulesVersion, revision: deck?.revision ?? 1, content: contentHash(spec.id, deck));

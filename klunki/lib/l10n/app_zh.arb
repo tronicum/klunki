@@ -593,5 +593,20 @@
   "networkUnavailableWeb": "浏览器中暂不可用 – 使用应用可在多台设备上玩。",
   "appBetaTeaser": "应用试用版即将推出。",
   "appBetaIos": "试用 iPhone 和 iPad 应用",
-  "appBetaAndroid": "下载 Android 应用"
+  "appBetaAndroid": "下载 Android 应用",
+  "wordtilesOptionsSummaryDict": "{language} · 查字典",
+  "wordtilesOptionsSummaryFree": "{language} · 不查字典",
+  "wordtilesUnknownAskNet": "可以取回这些牌，或者问 {player} 是否仍然算数。",
+  "wordtilesUnknownDeclinedBefore": "{player} 已经拒绝了。请取回这些牌。",
+  "wordtilesAllowTitle": "仍然接受？",
+  "wordtilesAllowBody": "{player} 要接受“{words}”，同意吗？",
+  "wordtilesAllowAccept": "接受",
+  "wordtilesAllowDecline": "拒绝",
+  "wordtilesAllowDeciding": "等待 {player} 回应…",
+  "wordtilesAllowYouDecide": "轮到你回应",
+  "wordtilesAllowLine": "{player} 要接受“{words}”（{score} 分）。",
+  "wordtilesAllowDeclined": "{player} 拒绝了“{words}”。",
+  "wordtilesMoveAllowRequest": "要接受 {words}（{score} 分）",
+  "wordtilesMoveAllowAccept": "同意：{words} 算数（{score} 分）",
+  "wordtilesMoveAllowDecline": "拒绝：{words}"
 }

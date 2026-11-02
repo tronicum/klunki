@@ -23,6 +23,7 @@ import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
+import '../games/wordtiles/wordtiles_options.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
@@ -289,6 +290,11 @@ class _HostPanelState extends State<_HostPanel> {
 
   /// The deck of the room (KLD-069): only for Quartett.
   String? get _hostDeck => specById(_gameId)?.usesDeck == true ? _deck : null;
+
+  /// Wortgewandt's tile language and word list (KLD-094 step 6), chosen by
+  /// the host; null until first shown (the default follows the app language).
+  WordTilesOptions? _words;
+  WordTilesOptions get _wordOptions => _words ??= defaultWordTilesOptions(Localizations.localeOf(context));
   bool _starting = false;
   String? _error;
 
@@ -334,6 +340,7 @@ class _HostPanelState extends State<_HostPanel> {
           deviceName: deps.deviceName,
           nameController: widget.nameController,
           initialGameId: _gameId,
+          initialWordTiles: _gameId == 'wordtiles' ? _wordOptions : null,
           fixedGame: widget.gameId != null,
           autoStart: true,
         ),
@@ -345,7 +352,15 @@ class _HostPanelState extends State<_HostPanel> {
       _error = null;
     });
     final deps = widget.deps;
-    final config = GameConfig(_gameId, seed: deps.seed(), deck: _hostDeck);
+    final words = _gameId == 'wordtiles' ? _wordOptions : null;
+    // A game with "Wörterbuch prüfen" needs its list before the host creates it.
+    if (words != null && words.dictionary && !await loadWordListWithProgress(context, words.tiles)) {
+      if (mounted) setState(() => _starting = false);
+      return;
+    }
+    if (!mounted) return;
+    final config = GameConfig(_gameId,
+        seed: deps.seed(), deck: _hostDeck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -473,6 +488,16 @@ class _HostPanelState extends State<_HostPanel> {
             },
           ),
         ],
+        if (_gameId == 'wordtiles') ...[
+          const SizedBox(height: 12),
+          WordTilesOptionsPicker(
+            key: const Key('pair-wordtiles'),
+            keyPrefix: 'pair-wordtiles-',
+            value: _wordOptions,
+            enabled: !_starting,
+            onChanged: (o) => setState(() => _words = o),
+          ),
+        ],
         const SizedBox(height: 16),
         FilledButton.icon(
           key: const Key('pair-host-start'),
@@ -530,6 +555,9 @@ class _HostPanelState extends State<_HostPanel> {
       children: [
         Text(l10n.roomOfPlayer(bidiName(context, _name), title),
             key: const Key('pair-hosting'), style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+        if (_gameId == 'wordtiles')
+          Text(wordTilesOptionsSummary(l10n, t.config),
+              key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
         const SizedBox(height: 12),
         if (payload != null)
           Center(

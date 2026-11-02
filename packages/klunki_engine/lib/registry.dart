@@ -153,9 +153,12 @@ final List<GameSpec> gameSpecs = [
   // title "Wortgewandt" (chosen by the maintainer, 2026-11-01). Rules 2
   // (step 4): tile set and word list per game (GameConfig.tiles /
   // .dictionary), `allow` on placements, the word-list revisions in the
-  // fingerprint.
+  // fingerprint. Rules 3 (step 6, network play): "Trotzdem zulassen" needs
+  // the other player's agreement (`requestAllow` / `acceptAllow` /
+  // `declineAllow`; a `place` with `allow` is refused), and the word lists'
+  // file hashes are in the fingerprint.
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false, rulesVersion: 2),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), appReady: false, rulesVersion: 3),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
@@ -174,14 +177,17 @@ List<GameSpec> get appGameSpecs => [for (final s in gameSpecs) if (s.appReady) s
 GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
 
 /// Why [config] cannot be played (unknown game or deck), or null if it can.
-String? configProblem(GameConfig config) {
+/// [wordList] false skips the check that a dictionary game's word list is
+/// loaded ([WordLists]): a network guest of a word tile game creates no
+/// engine when it joins and loads the list afterwards (KLD-094 step 6).
+String? configProblem(GameConfig config, {bool wordList = true}) {
   final spec = specById(config.gameId);
   if (spec == null) return 'unknown game "${config.gameId}"';
   if (spec.usesDeck && QuartettDeck.byId(config.deck) == null) return 'unknown deck "${config.deck}"';
   if (config.gameId == 'wordtiles') {
     final tiles = config.tiles ?? TileSet.german.id;
     if (TileSet.byId(tiles) == null) return 'unknown tile set "$tiles"';
-    if (config.dictionary && !WordLists.has(tiles)) return 'no word list for "$tiles"';
+    if (wordList && config.dictionary && !WordLists.has(tiles)) return 'no word list for "$tiles"';
   }
   return null;
 }

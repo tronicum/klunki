@@ -3665,6 +3665,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'App für Android laden'**
   String get appBetaAndroid;
+
+  /// KLD-094 step 6: the options of a network Wortgewandt game in one line (room and game header): tile language endonym ("Deutsch", "English") and the word list on.
+  ///
+  /// In de, this message translates to:
+  /// **'{language} · Wörterbuch prüfen'**
+  String wordtilesOptionsSummaryDict(String language);
+
+  /// KLD-094 step 6: like wordtilesOptionsSummaryDict, without the word list (challenge mode).
+  ///
+  /// In de, this message translates to:
+  /// **'{language} · ohne Wörterbuch'**
+  String wordtilesOptionsSummaryFree(String language);
+
+  /// KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): "Trotzdem zulassen" sends a request to the other player ({player}).
+  ///
+  /// In de, this message translates to:
+  /// **'Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.'**
+  String wordtilesUnknownAskNet(String player);
+
+  /// KLD-094 step 6: the unknown-word notice when the other player ({player}) already declined these words in this turn: only "Zurücknehmen" is left.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat das schon abgelehnt. Nimm die Steine zurück.'**
+  String wordtilesUnknownDeclinedBefore(String player);
+
+  /// KLD-094 step 6: title of the dialog on the other device when a player asks to allow a word the list lacks.
+  ///
+  /// In de, this message translates to:
+  /// **'Trotzdem zulassen?'**
+  String get wordtilesAllowTitle;
+
+  /// KLD-094 step 6: the request dialog: {player} (who laid the tiles) asks to allow {words}; the reader answers with Annehmen / Ablehnen. Placeholders keep their quotes as in German.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte „{words}“ zulassen – einverstanden?'**
+  String wordtilesAllowBody(String player, String words);
+
+  /// KLD-094 step 6: button in the request dialog: agree, the word counts.
+  ///
+  /// In de, this message translates to:
+  /// **'Annehmen'**
+  String get wordtilesAllowAccept;
+
+  /// KLD-094 step 6: button in the request dialog: the tiles go back, the other player is still on turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Ablehnen'**
+  String get wordtilesAllowDecline;
+
+  /// KLD-094 step 6: status line of the player who asked, while {player} decides about the request.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} entscheidet…'**
+  String wordtilesAllowDeciding(String player);
+
+  /// KLD-094 step 6: status line of the player who has to answer a request.
+  ///
+  /// In de, this message translates to:
+  /// **'Du entscheidest'**
+  String get wordtilesAllowYouDecide;
+
+  /// KLD-094 step 6: the line above the board on both devices while a request is open.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte „{words}“ zulassen ({score} Punkte).'**
+  String wordtilesAllowLine(String player, String words, int score);
+
+  /// KLD-094 step 6: the line above the board right after {player} declined a request.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} lehnt „{words}“ ab.'**
+  String wordtilesAllowDeclined(String player, String words);
+
+  /// KLD-094 step 6: history entry after "{player}: " for a request to allow words.
+  ///
+  /// In de, this message translates to:
+  /// **'möchte {words} zulassen ({score} Punkte)'**
+  String wordtilesMoveAllowRequest(String words, int score);
+
+  /// KLD-094 step 6: history entry after "{player}: " when the other player agreed (the placement counts).
+  ///
+  /// In de, this message translates to:
+  /// **'einverstanden: {words} zählt ({score} Punkte)'**
+  String wordtilesMoveAllowAccept(String words, int score);
+
+  /// KLD-094 step 6: history entry after "{player}: " when the other player declined a request.
+  ///
+  /// In de, this message translates to:
+  /// **'abgelehnt: {words}'**
+  String wordtilesMoveAllowDecline(String words);
 }
 
 class _AppLocalizationsDelegate

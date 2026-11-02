@@ -83,6 +83,18 @@ class WordTilesAdapter extends LiveUiAdapter {
   @override
   Future<bool> dismiss(WidgetTester tester, UiDevice device) async => false;
 
+  /// Lets dialogs open or close. A network device never settles (keepalive
+  /// timers, the other device's frames): a few fixed frames instead.
+  Future<void> settle(WidgetTester tester, UiDevice d) async {
+    if (!d.networked) {
+      await tester.pumpAndSettle();
+      return;
+    }
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+  }
+
   @override
   Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
     final c = d.controller(tester);
@@ -94,9 +106,9 @@ class WordTilesAdapter extends LiveUiAdapter {
         if (r < 0.15) {
           tapped.update('challenge', (n) => n + 1, ifAbsent: () => 1);
           await d.tapKey(tester, const Key('wordtiles-challenge'));
-          await tester.pumpAndSettle();
+          await settle(tester, d);
           await d.tapKey(tester, const Key('wordtiles-challenge-confirm'));
-          await tester.pumpAndSettle();
+          await settle(tester, d);
           return {'action': 'challenge'};
         }
         tapped.update('accept', (n) => n + 1, ifAbsent: () => 1);
@@ -110,7 +122,7 @@ class WordTilesAdapter extends LiveUiAdapter {
       tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
       await d.tapKey(tester, const Key('wordtiles-pass'));
       await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
-      await tester.pumpAndSettle();
+      await settle(tester, d);
       return {'action': 'pass'};
     }
     final rack = g.rackOf(g.currentSeat);
@@ -142,7 +154,7 @@ class WordTilesAdapter extends LiveUiAdapter {
       tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
       await d.tapKey(tester, const Key('wordtiles-pass'));
       await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
-      await tester.pumpAndSettle();
+      await settle(tester, d);
       return {'action': 'pass'};
     }
     tapped.update('place', (n) => n + 1, ifAbsent: () => 1);
@@ -167,13 +179,13 @@ class WordTilesAdapter extends LiveUiAdapter {
       final sq = Key('wordtiles-sq-${t['row']}-${t['col']}');
       if (!_onScreen(tester, d, sq)) {
         await d.tapKey(tester, const Key('wordtiles-zoom'));
-        await tester.pumpAndSettle();
+        await settle(tester, d);
       }
       await d.tapKey(tester, sq);
       if (t['tile'] == TileSet.blank) {
-        await tester.pumpAndSettle();
+        await settle(tester, d);
         await d.tapKey(tester, Key('wordtiles-blank-${t['letter']}'));
-        await tester.pumpAndSettle();
+        await settle(tester, d);
       }
     }
   }
@@ -213,6 +225,10 @@ class WordTilesAdapter extends LiveUiAdapter {
 /// follow on purpose; then the best accepted sample placement, else a pass,
 /// until the game ends.
 class WordTilesDictionaryAdapter extends WordTilesAdapter {
+  /// How many "Trotzdem zulassen" requests to make (on the empty board).
+  final int requests;
+  WordTilesDictionaryAdapter({this.requests = 1});
+
   @override
   Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
     final c = d.controller(tester);
@@ -223,7 +239,7 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
       for (final m in g.legalMoves)
         if (m['action'] == 'place') m,
     ];
-    if ((tapped['allow'] ?? 0) == 0 && g.boardEmpty) {
+    if ((tapped['allow'] ?? 0) < requests && g.boardEmpty) {
       // legalMoves only offers words the list knows: build an opening pair
       // through the centre that it lacks.
       final rack = g.rackOf(g.currentSeat);
@@ -232,7 +248,10 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
         for (var j = 0; j < rack.length && odd == null; j++) {
           if (i == j || rack[i] == TileSet.blank || rack[j] == TileSet.blank) continue;
           final m = WordTilesGame.placeMove([PlacedTile(7, 7, rack[i]), PlacedTile(7, 8, rack[j])]);
-          if (g.checkPlacement(m, checkWords: false).ok && g.unknownWords(m).isNotEmpty) odd = m;
+          if (!g.checkPlacement(m, checkWords: false).ok) continue;
+          final unknown = g.unknownWords(m);
+          // Not a word the other player declined this turn (no second ask).
+          if (unknown.isNotEmpty && g.canRequestAllow(unknown)) odd = m;
         }
       }
       if (odd != null) {
@@ -242,11 +261,18 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
         // The preview shows the score, never whether it is a word.
         expect(d.on(find.byKey(const Key('wordtiles-preview'))), findsOneWidget);
         await d.tapKey(tester, const Key('wordtiles-play'));
-        await tester.pumpAndSettle();
+        await settle(tester, d);
         expect(d.on(find.byKey(const Key('wordtiles-unknown'))), findsOneWidget, reason: '${d.name}: $odd');
         await d.tapKey(tester, const Key('wordtiles-unknown-allow'));
-        await tester.pumpAndSettle();
-        return {...odd, 'allow': unknown};
+        await settle(tester, d);
+        // KLD-094 step 6: a request to the other player (in hot-seat their
+        // agreement follows at once).
+        return {
+          'action': WordTilesGame.requestAllow,
+          'player': g.currentPlayer.name,
+          'tiles': odd['tiles'],
+          'allow': unknown,
+        };
       }
     }
     if ((tapped['exchange'] ?? 0) == 0 && (tapped['allow'] ?? 0) > 0 && g.canExchange) {
@@ -273,17 +299,62 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
     if (best == null || ((tapped['pass'] ?? 0) == 0 && (tapped['exchange'] ?? 0) > 0)) {
       tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
       await d.tapKey(tester, const Key('wordtiles-pass'));
-      await tester.pumpAndSettle();
+      await settle(tester, d);
       expect(d.on(find.byKey(const Key('wordtiles-pass-dialog'))), findsOneWidget);
       await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
-      await tester.pumpAndSettle();
+      await settle(tester, d);
       return {'action': 'pass'};
     }
     tapped.update('place', (n) => n + 1, ifAbsent: () => 1);
     await lay(tester, d, g, best);
     await d.tapKey(tester, const Key('wordtiles-play'));
-    await tester.pumpAndSettle();
+    await settle(tester, d);
     expect(d.on(find.byKey(const Key('wordtiles-unknown'))), findsNothing, reason: '${d.name}: $best');
     return best;
+  }
+}
+
+/// Over the network (KLD-094 step 6), each device plays only its own turns
+/// from its own view (the guest never sees the host's rack). The first
+/// "Trotzdem zulassen" request is declined on the other device (the tiles
+/// go back, the placer asks again for another word), the second accepted;
+/// both through the answer dialog. Otherwise like [WordTilesDictionaryAdapter].
+class WordTilesNetAdapter extends WordTilesDictionaryAdapter {
+  /// Requests the other device declines before it accepts one.
+  final int declines;
+  WordTilesNetAdapter({this.declines = 1}) : super(requests: declines + 1);
+
+  @override
+  Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
+    final c = d.controller(tester);
+    final g = c.game as WordTilesGame;
+    if (g.isOver) return null;
+    final me = d.me!;
+    // The guest's view never holds the host's rack.
+    if (me == Player.b) expect(g.rackOf(0), isEmpty, reason: '${d.name}: the host rack leaked');
+    final request = g.allowRequest;
+    if (request != null) {
+      if (g.allowRequestAnswerer != WordTilesGame.seatOf(me)) return null; // the placer waits
+      final dialog = d.on(find.byKey(const Key('wordtiles-allow-dialog')));
+      if (dialog.evaluate().isEmpty) return null; // opens post-frame
+      final who = request.seat == 0 ? 'Anna' : 'Ben';
+      expect(tester.widget<Text>(d.on(find.byKey(const Key('wordtiles-allow-body')))).data,
+          deL10n.wordtilesAllowBody(who, request.allow.join(', ')));
+      expect(tester.widget<Text>(d.on(find.byKey(const Key('shell-status')))).data, deL10n.wordtilesAllowYouDecide);
+      final decline = (tapped['decline'] ?? 0) < declines;
+      tapped.update(decline ? 'decline' : 'agree', (n) => n + 1, ifAbsent: () => 1);
+      await d.tapKey(tester, Key(decline ? 'wordtiles-allow-decline' : 'wordtiles-allow-accept'));
+      await settle(tester, d);
+      return decline ? WordTilesGame.declineAllowMove(me) : WordTilesGame.acceptAllowMove(me);
+    }
+    if (!c.canAct || g.currentPlayer != me || d.dialogOpen) return null;
+    final m = await super.play(tester, d, rng);
+    if (m?['action'] == WordTilesGame.requestAllow && (c.game as WordTilesGame).allowRequest != null) {
+      // The placer waits for the answer, named in the status line.
+      final other = me == Player.a ? 'Ben' : 'Anna';
+      expect(tester.widget<Text>(d.on(find.byKey(const Key('shell-status')))).data,
+          deL10n.wordtilesAllowDeciding(other));
+    }
+    return m;
   }
 }
