@@ -241,7 +241,7 @@ void main() {
       (const Size(1180, 820), true),
       (const Size(390, 844), false),
       (const Size(375, 667), false),
-      (const Size(820, 1180), false),
+      (const Size(820, 1180), true), // a tablet in portrait: open, the board a little smaller
     ]) {
       testWidgets('$size: ${open ? 'open' : 'closed'}', (tester) async {
         await _start(tester, size);

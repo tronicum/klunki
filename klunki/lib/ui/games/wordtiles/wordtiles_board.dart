@@ -133,14 +133,17 @@ class WordTilesBoard extends StatefulWidget {
   static const double benchOpenPanelHeight = 380;
 
   /// The bench starts open when it fits without making the board smaller
-  /// (KLD-094 step 8c): in portrait the board area must be at least its
-  /// width plus [benchOverlayMargin] high (430 × 932, 412 × 915, 402 × 874;
-  /// not 390 × 844, small phones or a tablet in portrait, whose board would
-  /// shrink), in landscape the panel must show it without scrolling
-  /// ([benchOpenPanelHeight]). [box] is the board widget's constraints.
+  /// (KLD-094 step 8c): on a phone in portrait the board area must be at
+  /// least its width plus [benchOverlayMargin] high (430 × 932, 412 × 915,
+  /// 402 × 874; not 390 × 844 or small phones, whose board would shrink), in
+  /// landscape the panel must show it without scrolling
+  /// ([benchOpenPanelHeight]). A tablet in portrait
+  /// ([benchOverlayMaxWidth] and wider) always starts open: its board gets
+  /// about 10 % smaller, and the empty slots invite to use the bench
+  /// (maintainer). [box] is the board widget's constraints.
   static bool benchOpenFits(BoxConstraints box, {required bool wide}) => wide
       ? box.maxHeight >= benchOpenPanelHeight
-      : box.maxHeight >= box.maxWidth + benchOverlayMargin;
+      : box.maxWidth >= benchOverlayMaxWidth || box.maxHeight >= box.maxWidth + benchOverlayMargin;
 
   @override
   State<WordTilesBoard> createState() => _WordTilesBoardState();

@@ -147,16 +147,18 @@ void main() {
   testWidgets('tablet portrait: the bench below the actions, the board a little smaller', (tester) async {
     const size = Size(820, 1180);
     await _start(tester, size);
-    expect(_benchShown(), isFalse, reason: 'closed at first: the board would shrink');
-    final closed = _board(tester);
-    expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
-    await _toggleBench(tester, size);
+    // Open from the start although the board gets a little smaller: the
+    // empty slots invite to use it (maintainer, KLD-094 step 8c).
+    expect(_benchShown(), isTrue, reason: 'a tablet in portrait starts open');
     expect(find.byKey(_overlay), findsNothing, reason: 'room enough for the bench below');
     final open = _board(tester);
-    expect(open.top, closed.top);
-    expect(open.width, greaterThan(closed.width * 0.8));
     expect(_rect(tester, 'wordtiles-rack').top - open.bottom, inInclusiveRange(0, 32));
     expect(_rect(tester, 'wordtiles-bench').bottom, lessThanOrEqualTo(size.height));
+    await _setBench(tester, size, open: false);
+    final closed = _board(tester);
+    expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
+    expect(open.top, closed.top);
+    expect(open.width, greaterThan(closed.width * 0.8));
   });
 
   for (final (size, startsOpen) in [
