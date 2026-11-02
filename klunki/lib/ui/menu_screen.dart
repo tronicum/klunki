@@ -30,8 +30,8 @@ bool menuShowsDebugConsole = !kReleaseMode;
 /// `game_visuals.dart`), then "Mit anderen Geräten spielen" (KLD-098: the
 /// two room buttons, "Raum starten" and "Raum beitreten"). Tapping a game
 /// (or its "An einem Gerät" link) starts a hot-seat game with a fresh random
-/// seed (see [openGameFromMenu]); its "Mit anderen" link (KLD-105) opens
-/// "Raum starten" with that game chosen.
+/// seed (see [openGameFromMenu]); its "Mit anderen" link (KLD-105) asks
+/// "Raum starten" (with that game chosen) or "Raum beitreten" (KLD-111).
 ///
 /// [initialJoinLink] (the PWA's `?join=` URL parameter, KLD-055) opens the
 /// browser join screen on top of the menu and connects right away, so "back"
@@ -89,6 +89,34 @@ class _MenuScreenState extends State<MenuScreen> {
   /// Null where the relay can't matter (native, http pages).
   late final RelaySettings? _relaySettings =
       widget.relaySettings ?? (widget.pageUrl?.scheme == 'https' ? RelaySettings.shared() : null);
+
+  /// KLD-111: a game's "Mit anderen" (tile or preview link): a sheet with
+  /// the game's name asks "Raum starten" (the room screen with this game
+  /// chosen, KLD-105) or "Raum beitreten" (the join screen as in the room
+  /// section: the host decides the game). Without a join screen: straight
+  /// to "Raum starten".
+  Future<void> _withOthers(String id, Widget Function(String) startFor, WidgetBuilder? join) => _launch(() async {
+    WidgetBuilder? next = (_) => startFor(id);
+    if (join != null) {
+      final accent = KlunkiPalette.of(context).accent(id);
+      final l10n = AppLocalizations.of(context);
+      final title = localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id);
+      final choice = await showModalBottomSheet<_RoomChoice>(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (_) => _RoomChoiceSheet(title: title, accent: accent),
+      );
+      if (!mounted) return;
+      next = switch (choice) {
+        _RoomChoice.start => next,
+        _RoomChoice.join => join,
+        null => null,
+      };
+    }
+    if (next == null) return;
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: next));
+  });
 
   /// KLD-108: network play can't work on this page (see [MenuScreen]).
   bool get _networkBlocked => browserCannotPlayOnline(pageUrl: widget.pageUrl, chosenRelay: _relaySettings?.value);
@@ -182,8 +210,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           ? null
                           : blocked
                           ? (_) => explain()
-                          : (id) => _launch(() => Navigator.of(context)
-                              .push(MaterialPageRoute<void>(builder: (_) => startFor(id)))),
+                          : (id) => _withOthers(id, startFor, join),
                       networkBlocked: blocked,
                     ),
                     // View-only Quartett card gallery (KLD-069).
@@ -258,8 +285,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                     label: Text(l10n.menuPlayWithOthers),
                                     onPressed: blocked
                                         ? explain
-                                        : () => _launch(() => Navigator.of(context)
-                                            .push(MaterialPageRoute<void>(builder: (_) => startFor(id)))),
+                                        : () => _withOthers(id, startFor, join),
                                   ),
                                 ),
                               ),
@@ -553,13 +579,22 @@ class _RoomButtons extends StatelessWidget {
   final VoidCallback onStart;
   final VoidCallback onJoin;
   final bool blocked;
-  const _RoomButtons({required this.accent, required this.onStart, required this.onJoin, this.blocked = false});
+
+  /// Keys `<keyPrefix>-start` / `<keyPrefix>-join` of the two buttons.
+  final String keyPrefix;
+  const _RoomButtons({
+    required this.accent,
+    required this.onStart,
+    required this.onJoin,
+    this.blocked = false,
+    this.keyPrefix = 'menu-room',
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final start = _RoomButton(
-      key: const Key('menu-room-start'),
+      key: Key('$keyPrefix-start'),
       accent: accent,
       icon: Icons.meeting_room_outlined,
       title: l10n.roomStart,
@@ -568,7 +603,7 @@ class _RoomButtons extends StatelessWidget {
       blocked: blocked,
     );
     final join = _RoomButton(
-      key: const Key('menu-room-join'),
+      key: Key('$keyPrefix-join'),
       accent: accent,
       icon: Icons.qr_code_scanner,
       title: l10n.roomJoin,
@@ -591,6 +626,55 @@ class _RoomButtons extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+enum _RoomChoice { start, join }
+
+/// KLD-111: the sheet behind a game's "Mit anderen": the game's name, then
+/// "Raum starten" and "Raum beitreten" as in the room section, in the
+/// game's accent. Pops the chosen [_RoomChoice].
+class _RoomChoiceSheet extends StatelessWidget {
+  final String title;
+  final GameAccent accent;
+  const _RoomChoiceSheet({required this.title, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final nav = Navigator.of(context);
+    return SafeArea(
+      child: SingleChildScrollView(
+        key: const Key('menu-room-choice'),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              key: const Key('menu-room-choice-title'),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.menuSectionNetwork,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            _RoomButtons(
+              keyPrefix: 'menu-room-choice',
+              accent: accent,
+              onStart: () => nav.pop(_RoomChoice.start),
+              onJoin: () => nav.pop(_RoomChoice.join),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,8 @@
 // KLD-105: the play-mode links on the menu tiles. "Ein Gerät" (and the tile
 // body) start the game on this device after "Wer spielt?"; "Mit anderen"
-// opens "Raum starten" with the game chosen; games without network play
-// only get "Ein Gerät"; no "Gerät weitergeben" on the tiles any more.
+// asks "Raum starten" (with the game chosen) or "Raum beitreten" (KLD-111);
+// games without network play only get "Ein Gerät"; no "Gerät weitergeben"
+// on the tiles any more.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
@@ -20,6 +21,37 @@ Future<void> _pumpMenu(WidgetTester tester, {Size size = const Size(375, 3000)})
 
 Finder _local(String id) => find.byKey(Key('menu-$id-local'));
 Finder _network(String id) => find.byKey(Key('menu-$id-network'));
+final _choice = find.byKey(const Key('menu-room-choice'));
+final _choiceStart = find.byKey(const Key('menu-room-choice-start'));
+final _choiceJoin = find.byKey(const Key('menu-room-choice-join'));
+
+Future<void> _frames(WidgetTester tester) async {
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+/// "Mit anderen" (tile or preview link) shows the choice sheet titled with
+/// [title]; then [button] in it.
+Future<void> _withOthers(WidgetTester tester, Finder link, String title, Finder button) async {
+  await tester.ensureVisible(link);
+  await tester.tap(link);
+  await tester.pumpAndSettle();
+  expect(_choice, findsOneWidget);
+  expect(tester.widget<Text>(find.byKey(const Key('menu-room-choice-title'))).data, title);
+  expect(find.descendant(of: _choiceStart, matching: find.text('Raum starten')), findsOneWidget);
+  expect(find.descendant(of: _choiceStart, matching: find.text('Andere kommen mit dem Raumcode dazu')), findsOneWidget);
+  expect(find.descendant(of: _choiceJoin, matching: find.text('Raum beitreten')), findsOneWidget);
+  expect(find.descendant(of: _choiceJoin, matching: find.text('Code scannen oder eintippen')), findsOneWidget);
+  await tester.tap(button);
+  // Not pumpAndSettle: the join screen keeps a progress indicator running.
+  await _frames(tester);
+  expect(_choice, findsNothing);
+  if (find.byKey(const Key('player-name-ok')).evaluate().isNotEmpty) {
+    await tester.tap(find.byKey(const Key('player-name-ok')));
+    await _frames(tester);
+  }
+}
 
 void main() {
   testWidgets('network games (chess too) get both links, hot-seat-only games only "Ein Gerät"', (tester) async {
@@ -73,16 +105,10 @@ void main() {
     }
   });
 
-  testWidgets('"Mit anderen" opens "Raum starten" with the game chosen', (tester) async {
+  testWidgets('"Mit anderen" -> "Raum starten" opens the room screen with the game chosen', (tester) async {
     await _pumpMenu(tester, size: const Size(800, 3000));
-    for (final id in ['schiffe', 'quartett-sets']) {
-      await tester.tap(_network(id));
-      await tester.pumpAndSettle();
-      // First visit: "Wie heißt du?" (KLD-056) comes first.
-      if (find.byKey(const Key('player-name-ok')).evaluate().isNotEmpty) {
-        await tester.tap(find.byKey(const Key('player-name-ok')));
-        await tester.pumpAndSettle();
-      }
+    for (final (id, title) in [('schiffe', 'Schiffe versenken'), ('quartett-sets', 'Quartett (Sets)')]) {
+      await _withOthers(tester, _network(id), title, _choiceStart);
       final screen = tester.widget<PairingScreen>(find.byType(PairingScreen));
       expect(screen.mode, RoomMode.start);
       expect(screen.gameId, id);
@@ -102,18 +128,43 @@ void main() {
     expect(find.byKey(const Key('pair-game-fixed')), findsNothing);
   });
 
-  testWidgets('Wortgewandt preview: "Mit anderen" opens "Raum starten" with the game and its start options',
+  testWidgets('KLD-111: "Mit anderen" -> "Raum beitreten" opens the join screen (the host picks the game)',
+      (tester) async {
+    await _pumpMenu(tester, size: const Size(800, 3000));
+    await _withOthers(tester, _network('chess'), 'Schach', _choiceJoin);
+    // The camera scanner opens on top of it right away (KLD-098).
+    final joinScreen = find.byType(PairingScreen, skipOffstage: false);
+    final screen = tester.widget<PairingScreen>(joinScreen);
+    expect(screen.mode, RoomMode.join);
+    expect(screen.gameId, isNull);
+    Navigator.of(tester.element(joinScreen)).popUntil((r) => r.isFirst);
+    await _frames(tester);
+    expect(find.byKey(const Key('menu-chess')), findsOneWidget);
+    // Wortgewandt preview link too.
+    await _withOthers(tester, find.byKey(const Key('menu-preview-wordtiles-network')), 'Wortgewandt', _choiceJoin);
+    expect(tester.widget<PairingScreen>(joinScreen).mode, RoomMode.join);
+  });
+
+  testWidgets('KLD-111: closing the choice sheet goes nowhere; the menu works again', (tester) async {
+    await _pumpMenu(tester, size: const Size(800, 3000));
+    await tester.tap(_network('connect4'));
+    await tester.pumpAndSettle();
+    expect(_choice, findsOneWidget);
+    await tester.tapAt(const Offset(400, 20)); // the barrier above the sheet
+    await tester.pumpAndSettle();
+    expect(_choice, findsNothing);
+    expect(find.byType(PairingScreen), findsNothing);
+    await _withOthers(tester, _network('connect4'), '4 Gewinnt', _choiceStart);
+    expect(tester.widget<PairingScreen>(find.byType(PairingScreen)).gameId, 'connect4');
+  });
+
+  testWidgets('Wortgewandt preview: "Mit anderen" -> "Raum starten" with the game and its start options',
       (tester) async {
     await _pumpMenu(tester, size: const Size(800, 3000));
     final link = find.byKey(const Key('menu-preview-wordtiles-network'));
     expect(link, findsOneWidget);
     expect(find.descendant(of: link, matching: find.text('Mit anderen')), findsOneWidget);
-    await tester.tap(link);
-    await tester.pumpAndSettle();
-    if (find.byKey(const Key('player-name-ok')).evaluate().isNotEmpty) {
-      await tester.tap(find.byKey(const Key('player-name-ok')));
-      await tester.pumpAndSettle();
-    }
+    await _withOthers(tester, link, 'Wortgewandt', _choiceStart);
     final screen = tester.widget<PairingScreen>(find.byType(PairingScreen));
     expect(screen.mode, RoomMode.start);
     expect(screen.gameId, 'wordtiles');

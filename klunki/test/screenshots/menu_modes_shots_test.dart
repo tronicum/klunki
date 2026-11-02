@@ -156,6 +156,8 @@ void main() {
       await tester.pump();
       await tester.tap(link);
       await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('menu-room-choice-start'))); // KLD-111
+      await tester.pumpAndSettle();
       await _shot(tester, 'room-with-others-$id');
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
@@ -176,5 +178,30 @@ void main() {
     await tester.tap(find.byKey(const Key('menu-connect4-local')));
     await tester.pumpAndSettle();
     await _shot(tester, 'who-plays-connect4');
+  });
+
+  // KLD-111: "Mit anderen" on a tile asks "Raum starten" or "Raum beitreten".
+  //   KLUNKI_SHOTS=/tmp/kld111 flutter test test/screenshots/menu_modes_shots_test.dart --plain-name kld111
+  group('kld111', () {
+    for (final (frame, size) in frames) {
+      for (final (locale, b) in const [
+        (Locale('de'), Brightness.light),
+        (Locale('de'), Brightness.dark),
+        (Locale('ar'), Brightness.light),
+      ]) {
+        final l = locale.languageCode;
+        testWidgets('kld111 $frame $l ${b.name}', skip: skip, (tester) async {
+          await _setup(tester, size, b);
+          await _pumpApp(tester, locale);
+          final link = find.byKey(const Key('menu-chess-network'));
+          await tester.ensureVisible(link);
+          await tester.pumpAndSettle();
+          await _shot(tester, 'kld111-menu-$frame-$l-${b.name}');
+          await tester.tap(link);
+          await tester.pumpAndSettle();
+          await _shot(tester, 'kld111-sheet-chess-$frame-$l-${b.name}');
+        });
+      }
+    }
   });
 }
