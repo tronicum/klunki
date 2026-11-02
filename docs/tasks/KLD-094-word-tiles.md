@@ -6,8 +6,8 @@
 - **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
   (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); step 4 DONE for
   hot-seat (word lists de + en, check at "Legen" with "Trotzdem zulassen", tile language per game, the bench
-  "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); network next, see "Step plan"; 3–4 players assessed (see
-  "3–4 players on one device")
+  "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); step 6 network (2 devices) DONE (see "Step 6"), still
+  `appReady: false`; 3–4 players assessed (see "3–4 players on one device")
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -425,6 +425,62 @@ releases it). Decisions on the open UX points (each is a small, local change to 
   word, tiles laid with the bench open and closed, pass confirmation, help (top and scrolled), the result (de, en,
   iPad), the dictionary loading dialog.
 
+## Step 6 (network, 2 devices): what was built
+Goal: Wortgewandt between two devices (direct TCP, WebSocket, relay) with the same rules as on one device.
+`appReady` stays false; the debug preview has a "Mit anderen" link next to "Vorschau: Wortgewandt", and
+`hotSeatOnlyGames` is empty, so the menu tile gets "Mit anderen" once the game is released. Protocol details:
+`packages/klunki_net/PROTOCOL.md`, "Wortgewandt".
+- **Config and fingerprint:** `tiles` and `dict` travel in the `welcome` config (they were already in
+  `GameConfig.publicJson`; now the guest's redacted verification passes them on too). Rules version 3. Each list's
+  identity in `WordLists.revisions` now ends in the SHA-256 of the bundled `words.txt.gz` (an app test checks it
+  against the assets), and the revisions are in the content hash, so builds with different lists refuse each other
+  ("incompatible-content"). `GameSpec.configProblem(config, wordList: false)` lets a guest join before its list is
+  loaded; `NetworkGameSession` loads it right after (with the usual progress dialog), and the guest's view looks the
+  list up lazily (`WordLists.of`).
+- **Secrecy (KLD-064):** unchanged redaction (`WordTilesRedaction`, secret seed): own rack only, rack sizes, bag
+  count, a host exchange as a count with a commitment, reveal + replay at the end. Checked after every move in the
+  net tests over TCP, WebSocket and relay.
+- **"Trotzdem zulassen" needs the other player (rules 3):** three engine moves naming the player, like the chess
+  draw offer: `requestAllow {player, tiles, allow}` (the tiles lie on the board, shown with an open ring on both
+  devices; nobody can move), `acceptAllow {player}` (the placement counts, `allowed` recorded, the turn passes),
+  `declineAllow {player}` (tiles back to the rack, still the placer's turn, the same words cannot be asked again this
+  turn; "Ben hat das schon abgelehnt. Nimm die Steine zurück."). `place` with `allow` is refused everywhere, so
+  the host never counts an unknown word without agreement. At most one open request; it is in the view, so a guest
+  that rejoins gets its dialog back. On one device the request and the agreement go in back to back (both players are
+  at the device), so hot-seat plays as before; the history shows both moves.
+- **UI:** at "Legen" the unknown-word notice is local ("Du kannst die Steine zurücknehmen oder Ben fragen, ob es
+  trotzdem zählt."); the placer's status "Ben entscheidet…", the answerer's "Du entscheidest" and a dialog
+  "Trotzdem zulassen? Anna möchte „BAU“ zulassen – einverstanden?" (Ablehnen / Annehmen); a line above the board on
+  both devices while open ("Anna möchte „BAU“ zulassen (8 Punkte).") and after a decline ("Ben lehnt „BAU“ ab.").
+  Waiting texts follow the shell ("Warte auf Ben…"). The options of a network game: a chip in the score row ("DE"
+  plus a book icon with the word list; tooltip "Deutsch · Wörterbuch prüfen") and the line above the board before
+  the first turn. Room: "Raum starten" (direct and relay) shows the tile language and "Wörterbuch prüfen" pickers for
+  Wortgewandt, loads the list before hosting, and the waiting room names the options. The bench stays per device.
+  Without a word list the challenge buttons work over the network (the next player challenges on their device).
+- **Handover in hot-seat** (`GameController`): the cover now comes when the player to move changes (it used to be
+  "a move by another player"), so the agreement of the other player does not cover the board twice.
+- **KLD-108:** the preview's "Mit anderen" link is greyed and explains like the other network entries on an https
+  page without a relay (covered by `web_beta_test.dart`).
+
+**Touched paths (step 6):**
+- Engine: `word_tiles.dart` (request/accept/decline, rules 3, list hashes), `word_tiles_view.dart`, `registry.dart`
+  (`configProblem(wordList:)`, rules 3), `compat.dart`; tests `word_lists_test.dart`, `compat_test.dart` (golden).
+- Net: `lib/src/guest.dart`, `lib/src/secrecy/secrecy.dart` (tiles/dict in the verification), `PROTOCOL.md`,
+  `test/wordtiles_net_test.dart` (new).
+- App: `wordtiles_board.dart`, `wordtiles_options.dart` (`WordTilesOptionsPicker`, summary), `wordtiles_screen.dart`,
+  `pairing_screen.dart`, `relay_host_screen.dart`, `network_game_session.dart`, `menu_screen.dart`,
+  `screen_registry.dart`, `game_controller.dart`, `l10n/app_*.arb` (15 keys, zh with existing glyphs only).
+- Tests: `test/ui/games/wordtiles_network_test.dart` (new), `wordtiles_dictionary_bench_test.dart`,
+  `menu_modes_test.dart`, `web_beta_test.dart`, `l10n/english_ui_test.dart`, `e2e/live_ui/wordtiles_adapter.dart` +
+  `wordtiles_live_test.dart` (a network game), `screenshots/wordtiles_net_shots_test.dart` (new).
+
+**Tests:** engine (allow handshake, decline/no repeat, view round trip, replay, lazy list); net
+(`wordtiles_net_test.dart`: a scripted game with the list over TCP, WebSocket and relay with requests declined and
+accepted by both sides, redaction checks after every move, verified end; the challenge game; rejoin with an open
+request; mismatched list / rules refused; a guest without its list joins); app widget tests (own rack, options,
+request both ways, decline, the rejected second ask); a live-UI network game through the Wi-Fi proxy with the
+German list (seed 3: 102 moves, one request declined, one accepted, verified) besides the hot-seat games.
+
 ## 3–4 players on one device (assessment, not built)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -459,7 +515,7 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
    asset per language, a lazy loader, `WordListValidator` on a sorted list (or DAWG); mode picker ("Anzweifeln" /
    "Wörterbuch"); recalibrate the tile sets on the list's letter frequencies (rules + compat bump).
 5. **Hot-seat polish (done, see "Step 5").**
-6. **Network** (step 3 above) next.
+6. **Network (done, see "Step 6").**
 7. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 

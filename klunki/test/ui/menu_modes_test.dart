@@ -40,9 +40,10 @@ void main() {
     expect(_local('chess'), findsOneWidget);
     expect(_network('chess'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('chess')));
-    // The word tile game (debug preview, not a tile yet) is hot-seat only.
-    expect(hotSeatOnlyGames, contains('wordtiles'));
-    expect(_network('wordtiles'), findsNothing);
+    // KLD-094 step 6: the word tile game plays over the network too (it is
+    // a debug preview with its own "Mit anderen" link until it is a tile).
+    expect(hotSeatOnlyGames, isNot(contains('wordtiles')));
+    expect(hotSeatOnlyGames, isEmpty);
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {
@@ -99,6 +100,32 @@ void main() {
     expect(tester.widget<PairingScreen>(find.byType(PairingScreen)).gameId, isNull);
     expect(find.byKey(const Key('pair-game-connect4')), findsOneWidget);
     expect(find.byKey(const Key('pair-game-fixed')), findsNothing);
+  });
+
+  testWidgets('Wortgewandt preview: "Mit anderen" opens "Raum starten" with the game and its start options',
+      (tester) async {
+    await _pumpMenu(tester, size: const Size(800, 3000));
+    final link = find.byKey(const Key('menu-preview-wordtiles-network'));
+    expect(link, findsOneWidget);
+    expect(find.descendant(of: link, matching: find.text('Mit anderen')), findsOneWidget);
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+    if (find.byKey(const Key('player-name-ok')).evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(const Key('player-name-ok')));
+      await tester.pumpAndSettle();
+    }
+    final screen = tester.widget<PairingScreen>(find.byType(PairingScreen));
+    expect(screen.mode, RoomMode.start);
+    expect(screen.gameId, 'wordtiles');
+    expect(find.byKey(const Key('pair-game-fixed')), findsOneWidget);
+    // The host chooses tile language and word list, as on one device.
+    expect(find.byKey(const Key('pair-wordtiles')), findsOneWidget);
+    expect(find.byKey(const Key('pair-wordtiles-tiles-de')), findsOneWidget);
+    expect(find.byKey(const Key('pair-wordtiles-tiles-en')), findsOneWidget);
+    expect(tester.widget<SwitchListTile>(find.byKey(const Key('pair-wordtiles-dict'))).value, isTrue);
+    await tester.tap(find.byKey(const Key('pair-wordtiles-dict')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<SwitchListTile>(find.byKey(const Key('pair-wordtiles-dict'))).value, isFalse);
   });
 
   testWidgets('"Ein Gerät" and the tile body start the game after "Wer spielt?"', (tester) async {

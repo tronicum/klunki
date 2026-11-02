@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
@@ -12,6 +13,7 @@ import 'package:klunki/ui/games/wordtiles/wordtiles_options.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:klunki_engine/sha256.dart';
 
 import '../../l10n/l10n_test_utils.dart';
 import '../shell/shell_test_utils.dart';
@@ -111,10 +113,15 @@ void main() {
       await _tap(tester, find.byKey(_play));
       await _tap(tester, find.byKey(const Key('wordtiles-unknown-allow')));
       await tester.pumpAndSettle();
-      expect(c.moves.single.move['allow'], ['BAU']);
+      // KLD-094 step 6 (rules 3): on one device the request and the other
+      // player's agreement go in back to back.
+      expect(c.moves.map((m) => m.move['action']), [WordTilesGame.requestAllow, WordTilesGame.acceptAllow]);
+      expect(c.moves.first.move['allow'], ['BAU']);
+      expect(c.moves.last.move['player'], 'b');
       expect(_game(c).scoreOf(0), 8, reason: '(2+1+1)·2 on the centre');
       expect(_text(tester, const Key('wordtiles-cover-turn')), 'Anna: BAU für 8 Punkte (zugelassen: BAU)');
-      expect(describeWordTilesMove(deL10n, c.moves.single), 'BAU für 8 Punkte (zugelassen: BAU)');
+      expect(describeWordTilesMove(deL10n, c.moves.first), 'möchte BAU zulassen (8 Punkte)');
+      expect(describeWordTilesMove(deL10n, c.moves.last), 'einverstanden: BAU zählt (8 Punkte)');
     });
   });
 
@@ -332,6 +339,19 @@ void main() {
       expect((en as SortedWordListValidator).length, 190787);
       // Every word fits its tile set.
       expect(identical(await WordListLoader.ensure('de'), de), isTrue, reason: 'loaded once');
+    });
+
+    // KLD-094 step 6: the list's identity is part of the network fingerprint
+    // (WordLists.revisions); a new list must come with a new revision.
+    test('the bundled files match the sha256 in WordLists.revisions', () async {
+      for (final id in ['de', 'en']) {
+        final data = await rootBundle.load(WordListLoader.assetOf(id));
+        final hash = [
+          for (final b in sha256(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes)))
+            b.toRadixString(16).padLeft(2, '0'),
+        ].join();
+        expect(WordLists.revisions[id], endsWith('sha256:$hash'), reason: id);
+      }
     });
   });
 }

@@ -233,18 +233,37 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
-                    // Games not in the app yet (KLD-094), debug builds only.
+                    // Games not in the app yet (KLD-094), debug builds only;
+                    // "Mit anderen" like a game tile's link (KLD-094 step 6:
+                    // Wortgewandt plays over the network, not hot-seat only).
                     if (menuShowsDebugConsole)
                       for (final id in previewGames)
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: TextButton.icon(
-                            key: Key('menu-preview-$id'),
-                            icon: const Icon(Icons.science_outlined, size: 18),
-                            label: Text(l10n.menuPreviewGame(
-                                localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id))),
-                            onPressed: () => _launch(() => openGameFromMenu(context, id)),
-                          ),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            TextButton.icon(
+                              key: Key('menu-preview-$id'),
+                              icon: const Icon(Icons.science_outlined, size: 18),
+                              label: Text(l10n.menuPreviewGame(
+                                  localizedGameTitle(l10n, id, fallback: specById(id)?.title ?? id))),
+                              onPressed: () => _launch(() => openGameFromMenu(context, id)),
+                            ),
+                            if (startFor != null && !hotSeatOnlyGames.contains(id))
+                              KeyedSubtree(
+                                key: Key('menu-preview-$id-network'),
+                                child: Greyed(
+                                  blocked: blocked,
+                                  child: TextButton.icon(
+                                    icon: Icon(blocked ? Icons.wifi_off : Icons.devices_outlined, size: 18),
+                                    label: Text(l10n.menuPlayWithOthers),
+                                    onPressed: blocked
+                                        ? explain
+                                        : () => _launch(() => Navigator.of(context)
+                                            .push(MaterialPageRoute<void>(builder: (_) => startFor(id)))),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                     // KLD-102: "Über Klunki" (privacy policy, Impressum,
                     // support, licences) right above the version line: out

@@ -2256,4 +2256,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appBetaAndroid => 'Get the Android app';
+
+  @override
+  String wordtilesOptionsSummaryDict(String language) {
+    return '$language · dictionary check';
+  }
+
+  @override
+  String wordtilesOptionsSummaryFree(String language) {
+    return '$language · no dictionary';
+  }
+
+  @override
+  String wordtilesUnknownAskNet(String player) {
+    return 'You can take the tiles back or ask $player to let it count anyway.';
+  }
+
+  @override
+  String wordtilesUnknownDeclinedBefore(String player) {
+    return '$player already declined it. Take the tiles back.';
+  }
+
+  @override
+  String get wordtilesAllowTitle => 'Allow anyway?';
+
+  @override
+  String wordtilesAllowBody(String player, String words) {
+    return '$player would like to allow “$words” – do you agree?';
+  }
+
+  @override
+  String get wordtilesAllowAccept => 'Accept';
+
+  @override
+  String get wordtilesAllowDecline => 'Decline';
+
+  @override
+  String wordtilesAllowDeciding(String player) {
+    return '$player decides…';
+  }
+
+  @override
+  String get wordtilesAllowYouDecide => 'Your decision';
+
+  @override
+  String wordtilesAllowLine(String player, String words, int score) {
+    return '$player would like to allow “$words” ($score points).';
+  }
+
+  @override
+  String wordtilesAllowDeclined(String player, String words) {
+    return '$player declined “$words”.';
+  }
+
+  @override
+  String wordtilesMoveAllowRequest(String words, int score) {
+    return 'asks to allow $words ($score points)';
+  }
+
+  @override
+  String wordtilesMoveAllowAccept(String words, int score) {
+    return 'agreed: $words counts ($score points)';
+  }
+
+  @override
+  String wordtilesMoveAllowDecline(String words) {
+    return 'declined: $words';
+  }
 }

@@ -59,8 +59,8 @@ compatible; a host without WebSocket support simply omits them.
 |---|---|---|---|
 | `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
-| `welcome` | host → guest | `config` (`{game, seed, deck?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
-| `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?}`; `{game, deck?}` = `GameConfig.publicJson()` when the seed is secret: the deck is public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
+| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
+| `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
 | `accepted` (redacted) | host → guest | `index`, `player`, `move` (redacted), `event` (redacted), `view`, `commit?` | the same for a hidden-information game |
@@ -290,7 +290,7 @@ Future changes to a game's rules or data need no new protocol version: bump
 ## Hidden information (KLD-064)
 
 Games with `GameSpec.redaction` (`quartett-trumpf`, `quartett-sets`,
-`schiffe`, `gostrategy`). Connect4, Mühle and chess have nothing to hide and
+`schiffe`, `gostrategy`, `wordtiles`). Connect4, Mühle and chess have nothing to hide and
 keep the plain messages above.
 
 **Roles.** The host runs the full engine and is the referee: it sees both
@@ -394,6 +394,46 @@ game the guest also checks what it can at once: each view must be its own
   not on its device or on the wire before the reveal. The relay (and anyone
   on the unencrypted `ws://` link) sees the redacted host → guest messages,
   but the guest's own moves (its setup) in clear text.
+
+### Wortgewandt (`wordtiles`, KLD-094 step 6)
+
+- **Config.** The host chooses the tile set (`tiles`: `de`/`en`) and the
+  word list (`dict: true`, "Wörterbuch prüfen"); both travel in the
+  `welcome` `config` (`publicJson`, the seed is secret and committed as
+  `seedCommit`). The guest builds the same `GameConfig` from them.
+- **Fingerprint.** Rules version 3. The content hash covers the tile sets,
+  the board layout and `WordLists.revisions`: per language the list's source
+  and the SHA-256 of the bundled `words.txt.gz`. Builds with different lists
+  (or rules 2) refuse each other (`incompatible-content` / `-rules`). The
+  guest does not need the list loaded to join; the app loads it right after
+  (the host checks every placement anyway).
+- **Secrecy.** The view holds the guest's own rack, the rack sizes, the bag
+  size (a number), the board, scores and the public turn log; never the
+  host's rack, the bag order or the seed. A host `exchange` reaches the
+  guest as `{action: exchange, count}` with a `commit`; placements, passes
+  and challenges are public. At the end `reveal` brings the seed and the
+  exchanged tiles; the guest replays the game (`verifyRedactedGame` with the
+  config's `tiles` and `dict`).
+- **"Trotzdem zulassen" (dictionary mode).** The word check runs locally at
+  "Legen" (no round trip); "Zurücknehmen" is local too. Letting a word the
+  list lacks count needs the other player:
+
+  | move | by | effect |
+  |---|---|---|
+  | `{action: requestAllow, player, tiles, allow}` | the player on turn | opens the request: the tiles lie on the board (public), nobody else may move; at most one open request |
+  | `{action: acceptAllow, player}` | the other player | the placement counts with `allowed` = `allow`; the turn passes |
+  | `{action: declineAllow, player}` | the other player | the tiles go back; still the placer's turn; the same words cannot be asked again this turn |
+
+  `player` names the mover (like the chess draw offer), so the answer is
+  accepted from the player who is not on turn. A `place` with `allow` is
+  refused (rules 3): the host only lets a word stand that the other player
+  agreed to. An open request is part of the view (`allowRequest`), so a
+  guest that rejoins sees it again (and its answer dialog). One leak is
+  inherent: a declined request shows those tiles of the placer's rack.
+- **Without the word list** the challenge flow ("Anzweifeln" /
+  "Akzeptieren") runs over the network unchanged: the next player answers
+  on their own device.
+- The CLI (`klunki host wordtiles`) has no flags for `tiles` / `dict` yet.
 
 ## Relay (KLD-057a): browser vs browser
 

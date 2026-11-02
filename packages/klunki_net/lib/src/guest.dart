@@ -343,7 +343,10 @@ class KlunkiGuest {
     if (hostName is String) _hostName = sanitizePlayerName(hostName);
     _token = m['token'] as String? ?? _token;
     if (_joined && (config != _config || me != _me)) return 'reconnected to a different game';
-    final problem = configProblem(config);
+    // A word tile game's word list may still be loading: the guest creates
+    // no engine for it now (it only needs the list to check its own words
+    // and, at the end, to replay the game; KLD-094 step 6).
+    final problem = configProblem(config, wordList: false);
     if (problem != null) return problem;
     final spec = specById(config.gameId)!;
     final redaction = spec.redaction;
@@ -503,6 +506,8 @@ class KlunkiGuest {
         gameId: _config.gameId,
         deck: _config.deck,
         pickLowCards: _config.pickLowCards,
+        tiles: _config.tiles,
+        dictionary: _config.dictionary,
         me: _me,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,

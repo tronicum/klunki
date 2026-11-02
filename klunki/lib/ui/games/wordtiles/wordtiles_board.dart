@@ -10,6 +10,7 @@ import '../../../transport/game_transport.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import 'wordtiles_help.dart';
+import 'wordtiles_options.dart' show wordTilesOptionsSummary, wordTilesTileNames;
 import 'wordtiles_tiles.dart';
 
 /// The interactive word tile board (KLD-094 step 2): the 15 × 15 board with
@@ -39,8 +40,11 @@ import 'wordtiles_tiles.dart';
 ///   before "Legen" (no hint, no ✓/✗: that would be an indirect dictionary).
 ///   At "Legen" every formed word is looked up; unknown ones open a notice
 ///   (`wordtiles-unknown`) with "Zurücknehmen" (tiles back to the rack, the
-///   turn goes on) and "Trotzdem zulassen" (both players agree; the move
-///   carries `allow`, the history says "zugelassen: …"). No challenges then.
+///   turn goes on) and "Trotzdem zulassen" (the other player agrees: a
+///   `requestAllow` move, answered by `acceptAllow` / `declineAllow`; in
+///   hot-seat both go in at once, over the network (KLD-094 step 6) the
+///   other device shows `wordtiles-allow-dialog` while the placer waits).
+///   The history says "zugelassen: …". No challenges then.
 /// * **Bänkchen** (the bench, KLD-094 step 4): [benchRows] private practice
 ///   rows of [benchSlots] slots between the rack and the actions, collapsible
 ///   ("Bänkchen ▾"). Drag rack tiles in, move them between slots, drag them
@@ -167,9 +171,19 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     return local.length == 1 ? WordTilesGame.seatOf(local.single) : game.currentSeat;
   }
 
+  /// One player per device (KLD-094 step 6), not hot-seat.
+  bool get _network => controller.transport.localPlayers.length == 1;
+
   List<String> get _rack => game.rackOf(_seat);
 
-  bool get _myTurn => controller.canAct && game.currentSeat == _seat && !_busy;
+  /// While a "Trotzdem zulassen" request is open nobody lays tiles: the
+  /// placer waits for the answer.
+  bool get _myTurn => controller.canAct && game.currentSeat == _seat && !_busy && game.allowRequest == null;
+
+  /// The open "accept the word?" dialog and the log index of the request it
+  /// answers (KLD-094 step 6, like the chess draw offer).
+  ModalRoute<Object?>? _allowRoute;
+  int? _allowShownFor;
 
   /// Tiles may be laid (not while only challenge / accept are allowed).
   bool get _canLay => _myTurn && !game.endPending && !_exchanging;
@@ -181,6 +195,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     _seen = controller.moves.length;
     _resetTurn();
     controller.addListener(_onChange);
+    _syncAllow(); // e.g. a guest that rejoins while a request is open
   }
 
   @override
@@ -214,6 +229,128 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         _resetTurn();
       }
     });
+    _syncAllow();
+  }
+
+  // ------------------------------------------------- "Trotzdem zulassen"
+
+  /// The local player who answers the open request, or null (none open, or
+  /// the other device answers it).
+  Player? get _allowTo {
+    final seat = game.allowRequestAnswerer;
+    final to = seat == null ? null : WordTilesGame.playerOfSeat(seat);
+    return to != null && controller.transport.localPlayers.contains(to) ? to : null;
+  }
+
+  int get _lastRequestIndex => controller.moves.lastIndexWhere((m) => m.move['action'] == WordTilesGame.requestAllow);
+
+  /// Shows the answer dialog for a new open request to a local player and
+  /// closes it when the request is gone (answered, a resign).
+  void _syncAllow() {
+    final to = _allowTo;
+    if (to == null || _hotSeatAgreeing) {
+      _allowShownFor = null;
+      final r = _allowRoute;
+      _allowRoute = null;
+      _closeRoute(r);
+      return;
+    }
+    final index = _lastRequestIndex;
+    if (_allowShownFor == index) return;
+    _allowShownFor = index;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _allowTo == to && _allowShownFor == index && !_hotSeatAgreeing) _answerAllow(to);
+    });
+  }
+
+  /// Hot-seat "Trotzdem zulassen": both players agreed at the device, the
+  /// request and its acceptance go in one go (no answer dialog in between).
+  bool _hotSeatAgreeing = false;
+
+  static void _closeRoute(ModalRoute<Object?>? r) {
+    final nav = r?.navigator;
+    if (r == null || nav == null || !r.isActive) return;
+    if (r.isCurrent) {
+      nav.pop();
+    } else {
+      nav.removeRoute(r);
+    }
+  }
+
+  String _nameOfSeat(int seat) {
+    final p = WordTilesGame.playerOfSeat(seat);
+    return p == null ? '${seat + 1}' : playerName(context, p);
+  }
+
+  /// "Anna möchte „BAU“ zulassen – einverstanden?" with "Annehmen" /
+  /// "Ablehnen".
+  Future<void> _answerAllow(Player to) async {
+    final request = game.allowRequest;
+    if (request == null) return;
+    final l10n = AppLocalizations.of(context);
+    final who = _nameOfSeat(request.seat);
+    final accept = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        _allowRoute = ModalRoute.of(ctx);
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            key: const Key('wordtiles-allow-dialog'),
+            title: Text(l10n.wordtilesAllowTitle),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(l10n.wordtilesAllowBody(who, wordList(ctx, request.allow)),
+                    key: const Key('wordtiles-allow-body'), style: Theme.of(ctx).textTheme.bodyLarge),
+                const SizedBox(height: 8),
+                Text(l10n.wordtilesPreview(wordList(ctx, request.words), request.score),
+                    style: Theme.of(ctx).textTheme.bodyMedium),
+              ],
+            ),
+            actions: [
+              TextButton(
+                key: const Key('wordtiles-allow-decline'),
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(l10n.wordtilesAllowDecline),
+              ),
+              FilledButton(
+                key: const Key('wordtiles-allow-accept'),
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(l10n.wordtilesAllowAccept),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    _allowRoute = null;
+    if (accept == null || !mounted || game.allowRequestAnswerer != WordTilesGame.seatOf(to)) return;
+    final r = await controller.submit(
+        accept ? WordTilesGame.acceptAllowMove(to) : WordTilesGame.declineAllowMove(to));
+    // Not delivered (e.g. the connection dropped): ask again while the
+    // request is still open.
+    if (!r.isAccepted && mounted && game.allowRequestAnswerer == WordTilesGame.seatOf(to)) {
+      _allowShownFor = null;
+      _syncAllow();
+    }
+  }
+
+  /// The rack indices of the tiles of the own open request (they lie on the
+  /// board while the other player decides).
+  Set<int> get _requestedRackTiles {
+    final r = game.allowRequest;
+    if (r == null || r.seat != _seat) return const {};
+    final rack = _rack;
+    final used = <int>{};
+    for (final t in r.tiles) {
+      for (var i = 0; i < rack.length; i++) {
+        if (rack[i] == t.tile && used.add(i)) break;
+      }
+    }
+    return used;
   }
 
   void _resetTurn() {
@@ -481,20 +618,37 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return;
     }
     final seen = _seen;
-    final allow = await _askUnknown(unknown);
+    final canAsk = game.canRequestAllow(unknown);
+    final allow = await _askUnknown(unknown, canAsk: canAsk);
     if (!mounted || seen != _seen) return;
-    if (allow) {
-      _submit(WordTilesGame.placeMove(placed, allow: unknown));
-    } else {
+    if (!allow || !canAsk) {
       _recallAll();
+      return;
+    }
+    // KLD-094 step 6: "Trotzdem zulassen" asks the other player. Over the
+    // network their device shows the request; in hot-seat both players
+    // agreed right here, so the answer follows at once.
+    final me = WordTilesGame.playerOfSeat(_seat)!;
+    final other = WordTilesGame.playerOfSeat(game.currentSeat == 0 ? 1 : 0)!;
+    setState(() => _busy = true);
+    _hotSeatAgreeing = !_network;
+    try {
+      final r = await controller.submit(WordTilesGame.requestAllowMove(me, placed, unknown));
+      if (r.isAccepted && !_network && mounted) await controller.submit(WordTilesGame.acceptAllowMove(other));
+      if (!r.isAccepted && mounted) setState(() => _busy = false);
+    } finally {
+      _hotSeatAgreeing = false;
     }
   }
 
   /// "„XYZ“ steht nicht im Wörterbuch." – "Zurücknehmen" (false) or
-  /// "Trotzdem zulassen" (true): one joint decision, both players are at the
-  /// device (over the network the other player will have to agree, step 3).
-  Future<bool> _askUnknown(List<String> words) async {
+  /// "Trotzdem zulassen" (true). Hot-seat: one joint decision, both players
+  /// are at the device. Network (KLD-094 step 6): it asks the other player.
+  /// [canAsk] false (the other player already declined these words this
+  /// turn): only "Zurücknehmen".
+  Future<bool> _askUnknown(List<String> words, {bool canAsk = true}) async {
     final l10n = AppLocalizations.of(context);
+    final otherSeat = _seat == 0 ? 1 : 0;
     final allow = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -507,15 +661,20 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             Text(l10n.wordtilesUnknownBody(wordList(ctx, words), words.length),
                 style: Theme.of(ctx).textTheme.bodyLarge),
             const SizedBox(height: 12),
-            Text(l10n.wordtilesUnknownAsk),
+            Text(!canAsk
+                ? l10n.wordtilesUnknownDeclinedBefore(_nameOfSeat(otherSeat))
+                : _network
+                    ? l10n.wordtilesUnknownAskNet(_nameOfSeat(otherSeat))
+                    : l10n.wordtilesUnknownAsk),
           ],
         ),
         actions: [
-          TextButton(
-            key: const Key('wordtiles-unknown-allow'),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(l10n.wordtilesUnknownAllow),
-          ),
+          if (canAsk)
+            TextButton(
+              key: const Key('wordtiles-unknown-allow'),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.wordtilesUnknownAllow),
+            ),
           FilledButton(
             key: const Key('wordtiles-unknown-withdraw'),
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -712,6 +871,18 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       }
     }
     shell.setHint(hint);
+    // KLD-094 step 6, network: while a request is open the placer's device
+    // says who decides ("Ben entscheidet …"), the other one that it decides.
+    ShellStatus? status;
+    final request = game.allowRequest;
+    final answerer = game.allowRequestAnswerer;
+    if (_network && request != null && answerer != null) {
+      final to = WordTilesGame.playerOfSeat(answerer)!;
+      status = answerer == _seat
+          ? ShellStatus(text: l10n.wordtilesAllowYouDecide, player: to)
+          : ShellStatus(text: l10n.wordtilesAllowDeciding(_nameOfSeat(answerer)), player: to);
+    }
+    shell.setStatusOverride(status);
   }
 
   @override
@@ -902,6 +1073,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         ),
         if (extra != null) Flexible(child: extra),
         Row(mainAxisSize: MainAxisSize.min, children: [
+        // KLD-094 step 6: the host's options in the header of a network
+        // game ("EN" plus a book for "Wörterbuch prüfen"; the full text as
+        // tooltip and for screen readers).
+        if (_network) _optionsChip(context, l10n),
         const SizedBox(width: 4),
         Tooltip(
           message: l10n.wordtilesBag(g.bagCount),
@@ -929,6 +1104,40 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         ),
         ]),
       ],
+    );
+  }
+
+  Widget _optionsChip(BuildContext context, AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final config = controller.config;
+    final summary = wordTilesOptionsSummary(l10n, config);
+    final tiles = config.tiles ?? TileSet.german.id;
+    final muted = theme.colorScheme.onSurfaceVariant;
+    return Tooltip(
+      message: summary,
+      child: Semantics(
+        label: summary,
+        excludeSemantics: true,
+        child: Container(
+          key: const Key('wordtiles-net-options'),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(wordTilesTileNames.containsKey(tiles) ? tiles.toUpperCase() : tiles,
+                  textDirection: TextDirection.ltr, style: theme.textTheme.labelMedium?.copyWith(color: muted)),
+              if (config.dictionary) ...[
+                const SizedBox(width: 3),
+                Icon(Icons.menu_book_outlined, size: 16, color: muted),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -983,8 +1192,48 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         ),
       );
     }
+    // KLD-094 step 6: an open "Trotzdem zulassen" request, on both devices.
+    final request = g.allowRequest;
+    if (request != null) {
+      final c = WordTilesColors.of(context);
+      return Container(
+        key: const Key('wordtiles-allow-line'),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: c.open, width: 1.5),
+        ),
+        child: Text(
+          l10n.wordtilesAllowLine(_nameOfSeat(request.seat), wordList(context, request.allow), request.score),
+          style: theme.textTheme.bodyMedium,
+        ),
+      );
+    }
+    final moves = controller.moves;
+    if (moves.isNotEmpty && moves.last.move['action'] == WordTilesGame.declineAllow) {
+      final p = moves.last.event.payload;
+      final words = p is Map && p['allow'] is List ? (p['allow'] as List).whereType<String>().toList() : <String>[];
+      return Text(
+        l10n.wordtilesAllowDeclined(playerName(context, moves.last.player), wordList(context, words)),
+        key: const Key('wordtiles-allow-declined'),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      );
+    }
     final turns = g.turns;
-    if (turns.isEmpty) return const SizedBox(height: 20);
+    if (turns.isEmpty) {
+      // A network game starts with the host's options (KLD-094 step 6).
+      if (!_network) return const SizedBox(height: 20);
+      return Text(
+        wordTilesOptionsSummary(l10n, controller.config),
+        key: const Key('wordtiles-net-options-line'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+      );
+    }
     final t = turns.last;
     final p = WordTilesGame.playerOfSeat(t.seat);
     final who = p == null ? '${t.seat + 1}' : labels.label(context, l10n, p);
@@ -1061,6 +1310,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final cell = size / _n;
     final open = {for (final t in game.challengeable?.tiles ?? const <PlacedTile>[]) t.row * _n + t.col};
     final last = open.isEmpty ? _lastPlacement() : const <int>{};
+    // The tiles of an open "Trotzdem zulassen" request lie on the board,
+    // ringed, while the other player decides (KLD-094 step 6).
+    final requested = {for (final t in game.allowRequest?.tiles ?? const <PlacedTile>[]) t.row * _n + t.col: t};
     return Container(
       key: const Key('wordtiles-board'),
       width: size,
@@ -1071,7 +1323,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           for (var r = 0; r < _n; r++)
             Row(
               children: [
-                for (var col = 0; col < _n; col++) _square(context, l10n, c, r, col, cell - (2 / _n), open, last),
+                for (var col = 0; col < _n; col++)
+                  _square(context, l10n, c, r, col, cell - (2 / _n), open, last, requested),
               ],
             ),
         ],
@@ -1080,11 +1333,30 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   }
 
   Widget _square(BuildContext context, AppLocalizations l10n, WordTilesColors c, int r, int col, double cell,
-      Set<int> open, Set<int> last) {
+      Set<int> open, Set<int> last, Map<int, PlacedTile> requested) {
     final sq = r * _n + col;
     final key = Key('wordtiles-sq-$r-$col');
     final tile = game.tileAt(r, col);
     final inset = max(0.5, cell * 0.03);
+    final asked = requested[sq];
+    if (tile == null && asked != null) {
+      return SizedBox.square(
+        key: key,
+        dimension: cell,
+        child: Padding(
+          padding: EdgeInsets.all(inset),
+          child: LetterTile(
+            key: Key('wordtiles-requested-$r-$col'),
+            letter: asked.letter,
+            points: asked.isBlank ? 0 : game.tileSet.pointsOf(asked.tile),
+            blank: asked.isBlank,
+            size: cell - 2 * inset,
+            face: c.pending,
+            ring: c.open,
+          ),
+        ),
+      );
+    }
     if (tile != null) {
       final ring = open.contains(sq) ? c.open : null;
       return SizedBox.square(
@@ -1200,7 +1472,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final c = WordTilesColors.of(context);
     final rack = _rack;
     if (_order.length != rack.length) _order = List.generate(rack.length, (i) => i);
-    final laid = {for (final p in _pending.values) p.rackIndex};
+    final laid = {for (final p in _pending.values) p.rackIndex, ..._requestedRackTiles};
     final bench = _onBench;
     final shown = [for (final i in _order) if (!laid.contains(i) && !bench.contains(i)) i];
     const gap = 6.0;

@@ -592,5 +592,20 @@
   "networkUnavailableWeb": "Not available in the browser yet – with the app you can play on several devices.",
   "appBetaTeaser": "App beta coming soon.",
   "appBetaIos": "Try the iPhone and iPad app",
-  "appBetaAndroid": "Get the Android app"
+  "appBetaAndroid": "Get the Android app",
+  "wordtilesOptionsSummaryDict": "{language} · dictionary check",
+  "wordtilesOptionsSummaryFree": "{language} · no dictionary",
+  "wordtilesUnknownAskNet": "You can take the tiles back or ask {player} to let it count anyway.",
+  "wordtilesUnknownDeclinedBefore": "{player} already declined it. Take the tiles back.",
+  "wordtilesAllowTitle": "Allow anyway?",
+  "wordtilesAllowBody": "{player} would like to allow “{words}” – do you agree?",
+  "wordtilesAllowAccept": "Accept",
+  "wordtilesAllowDecline": "Decline",
+  "wordtilesAllowDeciding": "{player} decides…",
+  "wordtilesAllowYouDecide": "Your decision",
+  "wordtilesAllowLine": "{player} would like to allow “{words}” ({score} points).",
+  "wordtilesAllowDeclined": "{player} declined “{words}”.",
+  "wordtilesMoveAllowRequest": "asks to allow {words} ({score} points)",
+  "wordtilesMoveAllowAccept": "agreed: {words} counts ({score} points)",
+  "wordtilesMoveAllowDecline": "declined: {words}"
 }

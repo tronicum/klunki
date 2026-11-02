@@ -12,7 +12,9 @@ import 'wordtiles/wordtiles_board.dart';
 ///
 /// Hidden information (the racks): in hot-seat the shell's handover cover
 /// hides the board between turns; the cover shows the last turn (public),
-/// so the player who just moved sees it before passing the device.
+/// so the player who just moved sees it before passing the device. Over the
+/// network (KLD-094 step 6) each device shows its own rack from its view;
+/// "Trotzdem zulassen" asks the other device.
 ///
 /// Contract (keep it): the public class name `WordTilesScreen` and the
 /// constructor `const WordTilesScreen({super.key, required this.controller})`.
@@ -54,7 +56,7 @@ class WordTilesResult extends StatelessWidget {
       final p = m.event.payload;
       if (p is! Map) continue;
       switch (m.move['action']) {
-        case 'place':
+        case 'place' || WordTilesGame.acceptAllow:
           kept.add((
             p['seat'] as int? ?? 0,
             [
@@ -198,6 +200,11 @@ String describeWordTilesMove(AppLocalizations l10n, AcceptedMove m) {
         ? l10n.wordtilesMoveChallengeWithdrawn(words(p['words']).join(', '))
         : l10n.wordtilesMoveChallengeFailed,
     'accept' => l10n.wordtilesMoveAccept,
+    // KLD-094 step 6: "Trotzdem zulassen" asked, agreed or declined.
+    WordTilesGame.requestAllow => l10n.wordtilesMoveAllowRequest(words(p['allow']).join(', '), p['score'] as int? ?? 0),
+    WordTilesGame.acceptAllow =>
+      l10n.wordtilesMoveAllowAccept(words(p['allowed']).join(', '), p['score'] as int? ?? 0),
+    WordTilesGame.declineAllow => l10n.wordtilesMoveAllowDecline(words(p['allow']).join(', ')),
     _ => m.move.toString(),
   };
 }

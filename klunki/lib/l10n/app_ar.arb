@@ -593,5 +593,20 @@
   "networkUnavailableWeb": "غير متاح في المتصفح بعد – مع التطبيق يمكن اللعب على عدة أجهزة.",
   "appBetaTeaser": "النسخة التجريبية من التطبيق قيد التحضير.",
   "appBetaIos": "تجربة التطبيق على iPhone وiPad",
-  "appBetaAndroid": "تنزيل التطبيق على Android"
+  "appBetaAndroid": "تنزيل التطبيق على Android",
+  "wordtilesOptionsSummaryDict": "{language} · مع التحقق من القاموس",
+  "wordtilesOptionsSummaryFree": "{language} · بدون قاموس",
+  "wordtilesUnknownAskNet": "يمكنك سحب الحروف، أو طلب موافقة {player} على احتسابها رغم ذلك.",
+  "wordtilesUnknownDeclinedBefore": "سبق الرفض من {player}، لذا يجب سحب الحروف.",
+  "wordtilesAllowTitle": "قبول رغم ذلك؟",
+  "wordtilesAllowBody": "طلب من {player}: قبول «{words}» رغم ذلك. موافقة؟",
+  "wordtilesAllowAccept": "قبول",
+  "wordtilesAllowDecline": "رفض",
+  "wordtilesAllowDeciding": "القرار عند {player}…",
+  "wordtilesAllowYouDecide": "القرار لك",
+  "wordtilesAllowLine": "طلب من {player}: قبول «{words}» ({score} نقطة).",
+  "wordtilesAllowDeclined": "«{words}» مرفوضة من {player}.",
+  "wordtilesMoveAllowRequest": "طلب قبول {words} ({score} نقطة)",
+  "wordtilesMoveAllowAccept": "موافقة: احتساب {words} ({score} نقطة)",
+  "wordtilesMoveAllowDecline": "رفض: {words}"
 }

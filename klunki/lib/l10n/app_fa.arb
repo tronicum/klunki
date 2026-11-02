@@ -593,5 +593,20 @@
   "networkUnavailableWeb": "هنوز در مرورگر در دسترس نیست – با اپ می‌شود روی چند دستگاه بازی کرد.",
   "appBetaTeaser": "نسخهٔ آزمایشی اپ در حال آماده‌سازی است.",
   "appBetaIos": "امتحان اپ برای iPhone و iPad",
-  "appBetaAndroid": "دریافت اپ برای Android"
+  "appBetaAndroid": "دریافت اپ برای Android",
+  "wordtilesOptionsSummaryDict": "{language} · با واژه‌نامه",
+  "wordtilesOptionsSummaryFree": "{language} · بدون واژه‌نامه",
+  "wordtilesUnknownAskNet": "می‌توانی حرف‌ها را پس بگیری یا از {player} بپرسی که به‌هرحال حساب شود یا نه.",
+  "wordtilesUnknownDeclinedBefore": "{player} قبلاً رد کرده است. حرف‌ها را پس بگیر.",
+  "wordtilesAllowTitle": "به‌هرحال پذیرفته شود؟",
+  "wordtilesAllowBody": "{player} می‌خواهد «{words}» پذیرفته شود؛ موافقی؟",
+  "wordtilesAllowAccept": "پذیرفتن",
+  "wordtilesAllowDecline": "رد کردن",
+  "wordtilesAllowDeciding": "{player} تصمیم می‌گیرد…",
+  "wordtilesAllowYouDecide": "تصمیم با توست",
+  "wordtilesAllowLine": "{player} می‌خواهد «{words}» پذیرفته شود ({score} امتیاز).",
+  "wordtilesAllowDeclined": "{player} «{words}» را رد کرد.",
+  "wordtilesMoveAllowRequest": "درخواست پذیرش {words} ({score} امتیاز)",
+  "wordtilesMoveAllowAccept": "موافقت: {words} حساب شد ({score} امتیاز)",
+  "wordtilesMoveAllowDecline": "رد شد: {words}"
 }

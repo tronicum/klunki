@@ -2185,4 +2185,71 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get appBetaAndroid => '下载 Android 应用';
+
+  @override
+  String wordtilesOptionsSummaryDict(String language) {
+    return '$language · 查字典';
+  }
+
+  @override
+  String wordtilesOptionsSummaryFree(String language) {
+    return '$language · 不查字典';
+  }
+
+  @override
+  String wordtilesUnknownAskNet(String player) {
+    return '可以取回这些牌，或者问 $player 是否仍然算数。';
+  }
+
+  @override
+  String wordtilesUnknownDeclinedBefore(String player) {
+    return '$player 已经拒绝了。请取回这些牌。';
+  }
+
+  @override
+  String get wordtilesAllowTitle => '仍然接受？';
+
+  @override
+  String wordtilesAllowBody(String player, String words) {
+    return '$player 要接受“$words”，同意吗？';
+  }
+
+  @override
+  String get wordtilesAllowAccept => '接受';
+
+  @override
+  String get wordtilesAllowDecline => '拒绝';
+
+  @override
+  String wordtilesAllowDeciding(String player) {
+    return '等待 $player 回应…';
+  }
+
+  @override
+  String get wordtilesAllowYouDecide => '轮到你回应';
+
+  @override
+  String wordtilesAllowLine(String player, String words, int score) {
+    return '$player 要接受“$words”（$score 分）。';
+  }
+
+  @override
+  String wordtilesAllowDeclined(String player, String words) {
+    return '$player 拒绝了“$words”。';
+  }
+
+  @override
+  String wordtilesMoveAllowRequest(String words, int score) {
+    return '要接受 $words（$score 分）';
+  }
+
+  @override
+  String wordtilesMoveAllowAccept(String words, int score) {
+    return '同意：$words 算数（$score 分）';
+  }
+
+  @override
+  String wordtilesMoveAllowDecline(String words) {
+    return '拒绝：$words';
+  }
 }
