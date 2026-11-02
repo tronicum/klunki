@@ -4,13 +4,15 @@
 /// Berlin: real streets and places (facts), grouped by district, cheap to
 /// expensive. None of them is a street name of the original game's classic
 /// German edition, and the list is our own selection, not a city edition's.
-/// Group 3 gathers flea-market places, group 5 the Kollwitzkiez. Group 4
-/// (Friedrichshain) nods to the club culture through the streets the
-/// well-known clubs are on; club names (business names) were considered and
-/// left out on purpose. Each group names its buildings (small → big): Laden →
-/// Markthalle, Trödelstand → Flohmarkt, Imbiss → Club, Kindercafé → Spielplatz,
-/// Galerie → Museum, else Haus → Hotel. The utilities are a waterworks and the TV tower by
-/// place, no company names. Card texts: our own, kid-friendly, Berliner
+/// Group 0 is two Kreuzberg streets full of Spätis, group 1 the going-out
+/// streets of the Boxhagener Kiez, group 3 flea-market places, group 5 the
+/// Kollwitzkiez. Group 4 (Friedrichshain) nods to the club culture through
+/// the streets the well-known clubs are on; club names (business names) were
+/// considered and left out on purpose. Each group names its buildings (small
+/// → big): Späti → Späti-Palast, Bar → Kiezkneipe, Laden → Markthalle,
+/// Trödelstand → Flohmarkt, Imbiss → Club, Kindercafé → Spielplatz, Galerie →
+/// Museum, Haus → Hotel (Charlottenburg). The utilities are a waterworks and
+/// the TV tower by place, no company names. Card texts: our own, kid-friendly, Berliner
 /// Schnauze, no real people, companies or current controversies.
 library;
 
@@ -58,11 +60,25 @@ const _repairs = PropertyCardKind.repairs, _free = PropertyCardKind.freeCard;
 /// Berlin, the first local theme.
 final PropertyTheme berlinTheme = PropertyTheme(
   id: 'berlin',
-  revision: 1,
+  revision: 2,
   title: 'Berlin',
   colourGroups: const [
-    PropertyGroup('Köpenick', note: 'Old town and the road out to the lakes: homes and guest houses fit both.'),
-    PropertyGroup('Wedding', note: 'Busy residential streets and a square: houses and hotels fit all three.'),
+    PropertyGroup('Kreuzberg 36',
+        small: 'Späti',
+        smallPlural: 'Spätis',
+        big: 'Späti-Palast',
+        bigPlural: 'Späti-Paläste',
+        smallIcon: 'kiosk',
+        bigIcon: 'kiosk-palace',
+        note: 'Two long Kreuzberg streets with a Späti on nearly every corner: Spätis and a big one fit both.'),
+    PropertyGroup('Boxhagener Kiez',
+        small: 'Bar',
+        smallPlural: 'Bars',
+        big: 'Kiezkneipe',
+        bigPlural: 'Kiezkneipen',
+        smallIcon: 'bar',
+        bigIcon: 'pub',
+        note: 'The going-out streets around Simon-Dach-Straße: bars and corner pubs line all three.'),
     PropertyGroup('Neukölln',
         small: 'Laden',
         smallPlural: 'Läden',
@@ -78,7 +94,7 @@ final PropertyTheme berlinTheme = PropertyTheme(
         bigPlural: 'Flohmärkte',
         smallIcon: 'stall',
         bigIcon: 'flea-market',
-        note: 'All three are squares or parks with a weekend flea market.'),
+        note: 'All three host a well-known weekend flea market (Straße des 17. Juni: the big one by the park).'),
     PropertyGroup('Friedrichshain',
         small: 'Imbiss',
         smallPlural: 'Imbisse',
@@ -108,10 +124,10 @@ final PropertyTheme berlinTheme = PropertyTheme(
 
   deckTitles: const {_s: 'Spree-Post', _n: 'Kiez-Karte'},
   squares: _squares(const [
-    'Start', 'Alt-Köpenick', 'Kiez-Karte', 'Müggelheimer Straße', 'Bürgeramt-Gebühr', //
-    'Südkreuz', 'Osloer Straße', 'Spree-Post', 'Leopoldplatz', 'Müllerstraße',
+    'Start', 'Skalitzer Straße', 'Kiez-Karte', 'Schlesische Straße', 'Bürgeramt-Gebühr', //
+    'Südkreuz', 'Krossener Straße', 'Spree-Post', 'Wühlischstraße', 'Simon-Dach-Straße',
     'Ersatzverkehr', 'Richardplatz', 'Wasserwerk Friedrichshagen', 'Weserstraße', 'Sonnenallee',
-    'Westkreuz', 'Arkonaplatz', 'Kiez-Karte', 'Boxhagener Platz', 'Mauerpark',
+    'Westkreuz', 'Arkonaplatz', 'Kiez-Karte', 'Straße des 17. Juni', 'Mauerpark',
     'Späti-Pause', 'Revaler Straße', 'Spree-Post', 'Alt-Stralau', 'Am Wriezener Bahnhof',
     'Hauptbahnhof', 'Kollwitzplatz', 'Kastanienallee', 'Fernsehturm', 'Schönhauser Allee',
     'Weichenstörung!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
@@ -153,7 +169,7 @@ final PropertyTheme berlinTheme = PropertyTheme(
     _c('n12', _n, _repairs, 'Sturm über der Spree: zahle 40 Taler pro Haus und 115 Taler pro Hotel.', 40, 115),
     _c('n13', _n, _get, 'Die S-Bahn fällt aus, du fährst Rad und sparst das Ticket: 25 Taler.', 25),
     _c('n14', _n, _get, 'Du findest einen Goldtaler im Sandkasten am Lietzensee: 200 Taler.', 200),
-    _c('n15', _n, _backTo, 'Mütze im Bus vergessen! Geh zurück nach Alt-Köpenick.', 1),
+    _c('n15', _n, _backTo, 'Mütze im Bus vergessen! Geh zurück zur Skalitzer Straße.', 1),
     _c('n16', _n, _pay, 'Bürgeramt: Det Formular bitte dreifach! Zahle 10 Taler fürs Kopieren.', 10),
   ],
 );

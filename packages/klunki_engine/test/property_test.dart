@@ -118,7 +118,13 @@ void main() {
       expect([for (final i in [5, 15, 25, 35]) names[i]], ['Südkreuz', 'Westkreuz', 'Hauptbahnhof', 'Ostkreuz']);
       expect([for (final i in t.groups[4]) names[i]], ['Revaler Straße', 'Alt-Stralau', 'Am Wriezener Bahnhof']);
       expect(t.colourGroups[4].big, 'Club');
-      expect(t.colourGroups[0].small, 'Haus');
+      expect([for (final i in t.groups[0]) names[i]], ['Skalitzer Straße', 'Schlesische Straße']);
+      expect([t.colourGroups[0].small, t.colourGroups[0].big], ['Späti', 'Späti-Palast']);
+      expect([for (final i in t.groups[1]) names[i]], ['Krossener Straße', 'Wühlischstraße', 'Simon-Dach-Straße']);
+      expect([t.colourGroups[1].small, t.colourGroups[1].big], ['Bar', 'Kiezkneipe']);
+      expect([for (final i in t.groups[3]) names[i]], ['Arkonaplatz', 'Straße des 17. Juni', 'Mauerpark']);
+      expect(t.colourGroups.where((g) => g.small == 'Haus').map((g) => g.name), ['Charlottenburg']);
+      expect(t.revision, 2);
       expect(t.colourGroups[5].small, 'Kindercafé');
       expect(t.colourGroups.map((g) => g.note), everyElement(isNotEmpty));
       final ownable = [for (final s in t.squares) if (s.isOwnable) s.name];

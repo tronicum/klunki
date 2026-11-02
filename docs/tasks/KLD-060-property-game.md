@@ -149,14 +149,15 @@ the classic proportions and the engine stay valid (an editor could relax this la
 Built-in themes: **Berlin** (`berlin`, default) and **Fantasiestadt** (`fantasie`, made-up kid-friendly names,
 for families elsewhere and as a neutral theme).
 
-**Berlin** (rev 1), cheap → expensive:
+**Berlin** (rev 2: Späti and Simon-Dach-Straße groups replace Köpenick and Wedding; Boxhagener Platz left the
+flea-market group so the Boxhagener Kiez group does not overlap), cheap → expensive:
 
 | Group | Squares | Buildings (small → big) | Why the pair fits every square |
 |---|---|---|---|
-| Köpenick | Alt-Köpenick, Müggelheimer Straße | Haus → Hotel | old town and the road to the lakes |
-| Wedding | Osloer Straße, Leopoldplatz, Müllerstraße | Haus → Hotel | busy residential streets and a square |
+| Kreuzberg 36 | Skalitzer Straße, Schlesische Straße | Späti → Späti-Palast | two long streets with a Späti on nearly every corner |
+| Boxhagener Kiez | Krossener Straße, Wühlischstraße, Simon-Dach-Straße | Bar → Kiezkneipe | the going-out streets around Simon-Dach-Straße |
 | Neukölln | Richardplatz, Weserstraße, Sonnenallee | Laden → Markthalle | shopping streets, a village square with markets |
-| Flohmärkte | Arkonaplatz, Boxhagener Platz, Mauerpark | Trödelstand → Flohmarkt | all three have a weekend flea market |
+| Flohmärkte | Arkonaplatz, Straße des 17. Juni, Mauerpark | Trödelstand → Flohmarkt | all three host a well-known weekend flea market |
 | Friedrichshain | Revaler Straße, Alt-Stralau, Am Wriezener Bahnhof | Imbiss → Club | the streets of the well-known clubs |
 | Prenzlauer Berg | Kollwitzplatz, Kastanienallee, Schönhauser Allee | Kindercafé → Spielplatz | the family-rich Kollwitzkiez |
 | Charlottenburg | Olivaer Platz, Lietzensee, Kurfürstendamm | Haus → Hotel | elegant avenue, square, lakeside |
@@ -182,8 +183,8 @@ for families elsewhere and as a neutral theme).
   Ringbahn steht …", "Die S-Bahn fällt aus, du fährst Rad …") and one mild **airport-delay** card ("so lange
   auf die Eröffnung des neuen Flughafens gewartet, dass dein Sparschwein voll ist"); no blame, no real people
   or companies.
-- The "Bar → Kiezkneipe" pair for a Simon-Dach-Straße group was not used: no free group slot with a coherent
-  area, and it centres on alcohol (for the maintainer to decide).
+- Bar → Kiezkneipe (Boxhagener Kiez) and Späti → Späti-Palast (Kreuzberg 36) are maintainer decisions; they
+  are building names only, card texts stay free of alcohol.
 
 **Kept out** (maintainer decision): rents, housing or expropriation referendums, Görlitzer Park, the
 Tempelhofer Feld building debate.
@@ -232,7 +233,6 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 - ~~Free-parking pot~~: decided: free-square house rules as config, default nothing.
 - ~~Bankruptcy while selling could still pay~~: decided: refused, sell and mortgage first.
 - Building shortage: worth the design work (see above)?
-- Start money 1500 and salary 200 kept; currency "Taler" for Berlin too?
-- Should non-current players be allowed to offer trades (needs a "pending offers" list instead of one actor)?
+- ~~Start money, currency~~: decided: 1500 Taler start, 200 salary.
+- ~~Trades by other players~~: decided: only the player whose turn it is offers trades.
 - Network: timeouts for auction bids and trade answers (step 2).
-- The "Bar → Kiezkneipe" building pair (not used, see above).
