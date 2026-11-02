@@ -11,3 +11,4 @@ export 'debug/quartett_text.dart';
 export 'debug/gostrategy_text.dart';
 export 'debug/chess_text.dart';
 export 'debug/word_tiles_text.dart';
+export 'debug/property_text.dart';
