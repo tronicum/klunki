@@ -980,11 +980,16 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       final info = _infoLine(context, l10n);
       // KLD-094 step 8: the bench below the actions (rack and actions right
       // under the board, the bench is the optional extra).
+      // KLD-117: "Zug zurück" (hot-seat) right under the actions, at the end
+      // of the bench line (the actions row is full on a phone). On a small
+      // phone, where the bench button is in the score row, it has that line
+      // alone (as dense as the bench line; nothing in network play).
+      const undo = UndoMoveButton(visualDensity: VisualDensity(horizontal: -4, vertical: -4));
       final Widget bench = compact
-          ? const SizedBox.shrink()
+          ? const Align(alignment: AlignmentDirectional.centerEnd, child: undo)
           : LayoutBuilder(
               builder: (context, benchBox) =>
-                  _benchView(context, l10n, min(benchBox.maxWidth, 420.0), benchOpen),
+                  _benchView(context, l10n, min(benchBox.maxWidth, 420.0), benchOpen, trailing: undo),
             );
       final controls = Column(
         mainAxisSize: MainAxisSize.min,
@@ -1643,11 +1648,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// rows with their base scores.
   /// On a small phone the open bench is an overlay over the board and the
   /// collapsed one a button in the score row (`build`).
-  Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open) {
+  ///
+  /// [trailing] (the take-back button, KLD-117) sits at the end of the header.
+  Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open, {Widget? trailing}) {
     final hasTiles = _onBench.isNotEmpty;
     const compact = VisualDensity(horizontal: -4, vertical: -4);
     final header = Row(
-      mainAxisSize: open ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: open || trailing != null ? MainAxisSize.max : MainAxisSize.min,
       children: [
         Flexible(
           child: Semantics(
@@ -1661,7 +1668,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             ),
           ),
         ),
-        if (open) const Spacer(),
+        if (open || trailing != null) const Spacer(),
         if (open && hasTiles)
           IconButton(
             key: const Key('wordtiles-bench-clear'),
@@ -1671,6 +1678,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             icon: const Icon(Icons.vertical_align_bottom),
             onPressed: _benchActive ? _clearBench : null,
           ),
+        ?trailing,
       ],
     );
     if (!open) return KeyedSubtree(key: const Key('wordtiles-bench'), child: header);

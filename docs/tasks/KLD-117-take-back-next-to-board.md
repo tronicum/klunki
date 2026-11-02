@@ -25,8 +25,11 @@ resign, history). It moves into the game area, the same for every game: a labell
       its tooltip). Key `shell-undo` on the button. Shown only for `HotSeatTransport`; disabled while
       `!controller.canUndo`. Same semantics as before (`controller.undo`: the last accepted move, in
       Wortgewandt the last played turn).
-- [x] Placement: chess in the control row under the board next to ⇅ and the turn toggle; Wortgewandt in its
-      control row with ↓ / shuffle / zoom; every other game (4 Gewinnt, Mühle, Quartett Trumpf/Sets, Schiffe,
+- [x] Placement: chess in the control row under the board next to ⇅ and the turn toggle; Wortgewandt right
+      under its control row (↓ / shuffle / zoom / Tauschen / Passen / Legen is full on a phone, one row on
+      every width since step 8b), at the end of the "Bänkchen" line; on a small phone (bench button in the
+      score row) on a line of its own, which costs the board about 32 px there in hot-seat only (open for
+      maintainer feedback); every other game (4 Gewinnt, Mühle, Quartett Trumpf/Sets, Schiffe,
       GoStrategy) in a small row under the board that the shell provides (`shell-actions`, end-aligned).
       A board that shows the button itself says so with `GameScreen(boardPlacesUndo: true)`.
 - [x] App bar keeps: names (hot-seat), new game, resign, history.
@@ -35,13 +38,15 @@ resign, history). It moves into the game area, the same for every game: a labell
       before passing the device; to keep that, the cover shows the same button under "Ich bin … – weiter".
       Undo from the cover shows nothing secret: the controller covers the board again for the player whose
       turn it is after the take-back.
+- [x] `UndoMoveButton(visualDensity: …)`: the word game passes the bench line's density so that line keeps
+      its height.
 - [x] Chess control row fits narrow boards: the buttons shrink to fit (FittedBox), the check badge takes
       what is left.
 - [x] Tests: per game that the button is in the game area and not in the app bar, disabled/enabled, takes
       back; cover behaviour for the hidden-information games; RTL; network games show no button (existing
       chess / Wortgewandt / pairing tests). Live-UI tests pass.
 - [x] Screenshots: `KLUNKI_SHOTS=/tmp/kld117 flutter test test/screenshots --plain-name kld117`
-      (chess de/ar, 4 Gewinnt de/ar + start, Wortgewandt de, Schiffe de + cover, phone 390×844).
+      (chess de/ar, 4 Gewinnt de/ar + start, Wortgewandt de on 390×844 and 375×667, Schiffe de + cover, phone 390×844).
 
 ## Constraints
 

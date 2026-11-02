@@ -32,6 +32,8 @@ class WordTilesScreen extends StatelessWidget {
       handoverDetail: (context) => WordTilesLastTurn(controller: controller),
       resultDetail: (context) => WordTilesResult(controller: controller),
       boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
+      // "Zug zurück" under the actions, on the bench line (KLD-117).
+      boardPlacesUndo: true,
     );
   }
 }

@@ -115,7 +115,8 @@ void main() {
     expect(find.descendant(of: overlay, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsOneWidget);
     expect(tester.getSize(find.byKey(const Key('wordtiles-sq-0-0'))), board, reason: 'the board did not shrink');
     // (The test font is wider than the real one; the screenshots show about 285 px.)
-    expect(board.width * WordTilesBoardTestInfo.squares, greaterThan(220));
+    // KLD-117: hot-seat has the "Zug zurück" line under the actions (32 px).
+    expect(board.width * WordTilesBoardTestInfo.squares, greaterThan(185));
     // Tap a rack tile, then a slot: it moves onto the bench.
     await _tap(tester, find.byKey(const Key('wordtiles-rack-0')));
     await _tap(tester, find.byKey(const Key('wordtiles-bench-0-0')));

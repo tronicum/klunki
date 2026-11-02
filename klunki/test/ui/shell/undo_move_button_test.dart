@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/handover_cover.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -10,12 +11,19 @@ import 'shell_test_utils.dart';
 /// KLD-117: "Zug zurück" sits in the game area for every game, no longer in
 /// the app bar next to the whole-game controls.
 void main() {
+  // The one-time Bänkchen explanation (Wortgewandt) is seen, so it does not
+  // come up over the board.
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
+
   const undo = Key('shell-undo');
   TextButton button(WidgetTester tester) => tester.widget<TextButton>(find.byKey(undo));
 
   // Games whose board places the button in its own control row, with a
   // control of that row.
-  const ownRow = {'chess': Key('chess-flip'), 'wordtiles': Key('wordtiles-shuffle')};
+  const ownRow = {'chess': Key('chess-flip'), 'wordtiles': Key('wordtiles-bench-toggle')};
 
   for (final id in gameScreens.keys) {
     testWidgets('$id: "Zug zurück" in the game area, not in the app bar', (tester) async {
@@ -27,7 +35,11 @@ void main() {
       // The app bar keeps the whole-game controls (the names action needs
       // the app's name store, not here).
       for (final k in ['shell-restart', 'shell-resign', 'shell-history']) {
-        expect(find.descendant(of: find.byType(AppBar), matching: find.byKey(Key(k))), findsOneWidget, reason: k);
+        expect(
+          find.descendant(of: find.byType(AppBar), matching: find.byKey(Key(k))),
+          findsOneWidget,
+          reason: k,
+        );
       }
 
       final row = ownRow[id];
@@ -48,6 +60,8 @@ void main() {
       }
       expect(c.moves, hasLength(1));
       expect(button(tester).onPressed, isNotNull);
+      await tester.ensureVisible(find.byKey(undo)); // the word game's side panel scrolls
+      await tester.pump();
       await tester.tap(find.byKey(undo));
       await tester.pump();
       expect(c.moves, isEmpty);

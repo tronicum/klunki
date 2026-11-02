@@ -143,7 +143,7 @@ class GameScreen extends StatefulWidget {
   final WidgetBuilder? resultDetail;
 
   /// The board shows the [UndoMoveButton] in its own control row (chess next
-  /// to the flip buttons, the word game next to shuffle and zoom); otherwise
+  /// to the flip buttons, the word game under its actions); otherwise
   /// the shell puts it in a small row under the board (KLD-117).
   final bool boardPlacesUndo;
 
@@ -709,21 +709,26 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
 /// the board unless the board shows it in its own control row
 /// ([GameScreen.boardPlacesUndo]). Key `shell-undo` on the button.
 class UndoMoveButton extends StatelessWidget {
-  const UndoMoveButton({super.key});
+  /// Compact by default; a board row of denser buttons passes its own
+  /// density, so the row keeps its height.
+  final VisualDensity visualDensity;
+
+  const UndoMoveButton({super.key, this.visualDensity = VisualDensity.compact});
 
   @override
   Widget build(BuildContext context) {
     final controller = GameScreen.of(context).controller;
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, _) => _UndoButton(controller: controller),
+      builder: (context, _) => _UndoButton(controller: controller, visualDensity: visualDensity),
     );
   }
 }
 
 class _UndoButton extends StatelessWidget {
   final GameController controller;
-  const _UndoButton({required this.controller});
+  final VisualDensity visualDensity;
+  const _UndoButton({required this.controller, required this.visualDensity});
 
   @override
   Widget build(BuildContext context) {
@@ -734,7 +739,7 @@ class _UndoButton extends StatelessWidget {
       excludeFromSemantics: true,
       child: TextButton.icon(
         key: const Key('shell-undo'),
-        style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+        style: TextButton.styleFrom(visualDensity: visualDensity),
         icon: const Icon(Icons.undo), // matchTextDirection: mirrored in RTL
         label: Text(l10n.shellTakeBack),
         onPressed: controller.canUndo ? controller.undo : null,

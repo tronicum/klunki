@@ -67,29 +67,34 @@ Future<void> _shot(WidgetTester tester, String name) async {
   debugDisableShadows = true;
 }
 
-Future<GameController> _pump(WidgetTester tester, String id, String locale) async {
-  tester.view.physicalSize = _phone * 2;
+Future<GameController> _pump(WidgetTester tester, String id, String locale, {Size size = _phone}) async {
+  tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final c = GameController.hotSeat(GameConfig(id, seed: 3));
   addTearDown(c.dispose);
   final names = locale == 'ar' ? const {Player.a: 'ليلى', Player.b: 'سامي'} : const {Player.a: 'Anna', Player.b: 'Ben'};
-  await tester.pumpWidget(RepaintBoundary(
-    key: _boundary,
-    child: MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: withAppFonts(KlunkiTheme.light, web: true),
-      locale: Locale(locale),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: PlayerLabelsScope(labels: PlayerLabels(names: names), child: buildGameScreen(c)),
+  await tester.pumpWidget(
+    RepaintBoundary(
+      key: _boundary,
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: withAppFonts(KlunkiTheme.light, web: true),
+        locale: Locale(locale),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PlayerLabelsScope(
+          labels: PlayerLabels(names: names),
+          child: buildGameScreen(c),
+        ),
+      ),
     ),
-  ));
+  );
   await tester.pump();
   await tester.pump();
   return c;
@@ -134,25 +139,30 @@ void main() {
       await _pump(tester, 'connect4', 'de');
       await _shot(tester, 'kld117-connect4-start-de-phone');
     });
-    testWidgets('kld117 wordtiles de', skip: skip != null, (tester) async {
-      final c = await _pump(tester, 'wordtiles', 'de');
-      (c.game as WordTilesGame).debugSetup(
-        racks: const [
-          ['H', 'A', 'U', 'S', 'E', 'N', '?'],
-          ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
-        ],
-        bag: [...List.filled(30, 'E'), 'L', 'K', 'M', 'A', 'I', 'R', 'B'],
-      );
-      // HAUS by Anna: Ben's turn, with something to take back.
-      final r = await c.submit(WordTilesGame.placeMove(
-          [for (final (col, t) in [(5, 'H'), (6, 'A'), (7, 'U'), (8, 'S')]) PlacedTile(7, col, t, null)]));
-      expect(r.isAccepted, isTrue);
-      await tester.pump();
-      await tester.pump();
-      await tester.tap(find.byKey(_continue));
-      await tester.pump();
-      await _shot(tester, 'kld117-wordtiles-de-phone');
-    });
+    for (final (tag, size) in [('phone', _phone), ('small', const Size(375, 667))]) {
+      testWidgets('kld117 wordtiles de $tag', skip: skip != null, (tester) async {
+        final c = await _pump(tester, 'wordtiles', 'de', size: size);
+        (c.game as WordTilesGame).debugSetup(
+          racks: const [
+            ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+            ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+          ],
+          bag: [...List.filled(30, 'E'), 'L', 'K', 'M', 'A', 'I', 'R', 'B'],
+        );
+        // HAUS by Anna: Ben's turn, with something to take back.
+        final r = await c.submit(
+          WordTilesGame.placeMove([
+            for (final (col, t) in [(5, 'H'), (6, 'A'), (7, 'U'), (8, 'S')]) PlacedTile(7, col, t, null),
+          ]),
+        );
+        expect(r.isAccepted, isTrue);
+        await tester.pump();
+        await tester.pump();
+        await tester.tap(find.byKey(_continue));
+        await tester.pump();
+        await _shot(tester, 'kld117-wordtiles-de-$tag');
+      });
+    }
     testWidgets('kld117 schiffe de', skip: skip != null, (tester) async {
       final c = await _pump(tester, 'schiffe', 'de');
       await _play(tester, c, 2);
