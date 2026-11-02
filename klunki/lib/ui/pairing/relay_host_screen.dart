@@ -40,7 +40,7 @@ Future<NetworkTransport> platformRelayHost(GameConfig config, Uri relay, {requir
     NetworkTransport.hostRelay(config, relay, name: name, clubCode: RelaySettings.shared().clubCodeFor(relay));
 
 /// "Raum starten" through the relay (KLD-057b, KLD-098): the browser's only
-/// way to open a room, and the app's when "Raum über ein Relay öffnen" is on.
+/// way to open a room, and the app's when "Raum über einen Server öffnen" is on.
 /// Pick a game, open a room on the relay (the shared [relaySettings], shown
 /// under "Erweitert" as "Relay: … · ändern"; [defaultRelay] = the page's own
 /// server until another one is chosen), then wait with the room code (large,
@@ -136,6 +136,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   String? _error;
   bool _showStartHint = false;
 
+  /// KLD-113: the server that refused the room for its club code.
+  Uri? _clubRelay;
+
   NetworkTransport? _transport;
   Uri? _relayUsed;
   bool _handedOver = false;
@@ -180,6 +183,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       setState(() {
         _error = l10n.webJoinHttpsWarning;
         _showStartHint = false;
+        _clubRelay = null;
       });
       return;
     }
@@ -187,6 +191,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       _starting = true;
       _error = null;
       _showStartHint = false;
+      _clubRelay = null;
     });
     final words = _gameId == 'wordtiles' ? _wordOptions : null;
     // A game with "Wörterbuch prüfen" needs its list before the host creates it.
@@ -213,6 +218,8 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           _starting = false;
           _error = relayErrorText(context, e, relay: relay) ?? l10n.roomStartFailed('$e');
           _showStartHint = failure == RelayFailure.unreachable;
+          // KLD-113: the club code is asked for only now, right here.
+          _clubRelay = failure == RelayFailure.clubMissing || failure == RelayFailure.clubWrong ? relay : null;
         });
       }
       return;
@@ -354,6 +361,15 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           style: TextStyle(color: theme.colorScheme.error),
         ),
         if (_showStartHint) const RelayStartHint(key: Key('relay-host-start-hint')),
+        if (_clubRelay case final relay?)
+          ClubCodePrompt(
+            key: ValueKey(relay),
+            id: 'relay-host-club',
+            settings: _settings,
+            relay: relay,
+            enabled: !_starting,
+            onRetry: _start,
+          ),
       ],
       const SizedBox(height: 8),
       // KLD-098: the relay address only matters once, when it is set up.

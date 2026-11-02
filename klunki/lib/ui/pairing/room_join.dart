@@ -96,6 +96,11 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
   bool _showStartHint = false;
   int _attempt = 0;
 
+  /// KLD-113: the server that refused the last join for its club code, and
+  /// the room code of that join (for "Mit Clubcode versuchen").
+  Uri? _clubRelay;
+  String? _clubRoom;
+
   /// The relay of a link or scanned QR code, used instead of [settings]
   /// until the player saves it as the default or drops it (KLD-075).
   late Uri? _linkRelay = widget.linkRelay;
@@ -146,6 +151,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
       setState(() {
         _error = AppLocalizations.of(context).webJoinHttpsWarning;
         _showStartHint = false;
+        _clubRelay = null;
       });
       return;
     }
@@ -154,6 +160,7 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
       _joining = formatRoomCode(code);
       _error = null;
       _showStartHint = false;
+      _clubRelay = null;
     });
     NetworkTransport? transport;
     Object? failure;
@@ -182,7 +189,12 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
               bidiLtr(context, formatRoomCode(code)),
               failure is TimeoutException ? l10n.pairingTimeout : '$failure',
             );
-        _showStartHint = classifyRelayError(failure!) == RelayFailure.unreachable;
+        final kind = classifyRelayError(failure!);
+        _showStartHint = kind == RelayFailure.unreachable;
+        // KLD-113: the club code is asked for only now, right here.
+        final club = kind == RelayFailure.clubMissing || kind == RelayFailure.clubWrong;
+        _clubRelay = club ? relay : null;
+        _clubRoom = club ? code : null;
       });
       return;
     }
@@ -355,6 +367,15 @@ class RoomCodeJoinState extends State<RoomCodeJoin> {
             style: TextStyle(color: theme.colorScheme.error),
           ),
           if (_showStartHint) RelayStartHint(key: const Key('room-start-hint')),
+          if ((_clubRelay, _clubRoom) case (final relay?, final room?))
+            ClubCodePrompt(
+              key: ValueKey(relay),
+              id: 'room-club',
+              settings: widget.settings,
+              relay: relay,
+              enabled: !busy,
+              onRetry: () => _connect(room, relay),
+            ),
         ],
       ],
     );

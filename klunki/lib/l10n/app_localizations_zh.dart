@@ -83,11 +83,11 @@ class AppLocalizationsZh extends AppLocalizations {
       '其他人点“加入房间”并扫描这个二维码。同一 Wi-Fi 下的设备也能在“附近的房间”中找到它。';
 
   @override
-  String get roomViaRelay => '通过中继创建房间';
+  String get roomViaRelay => '通过服务器创建房间';
 
   @override
   String get roomViaRelayHelper =>
-      '使用房间码，浏览器里的玩家也能加入。需要一台运行“klunki relay”的电脑。关闭时，房间直接在本设备上运行，同一 Wi-Fi 下的设备会自动找到它。';
+      '使用房间码，浏览器里的玩家也能加入。需要一个服务器（例如一台运行“klunki relay”的电脑）。关闭时，房间直接在本设备上运行，同一 Wi-Fi 下的设备会自动找到它。';
 
   @override
   String get roomTypeCode => '输入房间码';
@@ -907,7 +907,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      '在浏览器中通过 https 打开时，Klunki 只能连接安全中继（wss://）——请使用应用或本地 http 版本。';
+      '在浏览器中通过 https 打开时，Klunki 只能连接安全的服务器（wss://）——请使用应用或本地 http 版本。';
 
   @override
   String get webJoinAddressLabel => 'IP、IP:端口、ws:// 或 klunki:// 链接';
@@ -1254,7 +1254,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String relayInfo(String address) {
-    return '中继：$address';
+    return '服务器：$address';
   }
 
   @override
@@ -1272,14 +1272,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get relayAddressLabel => '中继地址';
+  String get relayAddressLabel => '服务器';
 
   @override
   String get relayAddressHelper =>
-      '同一 Wi-Fi 中运行 “klunki relay” 的电脑，例如 192.168.1.20:4749';
+      '服务器地址，例如 192.168.1.20:4749（Wi-Fi 中）或 wss://spiele.example（网上）';
 
   @override
-  String get relayAddressInvalid => '中继地址无效。示例：192.168.1.20:4749';
+  String get relayAddressInvalid => '服务器地址无效。示例：192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
@@ -1299,15 +1299,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String relayErrorUnreachable(String address) {
-    return '无法连接 $address 上的中继。';
+    return '无法连接 $address 上的服务器。';
   }
 
   @override
-  String get relayErrorLost => '与中继的连接已断开。';
+  String get relayErrorLost => '与服务器的连接已断开。';
 
   @override
   String get relayStartHint =>
-      '带房间码的房间需要一个中继。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：';
+      '带房间码的房间需要一个服务器。请在同一 Wi-Fi 的电脑上启动它，并通过它的地址打开 Klunki：';
 
   @override
   String relayRoomLost(String reason) {
@@ -1316,18 +1316,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String relayFromLink(String address) {
-    return '链接中的中继：$address';
+    return '链接中的服务器：$address';
   }
 
   @override
   String get relayLinkSaveDefault => '设为默认';
 
   @override
-  String get relayLinkUseSaved => '使用已保存的中继';
+  String get relayLinkUseSaved => '使用已保存的服务器';
 
   @override
   String get relayLinkForeign =>
-      '注意：此链接指向另一个中继，而不是本页面的服务器。只有信任发送者时才加入：外部中继能看到每一步棋。';
+      '注意：此链接指向另一个服务器，而不是本页面的服务器。只有信任发送者时才加入：外部服务器能看到每一步棋。';
 
   @override
   String get pairingSeatTaken => '位置已被占用：已有人在玩这局游戏。只有最先加入的玩家才能重新加入。';
@@ -1363,7 +1363,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get relayChange => '更改';
 
   @override
-  String get relayNotSet => '未设置中继，请输入地址';
+  String get relayNotSet => '未设置服务器，请输入地址';
 
   @override
   String relayUseDefault(String address) {
@@ -1374,16 +1374,83 @@ class AppLocalizationsZh extends AppLocalizations {
   String get relaySave => '应用';
 
   @override
-  String get relayClubCodeLabel => '通行码（需要时才填）';
+  String get relayClubCodeLabel => '通行码';
 
   @override
-  String get relayClubCodeHelper => '只用于需要通行码的服务器。通行码不会出现在房间链接或二维码里。';
+  String get relayClubCodeHelper => '只为这个服务器保存。通行码不会出现在房间链接或二维码里。';
 
   @override
-  String get relayErrorClubMissing => '这个服务器需要通行码。请在“高级”里点“更改”后输入。请问运行服务器的人。';
+  String get relayErrorClubMissing => '这个服务器需要通行码。请问运行服务器的人。';
 
   @override
   String get relayErrorClubWrong => '这个服务器不接受这个通行码。请问运行服务器的人。';
+
+  @override
+  String get serverKindLan => 'Wi-Fi 中的服务器（一台运行“klunki relay”的电脑）';
+
+  @override
+  String get serverKindInternet => '网上的服务器';
+
+  @override
+  String get serverHelpLink => '如何使用？';
+
+  @override
+  String get serverClubCodeRemove => '移除通行码';
+
+  @override
+  String get serverClubCodeRetry => '用通行码再试一次';
+
+  @override
+  String get helpTitle => '一起玩的方法';
+
+  @override
+  String get helpSectionRoomsTitle => '和其他人一起玩';
+
+  @override
+  String get helpSectionRoomsBody =>
+      '一个人点“创建房间”并选择游戏。Klunki 会显示房间码和二维码。\n\n另一个人点“加入房间”，扫描二维码或输入房间码。就可以开始了。';
+
+  @override
+  String get helpSectionWifiTitle => '在同一个 Wi-Fi 中';
+
+  @override
+  String get helpSectionWifiBody =>
+      '你们中有人有这个应用吗？那么在 Wi-Fi 中就不需要服务器：应用就是服务器，浏览器里的玩家也能用（二维码）。\n\n同一 Wi-Fi 中的设备会自动找到对方。';
+
+  @override
+  String get helpSectionServerTitle => '何时需要服务器？';
+
+  @override
+  String get helpSectionServerBody =>
+      '只有大家都在浏览器里玩，或者不在同一个 Wi-Fi 中时才需要。服务器在你们的设备之间传递每一步棋。\n\nKlunki 会按照地址看出是什么样的服务器：“Wi-Fi 中的服务器”或“网上的服务器”。';
+
+  @override
+  String get helpSectionOwnServerTitle => 'Wi-Fi 中你们的服务器';
+
+  @override
+  String get helpSectionOwnServerBody =>
+      '在 Wi-Fi 中的一台电脑上，在 Klunki 目录里启动“klunki relay”。电脑会显示它的地址，例如 192.168.1.20:4749。\n\n在 Klunki 的“高级”里点“更改”，输入这个地址。在浏览器中打开这个地址的人可以马上一起玩。';
+
+  @override
+  String get helpSectionComingTitle => '即将更简单（准备中）';
+
+  @override
+  String get helpSectionComingBody =>
+      '这些获得服务器的方法正在准备中：\n• 给一些人一起用的网上服务器（用 Cloudflare，0 元）\n• 可以下载的现成应用，适用于 Mac、Windows 和 Linux\n• 用于 NAS 或 Raspberry Pi 的 Docker\n\n网上的服务器通常需要通行码。';
+
+  @override
+  String get helpSectionClubTitle => '什么是通行码？';
+
+  @override
+  String get helpSectionClubBody =>
+      '通行码就像服务器的入口码：只有知道它的人才能在那里创建或加入房间。你可以向运行服务器的人要。\n\nKlunki 只在服务器需要时才会问，并为这个服务器保存它。';
+
+  @override
+  String get helpSectionDataTitle => '我的信息会如何？';
+
+  @override
+  String get helpSectionDataBody =>
+      '服务器只传递每一步棋，不会长期保存。你们在同一个 Wi-Fi 中直接玩时，什么都不经过其他人的服务器。\n\n通行码只留在你的设备上，不会出现在房间链接或二维码里。你可以在服务器那里点“更改”查看、更改或移除它。';
 
   @override
   String get joinDirectTitle => '直接连接设备';

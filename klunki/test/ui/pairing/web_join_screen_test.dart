@@ -148,7 +148,7 @@ void main() {
       await _pumpScreen(
           tester, WebJoinScreen(deps: WebJoinDeps(joinTransport: r.join), pageUrl: Uri.parse('https://x.example/')));
       expect(find.byKey(const Key('web-join-https')), findsOneWidget);
-      expect(find.textContaining('nur sichere Relays (wss://)'), findsOneWidget);
+      expect(find.textContaining('nur sichere Server (wss://)'), findsOneWidget);
     });
 
     testWidgets('KLD-096: an https page does not try ws:// to the LAN and says why', (tester) async {
@@ -158,7 +158,7 @@ void main() {
       await _enterAndConnect(tester, '10.0.0.7');
       expect(r.calls, isEmpty);
       expect(find.byKey(const Key('web-join-progress')), findsNothing);
-      expect(tester.widget<Text>(find.byKey(const Key('web-join-error'))).data!, contains('nur sichere Relays (wss://)'));
+      expect(tester.widget<Text>(find.byKey(const Key('web-join-error'))).data!, contains('nur sichere Server (wss://)'));
       // Loopback is allowed by browsers even from https.
       await _enterAndConnect(tester, 'ws://localhost:4748');
       expect(r.calls.single.$1, _ws('localhost', 4748));
@@ -187,7 +187,7 @@ void main() {
       await tester.tap(find.byKey(const Key('room-join-button')));
       await tester.pump();
       expect(relayJoins, 0);
-      expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data!, contains('nur sichere Relays (wss://)'));
+      expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data!, contains('nur sichere Server (wss://)'));
       expect(find.byKey(const Key('room-start-hint')), findsNothing);
     });
   });

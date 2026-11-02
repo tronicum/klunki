@@ -87,11 +87,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Others tap “Join a room” and scan this QR code. Devices on the same Wi-Fi also find the room under “Rooms nearby”.';
 
   @override
-  String get roomViaRelay => 'Open the room through a relay';
+  String get roomViaRelay => 'Open the room through a server';
 
   @override
   String get roomViaRelayHelper =>
-      'With a room code, also for players in a browser. Needs a computer running “klunki relay”. When off, the room runs on this device and devices on the same Wi-Fi find it by themselves.';
+      'With a room code, also for players in a browser. Needs a server (for example a computer running “klunki relay”). When off, the room runs on this device and devices on the same Wi-Fi find it by themselves.';
 
   @override
   String get roomTypeCode => 'Type the room code';
@@ -935,7 +935,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'In a browser over https, Klunki can only reach secure relays (wss://) – use the app or the local http version.';
+      'In a browser over https, Klunki can only reach secure servers (wss://) – use the app or the local http version.';
 
   @override
   String get webJoinAddressLabel => 'IP, IP:port, ws:// or klunki:// link';
@@ -1287,7 +1287,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String relayInfo(String address) {
-    return 'Relay: $address';
+    return 'Server: $address';
   }
 
   @override
@@ -1307,15 +1307,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get relayAddressLabel => 'Relay address';
+  String get relayAddressLabel => 'Server';
 
   @override
   String get relayAddressHelper =>
-      'Computer on the Wi-Fi running \"klunki relay\", e.g. 192.168.1.20:4749';
+      'The server\'s address, e.g. 192.168.1.20:4749 (on the Wi-Fi) or wss://spiele.example (on the internet)';
 
   @override
   String get relayAddressInvalid =>
-      'Invalid relay address. Example: 192.168.1.20:4749';
+      'Invalid server address. Example: 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
@@ -1337,15 +1337,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String relayErrorUnreachable(String address) {
-    return 'No relay reachable at $address.';
+    return 'No server reachable at $address.';
   }
 
   @override
-  String get relayErrorLost => 'The connection to the relay was lost.';
+  String get relayErrorLost => 'The connection to the server was lost.';
 
   @override
   String get relayStartHint =>
-      'Rooms with a room code need a relay. Start it on a computer on the Wi-Fi and open Klunki from its address:';
+      'Rooms with a room code need a server. Start it on a computer on the Wi-Fi and open Klunki from its address:';
 
   @override
   String relayRoomLost(String reason) {
@@ -1354,18 +1354,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String relayFromLink(String address) {
-    return 'Relay from link: $address';
+    return 'Server from link: $address';
   }
 
   @override
   String get relayLinkSaveDefault => 'Save as default';
 
   @override
-  String get relayLinkUseSaved => 'Use saved relay';
+  String get relayLinkUseSaved => 'Use saved server';
 
   @override
   String get relayLinkForeign =>
-      'Caution: this link points to a different relay, not to this page\'s server. Only join if you trust the sender: a foreign relay sees every move.';
+      'Caution: this link points to a different server, not to this page\'s server. Only join if you trust the sender: a foreign server sees every move.';
 
   @override
   String get pairingSeatTaken =>
@@ -1405,7 +1405,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get relayChange => 'change';
 
   @override
-  String get relayNotSet => 'No relay set up – enter an address';
+  String get relayNotSet => 'No server set up – enter an address';
 
   @override
   String relayUseDefault(String address) {
@@ -1416,19 +1416,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String get relaySave => 'Apply';
 
   @override
-  String get relayClubCodeLabel => 'Club code (only if needed)';
+  String get relayClubCodeLabel => 'Club code';
 
   @override
   String get relayClubCodeHelper =>
-      'Only for servers that ask for a club code. The club code never goes into room links or QR codes.';
+      'Saved for this server only. The club code never goes into room links or QR codes.';
 
   @override
   String get relayErrorClubMissing =>
-      'This server needs a club code. Enter it under “Advanced” with “change”. Ask the person who runs the server.';
+      'This server needs a club code. Ask the person who runs the server.';
 
   @override
   String get relayErrorClubWrong =>
       'This server doesn\'t know the club code. Ask the person who runs the server.';
+
+  @override
+  String get serverKindLan =>
+      'Server on the Wi-Fi (a computer running “klunki relay”)';
+
+  @override
+  String get serverKindInternet => 'Server on the internet';
+
+  @override
+  String get serverHelpLink => 'How does this work?';
+
+  @override
+  String get serverClubCodeRemove => 'Remove club code';
+
+  @override
+  String get serverClubCodeRetry => 'Try with club code';
+
+  @override
+  String get helpTitle => 'How to play together';
+
+  @override
+  String get helpSectionRoomsTitle => 'Playing with others';
+
+  @override
+  String get helpSectionRoomsBody =>
+      'One person taps “Start a room” and picks a game. Klunki then shows a room code and a QR code.\n\nThe other person taps “Join a room” and scans the QR code or types the room code. Off you go.';
+
+  @override
+  String get helpSectionWifiTitle => 'On the same Wi-Fi';
+
+  @override
+  String get helpSectionWifiBody =>
+      'Does one of you have the app? Then you need no server on the Wi-Fi: the app is the server itself, also for players in a browser (QR code).\n\nDevices on the same Wi-Fi find each other by themselves.';
+
+  @override
+  String get helpSectionServerTitle => 'When do you need a server?';
+
+  @override
+  String get helpSectionServerBody =>
+      'Only if everyone plays in a browser or you are not on the same Wi-Fi. The server passes the moves between your devices.\n\nKlunki tells from the address what kind of server it is: “Server on the Wi-Fi” or “Server on the internet”.';
+
+  @override
+  String get helpSectionOwnServerTitle => 'Your own server on the Wi-Fi';
+
+  @override
+  String get helpSectionOwnServerBody =>
+      'On a computer on the Wi-Fi, start “klunki relay” in the Klunki folder. The computer then shows its address, for example 192.168.1.20:4749.\n\nEnter that address in Klunki under “Advanced” with “change”. Anyone who opens it in a browser can join in right away.';
+
+  @override
+  String get helpSectionComingTitle => 'Easier soon (in preparation)';
+
+  @override
+  String get helpSectionComingBody =>
+      'These ways to get a server are in preparation:\n• A server on the internet for a circle of friends (with Cloudflare, free)\n• A ready-made program to download for Mac, Windows and Linux\n• Docker for a NAS or Raspberry Pi\n\nServers on the internet are usually protected with a club code.';
+
+  @override
+  String get helpSectionClubTitle => 'What is a club code?';
+
+  @override
+  String get helpSectionClubBody =>
+      'A club code is like a key to a server: only people who know it can start or join rooms there. You get it from the person who runs the server.\n\nKlunki only asks for it when a server needs one, and remembers it for that server.';
+
+  @override
+  String get helpSectionDataTitle => 'What happens to my data?';
+
+  @override
+  String get helpSectionDataBody =>
+      'The server only passes the moves along and keeps none of them for good. If you play directly on the same Wi-Fi, nothing goes through someone else\'s server.\n\nThe club code stays on your device and never goes into room links or QR codes. You can see, change or remove it with “change” next to the server.';
 
   @override
   String get joinDirectTitle => 'Connect directly to a device';
