@@ -488,10 +488,13 @@ void main() {
   }, timeout: const Timeout(Duration(minutes: 2)));
 }
 
-Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5)}) async {
+/// Polls [condition]; fails after [limit] of wall clock *and* [minPolls]
+/// polls (KLD-109: wall clock alone also counts time the machine was
+/// starved or asleep).
+Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5), int minPolls = 400}) async {
   final sw = Stopwatch()..start();
-  while (!condition()) {
-    if (sw.elapsed > limit) throw TimeoutException('condition not met', limit);
+  for (var polls = 0; !condition(); polls++) {
+    if (sw.elapsed > limit && polls >= minPolls) throw TimeoutException('condition not met ($polls polls)', limit);
     await Future<void>.delayed(const Duration(milliseconds: 5));
   }
 }

@@ -522,6 +522,55 @@ void main() {
       await host.close();
     });
 
+    // KLD-109: a stalled isolate (a long synchronous frame, a busy CPU, an
+    // app resumed from the background) must not count as a silent peer.
+    // During the stall nobody reads, so the peer's pongs wait unread in the
+    // socket; the first keepalive tick after the stall used to see "nothing
+    // for longer than the timeout" and dropped a healthy connection.
+    for (final transport in ['tcp', 'ws']) {
+      test('a stalled isolate is not a ping timeout ($transport)', () async {
+        const ping = Duration(milliseconds: 20), timeout = Duration(milliseconds: 150);
+        final host = await startHost(const GameConfig('connect4'), pingInterval: ping, timeout: timeout);
+        final guest = transport == 'tcp'
+            ? await KlunkiGuest.connect(loopback, host.port, pingInterval: ping, timeout: timeout)
+            : await KlunkiGuest.connectWebSocket(Uri.parse('ws://127.0.0.1:${host.wsPort}'),
+                pingInterval: ping, timeout: timeout);
+        await until(() => host.guestConnected);
+        final events = <NetEvent>[];
+        host.events.listen(events.add);
+        guest.events.listen(events.add);
+        for (var i = 0; i < 3; i++) {
+          final stall = Stopwatch()..start();
+          while (stall.elapsed < timeout * 3) {} // busy: no timers, no reads
+          await Future<void>.delayed(ping * 4);
+        }
+        expect(events.whereType<PeerDisconnected>(), isEmpty);
+        expect(host.guestConnected, isTrue);
+        expect(guest.connected, isTrue);
+        await guest.close();
+        await host.close();
+      });
+    }
+
+    test('a silent guest is still detected after a stall of the host', () async {
+      const ping = Duration(milliseconds: 20), timeout = Duration(milliseconds: 150);
+      final host = await startHost(const GameConfig('connect4'), pingInterval: ping, timeout: timeout);
+      final events = <NetEvent>[];
+      host.events.listen(events.add);
+      final peer = await RawPeer.connect(host.port); // never answers ping
+      peer.send('hello', guestHello('Raw'));
+      await peer.next('welcome');
+      final stall = Stopwatch()..start();
+      while (stall.elapsed < timeout * 3) {}
+      final awake = Stopwatch()..start();
+      await until(() => events.whereType<PeerDisconnected>().isNotEmpty);
+      expect(events.whereType<PeerDisconnected>().single.timedOut, isTrue);
+      // The stall did not count (the old check fired on the first tick
+      // after it); the silence after it did.
+      expect(awake.elapsed, greaterThanOrEqualTo(timeout ~/ 2));
+      await host.close();
+    });
+
     test('host detects a silent guest (ping timeout)', () async {
       final host = await startHost(const GameConfig('connect4'),
           pingInterval: const Duration(milliseconds: 20), timeout: const Duration(milliseconds: 150));

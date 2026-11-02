@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:js_interop';
 
+import '../awake_clock.dart';
 import 'channel.dart';
 
 /// The browser's `WebSocket`, bound directly through `dart:js_interop` (no
@@ -80,7 +81,7 @@ class BrowserWebSocketChannel implements MessageChannel {
     }).toJS;
     ws.onerror = ((JSAny? _) => fail('cannot open $url')).toJS;
     ws.onclose = ((_CloseEvent e) => fail('cannot open $url (closed, code ${e.code})')).toJS;
-    final timer = Timer(timeout, () => fail('timed out opening $url'));
+    final timer = awakeTimer(timeout, () => fail('timed out opening $url'));
     return opened.future.whenComplete(timer.cancel);
   }
 

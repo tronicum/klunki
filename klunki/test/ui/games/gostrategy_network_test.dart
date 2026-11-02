@@ -24,6 +24,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/klunki_net.dart' show Verification;
 
 import '../../l10n/l10n_test_utils.dart';
+import '../../support/test_run.dart';
 import 'gostrategy_setup_utils.dart';
 
 const _hostKey = Key('device-host');
@@ -45,7 +46,9 @@ GoSquareView _square(WidgetTester tester, Key device, int sq) => tester.widget<G
 Future<void> _until(WidgetTester tester, bool Function() condition, String what) async {
   // Counted rounds, not a Stopwatch: about 20 s of real waiting at most
   // (more under the load of the full suite).
+  final alive = testRunGuard(tester);
   for (var round = 0;; round++) {
+    alive();
     await tester.pump();
     if (condition()) {
       await tester.pump(); // post-frame hint

@@ -20,6 +20,7 @@ import 'package:klunki/ui/pairing/room_join.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
+import '../../support/test_run.dart';
 
 const pingInterval = Duration(milliseconds: 100);
 
@@ -206,15 +207,22 @@ Future<void> openAdvanced(WidgetTester tester, String id) async {
 
 /// Pumps frames with short real waits in between until [condition] holds.
 ///
-/// [limit] is wall-clock time (`Stopwatch` is not faked by the widget test's
-/// fake-async zone), so it only bounds a hang; generous for loaded CI runners.
+/// Gives up only after [limit] of wall clock (`Stopwatch` is not faked by the
+/// widget test's fake-async zone) *and* [minRounds] real waits (KLD-109): on
+/// a busy machine a frame of two apps can take seconds, and a machine that
+/// sleeps (or a starved process) spends wall clock without running anything;
+/// the sockets only progress during the real waits, so those are counted.
 Future<void> pumpUntil(WidgetTester tester, bool Function() condition,
-    {String? what, Duration limit = const Duration(seconds: 15)}) async {
+    {String? what, Duration limit = const Duration(seconds: 15), int minRounds = 500}) async {
   final sw = Stopwatch()..start();
-  while (true) {
+  final alive = testRunGuard(tester);
+  for (var round = 0;; round++) {
+    alive();
     await tester.pump();
     if (condition()) return;
-    if (sw.elapsed > limit) fail('condition not met${what == null ? '' : ': $what'}');
+    if (sw.elapsed > limit && round >= minRounds) {
+      fail('condition not met${what == null ? '' : ': $what'} (${sw.elapsed.inSeconds} s, $round rounds)');
+    }
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
   }
 }

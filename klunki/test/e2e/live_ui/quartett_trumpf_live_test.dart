@@ -11,7 +11,7 @@
 //   KLUNKI_LIVE_UI_FULL=1 flutter test test/e2e/live_ui      # all seeds/decks (~7 min)
 //
 // By default (CI) a smaller matrix runs: every deck in hot-seat, three
-// network games.
+// network games. The network games use [liveUiTimeout] (KLD-109).
 @Timeout(Duration(minutes: 8))
 library;
 
@@ -59,7 +59,7 @@ void main() {
         final log = await playNetwork(tester, adapter, GameConfig('quartett-trumpf', seed: seed, deck: deck.id),
             rng: Random(seed * 17 + deck.id.length));
         log.printIfVerbose();
-      });
+      }, timeout: liveUiTimeout);
     }
   }
 
@@ -67,7 +67,7 @@ void main() {
     final log = await playNetwork(tester, adapter, const GameConfig('quartett-trumpf', seed: 21),
         rng: Random(21), behaviour: const NetBehaviour(dawdle: 0, wait: 0, fidget: 0), proxy: false);
     log.printIfVerbose();
-  });
+  }, timeout: liveUiTimeout);
 
   testWidgets('network, a slow guest (long queues behind the grace): nothing skipped', (tester) async {
     final log = await playNetwork(tester, adapter, const GameConfig('quartett-trumpf', seed: 22, deck: 'rockets'),
@@ -75,5 +75,5 @@ void main() {
     log.printIfVerbose();
     // KLD-091: the status line was checked against queued tricks too.
     expect(adapter.queuedChecks, greaterThan(0));
-  });
+  }, timeout: liveUiTimeout);
 }

@@ -155,8 +155,13 @@ can reconnect to resync.
 
 **Keepalive.** Each side sends `ping` every `pingInterval` (default 2 s). Every
 received line counts as a sign of life; after `timeout` (default 10 s) of
-silence the connection is closed and reported as timed out. A connection must
-also send `hello` within `timeout`.
+silence the connection is closed and reported as timed out. Only silence while
+the side could read counts (KLD-109): when its keepalive timer fires late (the
+process was stalled: a long frame, no CPU, a sleeping machine, an app resumed
+from the background), the time it was late does not count towards `timeout`:
+the other side's messages were waiting unread meanwhile. Nothing changes on
+the wire. A connection must also send `hello` within
+`timeout`.
 
 **Reconnect.** The guest connects again and sends `hello` with its `token`. It
 receives a fresh `welcome`, checks that its own log is a prefix of `moves`

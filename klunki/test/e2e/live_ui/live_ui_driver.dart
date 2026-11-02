@@ -32,10 +32,22 @@ import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
+import '../../support/test_run.dart';
 import '../e2e_support.dart';
 
 /// `KLUNKI_LIVE_UI_VERBOSE=1` prints every device's turn log.
 final bool liveUiVerbose = Platform.environment['KLUNKI_LIVE_UI_VERBOSE'] == '1';
+
+/// A network game fails when no device applied or showed anything new for
+/// this long (wall clock, and at least 300 rounds): a hang, not a slow machine.
+const noProgressLimit = Duration(minutes: 2);
+
+/// Per-test backstop of the live UI files. Only a backstop: hangs are caught
+/// by [noProgressLimit] and the per-step waits. A whole network game is a few
+/// hundred real socket round trips and frames of two apps; on a machine busy
+/// with other test runs it took 6+ min (KLD-109), so the old 8 min budget
+/// failed healthy games.
+const liveUiTimeout = Timeout(Duration(minutes: 20));
 
 /// One device in a test: the whole tree (hot-seat) or a keyed half (network).
 class UiDevice {
@@ -281,7 +293,9 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
   final log = LiveUiLog('hot-seat $config');
   final w = _Watcher();
   final coversAt = <int>[];
+  final alive = testRunGuard(tester);
   for (var step = 0; step < maxSteps; step++) {
+    alive();
     _observe(tester, a, d, w, log, c.game, inSync: true);
     if (d.resultShown()) break;
     if (d.hasKey(const Key('handover-cover'))) {
@@ -375,7 +389,9 @@ Future<LiveUiLog> playNetwork(WidgetTester tester, LiveUiAdapter a, GameConfig c
   final watchers = {for (final d in devices) d.name: _Watcher()};
   final log = LiveUiLog('network $config${proxy ? ' (Wi-Fi proxy)' : ''}');
 
+  final alive = testRunGuard(tester);
   Future<void> net() async {
+    alive();
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 3)));
     await tester.pump();
     await tester.pump(); // the shell sets its hint post-frame
@@ -398,13 +414,30 @@ Future<LiveUiLog> playNetwork(WidgetTester tester, LiveUiAdapter a, GameConfig c
   final pending = <String, int>{};
   var rounds = 0;
   final wall = Stopwatch()..start();
+  // Hang guard on progress, not on the total (KLD-109): a long game on a
+  // busy machine legitimately takes many minutes of wall clock (a 100-round
+  // game took 6 min under load and failed a fixed 6 min budget), but some
+  // device shows or applies something new every few seconds.
+  final sinceProgress = Stopwatch()..start();
+  var progress = '';
+  var roundsSinceProgress = 0;
   var stuck = 0;
   for (; rounds < maxRounds && !done(); rounds++) {
     // Both devices sit on the result dialog: nothing more can be seen or
     // tapped (the dialog is modal). Give pending timers a few rounds, then stop.
     stuck = devices.every((d) => d.resultShown()) ? stuck + 1 : 0;
     if (stuck > 40) break;
-    if (wall.elapsed > const Duration(minutes: 6)) fail('${log.label}: still running after 6 min\n${log.dump()}');
+    final now = [
+      for (final d in devices) '${controllers[d.name]!.moves.length}/${log.shown[d.name]?.length ?? 0}',
+    ].join(' ');
+    if (now != progress) {
+      progress = now;
+      sinceProgress.reset();
+      roundsSinceProgress = 0;
+    } else if (++roundsSinceProgress > 300 && sinceProgress.elapsed > noProgressLimit) {
+      fail('${log.label}: no progress for ${noProgressLimit.inSeconds} s '
+          '(${wall.elapsed.inSeconds} s in, moves/shown per device: $now)\n${log.dump()}');
+    }
     for (final d in devices) {
       final inSync = controllers[d.name]!.moves.length == hc.moves.length;
       _observe(tester, a, d, watchers[d.name]!, log, hc.game, inSync: inSync);

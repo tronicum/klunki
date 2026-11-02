@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import '../awake_clock.dart';
 import '../events.dart';
 import 'channel.dart';
 import 'io_websocket_channel.dart';
@@ -20,7 +21,7 @@ Future<MessageChannel> connectTcp(Object host, int port, Duration timeout) async
 
 Future<MessageChannel> connectWebSocket(Uri url, Duration timeout) async {
   try {
-    return IoWebSocketChannel(await WebSocket.connect(url.toString()).timeout(timeout));
+    return IoWebSocketChannel(await awakeTimeout(WebSocket.connect(url.toString()), timeout));
   } on TimeoutException {
     throw NetException('cannot connect: no answer from $url within ${timeout.inMilliseconds} ms');
   } on SocketException catch (e) {

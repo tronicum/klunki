@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'awake_clock.dart';
 import 'channel/channel.dart';
 import 'events.dart';
 
@@ -35,7 +36,10 @@ class Connection {
 
   late final StreamSubscription<String> _sub;
   late final Timer _timer;
-  final Stopwatch _sinceLastSeen = Stopwatch()..start();
+
+  /// Silence since the last message, without the time this isolate was
+  /// stalled (see [_tick]); ticked by the keepalive timer.
+  final AwakeClock _silence;
   bool _closed = false;
 
   Connection(
@@ -45,7 +49,7 @@ class Connection {
     required this.onMessage,
     required this.onClosed,
     this.build = '',
-  }) {
+  }) : _silence = AwakeClock(pingInterval) {
     _sub = channel.messages.listen(_onLine,
         onError: (Object e) => switch (e) {
               MalformedInput(:final what) => fail('malformed input ($what)'),
@@ -108,8 +112,17 @@ class Connection {
     _finish('protocol error: unsupported protocol version $v (expected $protocolVersion)');
   }
 
+  /// The keepalive: pings the other side and ends a connection that has
+  /// been silent for longer than [timeout].
+  ///
+  /// Silence only counts while this isolate could have read (KLD-109). A
+  /// tick that comes late means the isolate was stalled: a long synchronous
+  /// frame, a busy CPU, an app resumed from the background. The other
+  /// side's messages then wait unread in the socket, so the stall is no
+  /// evidence against it; judging by the wall clock alone dropped healthy
+  /// connections on the first tick after the stall.
   void _tick() {
-    if (_sinceLastSeen.elapsed > timeout) {
+    if (_silence.tick() > timeout) {
       _finish('timeout: no message for ${timeout.inMilliseconds} ms', timedOut: true);
     } else {
       send('ping');
@@ -118,7 +131,7 @@ class Connection {
 
   void _onLine(String line) {
     if (_closed || line.trim().isEmpty) return;
-    _sinceLastSeen.reset();
+    _silence.reset();
     Object? decoded;
     try {
       decoded = jsonDecode(line);

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import '../awake_clock.dart';
 import '../channel/channel.dart';
 import '../channel/listener.dart';
 import '../channel/platform.dart' as platform;
@@ -65,7 +66,7 @@ class RelayHostListener implements HostListener {
       final l = listener;
       l != null ? l._onRelayGone('relay connection lost') : fail('relay closed the connection');
     });
-    final timer = Timer(timeout, () => fail('no room from the relay within ${timeout.inMilliseconds} ms'));
+    final timer = awakeTimer(timeout, () => fail('no room from the relay within ${timeout.inMilliseconds} ms'));
     return first.future.whenComplete(timer.cancel);
   }
 

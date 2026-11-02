@@ -41,11 +41,15 @@ Map<String, dynamic> hostHello(GameConfig config, {Object? name}) => {
       'fingerprint': fingerprintOf(config)!.toJson(),
     };
 
-/// Polls [condition] until it holds (fails after [limit]).
-Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5)}) async {
+/// Polls [condition] until it holds.
+///
+/// Fails only after [limit] of wall clock *and* [minPolls] polls (KLD-109):
+/// a starved or sleeping machine spends wall clock without running the
+/// event loop, so the polls (each one a turn for the sockets) are counted.
+Future<void> until(bool Function() condition, {Duration limit = const Duration(seconds: 5), int minPolls = 1000}) async {
   final sw = Stopwatch()..start();
-  while (!condition()) {
-    if (sw.elapsed > limit) throw TimeoutException('condition not met', limit);
+  for (var polls = 0; !condition(); polls++) {
+    if (sw.elapsed > limit && polls >= minPolls) throw TimeoutException('condition not met ($polls polls)', limit);
     await Future<void>.delayed(const Duration(milliseconds: 2));
   }
 }
