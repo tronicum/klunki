@@ -6,7 +6,7 @@
   },
   {
    "t": "meta",
-   "x": "Stand: 1. November 2026"
+   "x": "Stand: 2. November 2026"
   },
   {
    "t": "p",
@@ -30,7 +30,7 @@
   },
   {
    "t": "li",
-   "x": "Wir betreiben keinen Server für das Spiel und erhalten keine Daten von dir."
+   "x": "Wir betreiben keinen Server für das Spiel und erhalten keine Daten von dir, außer du schreibst uns eine E-Mail (z. B. um Zugang zur App-Beta anzufragen)."
   },
   {
    "t": "h2",
@@ -130,11 +130,31 @@
   },
   {
    "t": "h2",
+   "x": "Zugang zur App-Beta per E-Mail"
+  },
+  {
+   "t": "p",
+   "x": "Auf der Startseite dieser Website kannst du per E-Mail Zugang zur Beta der App anfragen. Dabei erhalten wir deine E-Mail-Adresse, den Inhalt deiner Nachricht (z. B. das gewünschte Gerät und, falls du ihn angibst, deinen Vornamen) und die üblichen Angaben deines E-Mail-Programms. Wir nutzen diese Daten nur, um dir die Einladung zur Beta zu schicken und deine Fragen dazu zu beantworten (Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO, deine Anfrage)."
+  },
+  {
+   "t": "li",
+   "x": "iPhone und iPad: Die Einladung läuft über TestFlight von Apple. Dafür tragen wir deine E-Mail-Adresse bei Apple ein; Apple schickt dir die Einladung und verarbeitet die Adresse nach seinen eigenen Bedingungen und seiner Datenschutzerklärung."
+  },
+  {
+   "t": "li",
+   "x": "Android: Die Einladung läuft über einen Testkanal von Google Play. Dafür tragen wir deine E-Mail-Adresse (die deines Google-Kontos) bei Google ein; Google verarbeitet sie nach seinen eigenen Bedingungen und seiner Datenschutzerklärung."
+  },
+  {
+   "t": "p",
+   "x": "Wir geben die Adresse an niemanden sonst weiter und schicken keine Werbung. Wir löschen deine Anfrage und die Einträge bei Apple bzw. Google, wenn du uns darum bittest, spätestens wenn die Beta endet. Bitte die Anfrage von Erwachsenen schicken lassen."
+  },
+  {
+   "t": "h2",
    "x": "Kinder"
   },
   {
    "t": "p",
-   "x": "Klunki erhebt keine personenbezogenen Daten für uns, auch nicht von Kindern."
+   "x": "Klunki erhebt keine personenbezogenen Daten für uns, auch nicht von Kindern. Anfragen für die App-Beta sollen Erwachsene schicken."
   },
   {
    "t": "h2",
@@ -142,7 +162,7 @@
   },
   {
    "t": "p",
-   "x": "Da wir keine Daten über dich erhalten oder speichern, können wir dazu keine Auskunft geben und nichts löschen. Die lokal gespeicherten Einstellungen hast du selbst in der Hand (siehe oben). Bei Fragen schreib uns an die oben genannte Adresse."
+   "x": "Aus der App und der Web-App erhalten oder speichern wir keine Daten über dich. Die lokal gespeicherten Einstellungen hast du selbst in der Hand (siehe oben). Hast du uns geschrieben (z. B. für die App-Beta), hast du das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Widerspruch sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde. Schreib uns dafür an die oben genannte Adresse."
   },
   {
    "t": "h2",
@@ -160,7 +180,7 @@
   },
   {
    "t": "meta",
-   "x": "Last updated: 1 November 2026"
+   "x": "Last updated: 2 November 2026"
   },
   {
    "t": "p",
@@ -184,7 +204,7 @@
   },
   {
    "t": "li",
-   "x": "We run no server for the game and receive no data from you."
+   "x": "We run no server for the game and receive no data from you, unless you send us an email (e.g. to request access to the app beta)."
   },
   {
    "t": "h2",
@@ -284,11 +304,31 @@
   },
   {
    "t": "h2",
+   "x": "App beta access by email"
+  },
+  {
+   "t": "p",
+   "x": "On the start page of this website you can request access to the app beta by email. We then receive your email address, the content of your message (e.g. the device you want it for and, if you give it, your first name) and the usual data your email program sends. We use this data only to send you the beta invitation and to answer your questions about it (legal basis: Art. 6(1)(b) GDPR, your request)."
+  },
+  {
+   "t": "li",
+   "x": "iPhone and iPad: the invitation goes through Apple's TestFlight. For that we enter your email address at Apple; Apple sends you the invitation and processes the address under its own terms and privacy policy."
+  },
+  {
+   "t": "li",
+   "x": "Android: the invitation goes through a Google Play test track. For that we enter your email address (that of your Google account) at Google; Google processes it under its own terms and privacy policy."
+  },
+  {
+   "t": "p",
+   "x": "We do not pass the address on to anyone else and send no advertising. We delete your request and the entries at Apple or Google when you ask us to, at the latest when the beta ends. Please have an adult send the request."
+  },
+  {
+   "t": "h2",
    "x": "Children"
   },
   {
    "t": "p",
-   "x": "Klunki collects no personal data for us, including from children."
+   "x": "Klunki collects no personal data for us, including from children. Requests for the app beta should be sent by adults."
   },
   {
    "t": "h2",
@@ -296,7 +336,7 @@
   },
   {
    "t": "p",
-   "x": "As we do not receive or store any data about you, there is nothing for us to disclose or delete. The settings stored on your device are under your control (see above). If you have questions, write to the address above."
+   "x": "We do not receive or store any data about you from the app or the web app. The settings stored on your device are under your control (see above). If you have written to us (e.g. for the app beta), you have the right of access, rectification, erasure, restriction of processing and objection, and the right to lodge a complaint with a data protection supervisory authority. Write to the address above."
   },
   {
    "t": "h2",

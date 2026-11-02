@@ -344,40 +344,57 @@ with the runner's throwaway debug key, which differs on every run, so CI APKs ca
 | `KEYSTORE_KEY_ALIAS` | key alias, e.g. `upload` |
 | `KEYSTORE_KEY_PASSWORD` | key password |
 
-### 7.1 GitHub Pages (KLD-096)
+### 7.1 GitHub Pages (KLD-096, KLD-115)
 
 `build.yml` publishes a Pages **project site** at `https://<owner>.github.io/<repo>/`, for this repo
 `https://tronicum.github.io/klunki/`:
 
 | Path | Content | Source |
 |---|---|---|
-| `/klunki/` | the PWA | `flutter build web --release --base-href /klunki/` + `pwa_finalize.py` |
+| `/klunki/` | landing page (de + en): games, screenshots, "Im Browser spielen", app beta, FAQ | `site/index.html` + `site/assets/`, filled by `site/build_site.py` |
+| `/klunki/play/` | the PWA | `flutter build web --release --base-href /klunki/play/` + `pwa_finalize.py` |
 | `/klunki/privacy/` | privacy policy (de + en) | `site/privacy/index.html` |
 | `/klunki/support/` | support page with FAQ (de + en) | `site/support/index.html` |
 | `/klunki/impressum/` | Impressum / legal notice (de + en) | `site/impressum/index.html` |
 
-Two jobs: **pages-build** builds the PWA under the repo sub-path (`--base-href "/${{ github.event.repository.name }}/"`),
-finalizes it, copies the static pages in with `python3 -I site/build_site.py klunki/build/web` (fills
-`{{CONTACT_EMAIL}}` from `site/site.json`, the one place to change the contact address), runs the no-external-URL
-check and uploads the Pages artifact. **pages** deploys it (`github-pages` environment; only this job has
+Two jobs: **pages-build** builds the PWA for the sub-path `play/` (`--base-href "/${{ github.event.repository.name }}/play/"`),
+finalizes it, runs the no-external-URL check, the site script's tests (`site/test_build_site.py`) and assembles the
+site with `python3 -I site/build_site.py build/site --app play=build/web`: the landing page, the static pages
+(`{{CONTACT_EMAIL}}` from `site/site.json`, the one place to change the contact address), the app under `play/`,
+and a self-unregistering `klunki_sw.js` at the root (until KLD-115 the PWA lived there; an old root worker would
+otherwise keep answering the landing page with the app). It fails if a page loads anything from another host.
+Then it uploads `klunki/build/site` as the Pages artifact. **pages** deploys it (`github-pages` environment; only this job has
 `pages: write` and `id-token: write`). The `pwa` job's artifact stays a root build for `klunki relay --web`.
 
 **Enable it (one time):**
 1. Settings › Pages › Build and deployment › Source: **GitHub Actions**.
 2. Settings › Secrets and variables › Actions › **Variables** › New repository variable: `PAGES_ENABLED` = `true`.
 
-Both jobs run only on a push to `main` and only while that variable is `true`; set it to anything else to stop
-deploying. To try the Pages build locally:
+Both jobs run only on a push to `main` and only while that variable is `true` (so merging to `main` publishes);
+set it to anything else to stop deploying. To try the Pages build locally:
 ```bash
 cd klunki
-flutter build web --release --base-href /klunki/
+flutter build web --release --base-href /klunki/play/ --dart-define=KLUNKI_WEB_CHANNEL=pages-beta
 python3 -I build/web/pwa_finalize.py
-python3 -I ../site/build_site.py build/web
 python3 -I tool/check_pwa_external_urls.py build/web
+python3 -I ../site/test_build_site.py
+python3 -I ../site/build_site.py build/site --app play=build/web
+mkdir -p /tmp/pages && ln -sfn "$PWD/build/site" /tmp/pages/klunki   # serve it under /klunki/
+python3 -m http.server 8793 --bind 127.0.0.1 --directory /tmp/pages   # http://127.0.0.1:8793/klunki/
 ```
 
+**Landing page.** `site/index.html` is a static page (inline CSS, no external resources, works without
+JavaScript; light/dark; German by default, English via `#en` or a non-German browser language). `build_site.py`
+fills in the game list (`menuGame*` / `menuDesc*` from `app_de.arb` / `app_en.arb`), the FAQ (ARB keys with the
+prefix `help`, the in-app help, in file order; without such keys only a link to `support/`), and the App Store /
+Google Play entries: greyed out "Geschlossene Beta" unless the repository variables `KLUNKI_IOS_BETA_URL` /
+`KLUNKI_ANDROID_URL` hold https links. "Zugang anfragen" is a `mailto:` form (GET to `mailto:` builds subject and
+body without JavaScript) plus plain `mailto:` links and the address as text. Its small script redirects old room
+links (`/klunki/?room=…`, `?join=…`) and home-screen installs from before KLD-115 to `play/`. Screenshots in
+`site/assets/` come from `KLUNKI_SHOTS` (phone, light), downscaled with `sips` (see the KLD-115 card).
+
 **Sub-path:** `index.html` uses `<base href>`, the manifest has `start_url`/`scope`/`id` `./` and the service worker
-is registered as `klunki_sw.js` with scope `./`, so the same sources work at `/` (relay) and at `/klunki/` (Pages).
+is registered as `klunki_sw.js` with scope `./`, so the same sources work at `/` (relay) and at `/klunki/play/` (Pages).
 The worker never answers `privacy/`, `support/` or `impressum/` with the app shell (`STATIC_PAGES` in
 `klunki_sw.js`) and `pwa_finalize.py` does not precache them.
 

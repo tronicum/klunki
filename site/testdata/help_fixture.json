@@ -1,0 +1,18 @@
+{
+  "_comment": "KLD-115: stand-in for the in-app help keys (prefix `help`, KLD-113 branch) until they are on main. site/test_build_site.py merges these into copies of the real ARB files.",
+  "de": {
+    "helpTitle": "So spielt ihr zusammen",
+    "helpOneDeviceTitle": "Auf einem Gerät",
+    "helpOneDeviceBody": "Tippt bei einem Spiel auf „Ein Gerät“ und gebt das Gerät nach jedem Zug weiter.",
+    "@helpOneDeviceBody": {"description": "fixture"},
+    "helpWifiTitle": "Im WLAN",
+    "helpWifiBody": "Beide Geräte im selben WLAN.\n• Raum starten\n• Raum beitreten"
+  },
+  "en": {
+    "helpTitle": "How to play together",
+    "helpOneDeviceTitle": "On one device",
+    "helpOneDeviceBody": "Tap “One device” on a game and pass the device on after each move.",
+    "helpWifiTitle": "Over Wi-Fi",
+    "helpWifiBody": "Both devices on the same Wi-Fi.\n• Start a room\n• Join a room"
+  }
+}

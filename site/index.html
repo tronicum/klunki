@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#C9772B">
+  <meta name="description" content="Klunki – klassische Spiele für zwei, für Familien und Kinder. Ohne Konto, ohne Werbung, ohne Tracking. Classic two-player games for families. No account, no ads, no tracking.">
+  <title>Klunki – Spiele für zwei / Games for two</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <!-- KLD-115: the landing page of the GitHub Pages site. Built by
+       site/build_site.py, which fills the {{…}} placeholders (games and FAQ
+       from the app's ARB files, store entries from the repository variables
+       KLUNKI_IOS_BETA_URL / KLUNKI_ANDROID_URL). Plain static page: no
+       external resources (no fonts, scripts or images from other hosts),
+       works without JavaScript. The app itself is at play/. -->
+  <script>
+    // Links shared before KLD-115 pointed at the site root: <site>/?room=CODE
+    // (KLD-057b) and ?join=… (KLD-055). The app lives at play/ now.
+    (function () {
+      var q = new URLSearchParams(location.search);
+      if (q.has('room') || q.has('join')) location.replace('play/' + location.search + location.hash);
+      // A home-screen install from before KLD-115 opens the site root.
+      else if (window.matchMedia && matchMedia('(display-mode: standalone)').matches) location.replace('play/');
+      // No language chosen yet and the browser is not German: show English.
+      else if (!location.hash && !/^de\b/i.test(navigator.language || 'de')) location.replace('#en');
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #FBF4E8; --card: #ffffff; --fg: #2a211a; --muted: #6b5b4d; --accent: #A85E1C; --accent-fg: #ffffff;
+      --rule: #e6d9c6; --soft: #f3e6d2; --off: #8a7d70; --off-bg: #efe7dc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1b1612; --card: #26201a; --fg: #f1e8dc; --muted: #c2b3a3; --accent: #F0A35E; --accent-fg: #1b1612;
+        --rule: #3b3229; --soft: #2f2720; --off: #9c8f82; --off-bg: #2b251f;
+      }
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); color: var(--fg); }
+    body {
+      margin: 0 auto; max-width: 60rem; padding: 1rem 1rem 3rem;
+      font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    a { color: var(--accent); }
+    a:focus-visible, summary:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid var(--accent); outline-offset: 2px;
+    }
+    img { max-width: 100%; height: auto; }
+    header.top { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    header.top .brand { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.5rem;
+      color: var(--fg); text-decoration: none; margin-right: auto; }
+    header.top .brand img { width: 2.5rem; height: 2.5rem; border-radius: .6rem; }
+    header.top nav a { margin-left: .75rem; }
+
+    /* Language: German by default, English when #en (or anything in it) is the target. */
+    article#en { display: none; }
+    main:has(#en:target) article#de, main:has(#en :target) article#de { display: none; }
+    main:has(#en:target) article#en, main:has(#en :target) article#en { display: block; }
+
+    h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.15; margin: 1.5rem 0 .5rem; }
+    h2 { font-size: 1.35rem; margin: 2.5rem 0 .75rem; }
+    h3 { font-size: 1.05rem; margin: 1.25rem 0 .25rem; }
+    .lead { font-size: 1.15rem; color: var(--muted); max-width: 40rem; margin: 0 0 1rem; }
+    .facts { list-style: none; padding: 0; margin: 0 0 1.25rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+    .facts li { background: var(--soft); border-radius: 999px; padding: .2rem .8rem; font-size: .95rem; }
+    .cta { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+    .button {
+      display: inline-block; background: var(--accent); color: var(--accent-fg); text-decoration: none;
+      font-weight: 700; font-size: 1.1rem; padding: .75rem 1.4rem; border-radius: .8rem; border: 0; cursor: pointer;
+      font-family: inherit;
+    }
+    .button.secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); padding: .6rem 1.2rem; font-size: 1rem; }
+    .note { color: var(--muted); font-size: .92rem; }
+
+    .shots { display: flex; gap: 1rem; overflow-x: auto; padding: .5rem 0 1rem; margin: 1.5rem 0 0;
+      scroll-snap-type: x mandatory; list-style: none; padding-left: 0; }
+    .shots li { flex: 0 0 auto; width: min(14rem, 62vw); scroll-snap-align: start; margin: 0; }
+    .shots img { display: block; width: 100%; border-radius: 1rem; border: 1px solid var(--rule);
+      box-shadow: 0 4px 14px rgba(0,0,0,.12); aspect-ratio: 400 / 866; object-fit: cover; object-position: top; }
+    .shots figcaption { font-size: .85rem; color: var(--muted); margin-top: .3rem; }
+
+    .games { list-style: none; padding: 0; margin: 0; display: grid; gap: .75rem;
+      grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); }
+    .games li { background: var(--card); border: 1px solid var(--rule); border-radius: .9rem; padding: .8rem 1rem; }
+    .games strong { display: block; font-size: 1.05rem; }
+    .games span { color: var(--muted); font-size: .95rem; }
+
+    .stores { display: flex; flex-wrap: wrap; gap: .75rem; margin: .5rem 0 1rem; }
+    .store { display: flex; flex-direction: column; min-width: 12rem; padding: .6rem 1rem; border-radius: .8rem;
+      border: 2px solid var(--accent); text-decoration: none; color: var(--fg); }
+    .store-name { font-weight: 700; }
+    .store-state { font-size: .9rem; color: var(--muted); }
+    .store.open { background: var(--card); }
+    .store.closed { border-color: var(--rule); background: var(--off-bg); color: var(--off); cursor: not-allowed; }
+    .store.closed .store-state { color: var(--off); }
+
+    .request { background: var(--card); border: 1px solid var(--rule); border-radius: 1rem; padding: 1rem 1.2rem; max-width: 40rem; }
+    .request h3 { margin-top: 0; }
+    .request fieldset { border: 0; padding: 0; margin: 0 0 .75rem; }
+    .request legend { font-weight: 600; margin-bottom: .25rem; }
+    .request label.choice { display: inline-flex; align-items: center; gap: .35rem; margin-right: 1.25rem; }
+    .request textarea { width: 100%; min-height: 7.5rem; font: inherit; padding: .5rem; border-radius: .5rem;
+      border: 1px solid var(--rule); background: var(--bg); color: var(--fg); }
+    .request .links a { margin-right: 1rem; }
+
+    details { background: var(--card); border: 1px solid var(--rule); border-radius: .8rem; padding: .5rem 1rem; margin: .5rem 0; }
+    summary { cursor: pointer; font-weight: 600; }
+    details p:last-child { margin-bottom: .25rem; }
+    .faq-title { margin-top: 0; }
+
+    footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .95rem; }
+    footer nav a { margin-right: 1rem; display: inline-block; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .95em; }
+  </style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="assets/icon-192.png" alt="" width="40" height="40">Klunki</a>
+  <nav aria-label="Sprache / Language">
+    <a href="#de" hreflang="de" lang="de">Deutsch</a>
+    <a href="#en" hreflang="en" lang="en">English</a>
+  </nav>
+</header>
+
+<main>
+<article id="de" lang="de">
+  <h1>Klassische Spiele für zwei</h1>
+  <p class="lead">Klunki ist eine Sammlung bekannter Spiele für zwei Personen, gemacht für Familien und Kinder.
+    Ihr spielt abwechselnd auf einem Gerät oder jede Person auf ihrem eigenen Gerät im selben WLAN.</p>
+  <ul class="facts">
+    <li>Kein Konto</li>
+    <li>Keine Werbung</li>
+    <li>Kein Tracking</li>
+    <li>Spielt auch offline</li>
+    <li>Freie Software</li>
+  </ul>
+  <div class="cta">
+    <a class="button" href="play/">Im Browser spielen (Beta)</a>
+    <a class="button secondary" href="#apps-de">Apps für iPhone, iPad und Android</a>
+  </div>
+  <p class="note">Im Browser spielt ihr zu zweit auf einem Gerät. Spiele mit mehreren Geräten gibt es in der App.</p>
+
+  <ul class="shots" aria-label="Bilder aus der App">
+    <li><figure><img src="assets/shot-menu.jpg" alt="Das Menü mit den Spielen" width="400" height="866" loading="lazy"><figcaption>Das Menü</figcaption></figure></li>
+    <li><figure><img src="assets/shot-connect4.jpg" alt="Ein Spiel 4 Gewinnt" width="400" height="866" loading="lazy"><figcaption>4 Gewinnt</figcaption></figure></li>
+    <li><figure><img src="assets/shot-schiffe.jpg" alt="Schiffe versenken: das gegnerische Meer und die eigene Flotte" width="400" height="866" loading="lazy"><figcaption>Schiffe versenken</figcaption></figure></li>
+    <li><figure><img src="assets/shot-chess.jpg" alt="Schach, der König steht im Schach" width="400" height="866" loading="lazy"><figcaption>Schach</figcaption></figure></li>
+  </ul>
+
+  <h2>Die Spiele</h2>
+  <ul class="games">
+{{GAMES_DE}}
+  </ul>
+
+  <h2 id="apps-de">Apps für iPhone, iPad und Android</h2>
+  <p>Die Apps sind in einer geschlossenen Beta. Mit der App spielt ihr auch auf zwei Geräten im WLAN.</p>
+  <div class="stores">
+{{STORES_DE}}
+  </div>
+
+  <form class="request" action="mailto:{{CONTACT_EMAIL}}" method="get">
+    <h3>Zugang zur Beta anfragen</h3>
+    <p>Schreib uns eine E-Mail, wir schicken dir eine Einladung (über TestFlight von Apple oder über Google Play).
+      <strong>Bitte von Erwachsenen anfragen.</strong></p>
+    <fieldset>
+      <legend>Gerät</legend>
+      <label class="choice"><input type="radio" name="subject" value="Klunki Beta: iPhone/iPad" checked> iPhone oder iPad</label>
+      <label class="choice"><input type="radio" name="subject" value="Klunki Beta: Android"> Android</label>
+    </fieldset>
+    <label for="beta-body-de">Nachricht (Vorname freiwillig)</label>
+    <textarea id="beta-body-de" name="body">{{BETA_BODY_DE}}</textarea>
+    <p><button class="button" type="submit">E-Mail schreiben</button></p>
+    <p class="note links">Oder direkt: <a href="{{BETA_MAIL_IOS_DE}}">Anfrage für iPhone/iPad</a>
+      <a href="{{BETA_MAIL_ANDROID_DE}}">Anfrage für Android</a><br>
+      Adresse: <code>{{CONTACT_EMAIL}}</code></p>
+    <p class="note">Wir nutzen deine E-Mail-Adresse nur für die Beta-Einladung. Mehr dazu in der
+      <a href="privacy/#de">Datenschutzerklärung</a>.</p>
+  </form>
+
+  <h2>Häufige Fragen</h2>
+{{FAQ_DE}}
+</article>
+
+<article id="en" lang="en">
+  <h1>Classic games for two</h1>
+  <p class="lead">Klunki is a collection of well-known two-player games, made for families and kids. Take turns on
+    one device, or each player uses their own device on the same Wi-Fi.</p>
+  <ul class="facts">
+    <li>No account</li>
+    <li>No ads</li>
+    <li>No tracking</li>
+    <li>Plays offline</li>
+    <li>Free software</li>
+  </ul>
+  <div class="cta">
+    <a class="button" href="play/">Play in the browser (beta)</a>
+    <a class="button secondary" href="#apps-en">Apps for iPhone, iPad and Android</a>
+  </div>
+  <p class="note">In the browser, two players share one device. Playing on several devices needs the app.</p>
+
+  <ul class="shots" aria-label="Pictures from the app (German version)">
+    <li><figure><img src="assets/shot-menu.jpg" alt="The menu with the games" width="400" height="866" loading="lazy"><figcaption>The menu</figcaption></figure></li>
+    <li><figure><img src="assets/shot-connect4.jpg" alt="A game of Four in a Row" width="400" height="866" loading="lazy"><figcaption>Four in a Row</figcaption></figure></li>
+    <li><figure><img src="assets/shot-schiffe.jpg" alt="Sink the Fleet: the opponent's sea and your own fleet" width="400" height="866" loading="lazy"><figcaption>Sink the Fleet</figcaption></figure></li>
+    <li><figure><img src="assets/shot-chess.jpg" alt="Chess, the king is in check" width="400" height="866" loading="lazy"><figcaption>Chess</figcaption></figure></li>
+  </ul>
+  <p class="note">The pictures show the German version; the app speaks English, French, Spanish, Chinese, Arabic
+    and Persian as well.</p>
+
+  <h2>The games</h2>
+  <ul class="games">
+{{GAMES_EN}}
+  </ul>
+
+  <h2 id="apps-en">Apps for iPhone, iPad and Android</h2>
+  <p>The apps are in a closed beta. With the app you can also play on two devices over Wi-Fi.</p>
+  <div class="stores">
+{{STORES_EN}}
+  </div>
+
+  <form class="request" action="mailto:{{CONTACT_EMAIL}}" method="get">
+    <h3>Request beta access</h3>
+    <p>Send us an email and we will send you an invitation (through Apple's TestFlight or through Google Play).
+      <strong>Please ask as an adult.</strong></p>
+    <fieldset>
+      <legend>Device</legend>
+      <label class="choice"><input type="radio" name="subject" value="Klunki Beta: iPhone/iPad" checked> iPhone or iPad</label>
+      <label class="choice"><input type="radio" name="subject" value="Klunki Beta: Android"> Android</label>
+    </fieldset>
+    <label for="beta-body-en">Message (first name optional)</label>
+    <textarea id="beta-body-en" name="body">{{BETA_BODY_EN}}</textarea>
+    <p><button class="button" type="submit">Write the email</button></p>
+    <p class="note links">Or directly: <a href="{{BETA_MAIL_IOS_EN}}">request for iPhone/iPad</a>
+      <a href="{{BETA_MAIL_ANDROID_EN}}">request for Android</a><br>
+      Address: <code>{{CONTACT_EMAIL}}</code></p>
+    <p class="note">We use your email address only for the beta invitation. See the
+      <a href="privacy/#en">privacy policy</a>.</p>
+  </form>
+
+  <h2>Frequently asked questions</h2>
+{{FAQ_EN}}
+</article>
+</main>
+
+<footer>
+  <nav aria-label="Rechtliches / Legal">
+    <a href="privacy/">Datenschutz / Privacy</a>
+    <a href="impressum/">Impressum</a>
+    <a href="support/">Support / Hilfe</a>
+    <a href="https://github.com/tronicum/klunki">Quellcode / Source code</a>
+    <a href="https://github.com/tronicum/klunki/blob/main/LICENSE">Lizenz / Licence: AGPL-3.0</a>
+  </nav>
+  <p>Klunki ist freie Software unter der GNU Affero General Public License 3.0. ·
+    Klunki is free software under the GNU Affero General Public License 3.0.</p>
+</footer>
+</body>
+</html>
