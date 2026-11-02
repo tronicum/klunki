@@ -615,6 +615,17 @@ should move by long-press and drag, besides tap to take it back.
   an earlier tile, blank keeps its letter, zoomed phone: drag moves and a pan scrolls, Arabic). Screenshots
   `--plain-name kld094-8d` (`-drag-de-phone` mid-drag, `-dropped-de-phone`). No rules change (UI only).
 
+## Step 8e (Bänkchen tiles as big as the rack where there is room): what was built
+Maintainer playtest in a desktop browser: "you pick a letter in big and it shrinks to an artificially smaller bench
+size". Correction: on phones smaller bench tiles are fine (no scrolling); where there is room they should match.
+- **Size:** the bench may use up to 600 px (`WordTilesBoard.benchMaxWidth`, the rack keeps 420) and its tiles grow up
+  to the rack tile size (`tileMax` 54, `_rackTileSize`); wider than a phone (> 440 px) the slots sit a little closer
+  (gap 3, score column 30). Bench tile / rack tile: 1440 × 900 and 1280 × 800 100 %, 820 × 1180 100 %, 1180 × 820 ≈ 90 %
+  (the side panel next to the board); phones unchanged (390 × 844 ≈ 64 %, both rows without scrolling).
+- **Tests:** `wordtiles_bench_size_test.dart` (bench tile ≤ rack tile everywhere, ≥ 90 % on tablets and browser widths,
+  no overflow); layout tests unchanged and green. Screenshots `--plain-name kld094-8e` (`-bench-de-desktop-1280x800`,
+  `-desktop-1440x900`, `-tablet-landscape`, `-tablet-portrait`, `-phone`). No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -651,7 +662,7 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 5. **Hot-seat polish (done, see "Step 5").**
 6. **Network (done, see "Step 6").**
 7. **Release (done, see "Step 7").**
-8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8d").**
+8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8e").**
 9. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 

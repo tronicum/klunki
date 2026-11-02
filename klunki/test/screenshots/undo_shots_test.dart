@@ -215,4 +215,44 @@ void main() {
       await _shot(tester, 'kld094-8d-dropped-de-phone');
     });
   });
+
+  // KLD-094 step 8e: bench tiles as big as the rack tiles where there is
+  // room (browser, tablet), smaller on a phone; three tiles on the bench.
+  group('kld094-8e', () {
+    for (final (tag, size) in [
+      ('desktop-1280x800', const Size(1280, 800)),
+      ('desktop-1440x900', const Size(1440, 900)),
+      ('tablet-landscape', const Size(1180, 820)),
+      ('tablet-portrait', const Size(820, 1180)),
+      ('phone', _phone),
+    ]) {
+      testWidgets('kld094-8e bench $tag', skip: skip != null, (tester) async {
+        SeenTips.debugReset();
+        SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+        final c = await _pump(tester, 'wordtiles', 'de', size: size);
+        (c.game as WordTilesGame).debugSetup(
+          racks: const [
+            ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+            ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+          ],
+          bag: List.filled(40, 'E'),
+        );
+        await tester.pump();
+        if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isEmpty) {
+          await tester.tap(find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pump();
+          await tester.pump();
+        }
+        for (final (i, s) in [(0, 0), (1, 1), (2, 2), (3, 3)]) {
+          await tester.ensureVisible(find.byKey(Key('wordtiles-rack-$i')));
+          await tester.tap(find.byKey(Key('wordtiles-rack-$i')));
+          await tester.pump();
+          await tester.ensureVisible(find.byKey(Key('wordtiles-bench-0-$s')));
+          await tester.tap(find.byKey(Key('wordtiles-bench-0-$s')));
+          await tester.pump();
+        }
+        await _shot(tester, 'kld094-8e-bench-de-$tag');
+      });
+    }
+  });
 }
