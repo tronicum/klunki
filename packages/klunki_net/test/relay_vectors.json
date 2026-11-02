@@ -1,0 +1,228 @@
+{
+  "about": "Relay protocol vectors (KLD-114). The Dart relay (test/relay_vectors_test.dart, real sockets) and the Cloudflare Worker port (deploy/cloudflare/test, fakes) both run every scenario and must agree. Steps: open a connection (query appended to /relay, {room} = the code from the last 'room' step, {roomLower} = the same in lower case); 'room' expects relay.room and keeps its code; 'recv' expects one JSON message (compared as JSON), 'recvText' one exact line, 'recvFill' a line of N 'x'; 'send' a text line (or 'fill': N times 'x'), 'sendBinary' a binary frame; 'closed' expects no further message and the relay closing with 'code'; 'close' closes from the client side. Limits are the defaults: 256 Ki characters per frame.",
+  "normalizeRoomCode": [
+    ["K7Q2M", "K7Q2M"],
+    ["k7q-2m", "K7Q2M"],
+    [" k7 q2m ", "K7Q2M"],
+    ["K7Q2", null],
+    ["K7Q2MM", null],
+    ["K0Q2M", null],
+    ["KOQ2M", null],
+    ["K1Q2M", null],
+    ["KIQ2M", null],
+    ["KLQ2M", null],
+    ["", null]
+  ],
+  "normalizeClubCode": [
+    ["K7QX-M2PA", "K7QXM2PA"],
+    ["k7qx m2pa", "K7QXM2PA"],
+    ["abcd", "ABCD"],
+    ["abc", null],
+    ["0123456789", "0123456789"],
+    ["Ä7QX-M2PA", null],
+    ["K7QX_M2PA", null],
+    ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"],
+    ["AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", null]
+  ],
+  "clubCodesFile": {
+    "text": "K7QX-M2PA  # Familie Müller\n# a whole-line comment\n\n  mnpq rstu\nnot a code!\nABC\n",
+    "codes": ["K7QXM2PA", "MNPQRSTU"]
+  },
+  "parseRelayControl": [
+    ["{\"t\":\"relay.kick\"}", true],
+    ["{\"t\":\"relay.peer\",\"x\":1}", true],
+    ["{\"t\":\"relay.kick\",\"type\":\"move\"}", false],
+    ["{\"t\":\"other\"}", false],
+    ["{\"t\":5}", false],
+    ["[\"t\",\"relay.kick\"]", false],
+    ["{\"type\":\"ping\",\"v\":3}", false],
+    ["not json \"t\"", false],
+    ["{\"type\":\"move\",\"v\":3,\"index\":0,\"move\":{\"t\":\"relay.kick\"}}", false]
+  ],
+  "scenarios": [
+    {
+      "name": "create, join, forward both ways unchanged, guest leaves and rejoins, host kicks",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={roomLower}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "g", "text": "{\"type\":\"hello\",\"v\":3,\"role\":\"guest\",\"name\":\"Bea\"}"},
+        {"recvText": "h", "text": "{\"type\":\"hello\",\"v\":3,\"role\":\"guest\",\"name\":\"Bea\"}"},
+        {"send": "h", "text": "{\"type\":\"welcome\",  \"v\":3, \"spaces\":\"kept\"}"},
+        {"recvText": "g", "text": "{\"type\":\"welcome\",  \"v\":3, \"spaces\":\"kept\"}"},
+        {"send": "g", "text": "not json at all"},
+        {"recvText": "h", "text": "not json at all"},
+        {"close": "g"},
+        {"recv": "h", "json": {"t": "relay.left", "reason": "guest disconnected"}},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "h", "text": "{\"type\":\"error\",\"v\":3,\"message\":\"session full\"}"},
+        {"send": "h", "text": "{\"t\":\"relay.kick\"}"},
+        {"recvText": "g2", "text": "{\"type\":\"error\",\"v\":3,\"message\":\"session full\"}"},
+        {"closed": "g2", "code": 1000},
+        {"open": "g3", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "h", "text": "{\"type\":\"ping\",\"v\":3}"},
+        {"recvText": "g3", "text": "{\"type\":\"ping\",\"v\":3}"}
+      ]
+    },
+    {
+      "name": "a second guest finds the room full",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "g2", "json": {"t": "relay.error", "message": "room {room} is full"}},
+        {"closed": "g2", "code": 1008},
+        {"send": "g", "text": "still here"},
+        {"recvText": "h", "text": "still here"}
+      ]
+    },
+    {
+      "name": "unknown, invalid and missing room codes, bad request",
+      "steps": [
+        {"open": "a", "query": "join=22222"},
+        {"recv": "a", "json": {"t": "relay.error", "message": "no room with code 22222"}},
+        {"closed": "a", "code": 1008},
+        {"open": "b", "query": "join=%20abc%20"},
+        {"recv": "b", "json": {"t": "relay.error", "message": "no room with code ABC"}},
+        {"closed": "b", "code": 1008},
+        {"open": "c", "query": "hello"},
+        {"recv": "c", "json": {"t": "relay.error", "message": "bad request: use ?create or ?join=CODE"}},
+        {"closed": "c", "code": 1008}
+      ]
+    },
+    {
+      "name": "the host leaving closes the room",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "h", "text": "{\"type\":\"bye\",\"v\":3,\"reason\":\"quit\"}"},
+        {"recvText": "g", "text": "{\"type\":\"bye\",\"v\":3,\"reason\":\"quit\"}"},
+        {"close": "h"},
+        {"recv": "g", "json": {"t": "relay.closed", "reason": "host left"}},
+        {"closed": "g", "code": 1001},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "g2", "json": {"t": "relay.error", "message": "no room with code {room}"}},
+        {"closed": "g2", "code": 1008}
+      ]
+    },
+    {
+      "name": "a guest may not send relay control messages",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "g", "text": "{\"t\":\"relay.room\",\"code\":\"22222\"}"},
+        {"recv": "g", "json": {"t": "relay.error", "message": "relay control messages are not allowed from a guest"}},
+        {"closed": "g", "code": 1008},
+        {"recv": "h", "json": {"t": "relay.left", "reason": "relay control messages are not allowed from a guest"}},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}}
+      ]
+    },
+    {
+      "name": "other control lines from the host are swallowed",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "h", "text": "{\"t\":\"relay.whatever\"}"},
+        {"send": "h", "text": "after"},
+        {"recvText": "g", "text": "after"}
+      ]
+    },
+    {
+      "name": "frame size cap: a guest frame one over the limit costs the guest its connection",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "g", "fill": 262144},
+        {"recvFill": "h", "length": 262144},
+        {"send": "g", "fill": 262145},
+        {"recv": "g", "json": {"t": "relay.error", "message": "line too long (max 262144 characters)"}},
+        {"closed": "g", "code": 1008},
+        {"recv": "h", "json": {"t": "relay.left", "reason": "line too long (max 262144 characters)"}}
+      ]
+    },
+    {
+      "name": "frame size cap: a host frame over the limit closes the room",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "h", "fill": 262145},
+        {"recv": "h", "json": {"t": "relay.error", "message": "line too long (max 262144 characters)"}},
+        {"recv": "h", "json": {"t": "relay.closed", "reason": "host broke the relay rules"}},
+        {"closed": "h", "code": 1001},
+        {"recv": "g", "json": {"t": "relay.closed", "reason": "host broke the relay rules"}},
+        {"closed": "g", "code": 1001}
+      ]
+    },
+    {
+      "name": "binary frames are not relayed",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"sendBinary": "g"},
+        {"recv": "g", "json": {"t": "relay.error", "message": "binary frames are not relayed"}},
+        {"closed": "g", "code": 1008},
+        {"recv": "h", "json": {"t": "relay.left", "reason": "binary frames are not relayed"}}
+      ]
+    },
+    {
+      "name": "an open relay ignores a club code",
+      "steps": [
+        {"open": "h", "query": "create&club=WHATEVER"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}&club=x"},
+        {"recv": "h", "json": {"t": "relay.peer"}}
+      ]
+    },
+    {
+      "name": "gated relay: club code checked first, same answer whether a room exists or not",
+      "codes": "K7QX-M2PA  # Familie Müller\n# comment\nmnpq rstu\n",
+      "steps": [
+        {"open": "a", "query": "create"},
+        {"recv": "a", "json": {"t": "relay.error", "error": "club-missing", "message": "club code required"}},
+        {"closed": "a", "code": 1008},
+        {"open": "b", "query": "create&club=%20"},
+        {"recv": "b", "json": {"t": "relay.error", "error": "club-missing", "message": "club code required"}},
+        {"closed": "b", "code": 1008},
+        {"open": "c", "query": "join=22222"},
+        {"recv": "c", "json": {"t": "relay.error", "error": "club-missing", "message": "club code required"}},
+        {"closed": "c", "code": 1008},
+        {"open": "d", "query": "join=22222&club=ZZZZ-ZZZZ"},
+        {"recv": "d", "json": {"t": "relay.error", "error": "club-wrong", "message": "club code not accepted"}},
+        {"closed": "d", "code": 1008},
+        {"open": "h", "query": "create&club=k7qx+m2pa"},
+        {"room": "h"},
+        {"open": "e", "query": "join={room}&club=ZZZZ-ZZZZ"},
+        {"recv": "e", "json": {"t": "relay.error", "error": "club-wrong", "message": "club code not accepted"}},
+        {"closed": "e", "code": 1008},
+        {"open": "f", "query": "join={room}"},
+        {"recv": "f", "json": {"t": "relay.error", "error": "club-missing", "message": "club code required"}},
+        {"closed": "f", "code": 1008},
+        {"open": "g", "query": "join={room}&club=MNPQ-RSTU"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"send": "g", "text": "{\"type\":\"hello\",\"v\":3}"},
+        {"recvText": "h", "text": "{\"type\":\"hello\",\"v\":3}"},
+        {"open": "x", "query": "join=22222&club=MNPQ-RSTU"},
+        {"recv": "x", "json": {"t": "relay.error", "message": "no room with code 22222"}},
+        {"closed": "x", "code": 1008}
+      ]
+    }
+  ]
+}

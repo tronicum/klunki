@@ -1,0 +1,36 @@
+# Klunki relay as a Cloudflare Worker: a TEMPLATE (KLD-114). The project
+# deploys nothing; you deploy it to your own Cloudflare account, see
+# README.md. Change `name` if you like (it becomes part of the
+# *.workers.dev address).
+name = "klunki-relay"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# No Workers Logs: they would store request URLs, and the club code is in the
+# URL (?create&club=...). The Worker itself never logs anything.
+[observability]
+enabled = false
+
+# One Durable Object per room, named by its room code.
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "RelayRoom"
+
+# SQLite-backed class: the only kind the Workers Free plan offers. The relay
+# stores nothing but an alarm for idle expiry.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RelayRoom"]
+
+[vars]
+# Browsers on other web pages are refused (apps send no Origin and always
+# pass). Comma-separated, exact origins, e.g. the GitHub Pages beta:
+# ALLOWED_ORIGINS = "https://example.github.io"
+# Defaults of `klunki relay`:
+# IDLE_TIMEOUT_SECONDS = "600"
+# MAX_LINE_LENGTH = "262144"
+
+# Club codes are a SECRET, not a var (README.md, "Club codes"):
+#   npx wrangler secret put CLUB_CODES < codes.txt
+# Without the secret the relay is open to anyone who finds its address.

@@ -1,0 +1,27 @@
+# Caddy in front of the Klunki relay (KLD-114 example).
+# Replace relay.example.org with your own DNS name. Caddy gets and renews the
+# certificate by itself; players enter wss://relay.example.org as the relay
+# (the app adds /relay).
+relay.example.org {
+	# WebSocket upgrades are proxied as they are.
+	handle /relay* {
+		reverse_proxy relay:4749
+	}
+
+	# With --web /web (the relay also serves the PWA) replace this block by
+	#   handle { reverse_proxy relay:4749 }
+	handle {
+		respond "Klunki relay: connect a WebSocket to /relay." 404
+	}
+
+	# No access log on purpose: the club code travels in the URL query
+	# (?create&club=...), so an access log would store it. If you need one,
+	# remove the code from it (log filters, see Caddy's docs on "log"):
+	# log {
+	# 	format filter {
+	# 		request>uri query {
+	# 			delete club
+	# 		}
+	# 	}
+	# }
+}

@@ -54,6 +54,8 @@ There is **no `pubspec.yaml` in the repo root**: run `dart`/`flutter` inside the
     names, deck, relay and room settings; `lib/net/` – discovery, join payloads, room links.
   - `test/` – unit/widget tests, `test/e2e/` (loopback games, `live_ui/`), `test/l10n/`, `test/screenshots/`;
     `integration_test/` – on-device tests; `tool/` – icon, fonts, card media, browser tests, PWA checks.
+- `deploy/` – relay packages, prepared, not deployed (KLD-114): `docker/` (image + Caddy), `cloudflare/` (Worker,
+  `node --test test/`).
 - `site/` – static GitHub Pages content (privacy, support, impressum; `site.json` holds the contact address).
 - `tool/` (root) – device/simulator e2e scripts (`e2e_ios_sims.sh`, `e2e_android_vs_ios.sh`), the load
   harness `stress_test.sh` (KLD-109), the CI build number `build_number.sh` (KLD-116).

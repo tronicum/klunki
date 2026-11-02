@@ -1,0 +1,13 @@
+# Build context = repository root (docker build -f deploy/docker/Dockerfile .).
+# BuildKit (the default builder since Docker 23) reads this file because it
+# sits next to the Dockerfile and is named after it; a .dockerignore in the
+# repo root is not needed. Allow-list: everything out, then only what the
+# relay image compiles.
+*
+!packages/klunki_engine/
+!packages/klunki_net/
+!deploy/docker/relay/
+**/.dart_tool/
+**/build/
+**/.packages
+packages/*/test/

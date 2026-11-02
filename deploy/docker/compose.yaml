@@ -1,0 +1,53 @@
+# Klunki relay behind Caddy (automatic TLS: wss://relay.example.org/relay).
+# KLD-114: an example, prepared but not yet run by the project.
+#
+#   1. Point a DNS name at this machine (ports 80 and 443 reachable).
+#   2. Put it into Caddyfile (replace relay.example.org).
+#   3. mkdir -p data && docker compose run --rm --no-deps -T relay relay-code new --label "Familie Müller" >> data/codes.txt
+#   4. docker compose up -d --build
+#
+# See README.md for the whole story (revoking codes, updates, privacy).
+services:
+  relay:
+    build:
+      context: ../..                       # the repository root
+      dockerfile: deploy/docker/Dockerfile
+    image: klunki-relay:local
+    restart: unless-stopped
+    # Default command of the image: relay --port 4749 --codes /data/codes.txt
+    # To also serve a built PWA (klunki/build/web), add the /web volume below,
+    # proxy every path in the Caddyfile, and use:
+    # command: ["relay", "--port", "4749", "--codes", "/data/codes.txt", "--web", "/web"]
+    volumes:
+      # Mount the DIRECTORY, not the file: editors save by writing a new file
+      # and renaming it, and a single-file bind mount would keep showing the
+      # old version (a revoked code would still work).
+      - ./data:/data:ro
+      # - ../../klunki/build/web:/web:ro
+    expose:
+      - "4749"                             # only Caddy talks to the relay
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: local                        # bounded and rotated; the relay logs no codes and no addresses
+      options:
+        max-size: "1m"
+        max-file: "2"
+
+  caddy:
+    image: caddy:2.10.2                    # pinned; update deliberately
+    restart: unless-stopped
+    depends_on: [relay]
+    ports:
+      - "80:80"                            # certificate challenge + redirect to https
+      - "443:443"
+      - "443:443/udp"                      # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data                   # certificates: keep this volume
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
