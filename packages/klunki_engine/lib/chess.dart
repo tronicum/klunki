@@ -37,6 +37,23 @@ import 'game.dart';
 ///   three. Repetitions count from the start of this game (a [ChessGame.fromFen]
 ///   game knows no earlier positions).
 ///
+/// **Draw offer** (KLD-059 step 3, rules version 2): three moves that name
+/// their player like a resign ([playerOf]):
+/// - `{'action': 'offerDraw', 'player': p}`: [p], the player to move, offers
+///   a draw. Refused off turn, while an offer is open, and when [p] already
+///   offered in this position (a board move has to come between two offers
+///   of one player);
+/// - `{'action': 'acceptDraw', 'player': q}`: the other player accepts the
+///   open offer; the game ends drawn ([GameEndReason.chessDrawAgreed]);
+/// - `{'action': 'declineDraw', 'player': q}`: the other player declines it.
+/// While the offer is open the offerer cannot move: the next move is the
+/// answer (or a resign). So over the network nothing can cross the answer
+/// in flight, and nobody has to read an offer from a stale position. The draw
+/// moves are not in [history] or [sanHistory] (they are not board moves),
+/// only in the transport's move log; [GameEvent.payload] is
+/// `{'drawOffer': 'a'|'b'}`, `{'drawAccepted': …}` or `{'drawDeclined': …}`
+/// (the player who sent the move).
+///
 /// [history] holds the applied moves with their SAN (`'san': 'Nf3'`); the
 /// extra key is ignored when a history entry is replayed.
 class ChessGame extends Game {
@@ -66,6 +83,8 @@ class ChessGame extends Game {
   final Map<String, int> _seen = {};
   List<int> _legal = const [];
   GameResult _result = const GameResult();
+  Player? _drawOffer;
+  final Map<Player, int> _offeredAt = {};
 
   /// The standard starting position.
   ChessGame() : this._(startFen);
@@ -135,7 +154,8 @@ class ChessGame extends Game {
   List<String> get sanHistory => [for (final h in _history) h['san'] as String];
 
   /// Legal moves of the player to move as move maps; empty once the game is
-  /// over (also after a resignation).
+  /// over (also after a resignation). While a draw offer is open they are
+  /// listed but refused until the offer is answered ([drawOfferBy]).
   List<Map<String, dynamic>> get legalMoves => isOver ? const [] : [for (final m in _legal) _toMap(m)];
 
   /// [legalMoves] that start on [square].
@@ -143,6 +163,62 @@ class ChessGame extends Game {
     final i = squareIndex(square);
     if (i == null || isOver) return const [];
     return [for (final m in _legal) if (_from(m) == i) _toMap(m)];
+  }
+
+  // ------------------------------------------------------------ draw offer
+
+  /// The draw offer moves (see the class docs).
+  static const String offerDraw = 'offerDraw', acceptDraw = 'acceptDraw', declineDraw = 'declineDraw';
+
+  /// [player] offers a draw.
+  static Map<String, dynamic> offerDrawMove(Player player) => {'action': offerDraw, 'player': player.name};
+
+  /// [player] accepts the other player's draw offer.
+  static Map<String, dynamic> acceptDrawMove(Player player) => {'action': acceptDraw, 'player': player.name};
+
+  /// [player] declines the other player's draw offer.
+  static Map<String, dynamic> declineDrawMove(Player player) => {'action': declineDraw, 'player': player.name};
+
+  /// The player a well-formed draw offer move names, else null.
+  static Player? drawPlayerOf(Map<String, dynamic> move) {
+    final a = move['action'];
+    if (a != offerDraw && a != acceptDraw && a != declineDraw) return null;
+    return switch (move['player']) { 'a' => Player.a, 'b' => Player.b, _ => null };
+  }
+
+  /// The player whose draw offer is open, or null.
+  Player? get drawOfferBy => isOver ? null : _drawOffer;
+
+  /// Whether [player] may offer a draw now: the game runs, it is [player]'s
+  /// turn, no offer is open and [player] has not offered in this position yet.
+  bool canOfferDraw(Player player) =>
+      !isOver && player == currentPlayer && _drawOffer == null && _offeredAt[player] != _history.length;
+
+  /// The draw moves name their player (an answer comes from the player not
+  /// to move); everything else as [Game.playerOf].
+  @override
+  Player playerOf(Map<String, dynamic> move) => drawPlayerOf(move) ?? super.playerOf(move);
+
+  GameEvent? _applyDraw(Map<String, dynamic> move) {
+    final p = drawPlayerOf(move);
+    if (p == null) return null;
+    final other = p == Player.a ? Player.b : Player.a;
+    switch (move['action']) {
+      case offerDraw:
+        if (!canOfferDraw(p)) return null;
+        _drawOffer = p;
+        _offeredAt[p] = _history.length;
+        return GameEvent(payload: {'drawOffer': p.name});
+      case acceptDraw:
+        if (_drawOffer != other) return null;
+        _drawOffer = null;
+        _result = const GameResult(draw: true, reason: 'draw agreed', code: GameEndReason.chessDrawAgreed);
+        return GameEvent(draw: true, payload: {'drawAccepted': p.name});
+      default: // declineDraw
+        if (_drawOffer != other) return null;
+        _drawOffer = null;
+        return GameEvent(payload: {'drawDeclined': p.name});
+    }
   }
 
   /// SAN of [move] in the current position (with `+` / `#`), or null if the
@@ -172,6 +248,11 @@ class ChessGame extends Game {
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
+    if (drawPlayerOf(move) != null || const {offerDraw, acceptDraw, declineDraw}.contains(move['action'])) {
+      return _applyDraw(move);
+    }
+    // An open offer waits for its answer: the offerer (to move) cannot move.
+    if (_drawOffer != null) return null;
     final m = _match(move);
     if (m == null) return null;
 

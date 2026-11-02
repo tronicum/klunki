@@ -20,7 +20,7 @@ void main() {
     'quartett-sets/planes': (1, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
     'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
-    'chess': (1, 1, '5f2d81a850dc003d33424219c180126a'),
+    'chess': (2, 1, '5f2d81a850dc003d33424219c180126a'),
     'wordtiles': (1, 1, '20bff6ebc8a2a850364e29f9fe92636f'),
   };
 

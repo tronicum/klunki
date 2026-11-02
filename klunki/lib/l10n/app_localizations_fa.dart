@@ -1821,6 +1821,56 @@ class AppLocalizationsFa extends AppLocalizations {
   String get chessPiecePawn => 'پیاده';
 
   @override
+  String get chessOfferDraw => 'پیشنهاد مساوی';
+
+  @override
+  String get chessOfferDrawTitle => 'پیشنهاد مساوی بدهی؟';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return '$player می‌تواند بپذیرد یا رد کند. با پذیرفتن، بازی مساوی تمام می‌شود.';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => 'پیشنهاد بده';
+
+  @override
+  String get chessDrawOfferTitle => 'پیشنهاد مساوی';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return '$player پیشنهاد مساوی داده است. اگر بپذیری، بازی مساوی تمام می‌شود.';
+  }
+
+  @override
+  String get chessDrawAccept => 'پذیرفتن';
+
+  @override
+  String get chessDrawDecline => 'رد کردن';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return 'مساوی پیشنهاد شد؛ $player تصمیم می‌گیرد.';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return '$player پیشنهاد مساوی را رد کرد.';
+  }
+
+  @override
+  String get chessMoveDrawOffer => 'پیشنهاد مساوی';
+
+  @override
+  String get chessMoveDrawDecline => 'رد مساوی';
+
+  @override
+  String get chessMoveDrawAccept => 'پذیرش مساوی';
+
+  @override
+  String get engineReasonChessDrawAgreed => 'مساوی با توافق';
+
+  @override
   String get engineReasonChessCheckmate => 'کیش و مات';
 
   @override

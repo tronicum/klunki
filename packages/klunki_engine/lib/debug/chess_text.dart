@@ -19,7 +19,8 @@ class ChessText extends TextGame {
   @override
   String get title => 'Schach';
   @override
-  String get moveHelp => '<from><to>[q|r|b|n] or SAN, e.g. "e2e4", "e7e8q", "Nf3", "exd5", "O-O"';
+  String get moveHelp => '<from><to>[q|r|b|n] or SAN, e.g. "e2e4", "e7e8q", "Nf3", "exd5", "O-O"; '
+      '"draw" offers a draw, "accept" / "decline" answer one';
 
   /// A fresh game from the same start position.
   @override
@@ -53,6 +54,15 @@ class ChessText extends TextGame {
   @override
   Map<String, dynamic>? parse(String input) {
     final text = input.trim();
+    // Draw offer (KLD-059 step 3): "draw" offers it for the player to move,
+    // "accept" / "decline" answer an open offer.
+    final word = text.toLowerCase();
+    if (word == 'draw') return ChessGame.offerDrawMove(game.currentPlayer);
+    final offer = game.drawOfferBy;
+    if (offer != null && (word == 'accept' || word == 'decline')) {
+      final to = offer == Player.a ? Player.b : Player.a;
+      return word == 'accept' ? ChessGame.acceptDrawMove(to) : ChessGame.declineDrawMove(to);
+    }
     final c = _coordinates.firstMatch(text.toLowerCase());
     if (c != null) {
       return {'action': 'move', 'from': c[1], 'to': c[2], if (c[3] != null) 'promotion': c[3]};
@@ -72,7 +82,11 @@ class ChessText extends TextGame {
   List<Map<String, dynamic>> get legalMoves => game.legalMoves;
 
   @override
-  String format(Map<String, dynamic> move) => '${move['from']}${move['to']}${move['promotion'] ?? ''}';
+  String format(Map<String, dynamic> move) {
+    final p = ChessGame.drawPlayerOf(move);
+    if (p != null) return '${move['action']} ${mark(p)}';
+    return '${move['from']}${move['to']}${move['promotion'] ?? ''}';
+  }
 
   static const _names = {'p': 'pawn', 'n': 'knight', 'b': 'bishop', 'r': 'rook', 'q': 'queen', 'k': 'king'};
 
@@ -80,6 +94,10 @@ class ChessText extends TextGame {
   String narrate(Player mover, Map<String, dynamic> move, GameEvent event) {
     final p = event.payload as Map<String, dynamic>;
     final me = playerName(mover);
+    // Draw offer moves (KLD-059 step 3).
+    if (p.containsKey('drawOffer')) return '$me offers a draw.';
+    if (p.containsKey('drawDeclined')) return '$me declines the draw.';
+    if (p.containsKey('drawAccepted')) return '$me accepts the draw. Draw by agreement.';
     var s = '$me plays ${p['san']}';
     if (p['castle'] != null) {
       s += ' (castles ${p['castle']})';

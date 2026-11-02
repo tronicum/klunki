@@ -120,9 +120,10 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true, redaction: const SchiffeRedaction()),
   GameSpec('gostrategy', 'GoStrategy', (_, __) => GoStrategyGame(),
       hiddenInformation: true, redaction: const GoStrategyRedaction()),
-  // KLD-059: hot-seat in the app since step 2; the app offers it for
-  // network play from step 3 (see `networkGameSpecs` in the app).
-  GameSpec('chess', 'Schach', (_, __) => ChessGame()),
+  // KLD-059: hot-seat in the app since step 2, network play since step 3.
+  // Rules 2 (step 3): the draw offer moves (`offerDraw`, `acceptDraw`,
+  // `declineDraw`).
+  GameSpec('chess', 'Schach', (_, __) => ChessGame(), rulesVersion: 2),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
   // title "Wortgewandt" (chosen by the maintainer, 2026-11-01).
   GameSpec('wordtiles', 'Wortgewandt', (c, _) => WordTilesGame(seed: c.seed),

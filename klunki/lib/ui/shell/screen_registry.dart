@@ -41,10 +41,10 @@ final Map<String, GameScreenBuilder> gameScreens = {
 const Set<String> previewGames = {'wordtiles'};
 
 /// Games the app plays in hot-seat only for now: hidden from the host
-/// pickers of "Über WLAN spielen" and the relay host (KLD-059: chess network
-/// play is step 3; KLD-094: word tiles, also step 3). A guest joining a host
-/// that plays one still gets its screen.
-const Set<String> hotSeatOnlyGames = {'chess', 'wordtiles'};
+/// pickers of "Über WLAN spielen" and the relay host (KLD-094: word tiles,
+/// network play is step 3; chess plays over the network since KLD-059
+/// step 3). A guest joining a host that plays one still gets its screen.
+const Set<String> hotSeatOnlyGames = {'wordtiles'};
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].

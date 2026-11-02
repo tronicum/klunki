@@ -1838,6 +1838,56 @@ class AppLocalizationsEs extends AppLocalizations {
   String get chessPiecePawn => 'Peón';
 
   @override
+  String get chessOfferDraw => 'Ofrecer tablas';
+
+  @override
+  String get chessOfferDrawTitle => '¿Ofrecer tablas?';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return '$player puede aceptar o rechazar. Si se aceptan, la partida termina en tablas.';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => 'Ofrecer';
+
+  @override
+  String get chessDrawOfferTitle => 'Oferta de tablas';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return '$player ofrece tablas. Si aceptas, la partida termina en tablas.';
+  }
+
+  @override
+  String get chessDrawAccept => 'Aceptar';
+
+  @override
+  String get chessDrawDecline => 'Rechazar';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return 'Tablas ofrecidas: decide $player.';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return '$player rechaza las tablas.';
+  }
+
+  @override
+  String get chessMoveDrawOffer => 'Tablas ofrecidas';
+
+  @override
+  String get chessMoveDrawDecline => 'Tablas rechazadas';
+
+  @override
+  String get chessMoveDrawAccept => 'Tablas aceptadas';
+
+  @override
+  String get engineReasonChessDrawAgreed => 'Tablas por acuerdo';
+
+  @override
   String get engineReasonChessCheckmate => 'Jaque mate';
 
   @override

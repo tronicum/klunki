@@ -22,7 +22,7 @@ Finder _local(String id) => find.byKey(Key('menu-$id-local'));
 Finder _network(String id) => find.byKey(Key('menu-$id-network'));
 
 void main() {
-  testWidgets('network games get both links, chess only "Ein Gerät"', (tester) async {
+  testWidgets('network games (chess too) get both links, hot-seat-only games only "Ein Gerät"', (tester) async {
     await _pumpMenu(tester);
     for (final spec in appGameSpecs) {
       final tile = find.byKey(Key('menu-${spec.id}'));
@@ -36,10 +36,12 @@ void main() {
         expect(find.descendant(of: _network(spec.id), matching: find.byIcon(Icons.wifi)), findsOneWidget);
       }
     }
+    // KLD-059 step 3: chess plays over the network too.
     expect(_local('chess'), findsOneWidget);
-    expect(_network('chess'), findsNothing);
-    // The word tile game (debug preview, not a tile yet) is hot-seat only too.
-    expect(hotSeatOnlyGames, containsAll(['chess', 'wordtiles']));
+    expect(_network('chess'), findsOneWidget);
+    expect(hotSeatOnlyGames, isNot(contains('chess')));
+    // The word tile game (debug preview, not a tile yet) is hot-seat only.
+    expect(hotSeatOnlyGames, contains('wordtiles'));
     expect(_network('wordtiles'), findsNothing);
   });
 

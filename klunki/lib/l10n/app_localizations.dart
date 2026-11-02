@@ -2988,6 +2988,90 @@ abstract class AppLocalizations {
   /// **'Bauer'**
   String get chessPiecePawn;
 
+  /// KLD-059 step 3: button (tooltip) to offer the opponent a draw.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis anbieten'**
+  String get chessOfferDraw;
+
+  /// KLD-059 step 3: title of the dialog that confirms a draw offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis anbieten?'**
+  String get chessOfferDrawTitle;
+
+  /// KLD-059 step 3: body of the dialog that confirms a draw offer; {player} is the opponent who will decide.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} kann annehmen oder ablehnen. Bei Annahme endet das Spiel unentschieden.'**
+  String chessOfferDrawBody(String player);
+
+  /// KLD-059 step 3: confirm button of the draw offer dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Anbieten'**
+  String get chessOfferDrawConfirm;
+
+  /// KLD-059 step 3: title of the dialog that shows the opponent's draw offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis-Angebot'**
+  String get chessDrawOfferTitle;
+
+  /// KLD-059 step 3: body of the dialog that shows a draw offer; {player} made the offer.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} bietet ein Remis an. Bei Annahme endet das Spiel unentschieden.'**
+  String chessDrawOfferBody(String player);
+
+  /// KLD-059 step 3: button that accepts a draw offer (the game ends drawn).
+  ///
+  /// In de, this message translates to:
+  /// **'Annehmen'**
+  String get chessDrawAccept;
+
+  /// KLD-059 step 3: button that declines a draw offer (the game goes on).
+  ///
+  /// In de, this message translates to:
+  /// **'Ablehnen'**
+  String get chessDrawDecline;
+
+  /// KLD-059 step 3: hint line while a draw offer waits for {player} (the opponent) to answer.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis angeboten – {player} entscheidet.'**
+  String chessHintDrawOffered(String player);
+
+  /// KLD-059 step 3: hint line after {player} declined a draw offer (until the next move).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} lehnt das Remis ab.'**
+  String chessHintDrawDeclined(String player);
+
+  /// KLD-059 step 3: move history entry for a draw offer (after "Anna (Weiß): ").
+  ///
+  /// In de, this message translates to:
+  /// **'Remis angeboten'**
+  String get chessMoveDrawOffer;
+
+  /// KLD-059 step 3: move history entry for a declined draw offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis abgelehnt'**
+  String get chessMoveDrawDecline;
+
+  /// KLD-059 step 3: move history entry for an accepted draw offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Remis angenommen'**
+  String get chessMoveDrawAccept;
+
+  /// Result reason (chess): draw, one player offered a draw and the other accepted (KLD-059 step 3).
+  ///
+  /// In de, this message translates to:
+  /// **'Remis vereinbart'**
+  String get engineReasonChessDrawAgreed;
+
   /// Result reason (chess): checkmate.
   ///
   /// In de, this message translates to:

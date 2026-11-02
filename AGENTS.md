@@ -24,7 +24,7 @@ proposals WortSalat and KlunkerKombi are kept for future games.
 | `quartett-sets` | Quartett (Sets) | hidden info, decks |
 | `schiffe` | Schiffe versenken | hidden info; fleet of 6 ships |
 | `gostrategy` | GoStrategy | hidden ranks, capture the flag |
-| `chess` | Schach | |
+| `chess` | Schach | network: yes (KLD-059 step 3, host White); rules version 2 (draw offer moves); no clocks yet |
 | `wordtiles` | Wortgewandt | word tile game; hidden racks; `appReady: false` (debug preview "Vorschau: Wortgewandt", KLD-094) |
 
 **Generic names only.** Never use publisher or brand names for games, in code, ARB strings, docs, store
