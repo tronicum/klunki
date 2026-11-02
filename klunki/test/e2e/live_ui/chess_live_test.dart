@@ -10,6 +10,8 @@
 //   cd klunki && flutter test test/e2e/live_ui/chess_live_test.dart
 //   KLUNKI_LIVE_UI_VERBOSE=1 flutter test test/e2e/live_ui/chess_live_test.dart   # move logs
 //   KLUNKI_LIVE_UI_FULL=1 flutter test test/e2e/live_ui/chess_live_test.dart      # more network seeds
+//
+// The network games use [liveUiTimeout] (KLD-109).
 @Timeout(Duration(minutes: 8))
 library;
 
@@ -60,7 +62,7 @@ void main() {
         _expectResult(tester, d, hc.game);
       }
       ends.add(hc.game.result.code);
-    });
+    }, timeout: liveUiTimeout);
   }
 
   testWidgets('network, an eager peacemaker: draw offers until one is accepted', (tester) async {
@@ -73,7 +75,7 @@ void main() {
     expect(eager.tapped['decline'] ?? 0, greaterThan(0), reason: '${eager.tapped}');
     expect(hc.game.result.code, GameEndReason.chessDrawAgreed, reason: '${eager.tapped}');
     expect(eager.boardChecks, greaterThan(0));
-  });
+  }, timeout: liveUiTimeout);
 
   testWidgets('hot-seat: a full game through the UI, every move shown once, in order', (tester) async {
     tester.view.physicalSize = const Size(1180, 820);

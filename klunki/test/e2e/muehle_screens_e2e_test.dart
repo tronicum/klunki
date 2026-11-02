@@ -24,6 +24,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'e2e_support.dart';
 import 'muehle_script.dart';
 import '../l10n/l10n_test_utils.dart';
+import '../support/test_run.dart';
 
 const _timeout = Timeout(Duration(seconds: 30));
 const _iosKey = Key('device-ios');
@@ -109,7 +110,9 @@ Future<void> _tap(WidgetTester tester, Key device, int p, {bool warnIfMissed = t
 
 /// Waits (real time) until [s] has [count] moves, then rebuilds.
 Future<void> _waitFor(WidgetTester tester, AppStack s, int count, String what) async {
+  final alive = testRunGuard(tester);
   await tester.runAsync(() => until(() => s.moveCount == count, what: what));
+  alive();
   await tester.pump();
   await tester.pump();
 }

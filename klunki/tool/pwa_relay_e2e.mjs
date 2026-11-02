@@ -10,13 +10,20 @@
 // placeholder), finds widgets by their semantics labels in the DOM and taps
 // their centre with real pointer events. No app test hooks are needed.
 //
-//   A: Menu → Über WLAN spielen → Spiel hosten → 4 Gewinnt → reads the room code
-//   B: Menu → Über WLAN spielen → types the code → Raum beitreten
+//   A: Menu → "Mit anderen" on the 4 Gewinnt tile (KLD-105) → Raum starten
+//      → reads the room code
+//   B: Menu → "Raum beitreten" (KLD-098) → types the code → Raum beitreten
 //      (--join link: B opens A's `?room=` link instead and joins by itself)
-//   A and B play Four in a Row (X: column 1 four times, O: column 2) → X wins;
-//   both must show the result. Screenshots of every step go to OUT_DIR.
+//   A (Ada, first player) and B (Bea) play Four in a Row (A: column 1 four
+//   times, B: column 2) → Ada wins; both must show the result (names, no
+//   X / O since KLD-106). Screenshots of every step go to OUT_DIR.
 //   --no-relay URL: first checks that a page NOT served by a relay (e.g.
-//   `python3 -m http.server`) explains how to start one when hosting.
+//   `python3 -m http.server`) explains how to start one: Menu → "Raum
+//   starten" → choose 4 Gewinnt → Raum starten.
+//
+// Flutter web exposes no widget keys in the DOM (the app sets no semantics
+// identifiers), so the script goes by the German labels; the patterns are
+// anchored to whole labels to stay unambiguous.
 //
 // Usage: node tool/pwa_relay_e2e.mjs --url http://127.0.0.1:8765/ [--out DIR]
 //          [--join code|link] [--no-relay http://127.0.0.1:8766/]
@@ -250,8 +257,25 @@ class Browser {
     await this.bidi.send('input.releaseActions', { context: this.context });
   }
 
+  /** Scrolls (mouse wheel over the page) until [n] is inside the viewport. */
+  async scrollIntoView(re, what, filter, n) {
+    for (let i = 0; i < 10 && (n.y < 60 || n.y > height - 40); i++) {
+      const deltaY = Math.round(n.y - height / 2);
+      await this.bidi.send('input.performActions', {
+        context: this.context,
+        actions: [{
+          type: 'wheel', id: 'wheel',
+          actions: [{ type: 'scroll', x: Math.round(width / 2), y: Math.round(height / 2), deltaX: 0, deltaY }],
+        }],
+      });
+      await sleep(500);
+      n = await this.find(re, what, filter);
+    }
+    return n;
+  }
+
   async tap(re, what, filter) {
-    const n = await this.find(re, what, filter);
+    const n = await this.scrollIntoView(re, what, filter, await this.find(re, what, filter));
     if (verbose) log(`[${this.name}] tap "${n.label}" at ${Math.round(n.x)},${Math.round(n.y)}`);
     await this.tapAt(n.x, n.y);
     await sleep(600);
@@ -310,24 +334,24 @@ async function main() {
       await a.evaluate(`localStorage.setItem('flutter.locale', '"de"');
         localStorage.setItem('flutter.playerName', '"Ada"'); true`);
       await a.load(noRelayUrl.href);
-      await a.tap(/^Über WLAN spielen/, 'menu: Über WLAN spielen');
-      await a.tap(/^Spiel hosten$/, 'Spiel hosten button');
-      await a.find(/^Spiel wählen$/m, 'host setup');
-      await a.tap(/^Spiel hosten$/, 'start hosting', (n) => n.y > 300);
+      await a.tap(/^Raum starten\n/, 'menu: Raum starten');
+      await a.find(/^Spiel wählen$/m, 'room setup');
+      await a.tap(/^4 Gewinnt$/m, 'choose 4 Gewinnt', (n) => n.y > 100);
+      await a.tap(/^Raum starten$/, 'Raum starten button', (n) => n.y > 100);
       await a.find(/Kein Relay erreichbar/, 'the "no relay" message');
-      await a.find(/braucht ein Relay/, 'the hint how to start a relay');
+      await a.find(/brauchen ein Relay/, 'the hint how to start a relay');
       await sleep(500);
       await a.shot('0-no-relay');
       step(`${noRelayUrl.host} (no relay): "Kein Relay erreichbar" + how to start one`);
       await a.load(url.href);
     }
 
-    // A: Über WLAN spielen → Spiel hosten.
-    await a.tap(/^Über WLAN spielen/, 'menu: Über WLAN spielen');
-    await a.tap(/^Spiel hosten$/, 'Spiel hosten button');
-    await a.find(/^Spiel wählen$/m, 'host setup');
+    // A: "Mit anderen" on the 4 Gewinnt tile → Raum starten (game fixed).
+    const tile = await a.find(/^4 Gewinnt\n/, 'menu tile 4 Gewinnt');
+    await a.tap(/^Mit anderen$/, '"Mit anderen" on the 4 Gewinnt tile', (n) => n.y > tile.y);
+    await a.find(/^Raum starten$/, 'room setup', (n) => n.y > 100);
     await a.shot('1-host-setup');
-    await a.tap(/^Spiel hosten$/, 'start hosting', (n) => n.y > 300);
+    await a.tap(/^Raum starten$/, 'Raum starten button', (n) => n.y > 100);
     // Semantics merges the waiting screen's texts into one label: one line of
     // it is the grouped code ("K7Q 2M").
     const codeRe = /^[2-9A-HJKMNP-Z]{3} [2-9A-HJKMNP-Z]{2}$/m;
@@ -344,10 +368,10 @@ async function main() {
       await b.load(link);
       step(`B opens ${link}`);
     } else {
-      // B: Über WLAN spielen → type the code (lower case, no space) → Raum beitreten.
-      await b.tap(/^Über WLAN spielen/, 'menu: Über WLAN spielen');
-      await b.find(/^Mit Raumcode beitreten$/m, 'room join section');
-      const field = await b.find(/^Raumcode/, 'room code field');
+      // B: Raum beitreten → type the code (lower case, no space) → Raum beitreten.
+      await b.tap(/^Raum beitreten\n/, 'menu: Raum beitreten');
+      await b.find(/^Raumcode eintippen$/m, 'room join section');
+      const field = await b.find(/^Raumcode/, 'room code field', (n) => n.tag === 'input' || n.role === 'textbox');
       await b.tapAt(field.x, field.y);
       await sleep(500);
       await b.type(code.toLowerCase().replace(' ', ''));
@@ -362,9 +386,9 @@ async function main() {
     await sleep(800);
     await a.shot('4-host-game');
     await b.shot('4-guest-game');
-    step('both browsers are in the game (connection bar: Ada X vs Bea O)');
+    step('both browsers are in the game (connection bar: Du: Ada · Gegner: Bea)');
 
-    // X (A): column 1 four times; O (B): column 2 three times.
+    // A (first player): column 1 four times; B: column 2 three times.
     for (let i = 0; i < 7; i++) {
       const [mover, other] = i % 2 === 0 ? [a, b] : [b, a];
       const col = i % 2 === 0 ? 1 : 2;
@@ -376,11 +400,11 @@ async function main() {
     step('7 moves played across the relay');
 
     await a.find(/Du gewinnst/, 'A wins');
-    await b.find(/Ada \(X\) gewinnt/, 'B sees Ada win');
+    await b.find(/Ada gewinnt/, 'B sees Ada win');
     await sleep(800);
     await a.shot('5-host-result');
     await b.shot('5-guest-result');
-    step('result: A "Du gewinnst!", B "Ada (X) gewinnt!"');
+    step('result: A "Du gewinnst!", B "Ada gewinnt!"');
     result.ok = true;
   } catch (e) {
     result.error = String(e.message || e);

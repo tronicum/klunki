@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'awake_clock.dart';
 import 'channel/channel.dart';
 import 'channel/platform.dart' as platform;
 import 'compat.dart';
@@ -254,7 +255,7 @@ class KlunkiGuest {
       'games': compat.gamesJson(),
     });
     try {
-      await welcome.future.timeout(_timeout);
+      await awakeTimeout(welcome.future, _timeout);
     } on TimeoutException {
       conn.fail('no welcome within ${_timeout.inMilliseconds} ms');
       throw const NetException('handshake timed out');

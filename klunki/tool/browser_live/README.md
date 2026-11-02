@@ -4,7 +4,7 @@ Plays complete games of the PWA the way a user does: real headless Firefox,
 real taps, the real relay. For now Quartett (Trumpf); adapters for the other
 games are KLD-090.
 
-- **Hot-seat**: one browser. Menu → Quartett (Trumpf) → deck → Spielen, then
+- **Hot-seat**: one browser. Menu → Quartett (Trumpf) → deck → Spielen → "Wer spielt?" → Spielen, then
   pick stats, "Weiter", acknowledge the handover cover, to the result dialog.
 - **Network**: two browsers. A taps "Raum starten" and opens a Quartett
   (Trumpf) room through the relay, B taps "Raum beitreten" and types the
@@ -17,13 +17,16 @@ Every trick each browser shows is logged (`tricks.log`). The run fails if:
 - a reveal is not the stat and card that was just tapped,
 - the table shows the wrong player's card, or the hot-seat cover names the
   wrong player,
-- (KLD-091) the cue ("O wählt als Nächstes" / "X wählt noch einmal") or the
-  button ("Weiter – O wählt") names the wrong player, a hot-seat cover
+- (KLD-091) the cue ("Ben wählt als Nächstes" / "Anna wählt noch einmal") or the
+  button ("Weiter – Ben wählt") names the wrong player, a hot-seat cover
   appears although the same player goes on (or is missing on a switch) or
   gives the wrong reason, or on a network device the status line and the
   "noch n Runden" badge do not follow a reveal with tricks queued behind it,
 - (KLD-092) the hot-seat status line under a result does not read like the
-  cue ("O wählt als Nächstes" / "X wählt noch einmal"),
+  cue ("Ben wählt als Nächstes" / "Anna wählt noch einmal"),
+- (KLD-100) with 2–3 cards left the player chooses a card: the driver taps
+  one; in hot-seat the defender's choice must come behind its own cover
+  ("Anna spielt Leistung. Wähle deine Karte."),
 - the two network browsers did not show the same tricks in the same order
   (a skipped, duplicated or reordered trick),
 - no result dialog at the end.
@@ -61,9 +64,12 @@ queued notice), `report.json`, screenshots at the start and the end.
 
 Flutter web draws on a canvas. The driver turns on Flutter's accessibility
 tree (the hidden "Enable accessibility" placeholder, what a screen reader
-does) and reads the semantics labels from the DOM (`flt-semantics`): "X wählt
-Leistung", "X gewinnt die Runde", the card ids ("B3") under "X – gewinnt" /
-"O – verliert", "Deine Karte (X)", the stat buttons, "Ich bin O – weiter".
+does) and reads the semantics labels from the DOM (`flt-semantics`): "Anna wählt
+Leistung", "Anna gewinnt die Runde", the card ids ("B3") under "Anna – gewinnt" /
+"Ben – verliert", "Deine Karte (Anna)", the stat buttons, "Ich bin Ben – weiter".
+Players are named on screen, no X / O (KLD-103/106): hot-seat reads the two
+names from the "Wer spielt?" dialog, network uses the names it sets (Ada hosts
+and starts, Bea joins); internally the first player is X, the second O.
 Taps are real pointer events at a node's centre. The app has no test hooks
 for this; the labels are the German UI texts (the driver sets the locale).
 

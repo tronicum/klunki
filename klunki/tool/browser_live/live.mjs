@@ -7,6 +7,10 @@
 // hot-seat handover cover names the next player, and in a network game both
 // browsers showed the same tricks in the same order.
 //
+// Players are named on screen (KLD-103/106, no X / O): hot-seat reads the
+// two names from the "Wer spielt?" dialog, network uses the names it sets
+// (Ada hosts, Bea joins). Internally the first player is 'X', the second 'O'.
+//
 // Generic part (this file) + one adapter per game (./<game>.mjs, see
 // quartett_trumpf.mjs). Adapters for the other games: KLD-090.
 //
@@ -68,13 +72,15 @@ const log = (s) => {
 
 /** One browser's view of the game: the tricks it showed, in order. */
 class Seen {
-  constructor(name) { this.name = name; this.recs = []; this.keys = []; this.lastKey = null; this.problems = []; }
+  constructor(name, names) {
+    this.name = name; this.names = names; this.recs = []; this.keys = []; this.lastKey = null; this.problems = [];
+  }
   add(o) {
     if (o.key === this.lastKey) return false;
     this.lastKey = o.key;
     this.recs.push(o.rec);
     this.keys.push(o.key);
-    log(`${this.name.padEnd(9)} sees  #${String(this.recs.length - 1).padStart(3)} ${adapter.show(o.rec)}`
+    log(`${this.name.padEnd(9)} sees  #${String(this.recs.length - 1).padStart(3)} ${adapter.show(o.rec, this.names)}`
       + `   [${o.status}${o.grace ? `, ${o.grace}` : ''}${o.queued ? `, queued: ${o.queued}` : ''}]`);
     return true;
   }
@@ -84,69 +90,100 @@ class Seen {
 
 /** The rule over a trick list: each picker is the previous winner (or the same after a tie). */
 function checkRule(seen) {
+  const n = seen.names;
   for (let i = 1; i < seen.recs.length; i++) {
     const want = adapter.nextPicker(seen.recs[i - 1]);
     if (seen.recs[i].picker !== want) {
-      seen.problem(`trick ${i}: picked by ${seen.recs[i].picker}, but ${want} should pick after ${adapter.show(seen.recs[i - 1])}`);
+      seen.problem(`trick ${i}: picked by ${n[seen.recs[i].picker]}, but ${n[want]} should pick after ${adapter.show(seen.recs[i - 1], n)}`);
     }
     if (seen.recs[i].winner === undefined) seen.problem(`trick ${i}: no headline`);
   }
 }
 
-async function snapshot(b) {
-  return adapter.observe(await b.nodes(), width);
+async function snapshot(b, names) {
+  return adapter.observe(await b.nodes(), width, names);
 }
 
 async function playHotSeat(o) {
   const b = new Browser('hotseat', o);
-  const seen = new Seen('hot-seat');
+  let seen = new Seen('hot-seat', { X: 'X', O: 'O' });
   try {
     await b.start();
     await b.prepare(url.href, 'Ada');
-    await b.tap(new RegExp(adapter.game.label.replace(/[()]/g, '\\$&')), 'menu tile');
+    await b.tap(new RegExp(`^${adapter.game.label.replace(/[()]/g, '\\$&')}\\n`), 'menu tile');
     await b.tap(new RegExp(`^${deck}\\n`), `deck ${deck}`);
     await b.tap(/^Spielen$/, 'Spielen');
+    // KLD-103: "Wer spielt?" with both names prefilled; player 1 starts.
+    await b.find(/^Wer spielt\?$/, 'the "Wer spielt?" dialog');
+    const fields = (await b.nodes()).filter((n) => n.tag === 'input').sort((x, y) => x.y - y.y);
+    const names = { X: fields[0]?.value || 'Anna', O: fields[1]?.value || 'Ben' };
+    seen = new Seen('hot-seat', names);
+    log(`hot-seat  players ${names.X} (starts) and ${names.O}`);
+    const dialog = await b.find(/^Wer spielt\?$/, 'the "Wer spielt?" dialog');
+    await b.tap(/^Spielen$/, 'Spielen in "Wer spielt?"', (n) => n.y > dialog.y);
     await b.shot('start');
+    const other = (p) => (p === 'X' ? 'O' : 'X');
     let expected = 'X';
+    let holder = 'X'; // who holds the device
     let lastTap = null; // {player, stat, card}
-    let coverDue = false, covers = 0;
+    let defendDue = null; // KLD-100: {picker, stat} after a pick that the defender must answer
+    let covers = 0, chooses = 0;
     for (let step = 0; step < maxSteps; step++) {
-      const s = await snapshot(b);
+      const s = await snapshot(b, names);
       if (s.kind === 'reveal') {
         if (seen.add(s)) {
           const r = s.rec;
-          if (r.picker !== expected) seen.problem(`reveal picker ${r.picker}, expected ${expected}`);
+          if (r.picker !== expected) seen.problem(`reveal picker ${names[r.picker]}, expected ${names[expected]}`);
           if (!lastTap || lastTap.stat !== r.stat || lastTap.player !== r.picker || lastTap.card !== r.cards[r.picker]) {
-            seen.problem(`reveal ${adapter.show(r)} does not match the tap ${JSON.stringify(lastTap)}`);
+            seen.problem(`reveal ${adapter.show(r, names)} does not match the tap ${JSON.stringify(lastTap)}`);
           }
           expected = adapter.nextPicker(r);
+          defendDue = null;
         }
-        for (const p of adapter.revealProblems(s, null)) seen.problem(p);
+        for (const p of adapter.revealProblems(s, null, names)) seen.problem(p);
         if (s.result) break;
-        // KLD-091: a cover follows only when the other player picks next.
-        coverDue = expected !== s.rec.picker;
         await b.tapAt(s.cont.x, s.cont.y);
         seen.clear();
         await sleep(250);
       } else if (s.result) {
         break;
       } else if (s.kind === 'cover') {
-        if (s.name !== expected) seen.problem(`handover cover names ${s.name}, ${expected} picks next`);
-        if (s.reason !== expected) seen.problem(`cover reason names ${s.reason}, ${expected} won the trick`);
-        if (!coverDue) seen.problem(`a cover although ${expected} picks again`);
-        coverDue = false;
+        const r = s.reason;
+        if (r?.kind === 'defend') {
+          // KLD-100: the defender (2–3 cards) chooses its card in private.
+          if (s.name !== other(expected) || r.picker !== expected) seen.problem(`cover "Ich bin ${names[s.name]}" for ${names[r.picker]}'s pick, ${names[expected]} picks`);
+          if (lastTap && r.stat !== lastTap.stat) seen.problem(`cover says ${r.stat}, ${lastTap.stat} was tapped`);
+          defendDue = { picker: r.picker, stat: r.stat };
+        } else {
+          if (s.name !== expected) seen.problem(`handover cover names ${names[s.name]}, ${names[expected]} picks next`);
+          if (!r || r.player !== expected) seen.problem(`cover reason ${JSON.stringify(r)}, ${names[expected]} picks next`);
+          if (holder === expected) seen.problem(`a cover although ${names[expected]} holds the device`);
+        }
+        if (s.name === holder) seen.problem(`a cover for ${names[s.name]}, who holds the device`);
+        holder = s.name;
         covers++;
-        log(`hot-seat  cover "Ich bin ${s.name} – weiter" (${s.reason} hat die Runde gewonnen)`);
+        log(`hot-seat  cover "Ich bin ${names[s.name]} – weiter" (${JSON.stringify(r)})`);
         await b.tapAt(s.node.x, s.node.y);
         await sleep(300);
+      } else if (s.kind === 'choose') {
+        const who = s.defending ? other(expected) : expected;
+        if (holder !== who) seen.problem(`${names[who]}'s cards are shown while ${names[holder]} holds the device`);
+        if (s.defending && !defendDue) seen.problem(`defender choice "${s.hint}" without the cover`);
+        const c = adapter.chooseCard(s, rng);
+        chooses++;
+        log(`hot-seat  ${names[who]} chooses ${c.label.split('\n').find((l) => /^[A-H][1-4]$/.test(l.trim())) ?? '?'}${s.defending ? ' (defending)' : ''}`);
+        await b.tapAt(c.x, c.y);
+        await sleep(300);
       } else if (s.kind === 'table') {
-        if (s.viewer !== expected) seen.problem(`table shows ${s.viewer}'s card, ${expected} picks`);
-        if (coverDue) seen.problem(`no cover before ${expected}'s card (the device changed hands)`);
-        if (!s.status.startsWith(`${expected} ist am Zug`)) seen.problem(`status "${s.status}", ${expected} picks`);
+        const enabled = s.stats.some((x) => x.enabled);
+        if (!enabled) { await sleep(150); continue; } // e.g. waiting for the defender's choice
+        if (s.viewer !== expected) seen.problem(`table shows ${names[s.viewer]}'s card, ${names[expected]} picks`);
+        if (holder !== expected) seen.problem(`no cover before ${names[expected]}'s card (the device changed hands)`);
+        if (!s.status.startsWith(`${names[expected]} ist am Zug`)) seen.problem(`status "${s.status}", ${names[expected]} picks`);
         const c = adapter.choose(s, rng);
         if (!c) { await sleep(150); continue; }
         lastTap = { player: s.viewer, stat: c.stat, card: s.card };
-        log(`hot-seat  ${s.viewer} taps ${c.stat} on ${s.card}`);
+        log(`hot-seat  ${names[s.viewer]} taps ${c.stat} on ${s.card}`);
         await b.tapAt(c.node.x, c.node.y);
         await sleep(250);
       } else {
@@ -155,7 +192,8 @@ async function playHotSeat(o) {
     }
     await sleep(800);
     await b.shot('end');
-    const end = await snapshot(b);
+    if (chooses) log(`hot-seat  ${chooses} card choice(s) with 3 or fewer cards (KLD-100)`);
+    const end = await snapshot(b, names);
     if (!end.result) seen.problem('no result dialog at the end');
     checkRule(seen);
     log(`hot-seat  game over after ${seen.recs.length} tricks, ${covers} cover(s), ${seen.problems.length} problem(s)`);
@@ -168,7 +206,9 @@ async function playHotSeat(o) {
 async function playNetwork(o) {
   const a = new Browser('host', o);
   const g = new Browser('guest', o);
-  const seenA = new Seen('host X'), seenG = new Seen('guest O');
+  // Ada hosts and starts (the first player), Bea joins.
+  const names = { X: 'Ada', O: 'Bea' };
+  const seenA = new Seen('host Ada', names), seenG = new Seen('guest Bea', names);
   const taps = [];
   try {
     await Promise.all([a.start(), g.start()]);
@@ -187,14 +227,14 @@ async function playNetwork(o) {
     ];
     let quiet = 0;
     for (let step = 0; step < maxSteps * 2; step++) {
-      const snaps = await Promise.all(devices.map((d) => snapshot(d.b)));
+      const snaps = await Promise.all(devices.map((d) => snapshot(d.b, names)));
       let acted = false;
       for (const [i, d] of devices.entries()) {
         const s = snaps[i];
         if (s.kind === 'reveal') {
           if (d.seen.add(s)) d.pending = false;
           if (s.result) continue;
-          for (const p of adapter.revealProblems(s, d.me)) d.seen.problem(p);
+          for (const p of adapter.revealProblems(s, d.me, names)) d.seen.problem(p);
           if (s.badge) d.badges = (d.badges || 0) + 1;
           // The next picker must tap Weiter; the waiting player sometimes
           // lets the grace run out instead.
@@ -204,8 +244,19 @@ async function playNetwork(o) {
             d.seen.clear();
             acted = true;
           }
+        } else if (s.kind === 'choose' && !s.result) {
+          // KLD-100: 2–3 cards left, choose one (picker or defender).
+          if (d.choosing !== s.hint) {
+            const c = adapter.chooseCard(s, rng);
+            d.choosing = s.hint;
+            d.chooses = (d.chooses || 0) + 1;
+            log(`${d.seen.name.padEnd(9)} chooses a card${s.defending ? ' (defending)' : ''}`);
+            await d.b.tapAt(c.x, c.y);
+            acted = true;
+          }
         } else if (s.kind === 'table' && !s.result) {
-          if (s.viewer !== d.me) d.seen.problem(`table shows ${s.viewer}'s card`);
+          d.choosing = null;
+          if (s.viewer !== d.me) d.seen.problem(`table shows ${names[s.viewer] ?? s.viewer}'s card`);
           const myTurn = s.stats.some((x) => x.enabled);
           if (myTurn && !d.pending) {
             const c = adapter.choose(s, rng);
@@ -226,13 +277,13 @@ async function playNetwork(o) {
     await g.shot('end');
     for (const d of devices) {
       checkRule(d.seen);
-      if (!(await snapshot(d.b)).result) d.seen.problem('no result dialog at the end');
+      if (!(await snapshot(d.b, names)).result) d.seen.problem('no result dialog at the end');
     }
     // Both browsers showed the same tricks, in the same order.
     const n = Math.max(seenA.keys.length, seenG.keys.length);
     for (let i = 0; i < n; i++) {
       if (seenA.keys[i] !== seenG.keys[i]) {
-        seenG.problem(`trick ${i}: host showed ${seenA.recs[i] ? adapter.show(seenA.recs[i]) : 'nothing'}, guest ${seenG.recs[i] ? adapter.show(seenG.recs[i]) : 'nothing'}`);
+        seenG.problem(`trick ${i}: host showed ${seenA.recs[i] ? adapter.show(seenA.recs[i], names) : 'nothing'}, guest ${seenG.recs[i] ? adapter.show(seenG.recs[i], names) : 'nothing'}`);
         break;
       }
     }
@@ -240,11 +291,12 @@ async function playNetwork(o) {
     for (let i = 0; i < Math.max(taps.length, seenA.recs.length); i++) {
       const t = taps[i], r = seenA.recs[i];
       if (!t || !r || t.player !== r.picker || t.stat !== r.stat || t.card !== r.cards[r.picker]) {
-        seenA.problem(`trick ${i}: tapped ${JSON.stringify(t)}, shown ${r ? adapter.show(r) : 'nothing'}`);
+        seenA.problem(`trick ${i}: tapped ${JSON.stringify(t)}, shown ${r ? adapter.show(r, names) : 'nothing'}`);
         break;
       }
     }
     log(`network   status line followed a queued reveal ${(devices[0].badges || 0) + (devices[1].badges || 0)} time(s)`);
+    log(`network   card choices with 3 or fewer cards (KLD-100): host ${devices[0].chooses || 0}, guest ${devices[1].chooses || 0}`);
     log(`network   game over after ${seenA.recs.length} tricks; problems: host ${seenA.problems.length}, guest ${seenG.problems.length}`);
   } finally {
     await a.close();
@@ -284,7 +336,7 @@ async function main() {
       if (problems.length) ok = false;
       report.runs.push({
         mode: m,
-        tricks: r.seen.map((s) => ({ device: s.name, tricks: s.recs.map(adapter.show) })),
+        tricks: r.seen.map((s) => ({ device: s.name, tricks: s.recs.map((rec) => adapter.show(rec, s.names)) })),
         problems,
         shots: r.shots,
       });

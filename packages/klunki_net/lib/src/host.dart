@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'awake_clock.dart';
 import 'channel/channel.dart';
 import 'channel/listener.dart';
 import 'channel/platform.dart';
@@ -211,7 +212,7 @@ class KlunkiHost {
     _pending.add(conn);
     // A connection that never says hello must not hold a relay room's guest
     // slot (the relay refuses further joins while it is attached).
-    _helloDeadlines[conn] = Timer(_timeout, () {
+    _helloDeadlines[conn] = awakeTimer(_timeout, () {
       _helloDeadlines.remove(conn);
       if (_pending.contains(conn)) conn.fail('no hello within ${_timeout.inMilliseconds} ms');
     });

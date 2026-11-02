@@ -19,6 +19,7 @@ import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
+import '../../support/test_run.dart';
 
 const _hostKey = Key('device-host');
 const _guestKey = Key('device-guest');
@@ -35,7 +36,9 @@ String _text(WidgetTester tester, Key device, Key k) => tester.widget<Text>(_on(
 
 /// Pumps (fake time) and waits a little real time until [condition] holds.
 Future<void> _until(WidgetTester tester, bool Function() condition, String what) async {
+  final alive = testRunGuard(tester); // KLD-109: stop once the test has ended
   for (var round = 0;; round++) {
+    alive();
     await tester.pump();
     if (condition()) {
       await tester.pump(); // post-frame: hint, dialogs
