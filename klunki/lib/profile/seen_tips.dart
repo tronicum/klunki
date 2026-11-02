@@ -12,6 +12,10 @@ class SeenTips {
   /// The Schiffe setup tip after the first placed ship.
   static const String schiffeMove = 'schiffeMove';
 
+  /// The Wortgewandt "Bänkchen" explanation the first time it is opened
+  /// (KLD-094 step 8).
+  static const String wordtilesBench = 'wordtilesBench';
+
   static SeenTips? _shared;
 
   /// The app's instance (loads the stored list in the background).

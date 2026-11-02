@@ -22,6 +22,7 @@ import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_options.dart';
 import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -73,6 +74,7 @@ Future<GameController> _pump(WidgetTester tester, Size size,
     {Locale locale = const Locale('de'),
     Brightness brightness = Brightness.light,
     GameConfig config = const GameConfig('wordtiles', seed: 1),
+    bool appFonts = false,
     List<List<String>> racks = const [
       ['H', 'A', 'U', 'S', 'E', 'N', '?'],
       ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
@@ -86,17 +88,22 @@ Future<GameController> _pump(WidgetTester tester, Size size,
     racks: racks,
     bag: [...List.filled(30, 'E'), 'L', 'K', 'M', 'A', 'I', 'R', 'B', 'Ü'],
   );
-  await _pumpScreen(tester, locale: locale, brightness: brightness, child: buildGameScreen(c));
+  await _pumpScreen(tester, locale: locale, brightness: brightness, appFonts: appFonts, child: buildGameScreen(c));
   return c;
 }
 
 Future<void> _pumpScreen(WidgetTester tester,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light, required Widget child}) async {
+    {Locale locale = const Locale('de'),
+    Brightness brightness = Brightness.light,
+    bool appFonts = false,
+    required Widget child}) async {
+  final theme = brightness == Brightness.dark ? KlunkiTheme.dark : KlunkiTheme.light;
   await tester.pumpWidget(RepaintBoundary(
     key: _boundary,
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: brightness == Brightness.dark ? KlunkiTheme.dark : KlunkiTheme.light,
+      // The bundled fonts (Arabic glyphs) as on the web.
+      theme: appFonts ? withAppFonts(theme, web: true) : theme,
       locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -145,6 +152,12 @@ void main() {
   final skip = _out == null;
   setUpAll(() async {
     if (_out != null) await _loadFonts();
+  });
+
+  // The one-time bench explanation is seen, except in kld094-bench.
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
   });
 
   const phone = Size(390, 844);
@@ -281,6 +294,47 @@ void main() {
         await _tap(tester, find.byKey(const Key('wordtiles-dict')));
         await tester.pumpAndSettle();
         await _shot(tester, 'options-$lang-2-no-dictionary');
+      });
+    }
+  });
+
+  // KLD-094 step 8 (playtest): the bench below the actions, closed by
+  // default (rack and actions right under the board); its one-time
+  // explanation; tiles on the open bench leave gaps in the rack and come
+  // back when it closes. Small and large phone in German, a phone in Arabic
+  // (`--plain-name kld094-bench`).
+  group('kld094-bench', () {
+    const anna = ['B', 'A', 'U', 'M', 'E', 'N', '?'];
+    for (final (name, size, locale) in [
+      ('de-iphone-se', Size(375, 667), Locale('de')),
+      ('de-iphone-max', Size(430, 932), Locale('de')),
+      ('ar-iphone', Size(390, 844), Locale('ar')),
+    ]) {
+      testWidgets('layout $name', skip: skip, (tester) async {
+        SeenTips.debugReset(); // a fresh install: the explanation shows
+        final c = await _pump(tester, size, locale: locale, appFonts: true, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
+        await _shot(tester, 'kld094-bench/$name-1-start');
+        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        await tester.pumpAndSettle();
+        for (var step = 1; step <= 3; step++) {
+          expect(find.byKey(Key('wordtiles-coach-step-$step')), findsOneWidget);
+          await _shot(tester, 'kld094-bench/$name-2-coach-$step');
+          await _tap(tester, find.byKey(Key(step < 3 ? 'wordtiles-coach-next' : 'wordtiles-coach-done')));
+          await tester.pumpAndSettle();
+        }
+        await _shot(tester, 'kld094-bench/$name-3-bench-open');
+        for (final (t, s) in [('B', 1), ('A', 2), ('U', 3), ('M', 4)]) {
+          await tester.ensureVisible(find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await tester.ensureVisible(find.byKey(Key('wordtiles-bench-0-$s')));
+          await _tap(tester, find.byKey(Key('wordtiles-bench-0-$s')));
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-bench/$name-4-bench-tiles-gaps');
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-bench-toggle')));
+        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-bench/$name-5-bench-closed-full-rack');
       });
     }
   });

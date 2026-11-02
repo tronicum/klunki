@@ -2182,6 +2182,32 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zieh Steine hierher und probier Wörter aus.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'Das Bänkchen ist dein Notizzettel: Zieh Steine hierher und probier Wörter aus.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'Hier zählen nur die Punkte der Buchstaben. Ob es ein echtes Wort ist, prüft das Bänkchen nicht.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'Mit diesem Knopf legst du alle Steine zurück. Dein Bänkchen siehst nur du.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step von $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'Weiter';
+
+  @override
+  String get wordtilesCoachDone => 'Verstanden';
+
+  @override
+  String get wordtilesCoachSkip => 'Überspringen';
+
+  @override
   String get wordtilesPassTitle => 'Passen?';
 
   @override

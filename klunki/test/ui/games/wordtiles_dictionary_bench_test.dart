@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_options.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
@@ -184,9 +185,17 @@ void main() {
   });
 
   group('bench ("Bänkchen")', () {
+    // Closed at first (KLD-094 step 8); its one-time explanation is seen.
+    setUp(() {
+      SeenTips.debugReset();
+      SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+    });
+    Future<void> open(WidgetTester tester) => _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+
     testWidgets('tap a tile, then a slot; the row shows the base score; back to the rack by drag', (tester) async {
       _tablet(tester);
       await _start(tester);
+      await open(tester);
       expect(find.byKey(const Key('wordtiles-bench')), findsOneWidget);
       expect(find.text('Zieh Steine hierher und probier Wörter aus.'), findsOneWidget);
       // B A U M into row 0.
@@ -233,6 +242,7 @@ void main() {
     testWidgets('bench tiles are rack tiles: laid straight from the bench onto the board', (tester) async {
       _tablet(tester);
       final c = await _start(tester);
+      await open(tester);
       for (final (i, s) in [(0, 0), (1, 1)]) {
         await _tap(tester, _rack(i));
         await _tap(tester, _slot(0, s));
@@ -255,6 +265,7 @@ void main() {
     testWidgets('each player keeps a private bench: hidden behind the cover, back on the next turn', (tester) async {
       _tablet(tester);
       final c = await _start(tester);
+      await open(tester);
       // Anna puts U and M on her bench and plays B A.
       for (final (i, s) in [(2, 0), (3, 1)]) {
         await _tap(tester, _rack(i));
@@ -284,14 +295,16 @@ void main() {
       expect(rack, containsAll(['U', 'M']));
     });
 
-    testWidgets('collapsible: "Bänkchen" hides the rows; the rack stays', (tester) async {
+    testWidgets('collapsible: closed at first; "Bänkchen" shows and hides the rows; the rack stays', (tester) async {
       _tablet(tester);
       await _start(tester);
+      expect(_slot(0, 0), findsNothing);
+      await open(tester);
       expect(_slot(0, 0), findsOneWidget);
       await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
       expect(_slot(0, 0), findsNothing);
       expect(find.byKey(const Key('wordtiles-rack')), findsOneWidget);
-      await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+      await open(tester);
       expect(_slot(0, 0), findsOneWidget);
     });
 

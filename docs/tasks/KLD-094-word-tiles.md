@@ -7,8 +7,9 @@
   (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); step 4 DONE for
   hot-seat (word lists de + en, check at "Legen" with "Trotzdem zulassen", tile language per game, the bench
   "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); step 6 network (2 devices) DONE (see "Step 6"); **step 7
-  release DONE ✅** (`appReady: true`, a menu tile with "Ein Gerät" and "Mit anderen", see "Step 7"); 3–4 players
-  assessed (see "3–4 players on one device")
+  release DONE ✅** (`appReady: true`, a menu tile with "Ein Gerät" and "Mit anderen", see "Step 7"); **step 8
+  playtest fixes DONE ✅** (rack bug, bench below the actions, one-time bench explanation, see "Step 8"); 3–4
+  players assessed (see "3–4 players on one device")
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -518,6 +519,43 @@ The maintainer released Wortgewandt in the app (2026-11-02, for the first bigger
 - **Screenshots** (`--plain-name kld094release` in `wordtiles_shots_test.dart`): the menu scrolled to the
   Wortgewandt tile on a small (375 × 667) and a large phone (430 × 932), de light and dark, ar.
 
+## Step 8 (playtest fixes): what was built
+Maintainer playtest of the release (2026-11-02).
+- **Bug "fewer tiles than a full rack while the bag still has tiles": a UI bug, not the engine.** Tiles on the
+  Bänkchen were left out of the rack row, and the bench keeps its tiles across turns (by design, step 4). On a
+  small phone the bench starts collapsed (a button in the score row), so tiles parked there and the bench closed
+  again were nowhere on screen: after the next turn the engine had refilled the rack to 7, but the screen showed
+  e.g. 5 tiles, and the player played on with the short rack. On larger screens the same happened once the bench
+  was collapsed. The engine was checked on every path that changes a rack (place, request / decline / accept
+  "Trotzdem zulassen", exchange, pass, challenge and its withdrawal, the views a guest gets): a new engine test
+  plays 60 random games (challenge mode with and without a list, dictionary mode with requests answered both
+  ways) and checks after every move that every seat holds 7 tiles unless the bag is empty and that every view
+  shows the same rack sizes. It passed before the fix, so **no rules change, rules version stays 3**, goldens
+  unchanged.
+- **Fix** (`wordtiles_board.dart`): a closed bench hides nothing, its tiles are back in the rack (the
+  arrangement is kept and returns when it opens). Open, a bench tile leaves a gap in the rack
+  (`wordtiles-rack-gap-<i>`, a tap brings the tile back), so the rack always reads as 7. The tiles of an open
+  "Trotzdem zulassen" request are matched to rack tiles off the bench first.
+- **Layout:** the bench is below the actions ("Tauschen / Passen / Legen"), rack and actions right under the
+  board, and closed by default on every screen (the "Bänkchen ▸" line). The small-phone overlay from step 5
+  stays: there the closed bench is a button in the score row and the open one lies over the lower board.
+- **One-time explanation** (`wordtiles_bench_coach.dart`): the first time a player opens the bench on their
+  turn, three short steps with a small picture (sample tiles "WORT"/"WORD", their score, the ↓ button): "Das
+  Bänkchen ist dein Notizzettel …", "Hier zählen nur die Punkte der Buchstaben …", "Mit diesem Knopf legst du
+  alle Steine zurück. Dein Bänkchen siehst nur du." with "Weiter" / "Verstanden" and "Überspringen" on every
+  step; once per device via `SeenTips.wordtilesBench` (KLD-107 mechanism). It opens over an empty bench and shows
+  sample tiles only, so in hot-seat it reveals nothing (the handover cover is down, it is that player's turn).
+  7 locales (zh in characters the web subset already has).
+- **Tests:** engine `rack refill invariant` group; widget `wordtiles_playtest_test.dart` (written first, failed
+  before the fix: tiles on a closed bench not on screen; small and large phone; the explanation's steps, skip,
+  never again); bench / polish tests open the bench first; the live-UI adapter now parks unused tiles on the
+  bench now and then (closing it again; on a small phone always) and checks before every turn that each seat
+  holds min(7, tiles left) and that every rack tile is on screen (with the old rack code the phone game fails at
+  once: "rack tile 4 of 7 not on screen").
+- **Screenshots** (`--plain-name kld094-bench` in `wordtiles_shots_test.dart`): small (375 × 667) and large
+  (430 × 932) phone in German, a phone in Arabic: start, the three explanation steps, the open bench, tiles on the
+  bench with gaps in the rack, the bench closed with the full rack.
+
 ## 3–4 players on one device (assessment, not built)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -554,7 +592,8 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 5. **Hot-seat polish (done, see "Step 5").**
 6. **Network (done, see "Step 6").**
 7. **Release (done, see "Step 7").**
-8. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
+8. **Playtest fixes (done, see "Step 8").**
+9. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 
 ## Open questions (🧑)

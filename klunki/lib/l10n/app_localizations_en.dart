@@ -2171,6 +2171,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wordtilesBenchHint => 'Drag tiles here to try out words.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'The bench is your notepad: drag tiles here and try out words.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'It only adds up the letter points. It does not check whether it is a real word.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'This button puts all tiles back. Only you can see your bench.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step of $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'Next';
+
+  @override
+  String get wordtilesCoachDone => 'Got it';
+
+  @override
+  String get wordtilesCoachSkip => 'Skip';
+
+  @override
   String get wordtilesPassTitle => 'Pass?';
 
   @override

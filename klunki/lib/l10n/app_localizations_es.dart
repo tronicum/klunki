@@ -2186,6 +2186,32 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wordtilesBenchHint => 'Arrastra fichas aquí para probar palabras.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'El banquito es tu borrador: arrastra fichas aquí y prueba palabras.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'Solo suma los puntos de las letras. No comprueba si es una palabra de verdad.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'Con este botón devuelves todas las fichas. Nadie más ve tu banquito.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step de $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'Siguiente';
+
+  @override
+  String get wordtilesCoachDone => 'Entendido';
+
+  @override
+  String get wordtilesCoachSkip => 'Saltar';
+
+  @override
   String get wordtilesPassTitle => '¿Pasar?';
 
   @override

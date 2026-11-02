@@ -8,6 +8,13 @@
 // tile by tile (rack tile, then square; a blank through the letter picker)
 // and taps "Legen", or now and then swaps or passes.
 //
+// KLD-094 step 8 (playtest): in hot-seat it now and then parks a tile it
+// does not need on the Bänkchen and leaves it there (sometimes closing the
+// bench again; on a small phone always, the open bench lies over the
+// board), and before every turn it checks the rack: each seat holds a full
+// rack unless the bag is empty, and every tile of the rack on screen is
+// reachable (in the rack row or on the open bench).
+//
 // The game-ending turn is never on the board (the result dialog opens over
 // it), so [engineTurns] leaves it out; the test checks it in the dialog.
 import 'dart:math';
@@ -16,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/games/wordtiles/wordtiles_board.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -55,6 +63,71 @@ class WordTilesAdapter extends LiveUiAdapter {
   String? _text(WidgetTester tester, UiDevice d, Key k) {
     final f = d.on(find.byKey(k));
     return f.evaluate().isEmpty ? null : tester.widget<Text>(f).data;
+  }
+
+  /// Tiles parked on the bench, and how often its explanation was read.
+  int benchTiles = 0, benchCoach = 0;
+  final Random _benchRng = Random(5);
+
+  /// KLD-094 step 8: after every completed turn each seat holds
+  /// min(7, tiles left) tiles, and the device shows every tile of the rack
+  /// it shows (none lost on a closed bench).
+  void checkRack(WidgetTester tester, UiDevice d, WordTilesGame g) {
+    if (g.isOver) return;
+    for (var s = 0; s < g.playerCount; s++) {
+      expect(g.rackSizeOf(s) == WordTilesGame.rackSize || g.bagCount == 0, isTrue,
+          reason: '${d.name}: seat $s holds ${g.rackSizeOf(s)} tiles, the bag ${g.bagCount}');
+    }
+    if (g.allowRequest != null) return; // its tiles lie on the board
+    final seat = d.me == null ? g.currentSeat : WordTilesGame.seatOf(d.me!);
+    final n = g.rackSizeOf(seat);
+    for (var i = 0; i < n; i++) {
+      expect(d.on(find.byKey(Key('wordtiles-rack-$i'))), findsOneWidget,
+          reason: '${d.name}: rack tile $i of $n (${g.rackOf(seat)}) not on screen');
+    }
+  }
+
+  static const _toggle = Key('wordtiles-bench-toggle');
+
+  /// Hot-seat, now and then: parks a rack tile not in [keep] on the bench
+  /// (opening it first; the first time through its explanation) and
+  /// sometimes closes it again (on a small phone always).
+  Future<void> fidgetBench(WidgetTester tester, UiDevice d, WordTilesGame g, Set<int> keep) async {
+    if (d.networked || _benchRng.nextDouble() > 0.35 || !d.hasKey(_toggle)) return;
+    final rack = g.rackOf(g.currentSeat);
+    final free = [for (var i = 0; i < rack.length; i++) if (!keep.contains(i)) i];
+    if (free.isEmpty) return;
+    if (!d.hasKey(const Key('wordtiles-bench-0-0'))) {
+      await d.tapKey(tester, _toggle);
+      await settle(tester, d);
+      if (d.hasKey(const Key('wordtiles-coach'))) {
+        benchCoach++;
+        while (d.hasKey(const Key('wordtiles-coach-next'))) {
+          await d.tapKey(tester, const Key('wordtiles-coach-next'));
+        }
+        await d.tapKey(tester, const Key('wordtiles-coach-done'));
+        await settle(tester, d);
+      }
+    }
+    final i = free[_benchRng.nextInt(free.length)];
+    bool onBench(int r, int s) => d.has(find.descendant(
+        of: find.byKey(Key('wordtiles-bench-$r-$s')),
+        matching: find.byWidgetPredicate((w) => '${w.key}'.contains('wordtiles-rack-'))));
+    final inRack = d.has(find.descendant(of: find.byKey(const Key('wordtiles-rack')), matching: find.byKey(Key('wordtiles-rack-$i'))));
+    final slot = [
+      for (var r = 0; r < WordTilesBoard.benchRows; r++)
+        for (var s = 0; s < WordTilesBoard.benchSlots; s++) (r, s),
+    ].where((x) => !onBench(x.$1, x.$2)).firstOrNull;
+    if (inRack && slot != null) {
+      await d.tapKey(tester, Key('wordtiles-rack-$i'));
+      await d.tapKey(tester, Key('wordtiles-bench-${slot.$1}-${slot.$2}'));
+      benchTiles++;
+    }
+    if (d.hasKey(const Key('wordtiles-bench-overlay')) || _benchRng.nextBool()) {
+      await d.tapKey(tester, _toggle);
+      await settle(tester, d);
+    }
+    checkRack(tester, d, g);
   }
 
   /// Turns of each device's log already reported, in order.
@@ -149,6 +222,7 @@ class WordTilesAdapter extends LiveUiAdapter {
     final c = d.controller(tester);
     final g = c.game as WordTilesGame;
     if (g.isOver) return null;
+    checkRack(tester, d, g);
     if (g.canChallenge) {
       final r = rng.nextDouble();
       if (g.endPending || r < 0.4) {
@@ -220,10 +294,14 @@ class WordTilesAdapter extends LiveUiAdapter {
   /// tile; a square outside the zoomed view is reached by zooming out first.
   Future<void> lay(WidgetTester tester, UiDevice d, WordTilesGame g, Map<String, dynamic> move) async {
     final rack = g.rackOf(g.currentSeat);
-    final used = <int>{};
-    for (final t in (move['tiles'] as List).cast<Map<String, dynamic>>()) {
-      final i = [for (var k = 0; k < rack.length; k++) if (rack[k] == t['tile'] && !used.contains(k)) k].first;
-      used.add(i);
+    final tiles = (move['tiles'] as List).cast<Map<String, dynamic>>();
+    final used = <int>[];
+    for (final t in tiles) {
+      used.add([for (var k = 0; k < rack.length; k++) if (rack[k] == t['tile'] && !used.contains(k)) k].first);
+    }
+    await fidgetBench(tester, d, g, used.toSet());
+    for (final (n, t) in tiles.indexed) {
+      final i = used[n];
       await d.tapKey(tester, Key('wordtiles-rack-$i'));
       final sq = Key('wordtiles-sq-${t['row']}-${t['col']}');
       if (!_onScreen(tester, d, sq)) {
@@ -283,6 +361,7 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
     final c = d.controller(tester);
     final g = c.game as WordTilesGame;
     if (g.isOver) return null;
+    checkRack(tester, d, g);
     expect(g.canChallenge, isFalse, reason: 'no challenges with the word list');
     final legal = [
       for (final m in g.legalMoves)

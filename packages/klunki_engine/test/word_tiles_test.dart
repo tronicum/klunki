@@ -597,4 +597,97 @@ void main() {
       expect(GameEndReason.values, contains(g.result.code));
     });
   });
+
+  // KLD-094 playtest: "fewer tiles than a full rack while the bag still has
+  // tiles". After every completed turn each seat holds a full rack unless
+  // the bag is empty, on every path (place, allow request / decline /
+  // accept, exchange, pass, challenge and its withdrawal), and the views
+  // (network guest) show the same rack sizes.
+  group('rack refill invariant', () {
+    void check(WordTilesGame g, String why) {
+      if (g.isOver) return;
+      for (var s = 0; s < g.playerCount; s++) {
+        expect(g.rackSizeOf(s) == WordTilesGame.rackSize || g.bagCount == 0, isTrue,
+            reason: '$why: seat $s holds ${g.rackSizeOf(s)} tiles, bag ${g.bagCount}');
+        for (final p in Player.values) {
+          final v = WordTilesView.fromJson(g.viewJson(p), validator: g.validator);
+          expect(v.rackSizeOf(s), g.rackSizeOf(s), reason: '$why: view of ${p.name}');
+          expect(v.bagCount, g.bagCount, reason: '$why: view of ${p.name}');
+        }
+      }
+    }
+
+    Map<String, dynamic>? pick(WordTilesGame g, Random rng, _OddValidator? list) {
+      // The sample of legal moves only holds known words: let it see every
+      // placement, so that some need "Trotzdem zulassen".
+      list?.all = true;
+      final legal = g.legalMoves;
+      list?.all = false;
+      if (legal.isEmpty) return null;
+      final places = legal.where((m) => m['action'] == 'place').toList();
+      if (places.isNotEmpty && rng.nextDouble() < 0.8) return places[rng.nextInt(places.length)];
+      return legal[rng.nextInt(legal.length)];
+    }
+
+    for (final mode in ['challenge', 'challenge-list', 'dictionary']) {
+      test('$mode: full racks after every turn while the bag has tiles (20 seeds)', () {
+        var requests = 0, withdrawn = 0, exchanges = 0, emptied = 0;
+        for (var seed = 1; seed <= 20; seed++) {
+          final rng = Random(seed);
+          final list = mode == 'challenge' ? null : _OddValidator();
+          final g = WordTilesGame(
+              seed: seed,
+              check: mode == 'dictionary' ? WordCheck.dictionary : WordCheck.challenge,
+              validator: list);
+          check(g, 'seed $seed start');
+          for (var turn = 0; turn < 400 && !g.isOver; turn++) {
+            final m = pick(g, rng, list);
+            if (m == null) break;
+            final mover = g.currentPlayer;
+            var e = g.applyMove(m);
+            if (e == null && m['action'] == 'place' && !g.canRequestAllow(g.unknownWords(m))) {
+              // Declined already this turn: "Zurücknehmen", then pass.
+              e = g.applyMove(pass);
+            } else if (e == null && m['action'] == 'place' && g.check == WordCheck.dictionary) {
+              // An unknown word: ask, then decline or accept like the UI.
+              final unknown = g.unknownWords(m);
+              expect(unknown, isNotEmpty, reason: 'seed $seed: $m refused');
+              final tiles = [
+                for (final t in m['tiles'] as List)
+                  PlacedTile(t['row'] as int, t['col'] as int, t['tile'] as String, t['letter'] as String?),
+              ];
+              final before = g.rackSizeOf(g.currentSeat);
+              requests++;
+              expect(g.applyMove(WordTilesGame.requestAllowMove(mover, tiles, unknown)), isNotNull);
+              expect(g.rackSizeOf(g.currentSeat), before, reason: 'a request takes no tiles yet');
+              final other = mover == Player.a ? Player.b : Player.a;
+              final yes = rng.nextBool();
+              e = g.applyMove(yes ? WordTilesGame.acceptAllowMove(other) : WordTilesGame.declineAllowMove(other));
+              expect(e, isNotNull);
+              if (!yes) expect(g.rackSizeOf(g.currentSeat), before, reason: 'declined: the rack as before');
+            }
+            expect(e, isNotNull, reason: 'seed $seed turn $turn: $m');
+            if (m['action'] == 'exchange') exchanges++;
+            if (m['action'] == 'challenge' && g.turns.last.withdrawn) withdrawn++;
+            check(g, 'seed $seed turn $turn after $m');
+          }
+          if (g.bagCount == 0) emptied++;
+        }
+        // Every path was taken.
+        if (mode == 'dictionary') expect(requests, greaterThan(5));
+        if (mode != 'dictionary') expect(withdrawn, greaterThan(0));
+        expect(exchanges, greaterThan(0));
+        expect(emptied, greaterThan(0), reason: 'some games draw the bag empty');
+      });
+    }
+  });
+}
+
+/// Knows every word with an odd sum of code units (about half of them).
+/// [all]: knows every word for a moment.
+class _OddValidator extends WordValidator {
+  bool all = false;
+
+  @override
+  bool isWord(String word) => all || word.codeUnits.fold(0, (a, b) => a + b).isOdd;
 }

@@ -2193,6 +2193,32 @@ class AppLocalizationsFr extends AppLocalizations {
       'Glisse des lettres ici pour essayer des mots.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'Le banc d’essai est ton brouillon : glisse des lettres ici et essaie des mots.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'Il compte seulement les points des lettres. Il ne vérifie pas si c’est un vrai mot.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'Ce bouton remet toutes les lettres en place. Personne d’autre ne voit ton banc.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step sur $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'Suivant';
+
+  @override
+  String get wordtilesCoachDone => 'Compris';
+
+  @override
+  String get wordtilesCoachSkip => 'Ignorer';
+
+  @override
   String get wordtilesPassTitle => 'Passer ?';
 
   @override

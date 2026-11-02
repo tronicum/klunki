@@ -2165,6 +2165,32 @@ class AppLocalizationsFa extends AppLocalizations {
       'حرف‌ها را اینجا بکشید تا واژه‌ها را امتحان کنید.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'نیمکت تمرین مثل دفترچهٔ یادداشت شماست: حرف‌ها را اینجا بکشید و واژه‌ها را امتحان کنید.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'فقط امتیاز حرف‌ها را جمع می‌زند و بررسی نمی‌کند که واژه درست است یا نه.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'با این دکمه همهٔ حرف‌ها برمی‌گردند. نیمکت شما را فقط خودتان می‌بینید.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step از $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'بعدی';
+
+  @override
+  String get wordtilesCoachDone => 'فهمیدم';
+
+  @override
+  String get wordtilesCoachSkip => 'رد شدن';
+
+  @override
   String get wordtilesPassTitle => 'نوبت را رد می‌کنی؟';
 
   @override

@@ -3540,6 +3540,48 @@ abstract class AppLocalizations {
   /// **'Zieh Steine hierher und probier Wörter aus.'**
   String get wordtilesBenchHint;
 
+  /// Word tiles: one-time explanation of the bench ("Bänkchen"), step 1 of 3: what it is for. Plain words for children.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Bänkchen ist dein Notizzettel: Zieh Steine hierher und probier Wörter aus.'**
+  String get wordtilesCoachBench1;
+
+  /// Word tiles: bench explanation, step 2: it shows only the letter points and does not check words.
+  ///
+  /// In de, this message translates to:
+  /// **'Hier zählen nur die Punkte der Buchstaben. Ob es ein echtes Wort ist, prüft das Bänkchen nicht.'**
+  String get wordtilesCoachBench2;
+
+  /// Word tiles: bench explanation, step 3: the button shown next to the text (an arrow down) puts all tiles back; the bench is private.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit diesem Knopf legst du alle Steine zurück. Dein Bänkchen siehst nur du.'**
+  String get wordtilesCoachBench3;
+
+  /// Word tiles: bench explanation, step counter in the title ("1 von 3").
+  ///
+  /// In de, this message translates to:
+  /// **'{step} von {count}'**
+  String wordtilesCoachStep(int step, int count);
+
+  /// Word tiles: bench explanation, button to the next step.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get wordtilesCoachNext;
+
+  /// Word tiles: bench explanation, button on the last step that closes it.
+  ///
+  /// In de, this message translates to:
+  /// **'Verstanden'**
+  String get wordtilesCoachDone;
+
+  /// Word tiles: bench explanation, button that closes it before the last step.
+  ///
+  /// In de, this message translates to:
+  /// **'Überspringen'**
+  String get wordtilesCoachSkip;
+
   /// Word tiles: title of the light confirmation before passing.
   ///
   /// In de, this message translates to:
