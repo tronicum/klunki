@@ -6,6 +6,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/net/discovery.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
@@ -43,6 +44,14 @@ Future<void> continueHandover(WidgetTester tester) async {
 }
 
 void main() {
+  // The one-time Bänkchen explanation is seen: on the 900×1200 portrait
+  // tablet the bench starts open (KLD-094 step 8c) and the explanation would
+  // come up over the first word tile turn, so the game never ends.
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
+
   testWidgets('menu in ar is RTL: rows mirrored, chevron flipped', (tester) async {
     await tester.pumpWidget(klunkiApp(locale: ar));
     await tester.pumpAndSettle();
