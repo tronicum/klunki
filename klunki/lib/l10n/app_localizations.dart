@@ -3402,6 +3402,138 @@ abstract class AppLocalizations {
   /// **'Zieh Steine hierher und probier Wörter aus.'**
   String get wordtilesBenchHint;
 
+  /// Word tiles: title of the light confirmation before passing.
+  ///
+  /// In de, this message translates to:
+  /// **'Passen?'**
+  String get wordtilesPassTitle;
+
+  /// Word tiles: pass confirmation. count = scoreless turns in a row including this pass; limit = scoreless turns that end the game (6).
+  ///
+  /// In de, this message translates to:
+  /// **'Dein Zug endet ohne Punkte. Züge ohne Punkte in Folge: {count} von {limit}. Bei {limit} ist das Spiel aus.'**
+  String wordtilesPassBody(int count, int limit);
+
+  /// Word tiles: blank letter picker, reminds that the blank scores nothing.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Joker zählt 0 Punkte.'**
+  String get wordtilesBlankScore;
+
+  /// Word tiles: title / tooltip of the short rules sheet.
+  ///
+  /// In de, this message translates to:
+  /// **'So geht’s'**
+  String get wordtilesHelp;
+
+  /// Word tiles rules sheet: the basic idea.
+  ///
+  /// In de, this message translates to:
+  /// **'Legt Wörter wie im Kreuzworträtsel. Jeder Buchstabe hat Punkte (die kleine Zahl). Das erste Wort geht über den Stern in der Mitte, jedes weitere schließt an.'**
+  String get wordtilesHelpGoal;
+
+  /// Word tiles rules sheet: heading of the premium squares legend.
+  ///
+  /// In de, this message translates to:
+  /// **'Bonusfelder'**
+  String get wordtilesHelpPremium;
+
+  /// Word tiles rules sheet: what the double letter square (2B) does.
+  ///
+  /// In de, this message translates to:
+  /// **'Buchstabe zählt doppelt'**
+  String get wordtilesHelpDoubleLetter;
+
+  /// Word tiles rules sheet: what the triple letter square (3B) does.
+  ///
+  /// In de, this message translates to:
+  /// **'Buchstabe zählt dreifach'**
+  String get wordtilesHelpTripleLetter;
+
+  /// Word tiles rules sheet: what the double word square (2W) does.
+  ///
+  /// In de, this message translates to:
+  /// **'ganzes Wort zählt doppelt'**
+  String get wordtilesHelpDoubleWord;
+
+  /// Word tiles rules sheet: what the triple word square (3W) does.
+  ///
+  /// In de, this message translates to:
+  /// **'ganzes Wort zählt dreifach'**
+  String get wordtilesHelpTripleWord;
+
+  /// Word tiles rules sheet: premium squares count only in the turn a tile is laid on them.
+  ///
+  /// In de, this message translates to:
+  /// **'Bonusfelder zählen nur in dem Zug, in dem ein Stein darauf gelegt wird.'**
+  String get wordtilesHelpPremiumOnce;
+
+  /// Word tiles rules sheet: the bonus for laying the whole rack. count = rack size (7), bonus = 50.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle {count} Steine in einem Zug gelegt: {bonus} Punkte extra.'**
+  String wordtilesHelpBingo(int count, int bonus);
+
+  /// Word tiles rules sheet: the blank tile.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Joker (leerer Stein) wird zu jedem Buchstaben, den du wählst, zählt aber 0 Punkte. Er zeigt eine kleine 0.'**
+  String get wordtilesHelpBlank;
+
+  /// Word tiles rules sheet: swapping tiles. count = tiles that must be in the bag (7).
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschen: Steine zurück in den Beutel, neue ziehen. Geht nur, solange mindestens {count} Steine im Beutel sind, und kostet den Zug.'**
+  String wordtilesHelpSwap(int count);
+
+  /// Word tiles rules sheet: passing. limit = scoreless turns in a row that end the game (6).
+  ///
+  /// In de, this message translates to:
+  /// **'Passen: Du setzt einen Zug aus. Nach {limit} Zügen in Folge ohne Punkte ist das Spiel aus.'**
+  String wordtilesHelpPass(int limit);
+
+  /// Word tiles rules sheet: the dictionary check and "Trotzdem zulassen" (keep the button names in quotes as in wordtilesOptionDictionary / wordtilesUnknownAllow).
+  ///
+  /// In de, this message translates to:
+  /// **'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.'**
+  String get wordtilesHelpDictionary;
+
+  /// Word tiles rules sheet: challenging without the dictionary.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Wörterbuch kann das letzte Wort angezweifelt werden: Dann kommen die Steine zurück und es gibt keine Punkte.'**
+  String get wordtilesHelpChallenge;
+
+  /// Word tiles rules sheet: the practice rows ("Bänkchen", see wordtilesBench).
+  ///
+  /// In de, this message translates to:
+  /// **'Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.'**
+  String get wordtilesHelpBench;
+
+  /// Word tiles rules sheet: how the game ends and the rack penalties.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.'**
+  String get wordtilesHelpEnd;
+
+  /// Word tiles result: points for the tiles left on a rack at the end (negative), or gained by the player who went out (positive). points = signed number, e.g. "−7" or "+12".
+  ///
+  /// In de, this message translates to:
+  /// **'Reststeine: {points}'**
+  String wordtilesResultRack(String points);
+
+  /// Word tiles result: the highest-scoring single word of the game. word = the word, player = who laid it, score = its points.
+  ///
+  /// In de, this message translates to:
+  /// **'Bestes Wort: {word} ({player}, {score} Punkte)'**
+  String wordtilesResultBestWord(String word, String player, int score);
+
+  /// Word tiles result: words the players let stand with "Trotzdem zulassen" during the game. words = comma separated.
+  ///
+  /// In de, this message translates to:
+  /// **'Trotzdem zugelassen: {words}'**
+  String wordtilesResultAllowed(String words);
+
   /// Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.
   ///
   /// In de, this message translates to:

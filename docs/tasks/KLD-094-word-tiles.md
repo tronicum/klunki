@@ -6,7 +6,8 @@
 - **Status:** step 1 DONE (research, design, engine, text adapter, tests); step 2 DONE as a debug-menu preview
   (hot-seat screen, `appReady` still false until the 🧑 UX review; name decided: Wortgewandt); step 4 DONE for
   hot-seat (word lists de + en, check at "Legen" with "Trotzdem zulassen", tile language per game, the bench
-  "Bänkchen"); step 3 (network) and 5 open, see "Step plan"; 3–4 players assessed (see "3–4 players on one device")
+  "Bänkchen"); step 5 hot-seat polish DONE (see "Step 5"); network next, see "Step plan"; 3–4 players assessed (see
+  "3–4 players on one device")
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021); 3–4 players need KLD-088; long games
   profit from KLD-079 (pause/resume); dictionary mode needs 🧑 approval of a word list (step 4)
 - **Touched paths (step 1):**
@@ -366,6 +367,64 @@ score, tiles laid, the unknown-word notice, the cover after "Trotzdem zulassen",
 **Still open:** recalibrate the tile sets on the lists' letter frequencies (step 1 plan; a rules + compat bump),
 network (step 3), the 🧑 UX review before `appReady`.
 
+## Step 5 (hot-seat polish): what was built
+Goal: Wortgewandt fully playable on one device before other features. `appReady` stays false (the maintainer
+releases it). Decisions on the open UX points (each is a small, local change to revert):
+- **Score bar without names** (question 9): token + score per player, the rack penalty in brackets after the end;
+  the names are in the shell's legend right above. The semantics label still says "Anna: 12 Punkte". Change back:
+  `_scoreBar` in `wordtiles_board.dart`.
+- **Auto-zoom kept** (question 11): in the 375 × 667 screenshots the first tile zooms the board so that the next
+  squares are a comfortable 40 px; the zoom button and pinch still work, and the full live-UI game on a 375 × 667
+  phone plays through it (it zooms out by the button when a square is outside the view, like a user). The threshold
+  is `WordTilesBoard.autoZoomBelow` (squares under 30 px); set it to 0 to make zoom manual only.
+- **"Passen" asks first** (question 12): a light dialog ("Passen?" / "Dein Zug endet ohne Punkte. Züge ohne Punkte in
+  Folge: 2 von 6. Bei 6 ist das Spiel aus.", Abbrechen / Passen), because a pass ends the turn and counts towards the
+  six scoreless turns. Change back: `_pass` in `wordtiles_board.dart`.
+- **Blanks show a blue "0"** (question 13) in the corner, on the rack, the board and the bench; the letter picker
+  says "Der Joker zählt 0 Punkte."; "So geht's" explains it.
+- **Premium labels** (question 10): kept on the squares; the legend is in "So geht's".
+- **Small phones:** on a narrow screen whose board area is less than its width + 300 px high
+  (`WordTilesBoard.benchOverlayMargin`; iPhone SE and 390 × 844 portrait), the collapsed bench is a "Bänkchen" button
+  in the score row (no row of its own), and the open bench lies over the lower part of the board like a bottom sheet
+  (`wordtiles-bench-overlay`); the board keeps its size: about 285 px wide at 375 × 667 (was about 225 px with the bench
+  open), the board moves to the top while the bench is open. Larger screens keep the bench in place. **Phone
+  landscape** (667 × 375) uses the side panel; the actions now come right under the rack and the bench below them,
+  so "Legen" stays on screen when the bench opens (the panel scrolls).
+- **Game end:** the shell's result dialog gets an optional `resultDetail` (additive param in `GameScreen`, null for
+  every other game): final score per player with "Reststeine: −8" / "+8", the best single word ("Bestes Wort: HAUS
+  (Anna, 8 Punkte)", a placement withdrawn after a challenge does not count), and "Trotzdem zugelassen: …" for fun;
+  "Nochmal" is the shell's button (same options, the word list stays on).
+- **"So geht's":** a help button (?) in the score row opens a sheet (`wordtiles_help.dart`): the idea, the premium
+  legend 2B/3B/2W/3W with their colours, the 50-point bonus for all 7 tiles, the blank (0 points), swapping (bag ≥ 7),
+  passing (6 scoreless turns end the game), the dictionary check with "Trotzdem zulassen" and the challenge without
+  it (the mode of the running game first), the bench, the end and the rack penalties.
+
+**Touched paths (step 5):**
+- `klunki/lib/ui/games/wordtiles/wordtiles_board.dart` (score bar, help button, pass confirmation, bench overlay,
+  landscape order), `wordtiles_tiles.dart` (blank "0", picker note), `wordtiles_help.dart` (new),
+  `klunki/lib/ui/games/wordtiles_screen.dart` (`WordTilesResult`), `klunki/lib/ui/shell/game_screen.dart`
+  (`resultDetail`, additive)
+- `klunki/lib/l10n/app_*.arb` + generated (22 keys: pass confirmation, blank note, help texts, result lines; zh with
+  existing glyphs only)
+- Tests: `klunki/test/ui/games/wordtiles_polish_test.dart`, `wordtiles_perf_test.dart` (new);
+  `test/e2e/live_ui/wordtiles_adapter.dart` + `wordtiles_live_test.dart` (pass confirmation; a dictionary adapter);
+  `test/screenshots/wordtiles_shots_test.dart` (`--plain-name kld094-step5`); pass confirmation taps in the existing
+  wordtiles tests.
+
+**Tests and measurements:**
+- Live UI, `test/e2e/live_ui/wordtiles_live_test.dart`: besides the two challenge-mode games, two full hot-seat games
+  with the German word list through real taps: a tablet (1180 × 820, seed 3: 96 moves, 84 placements, 1 "Trotzdem
+  zulassen" (RH), 1 swap, 10 passes, end by 6 scoreless turns, 231 : 271) and an iPhone SE (375 × 667, seed 4:
+  83 moves, 70 placements, allowed OO, 1 swap, 11 passes, 189 : 223). Each checks every turn on screen in engine
+  order, the result summary (scores, best word, allowed words) and that "Nochmal" starts a new game with the list.
+- Performance (`wordtiles_perf_test.dart`, phone 375 × 667, test VM): the dictionary load dialog opens and closes
+  once; loading de takes ~100 ms here and the UI isolate's longest pause during it was 13 ms (decompressing and
+  indexing run in a background isolate); a board with 54 tiles while laying / recalling: avg 10 ms, p90 23 ms per
+  frame (debug mode, build + layout + paint, no GPU; the asserts are generous).
+- Screenshots (`kld094-step5`): iPhone SE portrait and landscape, 390 × 844, iPad landscape: start, bench open with a
+  word, tiles laid with the bench open and closed, pass confirmation, help (top and scrolled), the result (de, en,
+  iPad), the dictionary loading dialog.
+
 ## 3–4 players on one device (assessment, not built)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -399,7 +458,9 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 4. **Dictionary per language (done for hot-seat, see "Step 4"; tile recalibration still open):** download and filter the approved list(s), build a compact
    asset per language, a lazy loader, `WordListValidator` on a sorted list (or DAWG); mode picker ("Anzweifeln" /
    "Wörterbuch"); recalibrate the tile sets on the list's letter frequencies (rules + compat bump).
-5. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
+5. **Hot-seat polish (done, see "Step 5").**
+6. **Network** (step 3 above) next.
+7. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 
 ## Open questions (🧑)
@@ -412,9 +473,8 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 6. **Exchange threshold:** at least 7 tiles in the bag (current) or at least as many as exchanged?
 7. **Layout:** keep the layout above, or tune after playing it in step 2?
 8. ~~**Tile language per game**~~: picked at game start, default from the app language (step 4).
-9. **Score bar vs shell legend:** the shell's player legend (top right) and the score bar both show the names; drop the
-   names from the score bar (token + score only) to save a line on phones?
-10. **Premium labels:** "2W / 3W / 2B / 3B" (de) on the squares, colour-coded; enough, or a legend / long-press help?
-11. **Auto-zoom on phones:** zoom in on the first tile laid (current), or only by pinch / the zoom button?
-12. **"Passen" without a confirmation** (hot-seat undo exists): OK, or ask first?
-13. **Blank tiles** show their letter in blue without points; clear enough?
+9. ~~**Score bar vs shell legend**~~: names dropped from the score bar (step 5).
+10. ~~**Premium labels**~~: kept, legend in "So geht's" (step 5).
+11. ~~**Auto-zoom on phones**~~: kept (step 5; `autoZoomBelow` = 0 makes it manual).
+12. ~~**"Passen" without a confirmation**~~: a light confirmation now (step 5).
+13. ~~**Blank tiles**~~: a blue "0" on the tile and a note in the picker (step 5).

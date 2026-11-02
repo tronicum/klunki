@@ -3151,6 +3151,141 @@
   "@wordtilesBenchHint": {
     "description": "Word tiles: shown in the empty practice rows."
   },
+  "wordtilesPassTitle": "Passen?",
+  "@wordtilesPassTitle": {
+    "description": "Word tiles: title of the light confirmation before passing."
+  },
+  "wordtilesPassBody": "Dein Zug endet ohne Punkte. Züge ohne Punkte in Folge: {count} von {limit}. Bei {limit} ist das Spiel aus.",
+  "@wordtilesPassBody": {
+    "description": "Word tiles: pass confirmation. count = scoreless turns in a row including this pass; limit = scoreless turns that end the game (6).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesBlankScore": "Der Joker zählt 0 Punkte.",
+  "@wordtilesBlankScore": {
+    "description": "Word tiles: blank letter picker, reminds that the blank scores nothing."
+  },
+  "wordtilesHelp": "So geht’s",
+  "@wordtilesHelp": {
+    "description": "Word tiles: title / tooltip of the short rules sheet."
+  },
+  "wordtilesHelpGoal": "Legt Wörter wie im Kreuzworträtsel. Jeder Buchstabe hat Punkte (die kleine Zahl). Das erste Wort geht über den Stern in der Mitte, jedes weitere schließt an.",
+  "@wordtilesHelpGoal": {
+    "description": "Word tiles rules sheet: the basic idea."
+  },
+  "wordtilesHelpPremium": "Bonusfelder",
+  "@wordtilesHelpPremium": {
+    "description": "Word tiles rules sheet: heading of the premium squares legend."
+  },
+  "wordtilesHelpDoubleLetter": "Buchstabe zählt doppelt",
+  "@wordtilesHelpDoubleLetter": {
+    "description": "Word tiles rules sheet: what the double letter square (2B) does."
+  },
+  "wordtilesHelpTripleLetter": "Buchstabe zählt dreifach",
+  "@wordtilesHelpTripleLetter": {
+    "description": "Word tiles rules sheet: what the triple letter square (3B) does."
+  },
+  "wordtilesHelpDoubleWord": "ganzes Wort zählt doppelt",
+  "@wordtilesHelpDoubleWord": {
+    "description": "Word tiles rules sheet: what the double word square (2W) does."
+  },
+  "wordtilesHelpTripleWord": "ganzes Wort zählt dreifach",
+  "@wordtilesHelpTripleWord": {
+    "description": "Word tiles rules sheet: what the triple word square (3W) does."
+  },
+  "wordtilesHelpPremiumOnce": "Bonusfelder zählen nur in dem Zug, in dem ein Stein darauf gelegt wird.",
+  "@wordtilesHelpPremiumOnce": {
+    "description": "Word tiles rules sheet: premium squares count only in the turn a tile is laid on them."
+  },
+  "wordtilesHelpBingo": "Alle {count} Steine in einem Zug gelegt: {bonus} Punkte extra.",
+  "@wordtilesHelpBingo": {
+    "description": "Word tiles rules sheet: the bonus for laying the whole rack. count = rack size (7), bonus = 50.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesHelpBlank": "Der Joker (leerer Stein) wird zu jedem Buchstaben, den du wählst, zählt aber 0 Punkte. Er zeigt eine kleine 0.",
+  "@wordtilesHelpBlank": {
+    "description": "Word tiles rules sheet: the blank tile."
+  },
+  "wordtilesHelpSwap": "Tauschen: Steine zurück in den Beutel, neue ziehen. Geht nur, solange mindestens {count} Steine im Beutel sind, und kostet den Zug.",
+  "@wordtilesHelpSwap": {
+    "description": "Word tiles rules sheet: swapping tiles. count = tiles that must be in the bag (7).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesHelpPass": "Passen: Du setzt einen Zug aus. Nach {limit} Zügen in Folge ohne Punkte ist das Spiel aus.",
+  "@wordtilesHelpPass": {
+    "description": "Word tiles rules sheet: passing. limit = scoreless turns in a row that end the game (6).",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesHelpDictionary": "Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.",
+  "@wordtilesHelpDictionary": {
+    "description": "Word tiles rules sheet: the dictionary check and \"Trotzdem zulassen\" (keep the button names in quotes as in wordtilesOptionDictionary / wordtilesUnknownAllow)."
+  },
+  "wordtilesHelpChallenge": "Ohne Wörterbuch kann das letzte Wort angezweifelt werden: Dann kommen die Steine zurück und es gibt keine Punkte.",
+  "@wordtilesHelpChallenge": {
+    "description": "Word tiles rules sheet: challenging without the dictionary."
+  },
+  "wordtilesHelpBench": "Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.",
+  "@wordtilesHelpBench": {
+    "description": "Word tiles rules sheet: the practice rows (\"Bänkchen\", see wordtilesBench)."
+  },
+  "wordtilesHelpEnd": "Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.",
+  "@wordtilesHelpEnd": {
+    "description": "Word tiles rules sheet: how the game ends and the rack penalties."
+  },
+  "wordtilesResultRack": "Reststeine: {points}",
+  "@wordtilesResultRack": {
+    "description": "Word tiles result: points for the tiles left on a rack at the end (negative), or gained by the player who went out (positive). points = signed number, e.g. \"−7\" or \"+12\".",
+    "placeholders": {
+      "points": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesResultBestWord": "Bestes Wort: {word} ({player}, {score} Punkte)",
+  "@wordtilesResultBestWord": {
+    "description": "Word tiles result: the highest-scoring single word of the game. word = the word, player = who laid it, score = its points.",
+    "placeholders": {
+      "word": {
+        "type": "String"
+      },
+      "player": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesResultAllowed": "Trotzdem zugelassen: {words}",
+  "@wordtilesResultAllowed": {
+    "description": "Word tiles result: words the players let stand with \"Trotzdem zulassen\" during the game. words = comma separated.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
   "engineReasonWordtilesPlayedOut": "Alle Steine gelegt, Endstand {a} : {b}",
   "@engineReasonWordtilesPlayedOut": {
     "description": "Result reason (word tiles): a player laid the last tile with the bag empty; a, b = final scores.",

@@ -205,6 +205,7 @@ void main() {
     expect(_text(tester, const Key('wordtiles-cover-turn')), 'Ben: 2 Steine getauscht');
     await _continue(tester);
     await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+    await _tap(tester, find.byKey(const Key('wordtiles-pass-confirm')));
     await _continue(tester);
     expect(_text(tester, const Key('wordtiles-last-turn')), 'Anna: gepasst');
 
@@ -231,6 +232,7 @@ void main() {
     final c = await _start(tester);
     for (var i = 0; i < 6; i++) {
       await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+      await _tap(tester, find.byKey(const Key('wordtiles-pass-confirm')));
       if (i < 5) await _continue(tester);
     }
     await tester.pumpAndSettle();

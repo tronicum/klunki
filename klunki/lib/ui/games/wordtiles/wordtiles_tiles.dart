@@ -89,8 +89,9 @@ String premiumLabel(AppLocalizations l10n, Premium p) => switch (p) {
       Premium.tripleWord => l10n.wordtilesPremiumTripleWord,
     };
 
-/// One letter tile: the letter, and its points in the corner (none for a
-/// blank, whose letter is drawn in [WordTilesColors.blankInk]). Square,
+/// One letter tile: the letter, and its points in the corner (a blank,
+/// whose letter is drawn in [WordTilesColors.blankInk], shows a "0" in that
+/// colour: it scores nothing, KLD-094 step 5). Square,
 /// [size] wide. [face] overrides the tile colour (pending, last move);
 /// [ring] draws a selection ring.
 class LetterTile extends StatelessWidget {
@@ -117,7 +118,7 @@ class LetterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = WordTilesColors.of(context);
-    final showPoints = !blank && size >= 18;
+    final showPoints = size >= 18;
     return Container(
       width: size,
       height: size,
@@ -152,9 +153,14 @@ class LetterTile extends StatelessWidget {
               right: size * 0.07,
               bottom: size * 0.04,
               child: Text(
-                '$points',
+                blank ? '0' : '$points',
                 textDirection: TextDirection.ltr,
-                style: TextStyle(fontSize: size * 0.24, height: 1, fontWeight: FontWeight.w600, color: c.tileInk),
+                style: TextStyle(
+                  fontSize: size * 0.24,
+                  height: 1,
+                  fontWeight: FontWeight.w600,
+                  color: blank ? c.blankInk : c.tileInk,
+                ),
               ),
             ),
         ],
@@ -177,22 +183,34 @@ class BlankLetterDialog extends StatelessWidget {
       key: const Key('wordtiles-blank-picker'),
       title: Text(l10n.wordtilesBlankTitle),
       content: SingleChildScrollView(
-        child: Directionality(
-          textDirection: TextDirection.ltr,
-          child: Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            alignment: WrapAlignment.center,
-            children: [
-              for (final l in letters)
-                InkWell(
-                  key: Key('wordtiles-blank-$l'),
-                  borderRadius: BorderRadius.circular(6),
-                  onTap: () => Navigator.of(context).pop(l),
-                  child: LetterTile(letter: l, points: 0, blank: true, size: 40),
-                ),
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.wordtilesBlankScore,
+              key: const Key('wordtiles-blank-score'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: WordTilesColors.of(context).blankInk),
+            ),
+            const SizedBox(height: 10),
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final l in letters)
+                    InkWell(
+                      key: Key('wordtiles-blank-$l'),
+                      borderRadius: BorderRadius.circular(6),
+                      onTap: () => Navigator.of(context).pop(l),
+                      child: LetterTile(letter: l, points: 0, blank: true, size: 40),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
       actions: [

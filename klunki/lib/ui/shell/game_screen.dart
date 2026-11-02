@@ -133,6 +133,10 @@ class GameScreen extends StatefulWidget {
   /// outcome of the last fight in GoStrategy). Must never show secrets.
   final WidgetBuilder? handoverDetail;
 
+  /// Optional game-specific summary under the reason in the result dialog
+  /// (e.g. the final scores of a word game). Public info only.
+  final WidgetBuilder? resultDetail;
+
   const GameScreen({
     super.key,
     required this.controller,
@@ -140,6 +144,7 @@ class GameScreen extends StatefulWidget {
     this.describeMove,
     this.title,
     this.handoverDetail,
+    this.resultDetail,
   });
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
@@ -378,7 +383,19 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 ),
               ),
         title: Text(headline),
-        content: reason.isEmpty ? null : Text(reason, key: const Key('result-reason')),
+        content: widget.resultDetail == null
+            ? (reason.isEmpty ? null : Text(reason, key: const Key('result-reason')))
+            : SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (reason.isNotEmpty) Text(reason, key: const Key('result-reason')),
+                    if (reason.isNotEmpty) const SizedBox(height: 12),
+                    PlayerLabelsScope(labels: labels, child: Builder(builder: widget.resultDetail!)),
+                  ],
+                ),
+              ),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
           if (_canRestart) FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellPlayAgain)),

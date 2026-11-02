@@ -9,6 +9,7 @@ import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
+import 'wordtiles_help.dart';
 import 'wordtiles_tiles.dart';
 
 /// The interactive word tile board (KLD-094 step 2): the 15 × 15 board with
@@ -27,7 +28,8 @@ import 'wordtiles_tiles.dart';
 ///   [autoZoomBelow]) the board zooms in on the first tile laid and back
 ///   out after the move; pinch-zoom and panning work any time.
 /// * **Swap and pass:** "Tauschen" turns the rack into a picker (needs at
-///   least [WordTilesGame.rackSize] tiles in the bag); "Passen" passes.
+///   least [WordTilesGame.rackSize] tiles in the bag); "Passen" passes after
+///   a light confirmation that counts the scoreless turns (KLD-094 step 5).
 /// * **Challenge mode** (no word list): after another player's placement the
 ///   player to move sees it ringed on the board plus "Anzweifeln" /
 ///   "Annehmen" (a placement, swap or pass accepts it too). The challenger's
@@ -48,6 +50,12 @@ import 'wordtiles_tiles.dart';
 ///   still rack tiles: the engine's rack is unchanged, the bench is an
 ///   arrangement kept per player across turns and the handover cover (which
 ///   hides it like the rack).
+///   On a small phone ([benchOverlayMargin]) the collapsed bench is a button
+///   in the score row and the open bench lies over the lower part of the
+///   board (`wordtiles-bench-overlay`), so the board keeps its size.
+/// * **Score bar** (KLD-094 step 5): token and score per player (the names
+///   are in the shell's legend; the semantics label keeps them), the bag,
+///   and "So geht's" ([showWordTilesHelp]).
 /// * Hot-seat: the shell's handover cover hides the rack between turns
 ///   (`GameSpec.hiddenInformation`); the board resets its pending tiles when
 ///   the turn changes.
@@ -68,7 +76,9 @@ import 'wordtiles_tiles.dart';
 /// `wordtiles-bench-<row>-<slot>`, `wordtiles-bench-score-<row>` (a tile on
 /// the bench keeps its `wordtiles-rack-<rack index>`); the unknown-word
 /// notice's `wordtiles-unknown`, `wordtiles-unknown-withdraw`,
-/// `wordtiles-unknown-allow`.
+/// `wordtiles-unknown-allow`; step 5: `wordtiles-help`,
+/// `wordtiles-bench-overlay`, `wordtiles-pass-dialog`,
+/// `wordtiles-pass-confirm`, `wordtiles-pass-cancel`.
 class WordTilesBoard extends StatefulWidget {
   final GameController controller;
 
@@ -81,6 +91,11 @@ class WordTilesBoard extends StatefulWidget {
   /// Practice rows of the bench and slots per row.
   static const int benchRows = 2;
   static const int benchSlots = 9;
+
+  /// On a narrow screen whose board area is less than its width plus this
+  /// many pixels high, the open bench lies over the board (bottom sheet
+  /// style) instead of pushing the board smaller, and starts collapsed.
+  static const double benchOverlayMargin = 300;
 
   @override
   State<WordTilesBoard> createState() => _WordTilesBoardState();
@@ -512,8 +527,33 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     return allow == true;
   }
 
-  void _pass() {
+  /// "Passen" with a light confirmation (KLD-094 step 5): it ends the turn
+  /// and counts towards the scoreless turns that end the game.
+  Future<void> _pass() async {
     if (!_canLay) return;
+    final l10n = AppLocalizations.of(context);
+    final g = game;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        key: const Key('wordtiles-pass-dialog'),
+        title: Text(l10n.wordtilesPassTitle),
+        content: Text(l10n.wordtilesPassBody(g.scorelessTurns + 1, g.scorelessLimit)),
+        actions: [
+          TextButton(
+            key: const Key('wordtiles-pass-cancel'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.shellCancel),
+          ),
+          FilledButton(
+            key: const Key('wordtiles-pass-confirm'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.wordtilesPass),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted || !_canLay) return;
     _submit(const {'action': 'pass'});
   }
 
@@ -680,9 +720,31 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     _updateHint(l10n);
     return LayoutBuilder(builder: (context, box) {
       final wide = box.maxWidth >= 640 && box.maxWidth > box.maxHeight * 1.15;
+      // A small phone (e.g. 375 × 667): the open bench lies over the lower
+      // part of the board instead of taking its height (KLD-094 step 5).
+      final compact = !wide && box.maxHeight < box.maxWidth + WordTilesBoard.benchOverlayMargin;
+      final benchOpen = _benchOpen ?? !compact;
+      final benchOverlay = compact && benchOpen;
       final board = _boardView(context);
-      final scores = _scoreBar(context, l10n);
+      // Compact: the collapsed bench is a button in the score row (no row of
+      // its own); open, the whole bench is the overlay.
+      // The same height open or closed, so the board keeps its size (two
+      // players fit one line; more players would need a second line here).
+      final scores = SizedBox(
+        height: compact ? kMinInteractiveDimension : null,
+        child: _scoreBar(context, l10n,
+            extra: compact && !benchOpen ? _benchView(context, l10n, box.maxWidth, false) : null),
+      );
       final info = _infoLine(context, l10n);
+      // A phone in landscape: the actions right under the rack so they stay
+      // on screen when the bench opens (the side panel scrolls).
+      final actionsFirst = wide && box.maxHeight < 480;
+      final Widget bench = compact
+          ? const SizedBox.shrink()
+          : LayoutBuilder(
+              builder: (context, benchBox) =>
+                  _benchView(context, l10n, min(benchBox.maxWidth, 420.0), benchOpen),
+            );
       final controls = Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -690,13 +752,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           _previewLine(context, l10n),
           const SizedBox(height: 4),
           LayoutBuilder(builder: (context, rackBox) => _rackView(context, min(rackBox.maxWidth, 420.0))),
-          LayoutBuilder(
-            builder: (context, benchBox) =>
-                _benchView(context, l10n, min(benchBox.maxWidth, 420.0), _benchOpen ?? (wide || box.maxHeight >= 560)),
-          ),
+          if (!actionsFirst) bench,
           const SizedBox(height: 6),
           _actions(context, l10n),
           const SizedBox(height: 6),
+          if (actionsFirst) bench,
         ],
       );
       if (wide) {
@@ -710,7 +770,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
                 padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [scores, const SizedBox(height: 8), info, const SizedBox(height: 16), controls],
+                  children: [
+                    scores,
+                    const SizedBox(height: 8),
+                    info,
+                    SizedBox(height: actionsFirst ? 4 : 16),
+                    controls,
+                  ],
                 ),
               ),
             ),
@@ -723,11 +789,40 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: scores),
           Padding(padding: const EdgeInsets.fromLTRB(12, 4, 12, 4), child: info),
           Expanded(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: AspectRatio(aspectRatio: 1, child: board),
-              ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Align(
+                    // Board to the top while the bench lies over its lower part.
+                    alignment: benchOverlay ? Alignment.topCenter : Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: AspectRatio(aspectRatio: 1, child: board),
+                    ),
+                  ),
+                ),
+                if (benchOverlay)
+                  Positioned(
+                    left: 4,
+                    right: 4,
+                    bottom: 0,
+                    child: Container(
+                      key: const Key('wordtiles-bench-overlay'),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                        boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+                        child: LayoutBuilder(
+                          builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, 420.0), true),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
           Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: controls),
@@ -736,19 +831,21 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     });
   }
 
-  Widget _scoreBar(BuildContext context, AppLocalizations l10n) {
+  /// [extra]: the collapsed bench button on a small phone.
+  Widget _scoreBar(BuildContext context, AppLocalizations l10n, {Widget? extra}) {
     final theme = Theme.of(context);
     final labels = PlayerLabelsScope.of(context);
     final g = game;
     final penalties = g.rackPenalties;
+    // KLD-094 step 5: token and score only; the names are in the shell's
+    // legend right above (the semantics label and a tooltip keep them).
     Widget seat(int s) {
       final p = WordTilesGame.playerOfSeat(s);
-      final name = p == null ? '${s + 1}' : labels.name(l10n, p);
-      final label = p == null ? name : labels.label(context, l10n, p);
+      final label = p == null ? '${s + 1}' : labels.label(context, l10n, p);
       final on = !g.isOver && g.currentSeat == s;
       final pen = penalties[s];
       return Semantics(
-        label: l10n.wordtilesScore(label, g.scoreOf(s)),
+        label:l10n.wordtilesScore(label, g.scoreOf(s)),
         excludeSemantics: true,
         child: Container(
           key: Key('wordtiles-score-$s'),
@@ -760,17 +857,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (p != null) PlayerToken(gameId: controller.spec.id, player: p, size: 20),
-              const SizedBox(width: 6),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 90),
-                child: Text(
-                  bidiName(context, name),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),
-                ),
-              ),
+              if (p != null)
+                PlayerToken(gameId: controller.spec.id, player: p, size: 22)
+              else
+                Text('${s + 1}', style: theme.textTheme.labelLarge),
               const SizedBox(width: 6),
               Text('${g.scoreOf(s)}',
                   textDirection: TextDirection.ltr,
@@ -791,13 +881,28 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 4,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      alignment: WrapAlignment.spaceBetween,
+    // Scores (scaled down when space is short), then the bench
+    // button on a small phone, the bag and "So geht's" (KLD-094 step 5).
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Wrap(spacing: 6, children: [for (var s = 0; s < g.playerCount; s++) seat(s)]),
+        Flexible(
+          // Scaled down rather than wrapped when space is short (end scores
+          // with penalties on a small phone; more players later).
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var s = 0; s < g.playerCount; s++) ...[if (s > 0) const SizedBox(width: 6), seat(s)],
+              ],
+            ),
+          ),
+        ),
+        if (extra != null) Flexible(child: extra),
+        Row(mainAxisSize: MainAxisSize.min, children: [
+        const SizedBox(width: 4),
         Tooltip(
           message: l10n.wordtilesBag(g.bagCount),
           child: Semantics(
@@ -814,6 +919,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             ),
           ),
         ),
+        IconButton(
+          key: const Key('wordtiles-help'),
+          tooltip: l10n.wordtilesHelp,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          iconSize: 22,
+          icon: const Icon(Icons.help_outline),
+          onPressed: () => showWordTilesHelp(context, game),
+        ),
+        ]),
       ],
     );
   }
@@ -1162,25 +1276,27 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   /// The bench: a header to open / collapse it and, when open, the practice
   /// rows with their base scores.
+  /// On a small phone the open bench is an overlay over the board and the
+  /// collapsed one a button in the score row (`build`).
   Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open) {
-    final theme = Theme.of(context);
-    final c = WordTilesColors.of(context);
-    final rack = _rack;
     final hasTiles = _onBench.isNotEmpty;
     const compact = VisualDensity(horizontal: -4, vertical: -4);
     final header = Row(
+      mainAxisSize: open ? MainAxisSize.max : MainAxisSize.min,
       children: [
-        Semantics(
-          expanded: open,
-          child: TextButton.icon(
-            key: const Key('wordtiles-bench-toggle'),
-            style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
-            icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
-            label: Text(l10n.wordtilesBench),
-            onPressed: () => setState(() => _benchOpen = !open),
+        Flexible(
+          child: Semantics(
+            expanded: open,
+            child: TextButton.icon(
+              key: const Key('wordtiles-bench-toggle'),
+              style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
+              icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
+              label: Text(l10n.wordtilesBench, maxLines: 1, overflow: TextOverflow.ellipsis),
+              onPressed: () => setState(() => _benchOpen = !open),
+            ),
           ),
         ),
-        const Spacer(),
+        if (open) const Spacer(),
         if (open && hasTiles)
           IconButton(
             key: const Key('wordtiles-bench-clear'),
@@ -1193,6 +1309,20 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       ],
     );
     if (!open) return KeyedSubtree(key: const Key('wordtiles-bench'), child: header);
+    return Column(
+      key: const Key('wordtiles-bench'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [header, _benchRows(context, l10n, width)],
+    );
+  }
+
+  /// The practice rows of the bench with their base scores.
+  Widget _benchRows(BuildContext context, AppLocalizations l10n, double width) {
+    final theme = Theme.of(context);
+    final c = WordTilesColors.of(context);
+    final rack = _rack;
+    final hasTiles = _onBench.isNotEmpty;
     const gap = 4.0;
     const scoreWidth = 34.0;
     const slots = WordTilesBoard.benchSlots;
@@ -1252,34 +1382,26 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
 
-    return Column(
-      key: const Key('wordtiles-bench'),
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        Directionality(
-          textDirection: TextDirection.ltr,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(mainAxisSize: MainAxisSize.min, children: [for (var r = 0; r < _bench.length; r++) row(r)]),
-              if (!hasTiles)
-                IgnorePointer(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: scoreWidth),
-                    child: Text(
-                      l10n.wordtilesBenchHint,
-                      textAlign: TextAlign.center,
-                      textDirection: Directionality.of(context),
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                    ),
-                  ),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Column(mainAxisSize: MainAxisSize.min, children: [for (var r = 0; r < _bench.length; r++) row(r)]),
+          if (!hasTiles)
+            IgnorePointer(
+              child: Padding(
+                padding: const EdgeInsets.only(right: scoreWidth),
+                child: Text(
+                  l10n.wordtilesBenchHint,
+                  textAlign: TextAlign.center,
+                  textDirection: Directionality.of(context),
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
-            ],
-          ),
-        ),
-      ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 

@@ -28,7 +28,128 @@ class WordTilesScreen extends StatelessWidget {
       controller: controller,
       describeMove: describeWordTilesMove,
       handoverDetail: (context) => WordTilesLastTurn(controller: controller),
+      resultDetail: (context) => WordTilesResult(controller: controller),
       boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
+    );
+  }
+}
+
+/// The game-end summary under the shell's result reason (KLD-094 step 5):
+/// final score per player with the rack penalty (or the bonus of the player
+/// who went out), the highest-scoring single word, and the words let stand
+/// with "Trotzdem zulassen". "Nochmal spielen" is the shell's button.
+///
+/// Keys: `wordtiles-result`, `wordtiles-result-score-<seat>`,
+/// `wordtiles-result-rack-<seat>`, `wordtiles-result-best`,
+/// `wordtiles-result-allowed`.
+class WordTilesResult extends StatelessWidget {
+  final GameController controller;
+  const WordTilesResult({super.key, required this.controller});
+
+  /// The highest-scoring word laid and kept (a placement withdrawn after a
+  /// challenge does not count): (seat, word, score), or null.
+  static (int, String, int)? bestWord(GameController controller) {
+    final kept = <(int, List<(String, int)>)>[];
+    for (final m in controller.moves) {
+      final p = m.event.payload;
+      if (p is! Map) continue;
+      switch (m.move['action']) {
+        case 'place':
+          kept.add((
+            p['seat'] as int? ?? 0,
+            [
+              for (final w in p['words'] as List? ?? const [])
+                if (w is Map && w['word'] is String) (w['word'] as String, w['score'] as int? ?? 0),
+            ],
+          ));
+        case 'challenge' when p['withdrawn'] == true && kept.isNotEmpty:
+          kept.removeLast();
+      }
+    }
+    (int, String, int)? best;
+    for (final (seat, words) in kept) {
+      for (final (w, s) in words) {
+        if (best == null || s > best.$3) best = (seat, w, s);
+      }
+    }
+    return best;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final game = controller.game;
+    if (game is! WordTilesGame) return const SizedBox();
+    final l10n = AppLocalizations.of(context);
+    final labels = PlayerLabelsScope.of(context);
+    final theme = Theme.of(context);
+    String who(int seat) {
+      final p = WordTilesGame.playerOfSeat(seat);
+      return p == null ? '${seat + 1}' : labels.label(context, l10n, p);
+    }
+
+    final penalties = game.rackPenalties;
+    final top = game.scores.fold<int>(game.scores.first, (a, b) => b > a ? b : a);
+    final best = bestWord(controller);
+    final allowed = [
+      for (final t in game.turns)
+        if (t.action == 'place' && !t.withdrawn) ...t.allowed,
+    ];
+    return Column(
+      key: const Key('wordtiles-result'),
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var s = 0; s < game.playerCount; s++)
+          Padding(
+            key: Key('wordtiles-result-score-$s'),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                if (WordTilesGame.playerOfSeat(s) case final p?)
+                  PlayerToken(gameId: controller.spec.id, player: p, size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(who(s), maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleSmall),
+                      if (penalties[s] != 0)
+                        Text(
+                          l10n.wordtilesResultRack(
+                              penalties[s] > 0 ? '+${penalties[s]}' : '\u2212${-penalties[s]}'),
+                          key: Key('wordtiles-result-rack-$s'),
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '${game.scoreOf(s)}',
+                  textDirection: TextDirection.ltr,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: game.scoreOf(s) == top ? FontWeight.w800 : FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (best != null) ...[
+          const Divider(height: 20),
+          Text(
+            l10n.wordtilesResultBestWord(best.$2, who(best.$1), best.$3),
+            key: const Key('wordtiles-result-best'),
+            style: theme.textTheme.bodyMedium,
+          ),
+        ],
+        if (allowed.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            l10n.wordtilesResultAllowed(allowed.join(', ')),
+            key: const Key('wordtiles-result-allowed'),
+            style: theme.textTheme.bodyMedium?.copyWith(fontStyle: FontStyle.italic),
+          ),
+        ],
+      ],
     );
   }
 }

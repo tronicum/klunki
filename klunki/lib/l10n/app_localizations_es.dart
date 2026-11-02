@@ -2105,6 +2105,93 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wordtilesBenchHint => 'Arrastra fichas aquí para probar palabras.';
 
   @override
+  String get wordtilesPassTitle => '¿Pasar?';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'Tu turno termina sin puntos. Turnos seguidos sin puntos: $count de $limit. Con $limit termina la partida.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'El comodín vale 0 puntos.';
+
+  @override
+  String get wordtilesHelp => 'Cómo se juega';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'Colocad palabras como en un crucigrama. Cada letra tiene puntos (el número pequeño). La primera palabra pasa por la estrella del centro y cada una siguiente se conecta.';
+
+  @override
+  String get wordtilesHelpPremium => 'Casillas de bonificación';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'La letra cuenta doble';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'La letra cuenta triple';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'La palabra entera cuenta doble';
+
+  @override
+  String get wordtilesHelpTripleWord => 'La palabra entera cuenta triple';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'Las casillas de bonificación solo cuentan en el turno en que se coloca una ficha encima.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'Las $count fichas colocadas en un turno: $bonus puntos extra.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'El comodín (ficha en blanco) se convierte en la letra que elijas, pero vale 0 puntos. Muestra un pequeño 0.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'Cambiar: devolver fichas a la bolsa y sacar otras. Solo mientras queden al menos $count fichas en la bolsa, y gasta el turno.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'Pasar: te saltas un turno. Tras $limit turnos seguidos sin puntos termina la partida.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'Con «Comprobar en el diccionario» cada palabra se busca al colocarla. Si falta, retirad las fichas o permitidla juntos: «Permitir igualmente». Las palabras permitidas aparecen en el historial.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'Sin diccionario se puede dudar de la última palabra: las fichas vuelven y no puntúan.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'En el banquito pruebas palabras. Solo muestra los puntos de las letras, no si es una palabra.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'La partida termina cuando la bolsa está vacía y alguien ha colocado todas sus fichas. Los puntos de las fichas que quedan se restan; quien terminó los suma.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'Fichas restantes: $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'Mejor palabra: $word ($player, $score puntos)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'Permitidas igualmente: $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Todas las fichas colocadas, resultado final $a : $b';
   }

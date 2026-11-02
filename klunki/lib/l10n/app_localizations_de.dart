@@ -2102,6 +2102,93 @@ class AppLocalizationsDe extends AppLocalizations {
       'Zieh Steine hierher und probier Wörter aus.';
 
   @override
+  String get wordtilesPassTitle => 'Passen?';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'Dein Zug endet ohne Punkte. Züge ohne Punkte in Folge: $count von $limit. Bei $limit ist das Spiel aus.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'Der Joker zählt 0 Punkte.';
+
+  @override
+  String get wordtilesHelp => 'So geht’s';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'Legt Wörter wie im Kreuzworträtsel. Jeder Buchstabe hat Punkte (die kleine Zahl). Das erste Wort geht über den Stern in der Mitte, jedes weitere schließt an.';
+
+  @override
+  String get wordtilesHelpPremium => 'Bonusfelder';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'Buchstabe zählt doppelt';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'Buchstabe zählt dreifach';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'ganzes Wort zählt doppelt';
+
+  @override
+  String get wordtilesHelpTripleWord => 'ganzes Wort zählt dreifach';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'Bonusfelder zählen nur in dem Zug, in dem ein Stein darauf gelegt wird.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'Alle $count Steine in einem Zug gelegt: $bonus Punkte extra.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'Der Joker (leerer Stein) wird zu jedem Buchstaben, den du wählst, zählt aber 0 Punkte. Er zeigt eine kleine 0.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'Tauschen: Steine zurück in den Beutel, neue ziehen. Geht nur, solange mindestens $count Steine im Beutel sind, und kostet den Zug.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'Passen: Du setzt einen Zug aus. Nach $limit Zügen in Folge ohne Punkte ist das Spiel aus.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'Ohne Wörterbuch kann das letzte Wort angezweifelt werden: Dann kommen die Steine zurück und es gibt keine Punkte.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'Reststeine: $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'Bestes Wort: $word ($player, $score Punkte)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'Trotzdem zugelassen: $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Alle Steine gelegt, Endstand $a : $b';
   }
