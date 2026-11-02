@@ -1444,6 +1444,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get relaySave => 'تطبيق';
 
   @override
+  String get relayClubCodeLabel => 'رمز النادي (عند الحاجة فقط)';
+
+  @override
+  String get relayClubCodeHelper =>
+      'فقط للخوادم التي تطلب رمز النادي. لا يوضع رمز النادي أبدًا في روابط الغرف أو رموز QR.';
+
+  @override
+  String get relayErrorClubMissing =>
+      'هذا الخادم يحتاج إلى رمز النادي. أدخله في «متقدم» عبر «تغيير». اسأل من يدير الخادم.';
+
+  @override
+  String get relayErrorClubWrong =>
+      'هذا الخادم لا يعرف رمز النادي هذا. اسأل من يدير الخادم.';
+
+  @override
   String get joinDirectTitle => 'الاتصال مباشرة بجهاز';
 
   @override

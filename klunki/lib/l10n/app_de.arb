@@ -2167,6 +2167,22 @@
   "@relaySave": {
     "description": "Relay dialog: confirm button."
   },
+  "relayClubCodeLabel": "Clubcode (nur wenn nötig)",
+  "@relayClubCodeLabel": {
+    "description": "Relay dialog (KLD-112): label of the optional club code field (server access code of a self-hosted relay, `klunki relay --codes`)."
+  },
+  "relayClubCodeHelper": "Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.",
+  "@relayClubCodeHelper": {
+    "description": "Relay dialog (KLD-112): helper under the club code field; the code is never shared in room links or QR codes."
+  },
+  "relayErrorClubMissing": "Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.",
+  "@relayErrorClubMissing": {
+    "description": "Room start/join error (KLD-112): the relay requires a club code and none was entered. “ändern” is the relayChange button under “Erweitert”."
+  },
+  "relayErrorClubWrong": "Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.",
+  "@relayErrorClubWrong": {
+    "description": "Room start/join error (KLD-112): the relay does not accept the entered club code (unknown, revoked, or too many wrong tries)."
+  },
   "joinDirectTitle": "Direkt mit einem Gerät verbinden",
   "@joinDirectTitle": {
     "description": "Join screens, under \"Erweitert\": heading of the direct connection to a device the room runs on (IP address)."

@@ -10,6 +10,7 @@ import '../addresses.dart';
 import '../events.dart';
 import '../guest.dart';
 import '../host.dart';
+import '../relay/club_codes.dart';
 import '../relay/relay_protocol.dart';
 import '../relay/relay_server.dart';
 import 'open_urls.dart';
@@ -34,9 +35,10 @@ Usage:
   dart run packages/klunki_net/bin/klunki.dart join ws://<ip>[:port] [--name NAME]
 
 Through a relay (browser vs browser, or terminals that cannot reach each other):
-  dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR]
-  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--seed S] [--deck D] [--color C] [--name NAME]
-  dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR] [--codes FILE]
+  dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--club CODE] [--seed S] [--deck D] [--color C] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--club CODE] [--name NAME]
+  dart run packages/klunki_net/bin/klunki.dart relay-code new [--label TEXT]
 
 Games: ${gameSpecs.map((s) => s.id).join(', ')}
 Quartett decks (--deck, default ${QuartettDeck.defaultId}): ${QuartettDeck.all.map((d) => d.id).join(', ')}
@@ -50,6 +52,11 @@ messages (WebSocket at /relay, default port $defaultRelayPort). --web DIR also s
 built PWA (klunki/build/web), so browsers use the same address. Ctrl+C stops it.
 host --relay prints the room code; join --relay --room CODE joins that room
 (the code is case-insensitive). The relay address may omit the path (/relay).
+relay --codes FILE: only players with a club code from FILE may use the relay
+(one code per line, optional "# label"; edits apply to the next connection,
+a removed line is revoked, running games may finish). relay-code new prints
+a random code line to append to FILE; players enter it as "Clubcode"
+(host/join: --club CODE).
 In the game: type a move on your turn; "board", "moves", "resign", "help", "quit".''';
 
 /// Runs the `klunki` network CLI. Returns the exit code.
@@ -71,6 +78,20 @@ Future<int> runCli(
 }) async {
   out ??= stdout;
   err ??= stderr;
+  if (args.isNotEmpty && args.first == 'relay-code') {
+    // KLD-112: `relay-code new [--label TEXT]` prints a line for the codes file.
+    final label = switch (args) {
+      ['relay-code', 'new'] => '',
+      ['relay-code', 'new', '--label', final l] when !l.contains('\n') => l.trim(),
+      _ => null,
+    };
+    if (label == null) {
+      err.writeln(usage);
+      return usageExit;
+    }
+    out.writeln(label.isEmpty ? newClubCode() : '${newClubCode()}  # $label');
+    return 0;
+  }
   if (args.isNotEmpty && args.first == 'relay') {
     final relayArgs = _parseRelay(args);
     if (relayArgs == null) {
@@ -92,7 +113,7 @@ Future<int> runCli(
     final KlunkiHost host;
     try {
       host = await KlunkiHost.startRelay(config, relay,
-          name: parsed.name ?? 'Host', pingInterval: pingInterval, timeout: timeout);
+          name: parsed.name ?? 'Host', pingInterval: pingInterval, timeout: timeout, clubCode: parsed.club);
     } on NetException catch (e) {
       out.writeln('Cannot open a room on the relay $relay: ${e.message}');
       return 1;
@@ -150,7 +171,7 @@ Future<int> runCli(
   try {
     guest = relay != null
         ? await KlunkiGuest.connectRelay(relay, parsed.room!,
-            name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout)
+            name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout, clubCode: parsed.club)
         : ws != null
             ? await KlunkiGuest.connectWebSocket(ws,
                 name: parsed.name ?? 'Guest', pingInterval: pingInterval, timeout: timeout)
@@ -218,8 +239,11 @@ class _Args {
 
   /// `join --room`: the normalised room code.
   final String? room;
+
+  /// `--club`: the club code for a gated relay (KLD-112).
+  final String? club;
   _Args(this.command, this.target, this.port, this.seed, this.name,
-      {this.wsPort, this.webSocket, this.relay, this.room, this.deck, this.color});
+      {this.wsPort, this.webSocket, this.relay, this.room, this.deck, this.color, this.club});
 }
 
 _Args? _parse(List<String> args) {
@@ -232,16 +256,20 @@ _Args? _parse(List<String> args) {
   String? room;
   String? deck;
   String? color;
+  String? club;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
     if (a == '--port' || a == '--ws-port' || a == '--seed' || a == '--name' || a == '--relay' || a == '--room' || a == '--deck' ||
-        a == '--color') {
+        a == '--color' || a == '--club') {
       if (i + 1 >= args.length) return null;
       final v = args[++i];
       switch (a) {
         case '--relay':
           relay = parseRelayUrl(v);
           if (relay == null) return null;
+        case '--club':
+          club = normalizeClubCode(v);
+          if (club == null) return null;
         case '--room':
           room = normalizeRoomCode(v);
           if (room == null || command != 'join') return null;
@@ -272,16 +300,18 @@ _Args? _parse(List<String> args) {
   if (command == 'host') {
     if (positional.length != 1 || specById(positional.first) == null) return null;
     if (relay != null && (port != null || wsPort != null)) return null;
+    if (club != null && relay == null) return null;
     if (deck != null && !specById(positional.first)!.usesDeck) return null;
     if (color != null && positional.first != 'chess') return null;
     return _Args(command, positional.first, port, seed, name,
-        wsPort: wsPort, relay: relay, deck: deck, color: color);
+        wsPort: wsPort, relay: relay, deck: deck, color: color, club: club);
   }
   if (relay != null || room != null) {
     // `join --relay URL --room CODE`: both, and nothing else.
     if (relay == null || room == null || positional.isNotEmpty || port != null) return null;
-    return _Args(command, relay.host, null, null, name, relay: relay, room: room);
+    return _Args(command, relay.host, null, null, name, relay: relay, room: room, club: club);
   }
+  if (club != null) return null;
   if (positional.isEmpty || positional.length > 2) return null;
   var target = positional.first;
   if (RegExp(r'^wss?://', caseSensitive: false).hasMatch(target)) {
@@ -312,25 +342,30 @@ _Args? _parse(List<String> args) {
 class _RelayArgs {
   final int port;
   final String? web;
-  _RelayArgs(this.port, this.web);
+
+  /// `--codes FILE`: gate the relay with club codes (KLD-112).
+  final String? codes;
+  _RelayArgs(this.port, this.web, this.codes);
 }
 
 _RelayArgs? _parseRelay(List<String> args) {
   var port = defaultRelayPort;
-  String? web;
+  String? web, codes;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if ((a != '--port' && a != '--web') || i + 1 >= args.length) return null;
+    if ((a != '--port' && a != '--web' && a != '--codes') || i + 1 >= args.length) return null;
     final v = args[++i];
     if (a == '--port') {
       final p = int.tryParse(v);
       if (p == null || p < 0 || p > 65535) return null;
       port = p;
+    } else if (a == '--codes') {
+      codes = v;
     } else {
       web = v;
     }
   }
-  return _RelayArgs(port, web);
+  return _RelayArgs(port, web, codes);
 }
 
 Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Future<void>? stop) async {
@@ -345,9 +380,18 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
       out.writeln('Warning: $dir has no index.html; is it a web build?');
     }
   }
+  ClubCodes? clubCodes;
+  if (args.codes case final path?) {
+    try {
+      clubCodes = await ClubCodes.load(path, log: out.writeln);
+    } on FileSystemException catch (e) {
+      out.writeln('Cannot read the club codes file $path: ${e.osError?.message ?? e.message}');
+      return 1;
+    }
+  }
   final RelayServer relay;
   try {
-    relay = await RelayServer.start(port: args.port, address: bindAddress, webRoot: web);
+    relay = await RelayServer.start(port: args.port, address: bindAddress, webRoot: web, clubCodes: clubCodes);
   } on SocketException catch (e) {
     out.writeln('Cannot listen on port ${args.port}: ${e.message}');
     return 1;
@@ -355,6 +399,9 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
   final ips = await _addresses(bindAddress);
   out.writeln('Klunki relay listening on port ${relay.port}: '
       '${ips.map((ip) => 'ws://$ip:${relay.port}$relayPath').join(', ')}');
+  if (clubCodes != null) {
+    out.writeln('Club codes required (${args.codes}); edits apply to the next connection.');
+  }
   if (web != null) {
     out.writeln('Serving the PWA from ${web.path}: ${ips.map((ip) => 'http://$ip:${relay.port}/').join(', ')}');
     out.writeln('In the browser: "Spiel hosten" uses this relay automatically; the guest enters the room code.');

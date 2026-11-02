@@ -1413,6 +1413,21 @@ class AppLocalizationsFa extends AppLocalizations {
   String get relaySave => 'اعمال';
 
   @override
+  String get relayClubCodeLabel => 'کد باشگاه (فقط در صورت نیاز)';
+
+  @override
+  String get relayClubCodeHelper =>
+      'فقط برای سرورهایی که کد باشگاه می‌خواهند. کد باشگاه هرگز در پیوند یا کد QR اتاق نمی‌آید.';
+
+  @override
+  String get relayErrorClubMissing =>
+      'این سرور کد باشگاه می‌خواهد. آن را در «پیشرفته» با «تغییر» وارد کن. از کسی که سرور را اداره می‌کند بپرس.';
+
+  @override
+  String get relayErrorClubWrong =>
+      'این سرور این کد باشگاه را نمی‌شناسد. از کسی که سرور را اداره می‌کند بپرس.';
+
+  @override
   String get joinDirectTitle => 'اتصال مستقیم به یک دستگاه';
 
   @override

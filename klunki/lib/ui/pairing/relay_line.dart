@@ -239,9 +239,11 @@ class RoomAdvanced extends StatelessWidget {
 Future<Uri?> relayOrAsk(BuildContext context, RelaySettings settings, {Uri? defaultRelay}) async =>
     settings.relayFor(defaultRelay) ?? await editRelay(context, settings, defaultRelay: defaultRelay);
 
-/// The "Relay-Adresse" dialog: an address field, "Übernehmen", and (with a
-/// [defaultRelay]) "Standard: …" to go back to it. Saves into [settings] and
-/// returns the relay now in use (null: cancelled).
+/// The "Relay-Adresse" dialog: an address field, an optional "Clubcode"
+/// field (KLD-112: the access code of a gated relay, saved for that relay
+/// only), "Übernehmen", and (with a [defaultRelay]) "Standard: …" to go back
+/// to it. Saves into [settings] and returns the relay now in use (null:
+/// cancelled).
 Future<Uri?> editRelay(BuildContext context, RelaySettings settings, {Uri? defaultRelay}) =>
     showDialog<Uri>(
       context: context,
@@ -265,11 +267,15 @@ class _RelayDialogState extends State<_RelayDialog> {
       null => '',
     },
   );
+  late final TextEditingController _club = TextEditingController(
+    text: widget.settings.clubCodeFor(widget.settings.relayFor(widget.defaultRelay)) ?? '',
+  );
   String? _error;
 
   @override
   void dispose() {
     _text.dispose();
+    _club.dispose();
     super.dispose();
   }
 
@@ -284,11 +290,13 @@ class _RelayDialogState extends State<_RelayDialog> {
     } else {
       widget.settings.set(relay);
     }
+    widget.settings.setClubCode(relay, _club.text);
     Navigator.of(context).pop(relay);
   }
 
   void _useDefault() {
     widget.settings.reset();
+    if (widget.defaultRelay case final d?) widget.settings.setClubCode(d, _club.text);
     Navigator.of(context).pop(widget.defaultRelay);
   }
 
@@ -298,22 +306,49 @@ class _RelayDialogState extends State<_RelayDialog> {
     final fallback = widget.defaultRelay;
     return AlertDialog(
       title: Text(l10n.relayAddressLabel),
-      content: TextField(
-        key: const Key('relay-dialog-address'),
-        controller: _text,
-        autofocus: true,
-        keyboardType: TextInputType.url,
-        textDirection: TextDirection.ltr,
-        autocorrect: false,
-        decoration: InputDecoration(
-          hintText: '192.168.1.20:4749',
-          helperText: l10n.relayAddressHelper,
-          helperMaxLines: 3,
-          errorText: _error,
-          errorMaxLines: 3,
-          border: const OutlineInputBorder(),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              key: const Key('relay-dialog-address'),
+              controller: _text,
+              autofocus: true,
+              keyboardType: TextInputType.url,
+              textDirection: TextDirection.ltr,
+              autocorrect: false,
+              decoration: InputDecoration(
+                hintText: '192.168.1.20:4749',
+                helperText: l10n.relayAddressHelper,
+                helperMaxLines: 3,
+                errorText: _error,
+                errorMaxLines: 3,
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: 16),
+            // KLD-112: only for a relay started with `--codes`; never part
+            // of room links or QR codes.
+            TextField(
+              key: const Key('relay-dialog-club'),
+              controller: _club,
+              textDirection: TextDirection.ltr,
+              autocorrect: false,
+              enableSuggestions: false,
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                labelText: l10n.relayClubCodeLabel,
+                helperText: l10n.relayClubCodeHelper,
+                helperMaxLines: 3,
+                prefixIcon: const Icon(Icons.key_outlined),
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+          ],
         ),
-        onSubmitted: (_) => _save(),
       ),
       actions: [
         if (fallback != null)

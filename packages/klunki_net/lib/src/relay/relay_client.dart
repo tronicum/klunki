@@ -34,8 +34,10 @@ class RelayHostListener implements HostListener {
 
   /// Connects to [relayUrl], creates a room and completes with its code.
   /// Throws [NetException] if the relay cannot be reached or refuses.
-  static Future<RelayHostListener> connect(Uri relayUrl, {Duration timeout = const Duration(seconds: 10)}) async {
-    final relay = await platform.connectWebSocket(relayCreateUri(relayUrl), timeout);
+  /// [clubCode]: the club code of a gated relay (KLD-112).
+  static Future<RelayHostListener> connect(Uri relayUrl,
+      {Duration timeout = const Duration(seconds: 10), String? clubCode}) async {
+    final relay = await platform.connectWebSocket(relayCreateUri(relayUrl, clubCode: clubCode), timeout);
     final first = Completer<RelayHostListener>();
     RelayHostListener? listener;
     late final StreamSubscription<String> sub;
@@ -55,7 +57,7 @@ class RelayHostListener implements HostListener {
         listener = RelayHostListener._(relayUrl, code, relay).._sub = sub;
         first.complete(listener);
       } else if (control?['t'] == relayError) {
-        fail('relay: ${control!['message'] ?? 'refused'}');
+        fail('relay: ${relayRefusalText(control!, 'refused')}');
       } else {
         fail('not a Klunki relay (unexpected first message)');
       }
@@ -110,7 +112,7 @@ class RelayHostListener implements HostListener {
       case relayClosed:
         _onRelayGone('relay: ${control['reason'] ?? 'room closed'}');
       case relayError:
-        _onRelayGone('relay: ${control['message'] ?? 'error'}');
+        _onRelayGone('relay: ${relayRefusalText(control, 'error')}');
       default:
         break; // unknown control messages are ignored (forward compatible)
     }
@@ -183,7 +185,7 @@ class RelayGuestChannel implements MessageChannel {
       if (control == null) return sink.add(line);
       switch (control['t']) {
         case relayError:
-          sink.addError(NetException('relay: ${control['message'] ?? 'refused'}'));
+          sink.addError(NetException('relay: ${relayRefusalText(control, 'refused')}'));
         case relayClosed:
           sink.addError(NetException('relay: ${control['reason'] ?? 'room closed'}'));
         default:
@@ -192,9 +194,11 @@ class RelayGuestChannel implements MessageChannel {
     }));
   }
 
-  /// Opens a guest connection to room [code] on [relayUrl].
-  static Future<RelayGuestChannel> connect(Uri relayUrl, String code, Duration timeout) async =>
-      RelayGuestChannel(await platform.connectWebSocket(relayJoinUri(relayUrl, code), timeout));
+  /// Opens a guest connection to room [code] on [relayUrl] ([clubCode]: the
+  /// club code of a gated relay, KLD-112).
+  static Future<RelayGuestChannel> connect(Uri relayUrl, String code, Duration timeout, {String? clubCode}) async =>
+      RelayGuestChannel(
+          await platform.connectWebSocket(relayJoinUri(relayUrl, code, clubCode: clubCode), timeout));
 
   @override
   String get kind => 'relay';

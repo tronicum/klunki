@@ -35,4 +35,8 @@ export 'src/relay/relay_protocol.dart'
         roomCodeAlphabet,
         normalizeRoomCode,
         parseRelayUrl,
-        relayUriForPage;
+        relayUriForPage,
+        normalizeClubCode,
+        newClubCode,
+        relayClubMissingText,
+        relayClubWrongText;

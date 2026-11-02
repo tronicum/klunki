@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_net/guest_web.dart' show NetException, PeerAge, VersionMismatch;
+import 'package:klunki_net/guest_web.dart'
+    show NetException, PeerAge, VersionMismatch, relayClubMissingText, relayClubWrongText;
 
 import '../../net/room_link.dart';
 import '../ltr.dart';
@@ -33,6 +34,12 @@ enum RelayFailure {
 
   /// The relay connection broke later (relay stopped, network loss).
   lost,
+
+  /// KLD-112: the relay needs a club code and none was entered.
+  clubMissing,
+
+  /// KLD-112: the relay does not accept the club code (unknown, revoked).
+  clubWrong,
 }
 
 String _text(Object error) => error is NetException ? error.message : '$error';
@@ -43,6 +50,8 @@ RelayFailure? classifyRelayError(Object error) {
   if (error is TimeoutException) return RelayFailure.unreachable;
   final s = _text(error);
   if (isSeatTaken(error)) return RelayFailure.seatTaken;
+  if (s == 'relay: $relayClubMissingText') return RelayFailure.clubMissing;
+  if (s == 'relay: $relayClubWrongText') return RelayFailure.clubWrong;
   if (s.contains('no room with code')) return RelayFailure.unknownCode;
   if (s.contains('is full')) return RelayFailure.roomFull;
   if (s.contains('host left') || s.contains('host connection failed')) return RelayFailure.hostLeft;
@@ -104,5 +113,7 @@ String? relayErrorText(BuildContext context, Object error, {String? code, Uri? r
       relay == null ? '?' : bidiLtr(context, relayAddressLabel(relay)),
     ),
     RelayFailure.lost => l10n.relayErrorLost,
+    RelayFailure.clubMissing => l10n.relayErrorClubMissing,
+    RelayFailure.clubWrong => l10n.relayErrorClubWrong,
   };
 }

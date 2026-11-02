@@ -1429,6 +1429,21 @@ class AppLocalizationsEs extends AppLocalizations {
   String get relaySave => 'Aplicar';
 
   @override
+  String get relayClubCodeLabel => 'Código del club (solo si hace falta)';
+
+  @override
+  String get relayClubCodeHelper =>
+      'Solo para servidores que piden un código del club. El código del club nunca va en los enlaces ni en los códigos QR de las salas.';
+
+  @override
+  String get relayErrorClubMissing =>
+      'Este servidor necesita un código del club. Escríbelo en «Avanzado» con «cambiar». Pregunta a la persona que gestiona el servidor.';
+
+  @override
+  String get relayErrorClubWrong =>
+      'Este servidor no conoce ese código del club. Pregunta a la persona que gestiona el servidor.';
+
+  @override
   String get joinDirectTitle => 'Conectar directamente con un dispositivo';
 
   @override

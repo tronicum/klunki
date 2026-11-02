@@ -1374,6 +1374,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get relaySave => '应用';
 
   @override
+  String get relayClubCodeLabel => '通行码（需要时才填）';
+
+  @override
+  String get relayClubCodeHelper => '只用于需要通行码的服务器。通行码不会出现在房间链接或二维码里。';
+
+  @override
+  String get relayErrorClubMissing => '这个服务器需要通行码。请在“高级”里点“更改”后输入。请问运行服务器的人。';
+
+  @override
+  String get relayErrorClubWrong => '这个服务器不接受这个通行码。请问运行服务器的人。';
+
+  @override
   String get joinDirectTitle => '直接连接设备';
 
   @override
