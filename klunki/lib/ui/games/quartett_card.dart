@@ -39,32 +39,40 @@ qe.QuartettDeck quartettDeckOf(qe.Card card) => qe.QuartettDeck.byId(card.deck) 
 ///
 /// The number of decimals comes from the stat ([qe.QuartettStat.decimals]),
 /// never from the runtime type: on the web every number is a double, which
-/// once printed years as "1999,0" (KLD-082). Years and other whole numbers
-/// print as bare ASCII digits without grouping ("1990", "35100"); counts
-/// marked [qe.QuartettStat.grouped] get the locale's thousands separator
-/// ("11.000 Stk."), percentages the locale's percent format ("99 %" in de,
-/// "99%" in en; the [unit] is ignored for them).
+/// once printed years as "1999,0" (KLD-082). Years print as bare ASCII
+/// digits without grouping ("1990"). Every other value gets the locale's
+/// thousands separator (KLD-110): "35.100 kN" in de, "35,100 kN" in en, zh, ar
+/// and fa, "35 100 kN" with a narrow no-break space (U+202F) in fr; es groups
+/// from five digits on, as CLDR and the RAE do ("1640 kg", "10.000 kN").
+/// Percentages use the locale's percent format ("99 %" in de, "99%" in en;
+/// the [unit] is ignored for them).
 String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de', String? unit}) {
   // Western digits only: fall back to English for e.g. fa (I18N-04).
   final loc = NumberFormat.decimalPattern(locale).symbols.ZERO_DIGIT == '0' ? locale : 'en';
+  // The engine rounds to the stat's decimals (plain ASCII, never grouped).
+  final plain = stat.formatNumber(value);
   if (stat.isPercent) {
     final f = NumberFormat.percentPattern(loc)
       ..minimumFractionDigits = stat.fixedDecimals ? stat.decimals : 0
       ..maximumFractionDigits = stat.decimals;
-    return f.format(num.parse(stat.formatNumber(value)) / 100);
+    return f.format(num.parse(plain) / 100);
   }
-  var v = stat.formatNumber(value);
-  if (stat.grouped) {
-    final f = NumberFormat.decimalPattern(loc)
-      ..minimumFractionDigits = stat.fixedDecimals ? stat.decimals : 0
-      ..maximumFractionDigits = stat.decimals;
-    v = f.format(num.parse(v));
-  } else if (v.contains('.')) {
-    v = v.replaceAll('.', NumberFormat.decimalPattern(loc).symbols.DECIMAL_SEP);
-  }
-  final u = stat.isYear ? '' : (unit ?? stat.unit);
+  if (stat.isYear) return plain;
+  final rounded = num.parse(plain);
+  final f = NumberFormat.decimalPattern(loc)
+    ..minimumFractionDigits = stat.fixedDecimals ? stat.decimals : 0
+    ..maximumFractionDigits = stat.decimals;
+  // intl ignores CLDR's minimumGroupingDigits: Spanish keeps four-digit
+  // numbers whole ("1640", but "10.000").
+  if (_minimumGroupingDigits(loc) > 1 && rounded.abs() < 10000) f.turnOffGrouping();
+  final v = f.format(rounded);
+  final u = unit ?? stat.unit;
   return u.isEmpty ? v : '$v $u';
 }
+
+/// CLDR `minimumGroupingDigits` of [locale]: 2 for Spanish, 1 for the app's
+/// other locales.
+int _minimumGroupingDigits(String locale) => locale.split(RegExp('[-_]')).first == 'es' ? 2 : 1;
 
 /// How a highlighted stat row came out in a trick.
 enum QuartettOutcome { win, lose, tie }

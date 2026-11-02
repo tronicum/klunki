@@ -92,7 +92,7 @@ void main() {
         revision: 99,
         stats: [
           for (final s in rockets.stats)
-            QuartettStat(id: s.id, label: '${s.label}!', unit: 'u', higherWins: s.higherWins, decimals: 3, grouped: true),
+            QuartettStat(id: s.id, label: '${s.label}!', unit: 'u', higherWins: s.higherWins, decimals: 3, fixedDecimals: true),
         ],
         setNames: {for (final k in rockets.setNames.keys) k: 'Set $k'},
         rows: [for (final c in rockets.cards) (c.id, c.name, [for (final s in rockets.stats) c.stats[s.id]!])],
@@ -122,8 +122,7 @@ QuartettStat _copy(QuartettStat s, {String? id, bool? higherWins}) => QuartettSt
     higherWins: higherWins ?? s.higherWins,
     decimals: s.decimals,
     fixedDecimals: s.fixedDecimals,
-    isYear: s.isYear,
-    grouped: s.grouped);
+    isYear: s.isYear);
 
 /// [deck] built again from its own data, optionally changed: one value +1
 /// where [value] says so, other [stats] (same order of values), other
