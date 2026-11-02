@@ -22,7 +22,7 @@ void main() {
     expect(appVersionName, appVersion.split('+').first);
   });
 
-  test('without KLUNKI_BUILD (tests, local builds): "1.0.0 (dev)", the pubspec build number', () {
+  test('without KLUNKI_BUILD (tests, local builds): "1.1.0 (dev)", the pubspec build number', () {
     expect(appBuildId, isEmpty);
     expect(appBuildNumber, appVersion.split('+').last);
     expect(appBuildLabel, appVersion);

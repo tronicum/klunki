@@ -228,8 +228,8 @@ If any of this changes (e.g. crash reporting or a hosted relay that logs), the a
 
 ## Version and build number
 
-`CFBundleShortVersionString` = the version from `klunki/pubspec.yaml` (`1.0.0` for the first external
-TestFlight build), `CFBundleVersion` = the build number `YYYYMMDDNN` from `tool/build_number.sh` (KLD-116),
+`CFBundleShortVersionString` = the version from `klunki/pubspec.yaml` (`1.1.0` for the first external
+TestFlight build; `1.0.0` was an internal-only upload; numbering rule in `docs/RELEASING.md`), `CFBundleVersion` = the build number `YYYYMMDDNN` from `tool/build_number.sh` (KLD-116),
 both through `Info.plist`'s `$(FLUTTER_BUILD_NAME)` / `$(FLUTTER_BUILD_NUMBER)`; no Xcode project change. CI
 has no signed iOS build: build the upload on the Mac from the tagged commit with
 `flutter build ipa --release --build-number=$(../tool/build_number.sh) --dart-define=KLUNKI_BUILD=$(git rev-parse HEAD) --dart-define=KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)`

@@ -118,8 +118,10 @@ troubleshooting: `docs/BUILDING.md`.
   `docs/tasks/BOARD.md`. New card: take the **next free KLD number** (check both the card files and BOARD.md;
   parallel branches may have claimed numbers). Set status DONE / ✅ when the acceptance criteria are met.
 - **Versions and releases (KLD-116).** `MAJOR.MINOR.PATCH` in `klunki/pubspec.yaml` and `appVersion`
-  (`klunki/lib/app/build_info.dart`, kept equal by a test); MINOR for new games/features, PATCH for fixes.
-  The app shows "Version 1.0.0 (b8752a9)". The app version never decides network compatibility (rules
+  (`klunki/lib/app/build_info.dart`, kept equal by a test). 1.1.0 = first bigger (external TestFlight)
+  release; PATCH (1.1.1, …) = new games or game variants; design tweaks and small fixes get only a new build
+  number, no new version; MINOR/MAJOR only for milestones the maintainer decides.
+  The app shows "Version 1.1.0 (b8752a9)". The app version never decides network compatibility (rules
   versions and fingerprints do). User-visible changes go under `[Unreleased]` in `CHANGELOG.md`; release steps
   (annotated tag `vX.Y.Z`, maintainer only) in `docs/RELEASING.md`. Agents never create or push tags.
 - **Rules changes bump the rules version.** Any change that makes an old and a new build disagree (a move

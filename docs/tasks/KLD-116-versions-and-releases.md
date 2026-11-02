@@ -20,21 +20,24 @@
 ## Goal
 
 One clear version scheme for the stores and for people: `MAJOR.MINOR.PATCH` from `pubspec.yaml`, an always
-increasing build number `YYYYMMDDNN` set by CI, "Version 1.0.0 (b8752a9)" in the app, a changelog and
+increasing build number `YYYYMMDDNN` set by CI, "Version 1.1.0 (b8752a9)" in the app, a changelog and
 written release steps. When two devices refuse each other, the message says who has which version.
 
 ## Scheme (agreed with the maintainer)
 
-- **Version** `MAJOR.MINOR.PATCH`, single source `klunki/pubspec.yaml` (`version: 1.0.0+1`; `appVersion`
-  mirrors it, a test keeps them equal). MINOR = new games/features, PATCH = fixes. First external TestFlight
-  stays **1.0.0**; the next feature release is 1.1.0.
+- **Version** `MAJOR.MINOR.PATCH`, single source `klunki/pubspec.yaml` (`version: 1.1.0+1`; `appVersion`
+  mirrors it, a test keeps them equal). Numbering rule (maintainer decision 2026-11-02, replaces the first
+  "MINOR = features, PATCH = fixes"): **1.1.0** = the first bigger release (external TestFlight); **PATCH**
+  (1.1.1, 1.1.2, …) = functional updates, i.e. new games or game variants; design tweaks and small fixes get
+  no new version, only a new build number; MINOR/MAJOR are reserved for bigger milestones the maintainer
+  decides. 1.0.0 was the earlier internal-only TestFlight upload.
 - **Build number** `YYYYMMDDNN`: commit date in UTC + `NN` = number of commits of that UTC day on the
   first-parent line up to the commit (`tool/build_number.sh`). Deterministic per commit, increasing along
   `main`, refuses >99 per day and shallow clones. iOS `CFBundleVersion`, Android `versionCode` (max
   2 100 000 000; the scheme's largest is 2 099 123 199). CI passes `--build-number` and
   `--dart-define=KLUNKI_BUILD_NUMBER` in every `build.yml` job (checkout with `fetch-depth: 0`). Local
   builds keep `+1`.
-- **Display:** menu footer and About: `Version 1.0.0 (b8752a9)` (commit from `KLUNKI_BUILD`, `(dev)`
+- **Display:** menu footer and About: `Version 1.1.0 (b8752a9)` (commit from `KLUNKI_BUILD`, `(dev)`
   without). About small print: `Build-Nummer 2026110201 · Protokoll 3 · Spieldaten 2699da15` (the KLD-085
   comparison data moved here from the menu footer).
 - **Compatibility** stays on protocol and fingerprints. The handshake's existing `build` label is now

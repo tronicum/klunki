@@ -54,7 +54,7 @@ both stores use one id. Keep it. Play does not check that the publisher owns `kl
 ### Version
 
 `versionCode = flutter.versionCode` and `versionName = flutter.versionName`. The name comes from `version:` in
-`klunki/pubspec.yaml` (`1.0.0`); the code is the **build number** `YYYYMMDDNN` (e.g. `2026110201`) that CI passes
+`klunki/pubspec.yaml` (`1.1.0`, numbering rule in `docs/RELEASING.md`); the code is the **build number** `YYYYMMDDNN` (e.g. `2026110201`) that CI passes
 with `--build-number` (`tool/build_number.sh`, KLD-116; the pubspec's `+1` is only for local builds). Every
 upload to Play needs a **higher versionCode** than any bundle uploaded before, on any track; the scheme
 increases with every commit on `main`, so upload only bundles built from `main` or a release tag (the
@@ -191,7 +191,7 @@ from the local build.
    minutes:
    - Testers tab › create an email list (Google account emails of the testers).
    - Create release › Play App Signing: accept **Google-generated key** › upload `app-release.aab` (signed with the
-     upload key) › release name (e.g. `1.0.0 (2026110201)`) and release notes (de/en, "Erster Test") › Save › Review ›
+     upload key) › release name (e.g. `1.1.0 (2026110201)`) and release notes (de/en, "Erster Test") › Save › Review ›
      Start rollout.
    - Copy the **opt-in link** from the Testers tab and send it. Each tester opens it on the phone with the listed
      Google account, accepts, then installs from the Play Store link.

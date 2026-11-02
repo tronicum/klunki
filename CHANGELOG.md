@@ -1,12 +1,15 @@
 # Changelog
 
 What changed in each Klunki release, in plain words. Newest first. Versions are `MAJOR.MINOR.PATCH`
-(new games or features raise MINOR, fixes raise PATCH; see `docs/RELEASING.md`). Each release has a
+(new games or game variants raise PATCH; design tweaks and small fixes only get a new build number;
+MINOR/MAJOR for bigger milestones; see `docs/RELEASING.md`). Each release has a
 short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
-## [1.0.0] – first external test (TestFlight, Play internal testing, web beta)
+## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
+
+1.0.0 was an internal TestFlight test build only (not released).
 
 Kurz: Acht Spiele für zwei – auf einem Gerät, mit zwei Geräten im selben WLAN oder im Browser über einen
 Raumcode. Deutsch und sechs weitere Sprachen.
@@ -20,7 +23,7 @@ Raumcode. Deutsch und sechs weitere Sprachen.
   move, turn).
 - **GoStrategy** (hidden ranks, capture the flag) with the setup on the real board.
 - **Schach** (chess, full rules, automatic draws); the room starter picks white, black or random.
-- **Wortgewandt** (word tile game) with German and English word lists.
+- **Wortgewandt** (word tile game) with German and English word lists and the "Bänkchen" practice rows.
 
 ### Playing together
 - **One device** (hot-seat): a cover hides the hand, rack or fleet when the device is handed over.
@@ -32,6 +35,8 @@ Raumcode. Deutsch und sechs weitere Sprachen.
   device only sees what it may see; secrets are checked at the end.
 - Rejoin after a lost connection (only with the session's own token).
 - Builds that do not fit together refuse to play and say which device has to update.
+- Plain "Server" wording; a club code is asked for only when a server needs one; in-app help "So spielt ihr
+  zusammen" (rooms, Wi-Fi, servers, club codes, data).
 
 ### App
 - Player names (Anna and Ben by default, your own names possible), no X / O anywhere.
@@ -39,12 +44,13 @@ Raumcode. Deutsch und sechs weitere Sprachen.
 - Warm "Spieltisch" look in light and dark, a new app icon.
 - **7 languages**: German, English, French, Spanish, Chinese, Arabic and Persian (right to left).
 - "Über Klunki" with privacy policy and Impressum (readable offline), support, source code, licences.
-- Version line "Version 1.0.0 (b8752a9)": version and commit; build number, protocol and game data in
+- Version line "Version 1.1.0 (b8752a9)": version and commit; build number, protocol and game data in
   small print on the About screen.
 
 ### Web
 - Offline-capable web app (PWA), nothing loaded from a CDN.
 - Web beta on GitHub Pages: plays on one device; network play there needs a secure (wss://) relay.
+- A landing page on GitHub Pages (games, FAQ, beta sign-up); the web app moved to `play/`.
 
-[Unreleased]: https://github.com/tronicum/klunki/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/tronicum/klunki/releases/tag/v1.0.0
+[Unreleased]: https://github.com/tronicum/klunki/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/tronicum/klunki/releases/tag/v1.1.0

@@ -15,9 +15,9 @@ import 'package:klunki_net/guest_web.dart' show BuildCompat, protocolVersion, ve
 
 /// `version:` of `pubspec.yaml`, mirrored (a test keeps them in sync): Dart
 /// code cannot read the pubspec without a plugin. Bump both together.
-const String appVersion = '1.0.0+1';
+const String appVersion = '1.1.0+1';
 
-/// [appVersion] without the build number: `1.0.0`.
+/// [appVersion] without the build number: `1.1.0`.
 String get appVersionName => appVersion.split('+').first;
 
 /// The commit the app was built from, if the build passed one:
@@ -39,7 +39,7 @@ String get appBuildNumber =>
 /// [commit], at most 7 characters.
 String shortCommit(String commit) => commit.length > 7 ? commit.substring(0, 7) : commit;
 
-/// The handshake's build label from its parts: `1.0.0+2026110201 b8752a9`
+/// The handshake's build label from its parts: `1.1.0+2026110201 b8752a9`
 /// (version, build number, commit; the last two optional).
 String buildLabel(String version, {String buildNumber = '', String commit = ''}) {
   final v = buildNumber.isEmpty ? version : '$version+$buildNumber';
@@ -47,7 +47,7 @@ String buildLabel(String version, {String buildNumber = '', String commit = ''})
   return c.isEmpty ? v : '$v $c';
 }
 
-/// `1.0.0+2026110201 b8752a9` (or `1.0.0+1` locally): the `build` label of
+/// `1.1.0+2026110201 b8752a9` (or `1.1.0+1` locally): the `build` label of
 /// the handshake. Starts with the version, so the other side can tell which
 /// build is older.
 String get appBuildLabel => buildLabel(appVersionName, buildNumber: appBuildNumber, commit: _buildId);
@@ -55,8 +55,8 @@ String get appBuildLabel => buildLabel(appVersionName, buildNumber: appBuildNumb
 /// What the app sends and checks in the handshake.
 BuildCompat appBuildCompat() => BuildCompat(build: appBuildLabel);
 
-/// The version line people see (KLD-116): `1.0.0 (b8752a9)`, or
-/// `1.0.0 (dev)` for a build without a commit. Same text the version
+/// The version line people see (KLD-116): `1.1.0 (b8752a9)`, or
+/// `1.1.0 (dev)` for a build without a commit. Same text the version
 /// mismatch message shows for both devices.
 String get appVersionLine => versionDisplay(appBuildLabel)!;
 

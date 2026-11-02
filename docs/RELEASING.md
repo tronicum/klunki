@@ -7,13 +7,15 @@ version, write the changelog, tag, let CI build, upload by hand.
 
 | What | Form | Source | Where it shows up |
 |---|---|---|---|
-| **Version** | `MAJOR.MINOR.PATCH`, e.g. `1.0.0` | `version:` in `klunki/pubspec.yaml` (`1.0.0+1`), mirrored in `appVersion` in `klunki/lib/app/build_info.dart` (a test keeps both equal) | iOS `CFBundleShortVersionString`, Android `versionName`, the app ("Version 1.0.0 (b8752a9)"), store listings, the tag `v1.0.0` |
+| **Version** | `MAJOR.MINOR.PATCH`, e.g. `1.1.0` | `version:` in `klunki/pubspec.yaml` (`1.1.0+1`), mirrored in `appVersion` in `klunki/lib/app/build_info.dart` (a test keeps both equal) | iOS `CFBundleShortVersionString`, Android `versionName`, the app ("Version 1.1.0 (b8752a9)"), store listings, the tag `v1.1.0` |
 | **Build number** | `YYYYMMDDNN`, e.g. `2026110201` | CI: `tool/build_number.sh` → `flutter build … --build-number` (and `--dart-define=KLUNKI_BUILD_NUMBER`); local builds keep the pubspec's `+1` | iOS `CFBundleVersion`, Android `versionCode`, small print on the About screen, the handshake's `build` label |
 | **Commit** | 7 hex digits, e.g. `b8752a9` | CI: `--dart-define=KLUNKI_BUILD=${{ github.sha }}`; local builds show `(dev)` | the version line, the handshake's `build` label |
 
-- **MINOR** for new games or features (next feature release: `1.1.0`), **PATCH** for fixes only
-  (`1.0.1`), **MAJOR** only for a big break (not planned). The first external TestFlight build stays
-  **1.0.0**, whatever its build number.
+- **Numbering rule (maintainer, 2026-11-02).** **1.1.0** is the first bigger release (the first external
+  TestFlight test). **PATCH** (`1.1.1`, `1.1.2`, …) = functional updates: **new games or game variants**.
+  Design tweaks and small fixes get **no new version, only a new build number**. **MINOR** and **MAJOR**
+  bumps are reserved for bigger milestones the maintainer decides. (`1.0.0` was an earlier internal-only
+  TestFlight upload.)
 - **Build number** `YYYYMMDDNN`: the commit's committer date in **UTC**, then `NN` = how many commits of
   that UTC day are on the first-parent line up to and including this commit (01..99). Deterministic (the
   same commit always gets the same number: a CI re-run or the tag build of a commit main already built
@@ -31,11 +33,11 @@ version, write the changelog, tag, let CI build, upload by hand.
   from `flutter.versionName` / `flutter.versionCode` in `android/app/build.gradle.kts`: `--build-name` /
   `--build-number` reach both without project changes.
 
-The app shows `Version 1.0.0 (b8752a9)` in the menu and on the About screen, with
+The app shows `Version 1.1.0 (b8752a9)` in the menu and on the About screen, with
 `Build-Nummer 2026110201 · Protokoll 3 · Spieldaten 2699da15` in small print there. Whether two devices can
 play together is decided by the protocol version and the game fingerprints (`compat.dart`,
 `protocolVersion`, see `packages/klunki_net/PROTOCOL.md`), **never by the app version**. When two
-devices refuse each other, the message names both versions ("Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0
+devices refuse each other, the message names both versions ("Anna hat 1.1.0 (b8752a9), Ben hat 1.1.1
 (c3d4e5f).") so people see who has to update.
 
 ## Making a release

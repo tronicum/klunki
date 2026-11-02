@@ -1,4 +1,4 @@
-// KLD-116 screenshots of the version: the menu footer ("Version 1.0.0
+// KLD-116 screenshots of the version: the menu footer ("Version 1.1.0
 // (b8752a9)"), the About screen with the small print (build number,
 // protocol, game data) and the version mismatch message that names who has
 // which version. Phone size, de light (plus ar for RTL). Skipped unless
