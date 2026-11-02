@@ -68,9 +68,13 @@ Future<void> _shot(WidgetTester tester, String name) async {
   debugDisableShadows = true;
 }
 
-Future<GameController> _pump(WidgetTester tester, String id, String locale, {Size size = _phone}) async {
+/// [safe]: the top and bottom safe areas of an iPhone (logical pixels).
+Future<GameController> _pump(WidgetTester tester, String id, String locale,
+    {Size size = _phone, (double, double) safe = (0, 0)}) async {
   tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
+  tester.view.padding = FakeViewPadding(top: safe.$1 * 2, bottom: safe.$2 * 2);
+  tester.view.viewPadding = FakeViewPadding(top: safe.$1 * 2, bottom: safe.$2 * 2);
   addTearDown(tester.view.reset);
   final c = GameController.hotSeat(GameConfig(id, seed: 3));
   addTearDown(c.dispose);
@@ -252,6 +256,48 @@ void main() {
           await tester.pump();
         }
         await _shot(tester, 'kld094-8e-bench-de-$tag');
+      });
+    }
+  });
+
+  // KLD-094 step 8f: on phones where the open bench lies over the lower
+  // board, its handle is a slim bar between the board and the rack (no
+  // longer a link in the score row); closed and open, two tiles on it.
+  group('kld094-8f', () {
+    for (final (tag, locale, size, safe) in [
+      ('de-375x667', 'de', const Size(375, 667), (20.0, 0.0)),
+      ('de-393x852-safe', 'de', const Size(393, 852), (59.0, 34.0)),
+      ('ar-375x667', 'ar', const Size(375, 667), (20.0, 0.0)),
+    ]) {
+      testWidgets('kld094-8f bench bar $tag', skip: skip != null, (tester) async {
+        SeenTips.debugReset();
+        SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+        final c = await _pump(tester, 'wordtiles', locale, size: size, safe: safe);
+        (c.game as WordTilesGame).debugSetup(
+          racks: const [
+            ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+            ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+          ],
+          bag: List.filled(40, 'E'),
+        );
+        await tester.pump();
+        expect(find.byKey(const Key('wordtiles-bench-bar')), findsOneWidget);
+        Future<void> toggle() async {
+          await tester.tap(find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pump();
+          await tester.pump();
+        }
+
+        await toggle();
+        for (final (i, s) in [(0, 0), (1, 1)]) {
+          await tester.tap(find.byKey(Key('wordtiles-rack-$i')));
+          await tester.pump();
+          await tester.tap(find.byKey(Key('wordtiles-bench-0-$s')));
+          await tester.pump();
+        }
+        await _shot(tester, 'kld094-8f-open-$tag');
+        await toggle();
+        await _shot(tester, 'kld094-8f-closed-$tag');
       });
     }
   });

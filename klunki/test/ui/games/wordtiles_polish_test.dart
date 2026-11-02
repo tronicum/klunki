@@ -102,20 +102,27 @@ void main() {
     await _start(tester);
     expect(find.byKey(const Key('wordtiles-bench-0-0')), findsNothing, reason: 'collapsed at first');
     final board = tester.getSize(find.byKey(const Key('wordtiles-sq-0-0')));
-    // The collapsed bench is a button in the score row.
+    // The collapsed bench is a slim bar between the board and the rack
+    // (KLD-094 step 8f), not in the score row.
+    final bar = find.byKey(const Key('wordtiles-bench-bar'));
+    expect(find.descendant(of: bar, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsOneWidget);
     expect(
         find.descendant(
             of: find.ancestor(of: find.byKey(const Key('wordtiles-help')), matching: find.byType(Row)).at(1),
             matching: find.byKey(const Key('wordtiles-bench-toggle'))),
-        findsOneWidget);
+        findsNothing);
     await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
     final overlay = find.byKey(const Key('wordtiles-bench-overlay'));
     expect(overlay, findsOneWidget);
     expect(find.descendant(of: overlay, matching: find.byKey(const Key('wordtiles-bench-0-0'))), findsOneWidget);
-    expect(find.descendant(of: overlay, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsOneWidget);
+    // Open, the same bar closes it (the overlay grows upwards from it).
+    expect(find.descendant(of: bar, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsOneWidget);
+    expect(find.descendant(of: overlay, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsNothing);
     expect(tester.getSize(find.byKey(const Key('wordtiles-sq-0-0'))), board, reason: 'the board did not shrink');
-    // (The test font is wider than the real one; the screenshots show about 285 px.)
-    expect(board.width * WordTilesBoardTestInfo.squares, greaterThan(220));
+    // (The test font is wider than the real one; with the app font the
+    // board is about 268 px, 6 px less since the bench's handle bar sits
+    // between board and rack, KLD-094 step 8f.)
+    expect(board.width * WordTilesBoardTestInfo.squares, greaterThan(212));
     // Tap a rack tile, then a slot: it moves onto the bench.
     await _tap(tester, find.byKey(const Key('wordtiles-rack-0')));
     await _tap(tester, find.byKey(const Key('wordtiles-bench-0-0')));
