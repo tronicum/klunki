@@ -153,7 +153,7 @@ const _kmh = QuartettStat(id: 'kmh', label: 'Höchstgeschwindigkeit', unit: 'km/
 const _lengthM = QuartettStat(id: 'lengthM', label: 'Länge', unit: 'm', decimals: 1);
 // KLD-082: number built replaces the year stats ("older/newer" was a poor
 // trump); the rockets got a success rate instead.
-const _built = QuartettStat(id: 'built', label: 'Gebaut', unit: 'Stk.', grouped: true);
+const _built = QuartettStat(id: 'built', label: 'Gebaut', unit: 'Stk.');
 
 /// Cars: the original KLD-024 deck. Values: manufacturer figures as commonly
 /// quoted, rounded; electric cars have 0 cm³.

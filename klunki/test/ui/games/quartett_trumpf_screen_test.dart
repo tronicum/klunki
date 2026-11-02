@@ -295,4 +295,53 @@ void main() {
     await c.submit({'action': 'pick', 'stat': 'kmh'});
     expect(QuartettTrumpfScreen.describeMove(deL10n, c.moves.single), 'wählt Höchstgeschwindigkeit');
   });
+
+  group('KLD-110 layout', () {
+    Future<GameController> pumpAt(WidgetTester tester, Size size) async {
+      tester.view.physicalSize = size * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final c = await pumpGame(tester, 'quartett-trumpf', seed: 1);
+      await tester.pumpAndSettle();
+      return c;
+    }
+
+    for (final size in const [Size(390, 844), Size(430, 932)]) {
+      testWidgets('phone ${size.width.toInt()}: Vorige Runde next to the caption, under the counts, stack in view',
+          (tester) async {
+        await pumpAt(tester, size);
+        final last = tester.getRect(find.byKey(const Key('qt-last-trick')));
+        final caption = tester.getRect(find.text('Deine Karte (Anna)'));
+        expect((last.center.dy - caption.center.dy).abs(), lessThan(8), reason: 'same line as the caption');
+        final a = tester.getRect(find.byKey(const Key('qt-count-a')));
+        final b = tester.getRect(find.byKey(const Key('qt-count-b')));
+        // (The test font is wider than Roboto: the counts may wrap here.)
+        expect(last.top, greaterThan(a.bottom));
+        expect(last.top, greaterThan(b.bottom));
+        // The small stack and its count are on screen without scrolling (430)
+        // and shown with the caption beside it.
+        expect(find.text('16 Karten'), findsOneWidget);
+        if (size.height >= 900) {
+          expect(tester.getRect(find.byKey(const Key('qt-opponent-stack'))).bottom, lessThanOrEqualTo(size.height));
+        }
+        // A result: Vorige Runde under Weiter.
+        await pick(tester, 'ps');
+        await tester.pumpAndSettle();
+        final cont = tester.getRect(find.byKey(const Key('qt-continue')));
+        final last2 = tester.getRect(find.byKey(const Key('qt-last-trick')));
+        expect(last2.top, greaterThan(cont.bottom));
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('landscape tablet: the result is not wider than the table', (tester) async {
+      await pumpAt(tester, const Size(1133, 744));
+      // Wide: the counts row keeps Vorige Runde.
+      final a = tester.getRect(find.byKey(const Key('qt-count-a')));
+      expect(tester.getRect(find.byKey(const Key('qt-last-trick'))).top, a.top);
+      await pick(tester, 'ps');
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.byKey(reveal)).width, lessThanOrEqualTo(760));
+    });
+  });
 }
