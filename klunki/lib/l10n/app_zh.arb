@@ -376,7 +376,7 @@
   "helpSectionServerTitle": "何时需要服务器？",
   "helpSectionServerBody": "只有大家都在浏览器里玩，或者不在同一个 Wi-Fi 中时才需要。服务器在你们的设备之间传递每一步棋。\n\nKlunki 会按照地址看出是什么样的服务器：“Wi-Fi 中的服务器”或“网上的服务器”。",
   "helpSectionOwnServerTitle": "Wi-Fi 中你们的服务器",
-  "helpSectionOwnServerBody": "在 Wi-Fi 中的一台电脑上，在 Klunki 目录里启动“klunki relay”。电脑会显示它的地址，例如 192.168.1.20:4749。\n\n在 Klunki 的“高级”里点“更改”，输入这个地址。在浏览器中打开这个地址的人可以马上一起玩。",
+  "helpSectionOwnServerBody": "你们也可以在 Wi-Fi 中的一台电脑上运行你们的服务器。适用于 Mac、Windows 和 Linux 的现成应用正在准备中。然后在 Klunki 的“高级”里点“更改”，输入它的地址。",
   "helpSectionComingTitle": "即将更简单（准备中）",
   "helpSectionComingBody": "这些获得服务器的方法正在准备中：\n• 给一些人一起用的网上服务器（用 Cloudflare，0 元）\n• 可以下载的现成应用，适用于 Mac、Windows 和 Linux\n• 用于 NAS 或 Raspberry Pi 的 Docker\n\n网上的服务器通常需要通行码。",
   "helpSectionClubTitle": "什么是通行码？",

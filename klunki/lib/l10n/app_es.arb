@@ -376,7 +376,7 @@
   "helpSectionServerTitle": "¿Cuándo hace falta un servidor?",
   "helpSectionServerBody": "Solo si todos juegan en el navegador o si no estáis en la misma wifi. El servidor pasa las jugadas entre vuestros dispositivos.\n\nKlunki reconoce por la dirección qué servidor es: «Servidor en la wifi» o «Servidor en internet».",
   "helpSectionOwnServerTitle": "Servidor propio en la wifi",
-  "helpSectionOwnServerBody": "En un ordenador de la wifi, iniciad «klunki relay» en la carpeta de Klunki. El ordenador muestra su dirección, por ejemplo 192.168.1.20:4749.\n\nEscribid esa dirección en Klunki en «Avanzado» con «cambiar». Quien la abra en el navegador puede jugar enseguida.",
+  "helpSectionOwnServerBody": "También podéis tener vuestro propio servidor en un ordenador de la wifi. Está en preparación un programa listo para Mac, Windows y Linux. Después escribid su dirección en Klunki en «Avanzado» con «cambiar».",
   "helpSectionComingTitle": "Pronto más fácil (en preparación)",
   "helpSectionComingBody": "Estas formas de tener un servidor están en preparación:\n• Servidor en internet para grupos de amigos (con Cloudflare, gratis)\n• Programa listo para descargar para Mac, Windows y Linux\n• Docker para NAS o Raspberry Pi\n\nLos servidores en internet suelen estar protegidos con un código del club.",
   "helpSectionClubTitle": "¿Qué es un código del club?",

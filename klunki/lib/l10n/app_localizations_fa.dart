@@ -1472,7 +1472,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get helpSectionOwnServerBody =>
-      'روی رایانه‌ای در Wi-Fi، در پوشهٔ Klunki «klunki relay» را اجرا کنید. رایانه سپس نشانی‌اش را نشان می‌دهد، مثلاً 192.168.1.20:4749.\n\nاین نشانی را در Klunki در «پیشرفته» با «تغییر» وارد کنید. هر کس آن را در مرورگر باز کند، می‌تواند فوراً بازی کند.';
+      'می‌توانید سرور خودتان را هم روی رایانه‌ای در Wi-Fi اجرا کنید. یک برنامهٔ آماده برای Mac، Windows و Linux در دست آماده‌سازی است. سپس نشانی آن را در Klunki در «پیشرفته» با «تغییر» وارد کنید.';
 
   @override
   String get helpSectionComingTitle => 'به‌زودی ساده‌تر (در دست آماده‌سازی)';

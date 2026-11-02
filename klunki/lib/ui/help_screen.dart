@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 
-import '../net/room_link.dart' show relayStartCommand;
-import 'pairing/relay_line.dart' show CopyableCommand;
 
 // "So spielt ihr zusammen" (KLD-113): a short help (FAQ) about playing with
 // others, rooms, servers and club codes. Stored in the app (ARB strings),
@@ -18,9 +16,6 @@ import 'pairing/relay_line.dart' show CopyableCommand;
 /// `helpSectionXTitle` and `helpSectionXBody` (after the page title
 /// `helpTitle`). A site script follows the same order.
 const List<String> helpSectionIds = ['Rooms', 'Wifi', 'Server', 'OwnServer', 'Coming', 'Club', 'Data'];
-
-/// The section after which the app shows the start command of a server.
-const String helpCommandSection = 'OwnServer';
 
 /// Title and body of section [id] (one of [helpSectionIds]).
 (String, String) helpSection(AppLocalizations l10n, String id) => switch (id) {
@@ -69,7 +64,6 @@ class HelpScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(p, key: i == 0 ? Key('help-$id-body') : null, style: theme.textTheme.bodyMedium),
                     ),
-                  if (id == helpCommandSection) const CopyableCommand(relayStartCommand, key: Key('help-command')),
                 ],
               ],
             ),

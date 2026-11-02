@@ -306,7 +306,7 @@ void main() {
     expect(find.textContaining('Hat einer von euch die App?'), findsOneWidget);
   });
 
-  testWidgets('help: every section in every locale, the start command after "Eigener Server"', (tester) async {
+  testWidgets('help: every section in every locale, no developer command', (tester) async {
     _bigView(tester);
     for (final locale in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) {
       await tester.pumpWidget(localizedApp(const HelpScreen(), locale: Locale(locale)));
@@ -316,7 +316,8 @@ void main() {
             find.byKey(Key('help-$id-body')), find.byKey(const Key('help-text')), const Offset(0, -200));
         expect(_text(tester, 'help-$id-title'), isNotEmpty);
       }
-      expect(find.byKey(const Key('help-command'), skipOffstage: false), findsOneWidget);
+      expect(find.byKey(const Key('help-command'), skipOffstage: false), findsNothing);
+      expect(find.textContaining('dart run', skipOffstage: false), findsNothing);
       expect(tester.takeException(), isNull);
     }
   });

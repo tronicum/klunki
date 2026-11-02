@@ -375,7 +375,7 @@
   "helpSectionServerTitle": "When do you need a server?",
   "helpSectionServerBody": "Only if everyone plays in a browser or you are not on the same Wi-Fi. The server passes the moves between your devices.\n\nKlunki tells from the address what kind of server it is: “Server on the Wi-Fi” or “Server on the internet”.",
   "helpSectionOwnServerTitle": "Your own server on the Wi-Fi",
-  "helpSectionOwnServerBody": "On a computer on the Wi-Fi, start “klunki relay” in the Klunki folder. The computer then shows its address, for example 192.168.1.20:4749.\n\nEnter that address in Klunki under “Advanced” with “change”. Anyone who opens it in a browser can join in right away.",
+  "helpSectionOwnServerBody": "You can also run your own server on a computer on the Wi-Fi. A ready-made program for Mac, Windows and Linux is in preparation. You then enter its address in Klunki under “Advanced” with “change”.",
   "helpSectionComingTitle": "Easier soon (in preparation)",
   "helpSectionComingBody": "These ways to get a server are in preparation:\n• A server on the internet for a circle of friends (with Cloudflare, free)\n• A ready-made program to download for Mac, Windows and Linux\n• Docker for a NAS or Raspberry Pi\n\nServers on the internet are usually protected with a club code.",
   "helpSectionClubTitle": "What is a club code?",

@@ -1429,7 +1429,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpSectionOwnServerBody =>
-      '在 Wi-Fi 中的一台电脑上，在 Klunki 目录里启动“klunki relay”。电脑会显示它的地址，例如 192.168.1.20:4749。\n\n在 Klunki 的“高级”里点“更改”，输入这个地址。在浏览器中打开这个地址的人可以马上一起玩。';
+      '你们也可以在 Wi-Fi 中的一台电脑上运行你们的服务器。适用于 Mac、Windows 和 Linux 的现成应用正在准备中。然后在 Klunki 的“高级”里点“更改”，输入它的地址。';
 
   @override
   String get helpSectionComingTitle => '即将更简单（准备中）';

@@ -50,8 +50,9 @@ list lines by `\n` and start with `• `. The order is fixed in one place, `help
 2. `helpSectionRoomsTitle` / `helpSectionRoomsBody` – Mit anderen spielen
 3. `helpSectionWifiTitle` / `helpSectionWifiBody` – Im selben WLAN (the app is the server)
 4. `helpSectionServerTitle` / `helpSectionServerBody` – Wann braucht ihr einen Server?
-5. `helpSectionOwnServerTitle` / `helpSectionOwnServerBody` – Eigener Server im WLAN; the app shows the start
-   command (`relayStartCommand`) after this section (`helpCommandSection`); a site script may do the same
+5. `helpSectionOwnServerTitle` / `helpSectionOwnServerBody` – Eigener Server im WLAN; no command line in
+   the app help (follow-up, maintainer: the `dart run … relay` block was developer-only; the text says a
+   ready-made program for Mac, Windows and Linux is in preparation)
 6. `helpSectionComingTitle` / `helpSectionComingBody` – Bald einfacher (in Vorbereitung): Cloudflare, download,
    Docker; no links yet
 7. `helpSectionClubTitle` / `helpSectionClubBody` – Was ist ein Clubcode?

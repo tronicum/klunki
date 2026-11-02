@@ -1503,7 +1503,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get helpSectionOwnServerBody =>
-      'على حاسوب في شبكة Wi-Fi، شغّلوا «klunki relay» في مجلد Klunki. يعرض الحاسوب عندها عنوانه، مثلًا 192.168.1.20:4749.\n\nأدخلوا هذا العنوان في Klunki في «متقدم» عبر «تغيير». من يفتحه في المتصفح يمكنه اللعب فورًا.';
+      'يمكنكم أيضًا تشغيل خادم خاص بكم على حاسوب في شبكة Wi-Fi. برنامج جاهز لـ Mac وWindows وLinux قيد التحضير. بعد ذلك أدخلوا عنوانه في Klunki في «متقدم» عبر «تغيير».';
 
   @override
   String get helpSectionComingTitle => 'قريبًا أسهل (قيد التحضير)';

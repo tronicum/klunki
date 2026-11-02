@@ -1488,7 +1488,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get helpSectionOwnServerBody =>
-      'Sur un ordinateur du Wi-Fi, lancez « klunki relay » dans le dossier de Klunki. L’ordinateur affiche alors son adresse, par exemple 192.168.1.20:4749.\n\nSaisissez cette adresse dans Klunki sous « Avancé » avec « modifier ». Qui l’ouvre dans un navigateur peut jouer tout de suite.';
+      'Vous pouvez aussi faire tourner votre propre serveur sur un ordinateur du Wi-Fi. Un programme prêt à l’emploi pour Mac, Windows et Linux est en préparation. Vous saisissez ensuite son adresse dans Klunki sous « Avancé » avec « modifier ».';
 
   @override
   String get helpSectionComingTitle => 'Bientôt plus simple (en préparation)';

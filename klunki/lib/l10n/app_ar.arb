@@ -376,7 +376,7 @@
   "helpSectionServerTitle": "متى تحتاجون إلى خادم؟",
   "helpSectionServerBody": "فقط إذا كان الجميع يلعبون في المتصفح أو إذا لم تكونوا على شبكة Wi-Fi نفسها. ينقل الخادم النقلات بين أجهزتكم.\n\nيعرف Klunki من العنوان نوع الخادم: «خادم في شبكة Wi-Fi» أو «خادم على الإنترنت».",
   "helpSectionOwnServerTitle": "خادم خاص بكم في شبكة Wi-Fi",
-  "helpSectionOwnServerBody": "على حاسوب في شبكة Wi-Fi، شغّلوا «klunki relay» في مجلد Klunki. يعرض الحاسوب عندها عنوانه، مثلًا 192.168.1.20:4749.\n\nأدخلوا هذا العنوان في Klunki في «متقدم» عبر «تغيير». من يفتحه في المتصفح يمكنه اللعب فورًا.",
+  "helpSectionOwnServerBody": "يمكنكم أيضًا تشغيل خادم خاص بكم على حاسوب في شبكة Wi-Fi. برنامج جاهز لـ Mac وWindows وLinux قيد التحضير. بعد ذلك أدخلوا عنوانه في Klunki في «متقدم» عبر «تغيير».",
   "helpSectionComingTitle": "قريبًا أسهل (قيد التحضير)",
   "helpSectionComingBody": "هذه الطرق للحصول على خادم قيد التحضير:\n• خادم على الإنترنت لمجموعات الأصدقاء (مع Cloudflare، مجانًا)\n• برنامج جاهز للتنزيل لأجهزة Mac وWindows وLinux\n• Docker لأجهزة NAS أو Raspberry Pi\n\nالخوادم على الإنترنت محمية غالبًا برمز النادي.",
   "helpSectionClubTitle": "ما هو رمز النادي؟",

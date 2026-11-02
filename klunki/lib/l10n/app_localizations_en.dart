@@ -1475,7 +1475,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpSectionOwnServerBody =>
-      'On a computer on the Wi-Fi, start “klunki relay” in the Klunki folder. The computer then shows its address, for example 192.168.1.20:4749.\n\nEnter that address in Klunki under “Advanced” with “change”. Anyone who opens it in a browser can join in right away.';
+      'You can also run your own server on a computer on the Wi-Fi. A ready-made program for Mac, Windows and Linux is in preparation. You then enter its address in Klunki under “Advanced” with “change”.';
 
   @override
   String get helpSectionComingTitle => 'Easier soon (in preparation)';

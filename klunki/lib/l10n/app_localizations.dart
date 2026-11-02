@@ -2358,10 +2358,10 @@ abstract class AppLocalizations {
   /// **'Eigener Server im WLAN'**
   String get helpSectionOwnServerTitle;
 
-  /// KLD-113 help section 4: own server on the Wi-Fi. The app shows the start command after this text. Button names must match roomAdvanced / relayChange.
+  /// KLD-113 help section 4: own server on the Wi-Fi (no command line: a ready-made server program is in preparation). Button names must match roomAdvanced / relayChange.
   ///
   /// In de, this message translates to:
-  /// **'Auf einem Rechner im WLAN startet ihr im Klunki-Ordner „klunki relay“. Der Rechner zeigt dann seine Adresse an, zum Beispiel 192.168.1.20:4749.\n\nTragt die Adresse in Klunki unter „Erweitert“ bei „ändern“ ein. Wer sie im Browser öffnet, kann gleich mitspielen.'**
+  /// **'Ihr könnt auch einen eigenen Server auf einem Rechner im WLAN laufen lassen. Ein fertiges Programm für Mac, Windows und Linux ist in Vorbereitung. Die Adresse tragt ihr dann in Klunki unter „Erweitert“ bei „ändern“ ein.'**
   String get helpSectionOwnServerBody;
 
   /// KLD-113 help section 5 title: ready-made servers, not available yet.

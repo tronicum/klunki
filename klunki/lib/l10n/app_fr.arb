@@ -376,7 +376,7 @@
   "helpSectionServerTitle": "Quand faut-il un serveur ?",
   "helpSectionServerBody": "Seulement si tout le monde joue dans un navigateur ou si vous n’êtes pas sur le même Wi-Fi. Le serveur transmet les coups entre vos appareils.\n\nKlunki reconnaît à l’adresse de quel serveur il s’agit : « Serveur sur le Wi-Fi » ou « Serveur sur Internet ».",
   "helpSectionOwnServerTitle": "Votre propre serveur sur le Wi-Fi",
-  "helpSectionOwnServerBody": "Sur un ordinateur du Wi-Fi, lancez « klunki relay » dans le dossier de Klunki. L’ordinateur affiche alors son adresse, par exemple 192.168.1.20:4749.\n\nSaisissez cette adresse dans Klunki sous « Avancé » avec « modifier ». Qui l’ouvre dans un navigateur peut jouer tout de suite.",
+  "helpSectionOwnServerBody": "Vous pouvez aussi faire tourner votre propre serveur sur un ordinateur du Wi-Fi. Un programme prêt à l’emploi pour Mac, Windows et Linux est en préparation. Vous saisissez ensuite son adresse dans Klunki sous « Avancé » avec « modifier ».",
   "helpSectionComingTitle": "Bientôt plus simple (en préparation)",
   "helpSectionComingBody": "Ces façons d’avoir un serveur sont en préparation :\n• Serveur sur Internet pour un cercle d’amis (avec Cloudflare, gratuit)\n• Programme prêt à télécharger pour Mac, Windows et Linux\n• Docker pour NAS ou Raspberry Pi\n\nLes serveurs sur Internet sont le plus souvent protégés par un code du club.",
   "helpSectionClubTitle": "C’est quoi, un code du club ?",
