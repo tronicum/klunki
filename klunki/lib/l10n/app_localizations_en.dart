@@ -2141,6 +2141,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wordtilesBenchHint => 'Drag tiles here to try out words.';
 
   @override
+  String get wordtilesPassTitle => 'Pass?';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'Your turn ends without points. Scoreless turns in a row: $count of $limit. At $limit the game ends.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'The blank scores 0 points.';
+
+  @override
+  String get wordtilesHelp => 'How to play';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'Lay words like in a crossword. Every letter has points (the small number). The first word goes over the star in the middle, every further word connects.';
+
+  @override
+  String get wordtilesHelpPremium => 'Premium squares';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'Letter counts double';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'Letter counts triple';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'Whole word counts double';
+
+  @override
+  String get wordtilesHelpTripleWord => 'Whole word counts triple';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'Premium squares count only in the turn a tile is laid on them.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'All $count tiles laid in one turn: $bonus extra points.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'The blank becomes any letter you choose but scores 0 points. It shows a small 0.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'Swap: tiles back into the bag, draw new ones. Only while at least $count tiles are in the bag, and it uses up the turn.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'Pass: you skip a turn. After $limit scoreless turns in a row the game ends.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'With “Check the dictionary” every word is looked up when laid. If one is missing, take the tiles back or allow it together: “Allow anyway”. Allowed words appear in the history.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'Without the dictionary the last word can be challenged: the tiles go back and score nothing.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'Try out words on the bench. It shows only the letter points, not whether it is a word.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'The game ends when the bag is empty and someone has laid all tiles. The points of the tiles left are subtracted; whoever finished gets them added.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'Tiles left: $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'Best word: $word ($player, $score points)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'Allowed anyway: $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'All tiles played, final score $a : $b';
   }

@@ -2077,6 +2077,88 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesBenchHint => '把牌拖到这里试试组字。';
 
   @override
+  String get wordtilesPassTitle => '过本轮？';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return '本轮不得分。连续不得分的轮数：$count/$limit。到 $limit 时本局结束。';
+  }
+
+  @override
+  String get wordtilesBlankScore => '空白牌 0 分。';
+
+  @override
+  String get wordtilesHelp => '玩法';
+
+  @override
+  String get wordtilesHelpGoal =>
+      '像填字一样出牌组字。每张牌有分数（小数字）。第一组字必须经过中间格，之后每组字都要与棋盘上的字相连。';
+
+  @override
+  String get wordtilesHelpPremium => '奖分格';
+
+  @override
+  String get wordtilesHelpDoubleLetter => '字母分数×2';
+
+  @override
+  String get wordtilesHelpTripleLetter => '字母分数×3';
+
+  @override
+  String get wordtilesHelpDoubleWord => '全组字分数×2';
+
+  @override
+  String get wordtilesHelpTripleWord => '全组字分数×3';
+
+  @override
+  String get wordtilesHelpPremiumOnce => '奖分格只在放上牌的那一轮算数。';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return '一轮出完全部 $count 张牌：另加 $bonus 分。';
+  }
+
+  @override
+  String get wordtilesHelpBlank => '空白牌可以是你选的任何字母，但只算 0 分。牌上有一个小 0。';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return '换牌：把牌放回牌堆，再取新牌。牌堆不少于 $count 张时才能换，并用掉本轮。';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return '过：本轮不出牌。连续 $limit 轮不得分时本局结束。';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      '选了“查字典”时，每组字出牌后查字典。字典里没有时，你们取回这些牌，或都同意后选“仍然接受”。接受的字会记在记录里。';
+
+  @override
+  String get wordtilesHelpChallenge => '没有字典时可以否认上一组字：这些牌被取回，不得分。';
+
+  @override
+  String get wordtilesHelpBench => '在试牌上可以试试组字。只显示字母的分数，不显示是不是字。';
+
+  @override
+  String get wordtilesHelpEnd => '牌堆空了且有人出完所有牌时，本局结束。剩余的牌按分数失分；出完牌的人得到这些分数。';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return '剩余牌：$points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return '最高分的字：$word（$player，$score 分）';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return '仍然接受：$words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return '所有牌已出完，比分 $a : $b';
   }

@@ -5,6 +5,7 @@
 // Skipped unless KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/wordtiles flutter test test/screenshots/wordtiles_shots_test.dart
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -192,6 +193,7 @@ void main() {
       // Six passes end the game.
       for (var i = 0; i < 6; i++) {
         await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+        await _tap(tester, find.byKey(const Key('wordtiles-pass-confirm')));
         await tester.pumpAndSettle();
         if (find.byKey(const Key('handover-continue')).evaluate().isNotEmpty) {
           await _tap(tester, find.byKey(const Key('handover-continue')));
@@ -278,4 +280,117 @@ void main() {
       });
     }
   });
+
+  // KLD-094 step 5 (hot-seat polish): score bar without names, the blank's
+  // "0", the bench over the board on small phones, the pass confirmation,
+  // "So geht's" and the result summary (`--plain-name kld094-step5`).
+  group('kld094-step5', () {
+    const sizes = [
+      ('iphone-se', Size(375, 667)),
+      ('iphone-se-landscape', Size(667, 375)),
+      ('iphone', Size(390, 844)),
+      ('ipad-landscape', Size(1180, 820)),
+    ];
+    const dict = GameConfig('wordtiles', seed: 1, dictionary: true);
+    const anna = ['B', 'A', 'U', 'M', 'E', 'N', '?'];
+
+    for (final (name, size) in sizes) {
+      testWidgets('polish $name', skip: skip, (tester) async {
+        await tester.runAsync(() => WordListLoader.ensure('de'));
+        final c = await _pump(tester, size, config: dict, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
+        await _shot(tester, 'polish-$name-1-start');
+        if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isEmpty) {
+          await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pumpAndSettle();
+        }
+        for (final (t, r, s) in [('B', 0, 1), ('A', 0, 2), ('U', 0, 3), ('M', 0, 4)]) {
+          await tester.ensureVisible(find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await tester.ensureVisible(find.byKey(Key('wordtiles-bench-$r-$s')));
+          await _tap(tester, find.byKey(Key('wordtiles-bench-$r-$s')));
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, 'polish-$name-2-bench-open');
+        // Lay U A M from the bench with the bench still open (squares under
+        // the overlay are not reachable: lay where the board shows).
+        for (final (t, col) in [('U', 7), ('A', 6), ('B', 5), ('M', 8)]) {
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await tester.ensureVisible(find.byKey(Key('wordtiles-sq-7-$col')));
+          await _tap(tester, find.byKey(Key('wordtiles-sq-7-$col')));
+          await tester.pumpAndSettle();
+        }
+        await _shot(tester, 'polish-$name-3-laid-bench-open');
+        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'polish-$name-4-laid-bench-closed');
+        await _tap(tester, find.byKey(const Key('wordtiles-recall')));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-pass')));
+        await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'polish-$name-5-pass-confirm');
+        await _tap(tester, find.byKey(const Key('wordtiles-pass-cancel')));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-help')));
+        await _tap(tester, find.byKey(const Key('wordtiles-help')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'polish-$name-6-help');
+        await tester.drag(find.byKey(const Key('wordtiles-help-sheet')), const Offset(0, -600));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'polish-$name-7-help-scrolled');
+      });
+    }
+
+    testWidgets('dictionary loading dialog', skip: skip, (tester) async {
+      tester.view.physicalSize = const Size(375, 667) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      // A bundle that never answers: the dialog stays for the shot.
+      WordListLoader.bundle = _NeverBundle();
+      addTearDown(() {
+        WordListLoader.bundle = null;
+        WordListLoader.reset();
+      });
+      WordListLoader.reset();
+      await _pumpScreen(tester, child: const Scaffold(body: SizedBox.expand()));
+      unawaited(loadWordListWithProgress(tester.element(find.byType(Scaffold)), 'de'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('wordtiles-dict-loading')), findsOneWidget);
+      await _shot(tester, 'polish-dictionary-loading');
+    });
+
+    for (final (name, size, locale) in [
+      ('iphone-se', const Size(375, 667), const Locale('de')),
+      ('iphone-se-en', const Size(375, 667), const Locale('en')),
+      ('ipad-landscape', const Size(1180, 820), const Locale('de')),
+    ]) {
+      testWidgets('result $name', skip: skip, (tester) async {
+        await tester.runAsync(() => WordListLoader.ensure('de'));
+        tester.view.physicalSize = size * 2;
+        tester.view.devicePixelRatio = 2;
+        addTearDown(tester.view.reset);
+        final c = GameController.hotSeat(dict);
+        addTearDown(c.dispose);
+        (c.game as WordTilesGame).debugSetup(racks: const [
+          ['H', 'A', 'U', 'S', 'Y'],
+          ['I'],
+        ], bag: const []);
+        await _pumpScreen(tester, locale: locale, child: buildGameScreen(c));
+        await _submit(tester, c, [(7, 4, 'H', null), (7, 5, 'A', null), (7, 6, 'U', null), (7, 7, 'S', null)]);
+        // Ben's I makes HAUSI: not in the list, both allow it; Ben is out.
+        final r = await c.submit(WordTilesGame.placeMove([const PlacedTile(7, 8, 'I')], allow: const ['HAUSI']));
+        expect(r.isAccepted, isTrue);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('result-dialog')), findsOneWidget);
+        expect(find.byKey(const Key('wordtiles-result-allowed')), findsOneWidget);
+        await _shot(tester, 'polish-result-$name');
+      });
+    }
+  });
+}
+
+class _NeverBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) => Completer<ByteData>().future;
 }

@@ -2165,6 +2165,93 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesBenchHint => 'اسحب الحروف إلى هنا لتجرّب كلمات.';
 
   @override
+  String get wordtilesPassTitle => 'تمرير الدور؟';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'ينتهي دورك بلا نقاط. أدوار متتالية بلا نقاط: $count من $limit. عند $limit تنتهي اللعبة.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'البلاطة الفارغة تساوي 0 نقاط.';
+
+  @override
+  String get wordtilesHelp => 'طريقة اللعب';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'ضعوا كلمات كما في الكلمات المتقاطعة. لكل حرف نقاط (الرقم الصغير). تمرّ الكلمة الأولى على النجمة في الوسط، وكل كلمة بعدها تتصل بما على اللوح.';
+
+  @override
+  String get wordtilesHelpPremium => 'مربعات المكافأة';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'الحرف يُحسب مرتين';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'الحرف يُحسب ثلاث مرات';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'الكلمة كلها تُحسب مرتين';
+
+  @override
+  String get wordtilesHelpTripleWord => 'الكلمة كلها تُحسب ثلاث مرات';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'تُحسب مربعات المكافأة فقط في الدور الذي يوضع فيه حرف عليها.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'وضع الحروف الـ$count كلها في دور واحد: $bonus نقطة إضافية.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'البلاطة الفارغة تصير أي حرف تختاره لكنها تساوي 0 نقاط. يظهر عليها 0 صغير.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'التبديل: أعد حروفًا إلى الكيس واسحب غيرها. ممكن فقط ما دام في الكيس $count حروف على الأقل، ويستهلك الدور.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'التمرير: تتخطى دورًا. بعد $limit أدوار متتالية بلا نقاط تنتهي اللعبة.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'مع «التحقق من القاموس» يُبحث عن كل كلمة عند وضعها. إن لم تكن فيه، اسحبوا الحروف أو اقبلوها معًا: «اقبل رغم ذلك». تظهر الكلمات المقبولة في السجل.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'بدون قاموس يمكن الاعتراض على الكلمة الأخيرة: تُسحب الحروف ولا تُحسب نقاط.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'على مقعد التجربة تجرّب الكلمات. يعرض نقاط الحروف فقط، لا إن كانت كلمة.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'تنتهي اللعبة حين يفرغ الكيس ويضع أحدهم كل حروفه. تُطرح نقاط الحروف الباقية، ومن أنهى يحصل عليها.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'الحروف الباقية: $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'أفضل كلمة: $word ($player، $score نقطة)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'قُبلت رغم ذلك: $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'وُضعت كل البلاطات، النتيجة النهائية $a : $b';
   }

@@ -23,6 +23,8 @@ import 'live_ui_driver.dart';
 
 /// The text of [t] as the screen shows it (German, default names Anna / Ben).
 String turnText(AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
+      'place' when t.allowed.isNotEmpty =>
+        l10n.wordtilesMovePlaceAllowed(t.words.join(', '), t.score, t.allowed.join(', ')),
       'place' => l10n.wordtilesMovePlace(t.words.join(', '), t.score),
       'exchange' => l10n.wordtilesMoveExchange(t.count),
       'pass' => l10n.wordtilesMovePass,
@@ -107,6 +109,8 @@ class WordTilesAdapter extends LiveUiAdapter {
     if (r < 0.06) {
       tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
       await d.tapKey(tester, const Key('wordtiles-pass'));
+      await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
+      await tester.pumpAndSettle();
       return {'action': 'pass'};
     }
     final rack = g.rackOf(g.currentSeat);
@@ -137,26 +141,50 @@ class WordTilesAdapter extends LiveUiAdapter {
     if (best == null) {
       tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
       await d.tapKey(tester, const Key('wordtiles-pass'));
+      await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
+      await tester.pumpAndSettle();
       return {'action': 'pass'};
     }
     tapped.update('place', (n) => n + 1, ifAbsent: () => 1);
+    await lay(tester, d, g, best);
+    final preview = d.on(find.byKey(const Key('wordtiles-preview')));
+    expect(preview, findsOneWidget, reason: '${d.name}: score preview for $best');
+    expect(tester.widget<Text>(preview).data, endsWith('$bestScore Punkte'));
+    await d.tapKey(tester, const Key('wordtiles-play'));
+    return best;
+  }
+
+  /// Lays the tiles of [move] like a user: rack tile, then square (a blank
+  /// through the letter picker). On a phone the board zooms in on the first
+  /// tile; a square outside the zoomed view is reached by zooming out first.
+  Future<void> lay(WidgetTester tester, UiDevice d, WordTilesGame g, Map<String, dynamic> move) async {
+    final rack = g.rackOf(g.currentSeat);
     final used = <int>{};
-    for (final t in (best['tiles'] as List).cast<Map<String, dynamic>>()) {
+    for (final t in (move['tiles'] as List).cast<Map<String, dynamic>>()) {
       final i = [for (var k = 0; k < rack.length; k++) if (rack[k] == t['tile'] && !used.contains(k)) k].first;
       used.add(i);
       await d.tapKey(tester, Key('wordtiles-rack-$i'));
-      await d.tapKey(tester, Key('wordtiles-sq-${t['row']}-${t['col']}'));
+      final sq = Key('wordtiles-sq-${t['row']}-${t['col']}');
+      if (!_onScreen(tester, d, sq)) {
+        await d.tapKey(tester, const Key('wordtiles-zoom'));
+        await tester.pumpAndSettle();
+      }
+      await d.tapKey(tester, sq);
       if (t['tile'] == TileSet.blank) {
         await tester.pumpAndSettle();
         await d.tapKey(tester, Key('wordtiles-blank-${t['letter']}'));
         await tester.pumpAndSettle();
       }
     }
-    final preview = d.on(find.byKey(const Key('wordtiles-preview')));
-    expect(preview, findsOneWidget, reason: '${d.name}: score preview for $best');
-    expect(tester.widget<Text>(preview).data, endsWith('$bestScore Punkte'));
-    await d.tapKey(tester, const Key('wordtiles-play'));
-    return best;
+  }
+
+  /// The square's centre is inside the visible (clipped) board.
+  bool _onScreen(WidgetTester tester, UiDevice d, Key sq) {
+    final f = d.on(find.byKey(sq));
+    if (f.evaluate().isEmpty) return false;
+    final hit = tester.hitTestOnBinding(tester.getCenter(f));
+    final box = tester.renderObject(f);
+    return hit.path.any((e) => e.target == box);
   }
 
   @override
@@ -175,5 +203,87 @@ class WordTilesAdapter extends LiveUiAdapter {
           source: 'engine',
         ),
     ];
+  }
+}
+
+/// With the word list ("Wörterbuch prüfen", KLD-094 step 5): no challenges;
+/// only placements the list accepts, except one early placement with a word
+/// the list lacks, which the players let stand with "Trotzdem zulassen" at
+/// the notice after "Legen". One swap and one pass (with its confirmation)
+/// follow on purpose; then the best accepted sample placement, else a pass,
+/// until the game ends.
+class WordTilesDictionaryAdapter extends WordTilesAdapter {
+  @override
+  Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
+    final c = d.controller(tester);
+    final g = c.game as WordTilesGame;
+    if (g.isOver) return null;
+    expect(g.canChallenge, isFalse, reason: 'no challenges with the word list');
+    final legal = [
+      for (final m in g.legalMoves)
+        if (m['action'] == 'place') m,
+    ];
+    if ((tapped['allow'] ?? 0) == 0 && g.boardEmpty) {
+      // legalMoves only offers words the list knows: build an opening pair
+      // through the centre that it lacks.
+      final rack = g.rackOf(g.currentSeat);
+      Map<String, dynamic>? odd;
+      for (var i = 0; i < rack.length && odd == null; i++) {
+        for (var j = 0; j < rack.length && odd == null; j++) {
+          if (i == j || rack[i] == TileSet.blank || rack[j] == TileSet.blank) continue;
+          final m = WordTilesGame.placeMove([PlacedTile(7, 7, rack[i]), PlacedTile(7, 8, rack[j])]);
+          if (g.checkPlacement(m, checkWords: false).ok && g.unknownWords(m).isNotEmpty) odd = m;
+        }
+      }
+      if (odd != null) {
+        tapped.update('allow', (n) => n + 1, ifAbsent: () => 1);
+        final unknown = g.unknownWords(odd);
+        await lay(tester, d, g, odd);
+        // The preview shows the score, never whether it is a word.
+        expect(d.on(find.byKey(const Key('wordtiles-preview'))), findsOneWidget);
+        await d.tapKey(tester, const Key('wordtiles-play'));
+        await tester.pumpAndSettle();
+        expect(d.on(find.byKey(const Key('wordtiles-unknown'))), findsOneWidget, reason: '${d.name}: $odd');
+        await d.tapKey(tester, const Key('wordtiles-unknown-allow'));
+        await tester.pumpAndSettle();
+        return {...odd, 'allow': unknown};
+      }
+    }
+    if ((tapped['exchange'] ?? 0) == 0 && (tapped['allow'] ?? 0) > 0 && g.canExchange) {
+      tapped.update('exchange', (n) => n + 1, ifAbsent: () => 1);
+      final rack = g.rackOf(g.currentSeat);
+      await d.tapKey(tester, const Key('wordtiles-exchange'));
+      await d.tapKey(tester, const Key('wordtiles-rack-0'));
+      await d.tapKey(tester, const Key('wordtiles-rack-1'));
+      await d.tapKey(tester, const Key('wordtiles-exchange-confirm'));
+      return {
+        'action': 'exchange',
+        'tiles': [rack[0], rack[1]],
+      };
+    }
+    Map<String, dynamic>? best;
+    var bestScore = -1;
+    for (final m in legal) {
+      final p = g.checkPlacement(m);
+      if (p.ok && p.score > bestScore) {
+        best = m;
+        bestScore = p.score;
+      }
+    }
+    if (best == null || ((tapped['pass'] ?? 0) == 0 && (tapped['exchange'] ?? 0) > 0)) {
+      tapped.update('pass', (n) => n + 1, ifAbsent: () => 1);
+      await d.tapKey(tester, const Key('wordtiles-pass'));
+      await tester.pumpAndSettle();
+      expect(d.on(find.byKey(const Key('wordtiles-pass-dialog'))), findsOneWidget);
+      await d.tapKey(tester, const Key('wordtiles-pass-confirm'));
+      await tester.pumpAndSettle();
+      return {'action': 'pass'};
+    }
+    tapped.update('place', (n) => n + 1, ifAbsent: () => 1);
+    await lay(tester, d, g, best);
+    await d.tapKey(tester, const Key('wordtiles-play'));
+    await tester.pumpAndSettle();
+    expect(d.on(find.byKey(const Key('wordtiles-unknown'))), findsNothing, reason: '${d.name}: $best');
+    return best;
   }
 }

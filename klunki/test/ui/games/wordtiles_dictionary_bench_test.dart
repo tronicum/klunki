@@ -265,6 +265,7 @@ void main() {
       expect(find.byKey(const Key('wordtiles-bench-score-0')), findsNothing);
       expect(find.text('Zieh Steine hierher und probier Wörter aus.'), findsOneWidget);
       await _tap(tester, find.byKey(const Key('wordtiles-pass')));
+      await _tap(tester, find.byKey(const Key('wordtiles-pass-confirm')));
       await _tap(tester, find.byKey(handoverContinue));
       // Anna's U M are still on her bench (her rack changed: B A were laid).
       final rack = _game(c).rackOf(0);

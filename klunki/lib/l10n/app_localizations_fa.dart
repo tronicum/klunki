@@ -2134,6 +2134,93 @@ class AppLocalizationsFa extends AppLocalizations {
       'حرف‌ها را اینجا بکشید تا واژه‌ها را امتحان کنید.';
 
   @override
+  String get wordtilesPassTitle => 'نوبت را رد می‌کنی؟';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'نوبتت بدون امتیاز تمام می‌شود. نوبت‌های پشت‌سرهم بدون امتیاز: $count از $limit. با $limit بازی تمام می‌شود.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'کاشی خالی 0 امتیاز دارد.';
+
+  @override
+  String get wordtilesHelp => 'روش بازی';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'مثل جدول کلمات متقاطع واژه بگذارید. هر حرف امتیاز دارد (عدد کوچک). واژهٔ اول از روی ستارهٔ وسط می‌گذرد و هر واژهٔ بعدی به واژه‌های روی صفحه وصل می‌شود.';
+
+  @override
+  String get wordtilesHelpPremium => 'خانه‌های جایزه';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'امتیاز حرف دوبرابر';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'امتیاز حرف سه‌برابر';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'امتیاز کل واژه دوبرابر';
+
+  @override
+  String get wordtilesHelpTripleWord => 'امتیاز کل واژه سه‌برابر';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'خانه‌های جایزه فقط در نوبتی حساب می‌شوند که کاشی روی آن‌ها گذاشته شود.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'هر $count کاشی در یک نوبت: $bonus امتیاز اضافه.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'کاشی خالی هر حرفی می‌شود که انتخاب کنی، اما 0 امتیاز دارد. یک 0 کوچک رویش دیده می‌شود.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'عوض کردن: کاشی‌ها را به کیسه برگردان و کاشی تازه بردار. فقط تا وقتی که دست‌کم $count کاشی در کیسه باشد، و نوبت را می‌گیرد.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'رد کردن: یک نوبت را رد می‌کنی. بعد از $limit نوبت پشت‌سرهم بدون امتیاز، بازی تمام می‌شود.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'با «بررسی با واژه‌نامه» هر واژه هنگام گذاشتن جست‌وجو می‌شود. اگر نبود، کاشی‌ها را پس بگیرید یا با هم بپذیرید: «به‌هرحال بپذیر». واژه‌های پذیرفته‌شده در تاریخچه می‌آیند.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'بدون واژه‌نامه می‌توان به واژهٔ آخر اعتراض کرد: کاشی‌ها پس گرفته می‌شوند و امتیازی ندارند.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'روی نیمکت تمرین واژه‌ها را امتحان می‌کنی. فقط امتیاز حرف‌ها را نشان می‌دهد، نه این‌که واژه هست یا نه.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'بازی وقتی تمام می‌شود که کیسه خالی باشد و کسی همهٔ کاشی‌هایش را گذاشته باشد. امتیاز کاشی‌های باقی‌مانده کم می‌شود و کسی که تمام کرده آن را می‌گیرد.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'کاشی‌های باقی‌مانده: $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'بهترین واژه: $word ($player، $score امتیاز)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'پذیرفته‌شده به‌هرحال: $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'همهٔ کاشی‌ها گذاشته شد، نتیجهٔ نهایی $a : $b';
   }

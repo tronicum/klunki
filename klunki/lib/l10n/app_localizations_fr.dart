@@ -2162,6 +2162,93 @@ class AppLocalizationsFr extends AppLocalizations {
       'Glisse des lettres ici pour essayer des mots.';
 
   @override
+  String get wordtilesPassTitle => 'Passer ?';
+
+  @override
+  String wordtilesPassBody(int count, int limit) {
+    return 'Ton tour se termine sans points. Tours sans points d’affilée : $count sur $limit. À $limit, la partie se termine.';
+  }
+
+  @override
+  String get wordtilesBlankScore => 'Le joker vaut 0 point.';
+
+  @override
+  String get wordtilesHelp => 'Comment jouer';
+
+  @override
+  String get wordtilesHelpGoal =>
+      'Posez des mots comme dans des mots croisés. Chaque lettre a des points (le petit chiffre). Le premier mot passe par l’étoile au milieu, chaque mot suivant s’y raccroche.';
+
+  @override
+  String get wordtilesHelpPremium => 'Cases bonus';
+
+  @override
+  String get wordtilesHelpDoubleLetter => 'Lettre compte double';
+
+  @override
+  String get wordtilesHelpTripleLetter => 'Lettre compte triple';
+
+  @override
+  String get wordtilesHelpDoubleWord => 'Mot entier compte double';
+
+  @override
+  String get wordtilesHelpTripleWord => 'Mot entier compte triple';
+
+  @override
+  String get wordtilesHelpPremiumOnce =>
+      'Les cases bonus ne comptent qu’au tour où une lettre y est posée.';
+
+  @override
+  String wordtilesHelpBingo(int count, int bonus) {
+    return 'Les $count lettres posées en un seul tour : $bonus points en plus.';
+  }
+
+  @override
+  String get wordtilesHelpBlank =>
+      'Le joker (lettre blanche) devient la lettre de ton choix mais vaut 0 point. Il affiche un petit 0.';
+
+  @override
+  String wordtilesHelpSwap(int count) {
+    return 'Échanger : remettre des lettres dans le sac et en piocher de nouvelles. Possible seulement tant qu’il reste au moins $count lettres dans le sac ; cela prend le tour.';
+  }
+
+  @override
+  String wordtilesHelpPass(int limit) {
+    return 'Passer : tu sautes un tour. Après $limit tours d’affilée sans points, la partie se termine.';
+  }
+
+  @override
+  String get wordtilesHelpDictionary =>
+      'Avec « Vérifier dans le dictionnaire », chaque mot est vérifié à la pose. S’il manque, reprenez les lettres ou acceptez-le ensemble : « Accepter quand même ». Les mots acceptés figurent dans l’historique.';
+
+  @override
+  String get wordtilesHelpChallenge =>
+      'Sans dictionnaire, le dernier mot peut être contesté : les lettres sont reprises et ne rapportent rien.';
+
+  @override
+  String get wordtilesHelpBench =>
+      'Sur le banc d’essai, tu essaies des mots. Il n’affiche que les points des lettres, pas si c’est un mot.';
+
+  @override
+  String get wordtilesHelpEnd =>
+      'La partie se termine quand le sac est vide et que quelqu’un a posé toutes ses lettres. Les points des lettres restantes sont retirés ; qui a fini les reçoit en plus.';
+
+  @override
+  String wordtilesResultRack(String points) {
+    return 'Lettres restantes : $points';
+  }
+
+  @override
+  String wordtilesResultBestWord(String word, String player, int score) {
+    return 'Meilleur mot : $word ($player, $score points)';
+  }
+
+  @override
+  String wordtilesResultAllowed(String words) {
+    return 'Acceptés quand même : $words';
+  }
+
+  @override
   String engineReasonWordtilesPlayedOut(int a, int b) {
     return 'Toutes les tuiles posées, score final $a : $b';
   }
