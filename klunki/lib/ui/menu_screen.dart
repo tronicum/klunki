@@ -260,9 +260,9 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ),
-                    // Games not in the app yet (KLD-094), debug builds only;
-                    // "Mit anderen" like a game tile's link (KLD-094 step 6:
-                    // Wortgewandt plays over the network, not hot-seat only).
+                    // Games not in the app yet (`previewGames`, none since
+                    // KLD-094 step 7), debug builds only; "Mit anderen" like a
+                    // game tile's link unless the game is hot-seat only.
                     if (menuShowsDebugConsole)
                       for (final id in previewGames)
                         Wrap(

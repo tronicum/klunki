@@ -16,11 +16,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Choose a game'), findsOneWidget);
-    for (final title in ['Four in a Row', 'Mill', 'Quartett (Trumps)', 'Quartett (Sets)', 'Sink the Fleet']) {
+    for (final title in ['Four in a Row', 'Mill', 'Quartett (Trumps)', 'Quartett (Sets)', 'Sink the Fleet', 'Wordsmith']) {
       expect(find.text(title), findsOneWidget, reason: title);
     }
     expect(find.text('One device'), findsNWidgets(appGameSpecs.length));
-    // Plus the debug preview's link (KLD-094 step 6: Wortgewandt online).
+    // Plus the debug preview games' links (none since KLD-094 step 7).
     expect(find.text('With others'),
         findsNWidgets(networkGameSpecs.length + previewGames.where((id) => !hotSeatOnlyGames.contains(id)).length));
     expect(find.text('Pass the device'), findsNothing);

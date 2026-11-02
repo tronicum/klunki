@@ -59,14 +59,16 @@ Finder _address(int i, String text) => find.descendant(
 
 void main() {
   group('host', () {
-    // KLD-059 step 3: chess plays over the network; the word tile game not yet.
-    testWidgets('offers every network game, chess included', (tester) async {
+    // KLD-059 step 3: chess plays over the network; KLD-094 step 7: the word
+    // tile game too, now that it is released.
+    testWidgets('offers every network game, chess and Wortgewandt included', (tester) async {
       await _openPairing(tester, testDeps(discovery: FakeDiscovery(), created: CreatedTransports(), name: 'Annas Tablet'));
       expect(find.byKey(const Key('pair-game-muehle')), findsOneWidget);
       expect(find.byKey(const Key('pair-game-gostrategy')), findsOneWidget);
       expect(find.byKey(const Key('pair-game-chess')), findsOneWidget);
       expect(networkGameSpecs.map((s) => s.id), contains('chess'));
-      expect(networkGameSpecs.map((s) => s.id), isNot(contains('wordtiles')));
+      expect(find.byKey(const Key('pair-game-wordtiles')), findsOneWidget);
+      expect(networkGameSpecs.map((s) => s.id), contains('wordtiles'));
     });
 
     testWidgets('shows name, every address with the real port and the QR; advertises', (tester) async {

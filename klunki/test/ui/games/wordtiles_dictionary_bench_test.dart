@@ -131,8 +131,8 @@ void main() {
       WordLists.register('de', _list(['BAUM']));
       await tester.pumpWidget(klunkiApp());
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('menu-preview-wordtiles')));
-      await tester.tap(find.byKey(const Key('menu-preview-wordtiles')));
+      await tester.ensureVisible(find.byKey(const Key('menu-wordtiles-tile')));
+      await tester.tap(find.byKey(const Key('menu-wordtiles-tile')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('wordtiles-options')), findsOneWidget);
       final seg = tester.widget<SegmentedButton<String>>(find.byType(SegmentedButton<String>));
@@ -154,8 +154,8 @@ void main() {
     testWidgets('English app: English tiles by default; switching the language and the list off', (tester) async {
       await tester.pumpWidget(klunkiApp(locale: const Locale('en')));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('menu-preview-wordtiles')));
-      await tester.tap(find.byKey(const Key('menu-preview-wordtiles')));
+      await tester.ensureVisible(find.byKey(const Key('menu-wordtiles-tile')));
+      await tester.tap(find.byKey(const Key('menu-wordtiles-tile')));
       await tester.pumpAndSettle();
       expect(tester.widget<SegmentedButton<String>>(find.byType(SegmentedButton<String>)).selected, {'en'});
       await tester.tap(find.byKey(const Key('wordtiles-tiles-de')));

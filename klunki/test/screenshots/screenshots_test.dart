@@ -1107,6 +1107,35 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
       await tester.pump();
       return null;
     },
+    // KLD-094 step 7: Wortgewandt, three crossing words in the store
+    // language (de HAUS / STERN / BIRNE, en GAME / EARTH / LIGHT), the last
+    // one accepted: the next player's rack, no open placement.
+    '09-wordtiles': (tester, locale) async {
+      final de = locale.languageCode == 'de';
+      final c = await game(tester, GameConfig('wordtiles', seed: 7, tiles: de ? 'de' : 'en'), locale);
+      final (w1, w2, w3) = de ? ('HAUS', 'STERN', 'BIRNE') : ('GAME', 'EARTH', 'LIGHT');
+      (c.game as WordTilesGame).debugSetup(
+        racks: de
+            ? const [['H', 'A', 'U', 'S', 'E', 'I', 'N'], ['T', 'E', 'R', 'N', 'O', 'D', 'L']]
+            : const [['G', 'A', 'M', 'E', 'L', 'I', 'T'], ['A', 'R', 'T', 'H', 'O', 'S', 'N']],
+        bag: [...List.filled(30, 'E'), 'S', 'O', 'N', 'P', if (de) ...['B', 'R', 'K', 'D'] else ...['G', 'B', 'K', 'D']],
+      );
+      Future<void> submit(Map<String, dynamic> move) async {
+        expect((await c.submit(move)).isAccepted, isTrue, reason: '$move');
+        handover(c);
+      }
+
+      // Row 7 from column 5; down column 8 from row 7; row 11 from column 5.
+      await submit(WordTilesGame.placeMove([for (var i = 0; i < 4; i++) PlacedTile(7, 5 + i, w1[i])]));
+      await submit(WordTilesGame.placeMove([for (var i = 1; i < 5; i++) PlacedTile(7 + i, 8, w2[i])]));
+      await submit(WordTilesGame.placeMove([
+        for (var i = 0; i < 5; i++)
+          if (i != 3) PlacedTile(11, 5 + i, w3[i])
+      ]));
+      await submit(const {'action': 'accept'});
+      await tester.pump();
+      return null;
+    },
   };
 
   group(name, () {
