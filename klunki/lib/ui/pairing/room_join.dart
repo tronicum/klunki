@@ -15,9 +15,11 @@ import 'relay_line.dart';
 /// Joins room [code] on the relay at [relay] (`ws://host:port/relay`).
 typedef RelayJoinTransportFactory = Future<NetworkTransport> Function(Uri relay, String code, {required String name});
 
-/// The real thing: `NetworkTransport.joinRelay`.
+/// The real thing: `NetworkTransport.joinRelay`, with the club code saved
+/// for [relay] (KLD-112; the app's shared relay setting; a relay from a link
+/// gets none unless it is the saved one).
 Future<NetworkTransport> platformRelayJoin(Uri relay, String code, {required String name}) =>
-    NetworkTransport.joinRelay(relay, code, name: name);
+    NetworkTransport.joinRelay(relay, code, name: name, clubCode: RelaySettings.shared().clubCodeFor(relay));
 
 /// The room-code join (KLD-057b; KLD-098: "Raumcode eintippen" on "Raum
 /// beitreten"): a room-code field, a join button,

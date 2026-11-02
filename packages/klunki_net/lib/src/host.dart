@@ -111,6 +111,10 @@ class KlunkiHost {
   /// is lost later (relay restart, idle expiry, network loss), [events]
   /// emits a [NetError] starting with `relay` (after [PeerDisconnected] if a
   /// guest was connected); the session cannot continue in that room.
+  ///
+  /// [clubCode]: the club code of a gated relay (KLD-112; sent only to the
+  /// relay, never to the guest). A gated relay refuses a missing or wrong
+  /// one with `NetException("relay: club code required" / "… not accepted")`.
   static Future<KlunkiHost> startRelay(
     GameConfig config,
     Uri relayUrl, {
@@ -120,9 +124,10 @@ class KlunkiHost {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
     BuildCompat? compat,
+    String? clubCode,
   }) async {
     _validateLog(config, moves);
-    final relay = await RelayHostListener.connect(relayUrl, timeout: timeout);
+    final relay = await RelayHostListener.connect(relayUrl, timeout: timeout, clubCode: clubCode);
     return KlunkiHost._(
         config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, createGame(config),
         compat ?? BuildCompat())

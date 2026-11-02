@@ -43,6 +43,10 @@ export 'src/relay/relay_protocol.dart'
         roomCodeAlphabet,
         normalizeRoomCode,
         parseRelayUrl,
-        relayUriForPage;
+        relayUriForPage,
+        normalizeClubCode,
+        newClubCode,
+        relayClubMissingText,
+        relayClubWrongText;
 export 'src/names.dart' show maxPlayerNameLength, sanitizePlayerName, playerNameOr;
 export 'src/host.dart' show KlunkiHost;

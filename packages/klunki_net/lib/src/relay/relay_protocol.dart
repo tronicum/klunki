@@ -116,8 +116,66 @@ Uri? relayUriForPage(Uri page) {
   return Uri(scheme: scheme, host: page.host, port: page.hasPort ? page.port : null, path: relayPath);
 }
 
-/// The URL the host connects to: [relay] with `?create`.
-Uri relayCreateUri(Uri relay) => relay.replace(query: 'create');
+/// The URL the host connects to: [relay] with `?create` (and
+/// `&club=CODE` when [clubCode] is set, KLD-112).
+Uri relayCreateUri(Uri relay, {String? clubCode}) => relay.replace(
+    query: clubCode == null ? 'create' : 'create&$relayClubParam=${Uri.encodeQueryComponent(clubCode)}');
 
-/// The URL a guest connects to: [relay] with `?join=CODE`.
-Uri relayJoinUri(Uri relay, String code) => relay.replace(queryParameters: {'join': code});
+/// The URL a guest connects to: [relay] with `?join=CODE` (and
+/// `&club=CODE` when [clubCode] is set, KLD-112).
+Uri relayJoinUri(Uri relay, String code, {String? clubCode}) =>
+    relay.replace(queryParameters: {'join': code, if (clubCode != null) relayClubParam: clubCode});
+
+// ------------------------------------------------- club codes (KLD-112)
+
+/// Query parameter carrying the club code (server access code) of a gated
+/// relay (`klunki relay --codes FILE`). An open relay ignores it.
+const String relayClubParam = 'club';
+
+/// `relay.error` field naming a machine-readable refusal reason. Only club
+/// refusals carry it; `message` stays for people.
+const String relayErrorField = 'error';
+
+/// `relay.error {error: "club-missing"}`: the relay needs a club code and
+/// none was sent.
+const String relayErrorClubMissing = 'club-missing';
+
+/// `relay.error {error: "club-wrong"}`: the club code is unknown or revoked,
+/// or this address sent too many wrong codes (indistinguishable on purpose).
+const String relayErrorClubWrong = 'club-wrong';
+
+/// The client-side text of a [relayErrorClubMissing] refusal
+/// (`NetException("relay: club code required")`), fixed whatever the
+/// relay's `message` says, so apps can recognise it.
+const String relayClubMissingText = 'club code required';
+
+/// The client-side text of a [relayErrorClubWrong] refusal.
+const String relayClubWrongText = 'club code not accepted';
+
+/// The `NetException` text for a refusal [control] message (`relay.error`):
+/// the fixed club texts for club refusals, else the relay's `message`.
+String relayRefusalText(Map<String, dynamic> control, String fallback) => switch (control[relayErrorField]) {
+      relayErrorClubMissing => relayClubMissingText,
+      relayErrorClubWrong => relayClubWrongText,
+      _ => '${control['message'] ?? fallback}',
+    };
+
+/// Normalises a club code as typed or written in the codes file:
+/// case-insensitive, spaces and dashes ignored (`k7qx-m2pa` → `K7QXM2PA`).
+/// Null if the result is shorter than 4 or longer than 64 characters, or
+/// contains anything but `A`–`Z` and `0`–`9`.
+String? normalizeClubCode(String input) {
+  final code = input.replaceAll(RegExp(r'[\s\-]'), '').toUpperCase();
+  if (code.length < 4 || code.length > 64) return null;
+  if (!RegExp(r'^[A-Z0-9]+$').hasMatch(code)) return null;
+  return code;
+}
+
+/// A random, readable club code: two groups of four symbols of
+/// [roomCodeAlphabet], e.g. `K7QX-M2PA` (31^8 ≈ 8.5 · 10^11 codes).
+String newClubCode([Random? random]) {
+  final r = random ?? Random.secure();
+  String group() => String.fromCharCodes(
+      List.generate(4, (_) => roomCodeAlphabet.codeUnitAt(r.nextInt(roomCodeAlphabet.length))));
+  return '${group()}-${group()}';
+}

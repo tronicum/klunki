@@ -2256,6 +2256,30 @@ abstract class AppLocalizations {
   /// **'Übernehmen'**
   String get relaySave;
 
+  /// Relay dialog (KLD-112): label of the optional club code field (server access code of a self-hosted relay, `klunki relay --codes`).
+  ///
+  /// In de, this message translates to:
+  /// **'Clubcode (nur wenn nötig)'**
+  String get relayClubCodeLabel;
+
+  /// Relay dialog (KLD-112): helper under the club code field; the code is never shared in room links or QR codes.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.'**
+  String get relayClubCodeHelper;
+
+  /// Room start/join error (KLD-112): the relay requires a club code and none was entered. “ändern” is the relayChange button under “Erweitert”.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.'**
+  String get relayErrorClubMissing;
+
+  /// Room start/join error (KLD-112): the relay does not accept the entered club code (unknown, revoked, or too many wrong tries).
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.'**
+  String get relayErrorClubWrong;
+
   /// Join screens, under "Erweitert": heading of the direct connection to a device the room runs on (IP address).
   ///
   /// In de, this message translates to:

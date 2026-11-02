@@ -519,6 +519,72 @@ relay and a client, never forwarded.
   its own connection; a host breaking one closes the room.
 - The relay keeps no logs, names or addresses beyond the open connections.
 
+### Club codes (KLD-112): a gated relay
+
+A relay started with `klunki relay --codes FILE` admits only clients that
+send a current **club code** (server access code; for a self-hosted relay
+used by a circle of friends). Without `--codes` nothing changes: the relay is
+open and ignores a club code.
+
+| query | effect |
+|---|---|
+| `?create&club=K7QX-M2PA` | open a room on a gated relay |
+| `?join=CODE&club=K7QX-M2PA` | join room `CODE` on a gated relay |
+
+- **Where the code travels:** the `club` query parameter of the WebSocket
+  URL. Browsers cannot set custom headers on a WebSocket, so a header alone
+  would not work for the PWA, and a first message would make an old relay
+  refuse a joining guest ("relay control messages are not allowed from a
+  guest") and would leave a gated relay waiting for clients that never send
+  it. Trade-off: URLs, query included, can end up in reverse-proxy access
+  logs (nginx, a tunnel's request log). For a self-hosted relay those are the
+  operator's own logs; strip or disable query logging there. (A future option
+  without that trade-off: `Sec-WebSocket-Protocol`, which browsers can set.)
+  The code goes only to the relay: it is never forwarded, never part of a
+  game message, and the host and guest sessions never see it. Room links and
+  QR codes (`?room=…&relay=…`) never contain it, since room codes get shared
+  widely; the app sends a saved club code only to the relay it was entered
+  for.
+- **Checked first:** before `create`/`join` is looked at, so a refused client
+  learns nothing about rooms (the answer is the same for an open room, an
+  unknown room and no room at all).
+- **Refusal:** `relay.error` with a machine-readable `error` field, then
+  close (`policyViolation`):
+
+  | `error` | `message` | when |
+  |---|---|---|
+  | `club-missing` | `club code required` | no `club` parameter (or empty) |
+  | `club-wrong` | `club code not accepted` | unknown or revoked code |
+  | `club-wrong` | `too many wrong club codes, try again later` | 10 wrong codes from one address within 10 minutes (`ClubStrikes`); then even a valid code is refused until the window has passed |
+
+  The clients turn these into `NetException("relay: club code required")` /
+  `NetException("relay: club code not accepted")` whatever the `message`
+  says (`relayClubMissingText` / `relayClubWrongText`). Other `relay.error`s
+  have no `error` field (unchanged).
+- **Codes file:** one code per line, optional `# label` (`K7QX-M2PA  # Familie
+  Müller`); blank lines and `#` lines are skipped. Codes are normalised like
+  room codes (case, spaces and dashes ignored) and must be 4–64 letters or
+  digits after that. `klunki relay-code new [--label X]` prints a random line
+  (two groups of four from the room-code alphabet, 31^8 ≈ 8.5 · 10^11). Codes
+  are compared in constant time (SHA-256 digests, every entry compared) and
+  never logged: the console shows labels or a 6-digit hash prefix.
+- **Revocation:** the file is read again on every gated connection attempt
+  (it is tiny; no file watcher or signal, the same on macOS and Linux and
+  robust against editors that save by renaming). A deleted line refuses that
+  code for **new connections** right away; rooms already open keep running
+  until their game ends (the relay does not remember which code opened a
+  room), but a reconnect after the revocation is refused. A file that cannot
+  be read refuses everyone (fail closed) until it is readable again.
+- **Rate limit:** per remote address as the relay sees it. Behind a reverse
+  proxy every client has the proxy's address, so the limit is shared; with
+  ~40-bit codes it is a brake, not the protection.
+- **`protocolVersion` stays 3:** the game protocol
+  does not change, and the relay handshake only gains an optional query
+  parameter. Old clients against an open relay work as before; old clients
+  against a gated relay are refused (`relay.error`, which they show as a
+  lost relay); new clients with a club code against an old relay work (the
+  parameter is ignored). The build fingerprint is not affected.
+
 **Clients** (web-safe, in `package:klunki_net/klunki_net.dart`):
 - `KlunkiHost.startRelay(config, relayUrl, name: …)` connects with `?create`,
   completes with `host.roomCode` set, and treats every `relay.peer` as a new
@@ -528,6 +594,8 @@ relay and a client, never forwarded.
   `?join=CODE`; `relay.error` / `relay.closed` end the connection with the
   reason (`NetException("relay: no room with code …")`). `reconnect()` rejoins
   the same room.
+- Both take an optional `clubCode:` for a gated relay (see "Club codes"); the
+  guest sends it again on `reconnect()`.
 
 ## Known limitations (accepted for the PoC)
 - Hidden information is redacted since protocol 2 (see "Hidden

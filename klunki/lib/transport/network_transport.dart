@@ -142,15 +142,17 @@ class NetworkTransport implements GameTransport {
   /// KLD-057): completes once the relay assigned a room code ([roomCode]).
   /// The host plays A. Web-safe (this is how a browser hosts). Throws
   /// [NetException] if the relay cannot be reached or refuses.
+  /// [clubCode]: for a relay that requires one (KLD-112).
   static Future<NetworkTransport> hostRelay(
     GameConfig config,
     Uri relayUrl, {
     String name = 'Host',
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    String? clubCode,
   }) async {
     final host = await KlunkiHost.startRelay(config, relayUrl,
-        name: name, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
+        name: name, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat(), clubCode: clubCode);
     return NetworkTransport._host(host);
   }
 
@@ -164,9 +166,15 @@ class NetworkTransport implements GameTransport {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    String? clubCode,
   }) async {
     final guest = await KlunkiGuest.connectRelay(relayUrl, code,
-        name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
+        name: name,
+        token: token,
+        pingInterval: pingInterval,
+        timeout: timeout,
+        compat: appBuildCompat(),
+        clubCode: clubCode);
     return NetworkTransport._guest(guest);
   }
 

@@ -263,6 +263,24 @@ inside the relay process that created them. A host on `:8081` and a guest that l
 relay on `:8000` will never find each other's room ("Kein Raum mit dem Code …"). Each origin (port) also has its
 own service worker, cache and saved settings. If you restart on another port, reopen the page from that port.
 
+#### Club codes: a relay only for your circle (KLD-112)
+A relay can require a **club code** (server access code). Without `--codes` it is open, exactly as before.
+```bash
+dart run packages/klunki_net/bin/klunki.dart relay-code new --label "Familie Müller" >> codes.txt
+dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/build/web --codes codes.txt
+# Club codes loaded from codes.txt: 1 (Familie Müller)
+# Club codes required (codes.txt); edits apply to the next connection.
+```
+`codes.txt` is plain text, one code per line, an optional `# label` after it (`K7QX-M2PA  # Familie Müller`);
+case, spaces and dashes do not matter. The relay reads the file again on every connection attempt, so an added
+line works at once and a **deleted line revokes** that code for every new connection (no restart, no signal).
+Rooms that are already open keep running until their game ends; a reconnect after the revocation is refused.
+An unreadable or deleted file refuses everyone until it is back. The console shows labels (or a short hash),
+never a code. Players enter the code in the app under "Erweitert" › "ändern" › "Clubcode"; it is saved for that
+relay address only and is never part of room links or QR codes, so share it separately. Terminals:
+`host … --relay ws://… --club CODE`, `join --relay ws://… --room CODE --club CODE`. Protocol details: PROTOCOL.md,
+"Relay", "Club codes". Packaging this for the internet (Docker image, Cloudflare tunnel, `wss://`) is KLD-051.
+
 ### 6.4 Offline and updates
 - The service worker (`klunki_sw.js`) only registers in a **secure context**: `http://localhost:<port>`, or
   https. On `http://<lan-ip>:<port>` the app works but is not installable or offline-capable.

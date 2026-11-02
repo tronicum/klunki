@@ -34,9 +34,10 @@ typedef RelayHostTransportFactory = Future<NetworkTransport> Function(
   required String name,
 });
 
-/// The real thing: `NetworkTransport.hostRelay`.
+/// The real thing: `NetworkTransport.hostRelay`, with the club code saved
+/// for [relay] (KLD-112; the app's shared relay setting).
 Future<NetworkTransport> platformRelayHost(GameConfig config, Uri relay, {required String name}) =>
-    NetworkTransport.hostRelay(config, relay, name: name);
+    NetworkTransport.hostRelay(config, relay, name: name, clubCode: RelaySettings.shared().clubCodeFor(relay));
 
 /// "Raum starten" through the relay (KLD-057b, KLD-098): the browser's only
 /// way to open a room, and the app's when "Raum über ein Relay öffnen" is on.

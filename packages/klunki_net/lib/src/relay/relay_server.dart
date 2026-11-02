@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'club_codes.dart';
 import 'relay_protocol.dart';
 
 /// The Klunki relay (`klunki relay`): rooms with short codes that join one
@@ -21,6 +22,9 @@ import 'relay_protocol.dart';
 ///   `relay.closed`, then the connection is closed.
 /// - Anything else on `/relay` without a WebSocket upgrade: `426`. With
 ///   [webRoot], other paths serve files from it (GET/HEAD only).
+/// - With [clubCodes] (KLD-112, `--codes FILE`) the relay is gated: every
+///   WebSocket must carry a current club code (`&club=CODE`), checked before
+///   anything else, so a refused client learns nothing about rooms.
 class RelayServer {
   final HttpServer _http;
 
@@ -37,6 +41,10 @@ class RelayServer {
   /// Most rooms open at once; further `create`s get `relay.error`.
   final int maxRooms;
 
+  /// The club codes of a gated relay (KLD-112), or null: an open relay.
+  final ClubCodes? clubCodes;
+  final ClubStrikes _strikes;
+
   final Duration? _pingInterval;
   final Random _random;
   final Map<String, _Room> _rooms = {};
@@ -44,7 +52,7 @@ class RelayServer {
   bool _closed = false;
 
   RelayServer._(this._http, this.webRoot, this._webRootPath, this.idleTimeout, this.maxLineLength, this.maxRooms,
-      this._pingInterval, this._random) {
+      this._pingInterval, this._random, this.clubCodes, this._strikes) {
     final period = Duration(microseconds: (idleTimeout.inMicroseconds ~/ 4).clamp(10000, 30000000));
     _sweeper = Timer.periodic(period, (_) => _sweep());
     _http.listen(_onRequest);
@@ -58,6 +66,8 @@ class RelayServer {
   /// [webRoot]: serve this directory (a built PWA) on every path but
   /// `/relay`. [pingInterval]: WebSocket-level pings that detect vanished
   /// peers (null = off). [random] picks room codes (tests pass a seeded one).
+  /// [clubCodes]: require a club code (KLD-112); [clubStrikes] limits wrong
+  /// codes per address (default: 10 per 10 minutes).
   static Future<RelayServer> start({
     int port = defaultRelayPort,
     Object? address,
@@ -67,6 +77,8 @@ class RelayServer {
     int maxRooms = 500,
     Duration? pingInterval = const Duration(seconds: 20),
     Random? random,
+    ClubCodes? clubCodes,
+    ClubStrikes? clubStrikes,
   }) async {
     String? rootPath;
     if (webRoot != null) {
@@ -79,7 +91,7 @@ class RelayServer {
     final http = await _bind(address, port);
     http.autoCompress = false;
     return RelayServer._(http, webRoot, rootPath, idleTimeout, maxLineLength, maxRooms, pingInterval,
-        random ?? Random.secure());
+        random ?? Random.secure(), clubCodes, clubStrikes ?? ClubStrikes());
   }
 
   int get port => _http.port;
@@ -122,6 +134,10 @@ class RelayServer {
     ws.pingInterval = _pingInterval;
     final query = request.uri.queryParameters;
     if (_closed) return _refuse(ws, 'relay shutting down');
+    if (clubCodes != null) {
+      if (!await _clubAdmits(ws, request, query[relayClubParam])) return;
+      if (_closed) return _refuse(ws, 'relay shutting down');
+    }
     if (query.containsKey('create')) return _create(ws);
     final join = query['join'];
     if (join != null) return _join(ws, join);
@@ -146,13 +162,35 @@ class RelayServer {
     room.attachGuest(ws);
   }
 
-  void _refuse(WebSocket ws, String message) {
+  void _refuse(WebSocket ws, String message, {String? error}) {
     ws.done.catchError((_) {});
-    _send(ws, relayControl(relayError, {'message': message}));
+    _send(ws, relayControl(relayError, {if (error != null) relayErrorField: error, 'message': message}));
     _close(ws, WebSocketStatus.policyViolation);
   }
 
+  /// KLD-112: whether [raw] is a current club code; refuses [ws] if not.
+  /// Missing, unknown, revoked and rate-limited codes are refused the same
+  /// way for create and join, before any room is looked at.
+  Future<bool> _clubAdmits(WebSocket ws, HttpRequest request, String? raw) async {
+    if (raw == null || raw.trim().isEmpty) {
+      _refuse(ws, relayClubMissingText, error: relayErrorClubMissing);
+      return false;
+    }
+    final address = request.connectionInfo?.remoteAddress.address ?? '?';
+    if (_strikes.blocked(address)) {
+      _refuse(ws, 'too many wrong club codes, try again later', error: relayErrorClubWrong);
+      return false;
+    }
+    if (await clubCodes!.check(raw) == null) {
+      _strikes.strike(address);
+      _refuse(ws, relayClubWrongText, error: relayErrorClubWrong);
+      return false;
+    }
+    return true;
+  }
+
   void _sweep() {
+    _strikes.prune();
     for (final room in _rooms.values.toList()) {
       if (room.idle.elapsed > idleTimeout) room.shutDown('room expired (idle)');
     }

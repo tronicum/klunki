@@ -41,6 +41,9 @@ class KlunkiGuest {
   /// Set for a relay guest ([connectRelay]): the room it (re)joins.
   final String? roomCode;
 
+  /// The club code a relay guest sends to a gated relay (KLD-112).
+  final String? _clubCode;
+
   /// This guest's player name, sanitised ([sanitizePlayerName]; may be
   /// empty, the host then shows the guest's mark).
   final String name;
@@ -73,8 +76,9 @@ class KlunkiGuest {
   String? _verificationError;
 
   KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout,
-      {this.roomCode, BuildCompat? compat})
-      : name = sanitizePlayerName(name),
+      {this.roomCode, BuildCompat? compat, String? clubCode})
+      : _clubCode = clubCode,
+        name = sanitizePlayerName(name),
         compat = compat ?? BuildCompat();
 
   /// Connects over TCP to [host]:[port] and completes after the `welcome`
@@ -135,6 +139,7 @@ class KlunkiGuest {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
     BuildCompat? compat,
+    String? clubCode,
   }) async {
     if ((relayUrl.scheme != 'ws' && relayUrl.scheme != 'wss') || relayUrl.host.isEmpty) {
       throw ArgumentError.value(relayUrl, 'relayUrl', 'expected ws://host:port/relay');
@@ -142,7 +147,7 @@ class KlunkiGuest {
     final room = normalizeRoomCode(code);
     if (room == null) throw ArgumentError.value(code, 'code', 'not a room code');
     final guest = KlunkiGuest._(relayUrl.host, relayUrl.port, relayUrl, name, token, pingInterval, timeout,
-        roomCode: room, compat: compat);
+        roomCode: room, compat: compat, clubCode: clubCode);
     await guest._open();
     return guest;
   }
@@ -229,7 +234,7 @@ class KlunkiGuest {
     final url = webSocketUrl;
     final room = roomCode;
     final MessageChannel channel = room != null
-        ? await RelayGuestChannel.connect(url!, room, _timeout)
+        ? await RelayGuestChannel.connect(url!, room, _timeout, clubCode: _clubCode)
         : url != null
             ? await platform.connectWebSocket(url, _timeout)
             : await platform.connectTcp(host, port, _timeout);

@@ -1420,6 +1420,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get relaySave => 'Übernehmen';
 
   @override
+  String get relayClubCodeLabel => 'Clubcode (nur wenn nötig)';
+
+  @override
+  String get relayClubCodeHelper =>
+      'Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.';
+
+  @override
+  String get relayErrorClubMissing =>
+      'Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.';
+
+  @override
+  String get relayErrorClubWrong =>
+      'Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.';
+
+  @override
   String get joinDirectTitle => 'Direkt mit einem Gerät verbinden';
 
   @override

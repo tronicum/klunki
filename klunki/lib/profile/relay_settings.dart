@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:klunki_net/guest_web.dart' show parseRelayUrl;
+import 'package:klunki_net/guest_web.dart' show normalizeClubCode, parseRelayUrl;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The one relay address for hosting and joining by room code (KLD-057b,
@@ -32,6 +32,7 @@ class RelaySettings extends ValueNotifier<Uri?> {
       final saved = p.getString(prefsKey);
       // Something chosen meanwhile wins over the stored value.
       if (value == null && saved != null) value = parseRelayUrl(saved);
+      _loadClubCode(p);
     } catch (_) {
       // No storage (e.g. blocked site data): stay in memory.
     }
@@ -50,5 +51,45 @@ class RelaySettings extends ValueNotifier<Uri?> {
   Future<void> reset() async {
     value = null;
     await _prefs?.remove(prefsKey);
+  }
+
+  // ---- club code (KLD-112) -----------------------------------------------
+
+  /// Storage keys of the club code and of the relay it belongs to.
+  static const String clubCodeKey = 'relayClubCode';
+  static const String clubRelayKey = 'relayClubCodeRelay';
+
+  String? _clubCode;
+  Uri? _clubRelay;
+
+  /// The club code entered for [relay] (sent only to that relay, never to
+  /// another one, e.g. a relay from a link), or null.
+  String? clubCodeFor(Uri? relay) => relay != null && relay == _clubRelay ? _clubCode : null;
+
+  /// Saves [code] for [relay]; empty or null clears it.
+  Future<void> setClubCode(Uri relay, String? code) async {
+    final t = code?.trim() ?? '';
+    // Normalised when it looks like a code; else kept as typed (the relay
+    // then answers "not accepted", which tells the player more than a
+    // silently dropped code).
+    final c = t.isEmpty ? null : normalizeClubCode(t) ?? t;
+    _clubCode = c;
+    _clubRelay = c == null ? null : relay;
+    if (c == null) {
+      await _prefs?.remove(clubCodeKey);
+      await _prefs?.remove(clubRelayKey);
+    } else {
+      await _prefs?.setString(clubCodeKey, c);
+      await _prefs?.setString(clubRelayKey, relay.toString());
+    }
+    notifyListeners();
+  }
+
+  void _loadClubCode(SharedPreferences p) {
+    if (_clubCode != null) return; // entered meanwhile
+    final code = p.getString(clubCodeKey), relay = p.getString(clubRelayKey);
+    if (code == null || relay == null) return;
+    _clubCode = code.trim().isEmpty ? null : normalizeClubCode(code) ?? code.trim();
+    _clubRelay = _clubCode == null ? null : Uri.tryParse(relay);
   }
 }

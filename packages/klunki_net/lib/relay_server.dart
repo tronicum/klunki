@@ -17,5 +17,10 @@ export 'src/relay/relay_protocol.dart'
         roomCodeAlphabet,
         normalizeRoomCode,
         parseRelayUrl,
-        relayUriForPage;
+        relayUriForPage,
+        normalizeClubCode,
+        newClubCode,
+        relayClubMissingText,
+        relayClubWrongText;
+export 'src/relay/club_codes.dart' show ClubCodes, ClubCode, ClubStrikes;
 export 'src/relay/relay_server.dart' show RelayServer, mimeTypeFor;
