@@ -92,9 +92,9 @@ trade > turn phase. Moves (JSON maps, illegal → `null`, no state change): `rol
   free cards; mortgaged properties move as they are.
 - Default: no round limit, play until one is left. Optional `maxRounds`: after that many full rounds the highest net worth wins (cash + prices, mortgaged at
   half + building costs); equal leaders → draw.
-- Simplified compared with the classic rules (open questions below): no building shortage (32/12), no auction
-  of a bankrupt's properties to the bank, no 10 % fee on received mortgaged properties, the "nearest station"
-  card charges normal rent.
+- Simplified compared with the classic rules (open questions below): no building shortage (32/12), no 10 %
+  fee on received mortgaged properties, the "nearest station" card charges normal rent. The auction of a
+  bankrupt's properties is an optional house rule (below).
 
 ### House rules (config options, theme-independent)
 **Free square** (`freeSquare`, `freeSquareAmount`; Berlin: "Späti-Pause"), maintainer decision. German labels for
@@ -111,13 +111,24 @@ Rent, bail and the cash of a bankruptcy to the bank never go into the pot. The p
 and counts in the money invariant: Σ cash + bank balance + pot = players × 1500 (checked after every bot move,
 with all four variants in the bot games).
 
-**Further popular house rules, design only (not built):** each would be one more optional config key, default off:
-- Double salary when landing exactly on Start (`startDouble`: 400 instead of 200).
-- No rent while the owner sits in the pause (`noRentInPause`: `rentFor` returns 0 when the owner is in it).
-- Auction of a bankrupt's properties when going bankrupt to the bank (`bankruptAuction`: one auction per
-  property in board order, reusing the open-bid auction before the turn moves on).
-- Others mentioned before: building shortage 32/12, 10 % fee on received mortgages, double rent from the
-  "nearest station" card.
+**Further house rules, built as toggles (all off by default)**, maintainer decision; same config keys in step 2:
+
+| Toggle | What happens | UI label (de) |
+|---|---|---|
+| `doubleStart` | landing exactly on Start pays 400 instead of 200 (also via a "Ab zum Start" card); passing pays 200 | "Doppeltes Startgeld auf Start" |
+| `noRentInPause` | no rent is due for a property while its owner sits on the pause square | "Keine Miete in der Pause" |
+| `bankruptAuction` | when a player goes bankrupt **to the bank**, their properties (unmortgaged) are auctioned one by one in board order among the remaining players (open bids from the next player on, `auction.landing == false`, `bankrupt: true` in the view; waiting squares in `pendingAuctions`); unsold ones stay with the bank. Not on a resign (those go back to the bank) and not on a bankruptcy to a player (the creditor gets them) | "Versteigerung bei Pleite" |
+
+Each has a unit test (on and off) and the bot games run all three switched on in a third of the games with all
+invariants green (bankruptcy auctions and pot pick-ups do occur there; the test checks it).
+
+**Designed, not built:**
+- **Building shortage** (32 small, 12 big buildings): counting is trivial, but selling a big building needs
+  4 small ones from the bank; when they are short, the classic rule breaks the group down further, which
+  clashes with even selling and with "bankrupt only when unavoidable" (a debtor could be left without a legal
+  raise move). Needs its own design (e.g. sell a big building straight down to what the bank has, refunding
+  each step) before it is built. UI label: "Begrenzte Häuser (32 / 12)".
+- 10 % fee when receiving mortgaged properties; double rent from the "nearest station" card.
 
 ### Hidden information (for the redaction step)
 Money, properties and held cards are public. **Secret: the seed and the deck order** (`toJson` leaves out both,
@@ -203,7 +214,8 @@ separate private helpers in `property.dart` so they can be moved into a shared "
       prices/rents, two decks of 16 own cards shuffled from the seed; as validated theme data (Berlin, Fantasie).
 - [x] Doubles, pause rules, buy/decline/auction, rent incl. whole-group double, even building, mortgages,
       debts, bankruptcy (only when unavoidable) to bank or player, trades, resign, last solvent wins (default),
-      optional round limit, free-square house rules (`none` / `pot` / `potWithSeed` / `fixedBonus`).
+      optional round limit, free-square house rules (`none` / `pot` / `potWithSeed` / `fixedBonus`),
+      toggles `doubleStart`, `noRentInPause`, `bankruptAuction` (off by default).
 - [x] JSON view without seed and deck order.
 - [x] CLI: `dart run klunki_engine:klunki property --players 4 --seed 7 'auto 50'` (`PropertyText`).
 - [x] Bots (`PropertyBot`, greedy and random) play 80 full games (2–6 players) with invariants checked after
@@ -219,7 +231,7 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 - ~~Default game length~~: decided: until one player is left; round limit optional (20 / 30 / 40 in the UI).
 - ~~Free-parking pot~~: decided: free-square house rules as config, default nothing.
 - ~~Bankruptcy while selling could still pay~~: decided: refused, sell and mortgage first.
-- Which of the further house rules (above) should the UI offer?
+- Building shortage: worth the design work (see above)?
 - Start money 1500 and salary 200 kept; currency "Taler" for Berlin too?
 - Should non-current players be allowed to offer trades (needs a "pending offers" list instead of one actor)?
 - Network: timeouts for auction bids and trade answers (step 2).

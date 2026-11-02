@@ -617,6 +617,68 @@ void main() {
     });
   });
 
+  group('more house rules', () {
+    test('double salary only when landing exactly on Start', () {
+      for (final (on, steps, cash) in [(false, [2, 3], 1700), (true, [2, 3], 1900), (true, [4, 6], 1700)]) {
+        final g = PropertyGame(doubleStart: on, dice: steps)..debugSetCash(0, 1500, pos: 35);
+        play(g, ['roll']);
+        expect(g.seats[0].cash, cash, reason: 'doubleStart $on, dice $steps');
+        expect(total(g), 3000);
+      }
+    });
+
+    test('no rent while the owner sits in the pause', () {
+      for (final on in [false, true]) {
+        final g = PropertyGame(noRentInPause: on, dice: [1, 2, 1, 2])
+          ..debugSetSquare(3, 0)
+          ..debugSetCash(0, 1500, pos: 27);
+        play(g, ['roll', 'endTurn']); // owner P1 to the pause
+        expect(g.seats[0].inPause, isTrue);
+        play(g, ['roll']); // P2 lands on P1's street
+        final rent = board[3].rents[0];
+        expect(g.seats[1].cash, on ? 1500 : 1500 - rent);
+        expect(g.rentFor(3), on ? 0 : rent);
+      }
+    });
+
+    test("a bankrupt's properties are auctioned (not on a resign)", () {
+      final g = PropertyGame(playerCount: 3, bankruptAuction: true, dice: [1, 3])
+        ..debugSetSquare(37, 0, mortgaged: true)
+        ..debugSetSquare(39, 0, mortgaged: true)
+        ..debugSetCash(0, 0);
+      play(g, ['roll', 'bankrupt']); // tax 200, nothing to raise
+      expect(g.currentSeat, 1);
+      expect(g.phase, PropertyPhase.auction);
+      expect(g.auction!.square, 37);
+      expect(g.auction!.landing, isFalse);
+      expect(g.auction!.bidders, [1, 2]);
+      expect(g.toJson()['pendingAuctions'], [39]);
+      play(g, [mv('bid', {'amount': 100}), 'pass']);
+      expect(g.ownerOf(37), 1);
+      expect(g.isMortgaged(37), isFalse);
+      expect(g.auction!.square, 39);
+      play(g, ['pass', mv('bid', {'amount': 10})]);
+      expect(g.ownerOf(39), 2);
+      expect(g.phase, PropertyPhase.roll);
+      expect(g.actor, 1);
+      expect(total(g), 3 * 1500);
+
+      final r = PropertyGame(playerCount: 3, bankruptAuction: true)..debugSetSquare(39, 2);
+      play(r, [mv('resign', {'seat': 2})]);
+      expect(r.ownerOf(39), isNull);
+      expect(r.phase, PropertyPhase.roll);
+    });
+
+    test('without the toggle a bankrupt\'s properties just go back to the bank', () {
+      final g = PropertyGame(playerCount: 3, dice: [1, 3])
+        ..debugSetSquare(39, 0, mortgaged: true)
+        ..debugSetCash(0, 0);
+      play(g, ['roll', 'bankrupt']);
+      expect(g.ownerOf(39), isNull);
+      expect(g.phase, PropertyPhase.roll);
+    });
+  });
+
   group('cards', () {
     test('advance to start, back 3, repairs, pay each', () {
       final g = PropertyGame(playerCount: 3, dice: [3, 4, 1, 2], deckOrder: {
@@ -817,29 +879,50 @@ void main() {
     }
 
     test('greedy and random bots, 2–6 players: invariants hold, games end, replays match', () {
-      var finishedEarly = 0;
+      var finishedEarly = 0, bankruptAuctions = 0, pots = 0;
       for (var players = 2; players <= 6; players++) {
         for (var seed = 0; seed < 16; seed++) {
           final greedy = seed.isEven;
           final free = PropertyFreeSquare.values[seed ~/ 2 % PropertyFreeSquare.values.length];
-          final g = PropertyGame(playerCount: players, seed: seed, maxRounds: 60, freeSquare: free);
+          final toggles = seed % 3 == 0;
+          final g = PropertyGame(
+              playerCount: players,
+              seed: seed,
+              maxRounds: 60,
+              freeSquare: free,
+              doubleStart: toggles,
+              noRentInPause: toggles,
+              bankruptAuction: toggles);
           final bot = PropertyBot(Random(seed * 31 + players), greedy: greedy);
           var moves = 0;
           while (!g.isOver) {
             if (moves % 37 == 0) checkRefusals(g);
             final m = bot.choose(g);
-            expect(g.applyMove(m), isNotNull, reason: '$m in ${g.toJson()}');
+            final ev = g.applyMove(m);
+            expect(ev, isNotNull, reason: '$m in ${g.toJson()}');
+            for (final e in ev!.events) {
+              if (e['type'] == 'auction' && e['bankrupt'] == true) bankruptAuctions++;
+              if (e['type'] == 'pot' && (e['amount'] as int) > 0) pots++;
+            }
             checkInvariants(g);
             expect(++moves, lessThan(100000));
           }
           if (g.result.code == 'property.lastSolvent') finishedEarly++;
           expect(g.rounds, lessThanOrEqualTo(60));
-          final r = PropertyGame.replay(players, seed, g.history, maxRounds: 60, freeSquare: free)!;
+          final r = PropertyGame.replay(players, seed, g.history,
+              maxRounds: 60,
+              freeSquare: free,
+              doubleStart: toggles,
+              noRentInPause: toggles,
+              bankruptAuction: toggles)!;
           expect(jsonEncode(r.toJson()), jsonEncode(g.toJson()));
         }
       }
       // Monopolies and houses do happen: some games end before the limit.
       expect(finishedEarly, greaterThan(0));
+      // The toggles are really exercised.
+      expect(bankruptAuctions, greaterThan(0));
+      expect(pots, greaterThan(0));
     });
 
     test('greedy bots without a round limit usually play to the last one', () {

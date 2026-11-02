@@ -116,7 +116,11 @@ class PropertyAuction {
   int turn = 0;
   int high = 0;
   int? highSeat;
-  PropertyAuction(this.square, this.bidders);
+
+  /// True for the auction after a `decline`; false for the auction of a
+  /// bankrupt's property ([PropertyGame.bankruptAuction]).
+  final bool landing;
+  PropertyAuction(this.square, this.bidders, {this.landing = true});
 
   int get actor => bidders[turn];
 
@@ -129,6 +133,7 @@ class PropertyAuction {
         'turn': actor,
         'high': high,
         if (highSeat != null) 'highSeat': highSeat,
+        if (!landing) 'bankrupt': true,
       };
 }
 
@@ -262,6 +267,20 @@ class PropertyGame {
   /// [PropertyFreeSquare.fixedBonus] (defaults 500 and 200); unused otherwise.
   final int freeSquareAmount;
 
+  /// House rule "Doppeltes Startgeld": landing exactly on Start pays twice
+  /// the salary. Off by default.
+  final bool doubleStart;
+
+  /// House rule "Keine Miete in der Pause": no rent is due for a property
+  /// while its owner sits on the pause square. Off by default.
+  final bool noRentInPause;
+
+  /// House rule "Versteigerung bei Pleite": the properties of a player who
+  /// goes bankrupt to the bank are auctioned one by one (board order) among
+  /// the remaining players instead of just going back to the bank. Not on a
+  /// resign. Off by default.
+  final bool bankruptAuction;
+
   /// Default [freeSquareAmount] per rule.
   static int defaultFreeSquareAmount(PropertyFreeSquare rule) => switch (rule) {
         PropertyFreeSquare.potWithSeed => 500,
@@ -296,6 +315,9 @@ class PropertyGame {
   int _tradeOffers = 0;
   int _rounds = 0;
   PropertyAuction? _auction;
+
+  /// Squares of a bankrupt waiting for their auction ([bankruptAuction]).
+  final List<int> _pendingAuctions = [];
   PropertyTrade? _trade;
   final List<PropertyDebt> _debts = [];
   final List<Map<String, dynamic>> _history = [];
@@ -319,6 +341,9 @@ class PropertyGame {
       this.maxRounds,
       this.freeSquare = PropertyFreeSquare.none,
       int? freeSquareAmount,
+      this.doubleStart = false,
+      this.noRentInPause = false,
+      this.bankruptAuction = false,
       PropertyTheme? theme,
       List<int> dice = const [],
       Map<PropertyDeck, List<String>> deckOrder = const {}})
@@ -357,6 +382,9 @@ class PropertyGame {
       {int? maxRounds,
       PropertyFreeSquare freeSquare = PropertyFreeSquare.none,
       int? freeSquareAmount,
+      bool doubleStart = false,
+      bool noRentInPause = false,
+      bool bankruptAuction = false,
       PropertyTheme? theme}) {
     final g = PropertyGame(
         playerCount: playerCount,
@@ -364,6 +392,9 @@ class PropertyGame {
         maxRounds: maxRounds,
         freeSquare: freeSquare,
         freeSquareAmount: freeSquareAmount,
+        doubleStart: doubleStart,
+        noRentInPause: noRentInPause,
+        bankruptAuction: bankruptAuction,
         theme: theme);
     for (final m in moves) {
       if (g.applyMove(m) == null) return null;
@@ -458,6 +489,7 @@ class PropertyGame {
   int rentFor(int square, {int? diceTotal}) {
     final owner = _owner[square];
     if (owner == null || _mortgaged[square]) return 0;
+    if (noRentInPause && _seats[owner].inPause) return 0;
     final sq = _board[square];
     switch (sq.kind) {
       case PropertyKind.street:
@@ -603,7 +635,7 @@ class PropertyGame {
       final s = move['seat'];
       if (s is! int || s < 0 || s >= playerCount || _seats[s].out) return null;
       _ev.add({'type': 'resigned', 'seat': s});
-      _eliminate(s, null);
+      _eliminate(s, null, resigned: true);
       return _accept(move);
     }
     final a = actor!;
@@ -676,16 +708,16 @@ class PropertyGame {
   void _moveBy(int steps) {
     final s = _seats[_current];
     final to = s.pos + steps;
-    if (to >= 40) _salary();
+    if (to >= 40) _salary(doubleStart && to % 40 == 0 ? 2 * startSalary : startSalary);
     s.pos = to % 40;
     _ev.add({'type': 'moved', 'to': s.pos});
     _land();
   }
 
-  void _salary() {
-    _seats[_current].cash += startSalary;
-    _bank -= startSalary;
-    _ev.add({'type': 'salary', 'seat': _current, 'amount': startSalary});
+  void _salary(int amount) {
+    _seats[_current].cash += amount;
+    _bank -= amount;
+    _ev.add({'type': 'salary', 'seat': _current, 'amount': amount});
   }
 
   void _land() {
@@ -894,7 +926,7 @@ class PropertyGame {
     if (au.bidders.isEmpty) {
       _auction = null;
       _ev.add({'type': 'unsold', 'square': au.square});
-      _afterLanding();
+      _auctionDone(au);
       return;
     }
     if (au.bidders.length == 1 && au.highSeat == au.bidders.first) {
@@ -903,10 +935,29 @@ class PropertyGame {
       _owner[au.square] = w;
       _auction = null;
       _ev.add({'type': 'bought', 'seat': w, 'square': au.square, 'price': au.high, 'auction': true});
-      _afterLanding();
+      _auctionDone(au);
       return;
     }
     if (au.actor == au.highSeat) au.turn = (au.turn + 1) % au.bidders.length;
+  }
+
+  void _auctionDone(PropertyAuction au) {
+    if (au.landing) _afterLanding();
+    _startNextAuction();
+  }
+
+  /// Starts the next waiting auction of a bankrupt's property, bidders in
+  /// seat order from the current player.
+  void _startNextAuction() {
+    if (_result.isOver || _auction != null) return;
+    while (_pendingAuctions.isNotEmpty) {
+      final square = _pendingAuctions.removeAt(0);
+      if (_owner[square] != null) continue;
+      final order = [for (var k = 0; k < playerCount; k++) (_current + k) % playerCount];
+      _auction = PropertyAuction(square, [for (final s in order) if (!_seats[s].out) s], landing: false);
+      _ev.add({'type': 'auction', 'square': square, 'bankrupt': true});
+      return;
+    }
   }
 
   static int? _square(Object? v) => v is int && _validSquare(v) ? v : null;
@@ -1037,7 +1088,7 @@ class PropertyGame {
   /// [creditor], or with no creditor the cash to the bank, the properties
   /// back to the bank unmortgaged and the free cards under their decks.
   /// Debts from and to the seat lapse.
-  void _eliminate(int seat, int? creditor) {
+  void _eliminate(int seat, int? creditor, {bool resigned = false}) {
     final s = _seats[seat];
     for (final i in ownedBy(seat)) {
       if (_houses[i] > 0) {
@@ -1055,11 +1106,13 @@ class PropertyGame {
       _seats[creditor].freeCards.addAll(s.freeCards);
     } else {
       _bank += s.cash;
-      for (final i in ownedBy(seat)) {
+      final returned = ownedBy(seat);
+      for (final i in returned) {
         _owner[i] = null;
         _mortgaged[i] = false;
       }
       s.freeCards.forEach(_returnFreeCard);
+      if (bankruptAuction && !resigned) _pendingAuctions.addAll(returned);
     }
     s
       ..cash = 0
@@ -1070,7 +1123,7 @@ class PropertyGame {
     _debts.removeWhere((d) => d.debtor == seat || d.creditor == seat);
     if (_trade != null && (_trade!.from == seat || _trade!.to == seat)) _trade = null;
     final au = _auction;
-    if (au != null && seat != _current) {
+    if (au != null && (seat != _current || !au.landing)) {
       final at = au.bidders.indexOf(seat);
       if (at >= 0) {
         au.bidders.removeAt(at);
@@ -1087,6 +1140,7 @@ class PropertyGame {
     final left = activeSeats;
     if (left.length == 1) {
       _auction = null;
+      _pendingAuctions.clear();
       _trade = null;
       _result = PropertyResult(
           isOver: true, winner: left.single, code: 'property.lastSolvent', reason: 'everyone else is bankrupt');
@@ -1094,11 +1148,12 @@ class PropertyGame {
       return;
     }
     if (seat == _current) {
-      _auction = null;
+      if (_auction?.landing ?? false) _auction = null;
       _trade = null;
       _nextTurn();
     }
     _settleDebts();
+    _startNextAuction();
   }
 
   void _nextTurn() {
@@ -1134,6 +1189,7 @@ class PropertyGame {
         reason: leaders.length == 1 ? 'richest after $_rounds rounds' : 'tie after $_rounds rounds');
     _debts.clear();
     _auction = null;
+    _pendingAuctions.clear();
     _trade = null;
     _ev.add({'type': 'over', ..._result.toJson()});
   }
@@ -1167,6 +1223,10 @@ class PropertyGame {
         if (freeSquare != PropertyFreeSquare.none) 'freeSquare': freeSquare.name,
         if (freeSquare != PropertyFreeSquare.none) 'freeSquareAmount': freeSquareAmount,
         if (_usesPot) 'pot': _pot,
+        if (doubleStart) 'doubleStart': true,
+        if (noRentInPause) 'noRentInPause': true,
+        if (bankruptAuction) 'bankruptAuction': true,
+        if (_pendingAuctions.isNotEmpty) 'pendingAuctions': List.of(_pendingAuctions),
         'rounds': _rounds,
         'current': _current,
         'phase': phase.name,
