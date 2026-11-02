@@ -137,6 +137,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellUndo => 'تراجع عن الحركة';
 
   @override
+  String get shellTakeBack => 'تراجع';
+
+  @override
   String get shellNewGame => 'لعبة جديدة';
 
   @override

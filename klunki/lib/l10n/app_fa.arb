@@ -39,6 +39,7 @@
   "shellMenu": "منو",
   "shellPlayAgain": "دوباره",
   "shellUndo": "برگرداندن حرکت",
+  "shellTakeBack": "برگشت",
   "shellNewGame": "بازی جدید",
   "shellNewGameTitle": "بازی جدید؟",
   "shellNewGameBody": "بازی فعلی رها می‌شود.",

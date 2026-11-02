@@ -140,6 +140,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shellUndo => 'Deshacer jugada';
 
   @override
+  String get shellTakeBack => 'Deshacer';
+
+  @override
   String get shellNewGame => 'Nueva partida';
 
   @override

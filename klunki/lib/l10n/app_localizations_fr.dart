@@ -139,6 +139,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shellUndo => 'Annuler le coup';
 
   @override
+  String get shellTakeBack => 'Reprendre';
+
+  @override
   String get shellNewGame => 'Nouvelle partie';
 
   @override

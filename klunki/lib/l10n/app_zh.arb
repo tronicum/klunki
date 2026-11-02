@@ -39,6 +39,7 @@
   "shellMenu": "菜单",
   "shellPlayAgain": "再来一局",
   "shellUndo": "悔棋",
+  "shellTakeBack": "悔棋",
   "shellNewGame": "新游戏",
   "shellNewGameTitle": "开始新游戏？",
   "shellNewGameBody": "当前对局将被放弃。",

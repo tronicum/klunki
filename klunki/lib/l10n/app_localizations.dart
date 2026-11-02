@@ -330,11 +330,17 @@ abstract class AppLocalizations {
   /// **'Nochmal'**
   String get shellPlayAgain;
 
-  /// App bar tooltip: take back the last move (hot-seat).
+  /// Tooltip of the take-back button (shellTakeBack) in the game area: take back the last move (hot-seat).
   ///
   /// In de, this message translates to:
   /// **'Zug zurück'**
   String get shellUndo;
+
+  /// Label of the button in the game area (under the board or in the board's control row, KLD-117) that takes back the last move (hot-seat). Short: it sits in a row with icon buttons.
+  ///
+  /// In de, this message translates to:
+  /// **'Zug zurück'**
+  String get shellTakeBack;
 
   /// App bar tooltip: restart the game.
   ///
