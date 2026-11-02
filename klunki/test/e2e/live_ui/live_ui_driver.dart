@@ -183,6 +183,14 @@ abstract class LiveUiAdapter {
   /// The authoritative turn list from an accepted move log.
   List<TurnRecord> engineTurns(GameController c);
 
+  /// Turns after the first [shown] that [device] never showed on its screen
+  /// because the result dialog came over them: the last turns can reach a
+  /// network device together with the game end, in one frame. Asked while
+  /// the result dialog is up; an adapter whose screen shows only the latest
+  /// turn returns them from the device's own history (what its history sheet
+  /// lists). Default: none, every turn must have been seen on screen.
+  List<TurnRecord> unseenAtEnd(WidgetTester tester, UiDevice device, int shown) => const [];
+
   /// Checks the game's turn rule over [turns] (e.g. trick winner picks next).
   void checkTurnRule(List<TurnRecord> turns, String context) {
     for (var i = 1; i < turns.length; i++) {
@@ -260,7 +268,14 @@ void _observe(WidgetTester tester, LiveUiAdapter a, UiDevice d, _Watcher w, Live
   // Under a dialog (the result, a peek overlay) a result is not really
   // shown: the user cannot read it or tap "Weiter". Only results on the
   // uncovered screen count.
-  if (d.dialogOpen) return;
+  if (d.dialogOpen) {
+    if (d.resultShown()) {
+      for (final r in a.unseenAtEnd(tester, d, log.shown[d.name]?.length ?? 0)) {
+        log.add(d, r, context: '   [under the result dialog: from the history]');
+      }
+    }
+    return;
+  }
   final r = a.observe(tester, d, engine, inSync: inSync);
   // Turns (e.g. Quartett rounds) this device knows of: not every move is
   // one (a KLD-100 choice or announced stat is not).

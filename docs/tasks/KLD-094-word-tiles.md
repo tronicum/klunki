@@ -490,6 +490,11 @@ every move (the driver's "N newer trick(s) already played" counted them). The ad
 like the chess one: a turn already replaced on screen comes from the device's own history before the line on
 screen. Regression: `test/e2e/live_ui/wordtiles_adapter_test.dart` (two steps in one guest frame; both reported;
 the history sheet lists both). `tool/stress_test.sh -n 5` on the live test: 5/5 (before: 0/3).
+Second gap (stress gate on main, 1 of 3): the guest's last pass and the host's game-ending pass in one frame; the
+result dialog came over the line before it showed the pass, and the driver does not look under a dialog. The driver
+now asks the adapter once the result dialog is up (`LiveUiAdapter.unseenAtEnd`, default none): Wortgewandt returns
+the unseen turns from the device's history, chess the moves still in the move list under the dialog. Regression:
+a second case in `wordtiles_adapter_test.dart`.
 
 ## Step 7 (release): what was built
 The maintainer released Wortgewandt in the app (2026-11-02, for the first bigger TestFlight release).
