@@ -12,6 +12,7 @@ import 'dart:io';
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
 import 'package:klunki_net/relay_server.dart';
+import 'package:klunki_net/src/compat.dart' show mismatchErrorFields, mismatchFromError;
 import 'package:test/test.dart';
 
 import 'relay_test.dart' show RelayPeer, openRoom, relayUrlOf;
@@ -110,6 +111,35 @@ void main() {
         final ok = await s.join(via, BuildCompat());
         await until(() => s.host.guestConnected);
         await ok.close();
+        await s.close();
+      });
+
+      test('KLD-116: both sides know each other\'s name and build label (guest refused by the host)', () async {
+        final s = await _Session.start(via, _rockets, BuildCompat(build: '1.1.0+2026110301 c3d4e5f'));
+        final error = await s
+            .join(via, _build('1.0.0+2026110201 b8752a9', key: _rocketsKey, f: _oldRockets))
+            .then<Object?>((_) => null, onError: (Object e) => e);
+        final mine = (error as NetException).mismatch!;
+        expect((mine.myName, mine.myBuild), ('Bea', '1.0.0+2026110201 b8752a9'));
+        expect((mine.peerName, mine.peerBuild), ('Ada', '1.1.0+2026110301 c3d4e5f'));
+        expect((versionDisplay(mine.myBuild), versionDisplay(mine.peerBuild)), ('1.0.0 (b8752a9)', '1.1.0 (c3d4e5f)'));
+        await until(() => s.refused.isNotEmpty);
+        final host = s.refused.single;
+        expect((host.myName, host.myBuild), ('Ada', '1.1.0+2026110301 c3d4e5f'));
+        expect((host.peerName, host.peerBuild), ('Bea', '1.0.0+2026110201 b8752a9'));
+        await s.close();
+      });
+
+      test('KLD-116: names and builds also when the guest refuses the host', () async {
+        final s = await _Session.start(via, _rockets, _build('1.0.0+3 aaaaaaa', key: _rocketsKey, f: _oldRockets));
+        final error = await s
+            .join(via, BuildCompat(build: '1.0.0+4 bbbbbbb'))
+            .then<Object?>((_) => null, onError: (Object e) => e);
+        final mine = (error as NetException).mismatch!;
+        expect((mine.myName, mine.peerName, mine.myBuild, mine.peerBuild), ('Bea', 'Ada', '1.0.0+4 bbbbbbb', '1.0.0+3 aaaaaaa'));
+        await until(() => s.refused.isNotEmpty);
+        final host = s.refused.single;
+        expect((host.myName, host.peerName, host.myBuild, host.peerBuild), ('Ada', 'Bea', '1.0.0+3 aaaaaaa', '1.0.0+4 bbbbbbb'));
         await s.close();
       });
 
@@ -307,5 +337,41 @@ void main() {
     expect(compareBuilds('1.0.0+1 abc', '1.0.0+1 def'), PeerAge.unknown);
     expect(compareBuilds('', '1.0.0'), PeerAge.unknown);
     expect(compareBuilds('1.0.0', null), PeerAge.unknown);
+  });
+
+  group('KLD-116: versionDisplay', () {
+    test('version and commit, "dev" without a commit', () {
+      expect(versionDisplay('1.0.0+2026110201 b8752a9'), '1.0.0 (b8752a9)');
+      expect(versionDisplay('1.1.0+2026110301 c3d4e5f0123456789'), '1.1.0 (c3d4e5f)');
+      expect(versionDisplay('1.0.0+1'), '1.0.0 (dev)');
+      expect(versionDisplay('2.3.4'), '2.3.4 (dev)');
+      expect(versionDisplay(' 1.0.0 abc1234 '), '1.0.0 (abc1234)');
+    });
+    test('blank is null, anything else is shown as sent', () {
+      expect(versionDisplay(null), isNull);
+      expect(versionDisplay('  '), isNull);
+      expect(versionDisplay('cli'), 'cli');
+    });
+  });
+
+  group('KLD-116: the refusal error carries the name (informational)', () {
+    test('round trip: mismatchErrorFields -> mismatchFromError', () {
+      final mine = BuildCompat(build: '1.1.0+2026110301 c3d4e5f');
+      final theirs = BuildCompat(build: '1.0.0+2026110201 b8752a9');
+      const m = VersionMismatch(Incompatibility.protocol, PeerAge.older, 'x');
+      final fields = mismatchErrorFields(m, mine, name: 'Ada');
+      expect(fields['name'], 'Ada');
+      final back = mismatchFromError(fields, theirs)!;
+      expect((back.peerName, back.peerBuild, back.myBuild), ('Ada', '1.1.0+2026110301 c3d4e5f', '1.0.0+2026110201 b8752a9'));
+      expect(back.peer, PeerAge.newer);
+    });
+    test('without a name (older builds) and with junk', () {
+      final compat = BuildCompat(build: '1.0.0+1');
+      final fields = {'code': 'incompatible-protocol', 'protocol': protocolVersion, 'build': '1.0.0+2'};
+      expect(mismatchFromError(fields, compat)!.peerName, isNull);
+      expect(mismatchFromError({...fields, 'name': 42}, compat)!.peerName, isNull);
+      expect(mismatchFromError({...fields, 'name': '  '}, compat)!.peerName, isNull);
+      expect(mismatchFromError({...fields, 'name': ' Bea\n'}, compat)!.peerName, 'Bea');
+    });
   });
 }

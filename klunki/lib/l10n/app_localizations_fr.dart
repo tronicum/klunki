@@ -1775,6 +1775,26 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String aboutBuildDetails(String build, String protocol, String games) {
+    return 'Numéro de build $build · protocole $protocol · données de jeu $games';
+  }
+
+  @override
+  String versionMismatchVersions(
+    String nameA,
+    String versionA,
+    String nameB,
+    String versionB,
+  ) {
+    return '$nameA a $versionA, $nameB a $versionB.';
+  }
+
+  @override
+  String versionMismatchVersionsDevices(String versionA, String versionB) {
+    return 'Cet appareil a $versionA, l\'autre appareil a $versionB.';
+  }
+
+  @override
   String get aboutTitle => 'À propos de Klunki';
 
   @override

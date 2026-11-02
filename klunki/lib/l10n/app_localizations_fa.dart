@@ -1757,6 +1757,26 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String aboutBuildDetails(String build, String protocol, String games) {
+    return 'شمارهٔ ساخت $build · پروتکل $protocol · داده‌های بازی $games';
+  }
+
+  @override
+  String versionMismatchVersions(
+    String nameA,
+    String versionA,
+    String nameB,
+    String versionB,
+  ) {
+    return 'نسخهٔ $nameA: $versionA، نسخهٔ $nameB: $versionB.';
+  }
+
+  @override
+  String versionMismatchVersionsDevices(String versionA, String versionB) {
+    return 'نسخهٔ این دستگاه: $versionA، نسخهٔ دستگاه دیگر: $versionB.';
+  }
+
+  @override
   String get aboutTitle => 'درباره Klunki';
 
   @override

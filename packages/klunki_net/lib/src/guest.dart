@@ -335,9 +335,13 @@ class KlunkiGuest {
   /// The builds do not fit: tell the host (`error` with the `code`) and
   /// fail the handshake with a [NetException] carrying [mismatch].
   void _incompatible(Connection conn, Completer<void> welcome, VersionMismatch mismatch) {
-    if (!welcome.isCompleted) welcome.completeError(NetException(mismatch.message, mismatch: mismatch));
+    if (!welcome.isCompleted) {
+      // KLD-116: both names, so the app can say who has which version.
+      final named = mismatch.withSides(myBuild: compat.build, myName: name, peerName: _hostName);
+      welcome.completeError(NetException(mismatch.message, mismatch: named));
+    }
     _emit(NetError(mismatch.message));
-    conn.fail(mismatch.message, mismatchErrorFields(mismatch, compat));
+    conn.fail(mismatch.message, mismatchErrorFields(mismatch, compat, name: name));
   }
 
   /// Applies a snapshot; returns an error message on divergence.
@@ -553,7 +557,8 @@ class KlunkiGuest {
       final mismatch = conn.versionMismatch
           ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
           : mismatchFromError(conn.peerError, compat);
-      welcome.completeError(NetException(mismatch?.message ?? reason, mismatch: mismatch));
+      welcome.completeError(
+          NetException(mismatch?.message ?? reason, mismatch: mismatch?.withSides(myBuild: compat.build, myName: name)));
     }
     if (conn != _conn) return;
     final wasConnected = _connected;

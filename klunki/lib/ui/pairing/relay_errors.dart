@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_net/guest_web.dart'
-    show NetException, PeerAge, VersionMismatch, relayClubMissingText, relayClubWrongText;
+    show NetException, PeerAge, VersionMismatch, relayClubMissingText, relayClubWrongText, versionDisplay;
 
+import '../../app/build_info.dart' show appBuildLabel;
 import '../../net/room_link.dart';
 import '../ltr.dart';
 
@@ -76,19 +77,40 @@ bool isSeatTaken(Object error) => _text(error).contains('session full');
 /// [NetException.mismatch], or null.
 VersionMismatch? versionMismatchOf(Object error) => error is NetException ? error.mismatch : null;
 
-/// A localized sentence for a version mismatch (KLD-085): which device has
-/// to update, "both" when that is unknown.
-String versionMismatchMessage(AppLocalizations l10n, VersionMismatch mismatch) => switch (mismatch.peer) {
-  PeerAge.older => l10n.versionMismatchUpdateOther,
-  PeerAge.newer => l10n.versionMismatchUpdateThis,
-  PeerAge.unknown => l10n.versionMismatchBoth,
-};
+/// A localized message for a version mismatch (KLD-085): which device has
+/// to update, "both" when that is unknown; then (KLD-116) who has which
+/// version, "Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0 (c3d4e5f).", when the
+/// other side sent its build label. This side's build defaults to the app's.
+String versionMismatchMessage(BuildContext context, VersionMismatch mismatch) {
+  final l10n = AppLocalizations.of(context);
+  final which = switch (mismatch.peer) {
+    PeerAge.older => l10n.versionMismatchUpdateOther,
+    PeerAge.newer => l10n.versionMismatchUpdateThis,
+    PeerAge.unknown => l10n.versionMismatchBoth,
+  };
+  final versions = versionMismatchVersions(context, mismatch);
+  return versions == null ? which : '$which\n$versions';
+}
+
+/// "Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0 (c3d4e5f)." for [mismatch]
+/// (KLD-116), with "Dieses Gerät" / "das andere Gerät" when a name is
+/// missing; null when the other side sent no usable build label.
+String? versionMismatchVersions(BuildContext context, VersionMismatch mismatch) {
+  final mine = versionDisplay(mismatch.myBuild ?? appBuildLabel);
+  final theirs = versionDisplay(mismatch.peerBuild);
+  if (mine == null || theirs == null) return null;
+  final l10n = AppLocalizations.of(context);
+  final (a, b) = (bidiLtr(context, mine), bidiLtr(context, theirs));
+  final (me, peer) = (mismatch.myName, mismatch.peerName);
+  if (me == null || me.isEmpty || peer == null || peer.isEmpty) return l10n.versionMismatchVersionsDevices(a, b);
+  return l10n.versionMismatchVersions(bidiName(context, me), a, bidiName(context, peer), b);
+}
 
 /// [versionMismatchMessage] for [error] if the join failed because the two
 /// builds do not fit together, else null.
 String? versionMismatchText(BuildContext context, Object error) {
   final mismatch = versionMismatchOf(error);
-  return mismatch == null ? null : versionMismatchMessage(AppLocalizations.of(context), mismatch);
+  return mismatch == null ? null : versionMismatchMessage(context, mismatch);
 }
 
 /// Whether [failure] means the room is gone for good (rejoining is useless).

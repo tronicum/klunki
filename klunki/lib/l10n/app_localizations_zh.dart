@@ -1709,6 +1709,26 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String aboutBuildDetails(String build, String protocol, String games) {
+    return '内部版本 $build · 网络版本 $protocol · 游戏版本 $games';
+  }
+
+  @override
+  String versionMismatchVersions(
+    String nameA,
+    String versionA,
+    String nameB,
+    String versionB,
+  ) {
+    return '$nameA：$versionA，$nameB：$versionB。';
+  }
+
+  @override
+  String versionMismatchVersionsDevices(String versionA, String versionB) {
+    return '本设备：$versionA，另一台设备：$versionB。';
+  }
+
+  @override
   String get aboutTitle => '关于 Klunki';
 
   @override

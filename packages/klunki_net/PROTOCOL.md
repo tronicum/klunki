@@ -68,13 +68,13 @@ compatible; a host without WebSocket support simply omits them.
 | `rejected` | host → guest | `index`, `reason` | the guest's move was refused; nothing changed |
 | `ping` / `pong` | both | – | keepalive; `ping` is answered with `pong` |
 | `bye` | both | `reason` | polite end of the connection |
-| `error` | both | `message`, `code?`, `protocol?`, `build?`, `game?`, `fingerprint?` | protocol error; the sender closes the connection. `code` and the rest only for a refused handshake, see "Build compatibility" |
+| `error` | both | `message`, `code?`, `protocol?`, `build?`, `name?`, `game?`, `fingerprint?` | protocol error; the sender closes the connection. `code` and the rest only for a refused handshake, see "Build compatibility" |
 
 Example session (Four in a Row, host = A):
 
 ```
 G→H {"type":"hello","v":3,"role":"guest","name":"Bea","protocol":3,"build":"1.0.0+1","games":{"connect4":{"rules":1,"rev":1,"content":"282f…"},…}}
-H→G {"type":"hello","v":3,"role":"host","name":"Host","protocol":3,"build":"1.0.0+1 abc1234","game":"connect4","fingerprint":{"rules":1,"rev":1,"content":"282f…"}}
+H→G {"type":"hello","v":3,"role":"host","name":"Host","protocol":3,"build":"1.0.0+2026110201 abc1234","game":"connect4","fingerprint":{"rules":1,"rev":1,"content":"282f…"}}
 H→G {"type":"welcome","v":3,"config":{"game":"connect4","seed":0},"you":"b","moves":[],"token":"9f…","host":"Host"}
 H→G {"type":"accepted","v":3,"index":0,"player":"a","move":{"col":3}}
 G→H {"type":"move","v":3,"index":1,"move":{"col":4}}
@@ -245,13 +245,19 @@ photos, Wikipedia links and image credits. A build that only adds photos
 stays compatible. `dart run tool/print_fingerprints.dart` (in the engine)
 prints the current values; `test/compat_test.dart` keeps golden values.
 
-**`build`** is the app's version label (`1.0.0+1 abc1234`: pubspec version,
-optionally the commit from `--dart-define=KLUNKI_BUILD=…`; empty for the
-CLI). It decides nothing; it only tells which side is older when the
-fingerprints do not (same `rules` and `rev`, other `content`). The app shows
-the same version, the protocol and a short code over all fingerprints in the
-menu footer (`1.0.0+1 · abc1234 · P3 · ba13a678`), so people can compare two
-devices by eye.
+**`build`** is the app's version label, `VERSION+BUILD COMMIT`
+(KLD-116): `1.0.0+2026110201 b8752a9` is version `1.0.0` from
+`pubspec.yaml`, build number `2026110201` (`YYYYMMDDNN`, set by CI; `1` in
+local builds) and the commit from `--dart-define=KLUNKI_BUILD=…` (left out
+when the build has none). Builds before KLD-116 sent `1.0.0+1 abc1234`, the
+same shape. The CLI sends an empty label. It decides nothing; it only tells
+which side is older when the fingerprints do not (same `rules` and `rev`,
+other `content`), and the apps show it to people as `1.0.0 (b8752a9)`
+(`versionDisplay`; `1.0.0 (dev)` without a commit): in the menu footer, on
+the About screen (with the build number, the protocol and a short code over
+all fingerprints in small print, `catalogFingerprint`) and in the mismatch
+message, for both devices ("Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0
+(c3d4e5f)."). The app version itself never decides compatibility.
 
 **The checks.**
 1. *Envelope.* A message whose `v` is not `3` closes the connection. The
@@ -270,15 +276,15 @@ devices by eye.
    entry for the hosted game's key is compared with the host's own:
    missing → `incompatible-content`; other `rules` → `incompatible-rules`;
    other `rev` or `content` → `incompatible-content`.
-   The host answers `error {code, message, protocol, build, game,
+   The host answers `error {code, message, protocol, build, name, game,
    fingerprint}` (its own key and fingerprint, so the guest can work out
-   which side is older), closes, emits `IncompatiblePeer` and keeps waiting
+   which side is older; `name` is the host's player name, KLD-116), closes, emits `IncompatiblePeer` and keeps waiting
    for another guest.
 3. *Guest, on `welcome`*: the host's `hello` must have carried `game` and
    `fingerprint`, `game` must equal the key of the `config` in `welcome`
    (the deck the host actually deals), and the fingerprint must equal the
    guest's own for that key (an unknown game or deck is `incompatible-content`).
-   Otherwise the guest sends `error {code, …}` and fails the join. This
+   Otherwise the guest sends `error {code, …, name}` and fails the join. This
    protects against an old or wrong host; with two current builds check 2
    already caught any difference.
 
@@ -287,7 +293,13 @@ devices by eye.
 (`VersionMismatch {kind, peer, peerBuild, detail}`); `peer` is `older`,
 `newer` or `unknown` from the receiver's point of view, decided by the
 protocol number, then `rules`, then `rev`, then the `build` label (first
-`major.minor.patch+build` numbers). The app maps it to "Die Spielversionen
+`major.minor.patch+build` numbers). `VersionMismatch` also carries both
+sides' build labels and, where known, both player names (`myBuild`,
+`myName`, `peerBuild`, `peerName`; KLD-116): the guest knows the host's name
+from its `hello` or from the refusing `error`'s `name`, the host the
+guest's from its `hello`. `name` in `error` is informational and optional:
+older builds ignore it and send none (then the app says "das andere
+Gerät"), so it needs no protocol version. The app maps it to "Die Spielversionen
 passen nicht zusammen: Das andere Gerät hat eine ältere Version. Bitte dort
 die App aktualisieren (Browser: neu laden)." (or "Dieses Gerät …" / "bitte
 beide Apps aktualisieren"); the host's waiting screen says that a device was

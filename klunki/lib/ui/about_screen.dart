@@ -115,6 +115,18 @@ class AboutScreen extends StatelessWidget {
                     style: theme.textTheme.bodySmall?.copyWith(color: muted),
                   ),
                 ),
+                // KLD-116: small print to compare two devices in detail
+                // (KLD-085): build number, protocol, game data code.
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    l10n.aboutBuildDetails(bidiLtr(context, appBuildDetails.build),
+                        bidiLtr(context, appBuildDetails.protocol), bidiLtr(context, appBuildDetails.games)),
+                    key: const Key('about-build-details'),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelSmall?.copyWith(color: muted),
+                  ),
+                ),
                 // KLD-108: the GitHub Pages build says what it can't do.
                 if (isPagesBeta)
                   Padding(
@@ -157,7 +169,7 @@ class AboutScreen extends StatelessWidget {
                   onTap: () => showLicensePage(
                     context: context,
                     applicationName: l10n.appTitle,
-                    applicationVersion: appVersion,
+                    applicationVersion: appVersionLine,
                     applicationIcon: const Padding(
                       padding: EdgeInsets.all(8),
                       child: KlunkiAppIcon(size: 48),

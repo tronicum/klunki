@@ -219,9 +219,12 @@ python3 -I tool/check_pwa_external_urls.py build/web   # optional: no CDN URLs (
 ```
 `pwa_finalize.py` refuses to run twice on the same output. Rebuild first if you need to run it again.
 Optional: `--dart-define=KLUNKI_BUILD=<commit>` (any `flutter build`; CI passes the commit) puts the
-commit into the version line of the menu footer and into the network handshake's `build` label
-(KLD-085), e.g. `1.0.0+1 · abc1234 · P3 · ba13a678`. Two devices whose lines differ in the protocol
-(`P3`) or the last code (game data) cannot play together.
+commit into the version line ("Version 1.0.0 (b8752a9)"; without it "(dev)") and into the network
+handshake's `build` label (KLD-085, KLD-116). CI also passes the build number, `--build-number=N
+--dart-define=KLUNKI_BUILD_NUMBER=N` with `N` from `tool/build_number.sh` (`YYYYMMDDNN`); local builds keep
+the pubspec's `+1`. The About screen shows build number, protocol and a game data code in small print; two
+devices that differ in the protocol or that code cannot play together. Versions and releases:
+[`RELEASING.md`](RELEASING.md).
 CanvasKit and all fonts are served from the app's own origin; nothing is loaded from a CDN.
 
 ### 6.2 Serve it through the relay
@@ -307,8 +310,8 @@ SHA.
 
 | Workflow | Trigger | Jobs |
 |---|---|---|
-| `ci.yml` | push to `main`, every pull request | **engine** (`dart analyze --fatal-infos`, `dart test`), **net** (same, including the dart2js web compile test), **app** (l10n up to date, `flutter analyze`, `flutter test`) |
-| `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK and app bundle → artifacts `klunki-android-apk`, `klunki-android-aab`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
+| `ci.yml` | push to `main`, every pull request | **engine** (`dart analyze --fatal-infos`, `dart test`), **net** (same, including the dart2js web compile test), **tools** (`tool/build_number_test.sh`), **app** (l10n up to date, `flutter analyze`, `flutter test`) |
+| `build.yml` | push to `main`, tags `v*`, manual (**Run workflow**); every build gets `--build-number` from `tool/build_number.sh` (full history checkout, KLD-116, [`RELEASING.md`](RELEASING.md)) | **pwa** (build + finalize + no-external-URL check → artifact `klunki-pwa`), **android** (release APK and app bundle → artifacts `klunki-android-apk`, `klunki-android-aab`), **ios** (manual runs only: `flutter build ios --release --no-codesign` as a compile check, no artifact) |
 
 Persona reviews (`claude.yml`, `review.yml`) and the manual Renovate run (`renovate.yml`) are described in
 [`REVIEWS.md`](REVIEWS.md), including the secrets they need.

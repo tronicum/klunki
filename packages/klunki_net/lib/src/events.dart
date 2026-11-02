@@ -148,14 +148,39 @@ enum PeerAge {
 /// Why two builds cannot play together (KLD-085). [peer] says which side
 /// is older, from this side's point of view; [peerBuild] is the other
 /// side's build label, if it sent one (informational).
+///
+/// KLD-116: [myBuild], [myName] and [peerName] let the apps say who has
+/// which version ("Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0 (c3d4e5f)");
+/// filled in by the host and guest where they know them ([withSides]).
 class VersionMismatch {
   final Incompatibility kind;
   final PeerAge peer;
   final String? peerBuild;
 
+  /// This side's build label (as in its `hello`), if known.
+  final String? myBuild;
+
+  /// This side's player name, if known.
+  final String? myName;
+
+  /// The other side's player name, if it sent one before the refusal.
+  final String? peerName;
+
   /// English details for logs and for the other side's error message.
   final String detail;
-  const VersionMismatch(this.kind, this.peer, this.detail, {this.peerBuild});
+  const VersionMismatch(this.kind, this.peer, this.detail,
+      {this.peerBuild, this.myBuild, this.myName, this.peerName});
+
+  /// A copy with the given sides' build and names (null keeps the current).
+  VersionMismatch withSides({String? myBuild, String? myName, String? peerName}) => VersionMismatch(
+        kind,
+        peer,
+        detail,
+        peerBuild: peerBuild,
+        myBuild: myBuild ?? this.myBuild,
+        myName: myName ?? this.myName,
+        peerName: peerName ?? this.peerName,
+      );
 
   /// English, one line: what the apps show only as a fallback.
   String get message => 'incompatible versions (${kind.code}): $detail – ${switch (peer) {
