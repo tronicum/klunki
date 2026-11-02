@@ -120,8 +120,10 @@ void main() {
     expect(tester.widget(icon), isA<IconButton>());
     expect(tester.widget<IconButton>(icon).tooltip, 'Zug zurück');
     expect(find.text('Zug zurück'), findsNothing);
-    expect((tester.getCenter(icon).dy - tester.getCenter(find.byKey(const Key('wordtiles-shuffle'))).dy).abs(),
-        lessThan(4));
+    expect(
+      (tester.getCenter(icon).dy - tester.getCenter(find.byKey(const Key('wordtiles-shuffle'))).dy).abs(),
+      lessThan(4),
+    );
     expect(tester.widget<IconButton>(icon).onPressed, isNull);
     await playMove(tester);
     if (find.byKey(handoverContinue).evaluate().isNotEmpty) {

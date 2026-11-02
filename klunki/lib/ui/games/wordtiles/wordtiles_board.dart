@@ -638,15 +638,21 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     });
   }
 
+  /// A dragged tile lands on [sq]. A tile laid this turn moves with its
+  /// letter (a blank keeps the one chosen); onto another such tile the two
+  /// swap places (KLD-094 step 8d). A rack or bench tile is laid.
   void _drop(_Drag d, int sq) {
     final from = d.square;
     if (from != null) {
       final p = _pending[from];
-      if (p == null) return;
+      if (p == null || from == sq || !_canLay) return;
       setState(() {
+        final there = _pending.remove(sq);
         _pending.remove(from);
         _pending[sq] = p;
+        if (there != null) _pending[from] = there;
         _tried = false;
+        _notice = null;
       });
     } else {
       _lay(sq, d.rackIndex);
@@ -1472,7 +1478,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           onWillAcceptWithDetails: (d) => _canLay,
           onAcceptWithDetails: (d) {
             if (d.data.square == sq) return;
-            _takeBack(sq);
+            // A rack or bench tile replaces this one (back to the rack); a
+            // tile from another square swaps with it ([_drop]).
+            if (d.data.square == null) _takeBack(sq);
             _drop(d.data, sq);
           },
           builder: (context, _, _) => GestureDetector(
@@ -1480,7 +1488,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             child: LongPressDraggable<_Drag>(
               data: _Drag(pending.rackIndex, sq),
               maxSimultaneousDrags: _canLay ? 1 : 0,
-              feedback: _feedback(context, pending.letter, pending.tile, 52),
+              // At least finger size, as big as the tile on screen when
+              // zoomed in further.
+              feedback: _feedback(context, pending.letter, pending.tile,
+                  max(52.0, (cell - 2 * inset) * _zoom.value.getMaxScaleOnAxis())),
               childWhenDragging: const SizedBox(),
               child: Padding(padding: EdgeInsets.all(inset), child: face),
             ),

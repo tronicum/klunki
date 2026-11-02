@@ -18,6 +18,7 @@ import 'package:klunki/app/fonts.dart' show withAppFonts;
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -172,6 +173,46 @@ void main() {
       final c = await _pump(tester, 'schiffe', 'de');
       await _play(tester, c, 20, keepCover: true);
       await _shot(tester, 'kld117-schiffe-cover-de-phone');
+    });
+  });
+
+  // KLD-094 step 8d: a tile laid this turn dragged by long-press to another
+  // square, on a phone with the board zoomed in.
+  group('kld094-8d', () {
+    testWidgets('kld094-8d drag de', skip: skip != null, (tester) async {
+      SeenTips.debugReset();
+      SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+      final c = await _pump(tester, 'wordtiles', 'de');
+      (c.game as WordTilesGame).debugSetup(
+        racks: const [
+          ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+          ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+        ],
+        bag: List.filled(40, 'E'),
+      );
+      await tester.pump();
+      Finder sq(int r, int col) => find.byKey(Key('wordtiles-sq-$r-$col'));
+      for (final (i, col) in [(0, 7), (1, 8), (2, 9)]) {
+        await tester.tap(find.byKey(Key('wordtiles-rack-$i')));
+        await tester.pump();
+        await tester.tap(sq(7, col));
+        await tester.pumpAndSettle();
+      }
+      final from = tester.getCenter(sq(7, 9));
+      final to = tester.getCenter(sq(9, 8));
+      final g = await tester.startGesture(from);
+      await tester.pump(const Duration(milliseconds: 600));
+      for (var i = 1; i <= 4; i++) {
+        await g.moveTo(Offset.lerp(from, to, i / 5)!);
+        await tester.pump();
+      }
+      await _shot(tester, 'kld094-8d-drag-de-phone');
+      await g.moveTo(to);
+      await tester.pump();
+      await g.up();
+      await tester.pump();
+      await tester.pump();
+      await _shot(tester, 'kld094-8d-dropped-de-phone');
     });
   });
 }

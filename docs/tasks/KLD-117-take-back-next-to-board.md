@@ -28,18 +28,13 @@ resign, history). It moves into the game area, the same for every game: a labell
 - [x] Placement: chess in the control row under the board next to ⇅ and the turn toggle; Wortgewandt right
       under its control row (↓ / shuffle / zoom / Tauschen / Passen / Legen is full on a phone, one row on
       every width since step 8b), at the end of the "Bänkchen" line; on a small phone (bench button in the
-      score row) on a line of its own, which costs the board about 32 px there in hot-seat only (open for
-      maintainer feedback); every other game (4 Gewinnt, Mühle, Quartett Trumpf/Sets, Schiffe,
+      score row, e.g. 375×667) **icon-only** (↶, tooltip "Zug zurück") at the start of the ↓ / shuffle / zoom
+      row, so the board keeps its size (maintainer, after the first version gave it a line of its own and cost
+      the board about 32 px); every other game (4 Gewinnt, Mühle, Quartett Trumpf/Sets, Schiffe,
       GoStrategy) in a small row under the board that the shell provides (`shell-actions`, end-aligned).
       A board that shows the button itself says so with `GameScreen(boardPlacesUndo: true)`.
-- [x] App bar keeps: names (hot-seat), new game, resign, history.
-- [x] Handover cover: the board's button sits inside the covered area (offstage, not hit-testable). Before,
-      the app-bar arrow worked while the cover was up, so the player who just moved could take the move back
-      before passing the device; to keep that, the cover shows the same button under "Ich bin … – weiter".
-      Undo from the cover shows nothing secret: the controller covers the board again for the player whose
-      turn it is after the take-back.
-- [x] `UndoMoveButton(visualDensity: …)`: the word game passes the bench line's density so that line keeps
-      its height.
+- [x] `UndoMoveButton(visualDensity: …, iconOnly: …)`: the word game passes the bench line's density so that
+      line keeps its height, and `iconOnly` in the actions row on a small phone.
 - [x] Chess control row fits narrow boards: the buttons shrink to fit (FittedBox), the check badge takes
       what is left.
 - [x] Tests: per game that the button is in the game area and not in the app bar, disabled/enabled, takes
