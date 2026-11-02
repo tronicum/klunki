@@ -58,9 +58,15 @@ import 'wordtiles_tiles.dart';
 ///   arrangement kept per player across turns and the handover cover (which
 ///   hides it like the rack). Open, a bench tile leaves a gap in the rack;
 ///   closed, its tiles are back in the rack (nothing is ever out of sight).
-///   On a small phone ([benchOverlayMargin]) the collapsed bench is a button
-///   in the score row and the open bench lies over the lower part of the
-///   board (`wordtiles-bench-overlay`), so the board keeps its size.
+///   On a small phone ([benchOverlayMargin], [benchMinBoardShare]) the
+///   collapsed bench is a button in the score row and the open bench lies
+///   over the lower part of the board (`wordtiles-bench-overlay`), so the
+///   board keeps its size.
+/// * **Layout** (KLD-094 step 8b): portrait stacks the score row, the board
+///   (as wide as the screen), the rack and actions and the open bench with
+///   small fixed gaps; the space left over is at the very bottom, and the
+///   board only shrinks when the rest does not fit (`wordtiles-board-area`).
+///   Landscape (from 480 px wide): board left, a scrolling panel right.
 /// * **Score bar** (KLD-094 step 5): token and score per player (the names
 ///   are in the shell's legend; the semantics label keeps them), the bag,
 ///   and "So geht's" ([showWordTilesHelp]).
@@ -101,10 +107,22 @@ class WordTilesBoard extends StatefulWidget {
   static const int benchRows = 2;
   static const int benchSlots = 9;
 
-  /// On a narrow screen whose board area is less than its width plus this
-  /// many pixels high, the open bench lies over the board (bottom sheet
-  /// style) instead of pushing the board smaller.
-  static const double benchOverlayMargin = 300;
+  /// The height around the board on a phone with the bench open: score
+  /// row, last-turn line, preview line, rack, actions, the open bench and
+  /// their gaps (about 320–340 px with the app fonts).
+  /// On a narrow screen whose board area is less high than this plus
+  /// [benchMinBoardShare] of its width, the open bench lies over the board
+  /// (bottom sheet style); otherwise it goes below the actions and the
+  /// board gets a little smaller where needed (KLD-094 step 8b).
+  static const double benchOverlayMargin = 325;
+
+  /// How far the board may shrink (share of its full width) for the open
+  /// bench below the actions before the bench becomes the overlay.
+  static const double benchMinBoardShare = 0.85;
+
+  /// Only phones (narrower than this) get the bench overlay; a tablet in
+  /// portrait shrinks its board a little instead (KLD-094 step 8b).
+  static const double benchOverlayMaxWidth = 600;
 
   @override
   State<WordTilesBoard> createState() => _WordTilesBoardState();
@@ -898,10 +916,17 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final l10n = AppLocalizations.of(context);
     _updateHint(l10n);
     return LayoutBuilder(builder: (context, box) {
-      final wide = box.maxWidth >= 640 && box.maxWidth > box.maxHeight * 1.15;
+      // Landscape: board left, panel right. From 480 px wide, so a small
+      // phone in landscape (568 × 320) gets it too instead of a board
+      // squeezed to nothing above the controls (KLD-094 step 8b).
+      final wide = box.maxWidth >= 480 && box.maxWidth > box.maxHeight * 1.15;
       // A small phone (e.g. 375 × 667): the open bench lies over the lower
-      // part of the board instead of taking its height (KLD-094 step 5).
-      final compact = !wide && box.maxHeight < box.maxWidth + WordTilesBoard.benchOverlayMargin;
+      // part of the board instead of taking its height (KLD-094 step 5). A
+      // tablet in portrait has the room: its board gets a little smaller
+      // instead (KLD-094 step 8b).
+      final compact = !wide &&
+          box.maxWidth < WordTilesBoard.benchOverlayMaxWidth &&
+          box.maxHeight < box.maxWidth * WordTilesBoard.benchMinBoardShare + WordTilesBoard.benchOverlayMargin;
       // KLD-094 step 8: closed until the player opens it, so the rack and
       // the actions sit right under the board.
       final benchOpen = _benchOpen ?? false;
@@ -963,49 +988,53 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           ],
         );
       }
+      // KLD-094 step 8b: the board right under the score row, the rack and
+      // the actions right under the board, the (open) bench right under
+      // them; what is left over goes to the very bottom. The board is as
+      // wide as the screen and only gets smaller when the rest does not fit
+      // below it (a Flexible, not centred in an Expanded: no empty bands
+      // above and below the board).
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: scores),
           Padding(padding: const EdgeInsets.fromLTRB(12, 4, 12, 4), child: info),
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Align(
-                    // Board to the top while the bench lies over its lower part.
-                    alignment: benchOverlay ? Alignment.topCenter : Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: AspectRatio(aspectRatio: 1, child: board),
-                    ),
-                  ),
-                ),
-                if (benchOverlay)
-                  Positioned(
-                    left: 4,
-                    right: 4,
-                    bottom: 0,
-                    child: Container(
-                      key: const Key('wordtiles-bench-overlay'),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                        boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
-                        child: LayoutBuilder(
-                          builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, 420.0), true),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Stack(
+                key: const Key('wordtiles-board-area'),
+                alignment: Alignment.topCenter,
+                children: [
+                  AspectRatio(aspectRatio: 1, child: board),
+                  // Small phone: the open bench lies over the lower part of
+                  // the board (KLD-094 step 5), which keeps its size.
+                  if (benchOverlay)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        key: const Key('wordtiles-bench-overlay'),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                          boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+                          child: LayoutBuilder(
+                            builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, 420.0), true),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
-          Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: controls),
+          Padding(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: controls),
         ],
       );
     });
