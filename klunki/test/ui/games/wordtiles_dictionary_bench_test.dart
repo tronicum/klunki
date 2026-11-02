@@ -68,6 +68,12 @@ String _text(WidgetTester tester, Key k) => tester.widget<Text>(find.byKey(k)).d
 
 void main() {
   tearDown(WordListLoader.reset);
+  // The one-time bench explanation is seen (the bench starts open on a
+  // large screen, KLD-094 step 8c; wordtiles_playtest_test covers it).
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
 
   group('check at "Legen" with a word list', () {
     const dict = GameConfig('wordtiles', seed: 1, dictionary: true);
@@ -185,12 +191,11 @@ void main() {
   });
 
   group('bench ("Bänkchen")', () {
-    // Closed at first (KLD-094 step 8); its one-time explanation is seen.
-    setUp(() {
-      SeenTips.debugReset();
-      SeenTips.shared.markFirst(SeenTips.wordtilesBench);
-    });
-    Future<void> open(WidgetTester tester) => _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+    // Open from the start on the tablet in landscape (KLD-094 step 8c),
+    // closed on a small phone; [open] opens it where it is closed.
+    Future<void> open(WidgetTester tester) async {
+      if (_slot(0, 0).evaluate().isEmpty) await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+    }
 
     testWidgets('tap a tile, then a slot; the row shows the base score; back to the rack by drag', (tester) async {
       _tablet(tester);
@@ -295,16 +300,15 @@ void main() {
       expect(rack, containsAll(['U', 'M']));
     });
 
-    testWidgets('collapsible: closed at first; "Bänkchen" shows and hides the rows; the rack stays', (tester) async {
+    testWidgets('collapsible: open at first on a tablet; "Bänkchen" hides and shows the rows; the rack stays',
+        (tester) async {
       _tablet(tester);
       await _start(tester);
-      expect(_slot(0, 0), findsNothing);
-      await open(tester);
-      expect(_slot(0, 0), findsOneWidget);
+      expect(_slot(0, 0), findsOneWidget, reason: 'room enough: open from the start');
       await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
       expect(_slot(0, 0), findsNothing);
       expect(find.byKey(const Key('wordtiles-rack')), findsOneWidget);
-      await open(tester);
+      await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
       expect(_slot(0, 0), findsOneWidget);
     });
 

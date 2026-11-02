@@ -32,6 +32,7 @@ import 'package:klunki/app/fonts.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
@@ -189,6 +190,9 @@ Future<(int, int)> _schiffeSetup(WidgetTester tester) async {
 }
 
 void main() {
+  // The one-time Bänkchen explanation is seen: where the bench starts open
+  // (KLD-094 step 8c) it would come up over the first word tile turn.
+  setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   final skip = _out == null ? 'set KLUNKI_SHOTS=<dir> to capture screenshots' : null;
   setUpAll(() async {
     if (_out != null || _appstoreOut != null || _playstoreOut != null) await _loadFonts();

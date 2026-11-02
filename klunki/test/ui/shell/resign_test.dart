@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -27,6 +28,9 @@ Future<void> _openResign(WidgetTester tester) async {
 }
 
 void main() {
+  // The one-time Bänkchen explanation is seen: where the bench starts open
+  // (KLD-094 step 8c) it would come up over the first word tile turn.
+  setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   group('hot-seat', () {
     for (final id in appGameSpecs.map((s) => s.id)) {
       testWidgets('$id: the flag asks who resigns; Ben resigns on Anna\'s turn', (tester) async {

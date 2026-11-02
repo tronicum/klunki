@@ -89,6 +89,18 @@ class WordTilesAdapter extends LiveUiAdapter {
 
   static const _toggle = Key('wordtiles-bench-toggle');
 
+  /// The bench explanation, if it is up (on the first opening, or at the
+  /// start where the bench starts open, KLD-094 step 8c): read to the end.
+  Future<void> readCoach(WidgetTester tester, UiDevice d) async {
+    if (!d.hasKey(const Key('wordtiles-coach'))) return;
+    benchCoach++;
+    while (d.hasKey(const Key('wordtiles-coach-next'))) {
+      await d.tapKey(tester, const Key('wordtiles-coach-next'));
+    }
+    await d.tapKey(tester, const Key('wordtiles-coach-done'));
+    await settle(tester, d);
+  }
+
   /// Hot-seat, now and then: parks a rack tile not in [keep] on the bench
   /// (opening it first; the first time through its explanation) and
   /// sometimes closes it again (on a small phone always).
@@ -100,14 +112,7 @@ class WordTilesAdapter extends LiveUiAdapter {
     if (!d.hasKey(const Key('wordtiles-bench-0-0'))) {
       await d.tapKey(tester, _toggle);
       await settle(tester, d);
-      if (d.hasKey(const Key('wordtiles-coach'))) {
-        benchCoach++;
-        while (d.hasKey(const Key('wordtiles-coach-next'))) {
-          await d.tapKey(tester, const Key('wordtiles-coach-next'));
-        }
-        await d.tapKey(tester, const Key('wordtiles-coach-done'));
-        await settle(tester, d);
-      }
+      await readCoach(tester, d);
     }
     final i = free[_benchRng.nextInt(free.length)];
     bool onBench(int r, int s) => d.has(find.descendant(
@@ -222,6 +227,7 @@ class WordTilesAdapter extends LiveUiAdapter {
     final c = d.controller(tester);
     final g = c.game as WordTilesGame;
     if (g.isOver) return null;
+    await readCoach(tester, d);
     checkRack(tester, d, g);
     if (g.canChallenge) {
       final r = rng.nextDouble();
@@ -361,6 +367,7 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
     final c = d.controller(tester);
     final g = c.game as WordTilesGame;
     if (g.isOver) return null;
+    await readCoach(tester, d);
     checkRack(tester, d, g);
     expect(g.canChallenge, isFalse, reason: 'no challenges with the word list');
     final legal = [
@@ -460,6 +467,7 @@ class WordTilesNetAdapter extends WordTilesDictionaryAdapter {
     final me = d.me!;
     // The guest's view never holds the host's rack.
     if (me == Player.b) expect(g.rackOf(0), isEmpty, reason: '${d.name}: the host rack leaked');
+    await readCoach(tester, d);
     final request = g.allowRequest;
     if (request != null) {
       if (g.allowRequestAnswerer != WordTilesGame.seatOf(me)) return null; // the placer waits

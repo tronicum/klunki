@@ -48,9 +48,13 @@ import 'wordtiles_tiles.dart';
 ///   other device shows `wordtiles-allow-dialog` while the placer waits).
 ///   The history says "zugelassen: …". No challenges then.
 /// * **Bänkchen** (the bench, KLD-094 step 4): [benchRows] private practice
-///   rows of [benchSlots] slots below the actions (KLD-094 step 8), closed
-///   until opened ("Bänkchen ▸"; the first time a short explanation,
-///   [showBenchCoach]). Drag rack tiles in, move them between slots, drag them
+///   rows of [benchSlots] slots below the actions (KLD-094 step 8). Open from
+///   the start where it fits without making the board smaller (large phones,
+///   landscape with room; [benchOpenFits]), closed otherwise ("Bänkchen ▸");
+///   the player's own open / close choice holds for the rest of the game.
+///   The first time it is visible on a player's turn (hot-seat: after the
+///   handover cover), a short explanation ([showBenchCoach], once per
+///   device). Drag rack tiles in, move them between slots, drag them
 ///   back to the rack or straight onto the board (or tap a tile, then a
 ///   slot). Each row shows the base score of its words (letter points; the
 ///   premium squares count only on the board) and nothing else. The tiles are
@@ -124,6 +128,20 @@ class WordTilesBoard extends StatefulWidget {
   /// portrait shrinks its board a little instead (KLD-094 step 8b).
   static const double benchOverlayMaxWidth = 600;
 
+  /// The height of the landscape panel (score row, info, rack, actions and
+  /// the open bench) without scrolling.
+  static const double benchOpenPanelHeight = 380;
+
+  /// The bench starts open when it fits without making the board smaller
+  /// (KLD-094 step 8c): in portrait the board area must be at least its
+  /// width plus [benchOverlayMargin] high (430 × 932, 412 × 915, 402 × 874;
+  /// not 390 × 844, small phones or a tablet in portrait, whose board would
+  /// shrink), in landscape the panel must show it without scrolling
+  /// ([benchOpenPanelHeight]). [box] is the board widget's constraints.
+  static bool benchOpenFits(BoxConstraints box, {required bool wide}) => wide
+      ? box.maxHeight >= benchOpenPanelHeight
+      : box.maxHeight >= box.maxWidth + benchOverlayMargin;
+
   @override
   State<WordTilesBoard> createState() => _WordTilesBoardState();
 }
@@ -172,8 +190,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// and undo; matched to the rack again at each turn ([_loadBench]).
   final Map<int, List<List<String?>>> _benchSaved = {};
 
-  /// Bench open or collapsed; null = by screen size.
+  /// Bench open or collapsed by the player's choice (kept for the rest of
+  /// the game, not per device); null = by screen size
+  /// ([WordTilesBoard.benchOpenFits]).
   bool? _benchOpen;
+
+  /// The bench as last laid out (open or overlay) and a coach check waiting
+  /// for the end of the next frame ([_maybeBenchCoach]).
+  bool _benchVisible = false;
+  bool _coachPending = false;
 
   static List<List<int?>> _emptyBench() =>
       List.generate(WordTilesBoard.benchRows, (_) => List<int?>.filled(WordTilesBoard.benchSlots, null));
@@ -230,6 +255,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       _transport = controller.transport;
       _seen = controller.moves.length;
       _benchSaved.clear();
+      _benchOpen = null;
       _resetTurn();
     }
   }
@@ -246,7 +272,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (!mounted) return;
     setState(() {
       if (!identical(_transport, controller.transport) || controller.moves.length != _seen) {
-        if (!identical(_transport, controller.transport)) _benchSaved.clear(); // a new game
+        if (!identical(_transport, controller.transport)) {
+          // A new game: empty benches, open or closed by screen size again.
+          _benchSaved.clear();
+          _benchOpen = null;
+        }
         _transport = controller.transport;
         _seen = controller.moves.length;
         _resetTurn();
@@ -927,9 +957,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       final compact = !wide &&
           box.maxWidth < WordTilesBoard.benchOverlayMaxWidth &&
           box.maxHeight < box.maxWidth * WordTilesBoard.benchMinBoardShare + WordTilesBoard.benchOverlayMargin;
-      // KLD-094 step 8: closed until the player opens it, so the rack and
-      // the actions sit right under the board.
-      final benchOpen = _benchOpen ?? false;
+      // KLD-094 step 8c: open from the start where it fits without making
+      // the board smaller, closed otherwise (the rack and the actions right
+      // under the board); the player's choice wins.
+      final benchOpen = _benchOpen ?? WordTilesBoard.benchOpenFits(box, wide: wide);
+      _benchVisible = benchOpen;
+      if (benchOpen) _maybeBenchCoach();
       final benchOverlay = compact && benchOpen;
       final board = _boardView(context);
       // Compact: the collapsed bench is a button in the score row (no row of
@@ -1621,16 +1654,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
               style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
               icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
               label: Text(l10n.wordtilesBench, maxLines: 1, overflow: TextOverflow.ellipsis),
-              onPressed: () {
-                setState(() => _benchOpen = !open);
-                // KLD-094 step 8: the first time it opens on a player's turn,
-                // a short explanation (once per device).
-                if (!open && _benchActive && SeenTips.shared.markFirst(SeenTips.wordtilesBench)) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) showBenchCoach(context, game.tileSet);
-                  });
-                }
-              },
+              onPressed: () => setState(() => _benchOpen = !open),
             ),
           ),
         ),
@@ -1653,6 +1677,38 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [header, _benchRows(context, l10n, width)],
     );
+  }
+
+  /// The bench is visible: the first time on a player's own turn, a short
+  /// explanation (once per device; KLD-094 step 8). In hot-seat only once
+  /// the handover cover is gone, and not under another dialog or sheet. It
+  /// shows sample tiles only, never a rack.
+  ///
+  /// Checked after two frames: the first frame of the screen can lay the
+  /// board out taller than it stays (the shell's header settles a frame
+  /// later), and only a bench that is really on screen counts.
+  void _maybeBenchCoach() {
+    if (_coachPending || SeenTips.shared.has(SeenTips.wordtilesBench)) return;
+    _coachPending = true;
+    bool shown() =>
+        mounted &&
+        _benchVisible &&
+        _benchActive &&
+        !controller.needsHandover &&
+        !controller.game.isOver &&
+        ModalRoute.of(context)?.isCurrent != false;
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      if (!shown()) {
+        _coachPending = false;
+        return;
+      }
+      binding.addPostFrameCallback((_) {
+        _coachPending = false;
+        if (shown() && SeenTips.shared.markFirst(SeenTips.wordtilesBench)) showBenchCoach(context, game.tileSet);
+      });
+      binding.scheduleFrame();
+    });
   }
 
   /// The practice rows of the bench with their base scores.

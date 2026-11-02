@@ -6,9 +6,11 @@ import 'wordtiles_tiles.dart';
 
 /// The one-time explanation of the "Bänkchen" (KLD-094 step 8): three short
 /// steps with a small picture each, "Weiter" / "Verstanden", and
-/// "Überspringen" on every step. Shown the first time a player opens the
-/// bench on their turn ([SeenTips.wordtilesBench], once per device); the
-/// bench is empty then, and it shows only sample tiles, never a rack.
+/// "Überspringen" on every step. Shown the first time the bench is visible
+/// on a player's own turn (open from the start on a large screen, KLD-094
+/// step 8c, or opened by the player; in hot-seat after the handover cover;
+/// [SeenTips.wordtilesBench], once per device); it shows only sample tiles,
+/// never a rack.
 ///
 /// Keys: `wordtiles-coach`, `wordtiles-coach-step-<1..3>`,
 /// `wordtiles-coach-next`, `wordtiles-coach-done`, `wordtiles-coach-skip`.

@@ -13,6 +13,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_board.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
@@ -146,6 +147,12 @@ Future<void> _hostAsks(WidgetTester tester, List<(int, int, int)> tiles) async {
 }
 
 void main() {
+  // The one-time bench explanation is seen (the bench starts open on a
+  // large screen, KLD-094 step 8c; wordtiles_playtest_test covers it).
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
   late SortedWordListValidator words;
   setUp(() {
     words = _list(['ZZZZZZZZ']);

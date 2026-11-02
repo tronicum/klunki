@@ -578,6 +578,26 @@ area (about 50 px empty above it, 45 px below it) while the open Bänkchen ran t
   (failed on the old layout). Screenshots `--plain-name kld094-layout`: 375 × 667, 390 × 844, 430 × 932, iPad
   portrait and landscape, bench closed and open. No rules change.
 
+## Step 8c (Bänkchen open by default where it fits): what was built
+Maintainer: "why not have the Bänkchen open by default, if space allows it".
+- **Start state** (`WordTilesBoard.benchOpenFits`): open when it fits below the controls without making the board
+  smaller: in portrait the board area is at least its width + `benchOverlayMargin` (325 px) high (430 × 932,
+  412 × 915, 402 × 874), in landscape the panel shows it without scrolling (`benchOpenPanelHeight` 380 px, e.g.
+  1180 × 820). Closed elsewhere: small phones (overlay), mid-size phones (390 × 844, 393 × 852, 375 × 812) and tablets
+  in portrait, whose board would shrink, and short landscape phones (932 × 430, 568 × 320).
+- **The player's choice** (open or close by hand) holds for the rest of the game, for both players (contents stay per
+  player and under the handover cover as before); a new game starts by screen size again. Not stored per device
+  (kept simple).
+- **Explanation** (`showBenchCoach`, `SeenTips.wordtilesBench`, once per device): the first time the bench is
+  visible on a player's own turn, opened by hand or open from the start; in hot-seat only once the handover cover is
+  gone, never over another dialog. Checked two frames later, so a first frame with a passing taller layout (seen in
+  Arabic) does not trigger it under a closed bench.
+- **Tests:** `wordtiles_playtest_test.dart` (now with Roboto): open at the start on 430 × 932, 412 × 915, 1180 × 820,
+  closed on 390 × 844, 375 × 667, 820 × 1180; the choice holds across turns; the explanation shows without a tap
+  where the bench starts open, once, and waits for the handover cover; layout tests check the start state per size.
+  Screenshots `--plain-name kld094-layout`: `-1-start` (open on 412 × 915, 430 × 932, iPad landscape; closed on
+  375 × 667, 390 × 844, iPad portrait), `-2-bench-closed`, `-3-bench-open`. No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
