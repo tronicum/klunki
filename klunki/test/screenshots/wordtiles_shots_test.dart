@@ -339,6 +339,35 @@ void main() {
     }
   });
 
+  // KLD-094 step 8b (layout): board right under the score row, rack and
+  // actions right under the board, the open bench below them, the space
+  // left over at the bottom; bench closed and open with tiles. Phones,
+  // tablet portrait and landscape in German (`--plain-name kld094-layout`).
+  group('kld094-layout', () {
+    const anna = ['B', 'A', 'U', 'M', 'E', 'N', '?'];
+    for (final (name, size) in [
+      ('de-iphone-se', Size(375, 667)),
+      ('de-iphone', Size(390, 844)),
+      ('de-iphone-max', Size(430, 932)),
+      ('de-ipad-portrait', Size(820, 1180)),
+      ('de-ipad-landscape', Size(1180, 820)),
+    ]) {
+      testWidgets('layout $name', skip: skip, (tester) async {
+        final c = await _pump(tester, size, appFonts: true, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
+        await _shot(tester, 'kld094-layout/$name-1-bench-closed');
+        await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+        await tester.pumpAndSettle();
+        for (final (t, s) in [('B', 1), ('A', 2), ('U', 3), ('M', 4)]) {
+          await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, t)}')));
+          await tester.ensureVisible(find.byKey(Key('wordtiles-bench-0-$s')));
+          await _tap(tester, find.byKey(Key('wordtiles-bench-0-$s')));
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-layout/$name-2-bench-open');
+      });
+    }
+  });
+
   // KLD-094 step 5 (hot-seat polish): score bar without names, the blank's
   // "0", the bench over the board on small phones, the pass confirmation,
   // "So geht's" and the result summary (`--plain-name kld094-step5`).
