@@ -95,6 +95,18 @@ void main() {
       expect(find.byType(MenuScreen), findsNothing, reason: 'a room screen was pushed');
     });
 
+    testWidgets('relay-served http page: a tile\'s "Mit anderen" asks start or join (KLD-111)', (tester) async {
+      await _pumpMenu(tester, pageUrl: _lan);
+      await tester.tap(find.byKey(const Key('menu-connect4-network')));
+      await tester.pumpAndSettle();
+      expect(find.byType(NetworkUnavailableSheet), findsNothing);
+      expect(find.byKey(const Key('menu-room-choice-start')), findsOneWidget);
+      expect(find.byKey(const Key('menu-room-choice-join')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('menu-room-choice-join')));
+      await tester.pumpAndSettle();
+      expect(find.byType(MenuScreen), findsNothing, reason: 'the join screen was pushed');
+    });
+
     testWidgets('https without a wss:// relay: greyed out, a tap explains', (tester) async {
       await _pumpMenu(tester, pageUrl: _pages);
       final entries = _networkEntries();
@@ -110,6 +122,8 @@ void main() {
         await tester.tap(e);
         await tester.pumpAndSettle();
         expect(find.byType(NetworkUnavailableSheet), findsOneWidget, reason: '$e');
+        // KLD-111: no "Raum starten / beitreten" choice in front of it.
+        expect(find.byKey(const Key('menu-room-choice')), findsNothing, reason: '$e');
         expect(find.text(_sheetText), findsOneWidget);
         expect(find.text(_teaser), findsOneWidget);
         // No links configured: no buttons.
