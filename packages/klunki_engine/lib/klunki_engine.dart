@@ -11,5 +11,6 @@ export 'word_tiles.dart';
 export 'property.dart';
 export 'property_bot.dart';
 export 'registry.dart';
+export 'seats.dart';
 export 'compat.dart';
 export 'secrecy.dart';

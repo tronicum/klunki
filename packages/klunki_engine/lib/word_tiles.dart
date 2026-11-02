@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'game.dart';
+import 'seats.dart';
 import 'secrecy.dart';
 
 part 'word_tiles_view.dart';
@@ -12,10 +13,11 @@ part 'word_tiles_view.dart';
 /// 15 × 15 board with premium squares. See `docs/tasks/KLD-094-word-tiles.md`.
 ///
 /// The engine is written for 2–4 seats ([playerCount]); seats are `0…n-1`
-/// in turn order. The shared [Game] interface (and with it the app and the
+/// in turn order. The shared [Game] interface (and with it the 2-player
 /// network) knows two players only, so seat 0 is [Player.a] and seat 1
-/// [Player.b]; 3–4 seats work at engine level ([currentSeat], [scoreOf], …)
-/// until KLD-088 widens [Player].
+/// [Player.b]; with 3–4 seats the game is played through [SeatGame]
+/// ([currentSeat], [seatResult], [seatViewJson], seat-named moves; KLD-088
+/// step 1). Two seats behave exactly as before (same moves, views, results).
 ///
 /// Moves (all maps, like every Klunki game):
 /// * `{'action': 'place', 'tiles': [{'row': 7, 'col': 7, 'tile': 'H'},
@@ -42,9 +44,16 @@ part 'word_tiles_view.dart';
 ///     the tiles stay on `p`'s rack and it is still `p`'s turn.
 ///   A `place` move carrying `allow` itself is refused (since rules 3): the
 ///   log shows that both players agreed, which a network host checks.
+///   With 3–4 seats the three moves name a seat instead (`'seat': n`, see
+///   [requestAllowMoveFor]); the answer comes from the next seat still in.
 /// * `{'action': 'challenge'}` / `{'action': 'accept'}`: challenge mode only,
 ///   see [WordCheck.challenge].
-/// * resign: the common `{'action': 'resign', 'player': 'a'|'b'}`.
+/// * resign: the common `{'action': 'resign', 'player': 'a'|'b'}` with two
+///   seats (ends the game). With 3–4 seats `{'action': 'resign', 'seat': n}`
+///   ([SeatGame], KLD-088): seat `n` leaves, any time; its rack goes back
+///   into the bag, the turn order skips it, it ranks behind everyone still
+///   in; the game goes on until one seat is left (that seat wins,
+///   [GameEndReason.commonResigned]) or ends normally.
 ///
 /// An illegal move returns null and changes nothing.
 enum WordCheck {
@@ -402,7 +411,8 @@ class PlacementCheck {
 class WordTilesTurn {
   final int seat;
 
-  /// `place`, `exchange`, `pass`, `challenge`, `accept`.
+  /// `place`, `exchange`, `pass`, `challenge`, `accept`; `resign` (3–4
+  /// seats: the seat left the game).
   final String action;
   final List<String> words;
   final int score;
@@ -470,7 +480,7 @@ class _AllowRequest {
 
 /// The rules engine. See the library docs above for moves; the design and
 /// its decisions are in the KLD-094 card.
-class WordTilesGame extends Game {
+class WordTilesGame extends Game implements SeatGame {
   static const int size = 15;
   static const int centre = 7;
   static const int rackSize = 7;
@@ -519,6 +529,7 @@ class WordTilesGame extends Game {
 
   final int seed;
   final TileSet tileSet;
+  @override
   final int playerCount;
   final WordCheck check;
 
@@ -527,8 +538,14 @@ class WordTilesGame extends Game {
   final WordValidator? validator;
 
   /// Consecutive scoreless turns (passes, exchanges, withdrawn or zero-score
-  /// placements, failed challenges) that end the game.
+  /// placements, failed challenges) that end the game; by default
+  /// [defaultScorelessLimit].
   final int scorelessLimit;
+
+  /// The default [scorelessLimit] for [players] seats: 6 (the usual rule)
+  /// for 2 and 3 seats, 2 × [players] beyond, so every player has passed
+  /// (or exchanged) twice in a row before a game ends that way.
+  static int defaultScorelessLimit(int players) => max(6, 2 * players);
 
   final List<BoardTile?> _board = List.filled(size * size, null);
 
@@ -546,6 +563,8 @@ class WordTilesGame extends Game {
   /// The `allow` word sets declined in this turn (sorted), so the same
   /// request cannot be repeated until the turn changes.
   final List<List<String>> _declined = [];
+  /// Seats that resigned (3–4 seats only), in the order they left.
+  final List<int> _outOrder = [];
   bool _endPending = false;
   bool _over = false;
   GameEndReason? _endCode;
@@ -559,8 +578,9 @@ class WordTilesGame extends Game {
       this.playerCount = 2,
       this.check = WordCheck.challenge,
       this.validator,
-      this.scorelessLimit = 6})
-      : _racks = List.generate(playerCount, (_) => <String>[]),
+      int? scorelessLimit})
+      : scorelessLimit = scorelessLimit ?? defaultScorelessLimit(playerCount),
+        _racks = List.generate(playerCount, (_) => <String>[]),
         _scores = List.filled(playerCount, 0),
         _penalties = List.filled(playerCount, 0),
         _rng = Random(seed) {
@@ -613,6 +633,30 @@ class WordTilesGame extends Game {
   /// The seat to move.
   int get currentSeat => _seat;
 
+  /// The seat expected to move now: the answerer of an open "Trotzdem
+  /// zulassen" request, else [currentSeat] (who may also challenge); null
+  /// once over.
+  @override
+  int? get actorSeat => isOver ? null : allowRequestAnswerer ?? _seat;
+
+  @override
+  bool isSeatOut(int seat) => _outOrder.contains(seat);
+
+  /// The seats that resigned, in the order they left (3–4 seats).
+  List<int> get outSeats => List.unmodifiable(_outOrder);
+
+  /// The seats still in, in seat order.
+  List<int> get activeSeats => [for (var s = 0; s < playerCount; s++) if (!isSeatOut(s)) s];
+
+  @override
+  int seatOfMove(Map<String, dynamic> move) {
+    if (move['action'] == 'resign') {
+      final s = playerCount == 2 ? Game.resignerOf(move)?.index : move['seat'];
+      if (s is int) return s;
+    }
+    return _allowSeatOf(move) ?? _seat;
+  }
+
   /// [Player] of a seat: seat 0 = A, 1 = B (null beyond, until KLD-088).
   static Player? playerOfSeat(int seat) => seat < Player.values.length ? Player.values[seat] : null;
 
@@ -623,7 +667,14 @@ class WordTilesGame extends Game {
   Player get currentPlayer =>
       playerOfSeat(_seat) ?? (throw StateError('seat $_seat has no Player (more than 2 seats, KLD-088)'));
 
-  int _next(int seat) => (seat + 1) % playerCount;
+  /// The next seat still in after [seat].
+  int _next(int seat) {
+    var s = seat;
+    do {
+      s = (s + 1) % playerCount;
+    } while (_outOrder.contains(s) && s != seat);
+    return s;
+  }
 
   // --- state getters ---
 
@@ -679,36 +730,77 @@ class WordTilesGame extends Game {
   @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
 
-  /// Seats with the top score once the game is over (more than one: a tie).
+  /// Seats with the top score once the game is over (more than one: a tie);
+  /// seats that resigned do not count (the last seat left wins alone).
   List<int> get winnerSeats {
     if (!_over) return const [];
-    final best = _scores.reduce(max);
-    return [for (var s = 0; s < playerCount; s++) if (_scores[s] == best) s];
+    final active = activeSeats;
+    if (_endCode == GameEndReason.commonResigned) return active;
+    final best = active.map((s) => _scores[s]).reduce(max);
+    return [for (final s in active) if (_scores[s] == best) s];
   }
+
+  /// The outcome per seat: places by final score (ties share a place),
+  /// seats that resigned behind (the last to leave best among them). With
+  /// two seats a common resign gives the resigner place 2.
+  @override
+  SeatResult get seatResult {
+    final resigner = resignedBy;
+    if (resigner != null) {
+      return SeatResult(
+          isOver: true,
+          places: [for (var s = 0; s < playerCount; s++) s == resigner.index ? 2 : 1],
+          code: GameEndReason.commonResigned.code,
+          params: {'seat': resigner.index},
+          reason: '${_markOf(resigner.index)} resigned');
+    }
+    if (!_over) return const SeatResult();
+    final r = playResult;
+    return SeatResult(
+        isOver: true,
+        places: _endCode == GameEndReason.commonResigned
+            ? SeatResult.placesFor(List.filled(playerCount, 0), out: _outOrder)
+            : SeatResult.placesFor(_scores, out: _outOrder),
+        code: _endCode!.code,
+        params: {
+          for (var s = 0; s < playerCount; s++) 'score$s': _scores[s],
+          if (_endCode == GameEndReason.wordtilesScoreless) 'turns': scorelessLimit,
+          if (_endCode == GameEndReason.commonResigned) 'seat': _outOrder.last,
+        },
+        reason: r.reason);
+  }
+
+  /// The engine's English name for [seat] (CLI, logs).
+  static String _markOf(int seat) => switch (seat) {
+        0 => playerNameOf(Player.a),
+        1 => playerNameOf(Player.b),
+        _ => 'P${seat + 1}',
+      };
 
   @override
   bool get isOver => resignedBy != null || _over;
 
+  /// The two-player outcome. With 3–4 seats a winner in seat 2+ cannot be
+  /// named as a [Player]: then (and on a shared first place) [GameResult.draw]
+  /// is true only to say that the game is over; use [seatResult].
   @override
   GameResult get playResult {
     if (!_over) return const GameResult();
     final w = winnerSeats;
-    final draw = w.length > 1;
+    final winner = w.length == 1 ? playerOfSeat(w.single) : null;
+    final draw = winner == null;
     final params = <String, int>{
       for (var s = 0; s < playerCount && s < 2; s++) Player.values[s].name: _scores[s],
       if (_endCode == GameEndReason.wordtilesScoreless) 'turns': scorelessLimit,
+      if (_endCode == GameEndReason.commonResigned) 'player': _outOrder.last,
     };
-    final mark = [playerNameOf(Player.a), playerNameOf(Player.b), 'P3', 'P4'];
-    final scoreText = [for (var s = 0; s < playerCount; s++) '${mark[s]} ${_scores[s]}'].join(', ');
-    final why = _endCode == GameEndReason.wordtilesPlayedOut
-        ? '${mark[_outSeat!]} played out'
-        : '$scorelessLimit scoreless turns';
-    return GameResult(
-        winner: draw ? null : playerOfSeat(w.single),
-        draw: draw,
-        reason: '$why; $scoreText',
-        code: _endCode,
-        params: params);
+    final scoreText = [for (var s = 0; s < playerCount; s++) '${_markOf(s)} ${_scores[s]}'].join(', ');
+    final why = switch (_endCode) {
+      GameEndReason.wordtilesPlayedOut => '${_markOf(_outSeat!)} played out',
+      GameEndReason.commonResigned => 'the others resigned',
+      _ => '$scorelessLimit scoreless turns',
+    };
+    return GameResult(winner: winner, draw: draw, reason: '$why; $scoreText', code: _endCode, params: params);
   }
 
   // --- placement check ---
@@ -868,6 +960,53 @@ class WordTilesGame extends Game {
   bool _filled(int r, int c) => r >= 0 && r < size && c >= 0 && c < size && _board[r * size + c] != null;
 
   // --- moves ---
+
+  /// With 3–4 seats a resign names a seat and lets the game go on (see the
+  /// library docs); with two seats it is the common resign of [Game].
+  @override
+  GameEvent? applyMove(Map<String, dynamic> move) {
+    if (playerCount == 2 || move['action'] != 'resign') return super.applyMove(move);
+    return _resignSeat(move);
+  }
+
+  /// The resign move for [seat] in a game with 3–4 seats.
+  static Map<String, dynamic> resignSeatMove(int seat) => {'action': 'resign', 'seat': seat};
+
+  GameEvent? _resignSeat(Map<String, dynamic> move) {
+    final seat = move['seat'];
+    if (isOver || move.length != 2 || seat is! int || seat < 0 || seat >= playerCount || isSeatOut(seat)) return null;
+    _outOrder.add(seat);
+    // The rack goes back into the bag at random places (as an exchange).
+    for (final t in _racks[seat]) {
+      _bag.insert(_rng.nextInt(_bag.length + 1), t);
+    }
+    _racks[seat].clear();
+    final r = _request;
+    if (r != null && r.seat == seat) _request = null;
+    final o = _open;
+    if (o != null && (o.seat == seat || _seat == seat)) {
+      // The placement stands: its placer left, or the seat that could
+      // challenge it did.
+      _open = null;
+      if (_endPending) {
+        _endPending = false;
+        if (o.seat != seat) _finishOut(o.seat);
+      }
+    }
+    if (_seat == seat) {
+      _declined.clear();
+      _seat = _next(seat);
+    }
+    _turns.add(WordTilesTurn(seat, 'resign'));
+    _history.add(Map.unmodifiable(move));
+    if (!_over && activeSeats.length == 1) {
+      _endCode = GameEndReason.commonResigned;
+      _over = true;
+      _open = null;
+      _request = null;
+    }
+    return _event({'action': 'resign', 'seat': seat});
+  }
 
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
@@ -1061,6 +1200,30 @@ class WordTilesGame extends Game {
     return playerOrNull(move['player']);
   }
 
+  /// The seat a request / answer move names (`player` with two seats,
+  /// `seat` with 3–4), else null.
+  int? _allowSeatOf(Map<String, dynamic> move) {
+    final a = move['action'];
+    if (a != requestAllow && a != acceptAllow && a != declineAllow) return null;
+    if (playerCount == 2) return allowPlayerOf(move)?.index;
+    final s = move['seat'];
+    return s is int && s >= 0 && s < playerCount ? s : null;
+  }
+
+  /// [requestAllowMove] for [seat] in this game: names the player with two
+  /// seats, the seat with 3–4.
+  Map<String, dynamic> requestAllowMoveFor(int seat, List<PlacedTile> tiles, List<String> allow) => playerCount == 2
+      ? requestAllowMove(Player.values[seat], tiles, allow)
+      : {'action': requestAllow, 'seat': seat, 'tiles': [for (final t in tiles) t.toJson()], 'allow': allow};
+
+  /// [acceptAllowMove] for [seat] in this game (see [requestAllowMoveFor]).
+  Map<String, dynamic> acceptAllowMoveFor(int seat) =>
+      playerCount == 2 ? acceptAllowMove(Player.values[seat]) : {'action': acceptAllow, 'seat': seat};
+
+  /// [declineAllowMove] for [seat] in this game (see [requestAllowMoveFor]).
+  Map<String, dynamic> declineAllowMoveFor(int seat) =>
+      playerCount == 2 ? declineAllowMove(Player.values[seat]) : {'action': declineAllow, 'seat': seat};
+
   /// The request moves name their player (an answer comes from the player
   /// not to move); everything else as [Game.playerOf].
   @override
@@ -1092,8 +1255,8 @@ class WordTilesGame extends Game {
       a.length == b.length && Iterable<int>.generate(a.length).every((i) => a[i] == b[i]);
 
   GameEvent? _requestAllow(Map<String, dynamic> move) {
-    final p = allowPlayerOf(move);
-    if (move.length != 4 || p == null || seatOf(p) != _seat || check != WordCheck.dictionary) return null;
+    final p = _allowSeatOf(move);
+    if (move.length != 4 || p == null || p != _seat || check != WordCheck.dictionary) return null;
     final raw = move['allow'];
     if (raw is! List || raw.any((w) => w is! String)) return null;
     final allow = raw.cast<String>().toList();
@@ -1111,9 +1274,9 @@ class WordTilesGame extends Game {
   }
 
   GameEvent? _acceptAllow(Map<String, dynamic> move) {
-    final p = allowPlayerOf(move);
+    final p = _allowSeatOf(move);
     final r = _request;
-    if (move.length != 2 || p == null || r == null || seatOf(p) != _next(r.seat)) return null;
+    if (move.length != 2 || p == null || r == null || p != _next(r.seat)) return null;
     _request = null;
     final c = checkPlacement(placeMove(r.tiles, allow: r.allow));
     if (!c.ok) {
@@ -1122,16 +1285,16 @@ class WordTilesGame extends Game {
     }
     final e = _lay(c, r.allow);
     return GameEvent(
-        winner: e.winner, draw: e.draw, payload: {...e.payload as Map<String, dynamic>, 'agreed': seatOf(p)});
+        winner: e.winner, draw: e.draw, payload: {...e.payload as Map<String, dynamic>, 'agreed': p});
   }
 
   GameEvent? _declineAllow(Map<String, dynamic> move) {
-    final p = allowPlayerOf(move);
+    final p = _allowSeatOf(move);
     final r = _request;
-    if (move.length != 2 || p == null || r == null || seatOf(p) != _next(r.seat)) return null;
+    if (move.length != 2 || p == null || r == null || p != _next(r.seat)) return null;
     _request = null;
     _declined.add([...r.allow]..sort());
-    return _event({'action': declineAllow, 'seat': seatOf(p), 'placer': r.seat, 'allow': r.allow});
+    return _event({'action': declineAllow, 'seat': p, 'placer': r.seat, 'allow': r.allow});
   }
 
   GameEvent _event(Map<String, dynamic> payload) {
@@ -1201,8 +1364,8 @@ class WordTilesGame extends Game {
     if (isOver) return const [];
     final r = _request;
     if (r != null) {
-      final to = playerOfSeat(_next(r.seat));
-      return to == null ? const [] : [acceptAllowMove(to), declineAllowMove(to)];
+      final to = _next(r.seat);
+      return [acceptAllowMoveFor(to), declineAllowMoveFor(to)];
     }
     final out = <Map<String, dynamic>>[];
     if (canChallenge) {
@@ -1257,11 +1420,18 @@ class WordTilesGame extends Game {
   /// What [viewer] may know, as JSON: the board, scores, rack sizes, bag
   /// size, the turn log and the viewer's own rack. Never another rack, the
   /// bag order or the seed.
-  Map<String, dynamic> viewJson(Player viewer) {
-    final v = seatOf(viewer);
+  Map<String, dynamic> viewJson(Player viewer) => seatViewJson(seatOf(viewer));
+
+  /// [viewJson] for any seat (KLD-088): what [v] may know. With two seats
+  /// exactly the [viewJson] of its [Player]; with 3–4 seats it also holds
+  /// `viewerSeat` (and `viewer` only for seats 0 and 1) and `out`, the seats
+  /// that resigned.
+  Map<String, dynamic> seatViewJson(int v) {
+    if (v < 0 || v >= playerCount) throw RangeError.range(v, 0, playerCount - 1, 'seat');
     final o = _open;
     return {
-      'viewer': viewer.name,
+      if (v < 2) 'viewer': Player.values[v].name,
+      if (playerCount > 2) 'viewerSeat': v,
       'tileSet': tileSet.id,
       'players': playerCount,
       'check': check.name,
@@ -1296,6 +1466,7 @@ class WordTilesGame extends Game {
       'turns': [for (final t in _turns) t.toJson()],
       if (_over) 'end': {'code': _endCode!.code, if (_outSeat != null) 'out': _outSeat},
       if (resignedBy != null) 'resigned': resignedBy!.name,
+      if (_outOrder.isNotEmpty) 'out': List.of(_outOrder),
     };
   }
 }

@@ -353,6 +353,7 @@ class KlunkiGuest {
     // and, at the end, to replay the game; KLD-094 step 6).
     final problem = configProblem(config, wordList: false);
     if (problem != null) return problem;
+    if (config.players != 2) return 'the host started a game for ${config.players} players';
     final spec = specById(config.gameId)!;
     final redaction = spec.redaction;
     final redacted = m['redacted'] == true;

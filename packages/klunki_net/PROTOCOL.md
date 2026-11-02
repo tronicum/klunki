@@ -454,6 +454,14 @@ game the guest also checks what it can at once: each view must be its own
   "Akzeptieren") runs over the network unchanged: the next player answers
   on their own device.
 - The CLI (`klunki host wordtiles`) has no flags for `tiles` / `dict` yet.
+- **3–4 players (KLD-088 step 1): not on the wire yet.** `GameConfig` has a
+  `players` key (written only when not 2; absent = 2), but a session is host
+  + one guest: `KlunkiHost.start` / `startRelay` refuse a config with
+  `players` other than 2 (`ArgumentError`), and a guest refuses such a
+  `welcome` (an older guest would ignore the key and build a 2-player game).
+  The n-player protocol (lobby with seats, per-seat redaction and
+  commitments) is planned in `docs/tasks/KLD-088-more-players.md`; it will
+  bump `protocolVersion`.
 
 ## Relay (KLD-057a): browser vs browser
 
