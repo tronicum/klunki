@@ -981,12 +981,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       // KLD-094 step 8: the bench below the actions (rack and actions right
       // under the board, the bench is the optional extra).
       // KLD-117: "Zug zurück" (hot-seat) right under the actions, at the end
-      // of the bench line (the actions row is full on a phone). On a small
-      // phone, where the bench button is in the score row, it has that line
-      // alone (as dense as the bench line; nothing in network play).
+      // of the bench line (the actions row is full on a phone; as dense as
+      // the bench line). On a small phone, where the bench button is in the
+      // score row, just the ↶ icon in the actions row, so the board keeps
+      // its size. Nothing in network play.
       const undo = UndoMoveButton(visualDensity: VisualDensity(horizontal: -4, vertical: -4));
       final Widget bench = compact
-          ? const Align(alignment: AlignmentDirectional.centerEnd, child: undo)
+          ? const SizedBox.shrink()
           : LayoutBuilder(
               builder: (context, benchBox) =>
                   _benchView(context, l10n, min(benchBox.maxWidth, 420.0), benchOpen, trailing: undo),
@@ -1000,7 +1001,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           LayoutBuilder(
               builder: (context, rackBox) => _rackView(context, min(rackBox.maxWidth, 420.0), benchShown: benchOpen)),
           const SizedBox(height: 6),
-          _actions(context, l10n),
+          _actions(context, l10n, undoIcon: compact),
           const SizedBox(height: 6),
           bench,
         ],
@@ -1810,7 +1811,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     );
   }
 
-  Widget _actions(BuildContext context, AppLocalizations l10n) {
+  /// [undoIcon]: the icon-only "Zug zurück" at the start of the row (small
+  /// phone, KLD-117).
+  Widget _actions(BuildContext context, AppLocalizations l10n, {bool undoIcon = false}) {
     if (_exchanging) {
       return Wrap(
         alignment: WrapAlignment.center,
@@ -1845,6 +1848,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         constraints: const BoxConstraints(maxWidth: 560),
         child: Row(
           children: [
+            if (undoIcon) const UndoMoveButton(visualDensity: compact, iconOnly: true),
             IconButton(
               key: const Key('wordtiles-recall'),
               tooltip: l10n.wordtilesRecall,

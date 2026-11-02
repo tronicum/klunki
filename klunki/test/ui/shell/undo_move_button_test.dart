@@ -110,4 +110,26 @@ void main() {
     expect(button(tester).onPressed, isNull);
     expect(c.game.currentPlayer, Player.a);
   });
+
+  testWidgets('Wortgewandt on a small phone: just the ↶ icon in the actions row (KLD-117)', (tester) async {
+    tester.view.physicalSize = const Size(375, 667);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final c = await pumpGame(tester, 'wordtiles');
+    final icon = find.byKey(undo);
+    expect(tester.widget(icon), isA<IconButton>());
+    expect(tester.widget<IconButton>(icon).tooltip, 'Zug zurück');
+    expect(find.text('Zug zurück'), findsNothing);
+    expect((tester.getCenter(icon).dy - tester.getCenter(find.byKey(const Key('wordtiles-shuffle'))).dy).abs(),
+        lessThan(4));
+    expect(tester.widget<IconButton>(icon).onPressed, isNull);
+    await playMove(tester);
+    if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(handoverContinue));
+      await tester.pump();
+    }
+    await tester.tap(icon);
+    await tester.pump();
+    expect(c.moves, isEmpty);
+  });
 }

@@ -713,14 +713,19 @@ class UndoMoveButton extends StatelessWidget {
   /// density, so the row keeps its height.
   final VisualDensity visualDensity;
 
-  const UndoMoveButton({super.key, this.visualDensity = VisualDensity.compact});
+  /// Only the ↶ icon, the label as its tooltip: for a full board row on a
+  /// small phone (Wortgewandt), where a line of its own would cost the
+  /// board space.
+  final bool iconOnly;
+
+  const UndoMoveButton({super.key, this.visualDensity = VisualDensity.compact, this.iconOnly = false});
 
   @override
   Widget build(BuildContext context) {
     final controller = GameScreen.of(context).controller;
     return ListenableBuilder(
       listenable: controller,
-      builder: (context, _) => _UndoButton(controller: controller, visualDensity: visualDensity),
+      builder: (context, _) => _UndoButton(controller: controller, visualDensity: visualDensity, iconOnly: iconOnly),
     );
   }
 }
@@ -728,12 +733,23 @@ class UndoMoveButton extends StatelessWidget {
 class _UndoButton extends StatelessWidget {
   final GameController controller;
   final VisualDensity visualDensity;
-  const _UndoButton({required this.controller, required this.visualDensity});
+  final bool iconOnly;
+  const _UndoButton({required this.controller, required this.visualDensity, required this.iconOnly});
 
   @override
   Widget build(BuildContext context) {
     if (controller.transport is! HotSeatTransport) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
+    final onPressed = controller.canUndo ? controller.undo : null;
+    if (iconOnly) {
+      return IconButton(
+        key: const Key('shell-undo'),
+        tooltip: l10n.shellTakeBack,
+        visualDensity: visualDensity,
+        icon: const Icon(Icons.undo), // matchTextDirection: mirrored in RTL
+        onPressed: onPressed,
+      );
+    }
     return Tooltip(
       message: l10n.shellUndo,
       excludeFromSemantics: true,
@@ -742,7 +758,7 @@ class _UndoButton extends StatelessWidget {
         style: TextButton.styleFrom(visualDensity: visualDensity),
         icon: const Icon(Icons.undo), // matchTextDirection: mirrored in RTL
         label: Text(l10n.shellTakeBack),
-        onPressed: controller.canUndo ? controller.undo : null,
+        onPressed: onPressed,
       ),
     );
   }
