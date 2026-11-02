@@ -51,3 +51,19 @@ dart test
 dart run bin/server.dart --port 8080   # local only
 ```
 Green; design doc with the 🧑 decision list delivered; card status set to DONE (phase 1).
+
+## Later: self-hosted club server with access codes (maintainer idea, 2026-11-02)
+Not scheduled yet; collected here so the internet relay is designed for it.
+- **Package the existing relay** (`klunki relay`, KLD-057a) as something anyone can run for their circle of friends:
+  - a small Docker image (`dart compile exe`, minimal base image), with TLS through a reverse proxy (e.g. Caddy) for `wss://`;
+  - possibly later an edge-function variant (would need a port of the relay protocol; assess first).
+- **Server access codes ("Clubcodes"), beta:** the server keeps a list of codes, several per server, e.g. one per family or friend. A browser or app needs a valid code once (it is saved in the relay settings next to the server address); after that, rooms work with the normal room codes.
+  - Codes can be **revoked** one by one (edit the list or an admin CLI command, no restart), so a server shared with a friend club can't be misused by strangers.
+  - The code travels in the WebSocket handshake. It is only checked by the relay and never reaches the host or the game; there are no accounts, and nothing is stored beyond the process lifetime except the code list.
+  - Wrong or revoked code: a clear message in the app ("Dieser Server kennt den Code nicht"), no room list leak.
+- With such a server set in the relay settings, the GitHub Pages beta can play over the network (KLD-108 checks for a usable `wss://` relay).
+- Open: how codes are created and shared (QR?), per-code limits on rooms, a protocol version bump for the handshake field.
+- **Cloudflare variant (assessed 2026-11-02):** a Worker with **Durable Objects** (one object per room holds the host and guest WebSockets). The Workers Free plan includes Durable Objects (since 2025-04): 100,000 requests a day, where incoming WebSocket messages count 1:20 and outgoing ones are free, plus 13,000 GB-s a day of duration (about 29 h of open rooms a day at 128 MB). Idle objects hibernate after about 10 s and cost nothing then. That is plenty for a friend club.
+  - Our keepalive pings must be answered without waking the object (WebSocket auto-response), otherwise rooms never hibernate.
+  - The relay protocol has to be ported to TypeScript/JS (a few hundred lines) and tested against the Dart relay's protocol tests. Club codes go in a Worker secret or KV.
+  - Each user deploys to their own Cloudflare account (button or `wrangler deploy`); we host nothing.
