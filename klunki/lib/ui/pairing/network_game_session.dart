@@ -4,6 +4,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/network_transport.dart';
+import '../games/wordtiles/wordtiles_options.dart' show loadWordListWithProgress;
 import '../ltr.dart';
 import 'relay_errors.dart';
 import '../shell/game_screen.dart';
@@ -35,6 +36,21 @@ class _NetworkGameSessionState extends State<NetworkGameSession> {
     widget.transport,
     transportFactory: (_) => throw UnsupportedError('a network game cannot be restarted locally'),
   );
+
+  @override
+  void initState() {
+    super.initState();
+    // KLD-094 step 6: a guest of a Wortgewandt game with "Wörterbuch prüfen"
+    // loads the same word list (the fingerprint made sure it is the same)
+    // to check its own words at "Legen" and the host's game at the end.
+    final config = widget.transport.config;
+    final tiles = config.tiles ?? TileSet.german.id;
+    if (config.gameId == 'wordtiles' && config.dictionary && !WordLists.has(tiles)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) loadWordListWithProgress(context, tiles);
+      });
+    }
+  }
 
   @override
   void dispose() {

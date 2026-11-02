@@ -27,7 +27,8 @@ class WordTilesView extends WordTilesGame {
       if (players < 2 || players > 4) throw BadViewException('bad player count $players');
       final check = WordCheck.values.byName(j['check'] as String);
       final v = WordTilesView._(viewer, tileSet, players, check,
-          validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int);
+          validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int)
+        .._lazyList = validator == null;
       final rows = (j['board'] as List).cast<String>();
       if (rows.length != WordTilesGame.size) throw const BadViewException('bad board');
       for (var r = 0; r < WordTilesGame.size; r++) {
@@ -72,6 +73,18 @@ class WordTilesView extends WordTilesGame {
             const [], 0, 0, v._turns.length - 1);
       }
       v._endPending = j['endPending'] == true;
+      final request = j['allowRequest'];
+      if (request != null) {
+        final r = request as Map<String, dynamic>;
+        final tiles = v._parseTiles(r['tiles']) ?? (throw const BadViewException('bad request tiles'));
+        final seat = r['seat'] as int;
+        if (seat < 0 || seat >= players || tiles.isEmpty) throw const BadViewException('bad request');
+        v._request = _AllowRequest(
+            seat, tiles, (r['allow'] as List).cast<String>(), (r['words'] as List).cast<String>(), r['score'] as int);
+      }
+      for (final d in j['declined'] as List? ?? const []) {
+        v._declined.add((d as List).cast<String>().toList());
+      }
       final end = j['end'];
       if (end != null) {
         final e = end as Map<String, dynamic>;
@@ -102,10 +115,29 @@ class WordTilesView extends WordTilesGame {
   @override
   List<String> rackOf(int seat) => seat == WordTilesGame.seatOf(viewer) ? super.rackOf(seat) : const [];
 
-  /// The viewer's legal moves on its turn; empty otherwise.
+  /// The viewer's legal moves on its turn (or the answers to the other
+  /// player's open request); empty otherwise.
   @override
-  List<Map<String, dynamic>> get legalMoves =>
-      _seat == WordTilesGame.seatOf(viewer) ? super.legalMoves : const [];
+  List<Map<String, dynamic>> get legalMoves {
+    final me = WordTilesGame.seatOf(viewer);
+    final answerer = allowRequestAnswerer;
+    if (answerer != null) return answerer == me ? super.legalMoves : const [];
+    return _seat == me ? super.legalMoves : const [];
+  }
+
+  /// The word check of a dictionary game: the list given to [fromJson], else
+  /// the one registered in [WordLists] for the tile set (the app loads it
+  /// after joining, KLD-094 step 6), else nothing is refused locally (the
+  /// host checks every placement anyway).
+  @override
+  WordValidator? get validator {
+    final own = super.validator;
+    if (check != WordCheck.dictionary || own is! AcceptAllValidator || !_lazyList) return own;
+    return WordLists.of(tileSet.id) ?? own;
+  }
+
+  /// No list was given to [fromJson]: look it up in [WordLists].
+  bool _lazyList = false;
 
   /// Read-only: the host applies every move, a resign included.
   @override

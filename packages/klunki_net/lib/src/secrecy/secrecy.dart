@@ -76,6 +76,8 @@ String? verifyRedactedGame({
   required String gameId,
   String? deck,
   bool pickLowCards = true,
+  String? tiles,
+  bool dictionary = false,
   required Player me,
   required int seed,
   required String startViewHash,
@@ -110,7 +112,8 @@ String? verifyRedactedGame({
 
   final Game game;
   try {
-    game = createGame(GameConfig(gameId, seed: seed, deck: deck, pickLowCards: pickLowCards));
+    game = createGame(GameConfig(gameId,
+        seed: seed, deck: deck, pickLowCards: pickLowCards, tiles: tiles, dictionary: dictionary));
   } catch (e) {
     return 'cannot create the game: $e';
   }

@@ -14,6 +14,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/transport/network_transport.dart';
+import 'package:klunki_net/klunki_net.dart' show Verification;
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -47,6 +49,45 @@ void main() {
       expect(game.result.code, anyOf(GameEndReason.wordtilesPlayedOut, GameEndReason.wordtilesScoreless));
     });
   }
+
+  // KLD-094 step 6: over the network (host Anna, guest Ben side by side over
+  // real sockets through the Wi-Fi latency proxy), with the German word
+  // list: the first "Trotzdem zulassen" is declined on the other device, the
+  // second accepted; each device plays from its own rack only. The driver
+  // checks that the host applied exactly the tapped moves and that the
+  // guest's log is the redacted one; the guest verifies the game at the end.
+  testWidgets('network with the German word list: allow declined, then accepted; to the end on both devices',
+      (tester) async {
+    await tester.runAsync(() => WordListLoader.ensure('de'));
+    final adapter = WordTilesNetAdapter();
+    final log = await playNetwork(tester, adapter, const GameConfig('wordtiles', seed: 3, dictionary: true),
+        rng: Random(3), behaviour: const NetBehaviour(dawdle: 0.3, wait: 0, fidget: 0));
+    log.printIfVerbose();
+    expect(adapter.tapped['decline'], 1, reason: '${adapter.tapped}');
+    expect(adapter.tapped['agree'], 1, reason: '${adapter.tapped}');
+    expect(adapter.tapped['place'] ?? 0, greaterThan(3), reason: '${adapter.tapped}');
+    final host = UiDevice('host', scope: const Key('device-host'), me: Player.a);
+    final guest = UiDevice('guest', scope: const Key('device-guest'), me: Player.b);
+    final hc = host.controller(tester), gc = guest.controller(tester);
+    final hg = hc.game as WordTilesGame, gg = gc.game as WordTilesGame;
+    expect(hg.isOver, isTrue);
+    expect(gg.isOver, isTrue);
+    expect(gg.scores, hg.scores);
+    expect(gg.result.code, hg.result.code);
+    expect(hg.turns.expand((t) => t.allowed), hasLength(1));
+    for (final d in [host, guest]) {
+      expect(d.resultShown(), isTrue, reason: d.name);
+    }
+    // KLD-064: the guest checked the host's reveal.
+    final verification = (gc.transport as NetworkTransport).verification;
+    for (var i = 0; i < 500 && verification.value == Verification.pending; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 5)));
+      await tester.pump();
+    }
+    expect(verification.value, Verification.verified);
+    expect(guest.hasKey(const Key('net-verification-failed')), isFalse);
+    debugPrint('wordtiles network: ${adapter.tapped}, ${hc.moves.length} moves, ${hg.result.code}, scores ${hg.scores}');
+  }, timeout: liveUiTimeout);
 
   // KLD-094 step 5: with the German word list, on a tablet and on a small
   // phone (375 × 667, the board auto-zooms): one "Trotzdem zulassen", a

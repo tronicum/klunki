@@ -2280,4 +2280,71 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appBetaAndroid => 'تنزيل التطبيق على Android';
+
+  @override
+  String wordtilesOptionsSummaryDict(String language) {
+    return '$language · مع التحقق من القاموس';
+  }
+
+  @override
+  String wordtilesOptionsSummaryFree(String language) {
+    return '$language · بدون قاموس';
+  }
+
+  @override
+  String wordtilesUnknownAskNet(String player) {
+    return 'يمكنك سحب الحروف، أو طلب موافقة $player على احتسابها رغم ذلك.';
+  }
+
+  @override
+  String wordtilesUnknownDeclinedBefore(String player) {
+    return 'سبق الرفض من $player، لذا يجب سحب الحروف.';
+  }
+
+  @override
+  String get wordtilesAllowTitle => 'قبول رغم ذلك؟';
+
+  @override
+  String wordtilesAllowBody(String player, String words) {
+    return 'طلب من $player: قبول «$words» رغم ذلك. موافقة؟';
+  }
+
+  @override
+  String get wordtilesAllowAccept => 'قبول';
+
+  @override
+  String get wordtilesAllowDecline => 'رفض';
+
+  @override
+  String wordtilesAllowDeciding(String player) {
+    return 'القرار عند $player…';
+  }
+
+  @override
+  String get wordtilesAllowYouDecide => 'القرار لك';
+
+  @override
+  String wordtilesAllowLine(String player, String words, int score) {
+    return 'طلب من $player: قبول «$words» ($score نقطة).';
+  }
+
+  @override
+  String wordtilesAllowDeclined(String player, String words) {
+    return '«$words» مرفوضة من $player.';
+  }
+
+  @override
+  String wordtilesMoveAllowRequest(String words, int score) {
+    return 'طلب قبول $words ($score نقطة)';
+  }
+
+  @override
+  String wordtilesMoveAllowAccept(String words, int score) {
+    return 'موافقة: احتساب $words ($score نقطة)';
+  }
+
+  @override
+  String wordtilesMoveAllowDecline(String words) {
+    return 'رفض: $words';
+  }
 }

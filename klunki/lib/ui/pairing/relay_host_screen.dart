@@ -12,6 +12,7 @@ import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
+import '../games/wordtiles/wordtiles_options.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/game_screen.dart' show newGameSeed;
@@ -83,6 +84,10 @@ class RelayHostScreen extends StatefulWidget {
   /// a game tile's "Mit anderen" link).
   final bool fixedGame;
 
+  /// Wortgewandt's options already chosen (the app's "Raum starten" hands
+  /// them over, KLD-094 step 6); null: the defaults of the app language.
+  final WordTilesOptions? initialWordTiles;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -96,6 +101,7 @@ class RelayHostScreen extends StatefulWidget {
     this.initialGameId,
     this.autoStart = false,
     this.fixedGame = false,
+    this.initialWordTiles,
   });
 
 
@@ -110,6 +116,10 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
 
   /// The deck to host with (KLD-069): only for Quartett.
   String? get _hostDeck => specById(_gameId)?.usesDeck == true ? _deck : null;
+
+  /// Wortgewandt's tile language and word list (KLD-094 step 6).
+  late WordTilesOptions? _words = widget.initialWordTiles;
+  WordTilesOptions get _wordOptions => _words ??= defaultWordTilesOptions(Localizations.localeOf(context));
   late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
@@ -167,7 +177,15 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       _error = null;
       _showStartHint = false;
     });
-    final config = GameConfig(_gameId, seed: widget.seed(), deck: _hostDeck);
+    final words = _gameId == 'wordtiles' ? _wordOptions : null;
+    // A game with "Wörterbuch prüfen" needs its list before the host creates it.
+    if (words != null && words.dictionary && !await loadWordListWithProgress(context, words.tiles)) {
+      if (mounted) setState(() => _starting = false);
+      return;
+    }
+    if (!mounted) return;
+    final config = GameConfig(_gameId,
+        seed: widget.seed(), deck: _hostDeck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -280,6 +298,16 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           },
         ),
       ],
+      if (_gameId == 'wordtiles') ...[
+        const SizedBox(height: 12),
+        WordTilesOptionsPicker(
+          key: const Key('relay-wordtiles'),
+          keyPrefix: 'relay-wordtiles-',
+          value: _wordOptions,
+          enabled: !_starting,
+          onChanged: (o) => setState(() => _words = o),
+        ),
+      ],
       const SizedBox(height: 16),
       FilledButton.icon(
         key: const Key('relay-host-start'),
@@ -330,6 +358,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
             style: theme.textTheme.titleMedium,
             textAlign: TextAlign.center,
           ),
+          if (_gameId == 'wordtiles')
+            Text(wordTilesOptionsSummary(l10n, t.config),
+                key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
           Text(l10n.relayRoomCode, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),
           const SizedBox(height: 4),

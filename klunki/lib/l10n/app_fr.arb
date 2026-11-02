@@ -593,5 +593,20 @@
   "networkUnavailableWeb": "Pas encore disponible dans le navigateur – avec l'app, vous pouvez jouer sur plusieurs appareils.",
   "appBetaTeaser": "Bêta de l'app en préparation.",
   "appBetaIos": "Essayer l'app pour iPhone et iPad",
-  "appBetaAndroid": "Obtenir l'app Android"
+  "appBetaAndroid": "Obtenir l'app Android",
+  "wordtilesOptionsSummaryDict": "{language} · avec dictionnaire",
+  "wordtilesOptionsSummaryFree": "{language} · sans dictionnaire",
+  "wordtilesUnknownAskNet": "Tu peux reprendre les lettres ou demander à {player} si le mot compte quand même.",
+  "wordtilesUnknownDeclinedBefore": "{player} a déjà refusé. Reprends les lettres.",
+  "wordtilesAllowTitle": "Accepter quand même ?",
+  "wordtilesAllowBody": "{player} voudrait faire accepter « {words} » – d’accord ?",
+  "wordtilesAllowAccept": "Accepter",
+  "wordtilesAllowDecline": "Refuser",
+  "wordtilesAllowDeciding": "{player} décide…",
+  "wordtilesAllowYouDecide": "À toi de décider",
+  "wordtilesAllowLine": "{player} voudrait faire accepter « {words} » ({score} points).",
+  "wordtilesAllowDeclined": "{player} refuse « {words} ».",
+  "wordtilesMoveAllowRequest": "demande d’accepter {words} ({score} points)",
+  "wordtilesMoveAllowAccept": "d’accord : {words} compte ({score} points)",
+  "wordtilesMoveAllowDecline": "refusé : {words}"
 }

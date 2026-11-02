@@ -3412,5 +3412,138 @@
   "appBetaAndroid": "App für Android laden",
   "@appBetaAndroid": {
     "description": "KLD-108: button in the sheet, only when an Android download link is configured (KLUNKI_ANDROID_URL)."
+  },
+  "wordtilesOptionsSummaryDict": "{language} · Wörterbuch prüfen",
+  "@wordtilesOptionsSummaryDict": {
+    "description": "KLD-094 step 6: the options of a network Wortgewandt game in one line (room and game header): tile language endonym (\"Deutsch\", \"English\") and the word list on.",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesOptionsSummaryFree": "{language} · ohne Wörterbuch",
+  "@wordtilesOptionsSummaryFree": {
+    "description": "KLD-094 step 6: like wordtilesOptionsSummaryDict, without the word list (challenge mode).",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesUnknownAskNet": "Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.",
+  "@wordtilesUnknownAskNet": {
+    "description": "KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): \"Trotzdem zulassen\" sends a request to the other player ({player}).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesUnknownDeclinedBefore": "{player} hat das schon abgelehnt. Nimm die Steine zurück.",
+  "@wordtilesUnknownDeclinedBefore": {
+    "description": "KLD-094 step 6: the unknown-word notice when the other player ({player}) already declined these words in this turn: only \"Zurücknehmen\" is left.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesAllowTitle": "Trotzdem zulassen?",
+  "@wordtilesAllowTitle": {
+    "description": "KLD-094 step 6: title of the dialog on the other device when a player asks to allow a word the list lacks."
+  },
+  "wordtilesAllowBody": "{player} möchte „{words}“ zulassen – einverstanden?",
+  "@wordtilesAllowBody": {
+    "description": "KLD-094 step 6: the request dialog: {player} (who laid the tiles) asks to allow {words}; the reader answers with Annehmen / Ablehnen. Placeholders keep their quotes as in German.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesAllowAccept": "Annehmen",
+  "@wordtilesAllowAccept": {
+    "description": "KLD-094 step 6: button in the request dialog: agree, the word counts."
+  },
+  "wordtilesAllowDecline": "Ablehnen",
+  "@wordtilesAllowDecline": {
+    "description": "KLD-094 step 6: button in the request dialog: the tiles go back, the other player is still on turn."
+  },
+  "wordtilesAllowDeciding": "{player} entscheidet…",
+  "@wordtilesAllowDeciding": {
+    "description": "KLD-094 step 6: status line of the player who asked, while {player} decides about the request.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesAllowYouDecide": "Du entscheidest",
+  "@wordtilesAllowYouDecide": {
+    "description": "KLD-094 step 6: status line of the player who has to answer a request."
+  },
+  "wordtilesAllowLine": "{player} möchte „{words}“ zulassen ({score} Punkte).",
+  "@wordtilesAllowLine": {
+    "description": "KLD-094 step 6: the line above the board on both devices while a request is open.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesAllowDeclined": "{player} lehnt „{words}“ ab.",
+  "@wordtilesAllowDeclined": {
+    "description": "KLD-094 step 6: the line above the board right after {player} declined a request.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesMoveAllowRequest": "möchte {words} zulassen ({score} Punkte)",
+  "@wordtilesMoveAllowRequest": {
+    "description": "KLD-094 step 6: history entry after \"{player}: \" for a request to allow words.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesMoveAllowAccept": "einverstanden: {words} zählt ({score} Punkte)",
+  "@wordtilesMoveAllowAccept": {
+    "description": "KLD-094 step 6: history entry after \"{player}: \" when the other player agreed (the placement counts).",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesMoveAllowDecline": "abgelehnt: {words}",
+  "@wordtilesMoveAllowDecline": {
+    "description": "KLD-094 step 6: history entry after \"{player}: \" when the other player declined a request.",
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
   }
 }

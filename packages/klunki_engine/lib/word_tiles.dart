@@ -25,11 +25,23 @@ part 'word_tiles_view.dart';
 /// * `{'action': 'exchange', 'tiles': ['Q', '?']}`: swap rack tiles with the
 ///   bag (only while the bag holds at least [rackSize] tiles).
 /// * `{'action': 'pass'}`.
-///   In [WordCheck.dictionary] a placement may carry `'allow': ['XYZ', …]`:
-///   formed words the list does not know that the players agreed to let
-///   stand anyway (a house rule, "Trotzdem zulassen"); every other formed
-///   word must be in the list. The words are kept in the log
-///   ([WordTilesTurn.allowed]).
+/// * "Trotzdem zulassen" in [WordCheck.dictionary] (KLD-094 step 6, rules
+///   version 3): a placement whose words the list does not know needs the
+///   other player's agreement, as three moves that name their player like
+///   a resign ([playerOf]):
+///   - `{'action': 'requestAllow', 'player': p, 'tiles': […], 'allow':
+///     ['XYZ', …]}`: `p`, the player to move, asks to let the placement
+///     stand; `allow` names exactly the formed words the list lacks. The
+///     turn does not change and `p` can make no other move (but resign)
+///     until it is answered. At most one request is open, and a request
+///     declined this turn cannot be repeated with the same words.
+///   - `{'action': 'acceptAllow', 'player': q}`: the other player agrees;
+///     the placement counts as if laid now, with the words in its log entry
+///     ([WordTilesTurn.allowed]).
+///   - `{'action': 'declineAllow', 'player': q}`: the other player declines;
+///     the tiles stay on `p`'s rack and it is still `p`'s turn.
+///   A `place` move carrying `allow` itself is refused (since rules 3): the
+///   log shows that both players agreed, which a network host checks.
 /// * `{'action': 'challenge'}` / `{'action': 'accept'}`: challenge mode only,
 ///   see [WordCheck.challenge].
 /// * resign: the common `{'action': 'resign', 'player': 'a'|'b'}`.
@@ -182,12 +194,15 @@ class WordLists {
   WordLists._();
   static final Map<String, WordValidator> _lists = {};
 
-  /// Which list a build ships per tile set: part of the compat fingerprint
-  /// ([WordTilesGame.gameplayData]), so builds with different lists do not
-  /// play a dictionary game together. Change it together with the asset.
+  /// Which list a build ships per tile set: the source and its commit plus
+  /// the SHA-256 of the bundled `words.txt.gz` (as in its `SOURCE.txt`;
+  /// KLD-094 step 6, an app test checks that it matches the asset). Part of
+  /// the compat fingerprint ([WordTilesGame.gameplayData]), so two builds
+  /// with different lists refuse to play a word tile game together instead
+  /// of judging words differently. Change it together with the asset.
   static const Map<String, String> revisions = {
-    'de': 'enz/german-wordlist@1071d87',
-    'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80',
+    'de': 'enz/german-wordlist@1071d87 sha256:fa8ab81c96e5eb075fb3f3fe1e639a7f81196c8d9e4458abae8d2eb4c070c0b8',
+    'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80 sha256:0927f44c2dedac2e82bbade2a262b0e4d245c59ad4c021762bec30d9a8e7091d',
   };
 
   static void register(String tileSetId, WordValidator list) => _lists[tileSetId] = list;
@@ -443,6 +458,16 @@ class _OpenPlacement {
       this.scorelessBefore, this.turnIndex);
 }
 
+/// The open "Trotzdem zulassen" request (KLD-094 step 6).
+class _AllowRequest {
+  final int seat;
+  final List<PlacedTile> tiles;
+  final List<String> allow;
+  final List<String> words;
+  final int score;
+  const _AllowRequest(this.seat, this.tiles, this.allow, this.words, this.score);
+}
+
 /// The rules engine. See the library docs above for moves; the design and
 /// its decisions are in the KLD-094 card.
 class WordTilesGame extends Game {
@@ -516,6 +541,11 @@ class WordTilesGame extends Game {
   int _seat = 0;
   int _scoreless = 0;
   _OpenPlacement? _open;
+  _AllowRequest? _request;
+
+  /// The `allow` word sets declined in this turn (sorted), so the same
+  /// request cannot be repeated until the turn changes.
+  final List<List<String>> _declined = [];
   bool _endPending = false;
   bool _over = false;
   GameEndReason? _endCode;
@@ -710,7 +740,7 @@ class WordTilesGame extends Game {
   /// player whether a word is in the list before "Legen" (that would be an
   /// indirect dictionary); [unknownWords] answers it at "Legen".
   PlacementCheck checkPlacement(Map<String, dynamic> move, {bool checkWords = true}) {
-    if (isOver || _endPending) return const PlacementCheck.error(PlacementError.notNow);
+    if (isOver || _endPending || _request != null) return const PlacementCheck.error(PlacementError.notNow);
     final tiles = _parseTiles(move['tiles']);
     if (tiles == null) return const PlacementCheck.error(PlacementError.malformed);
     if (tiles.isEmpty) return const PlacementCheck.error(PlacementError.empty);
@@ -841,7 +871,13 @@ class WordTilesGame extends Game {
 
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
-    final GameEvent? e = switch (move['action']) {
+    final action = move['action'];
+    // An open request waits for its answer (a resign is handled by Game).
+    if (_request != null && action != acceptAllow && action != declineAllow) return null;
+    final GameEvent? e = switch (action) {
+      requestAllow => _requestAllow(move),
+      acceptAllow => _acceptAllow(move),
+      declineAllow => _declineAllow(move),
       'place' => _place(move),
       'exchange' => _exchange(move),
       'pass' => _pass(move),
@@ -854,10 +890,17 @@ class WordTilesGame extends Game {
   }
 
   GameEvent? _place(Map<String, dynamic> move) {
-    if (move.length != (move.containsKey('allow') ? 3 : 2)) return null;
+    // `allow` only through requestAllow / acceptAllow (rules 3).
+    if (move.length != 2 || move.containsKey('allow')) return null;
     final c = checkPlacement(move);
     if (!c.ok) return null;
-    final allowed = [for (final w in (move['allow'] as List? ?? const [])) w as String];
+    return _lay(c, const []);
+  }
+
+  /// Puts the checked placement [c] on the board for the player to move;
+  /// [allowed]: the words let stand by agreement.
+  GameEvent _lay(PlacementCheck c, List<String> allowed) {
+    _declined.clear();
     final seat = _seat;
     final rackBefore = List<String>.of(_racks[seat]);
     final scorelessBefore = _scoreless;
@@ -905,6 +948,7 @@ class WordTilesGame extends Game {
       if (t is! String || !rack.remove(t)) return null;
     }
     _closeChallenge();
+    _declined.clear();
     final seat = _seat;
     _racks[seat]
       ..clear()
@@ -924,6 +968,7 @@ class WordTilesGame extends Game {
   GameEvent? _pass(Map<String, dynamic> move) {
     if (move.length != 1 || _endPending) return null;
     _closeChallenge();
+    _declined.clear();
     final seat = _seat;
     _turns.add(WordTilesTurn(seat, 'pass'));
     _scoreless++;
@@ -987,6 +1032,106 @@ class WordTilesGame extends Game {
       'words': invalid,
       'score': o.score,
     });
+  }
+
+  // --- "Trotzdem zulassen" over two devices (KLD-094 step 6) ---
+
+  /// The request / answer moves (see the library docs).
+  static const String requestAllow = 'requestAllow', acceptAllow = 'acceptAllow', declineAllow = 'declineAllow';
+
+  /// [player] asks to let the placement [tiles] stand although the list
+  /// lacks the words [allow].
+  static Map<String, dynamic> requestAllowMove(Player player, List<PlacedTile> tiles, List<String> allow) => {
+        'action': requestAllow,
+        'player': player.name,
+        'tiles': [for (final t in tiles) t.toJson()],
+        'allow': allow,
+      };
+
+  /// [player] agrees to the other player's open request.
+  static Map<String, dynamic> acceptAllowMove(Player player) => {'action': acceptAllow, 'player': player.name};
+
+  /// [player] declines the other player's open request.
+  static Map<String, dynamic> declineAllowMove(Player player) => {'action': declineAllow, 'player': player.name};
+
+  /// The player a request / answer move names, else null.
+  static Player? allowPlayerOf(Map<String, dynamic> move) {
+    final a = move['action'];
+    if (a != requestAllow && a != acceptAllow && a != declineAllow) return null;
+    return playerOrNull(move['player']);
+  }
+
+  /// The request moves name their player (an answer comes from the player
+  /// not to move); everything else as [Game.playerOf].
+  @override
+  Player playerOf(Map<String, dynamic> move) => allowPlayerOf(move) ?? super.playerOf(move);
+
+  /// The open request: the placer's seat, the tiles, the words to allow, all
+  /// formed words and the score it would make; null if none is open.
+  ({int seat, List<PlacedTile> tiles, List<String> allow, List<String> words, int score})? get allowRequest {
+    final r = _request;
+    if (r == null || isOver) return null;
+    return (seat: r.seat, tiles: r.tiles, allow: r.allow, words: r.words, score: r.score);
+  }
+
+  /// The seat that answers an open request: the next one.
+  int? get allowRequestAnswerer {
+    final r = _request;
+    return r == null || isOver ? null : _next(r.seat);
+  }
+
+  /// Whether the player to move may ask to allow [words] now: dictionary
+  /// mode, no open request, and not declined already in this turn.
+  bool canRequestAllow(List<String> words) {
+    if (isOver || check != WordCheck.dictionary || _request != null || words.isEmpty) return false;
+    final key = [...words]..sort();
+    return !_declined.any((d) => _sameWords(d, key));
+  }
+
+  static bool _sameWords(List<String> a, List<String> b) =>
+      a.length == b.length && Iterable<int>.generate(a.length).every((i) => a[i] == b[i]);
+
+  GameEvent? _requestAllow(Map<String, dynamic> move) {
+    final p = allowPlayerOf(move);
+    if (move.length != 4 || p == null || seatOf(p) != _seat || check != WordCheck.dictionary) return null;
+    final raw = move['allow'];
+    if (raw is! List || raw.any((w) => w is! String)) return null;
+    final allow = raw.cast<String>().toList();
+    if (!canRequestAllow(allow)) return null;
+    final c = checkPlacement({'action': 'place', 'tiles': move['tiles'], 'allow': allow});
+    if (!c.ok) return null;
+    _request = _AllowRequest(_seat, c.tiles, allow, [for (final w in c.words) w.word], c.score);
+    return _event({
+      'action': requestAllow,
+      'seat': _seat,
+      'words': [for (final w in c.words) w.toJson()],
+      'allow': allow,
+      'score': c.score,
+    });
+  }
+
+  GameEvent? _acceptAllow(Map<String, dynamic> move) {
+    final p = allowPlayerOf(move);
+    final r = _request;
+    if (move.length != 2 || p == null || r == null || seatOf(p) != _next(r.seat)) return null;
+    _request = null;
+    final c = checkPlacement(placeMove(r.tiles, allow: r.allow));
+    if (!c.ok) {
+      _request = r; // cannot happen: nothing changed since the request
+      return null;
+    }
+    final e = _lay(c, r.allow);
+    return GameEvent(
+        winner: e.winner, draw: e.draw, payload: {...e.payload as Map<String, dynamic>, 'agreed': seatOf(p)});
+  }
+
+  GameEvent? _declineAllow(Map<String, dynamic> move) {
+    final p = allowPlayerOf(move);
+    final r = _request;
+    if (move.length != 2 || p == null || r == null || seatOf(p) != _next(r.seat)) return null;
+    _request = null;
+    _declined.add([...r.allow]..sort());
+    return _event({'action': declineAllow, 'seat': seatOf(p), 'placer': r.seat, 'allow': r.allow});
   }
 
   GameEvent _event(Map<String, dynamic> payload) {
@@ -1054,6 +1199,11 @@ class WordTilesGame extends Game {
   /// `pass`. Enough for random play, demos and the shared contract tests.
   List<Map<String, dynamic>> get legalMoves {
     if (isOver) return const [];
+    final r = _request;
+    if (r != null) {
+      final to = playerOfSeat(_next(r.seat));
+      return to == null ? const [] : [acceptAllowMove(to), declineAllowMove(to)];
+    }
     final out = <Map<String, dynamic>>[];
     if (canChallenge) {
       out
@@ -1134,6 +1284,15 @@ class WordTilesGame extends Game {
           'score': o.score,
         },
       if (_endPending) 'endPending': true,
+      if (_request case final r?)
+        'allowRequest': {
+          'seat': r.seat,
+          'tiles': [for (final t in r.tiles) t.toJson()],
+          'allow': r.allow,
+          'words': r.words,
+          'score': r.score,
+        },
+      if (_declined.isNotEmpty) 'declined': [for (final d in _declined) d],
       'turns': [for (final t in _turns) t.toJson()],
       if (_over) 'end': {'code': _endCode!.code, if (_outSeat != null) 'out': _outSeat},
       if (resignedBy != null) 'resigned': resignedBy!.name,
