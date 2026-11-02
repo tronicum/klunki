@@ -1,5 +1,7 @@
 # Klunki builds (KLD-070): PWA, Android APK and app bundle (.aab) as downloadable artifacts, an
-# iOS compile check on demand. Nothing goes to a store. GitHub Pages (KLD-096)
+# iOS compile check on demand. Nothing goes to a store. Pushing a tag v*
+# builds the release (KLD-116, docs/RELEASING.md); every build gets the
+# build number from tool/build_number.sh. GitHub Pages (KLD-096)
 # is deployed only from main and only when the repository variable
 # PAGES_ENABLED is 'true' (see the `pages-build` / `pages` jobs).
 #
@@ -33,16 +35,28 @@ jobs:
         working-directory: klunki
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # tool/build_number.sh counts the day's commits on main (KLD-116).
+          fetch-depth: 0
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
           pub-cache: true
+      # KLD-116: build number YYYYMMDDNN from the commit date (UTC) and the
+      # day's count of commits on the first-parent line; iOS CFBundleVersion
+      # and Android versionCode. See docs/RELEASING.md.
+      - name: Build number
+        run: echo "KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)" >> "$GITHUB_ENV"
       - run: flutter pub get
       # The documented steps (README.md, docs/DEMO.md, docs/BUILDING.md):
       # build, then fill the offline service worker's build hash and precache list.
-      - run: flutter build web --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - run: >-
+          flutter build web --release
+          --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --build-number=${{ env.KLUNKI_BUILD_NUMBER }}
+          --dart-define=KLUNKI_BUILD_NUMBER=${{ env.KLUNKI_BUILD_NUMBER }}
       - run: python3 -I build/web/pwa_finalize.py
       # The PWA must start offline: no CanvasKit/fonts/scripts from
       # jsdelivr, unpkg, gstatic or googleapis. Allows only the engine's
@@ -72,6 +86,9 @@ jobs:
       KLUNKI_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # tool/build_number.sh counts the day's commits on main (KLD-116).
+          fetch-depth: 0
       # AGP 9.1 / Gradle 9.3.1 / Kotlin 2.4 need JDK 17 or newer; Flutter's
       # template compiles for Java 17.
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
@@ -106,8 +123,17 @@ jobs:
             echo "::notice::No KEYSTORE_BASE64 secret: the APK is signed with the debug key (fine for testing, not for a store)."
           fi
       - run: flutter --version
+      # KLD-116: build number YYYYMMDDNN from the commit date (UTC) and the
+      # day's count of commits on the first-parent line; iOS CFBundleVersion
+      # and Android versionCode. See docs/RELEASING.md.
+      - name: Build number
+        run: echo "KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)" >> "$GITHUB_ENV"
       - run: flutter pub get
-      - run: flutter build apk --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - run: >-
+          flutter build apk --release
+          --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --build-number=${{ env.KLUNKI_BUILD_NUMBER }}
+          --dart-define=KLUNKI_BUILD_NUMBER=${{ env.KLUNKI_BUILD_NUMBER }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: klunki-android-apk
@@ -117,7 +143,11 @@ jobs:
       # The Play Store format (docs/PLAYSTORE.md). Same signing as the APK:
       # without the KEYSTORE_* secrets it carries the debug key, which Play
       # Console rejects, so such a bundle is for checking the build only.
-      - run: flutter build appbundle --release --dart-define=KLUNKI_BUILD=${{ github.sha }}
+      - run: >-
+          flutter build appbundle --release
+          --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --build-number=${{ env.KLUNKI_BUILD_NUMBER }}
+          --dart-define=KLUNKI_BUILD_NUMBER=${{ env.KLUNKI_BUILD_NUMBER }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: klunki-android-aab
@@ -136,6 +166,9 @@ jobs:
         working-directory: klunki
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # tool/build_number.sh counts the day's commits on main (KLD-116).
+          fetch-depth: 0
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
@@ -143,8 +176,17 @@ jobs:
           cache: true
           pub-cache: true
       - run: xcodebuild -version
+      # KLD-116: build number YYYYMMDDNN from the commit date (UTC) and the
+      # day's count of commits on the first-parent line; iOS CFBundleVersion
+      # and Android versionCode. See docs/RELEASING.md.
+      - name: Build number
+        run: echo "KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)" >> "$GITHUB_ENV"
       - run: flutter pub get
-      - run: flutter build ios --release --no-codesign
+      - run: >-
+          flutter build ios --release --no-codesign
+          --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --build-number=${{ env.KLUNKI_BUILD_NUMBER }}
+          --dart-define=KLUNKI_BUILD_NUMBER=${{ env.KLUNKI_BUILD_NUMBER }}
 
   # GitHub Pages (KLD-096): the PWA at the site root and the static pages
   # (privacy/, support/, impressum/ from site/) next to it, at
@@ -171,16 +213,26 @@ jobs:
         working-directory: klunki
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # tool/build_number.sh counts the day's commits on main (KLD-116).
+          fetch-depth: 0
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
           pub-cache: true
+      # KLD-116: build number YYYYMMDDNN from the commit date (UTC) and the
+      # day's count of commits on the first-parent line; iOS CFBundleVersion
+      # and Android versionCode. See docs/RELEASING.md.
+      - name: Build number
+        run: echo "KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)" >> "$GITHUB_ENV"
       - run: flutter pub get
       - run: >-
           flutter build web --release --base-href "/${{ github.event.repository.name }}/"
           --dart-define=KLUNKI_BUILD=${{ github.sha }}
+          --build-number=${{ env.KLUNKI_BUILD_NUMBER }}
+          --dart-define=KLUNKI_BUILD_NUMBER=${{ env.KLUNKI_BUILD_NUMBER }}
           --dart-define=KLUNKI_WEB_CHANNEL=pages-beta
           --dart-define=KLUNKI_IOS_BETA_URL=${{ vars.KLUNKI_IOS_BETA_URL }}
           --dart-define=KLUNKI_ANDROID_URL=${{ vars.KLUNKI_ANDROID_URL }}

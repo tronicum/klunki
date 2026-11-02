@@ -53,11 +53,14 @@ both stores use one id. Keep it. Play does not check that the publisher owns `kl
 
 ### Version
 
-`versionCode = flutter.versionCode` and `versionName = flutter.versionName`, both from `version:` in
-`klunki/pubspec.yaml` (`1.0.0+1` today: name `1.0.0`, code `1`). Every upload to Play needs a **higher versionCode**
-than any bundle uploaded before, on any track. Bump the `+N` part in `pubspec.yaml`, or pass
-`--build-number N` (and `--build-name x.y.z`) to `flutter build appbundle`. A rejected or deleted bundle still
-uses up its code.
+`versionCode = flutter.versionCode` and `versionName = flutter.versionName`. The name comes from `version:` in
+`klunki/pubspec.yaml` (`1.0.0`); the code is the **build number** `YYYYMMDDNN` (e.g. `2026110201`) that CI passes
+with `--build-number` (`tool/build_number.sh`, KLD-116; the pubspec's `+1` is only for local builds). Every
+upload to Play needs a **higher versionCode** than any bundle uploaded before, on any track; the scheme
+increases with every commit on `main`, so upload only bundles built from `main` or a release tag (the
+`klunki-android-aab` artifact). A rejected or deleted bundle still uses up its code. Maximum versionCode
+2 100 000 000 (the scheme stays below it); no `--split-per-abi`. Versions and the release steps:
+[`RELEASING.md`](RELEASING.md).
 
 ### SDK levels
 
@@ -81,7 +84,8 @@ the bundle's page if a library is not aligned; look there after the first upload
 
 ```bash
 cd klunki
-flutter build appbundle --release --dart-define=KLUNKI_BUILD=$(git rev-parse --short HEAD)
+flutter build appbundle --release --dart-define=KLUNKI_BUILD=$(git rev-parse --short HEAD) \
+  --build-number=$(../tool/build_number.sh) --dart-define=KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)
 # -> build/app/outputs/bundle/release/app-release.aab
 ```
 
@@ -187,7 +191,7 @@ from the local build.
    minutes:
    - Testers tab › create an email list (Google account emails of the testers).
    - Create release › Play App Signing: accept **Google-generated key** › upload `app-release.aab` (signed with the
-     upload key) › release name (e.g. `1.0.0 (1)`) and release notes (de/en, "Erster Test") › Save › Review ›
+     upload key) › release name (e.g. `1.0.0 (2026110201)`) and release notes (de/en, "Erster Test") › Save › Review ›
      Start rollout.
    - Copy the **opt-in link** from the Testers tab and send it. Each tester opens it on the phone with the listed
      Google account, accepts, then installs from the Play Store link.
@@ -441,7 +445,7 @@ Data deletion: not applicable (no accounts).
 - [ ] Upload key created (`keytool`, above), backed up with its password, `klunki/android/key.properties` filled in,
       `git status` shows no secret.
 - [ ] Final app icon in the Android launcher (`mipmap-*`, adaptive icon) and as 512 × 512 Play icon (KLD-097).
-- [ ] `version:` in `pubspec.yaml` bumped if a bundle with this code was uploaded before.
+- [ ] Bundle built by CI from `main` or a release tag (build number `YYYYMMDDNN` above every code uploaded before; `docs/RELEASING.md`).
 - [ ] `flutter build appbundle --release --dart-define=KLUNKI_BUILD=<sha>` built; `keytool -printcert -jarfile …aab`
       shows the upload certificate.
 - [ ] Release APK tested on a real Android phone: hot-seat, hosting and joining in the Wi-Fi (mDNS "Räume in der

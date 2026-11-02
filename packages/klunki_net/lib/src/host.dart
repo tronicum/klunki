@@ -243,11 +243,15 @@ class KlunkiHost {
     if (m['role'] != 'guest') throw const ProtocolException('expected role "guest"');
     // KLD-085: the builds must fit together, checked before the seat (an
     // incompatible guest never gets "session full" or the guest's seat).
-    final mismatch = _checkCompat(m);
-    if (mismatch != null) return _refuse(conn, mismatch);
     // Untrusted input: sanitised like a typed name, the guest's mark as fallback.
     final raw = m['name'];
     final name = playerNameOr(raw is String ? raw : null, guestPlayer);
+    final mismatch = _checkCompat(m);
+    if (mismatch != null) {
+      // KLD-116: names on both sides, so the app can say who has which version.
+      final typed = raw is String ? sanitizePlayerName(raw) : '';
+      return _refuse(conn, mismatch.withSides(peerName: typed.isEmpty ? null : typed));
+    }
     final token = m['token'];
     final reconnect = _token != null;
     // KLD-071: once a guest has joined, its seat is reclaimed only with the
@@ -323,8 +327,8 @@ class KlunkiHost {
     _pending.remove(conn);
     _helloDeadlines.remove(conn)?.cancel();
     conn.fail(mismatch.message,
-        mismatchErrorFields(mismatch, compat, key: compatKey(config), fingerprint: _fingerprint));
-    _emit(IncompatiblePeer(mismatch));
+        mismatchErrorFields(mismatch, compat, key: compatKey(config), fingerprint: _fingerprint, name: name));
+    _emit(IncompatiblePeer(mismatch.withSides(myBuild: compat.build, myName: name)));
   }
 
   void _onGuestMove(Connection conn, Map<String, dynamic> m) {
@@ -443,7 +447,10 @@ class KlunkiHost {
     final mismatch = conn.versionMismatch
         ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
         : mismatchFromError(conn.peerError, compat);
-    if (mismatch != null && (wasPending || conn == _guest)) _emit(IncompatiblePeer(mismatch));
+    if (mismatch != null && (wasPending || conn == _guest)) {
+      _emit(IncompatiblePeer(mismatch.withSides(
+          myBuild: compat.build, myName: name, peerName: conn == _guest ? _guestName : null)));
+    }
     if (conn != _guest) return;
     _guest = null;
     _emit(PeerDisconnected(reason, timedOut: timedOut));

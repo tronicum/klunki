@@ -56,7 +56,7 @@ There is **no `pubspec.yaml` in the repo root**: run `dart`/`flutter` inside the
     `integration_test/` – on-device tests; `tool/` – icon, fonts, card media, browser tests, PWA checks.
 - `site/` – static GitHub Pages content (privacy, support, impressum; `site.json` holds the contact address).
 - `tool/` (root) – device/simulator e2e scripts (`e2e_ios_sims.sh`, `e2e_android_vs_ios.sh`), the load
-  harness `stress_test.sh` (KLD-109).
+  harness `stress_test.sh` (KLD-109), the CI build number `build_number.sh` (KLD-116).
 - `docs/` – architecture, building, roadmap, store docs, dev diary, task cards (`docs/tasks/`), `docs/legal/`.
 - `.github/` – CI (`ci.yml`), builds (`build.yml`), persona reviews and Renovate (see `docs/REVIEWS.md`).
 
@@ -101,6 +101,8 @@ troubleshooting: `docs/BUILDING.md`.
 - Builds: `flutter build web --release` then `python3 -I build/web/pwa_finalize.py` (once per build) and
   `python3 -I tool/check_pwa_external_urls.py build/web` (no CDN URLs); `flutter build apk|appbundle|ios`.
   Add `--dart-define=KLUNKI_BUILD=<commit>` to put the commit into the version line and handshake label.
+  CI adds `--build-number=N --dart-define=KLUNKI_BUILD_NUMBER=N`, `N` = `tool/build_number.sh` (`YYYYMMDDNN`;
+  tested by `tool/build_number_test.sh`); local builds keep the pubspec's `+1`.
 - Relay + PWA locally: `dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/build/web`.
 - Web channels (KLD-108): only the GitHub Pages job builds with `--dart-define=KLUNKI_WEB_CHANNEL=pages-beta`
   ("Beta" badge, About line; optional `KLUNKI_IOS_BETA_URL` / `KLUNKI_ANDROID_URL`, empty = no app buttons).
@@ -113,6 +115,11 @@ troubleshooting: `docs/BUILDING.md`.
 - **Task cards.** Work is tracked as `docs/tasks/KLD-xxx-<slug>.md` (format `_TEMPLATE.md`) with a row in
   `docs/tasks/BOARD.md`. New card: take the **next free KLD number** (check both the card files and BOARD.md;
   parallel branches may have claimed numbers). Set status DONE / ✅ when the acceptance criteria are met.
+- **Versions and releases (KLD-116).** `MAJOR.MINOR.PATCH` in `klunki/pubspec.yaml` and `appVersion`
+  (`klunki/lib/app/build_info.dart`, kept equal by a test); MINOR for new games/features, PATCH for fixes.
+  The app shows "Version 1.0.0 (b8752a9)". The app version never decides network compatibility (rules
+  versions and fingerprints do). User-visible changes go under `[Unreleased]` in `CHANGELOG.md`; release steps
+  (annotated tag `vX.Y.Z`, maintainer only) in `docs/RELEASING.md`. Agents never create or push tags.
 - **Rules changes bump the rules version.** Any change that makes an old and a new build disagree (a move
   accepted by one and refused by the other, a different deal from the same seed, changed move/view JSON)
   bumps `GameSpec.rulesVersion`; deck data changes bump `QuartettDeck.revision`. Update the goldens in
@@ -169,5 +176,6 @@ Comment `@claude review:<persona>` (or `@copilot review:<persona>`) on a pull re
 - `docs/BUILDING.md` – toolchains, Android, iOS/Xcode, PWA, CI, troubleshooting.
 - `docs/ROADMAP.md` – stages and demos; `docs/tasks/BOARD.md` – task board.
 - `docs/APPSTORE.md`, `docs/PLAYSTORE.md` – store listings, screenshots, signing; `docs/store/` – store assets.
+- `docs/RELEASING.md`, `CHANGELOG.md` – versions, build numbers, release steps.
 - `docs/DEV-DIARY.md` – milestones; `docs/DEMO.md` – demo runbook; `docs/legal/` – legal drafts.
 - `packages/klunki_net/PROTOCOL.md` – network protocol; `docs/REVIEWS.md` – review automation.

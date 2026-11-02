@@ -1,6 +1,7 @@
 import 'package:klunki_engine/klunki_engine.dart';
 
 import 'events.dart';
+import 'names.dart';
 
 /// What this build tells the other side in its `hello` (KLD-085): an
 /// informational [build] label and the fingerprint of every game and deck
@@ -9,8 +10,9 @@ import 'events.dart';
 /// The apps pass their version and build id as [build]; tests pass other
 /// [games] to play an older or newer build.
 class BuildCompat {
-  /// E.g. `1.0.0+1 abc1234`; compared only to tell which side is older
-  /// when nothing else does ([compareBuilds]).
+  /// E.g. `1.0.0+2026110201 abc1234` (KLD-116: version, build number,
+  /// commit); compared only to tell which side is older when nothing else
+  /// does ([compareBuilds]), and shown to people as [versionDisplay].
   final String build;
   final Map<String, GameFingerprint> games;
 
@@ -40,6 +42,19 @@ List<int>? _numbers(String label) {
   final m = RegExp(r'^(\d+)\.(\d+)\.(\d+)(?:\+(\d+))?').firstMatch(label.trim());
   if (m == null) return null;
   return [for (var i = 1; i <= 4; i++) int.parse(m.group(i) ?? '0')];
+}
+
+/// A build label (`1.0.0+2026110201 b8752a9`) the way people see it
+/// (KLD-116): `1.0.0 (b8752a9)`, the version and the commit (at most 7
+/// characters), `1.0.0 (dev)` for a build without a commit. A label that
+/// does not start with a version is returned trimmed; null or blank: null.
+String? versionDisplay(String? label) {
+  final text = label?.trim() ?? '';
+  if (text.isEmpty) return null;
+  final m = RegExp(r'^(\d+\.\d+\.\d+)(?:\+\d+)?(?:\s+(\S+))?').firstMatch(text);
+  if (m == null) return text;
+  final commit = m.group(2);
+  return '${m.group(1)} (${commit == null ? 'dev' : commit.length > 7 ? commit.substring(0, 7) : commit})';
 }
 
 PeerAge _byNumber(int mine, int theirs) => theirs < mine ? PeerAge.older : PeerAge.newer;
@@ -77,14 +92,16 @@ VersionMismatch? compareFingerprints(String key, GameFingerprint? mine, GameFing
 
 /// The fields of an `error` that refuses the handshake for [mismatch]:
 /// `message` (from the receiver's point of view), `code`, and this side's
-/// `protocol`, `build` and, if known, the fingerprint of game [key].
+/// `protocol`, `build`, the player [name] (informational, KLD-116) and, if
+/// known, the fingerprint of game [key].
 Map<String, dynamic> mismatchErrorFields(VersionMismatch mismatch, BuildCompat compat,
-        {String? key, GameFingerprint? fingerprint}) =>
+        {String? key, GameFingerprint? fingerprint, String? name}) =>
     {
       'message': _flip(mismatch).message,
       'code': mismatch.kind.code,
       'protocol': protocolVersion,
       'build': compat.build,
+      if (name != null) 'name': name,
       if (key != null) 'game': key,
       if (fingerprint != null) 'fingerprint': fingerprint.toJson(),
     };
@@ -103,6 +120,13 @@ VersionMismatch? mismatchFromError(Map<String, dynamic>? error, BuildCompat comp
   if (error == null) return null;
   final kind = Incompatibility.fromCode(error['code']);
   if (kind == null) return null;
+  final name = error['name'];
+  // Untrusted input, cleaned like a typed name (KLD-116: shown in the message).
+  final peerName = name is String && sanitizePlayerName(name).isNotEmpty ? sanitizePlayerName(name) : null;
+  return _mismatchFromError(kind, error, compat)?.withSides(myBuild: compat.build, peerName: peerName);
+}
+
+VersionMismatch? _mismatchFromError(Incompatibility kind, Map<String, dynamic> error, BuildCompat compat) {
   final build = error['build'] is String ? error['build'] as String : null;
   final protocol = error['protocol'];
   if (kind == Incompatibility.protocol || (protocol is int && protocol != protocolVersion)) {

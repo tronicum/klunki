@@ -22,7 +22,7 @@ class RefusedGuestNotice extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Text(
-            l10n.versionMismatchGuestRefused(versionMismatchMessage(l10n, mismatch)),
+            l10n.versionMismatchGuestRefused(versionMismatchMessage(context, mismatch)),
             key: const Key('host-refused-guest'),
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),

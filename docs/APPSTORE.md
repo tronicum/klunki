@@ -11,7 +11,8 @@ language, English the second localization. Game names stay generic: no brand nam
 3. [Store texts (English)](#store-texts-english)
 4. [Category, age rating, contact](#category-age-rating-contact)
 5. [App Privacy](#app-privacy)
-6. [Open points before submitting](#open-points-before-submitting)
+6. [Version and build number](#version-and-build-number)
+7. [Open points before submitting](#open-points-before-submitting)
 
 ## Screenshots
 
@@ -224,6 +225,15 @@ Checked against the code (`klunki/pubspec.yaml`, `klunki/lib`):
 - No tracking in Apple's sense (no linking with third-party data), so no App Tracking Transparency prompt.
 
 If any of this changes (e.g. crash reporting or a hosted relay that logs), the answers must be revisited.
+
+## Version and build number
+
+`CFBundleShortVersionString` = the version from `klunki/pubspec.yaml` (`1.0.0` for the first external
+TestFlight build), `CFBundleVersion` = the build number `YYYYMMDDNN` from `tool/build_number.sh` (KLD-116),
+both through `Info.plist`'s `$(FLUTTER_BUILD_NAME)` / `$(FLUTTER_BUILD_NUMBER)`; no Xcode project change. CI
+has no signed iOS build: build the upload on the Mac from the tagged commit with
+`flutter build ipa --release --build-number=$(../tool/build_number.sh) --dart-define=KLUNKI_BUILD=$(git rev-parse HEAD) --dart-define=KLUNKI_BUILD_NUMBER=$(../tool/build_number.sh)`
+and upload it with Transporter or Xcode Organizer. Steps: [`RELEASING.md`](RELEASING.md).
 
 ## Open points before submitting
 

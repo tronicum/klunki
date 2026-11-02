@@ -2976,11 +2976,34 @@ abstract class AppLocalizations {
   /// **'Ein Gerät wollte beitreten, wurde aber abgewiesen: {reason}'**
   String versionMismatchGuestRefused(String reason);
 
-  /// KLD-085: menu footer, the app version line so two devices can be compared by eye (e.g. "1.0.0+1 · abc1234 · P3 · ba13a678": version, build, protocol, game data code).
+  /// KLD-085, KLD-116: menu footer and About screen, the app version: version and commit ("1.0.0 (b8752a9)"; "(dev)" for a build without a commit).
   ///
   /// In de, this message translates to:
   /// **'Version {version}'**
   String menuVersion(String version);
+
+  /// KLD-116: small print under the version line on the About screen, to compare two devices in detail: build number (YYYYMMDDNN from CI, 1 for local builds), network protocol, short code over every game's rules and data.
+  ///
+  /// In de, this message translates to:
+  /// **'Build-Nummer {build} · Protokoll {protocol} · Spieldaten {games}'**
+  String aboutBuildDetails(String build, String protocol, String games);
+
+  /// KLD-116: second line of a version mismatch message: who has which app version, so people see who needs to update. nameA is this device's player, nameB the other one. Versions are like "1.0.0 (b8752a9)" (version and commit). No gendered grammar.
+  ///
+  /// In de, this message translates to:
+  /// **'{nameA} hat {versionA}, {nameB} hat {versionB}.'**
+  String versionMismatchVersions(
+    String nameA,
+    String versionA,
+    String nameB,
+    String versionB,
+  );
+
+  /// KLD-116: like versionMismatchVersions when the other player's name is not known (the refusal came before the names were exchanged). versionA: this device, versionB: the other device.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Gerät hat {versionA}, das andere Gerät hat {versionB}.'**
+  String versionMismatchVersionsDevices(String versionA, String versionB);
 
   /// KLD-102: menu footer button and title of the About screen (version, privacy, Impressum, support, licences).
   ///

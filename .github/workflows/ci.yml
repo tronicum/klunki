@@ -64,6 +64,15 @@ jobs:
       # Node needed. The socket tests use 127.0.0.1 only.
       - run: dart test
 
+  tools:
+    name: tool scripts (build number)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # KLD-116: the build number derivation, on a throw-away git repository.
+      - run: tool/build_number_test.sh
+
   app:
     name: klunki app (flutter analyze + test)
     runs-on: ubuntu-latest

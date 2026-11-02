@@ -33,7 +33,7 @@ export 'src/events.dart'
         Incompatibility,
         PeerAge,
         VersionMismatch;
-export 'src/compat.dart' show BuildCompat, compareBuilds;
+export 'src/compat.dart' show BuildCompat, compareBuilds, versionDisplay;
 export 'src/guest.dart' show KlunkiGuest;
 export 'src/relay/relay_protocol.dart'
     show

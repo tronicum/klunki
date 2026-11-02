@@ -305,8 +305,8 @@ class _MenuScreenState extends State<MenuScreen> {
                         ),
                       ),
                     ),
-                    // KLD-085: version, build, protocol and game data, to
-                    // compare two devices by eye when they cannot play together.
+                    // KLD-085/KLD-116: version and commit ("1.0.0 (b8752a9)");
+                    // build number, protocol and game data are on the About screen.
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
                       child: Text(

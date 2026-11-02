@@ -65,6 +65,10 @@ void main() {
     await _openAbout(tester);
     expect(find.text('Über Klunki'), findsWidgets);
     expect(find.text('Version $appVersionLine'), findsOneWidget);
+    // KLD-116: the small print to compare two devices in detail.
+    expect(appVersionLine, endsWith(' (dev)'));
+    final d = appBuildDetails;
+    expect(find.text('Build-Nummer ${d.build} · Protokoll ${d.protocol} · Spieldaten ${d.games}'), findsOneWidget);
     // The app icon (bundled PNG), not the three-chip menu mark.
     final icon = find.descendant(of: find.byKey(const Key('about-app-icon')), matching: find.byType(Image));
     expect((tester.widget<Image>(icon).image as AssetImage).assetName, 'assets/icon/app_icon.png');

@@ -6,10 +6,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/build_info.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki_net/guest_web.dart'
-    show Incompatibility, NetException, PeerAge, VersionMismatch;
+    show Incompatibility, NetException, PeerAge, VersionMismatch, protocolVersion;
 
 import 'pairing_test_utils.dart';
 
@@ -66,6 +67,68 @@ void main() {
       });
     }
   });
+
+  group('KLD-116: the message also says who has which version', () {
+    testWidgets('both names known', (tester) async {
+      await _joinFailing(
+          tester,
+          NetException('incompatible versions …',
+              mismatch: const VersionMismatch(Incompatibility.content, PeerAge.newer, 'x',
+                  peerBuild: '1.1.0+2026110301 c3d4e5f0',
+                  myBuild: '1.0.0+2026110201 b8752a9',
+                  myName: 'Anna',
+                  peerName: 'Ben')));
+      expect(
+          find.textContaining('Dieses Gerät hat eine ältere Version. Bitte diese App aktualisieren (Browser: neu laden).\n'
+              'Anna hat 1.0.0 (b8752a9), Ben hat 1.1.0 (c3d4e5f).'),
+          findsOneWidget);
+    });
+
+    testWidgets('other name unknown, this build from the app', (tester) async {
+      await _joinFailing(
+          tester,
+          NetException('incompatible versions …',
+              mismatch: const VersionMismatch(Incompatibility.protocol, PeerAge.older, 'x',
+                  peerBuild: '0.9.0+3 abc1234', myName: 'Anna')));
+      expect(find.textContaining('Dieses Gerät hat $appVersionLine, das andere Gerät hat 0.9.0 (abc1234).'),
+          findsOneWidget);
+    });
+
+    testWidgets('no build label from the other side: no version line', (tester) async {
+      await _joinFailing(tester, _refused(PeerAge.unknown));
+      expect(find.textContaining(' hat '), findsNothing);
+    });
+  });
+
+  testWidgets('KLD-116: host: the turned-away guest\'s name and version are shown', (tester) async {
+    final created = CreatedTransports();
+    await _openPairing(tester, testDeps(discovery: FakeDiscovery(), created: created));
+    await tester.tap(find.byKey(const Key('pair-host-start')));
+    await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty,
+        what: 'host waiting view');
+    final port = created.hosts.single.port!;
+    // A current protocol, but a build that knows none of the games.
+    await tester.runAsync(() async {
+      final socket = await Socket.connect(InternetAddress.loopbackIPv4, port);
+      socket.writeln(jsonEncode({
+        'type': 'hello',
+        'v': protocolVersion,
+        'role': 'guest',
+        'name': 'Ben',
+        'protocol': protocolVersion,
+        'build': '0.9.0+2026010101 abc1234',
+        'games': <String, dynamic>{},
+      }));
+      await socket.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter()).first;
+      socket.destroy();
+    });
+    await pumpUntil(tester, () => find.byKey(const Key('host-refused-guest')).evaluate().isNotEmpty,
+        what: 'refused-guest notice');
+    final text = tester.widget<Text>(find.byKey(const Key('host-refused-guest'))).data!;
+    expect(text, contains('Das andere Gerät hat eine ältere Version.'));
+    expect(text, endsWith('hat $appVersionLine, Ben hat 0.9.0 (abc1234).'));
+    await unmountAndSettleSockets(tester, created);
+  }, timeout: _timeout);
 
   testWidgets('host: a guest from an older build (protocol 2) is refused and the host is told', (tester) async {
     final created = CreatedTransports();
