@@ -1,0 +1,167 @@
+// KLD-117 screenshots of "Zug zurück" in the game area (no longer in the app
+// bar): chess (next to the flip buttons), Wortgewandt (its control row),
+// 4 Gewinnt and Schiffe versenken (the shell's row under the board) and the
+// handover cover, hot-seat on a phone (390×844), de light plus 4 Gewinnt
+// and chess in ar (RTL). Skipped unless KLUNKI_SHOTS=<dir> is set:
+//
+//   KLUNKI_SHOTS=/tmp/kld117 flutter test test/screenshots/undo_shots_test.dart
+//   (or: KLUNKI_SHOTS=/tmp/kld117 flutter test test/screenshots --plain-name kld117)
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/fonts.dart' show withAppFonts;
+import 'package:klunki/app/theme.dart';
+import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/shell/game_screen.dart';
+import 'package:klunki/ui/shell/legal_move_board.dart';
+import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+final String? _out = Platform.environment['KLUNKI_SHOTS'];
+const _boundary = Key('shot-boundary');
+const _phone = Size(390, 844);
+const _continue = Key('handover-continue');
+
+Future<void> _loadFonts() async {
+  Future<void> family(String name, List<String> files) async {
+    final loader = FontLoader(name);
+    for (final f in files) {
+      loader.addFont(Future.value(ByteData.sublistView(File(f).readAsBytesSync())));
+    }
+    await loader.load();
+  }
+
+  await family('Roboto', [
+    'assets/fonts/Roboto/Roboto-Regular.ttf',
+    'assets/fonts/Roboto/Roboto-Medium.ttf',
+    'assets/fonts/Roboto/Roboto-Bold.ttf',
+  ]);
+  await family('NotoSansArabic', [
+    'assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf',
+    'assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf',
+  ]);
+  await family('NotoSansMath', ['assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf']);
+  final flutterRoot = Platform.environment['FLUTTER_ROOT'] ?? '';
+  final icons = File('$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
+  if (icons.existsSync()) await family('MaterialIcons', [icons.path]);
+}
+
+Future<void> _shot(WidgetTester tester, String name) async {
+  debugDisableShadows = false;
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pump();
+  final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
+  await tester.runAsync(() async {
+    final ui.Image img = await ro.toImage(pixelRatio: 2);
+    final data = await img.toByteData(format: ui.ImageByteFormat.png);
+    final f = File('$_out/$name.png');
+    f.parent.createSync(recursive: true);
+    f.writeAsBytesSync(data!.buffer.asUint8List());
+  });
+  debugDisableShadows = true;
+}
+
+Future<GameController> _pump(WidgetTester tester, String id, String locale) async {
+  tester.view.physicalSize = _phone * 2;
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
+  final c = GameController.hotSeat(GameConfig(id, seed: 3));
+  addTearDown(c.dispose);
+  final names = locale == 'ar' ? const {Player.a: 'ليلى', Player.b: 'سامي'} : const {Player.a: 'Anna', Player.b: 'Ben'};
+  await tester.pumpWidget(RepaintBoundary(
+    key: _boundary,
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: withAppFonts(KlunkiTheme.light, web: true),
+      locale: Locale(locale),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: PlayerLabelsScope(labels: PlayerLabels(names: names), child: buildGameScreen(c)),
+    ),
+  ));
+  await tester.pump();
+  await tester.pump();
+  return c;
+}
+
+/// Plays [n] legal moves through the controller, passing the device on
+/// after each (except, with [keepCover], the last one).
+Future<void> _play(WidgetTester tester, GameController c, int n, {bool keepCover = false}) async {
+  for (var i = 0; i < n; i++) {
+    final moves = legalMovesOf(c.game);
+    await c.submit(moves[moves.length ~/ 2]);
+    await tester.pump();
+    await tester.pump();
+    if (keepCover && i == n - 1) break;
+    if (find.byKey(_continue).evaluate().isNotEmpty) {
+      await tester.tap(find.byKey(_continue));
+      await tester.pump();
+    }
+  }
+}
+
+void main() {
+  final skip = _out == null ? 'set KLUNKI_SHOTS=<dir> to write screenshots' : null;
+  setUpAll(() async {
+    if (skip == null) await _loadFonts();
+  });
+
+  group('kld117', () {
+    for (final l in ['de', 'ar']) {
+      testWidgets('kld117 chess $l', skip: skip != null, (tester) async {
+        final c = await _pump(tester, 'chess', l);
+        await _play(tester, c, 2);
+        await _shot(tester, 'kld117-chess-$l-phone');
+      });
+      testWidgets('kld117 connect4 $l', skip: skip != null, (tester) async {
+        final c = await _pump(tester, 'connect4', l);
+        await _play(tester, c, 3);
+        await _shot(tester, 'kld117-connect4-$l-phone');
+      });
+    }
+    testWidgets('kld117 connect4 start de', skip: skip != null, (tester) async {
+      await _pump(tester, 'connect4', 'de');
+      await _shot(tester, 'kld117-connect4-start-de-phone');
+    });
+    testWidgets('kld117 wordtiles de', skip: skip != null, (tester) async {
+      final c = await _pump(tester, 'wordtiles', 'de');
+      (c.game as WordTilesGame).debugSetup(
+        racks: const [
+          ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+          ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+        ],
+        bag: [...List.filled(30, 'E'), 'L', 'K', 'M', 'A', 'I', 'R', 'B'],
+      );
+      // HAUS by Anna: Ben's turn, with something to take back.
+      final r = await c.submit(WordTilesGame.placeMove(
+          [for (final (col, t) in [(5, 'H'), (6, 'A'), (7, 'U'), (8, 'S')]) PlacedTile(7, col, t, null)]));
+      expect(r.isAccepted, isTrue);
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.byKey(_continue));
+      await tester.pump();
+      await _shot(tester, 'kld117-wordtiles-de-phone');
+    });
+    testWidgets('kld117 schiffe de', skip: skip != null, (tester) async {
+      final c = await _pump(tester, 'schiffe', 'de');
+      await _play(tester, c, 2);
+      await _shot(tester, 'kld117-schiffe-de-phone');
+    });
+    testWidgets('kld117 schiffe cover de', skip: skip != null, (tester) async {
+      final c = await _pump(tester, 'schiffe', 'de');
+      await _play(tester, c, 20, keepCover: true);
+      await _shot(tester, 'kld117-schiffe-cover-de-phone');
+    });
+  });
+}
