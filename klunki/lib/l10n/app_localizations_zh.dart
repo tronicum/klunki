@@ -2104,6 +2104,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesBenchHint => '把牌拖到这里试试组字。';
 
   @override
+  String get wordtilesCoachBench1 => '试牌就像你的小本子：把牌拖到这里，试试组字。';
+
+  @override
+  String get wordtilesCoachBench2 => '这里只算字母的分数，不看是不是对的字。';
+
+  @override
+  String get wordtilesCoachBench3 => '点这个图标，所有的牌都会回来。只有你能看到你的试牌。';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step/$count';
+  }
+
+  @override
+  String get wordtilesCoachNext => '下一步';
+
+  @override
+  String get wordtilesCoachDone => '知道了';
+
+  @override
+  String get wordtilesCoachSkip => '关闭';
+
+  @override
   String get wordtilesPassTitle => '过本轮？';
 
   @override

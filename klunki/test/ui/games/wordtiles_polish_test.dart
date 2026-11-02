@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -38,6 +39,12 @@ Future<GameController> _start(WidgetTester tester,
 }
 
 void main() {
+  // The one-time bench explanation is seen (wordtiles_playtest_test).
+  setUp(() {
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
+
   testWidgets('score bar: token and score, the name only in the semantics label', (tester) async {
     _size(tester, const Size(1180, 820));
     await _start(tester);
@@ -117,10 +124,14 @@ void main() {
     expect(find.byKey(const Key('wordtiles-bench-overlay')), findsNothing);
   });
 
-  testWidgets('tablet: the bench stays in the panel (no overlay)', (tester) async {
+  testWidgets('tablet: the bench stays in the panel (no overlay), below the actions', (tester) async {
     _size(tester, const Size(1180, 820));
     await _start(tester);
+    expect(find.byKey(const Key('wordtiles-bench-0-0')), findsNothing, reason: 'closed at first (KLD-094 step 8)');
+    await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
     expect(find.byKey(const Key('wordtiles-bench-0-0')), findsOneWidget);
+    expect(tester.getTopLeft(find.byKey(const Key('wordtiles-bench'))).dy,
+        greaterThan(tester.getBottomLeft(find.byKey(const Key('wordtiles-play'))).dy));
     expect(find.byKey(const Key('wordtiles-bench-overlay')), findsNothing);
   });
 

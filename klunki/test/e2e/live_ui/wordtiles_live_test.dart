@@ -3,7 +3,9 @@
 // letter picker), "Legen", sometimes a swap or a pass, and answering the
 // open placement with "Annehmen" or (now and then) "Anzweifeln". Every turn
 // must show up once on the device (handover cover, challenge banner or the
-// last-turn line), in engine order.
+// last-turn line), in engine order. KLD-094 step 8: before every turn the
+// racks are full (unless the bag is empty) and every rack tile is on screen,
+// with tiles parked on the Bänkchen now and then (the adapter).
 //
 //   cd klunki && flutter test test/e2e/live_ui/wordtiles_live_test.dart
 //   KLUNKI_LIVE_UI_VERBOSE=1 flutter test test/e2e/live_ui/wordtiles_live_test.dart   # turn logs
@@ -40,6 +42,8 @@ void main() {
       final log = await playHotSeat(tester, adapter, GameConfig('wordtiles', seed: seed), rng: Random(seed * 7));
       log.printIfVerbose();
       expect(adapter.tapped['place'] ?? 0, greaterThan(5), reason: '${adapter.tapped}');
+      // KLD-094 step 8: tiles were parked on the bench and stayed reachable.
+      expect(adapter.benchTiles, greaterThan(0));
       // The final turn shows in the result dialog: the engine's reason.
       final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
       final game = c.game as WordTilesGame;
@@ -108,6 +112,7 @@ void main() {
       expect(adapter.tapped['exchange'], 1, reason: '${adapter.tapped}');
       expect(adapter.tapped['pass'] ?? 0, greaterThanOrEqualTo(1), reason: '${adapter.tapped}');
       expect(adapter.tapped['place'] ?? 0, greaterThan(5), reason: '${adapter.tapped}');
+      expect(adapter.benchTiles, greaterThan(0));
       final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
       final game = c.game as WordTilesGame;
       expect(game.isOver, isTrue);

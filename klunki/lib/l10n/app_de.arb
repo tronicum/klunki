@@ -3263,6 +3263,42 @@
   "@wordtilesBenchHint": {
     "description": "Word tiles: shown in the empty practice rows."
   },
+  "wordtilesCoachBench1": "Das Bänkchen ist dein Notizzettel: Zieh Steine hierher und probier Wörter aus.",
+  "@wordtilesCoachBench1": {
+    "description": "Word tiles: one-time explanation of the bench (\"Bänkchen\"), step 1 of 3: what it is for. Plain words for children."
+  },
+  "wordtilesCoachBench2": "Hier zählen nur die Punkte der Buchstaben. Ob es ein echtes Wort ist, prüft das Bänkchen nicht.",
+  "@wordtilesCoachBench2": {
+    "description": "Word tiles: bench explanation, step 2: it shows only the letter points and does not check words."
+  },
+  "wordtilesCoachBench3": "Mit diesem Knopf legst du alle Steine zurück. Dein Bänkchen siehst nur du.",
+  "@wordtilesCoachBench3": {
+    "description": "Word tiles: bench explanation, step 3: the button shown next to the text (an arrow down) puts all tiles back; the bench is private."
+  },
+  "wordtilesCoachStep": "{step} von {count}",
+  "@wordtilesCoachStep": {
+    "description": "Word tiles: bench explanation, step counter in the title (\"1 von 3\").",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesCoachNext": "Weiter",
+  "@wordtilesCoachNext": {
+    "description": "Word tiles: bench explanation, button to the next step."
+  },
+  "wordtilesCoachDone": "Verstanden",
+  "@wordtilesCoachDone": {
+    "description": "Word tiles: bench explanation, button on the last step that closes it."
+  },
+  "wordtilesCoachSkip": "Überspringen",
+  "@wordtilesCoachSkip": {
+    "description": "Word tiles: bench explanation, button that closes it before the last step."
+  },
   "wordtilesPassTitle": "Passen?",
   "@wordtilesPassTitle": {
     "description": "Word tiles: title of the light confirmation before passing."

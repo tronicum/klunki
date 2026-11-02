@@ -2195,6 +2195,32 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesBenchHint => 'اسحب الحروف إلى هنا لتجرّب كلمات.';
 
   @override
+  String get wordtilesCoachBench1 =>
+      'مقعد التجربة مثل ورقة ملاحظات: اسحب الحروف إلى هنا وجرّب كلمات.';
+
+  @override
+  String get wordtilesCoachBench2 =>
+      'يجمع نقاط الحروف فقط، ولا يتحقق إن كانت الكلمة صحيحة.';
+
+  @override
+  String get wordtilesCoachBench3 =>
+      'بهذا الزر تعود كل الحروف. لا أحد غيرك يرى مقعدك.';
+
+  @override
+  String wordtilesCoachStep(int step, int count) {
+    return '$step من $count';
+  }
+
+  @override
+  String get wordtilesCoachNext => 'التالي';
+
+  @override
+  String get wordtilesCoachDone => 'فهمت';
+
+  @override
+  String get wordtilesCoachSkip => 'تخطي';
+
+  @override
   String get wordtilesPassTitle => 'تمرير الدور؟';
 
   @override
