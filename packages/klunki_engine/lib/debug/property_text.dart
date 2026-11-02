@@ -23,6 +23,9 @@ class PropertyText {
 
   static const String title = 'Baulöwe';
 
+  /// English working title.
+  static const String englishTitle = 'Housing Corp';
+
   static const String help = 'roll | buy | decline | bid <n> | pass | build/sell/mortgage/unmortgage <square> | '
       'bail | card | end | bankrupt | accept | reject | offer <seat> give <money> [sq,sq] get <money> [sq,sq] | '
       'resign <seat> | show | moves | auto [n] | help';

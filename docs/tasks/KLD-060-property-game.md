@@ -2,7 +2,7 @@
 
 - **ID:** `KLD-060`
 - **Title:** **Baulöwe**, a property-trading dice board game (id `property`; title chosen by the maintainer,
-  2026-11-02; English working title "Builder Lion", proposal below)
+  2026-11-02; English working title **"Housing Corp"**, maintainer decision 2026-11-02)
 - **Milestone:** long-term games
 - **Status:** IN_PROGRESS: step 1 ✅ (engine); next: step 2 (n-player registry/protocol, with KLD-088)
 - **Depends on:** n-player lobby and protocol (KLD-088, no card file yet) for network play
@@ -21,6 +21,8 @@ scandals or current controversies in texts.
 2–6 players, **each on their own device (network only, no hot-seat)**, move around a board of properties with
 two dice, buy streets, collect rent, build, draw event cards and go bankrupt; the last solvent player wins, or
 the richest after an optional round limit.
+
+**Game length (maintainer decision):** by default the game runs **until only one player is left** (everybody else bankrupt or resigned); there is no round limit (`maxRounds` null, the engine default). A round limit stays an **optional** setting for people who do not want an endless game; the UI step should offer e.g. 20 / 30 / 40 rounds next to "bis zum Ende" (the default), and with a limit the richest player wins.
 
 ## Step plan
 1. ✅ **Engine** (this step): pure Dart, deterministic, n seats, themes as data, bots, CLI, tests.
@@ -86,7 +88,7 @@ trade > turn phase. Moves (JSON maps, illegal → `null`, no state change): `rol
 - **Trades**: only the current player offers, in `roll` / `end`, at most 3 offers per turn (a declined offer
   cannot block the game); the partner accepts or declines. Money, properties (no buildings in their group) and
   free cards; mortgaged properties move as they are.
-- Optional `maxRounds`: after that many full rounds the highest net worth wins (cash + prices, mortgaged at
+- Default: no round limit, play until one is left. Optional `maxRounds`: after that many full rounds the highest net worth wins (cash + prices, mortgaged at
   half + building costs); equal leaders → draw.
 - Simplified compared with the classic rules (open questions below): no building shortage (32/12), no auction
   of a bankrupt's properties to the bank, no 10 % fee on received mortgaged properties, no free-parking pot,
@@ -185,10 +187,8 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 90 % within ~90–130 rounds; every game ended.
 
 ## Open questions
-- **English title**: proposal **"Property Lion"** (keeps the lion, says what it is); alternatives "Builder Lion",
-  "Master Builder", "Tycoon".
-- **Default game length**: unlimited games take 50–70+ rounds with bots (humans: hours). Proposal: offer
-  "kurz" 20 rounds / "mittel" 40 rounds / "bis zum Ende", default 30 rounds for families?
+- ~~English title~~: decided: "Housing Corp" (working title).
+- ~~Default game length~~: decided: until one player is left; round limit optional (20 / 30 / 40 in the UI).
 - House rules: free-parking pot (off now)? building shortage 32/12 (off)? auction of a bankrupt's properties
   (off, they go back to the bank)? 10 % fee when receiving mortgaged properties (off)? double rent from the
   "nearest station" card (off)?

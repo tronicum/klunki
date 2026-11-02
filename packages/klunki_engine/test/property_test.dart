@@ -180,6 +180,7 @@ void main() {
         expect(() => PropertyGame(playerCount: n), throwsArgumentError);
       }
       expect(() => PropertyGame(maxRounds: 0), throwsArgumentError);
+      expect(PropertyGame().maxRounds, isNull); // default: until one is left
       final g = PropertyGame(playerCount: 6, seed: 3);
       expect(g.seats.map((s) => s.cash), List.filled(6, 1500));
       expect(g.phase, PropertyPhase.roll);

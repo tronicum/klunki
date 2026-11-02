@@ -1,4 +1,5 @@
-/// Baulöwe, the property-trading dice game (KLD-060 step 1, id `property`):
+/// Baulöwe (en working title "Housing Corp"), the property-trading dice game
+/// (KLD-060 step 1, id `property`):
 /// engine only.
 ///
 /// **Players are seats** `0 … playerCount-1` (2–6), not [Player] a/b: the
@@ -230,7 +231,8 @@ class PropertyGame {
   final PropertyTheme theme;
 
   /// Optional game length: the game ends after this many full rounds and
-  /// the richest seat wins ([netWorth]). Null = play until one is left.
+  /// the richest seat wins ([netWorth]). Null (the default) = play until
+  /// only one player is left; the limit is an opt-in setting.
   final int? maxRounds;
 
   final Random _rng;

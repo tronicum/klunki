@@ -10,7 +10,7 @@ import 'package:klunki_engine/klunki_engine.dart' show QuartettDeck;
 ///   dart run klunki_engine:klunki connect4 3 3 4 4   # play moves, print, exit
 ///   dart run klunki_engine:klunki demo [games…]      # narrated demo games
 ///   dart run klunki_engine:klunki quartett-trumpf --deck trains   # Quartett deck
-///   dart run klunki_engine:klunki property --players 4 --seed 7 'auto 50'   # Baulöwe, 2–6 seats
+///   dart run klunki_engine:klunki property --players 4 --seed 7 'auto 50'   # Baulöwe (Housing Corp), 2–6 seats
 ///
 /// In scripted mode each argument after the game id is one console line.
 void main(List<String> args) {
@@ -63,7 +63,7 @@ void main(List<String> args) {
   }
 }
 
-/// Baulöwe (KLD-060) has 2–6 seats and its own console ([PropertyText]):
+/// Baulöwe (en "Housing Corp", KLD-060) has 2–6 seats and its own console ([PropertyText]):
 /// `property [--players n] [--seed s] [lines…]`.
 void _property(List<String> args) {
   int option(String name, int fallback) {
