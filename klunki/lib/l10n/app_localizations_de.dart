@@ -1839,6 +1839,56 @@ class AppLocalizationsDe extends AppLocalizations {
   String get chessPiecePawn => 'Bauer';
 
   @override
+  String get chessOfferDraw => 'Remis anbieten';
+
+  @override
+  String get chessOfferDrawTitle => 'Remis anbieten?';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return '$player kann annehmen oder ablehnen. Bei Annahme endet das Spiel unentschieden.';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => 'Anbieten';
+
+  @override
+  String get chessDrawOfferTitle => 'Remis-Angebot';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return '$player bietet ein Remis an. Bei Annahme endet das Spiel unentschieden.';
+  }
+
+  @override
+  String get chessDrawAccept => 'Annehmen';
+
+  @override
+  String get chessDrawDecline => 'Ablehnen';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return 'Remis angeboten – $player entscheidet.';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return '$player lehnt das Remis ab.';
+  }
+
+  @override
+  String get chessMoveDrawOffer => 'Remis angeboten';
+
+  @override
+  String get chessMoveDrawDecline => 'Remis abgelehnt';
+
+  @override
+  String get chessMoveDrawAccept => 'Remis angenommen';
+
+  @override
+  String get engineReasonChessDrawAgreed => 'Remis vereinbart';
+
+  @override
   String get engineReasonChessCheckmate => 'Schachmatt';
 
   @override

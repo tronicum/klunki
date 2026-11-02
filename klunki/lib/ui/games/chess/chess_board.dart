@@ -27,11 +27,19 @@ import 'chess_pieces.dart';
 ///   the own side is at the bottom.
 /// * Captured pieces per side with the material balance, and the move list
 ///   in SAN (one scrollable line, the latest move always visible).
+/// * Draw offer (KLD-059 step 3): on the own turn the handshake button
+///   offers a draw (after a confirmation); the pieces wait until the other
+///   player has accepted or declined it in a dialog; it closes by itself when the offer goes away underneath it
+///   (e.g. a resign). The hint line tells the offerer that the other side
+///   decides, and both sides when an offer was declined.
 ///
 /// Keys for tests: squares `chess-sq-<e4>` ([ChessSquareView]), `chess-flip`,
 /// `chess-auto-flip`, `chess-check`, `chess-moves`, `chess-move-<i>`,
 /// `chess-captured-<a|b>`, `chess-promotion` with `chess-promote-<q|r|b|n>`
-/// and `chess-promote-cancel`, coordinates `chess-file-<i>` / `chess-rank-<i>`
+/// and `chess-promote-cancel`, the draw offer `chess-offer-draw`,
+/// `chess-offer-dialog` (`chess-offer-confirm` / `chess-offer-cancel`) and
+/// `chess-draw-offer-dialog` (`chess-draw-accept` / `chess-draw-decline`),
+/// coordinates `chess-file-<i>` / `chess-rank-<i>`
 /// (screen order).
 class ChessBoard extends StatefulWidget {
   final GameController controller;
@@ -50,6 +58,14 @@ class _ChessBoardState extends State<ChessBoard> {
   late GameTransport _transport;
   int _seen = 0;
 
+  /// The open "accept the draw?" dialog and the log index of the offer it
+  /// answers.
+  ModalRoute<Object?>? _offerRoute;
+  int? _offerShownFor;
+
+  /// The open "offer a draw?" confirmation, closed when the game ends.
+  ModalRoute<Object?>? _confirmRoute;
+
   GameController get controller => widget.controller;
   ChessGame get game => controller.game as ChessGame;
 
@@ -59,6 +75,7 @@ class _ChessBoardState extends State<ChessBoard> {
     _transport = controller.transport;
     _seen = controller.moves.length;
     controller.addListener(_onChange);
+    _syncDrawOffer(); // e.g. a guest that rejoins while an offer is open
   }
 
   @override
@@ -88,6 +105,154 @@ class _ChessBoardState extends State<ChessBoard> {
         _selected = null;
       }
     });
+    _syncDrawOffer();
+    if (game.isOver) {
+      final r = _confirmRoute;
+      _confirmRoute = null;
+      _closeRoute(r);
+    }
+  }
+
+  // ------------------------------------------------------------- draw offer
+
+  static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
+
+  /// Who offers a draw from this device: the own player on a network
+  /// device, the player to move in hot-seat.
+  Player get _offerer {
+    final local = controller.transport.localPlayers;
+    return local.length == 1 ? local.single : game.currentPlayer;
+  }
+
+  /// The local player who has to answer the open draw offer, or null.
+  Player? get _offerTo {
+    final by = game.drawOfferBy;
+    if (by == null) return null;
+    final to = _other(by);
+    return controller.transport.localPlayers.contains(to) ? to : null;
+  }
+
+  /// Log index of the most recent draw offer (-1 if none).
+  int get _lastOfferIndex => controller.moves.lastIndexWhere((m) => m.move['action'] == ChessGame.offerDraw);
+
+  /// Shows the answer dialog for a new open offer to a local player, closes
+  /// it when the offer is gone.
+  void _syncDrawOffer() {
+    final to = _offerTo;
+    if (to == null) {
+      _offerShownFor = null;
+      final r = _offerRoute;
+      _offerRoute = null;
+      _closeRoute(r);
+      return;
+    }
+    final index = _lastOfferIndex;
+    if (_offerShownFor == index) return;
+    _offerShownFor = index;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _offerTo == to && _offerShownFor == index) _answerDrawOffer(to);
+    });
+  }
+
+  static void _closeRoute(ModalRoute<Object?>? r) {
+    final nav = r?.navigator;
+    if (r == null || nav == null || !r.isActive) return;
+    if (r.isCurrent) {
+      nav.pop();
+    } else {
+      nav.removeRoute(r);
+    }
+  }
+
+  Future<void> _answerDrawOffer(Player to) async {
+    final l10n = AppLocalizations.of(context);
+    final by = _other(to);
+    final name = playerName(context, by);
+    final accent = KlunkiPalette.of(context).accent(controller.spec.id);
+    final accept = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        _offerRoute = ModalRoute.of(ctx);
+        return AlertDialog(
+          key: const Key('chess-draw-offer-dialog'),
+          icon: Icon(Icons.handshake_outlined, size: 36, color: accent.onSurface(Theme.of(ctx).brightness)),
+          title: Text(l10n.chessDrawOfferTitle),
+          content: Text(l10n.chessDrawOfferBody(name)),
+          actions: [
+            TextButton(
+              key: const Key('chess-draw-decline'),
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.chessDrawDecline),
+            ),
+            FilledButton(
+              key: const Key('chess-draw-accept'),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.chessDrawAccept),
+            ),
+          ],
+        );
+      },
+    );
+    _offerRoute = null;
+    if (accept == null || !mounted || game.drawOfferBy != by) return;
+    final r = await controller.submit(accept ? ChessGame.acceptDrawMove(to) : ChessGame.declineDrawMove(to));
+    // Not delivered (e.g. the connection dropped): ask again while the
+    // offer is still open.
+    if (!r.isAccepted && mounted && game.drawOfferBy == by) {
+      _offerShownFor = null;
+      _syncDrawOffer();
+    }
+  }
+
+  /// "Remis anbieten": confirm, then send the offer.
+  Future<void> _offerDraw() async {
+    final me = _offerer;
+    if (!game.canOfferDraw(me)) return;
+    final l10n = AppLocalizations.of(context);
+    final name = playerName(context, _other(me));
+    final accent = KlunkiPalette.of(context).accent(controller.spec.id);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        _confirmRoute = ModalRoute.of(ctx);
+        return AlertDialog(
+          key: const Key('chess-offer-dialog'),
+          icon: Icon(Icons.handshake_outlined, size: 36, color: accent.onSurface(Theme.of(ctx).brightness)),
+          title: Text(l10n.chessOfferDrawTitle),
+          content: Text(l10n.chessOfferDrawBody(name)),
+          actions: [
+            TextButton(
+              key: const Key('chess-offer-cancel'),
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.shellCancel),
+            ),
+            FilledButton(
+              key: const Key('chess-offer-confirm'),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.chessOfferDrawConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    _confirmRoute = null;
+    if (ok != true || !mounted || !game.canOfferDraw(me)) return;
+    controller.submit(ChessGame.offerDrawMove(me));
+  }
+
+  /// The hint about a draw offer: "Remis angeboten – Ben entscheidet." while
+  /// the other device decides, "Ben lehnt das Remis ab." right after a
+  /// decline; null otherwise.
+  String? _drawHint(AppLocalizations l10n) {
+    final by = game.drawOfferBy;
+    if (by != null) {
+      final to = _other(by);
+      return controller.transport.localPlayers.contains(to) ? null : l10n.chessHintDrawOffered(playerName(context, to));
+    }
+    final moves = controller.moves;
+    if (moves.isEmpty || moves.last.move['action'] != ChessGame.declineDraw) return null;
+    return l10n.chessHintDrawDeclined(playerName(context, moves.last.player));
   }
 
   /// The side shown at the bottom.
@@ -97,7 +262,9 @@ class _ChessBoardState extends State<ChessBoard> {
     return _flipped ? (base == Player.a ? Player.b : Player.a) : base;
   }
 
-  bool get _canMove => controller.canAct && !_promoting;
+  /// Pieces move on the own turn, not while the promotion picker is up or a
+  /// draw offer waits for its answer (the offerer is the player to move).
+  bool get _canMove => controller.canAct && !_promoting && game.drawOfferBy == null;
 
   List<Map<String, dynamic>> _movesFrom(String? sq) => sq == null || !_canMove ? const [] : game.legalMovesFrom(sq);
 
@@ -157,11 +324,14 @@ class _ChessBoardState extends State<ChessBoard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final g = game;
-    GameScreen.of(context).setHint(g.isOver || !controller.canAct
+    GameScreen.of(context).setHint(g.isOver
         ? null
-        : _selected == null
-            ? l10n.chessHintSelect
-            : l10n.chessHintTarget);
+        : _drawHint(l10n) ??
+            (!controller.canAct
+                ? null
+                : _selected == null
+                    ? l10n.chessHintSelect
+                    : l10n.chessHintTarget));
 
     final bottom = _bottom;
     final top = bottom == Player.a ? Player.b : Player.a;
@@ -184,6 +354,13 @@ class _ChessBoardState extends State<ChessBoard> {
             icon: const Icon(Icons.screen_rotation_outlined),
             selectedIcon: const Icon(Icons.screen_rotation),
             onPressed: () => setState(() => _autoFlip = !_autoFlip),
+          ),
+        if (!g.isOver)
+          IconButton(
+            key: const Key('chess-offer-draw'),
+            tooltip: l10n.chessOfferDraw,
+            icon: const Icon(Icons.handshake_outlined),
+            onPressed: g.canOfferDraw(_offerer) && _offerTo == null ? _offerDraw : null,
           ),
       ],
     );

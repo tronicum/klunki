@@ -1848,6 +1848,56 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chessPiecePawn => 'Pion';
 
   @override
+  String get chessOfferDraw => 'Proposer la nulle';
+
+  @override
+  String get chessOfferDrawTitle => 'Proposer la nulle ?';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return '$player peut accepter ou refuser. Si elle est acceptée, la partie est nulle.';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => 'Proposer';
+
+  @override
+  String get chessDrawOfferTitle => 'Proposition de nulle';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return '$player propose la nulle. Si tu acceptes, la partie est nulle.';
+  }
+
+  @override
+  String get chessDrawAccept => 'Accepter';
+
+  @override
+  String get chessDrawDecline => 'Refuser';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return 'Nulle proposée – $player décide.';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return '$player refuse la nulle.';
+  }
+
+  @override
+  String get chessMoveDrawOffer => 'Nulle proposée';
+
+  @override
+  String get chessMoveDrawDecline => 'Nulle refusée';
+
+  @override
+  String get chessMoveDrawAccept => 'Nulle acceptée';
+
+  @override
+  String get engineReasonChessDrawAgreed => 'Nulle par accord mutuel';
+
+  @override
   String get engineReasonChessCheckmate => 'Échec et mat';
 
   @override

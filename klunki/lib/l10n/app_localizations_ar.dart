@@ -1858,6 +1858,56 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chessPiecePawn => 'بيدق';
 
   @override
+  String get chessOfferDraw => 'عرض التعادل';
+
+  @override
+  String get chessOfferDrawTitle => 'عرض التعادل؟';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return 'القرار عند $player: القبول أو الرفض. عند القبول تنتهي اللعبة بالتعادل.';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => 'اعرض';
+
+  @override
+  String get chessDrawOfferTitle => 'عرض تعادل';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return 'عرض تعادل من $player. عند القبول تنتهي اللعبة بالتعادل.';
+  }
+
+  @override
+  String get chessDrawAccept => 'قبول';
+
+  @override
+  String get chessDrawDecline => 'رفض';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return 'تم عرض التعادل، والقرار عند $player.';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return 'التعادل مرفوض من $player.';
+  }
+
+  @override
+  String get chessMoveDrawOffer => 'عرض التعادل';
+
+  @override
+  String get chessMoveDrawDecline => 'رفض التعادل';
+
+  @override
+  String get chessMoveDrawAccept => 'قبول التعادل';
+
+  @override
+  String get engineReasonChessDrawAgreed => 'تعادل بالاتفاق';
+
+  @override
   String get engineReasonChessCheckmate => 'كش مات';
 
   @override

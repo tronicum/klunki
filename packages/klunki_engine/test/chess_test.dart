@@ -656,4 +656,88 @@ void main() {
       }
     });
   });
+
+  group('draw offer (KLD-059 step 3)', () {
+    test('offer and accept: a draw by agreement', () {
+      final g = play(['e4']);
+      expect(g.canOfferDraw(Player.b), isTrue);
+      expect(g.canOfferDraw(Player.a), isFalse, reason: 'only the player to move offers');
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.a)), isNull);
+      final offer = g.applyMove(ChessGame.offerDrawMove(Player.b))!;
+      expect(offer.payload, {'drawOffer': 'b'});
+      expect(offer.draw, isFalse);
+      expect(g.drawOfferBy, Player.b);
+      expect(g.currentPlayer, Player.b, reason: 'an offer does not pass the turn');
+      expect(g.playerOf(ChessGame.acceptDrawMove(Player.a)), Player.a);
+      expect(g.applyMove(mv('e7', 'e5')), isNull, reason: 'the offerer waits for the answer');
+      final e = g.applyMove(ChessGame.acceptDrawMove(Player.a))!;
+      expect(e.draw, isTrue);
+      expect(e.payload, {'drawAccepted': 'a'});
+      expect(g.isOver, isTrue);
+      expect(g.result.draw, isTrue);
+      expect(g.result.code, GameEndReason.chessDrawAgreed);
+      expect(g.result.reason, 'draw agreed');
+      expect(g.drawOfferBy, isNull);
+      expect(g.legalMoves, isEmpty);
+      expect(g.sanHistory, ['e4'], reason: 'the offer moves are no board moves');
+      expect(g.applyMove(mv('e7', 'e5')), isNull);
+    });
+
+    test('decline; no second offer in the same position; a board move in between allows it', () {
+      final g = play(['e4']);
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.b)), isNotNull);
+      expect(g.canOfferDraw(Player.b), isFalse, reason: 'an offer is open');
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.b)), isNull);
+      expect(g.applyMove(ChessGame.acceptDrawMove(Player.b)), isNull, reason: 'nobody accepts their own offer');
+      expect(g.applyMove(ChessGame.declineDrawMove(Player.b)), isNull);
+      expect(g.applyMove(ChessGame.declineDrawMove(Player.a))!.payload, {'drawDeclined': 'a'});
+      expect(g.drawOfferBy, isNull);
+      expect(g.isOver, isFalse);
+      expect(g.canOfferDraw(Player.b), isFalse, reason: 'B already offered in this position');
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.b)), isNull);
+      play(['e5', 'Nf3'], g);
+      expect(g.canOfferDraw(Player.b), isTrue);
+      expect(g.applyMove(ChessGame.acceptDrawMove(Player.a)), isNull, reason: 'no offer open');
+    });
+
+    test('malformed draw moves are refused; resign still works with an open offer', () {
+      final g = ChessGame();
+      expect(g.applyMove({'action': 'offerDraw'}), isNull);
+      expect(g.applyMove({'action': 'acceptDraw', 'player': 'b'}), isNull, reason: 'no offer open');
+      expect(g.applyMove({'action': 'offerDraw', 'player': 'x'}), isNull);
+      expect(g.applyMove({'action': 'acceptDraw', 'player': 1}), isNull);
+      expect(g.applyMove(ChessGame.offerDrawMove(Player.a)), isNotNull);
+      expect(g.applyMove(Game.resignMove(Player.b)), isNotNull);
+      expect(g.result.code, GameEndReason.commonResigned);
+      expect(g.drawOfferBy, isNull);
+      expect(g.canOfferDraw(Player.a), isFalse);
+    });
+
+    test('replay of a log with draw moves restores the open offer', () {
+      final log = [
+        mv('e2', 'e4'),
+        ChessGame.offerDrawMove(Player.b),
+        ChessGame.declineDrawMove(Player.a),
+        mv('e7', 'e5'),
+        ChessGame.offerDrawMove(Player.a),
+      ];
+      final g = replay(const GameConfig('chess'), log)! as ChessGame;
+      expect(g.drawOfferBy, Player.a);
+      expect(g.sanHistory, ['e4', 'e5']);
+      final done = replay(const GameConfig('chess'), [...log, ChessGame.acceptDrawMove(Player.b)])!;
+      expect(done.result.code, GameEndReason.chessDrawAgreed);
+    });
+
+    test('text adapter: "draw", "accept", "decline"', () {
+      final g = ChessGame();
+      final t = ChessText(game: g);
+      expect(t.parse('draw'), ChessGame.offerDrawMove(Player.a));
+      expect(t.parse('accept'), isNull, reason: 'no offer open');
+      final e = g.applyMove(t.parse('draw')!)!;
+      expect(t.narrate(Player.a, ChessGame.offerDrawMove(Player.a), e), 'Anna (White) offers a draw.');
+      expect(t.parse('accept'), ChessGame.acceptDrawMove(Player.b));
+      expect(t.parse('decline'), ChessGame.declineDrawMove(Player.b));
+      expect(t.format(ChessGame.acceptDrawMove(Player.b)), 'acceptDraw Black');
+    });
+  });
 }

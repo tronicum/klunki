@@ -2,7 +2,7 @@
 
 Two devices, one connection (TCP or WebSocket). The **host** owns the
 authoritative engine and move log. For games without hidden information
-(Four in a Row, Mühle) the **guest** runs the same engine (from `GameConfig`
+(Four in a Row, Mühle, chess) the **guest** runs the same engine (from `GameConfig`
 via `createGame`) but applies only moves the host has accepted, in log order.
 For hidden-information games (Quartett, Schiffe versenken, GoStrategy) the
 host is the referee and the guest only ever receives what its player may
@@ -148,6 +148,32 @@ redacted, the guest's `view` carries `"resigned":"a"|"b"`, and the host sends
 (moves never made have no commitment). The guest's end-of-game replay
 attributes each step with `playerOf` as well.
 
+**Chess (KLD-059 step 3).** Plain messages, no redaction: the host plays
+White (A, moves first), the guest Black (B). A move is
+`{"action":"move","from":"e2","to":"e4"}`; a pawn reaching the last rank
+must carry `"promotion":"q"|"r"|"b"|"n"` (the host refuses it without one,
+or with one on any other move: `"illegal move"`). All draws by rule
+(stalemate, insufficient material, 75 moves, threefold repetition) are
+automatic, so nobody claims anything. There are no clocks (a follow-up).
+
+**Chess draw offer.** Three ordinary moves that, like a resign, name their
+player (`playerOf` = the named player; the guest only for itself, else
+`"not your turn"`); the answer comes from the player who is not to move:
+
+| move | allowed when | effect |
+|---|---|---|
+| `{"action":"offerDraw","player":p}` | `p` is to move, no offer is open and `p` has not offered in this position (a board move must come between two offers of one player) | the offer is open; the turn does not change, and `p` cannot make a board move until it is answered |
+| `{"action":"acceptDraw","player":q}` | `q`'s opponent has an open offer | the game ends drawn, reason `chess.drawAgreed` |
+| `{"action":"declineDraw","player":q}` | `q`'s opponent has an open offer | the offer is gone, play goes on |
+
+Anything else is `"illegal move"`. Because the offerer waits, the answer
+is the only move that can follow an offer (besides a resign): no board move
+can cross an answer in flight and make it a stale index. The offer lives in the move log only, so a rejoining guest's
+`welcome` replay restores it. No new message type and no protocol version
+bump: the moves arrived with chess rules version 2 (KLD-085 fingerprint),
+so a build with chess rules 1 is refused with `incompatible-rules` instead
+of meeting a move it does not know.
+
 **Guest.** Applies `accepted` only when `index == local log length` (it ignores
 lower indices = duplicates; a higher index is a gap → `error`). If an accepted
 move does not apply locally, the states diverged → `error` and close; the guest
@@ -259,8 +285,8 @@ Future changes to a game's rules or data need no new protocol version: bump
 ## Hidden information (KLD-064)
 
 Games with `GameSpec.redaction` (`quartett-trumpf`, `quartett-sets`,
-`schiffe`, `gostrategy`). Connect4 and Mühle have nothing to hide and keep
-the plain messages above.
+`schiffe`, `gostrategy`). Connect4, Mühle and chess have nothing to hide and
+keep the plain messages above.
 
 **Roles.** The host runs the full engine and is the referee: it sees both
 players' secrets (it has to, to judge shots and fights). The guest never

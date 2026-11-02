@@ -277,4 +277,70 @@ void main() {
       await tester.pumpAndSettle();
     });
   }
+
+  // KLD-059 step 3: the draw offer on one device. The player to move offers,
+  // the dialog asks the other player at once.
+  testWidgets('hot-seat draw offer: declined (hint, no second offer), then accepted', (tester) async {
+    final c = await pumpGame(tester, 'chess');
+    await _move(tester, 'e2', 'e4');
+    // Black to move offers.
+    await tester.tap(find.byKey(const Key('chess-offer-draw')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('chess-offer-dialog')), findsOneWidget);
+    expect(find.text('Remis anbieten?'), findsOneWidget);
+    expect(find.text('Anna (Weiß) kann annehmen oder ablehnen. Bei Annahme endet das Spiel unentschieden.'),
+        findsOneWidget);
+    // Cancel sends nothing.
+    await tester.tap(find.byKey(const Key('chess-offer-cancel')));
+    await tester.pumpAndSettle();
+    expect(c.moves, hasLength(1));
+    await tester.tap(find.byKey(const Key('chess-offer-draw')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('chess-offer-confirm')));
+    await tester.pumpAndSettle();
+    expect(c.moves.last.move, ChessGame.offerDrawMove(Player.b));
+    expect(find.byKey(const Key('chess-draw-offer-dialog')), findsOneWidget);
+    expect(find.text('Ben (Schwarz) bietet ein Remis an. Bei Annahme endet das Spiel unentschieden.'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('chess-draw-decline')));
+    await tester.pumpAndSettle();
+    expect(c.moves.last.move, ChessGame.declineDrawMove(Player.a));
+    expect(find.byKey(const Key('chess-draw-offer-dialog')), findsNothing);
+    expect(find.text('Anna (Weiß) lehnt das Remis ab.'), findsOneWidget);
+    // Ben already offered in this position.
+    expect(tester.widget<IconButton>(find.byKey(const Key('chess-offer-draw'))).onPressed, isNull);
+    await _move(tester, 'e7', 'e5');
+    expect(find.text('Anna (Weiß) lehnt das Remis ab.'), findsNothing);
+    // White offers, Black accepts: a draw by agreement.
+    await tester.tap(find.byKey(const Key('chess-offer-draw')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('chess-offer-confirm')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('chess-draw-accept')));
+    await tester.pumpAndSettle();
+    expect(_game(c).result.code, GameEndReason.chessDrawAgreed);
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Unentschieden')), findsOneWidget);
+    expect(find.descendant(of: find.byKey(resultDialog), matching: find.text('Remis vereinbart')), findsOneWidget);
+    expect(find.byKey(const Key('chess-offer-draw')), findsNothing);
+  });
+
+  testWidgets('hot-seat: undo takes back an open offer and closes its dialog; history names the offer', (tester) async {
+    final c = await pumpGame(tester, 'chess');
+    await _move(tester, 'd2', 'd4');
+    await c.submit(ChessGame.offerDrawMove(Player.b));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('chess-draw-offer-dialog')), findsOneWidget);
+    expect(c.undo(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('chess-draw-offer-dialog')), findsNothing);
+    expect(_game(c).drawOfferBy, isNull);
+    await c.submit(ChessGame.offerDrawMove(Player.b));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('chess-draw-decline')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shell-history')));
+    await tester.pumpAndSettle();
+    expect(find.text('Anna (Weiß): d4'), findsOneWidget);
+    expect(find.text('Ben (Schwarz): Remis angeboten'), findsOneWidget);
+    expect(find.text('Anna (Weiß): Remis abgelehnt'), findsOneWidget);
+  });
 }

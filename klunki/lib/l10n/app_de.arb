@@ -2768,6 +2768,82 @@
   "@chessPiecePawn": {
     "description": "Chess piece name."
   },
+  "chessOfferDraw": "Remis anbieten",
+  "@chessOfferDraw": {
+    "description": "KLD-059 step 3: button (tooltip) to offer the opponent a draw."
+  },
+  "chessOfferDrawTitle": "Remis anbieten?",
+  "@chessOfferDrawTitle": {
+    "description": "KLD-059 step 3: title of the dialog that confirms a draw offer."
+  },
+  "chessOfferDrawBody": "{player} kann annehmen oder ablehnen. Bei Annahme endet das Spiel unentschieden.",
+  "@chessOfferDrawBody": {
+    "description": "KLD-059 step 3: body of the dialog that confirms a draw offer; {player} is the opponent who will decide.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessOfferDrawConfirm": "Anbieten",
+  "@chessOfferDrawConfirm": {
+    "description": "KLD-059 step 3: confirm button of the draw offer dialog."
+  },
+  "chessDrawOfferTitle": "Remis-Angebot",
+  "@chessDrawOfferTitle": {
+    "description": "KLD-059 step 3: title of the dialog that shows the opponent's draw offer."
+  },
+  "chessDrawOfferBody": "{player} bietet ein Remis an. Bei Annahme endet das Spiel unentschieden.",
+  "@chessDrawOfferBody": {
+    "description": "KLD-059 step 3: body of the dialog that shows a draw offer; {player} made the offer.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessDrawAccept": "Annehmen",
+  "@chessDrawAccept": {
+    "description": "KLD-059 step 3: button that accepts a draw offer (the game ends drawn)."
+  },
+  "chessDrawDecline": "Ablehnen",
+  "@chessDrawDecline": {
+    "description": "KLD-059 step 3: button that declines a draw offer (the game goes on)."
+  },
+  "chessHintDrawOffered": "Remis angeboten – {player} entscheidet.",
+  "@chessHintDrawOffered": {
+    "description": "KLD-059 step 3: hint line while a draw offer waits for {player} (the opponent) to answer.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessHintDrawDeclined": "{player} lehnt das Remis ab.",
+  "@chessHintDrawDeclined": {
+    "description": "KLD-059 step 3: hint line after {player} declined a draw offer (until the next move).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessMoveDrawOffer": "Remis angeboten",
+  "@chessMoveDrawOffer": {
+    "description": "KLD-059 step 3: move history entry for a draw offer (after \"Anna (Weiß): \")."
+  },
+  "chessMoveDrawDecline": "Remis abgelehnt",
+  "@chessMoveDrawDecline": {
+    "description": "KLD-059 step 3: move history entry for a declined draw offer."
+  },
+  "chessMoveDrawAccept": "Remis angenommen",
+  "@chessMoveDrawAccept": {
+    "description": "KLD-059 step 3: move history entry for an accepted draw offer."
+  },
+  "engineReasonChessDrawAgreed": "Remis vereinbart",
+  "@engineReasonChessDrawAgreed": {
+    "description": "Result reason (chess): draw, one player offered a draw and the other accepted (KLD-059 step 3)."
+  },
   "engineReasonChessCheckmate": "Schachmatt",
   "@engineReasonChessCheckmate": {
     "description": "Result reason (chess): checkmate."

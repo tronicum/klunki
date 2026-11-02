@@ -3,8 +3,8 @@
 - **ID:** `KLD-059`
 - **Title:** Chess with the full standard rules (id `chess`)
 - **Milestone:** long-term games
-- **Status:** step 1 DONE (engine, text adapter, tests), step 2 DONE (hot-seat board UI); steps 3–4 open, see
-  "Step plan"
+- **Status:** step 1 DONE (engine, text adapter, tests), step 2 DONE (hot-seat board UI), step 3 DONE (network
+  play, draw offer); step 4 open, see "Step plan"
 - **Depends on:** none for the engine; the UI needs the shell (KLD-021)
 - **Touched paths (step 1):**
   - `packages/klunki_engine/lib/chess.dart` (new), `lib/debug/chess_text.dart` (new), `test/chess_test.dart` (new)
@@ -22,13 +22,9 @@ existing games (map moves, `GameEndReason` codes, history).
 ## Step plan
 1. **Engine (done).** Full FIDE rules, FEN, SAN, perft-tested; `ChessText` for the debug console and CLI.
 2. **Hot-seat board UI (done ✅).** See "Board UI (step 2)" below.
-3. **Network play (next):** already works on the protocol level (open information, the host replays moves;
-   `klunki host chess` in the CLI); app side: remove `chess` from `hotSeatOnlyGames` in
-   `klunki/lib/ui/shell/screen_registry.dart` (the host pickers of "Über WLAN spielen" and the relay host use
-   `networkGameSpecs`), check the guest's orientation (own side at the bottom, no auto-turn toggle, already in
-   the board) and the network status bar (it still shows the X/O marks), an e2e test over loopback.
-4. **Later:** clocks / time control, pause and resume (KLD-079: `fen` + move log), draw offer as a move, a simple
-   computer opponent.
+3. **Network play (done ✅).** See "Network play (step 3)" below.
+4. **Later:** clocks / time control, pause and resume (KLD-079: `fen` + move log), a simple computer opponent,
+   take-back requests over the network.
 
 ## Design (step 1)
 - **Players:** White = `Player.a` (moves first, like every Klunki game), Black = `Player.b`. A game from a FEN can
@@ -107,6 +103,48 @@ The whole file runs in under a second (`dart test`), so no tag is needed.
   chess added to the menu, resign, l10n coverage / RTL / translation tests; screenshot `chess-<size>-<theme>` in
   `test/screenshots`.
 
+## Network play (step 3)
+- **Colours:** the host plays White (A, moves first), the guest Black (B), as the protocol's default seat
+  assignment for every game. No choice or random colours yet (would need a `GameConfig` option and a seat swap
+  in the host; kept simple). Open information, so the plain protocol: no redaction, the guest replays the log.
+- **App:** `chess` left `hotSeatOnlyGames`, so the menu tile shows "Mit anderen" (KLD-105), the room flow takes
+  it preselected and the room game choice lists it (`networkGameSpecs`). The web beta greys out network play by
+  channel, not by game (KLD-108): nothing chess-specific.
+- **Board on a network device:** its own side at the bottom (the guest sees the board turned, files h…a and
+  ranks 1…8 turned with it), no auto-turn toggle, the flip button stays; no undo and no restart (shell rule for
+  network games). Status: "Du bist am Zug" / "Warte auf Anna (Weiß)…" (names, KLD-106); tokens are the kings.
+- **Promotion** travels in the move map (`promotion: q|r|b|n`); the host refuses a last-rank pawn move without
+  it (or a piece letter on any other move) like any illegal move.
+- **Draw offer** (engine moves, rules version 2): `{'action': 'offerDraw'|'acceptDraw'|'declineDraw',
+  'player': 'a'|'b'}`. Like a resign they name their player (`ChessGame.playerOf`; the answer comes from the
+  player not to move); the host checks them like every move. Only the player to move offers, at most once per
+  position (a board move must come between), one open offer at a time; the offer does not pass the turn and
+  the offerer cannot move until it is answered. That keeps the network simple: the answer is the only move
+  that can follow an offer, so no board move crosses it in flight (a first version let either side offer at
+  any time and the offerer move on; the live-UI test caught an answer rejected as a stale index behind the
+  offerer's move). Accepting ends the game drawn
+  (`chess.drawAgreed`, "Remis vereinbart"). Not in `history` / `sanHistory`, only in the transport log, so
+  hot-seat undo and a rejoining guest's replay work unchanged. Chosen over a shell-level message because the
+  protocol has no side channel: a move needs no new message type, no protocol bump, and the fingerprint
+  (`rulesVersion` 2) refuses a build that does not know the moves.
+- **Draw offer UI:** on the own turn the handshake button next to the flip button (`chess-offer-draw`) →
+  "Remis anbieten?" ("Ben
+  (Schwarz) kann annehmen oder ablehnen …", Abbrechen / Anbieten). The other device gets "Remis-Angebot"
+  ("Anna (Weiß) bietet ein Remis an …", Ablehnen / Annehmen); the dialog closes by itself when the offer goes
+  away (resign, undo). The offerer's hint line: "Remis angeboten – Ben (Schwarz) entscheidet.", after a decline
+  "Ben (Schwarz) lehnt das Remis ab." The history sheet: "Remis angeboten / abgelehnt / angenommen". The pieces wait
+  while the own offer is open; an answer that does not get through is asked again. Hot-seat uses the same
+  flow: the player to move offers, the dialog asks the other one at once.
+- **Text adapter / CLI:** `draw`, `accept`, `decline`; narrated ("Anna (White) offers a draw.").
+- **Tests:** engine `chess_test.dart` (draw offer group); net `packages/klunki_net/test/chess_net_test.dart`
+  (Fool's mate, both promotions incl. an en passant capture, the 10-move stalemate, draw offer declined and
+  accepted, resign with an open offer, over TCP, WebSocket and the relay; rejoin restores an open offer; a
+  chess rules 1 guest is refused); app `test/ui/games/chess_network_test.dart` (turned board for Black,
+  names, no undo, Fool's mate by taps, draw offer between devices, promotion picker, resign closes the offer
+  dialog), hot-seat draw offer tests in `chess_screen_test.dart`, live UI `test/e2e/live_ui/chess_live_test.dart`
+  with `chess_adapter.dart` (whole games by taps on two devices through the Wi-Fi proxy, plus hot-seat).
+- **Follow-ups:** clocks (step 4); choosing colours; a take-back request over the network.
+
 ## Open questions
-- Draw offer as a move (step 4)? Figurine notation (painted pieces) instead of SAN letters, or localized
+- Figurine notation (painted pieces) instead of SAN letters, or localized
   letters (German K D T L S)? Persist the auto-turn / flip choice (no per-game settings yet)?

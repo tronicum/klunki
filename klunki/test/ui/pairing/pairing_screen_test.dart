@@ -15,7 +15,7 @@ import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart' show RelayHostScreen;
 import 'package:klunki/ui/shell/screen_registry.dart' show networkGameSpecs;
-import 'package:klunki_engine/klunki_engine.dart' show GameConfig, appGameSpecs;
+import 'package:klunki_engine/klunki_engine.dart' show GameConfig;
 import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -59,14 +59,14 @@ Finder _address(int i, String text) => find.descendant(
 
 void main() {
   group('host', () {
-    // KLD-059: chess is hot-seat only until its network step (step 3).
-    testWidgets('offers every network game but not chess yet', (tester) async {
+    // KLD-059 step 3: chess plays over the network; the word tile game not yet.
+    testWidgets('offers every network game, chess included', (tester) async {
       await _openPairing(tester, testDeps(discovery: FakeDiscovery(), created: CreatedTransports(), name: 'Annas Tablet'));
       expect(find.byKey(const Key('pair-game-muehle')), findsOneWidget);
       expect(find.byKey(const Key('pair-game-gostrategy')), findsOneWidget);
-      expect(find.byKey(const Key('pair-game-chess')), findsNothing);
-      expect(networkGameSpecs.map((s) => s.id), isNot(contains('chess')));
-      expect(appGameSpecs.map((s) => s.id), contains('chess'));
+      expect(find.byKey(const Key('pair-game-chess')), findsOneWidget);
+      expect(networkGameSpecs.map((s) => s.id), contains('chess'));
+      expect(networkGameSpecs.map((s) => s.id), isNot(contains('wordtiles')));
     });
 
     testWidgets('shows name, every address with the real port and the QR; advertises', (tester) async {
@@ -387,6 +387,16 @@ void main() {
       }
       await _startHosting(tester);
       expect(created.hosts.single.config.gameId, 'schiffe');
+      await unmountAndSettleSockets(tester, created);
+    }, timeout: _timeout);
+
+    testWidgets('chess from the menu tile: preselected and hosted (KLD-059 step 3)', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'chess');
+      expect(find.descendant(of: find.byKey(const Key('pair-game-fixed')), matching: find.text('Schach')),
+          findsOneWidget);
+      await _startHosting(tester);
+      expect(created.hosts.single.config.gameId, 'chess');
       await unmountAndSettleSockets(tester, created);
     }, timeout: _timeout);
 

@@ -1782,6 +1782,56 @@ class AppLocalizationsZh extends AppLocalizations {
   String get chessPiecePawn => '兵';
 
   @override
+  String get chessOfferDraw => '提和';
+
+  @override
+  String get chessOfferDrawTitle => '要提和吗？';
+
+  @override
+  String chessOfferDrawBody(String player) {
+    return '$player 可以接受或拒绝。接受后对局以平局结束。';
+  }
+
+  @override
+  String get chessOfferDrawConfirm => '提和';
+
+  @override
+  String get chessDrawOfferTitle => '和棋';
+
+  @override
+  String chessDrawOfferBody(String player) {
+    return '$player 提和。接受后对局以平局结束。';
+  }
+
+  @override
+  String get chessDrawAccept => '接受';
+
+  @override
+  String get chessDrawDecline => '拒绝';
+
+  @override
+  String chessHintDrawOffered(String player) {
+    return '已提和，等待 $player 回应。';
+  }
+
+  @override
+  String chessHintDrawDeclined(String player) {
+    return '$player 拒绝了和棋。';
+  }
+
+  @override
+  String get chessMoveDrawOffer => '提和';
+
+  @override
+  String get chessMoveDrawDecline => '拒绝和棋';
+
+  @override
+  String get chessMoveDrawAccept => '接受和棋';
+
+  @override
+  String get engineReasonChessDrawAgreed => '双方同意和棋';
+
+  @override
   String get engineReasonChessCheckmate => '将死';
 
   @override

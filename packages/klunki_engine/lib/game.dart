@@ -66,6 +66,9 @@ enum GameEndReason {
   chessSeventyFiveMoves('chess.seventyFiveMoves'),
   /// Draw: the same position for the `times`-th (3rd) time.
   chessThreefoldRepetition('chess.threefoldRepetition'),
+  /// Draw: one player offered a draw and the other accepted it (KLD-059
+  /// step 3).
+  chessDrawAgreed('chess.drawAgreed'),
   /// Word tiles (KLD-094): a player used up the last tiles with the bag
   /// empty; the others' rack values went to them. params: `a`, `b` (final
   /// scores).
