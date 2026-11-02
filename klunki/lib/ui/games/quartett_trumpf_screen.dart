@@ -55,7 +55,8 @@ import 'quartett_deck_picker.dart' show quartettScreenTitle;
 /// The waiting player's grace shows a countdown (`qt-grace`); a trick picked
 /// meanwhile is announced ("Anna hat gewählt: PS", `qt-queued-notice`).
 ///
-/// "Vorige Runde" (`qt-last-trick`, next to the stack counts, in every mode)
+/// "Vorige Runde" (`qt-last-trick`, next to the stack counts, in every mode;
+/// on a phone next to "Deine Karte" or under "Weiter", KLD-110)
 /// opens a local overlay (`qt-last-trick-overlay`) with the most recent trick
 /// the player has seen. While it is open nothing new is revealed and the
 /// grace pauses; tricks arriving meanwhile are queued and shown after it
@@ -531,24 +532,46 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                     : l10n.quartettTrumpfHintWaiting(labels.label(context, l10n, game.currentPlayer)))
                 : null);
 
-    return SingleChildScrollView(
-      // KLD-100: the choose view starts at the top (all cards in view), not
-      // at the scroll offset of the stat the picker tapped before the cover.
-      key: ValueKey(acting && game.mustChoose),
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _counts(context, game, reveal),
-          const SizedBox(height: 8),
-          if (reveal != null)
-            _revealView(context, reveal)
-          else if (!game.isOver)
-            _tableView(context, game),
-        ],
-      ),
-    );
+    return LayoutBuilder(builder: (context, box) {
+      // KLD-110: on a phone (narrower than [_wideLayout] inside the padding)
+      // the counts and "Vorige Runde" do not fit one line. "Vorige Runde"
+      // then sits on the line above the card(s), next to "Deine Karte", or
+      // under "Weiter" in a result; the counts keep one line.
+      final narrow = box.maxWidth - 24 < _wideLayout;
+      final table = reveal == null && !game.isOver && !(c.canAct && game.mustChoose);
+      final inline = narrow && (reveal != null || (table && game.playedCard(_viewer(game)) != null));
+      return SingleChildScrollView(
+        // KLD-100: the choose view starts at the top (all cards in view), not
+        // at the scroll offset of the stat the picker tapped before the cover.
+        key: ValueKey(acting && game.mustChoose),
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _counts(context, game, reveal, withLastTrick: !inline),
+            const SizedBox(height: 8),
+            if (reveal != null)
+              _revealView(context, reveal, withLastTrick: inline)
+            else if (!game.isOver)
+              _tableView(context, game, withLastTrick: inline),
+          ],
+        ),
+      );
+    });
   }
+
+  /// Width from which the table shows the opponent's stack next to the own
+  /// card (and the counts row has room for "Vorige Runde").
+  static const _wideLayout = 520.0;
+
+  /// The "Vorige Runde" button (`qt-last-trick`).
+  Widget _lastTrickChip(BuildContext context) => ActionChip(
+        key: const Key('qt-last-trick'),
+        avatar: const Icon(Icons.history, size: 18),
+        label: Text(AppLocalizations.of(context).quartettTrumpfLastTrick),
+        visualDensity: VisualDensity.compact,
+        onPressed: _history.isEmpty ? null : _openLastTrick,
+      );
 
   /// The shell's status line follows the reveal instead of the live game
   /// (null: the live status):
@@ -589,10 +612,11 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     GameScreen.of(context).setStatusOverride(_statusOverride(context));
   }
 
-  /// Stack counts of both players plus the pot, and the "Vorige Runde"
-  /// button. During a hot-seat reveal the counts are those before the trick
-  /// (the pick is not applied yet); on a network device the current ones.
-  Widget _counts(BuildContext context, QuartettGame game, _Trick? reveal) {
+  /// Stack counts of both players plus the pot, and ([withLastTrick]) the
+  /// "Vorige Runde" button. During a hot-seat reveal the counts are those
+  /// before the trick (the pick is not applied yet); on a network device the
+  /// current ones.
+  Widget _counts(BuildContext context, QuartettGame game, _Trick? reveal, {required bool withLastTrick}) {
     Widget chip(String key, IconData icon, String text) => Chip(
           key: Key(key),
           avatar: Icon(icon, size: 18),
@@ -609,13 +633,7 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
         chip('qt-count-a', Icons.person, l10n.quartettPlayerCards(playerName(context, Player.a), game.stackSize(Player.a))),
         chip('qt-count-b', Icons.person_outline, l10n.quartettPlayerCards(playerName(context, Player.b), game.stackSize(Player.b))),
         if (game.potSize > 0) chip('qt-pot', Icons.savings_outlined, l10n.quartettTrumpfPot(game.potSize)),
-        ActionChip(
-          key: const Key('qt-last-trick'),
-          avatar: const Icon(Icons.history, size: 18),
-          label: Text(l10n.quartettTrumpfLastTrick),
-          visualDensity: VisualDensity.compact,
-          onPressed: _history.isEmpty ? null : _openLastTrick,
-        ),
+        if (withLastTrick) _lastTrickChip(context),
       ],
     );
   }
@@ -640,7 +658,11 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
   /// Own card face-up (stats tappable: the top card, or the chosen one,
   /// KLD-100), opponent's stack face-down. A low player who has to choose
   /// sees [_chooseView] instead.
-  Widget _tableView(BuildContext context, QuartettGame game) {
+  ///
+  /// Phone (KLD-110): the caption shares its line with "Vorige Runde"
+  /// ([withLastTrick]), and the opponent's stack is a small card with its
+  /// caption beside it, so card and stack fit a large phone without scrolling.
+  Widget _tableView(BuildContext context, QuartettGame game, {required bool withLastTrick}) {
     final me = _viewer(game);
     if (c.canAct && game.currentPlayer == me && game.mustChoose) return _chooseView(context, game, me);
     final opp = me == Player.a ? Player.b : Player.a;
@@ -677,16 +699,19 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
         ],
       ),
     );
-    final ownColumn = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [caption(l10n.quartettTrumpfYourCard(playerName(context, me))), own],
-    );
+    final yourCard = l10n.quartettTrumpfYourCard(playerName(context, me));
     return LayoutBuilder(builder: (context, box) {
-      if (box.maxWidth >= 520) {
+      if (box.maxWidth >= _wideLayout) {
+        final ownColumn = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [caption(yourCard), own],
+        );
         return Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
+            // KLD-110: a little wider on a tablet (was 640: a small card in
+            // a wide empty frame on an iPad).
+            constraints: const BoxConstraints(maxWidth: _maxBoardWidth),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [Expanded(child: ownColumn), const SizedBox(width: 16), oppStack],
@@ -694,12 +719,59 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
           ),
         );
       }
+      final oppName = playerName(context, opp);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [ownColumn, const SizedBox(height: 12), Center(child: oppStack)],
+        children: [
+          if (withLastTrick)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  Expanded(child: Text(yourCard, style: theme.textTheme.labelLarge)),
+                  const SizedBox(width: 8),
+                  _lastTrickChip(context),
+                ],
+              ),
+            )
+          else
+            caption(yourCard),
+          own,
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 64,
+                child: QuartettCard.back(
+                  key: const Key('qt-opponent-stack'),
+                  deck: game.deck.id,
+                  label: playerNumber(opp),
+                  dense: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(l10n.quartettTrumpfOpponentStack(oppName), style: theme.textTheme.labelLarge),
+                    Text(l10n.quartettCards(game.stackSize(opp)),
+                        key: const Key('qt-opponent-count'), style: theme.textTheme.bodyMedium),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       );
     });
   }
+
+  /// Widest the table and a round result get on a tablet (KLD-110: before,
+  /// the result's two cards spread over the whole width of a landscape iPad).
+  static const _maxBoardWidth = 760.0;
 
   /// KLD-100: all of [me]'s 2–3 cards face-up side by side (two per row on
   /// a narrow screen), the announced stat highlighted for the defender; a
@@ -752,13 +824,15 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
     );
   }
 
-  Widget _revealView(BuildContext context, _Trick t) {
+  /// The round result: summary with "Weiter", both cards. [withLastTrick]
+  /// (phone, KLD-110): "Vorige Runde" under "Weiter".
+  Widget _revealView(BuildContext context, _Trick t, {required bool withLastTrick}) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final color = _trickColor(context, t);
     final queued = _queue.isEmpty ? null : _queue.first;
 
-    return Column(
+    final view = Column(
       key: const Key('qt-reveal'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -794,6 +868,12 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
                         const SizedBox(height: 6),
                         _countdown(context),
                       ],
+                      if (withLastTrick) ...[
+                        const SizedBox(height: 6),
+                        // A chip never wraps: a long label ("Manche
+                        // précédente") shrinks a little instead of clipping.
+                        FittedBox(fit: BoxFit.scaleDown, child: _lastTrickChip(context)),
+                      ],
                     ],
                   ),
                 ),
@@ -821,6 +901,9 @@ class _QuartettTrumpfBoardState extends State<_QuartettTrumpfBoard> with SingleT
         const SizedBox(height: 12),
         _TrickCards(trick: t),
       ],
+    );
+    return Center(
+      child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: _maxBoardWidth), child: view),
     );
   }
 

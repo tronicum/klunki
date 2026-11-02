@@ -38,12 +38,10 @@ class QuartettStat {
 
   /// A calendar year: bare digits, no unit, no decimals, never grouped
   /// ("1990", not "1.990"). No deck uses a year since KLD-082 (years made a
-  /// poor "older/newer" trump), the format stays for future decks.
+  /// poor "older/newer" trump), the format stays for future decks. Every
+  /// other value is grouped by the app per locale ("35.100 kN" in de,
+  /// KLD-110); [formatNumber] never groups (CLI, data).
   final bool isYear;
-
-  /// Large counts: the app groups thousands per locale ("11.000" in de).
-  /// [formatNumber] never groups (CLI, data).
-  final bool grouped;
 
   /// A percentage (unit `%`): the app formats it per locale ("99 %" in de,
   /// "99%" in en).
@@ -56,14 +54,13 @@ class QuartettStat {
       this.higherWins = true,
       this.decimals = 0,
       this.fixedDecimals = false,
-      this.isYear = false,
-      this.grouped = false})
-      : assert(!isYear || (decimals == 0 && !grouped)),
+      this.isYear = false})
+      : assert(!isYear || decimals == 0),
         assert(decimals >= 0 && decimals <= 3);
 
   /// [v] as plain ASCII digits with `.` as the decimal point and no grouping,
   /// per [decimals] / [fixedDecimals], without unit. The app swaps in the
-  /// locale's decimal separator.
+  /// locale's decimal separator and thousands grouping.
   String formatNumber(num v) {
     if (decimals == 0) return v.round().toString();
     final s = v.toStringAsFixed(decimals);

@@ -429,7 +429,7 @@ void _widgetTests() {
       final built = QuartettDeck.planes.statById('built')!;
       final sec = QuartettDeck.cars.statById('sec0to100')!;
       expect(formatQuartettValue(flights, 550.0), '550');
-      expect(formatQuartettValue(thrust, 35100.0), '35100 kN');
+      expect(formatQuartettValue(thrust, 35100.0), '35.100 kN');
       expect(formatQuartettValue(height, 110.6), '110,6 m');
       expect(formatQuartettValue(height, 70.0), '70 m');
       expect(formatQuartettValue(sec, 7.0), '7,0 s');
@@ -447,6 +447,40 @@ void _widgetTests() {
       for (final l in locales) {
         expect(formatQuartettValue(success, 92.3, locale: l), contains(RegExp(r'92[.,]3')), reason: l);
       }
+    });
+
+    test('KLD-110: values from 1000 on get the thousands separator of the locale, decimals stay right', () {
+      final thrust = QuartettDeck.rockets.statById('thrustKn')!; // 0 decimals
+      final kg = QuartettDeck.cars.statById('kg')!;
+      final range = QuartettDeck.planes.statById('rangeKm')!; // up to 1 decimal
+      final mtow = QuartettDeck.planes.statById('mtowT')!; // up to 2 decimals
+      final sec = QuartettDeck.cars.statById('sec0to100')!; // fixed 1 decimal
+      const nnbsp = ' '; // fr: narrow no-break space
+      final expected = <String, List<String>>{
+        //        10000 kN       1640 kg      12500,5 km        6,1 s     999 kN
+        'de': ['10.000 kN', '1.640 kg', '12.500,5 km', '6,1 s', '999 kN'],
+        'en': ['10,000 kN', '1,640 kg', '12,500.5 km', '6.1 s', '999 kN'],
+        'es': ['10.000 kN', '1640 kg', '12.500,5 km', '6,1 s', '999 kN'],
+        'fr': ['10${nnbsp}000 kN', '1${nnbsp}640 kg', '12${nnbsp}500,5 km', '6,1 s', '999 kN'],
+        'zh': ['10,000 kN', '1,640 kg', '12,500.5 km', '6.1 s', '999 kN'],
+        'ar': ['10,000 kN', '1,640 kg', '12,500.5 km', '6.1 s', '999 kN'],
+        'fa': ['10,000 kN', '1,640 kg', '12,500.5 km', '6.1 s', '999 kN'],
+      };
+      expect(expected.keys.toSet(), locales.toSet(), reason: 'every app locale is covered');
+      for (final MapEntry(key: l, value: e) in expected.entries) {
+        expect(formatQuartettValue(thrust, 10000, locale: l), e[0], reason: l);
+        expect(formatQuartettValue(kg, 1640.0, locale: l), e[1], reason: l);
+        expect(formatQuartettValue(range, 12500.5, locale: l), e[2], reason: l);
+        expect(formatQuartettValue(sec, 6.1, locale: l), e[3], reason: l);
+        expect(formatQuartettValue(thrust, 999, locale: l), e[4], reason: l);
+      }
+      expect(formatQuartettValue(mtow, 1234.56), '1.234,56 t');
+      expect(formatQuartettValue(mtow, 1234.5), '1.234,5 t');
+      expect(formatQuartettValue(range, 42212.0, locale: 'es'), '42.212 km');
+      expect(formatQuartettValue(range, 9999.9, locale: 'es'), '9999,9 km');
+      // The engine stays locale-neutral and ungrouped (CLI, debug text).
+      expect(thrust.formatNumber(10000), '10000');
+      expect(range.formatNumber(12500.5), '12500.5');
     });
 
     test('every formatted value of every deck in every locale is drawable offline (bundled fonts)', () {
@@ -505,9 +539,12 @@ void _widgetTests() {
               expect(value, matches(RegExp(r'^[0-9]')), reason: where);
               expect(value, isNot(contains(RegExp(r'[٠-٩۰-۹]'))), reason: where);
               final v = card.stats[s.id]!;
-              // Grouped counts ("4.000 Stk.") have a separator but no decimals (decimals: 0).
-              if (!s.grouped && (s.decimals == 0 || (v == v.roundToDouble() && !s.fixedDecimals))) {
-                expect(value, isNot(contains(RegExp(r'[.,]0+(\s|%|$)'))), reason: where);
+              // Values from 1000 on are grouped (KLD-110: "4.000 Stk." in de,
+              // "4,000" in en and fa): drop the group separator, then no ",0".
+              final group = locale.languageCode == 'de' ? '.' : ',';
+              final ungrouped = value.replaceAll(RegExp('(?<=[0-9])\\$group(?=[0-9]{3})'), '');
+              if (s.decimals == 0 || (v == v.roundToDouble() && !s.fixedDecimals)) {
+                expect(ungrouped, isNot(contains(RegExp(r'[.,]0+(\s|%|$)'))), reason: where);
               }
               if (s.isYear) expect(value, matches(RegExp(r'^[0-9]{4}$')), reason: where);
             }
