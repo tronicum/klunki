@@ -86,7 +86,7 @@ void main() {
       await settings.set(parseRelayUrl('[::1]:4749')!);
       await tester.pump();
       expect(find.byKey(const Key('relay-line-loopback')), findsOneWidget);
-      expect(find.text('Relay: [::1]:4749'), findsOneWidget);
+      expect(find.text('Server: [::1]:4749'), findsOneWidget);
     });
 
     testWidgets('"Wie finde ich die Adresse?" opens the per-OS help with copyable LTR commands', (tester) async {

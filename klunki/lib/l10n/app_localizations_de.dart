@@ -89,11 +89,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Andere tippen auf „Raum beitreten“ und scannen diesen QR-Code. Geräte im selben WLAN finden den Raum auch unter „Räume in der Nähe“.';
 
   @override
-  String get roomViaRelay => 'Raum über ein Relay öffnen';
+  String get roomViaRelay => 'Raum über einen Server öffnen';
 
   @override
   String get roomViaRelayHelper =>
-      'Mit Raumcode, auch für Mitspieler im Browser. Dafür muss auf einem Rechner „klunki relay“ laufen. Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.';
+      'Mit Raumcode, auch für Mitspieler im Browser. Dafür braucht ihr einen Server (z. B. einen Rechner, auf dem „klunki relay“ läuft). Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.';
 
   @override
   String get roomTypeCode => 'Raumcode eintippen';
@@ -938,7 +938,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.';
+      'Im Browser über https kann Klunki nur sichere Server (wss://) erreichen – nutze die App oder die lokale http-Version.';
 
   @override
   String get webJoinAddressLabel => 'IP, IP:Port, ws://- oder klunki://-Link';
@@ -1291,7 +1291,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String relayInfo(String address) {
-    return 'Relay: $address';
+    return 'Server: $address';
   }
 
   @override
@@ -1311,15 +1311,15 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get relayAddressLabel => 'Relay-Adresse';
+  String get relayAddressLabel => 'Server';
 
   @override
   String get relayAddressHelper =>
-      'Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749';
+      'Adresse des Servers, z. B. 192.168.1.20:4749 (im WLAN) oder wss://spiele.example (im Internet)';
 
   @override
   String get relayAddressInvalid =>
-      'Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749';
+      'Ungültige Server-Adresse. Beispiel: 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
@@ -1341,15 +1341,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String relayErrorUnreachable(String address) {
-    return 'Kein Relay erreichbar unter $address.';
+    return 'Kein Server erreichbar unter $address.';
   }
 
   @override
-  String get relayErrorLost => 'Die Verbindung zum Relay ist abgebrochen.';
+  String get relayErrorLost => 'Die Verbindung zum Server ist abgebrochen.';
 
   @override
   String get relayStartHint =>
-      'Räume mit Raumcode brauchen ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:';
+      'Räume mit Raumcode brauchen einen Server. Starte ihn auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:';
 
   @override
   String relayRoomLost(String reason) {
@@ -1358,18 +1358,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String relayFromLink(String address) {
-    return 'Relay aus Link: $address';
+    return 'Server aus Link: $address';
   }
 
   @override
   String get relayLinkSaveDefault => 'Als Standard speichern';
 
   @override
-  String get relayLinkUseSaved => 'Gespeichertes Relay verwenden';
+  String get relayLinkUseSaved => 'Gespeicherten Server verwenden';
 
   @override
   String get relayLinkForeign =>
-      'Achtung: Dieser Link führt zu einem fremden Relay, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremdes Relay sieht alle Spielzüge.';
+      'Achtung: Dieser Link führt zu einem fremden Server, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremder Server sieht alle Spielzüge.';
 
   @override
   String get pairingSeatTaken =>
@@ -1409,7 +1409,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get relayChange => 'ändern';
 
   @override
-  String get relayNotSet => 'Kein Relay eingerichtet – Adresse eingeben';
+  String get relayNotSet => 'Kein Server eingerichtet – Adresse eingeben';
 
   @override
   String relayUseDefault(String address) {
@@ -1420,19 +1420,87 @@ class AppLocalizationsDe extends AppLocalizations {
   String get relaySave => 'Übernehmen';
 
   @override
-  String get relayClubCodeLabel => 'Clubcode (nur wenn nötig)';
+  String get relayClubCodeLabel => 'Clubcode';
 
   @override
   String get relayClubCodeHelper =>
-      'Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.';
+      'Wird nur für diesen Server gespeichert. Der Clubcode kommt nie in Raum-Links oder QR-Codes.';
 
   @override
   String get relayErrorClubMissing =>
-      'Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.';
+      'Dieser Server braucht einen Clubcode. Frag die Person, die den Server betreibt.';
 
   @override
   String get relayErrorClubWrong =>
       'Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.';
+
+  @override
+  String get serverKindLan =>
+      'Server im WLAN (ein Rechner, auf dem „klunki relay“ läuft)';
+
+  @override
+  String get serverKindInternet => 'Server im Internet';
+
+  @override
+  String get serverHelpLink => 'Wie geht das?';
+
+  @override
+  String get serverClubCodeRemove => 'Clubcode entfernen';
+
+  @override
+  String get serverClubCodeRetry => 'Mit Clubcode versuchen';
+
+  @override
+  String get helpTitle => 'So spielt ihr zusammen';
+
+  @override
+  String get helpSectionRoomsTitle => 'Mit anderen spielen';
+
+  @override
+  String get helpSectionRoomsBody =>
+      'Eine Person tippt auf „Raum starten“ und wählt ein Spiel. Klunki zeigt dann einen Raumcode und einen QR-Code.\n\nDie andere Person tippt auf „Raum beitreten“ und scannt den QR-Code oder tippt den Raumcode ein. Schon geht es los.';
+
+  @override
+  String get helpSectionWifiTitle => 'Im selben WLAN';
+
+  @override
+  String get helpSectionWifiBody =>
+      'Hat einer von euch die App? Dann braucht ihr im WLAN keinen Server: Die App ist selbst der Server, auch für Mitspieler im Browser (QR-Code).\n\nGeräte im selben WLAN finden sich von selbst.';
+
+  @override
+  String get helpSectionServerTitle => 'Wann braucht ihr einen Server?';
+
+  @override
+  String get helpSectionServerBody =>
+      'Nur wenn alle im Browser spielen oder wenn ihr nicht im selben WLAN seid. Der Server reicht die Spielzüge zwischen euren Geräten weiter.\n\nKlunki erkennt an der Adresse, was für ein Server es ist: „Server im WLAN“ oder „Server im Internet“.';
+
+  @override
+  String get helpSectionOwnServerTitle => 'Eigener Server im WLAN';
+
+  @override
+  String get helpSectionOwnServerBody =>
+      'Auf einem Rechner im WLAN startet ihr im Klunki-Ordner „klunki relay“. Der Rechner zeigt dann seine Adresse an, zum Beispiel 192.168.1.20:4749.\n\nTragt die Adresse in Klunki unter „Erweitert“ bei „ändern“ ein. Wer sie im Browser öffnet, kann gleich mitspielen.';
+
+  @override
+  String get helpSectionComingTitle => 'Bald einfacher (in Vorbereitung)';
+
+  @override
+  String get helpSectionComingBody =>
+      'Diese Wege zu einem Server sind in Vorbereitung:\n• Server im Internet für Freundeskreise (mit Cloudflare, kostenlos)\n• Fertiges Programm zum Herunterladen für Mac, Windows und Linux\n• Docker für NAS oder Raspberry Pi\n\nServer im Internet sind meist mit einem Clubcode geschützt.';
+
+  @override
+  String get helpSectionClubTitle => 'Was ist ein Clubcode?';
+
+  @override
+  String get helpSectionClubBody =>
+      'Ein Clubcode ist wie ein Schlüssel für einen Server: Nur wer ihn kennt, kann dort Räume starten oder beitreten. Du bekommst ihn von der Person, die den Server betreibt.\n\nKlunki fragt erst danach, wenn ein Server ihn braucht, und merkt ihn sich für diesen Server.';
+
+  @override
+  String get helpSectionDataTitle => 'Was passiert mit meinen Daten?';
+
+  @override
+  String get helpSectionDataBody =>
+      'Der Server reicht nur die Spielzüge weiter und speichert nichts davon dauerhaft. Spielt ihr direkt im selben WLAN, läuft gar nichts über einen fremden Server.\n\nDer Clubcode bleibt auf deinem Gerät und kommt nie in Raum-Links oder QR-Codes. Beim Server unter „ändern“ kannst du ihn sehen, ändern oder entfernen.';
 
   @override
   String get joinDirectTitle => 'Direkt mit einem Gerät verbinden';

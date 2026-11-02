@@ -86,11 +86,11 @@ class AppLocalizationsAr extends AppLocalizations {
       'يضغط الآخرون على «انضم إلى غرفة» ويمسحون رمز QR هذا. وتجد الأجهزة على شبكة Wi-Fi نفسها الغرفة أيضًا تحت «غرف قريبة».';
 
   @override
-  String get roomViaRelay => 'افتح الغرفة عبر مُرحِّل';
+  String get roomViaRelay => 'افتح الغرفة عبر خادم';
 
   @override
   String get roomViaRelayHelper =>
-      'برمز غرفة، ويصلح أيضًا للاعبين في المتصفح. يتطلب حاسوبًا يعمل عليه «klunki relay». عند الإيقاف تعمل الغرفة على هذا الجهاز، وتجدها الأجهزة على شبكة Wi-Fi نفسها تلقائيًا.';
+      'برمز غرفة، ويصلح أيضًا للاعبين في المتصفح. يتطلب خادمًا (مثلًا حاسوبًا يعمل عليه «klunki relay»). عند الإيقاف تعمل الغرفة على هذا الجهاز، وتجدها الأجهزة على شبكة Wi-Fi نفسها تلقائيًا.';
 
   @override
   String get roomTypeCode => 'اكتب رمز الغرفة';
@@ -967,7 +967,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'في المتصفح عبر https لا يصل Klunki إلا إلى مُرحِّلات آمنة (wss://) – استخدم التطبيق أو نسخة http المحلية.';
+      'في المتصفح عبر https لا يصل Klunki إلا إلى خوادم آمنة (wss://) – استخدم التطبيق أو نسخة http المحلية.';
 
   @override
   String get webJoinAddressLabel => 'IP أو IP:منفذ أو رابط ws:// أو klunki://';
@@ -1318,7 +1318,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String relayInfo(String address) {
-    return 'المُرحِّل: $address';
+    return 'الخادم: $address';
   }
 
   @override
@@ -1337,15 +1337,15 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get relayAddressLabel => 'عنوان المُرحِّل';
+  String get relayAddressLabel => 'الخادم';
 
   @override
   String get relayAddressHelper =>
-      'حاسوب على شبكة Wi-Fi يشغّل «klunki relay»، مثلًا 192.168.1.20:4749';
+      'عنوان الخادم، مثلًا 192.168.1.20:4749 (في شبكة Wi-Fi) أو wss://spiele.example (على الإنترنت)';
 
   @override
   String get relayAddressInvalid =>
-      'عنوان مُرحِّل غير صالح. مثال: 192.168.1.20:4749';
+      'عنوان خادم غير صالح. مثال: 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
@@ -1366,15 +1366,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String relayErrorUnreachable(String address) {
-    return 'لا يوجد مُرحِّل متاح على $address.';
+    return 'لا يوجد خادم متاح على $address.';
   }
 
   @override
-  String get relayErrorLost => 'انقطع الاتصال بالمُرحِّل.';
+  String get relayErrorLost => 'انقطع الاتصال بالخادم.';
 
   @override
   String get relayStartHint =>
-      'تحتاج الغرف ذات الرمز إلى مُرحِّل. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:';
+      'تحتاج الغرف ذات الرمز إلى خادم. شغّله على حاسوب في شبكة Wi-Fi وافتح Klunki من عنوانه:';
 
   @override
   String relayRoomLost(String reason) {
@@ -1383,18 +1383,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String relayFromLink(String address) {
-    return 'المرحّل من الرابط: $address';
+    return 'الخادم من الرابط: $address';
   }
 
   @override
   String get relayLinkSaveDefault => 'حفظ كافتراضي';
 
   @override
-  String get relayLinkUseSaved => 'استخدام المرحّل المحفوظ';
+  String get relayLinkUseSaved => 'استخدام الخادم المحفوظ';
 
   @override
   String get relayLinkForeign =>
-      'تنبيه: هذا الرابط يشير إلى مرحّل آخر، وليس إلى خادم هذه الصفحة. انضم فقط إذا كنت تثق بالمرسل: المرحّل الغريب يرى كل النقلات.';
+      'تنبيه: هذا الرابط يشير إلى خادم آخر، وليس إلى خادم هذه الصفحة. انضم فقط إذا كنت تثق بالمرسل: الخادم الغريب يرى كل النقلات.';
 
   @override
   String get pairingSeatTaken =>
@@ -1433,7 +1433,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get relayChange => 'تغيير';
 
   @override
-  String get relayNotSet => 'لم يُضبط مُرحِّل – أدخل عنوانًا';
+  String get relayNotSet => 'لم يُضبط خادم – أدخل عنوانًا';
 
   @override
   String relayUseDefault(String address) {
@@ -1444,19 +1444,87 @@ class AppLocalizationsAr extends AppLocalizations {
   String get relaySave => 'تطبيق';
 
   @override
-  String get relayClubCodeLabel => 'رمز النادي (عند الحاجة فقط)';
+  String get relayClubCodeLabel => 'رمز النادي';
 
   @override
   String get relayClubCodeHelper =>
-      'فقط للخوادم التي تطلب رمز النادي. لا يوضع رمز النادي أبدًا في روابط الغرف أو رموز QR.';
+      'يُحفظ لهذا الخادم فقط. لا يوضع رمز النادي أبدًا في روابط الغرف أو رموز QR.';
 
   @override
   String get relayErrorClubMissing =>
-      'هذا الخادم يحتاج إلى رمز النادي. أدخله في «متقدم» عبر «تغيير». اسأل من يدير الخادم.';
+      'هذا الخادم يحتاج إلى رمز النادي. اسأل من يدير الخادم.';
 
   @override
   String get relayErrorClubWrong =>
       'هذا الخادم لا يعرف رمز النادي هذا. اسأل من يدير الخادم.';
+
+  @override
+  String get serverKindLan =>
+      'خادم في شبكة Wi-Fi (حاسوب يعمل عليه «klunki relay»)';
+
+  @override
+  String get serverKindInternet => 'خادم على الإنترنت';
+
+  @override
+  String get serverHelpLink => 'كيف يعمل هذا؟';
+
+  @override
+  String get serverClubCodeRemove => 'إزالة رمز النادي';
+
+  @override
+  String get serverClubCodeRetry => 'المحاولة برمز النادي';
+
+  @override
+  String get helpTitle => 'كيف تلعبون معًا';
+
+  @override
+  String get helpSectionRoomsTitle => 'اللعب مع الآخرين';
+
+  @override
+  String get helpSectionRoomsBody =>
+      'يضغط شخص على «افتح غرفة» ويختار لعبة. يعرض Klunki عندها رمز غرفة ورمز QR.\n\nيضغط الشخص الآخر على «انضم إلى غرفة» ويمسح رمز QR أو يكتب رمز الغرفة. وتبدأ اللعبة.';
+
+  @override
+  String get helpSectionWifiTitle => 'على شبكة Wi-Fi نفسها';
+
+  @override
+  String get helpSectionWifiBody =>
+      'هل لدى أحدكم التطبيق؟ إذن لا تحتاجون إلى خادم في شبكة Wi-Fi: التطبيق نفسه هو الخادم، حتى للاعبين في المتصفح (رمز QR).\n\nالأجهزة على شبكة Wi-Fi نفسها تجد بعضها تلقائيًا.';
+
+  @override
+  String get helpSectionServerTitle => 'متى تحتاجون إلى خادم؟';
+
+  @override
+  String get helpSectionServerBody =>
+      'فقط إذا كان الجميع يلعبون في المتصفح أو إذا لم تكونوا على شبكة Wi-Fi نفسها. ينقل الخادم النقلات بين أجهزتكم.\n\nيعرف Klunki من العنوان نوع الخادم: «خادم في شبكة Wi-Fi» أو «خادم على الإنترنت».';
+
+  @override
+  String get helpSectionOwnServerTitle => 'خادم خاص بكم في شبكة Wi-Fi';
+
+  @override
+  String get helpSectionOwnServerBody =>
+      'على حاسوب في شبكة Wi-Fi، شغّلوا «klunki relay» في مجلد Klunki. يعرض الحاسوب عندها عنوانه، مثلًا 192.168.1.20:4749.\n\nأدخلوا هذا العنوان في Klunki في «متقدم» عبر «تغيير». من يفتحه في المتصفح يمكنه اللعب فورًا.';
+
+  @override
+  String get helpSectionComingTitle => 'قريبًا أسهل (قيد التحضير)';
+
+  @override
+  String get helpSectionComingBody =>
+      'هذه الطرق للحصول على خادم قيد التحضير:\n• خادم على الإنترنت لمجموعات الأصدقاء (مع Cloudflare، مجانًا)\n• برنامج جاهز للتنزيل لأجهزة Mac وWindows وLinux\n• Docker لأجهزة NAS أو Raspberry Pi\n\nالخوادم على الإنترنت محمية غالبًا برمز النادي.';
+
+  @override
+  String get helpSectionClubTitle => 'ما هو رمز النادي؟';
+
+  @override
+  String get helpSectionClubBody =>
+      'رمز النادي مثل مفتاح للخادم: فقط من يعرفه يمكنه فتح الغرف أو الانضمام إليها هناك. تحصل عليه من الشخص الذي يدير الخادم.\n\nلا يطلبه Klunki إلا عندما يحتاج إليه خادم، ويتذكره لهذا الخادم.';
+
+  @override
+  String get helpSectionDataTitle => 'ماذا يحدث لبياناتي؟';
+
+  @override
+  String get helpSectionDataBody =>
+      'الخادم ينقل النقلات فقط ولا يحفظ منها شيئًا بشكل دائم. إذا لعبتم مباشرة على شبكة Wi-Fi نفسها، فلا يمر شيء عبر خادم غريب.\n\nيبقى رمز النادي على جهازك ولا يوضع أبدًا في روابط الغرف أو رموز QR. يمكنك رؤيته أو تغييره أو إزالته عبر «تغيير» بجانب الخادم.';
 
   @override
   String get joinDirectTitle => 'الاتصال مباشرة بجهاز';

@@ -237,7 +237,7 @@ dart run packages/klunki_net/bin/klunki.dart relay --port 8081 --web klunki/buil
 Open `http://localhost:8081/` on this computer, or `http://<ip>:8081/` on other devices in the same Wi-Fi. Use
 `http`, not `https`: browsers block `ws://` connections from https pages. Any free port works (the default is
 4749). A plain static server (`python3 -m http.server`) also serves the app, but then relay games need a relay
-address set by hand ("Relay: … · ändern"). The relay listens dual-stack (IPv6 and IPv4), so the `.local` name
+address set by hand ("Server: … · ändern"). The relay listens dual-stack (IPv6 and IPv4), so the `.local` name
 works too when it resolves to an IPv6 address first (macOS/iOS do that).
 
 **Host from the LAN address, not `localhost`.** The page uses its own address for the room link and QR code. If
@@ -276,7 +276,7 @@ case, spaces and dashes do not matter. The relay reads the file again on every c
 line works at once and a **deleted line revokes** that code for every new connection (no restart, no signal).
 Rooms that are already open keep running until their game ends; a reconnect after the revocation is refused.
 An unreadable or deleted file refuses everyone until it is back. The console shows labels (or a short hash),
-never a code. Players enter the code in the app under "Erweitert" › "ändern" › "Clubcode"; it is saved for that
+never a code. The app asks for the code only when the relay refuses without it (KLD-113: "Clubcode" field and "Mit Clubcode versuchen" right under the refusal; a saved code can be changed or removed under "Erweitert" › "ändern"); it is saved for that
 relay address only and is never part of room links or QR codes, so share it separately. Terminals:
 `host … --relay ws://… --club CODE`, `join --relay ws://… --room CODE --club CODE`. Protocol details: PROTOCOL.md,
 "Relay", "Club codes". Packaging this for the internet (Docker image, Cloudflare tunnel, `wss://`) is KLD-051.
@@ -412,7 +412,7 @@ http it shows the badge but keeps network play on).
 | Free-team app won't open after a week | 7-day provisioning expired | reinstall with `flutter run --release` |
 | Android: licences / sdkmanager errors | cmdline-tools missing | §4.1 |
 | Android: Gradle/Java version errors | JDK < 17 | §4.5 |
-| PWA: "Kein Relay erreichbar unter …" | page not served by `klunki relay` | §6.2 |
+| PWA: "Kein Server erreichbar unter …" | page not served by `klunki relay` | §6.2 |
 | PWA: "Kein Raum mit dem Code …" | host and guest on different relays/ports, a typo, or the room expired (10 min idle) | §6.3 |
 | PWA shows the old version after a rebuild | old page still open | reload once (§6.4) |
 | PWA: "Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen …" | page served over https (e.g. GitHub Pages) and a `ws://` relay/host | use the app, or serve over http on the LAN (§6.2); a `wss://` relay works (§7.1) |

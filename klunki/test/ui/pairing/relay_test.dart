@@ -115,7 +115,7 @@ void main() {
             'Der Raum wurde geschlossen: Wer ihn gestartet hat, ist gegangen. Das Spiel ist beendet.',
         const NetException('relay: room expired (idle)'): 'Der Raum ist abgelaufen (10 Minuten ohne Aktivität).',
         const NetException('cannot connect: cannot open ws://192.168.1.5:8000/relay?join=K7Q2M'):
-            'Kein Relay erreichbar unter 192.168.1.5:8000.',
+            'Kein Server erreichbar unter 192.168.1.5:8000.',
         const NetException('handshake timed out'): 'Verbindung zu K7Q 2M fehlgeschlagen (NetException: handshake timed out).',
       };
       for (final MapEntry(key: error, value: text) in cases.entries) {
@@ -125,7 +125,7 @@ void main() {
         await tester.pump();
         await tester.pump();
         expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data, text, reason: '$error');
-        final unreachable = text.startsWith('Kein Relay');
+        final unreachable = text.startsWith('Kein Server');
         expect(find.byKey(const Key('room-start-hint')), unreachable ? findsOneWidget : findsNothing);
         if (unreachable) {
           expect(tester.widget<SelectableText>(find.byKey(const Key('relay-start-command'))).data,
@@ -147,7 +147,7 @@ void main() {
       expect(find.byKey(const Key('relay-line')), findsNothing);
       await openAdvanced(tester, 'web-join-advanced');
       expect(find.byKey(const Key('relay-line')), findsOneWidget);
-      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+      expect(find.text('Server: 192.168.1.5:8000'), findsOneWidget);
 
       await _tapVisible(tester, find.byKey(const Key('relay-change')));
       await tester.pumpAndSettle();
@@ -156,12 +156,12 @@ void main() {
       await tester.enterText(find.byKey(const Key('relay-dialog-address')), 'not a :: relay');
       await tester.tap(find.byKey(const Key('relay-dialog-save')));
       await tester.pump();
-      expect(find.textContaining('Ungültige Relay-Adresse'), findsOneWidget);
+      expect(find.textContaining('Ungültige Server-Adresse'), findsOneWidget);
       await tester.enterText(find.byKey(const Key('relay-dialog-address')), '10.0.0.9:4749');
       await tester.tap(find.byKey(const Key('relay-dialog-save')));
       await tester.pumpAndSettle();
       expect(settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
-      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.text('Server: 10.0.0.9:4749'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('room-code')), 'K7Q2M');
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
@@ -176,7 +176,7 @@ void main() {
       await tester.tap(find.byKey(const Key('relay-dialog-default')));
       await tester.pumpAndSettle();
       expect(settings.value, isNull);
-      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+      expect(find.text('Server: 192.168.1.5:8000'), findsOneWidget);
     });
 
     testWidgets('"Raum starten" shows the same relay line under "Erweitert" and uses the shared relay',
@@ -196,13 +196,13 @@ void main() {
           ))));
       await tester.pump();
       expect(find.widgetWithText(AppBar, 'Raum starten'), findsOneWidget);
-      expect(find.text('Relay: 10.0.0.9:4749'), findsNothing);
+      expect(find.text('Server: 10.0.0.9:4749'), findsNothing);
       await openAdvanced(tester, 'relay-host-advanced');
-      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.text('Server: 10.0.0.9:4749'), findsOneWidget);
       await _tapVisible(tester, find.byKey(const Key('relay-host-start')));
       await tester.pumpAndSettle();
       expect(hosts.single, Uri.parse('ws://10.0.0.9:4749/relay'));
-      expect(find.text('Kein Relay erreichbar unter 10.0.0.9:4749.'), findsOneWidget);
+      expect(find.text('Kein Server erreichbar unter 10.0.0.9:4749.'), findsOneWidget);
     });
 
     testWidgets('KLD-105: "Mit anderen" on the web: the relay room for the tile\'s game, no game choice',
@@ -245,9 +245,9 @@ void main() {
       await tester.pumpWidget(localizedApp(PairingScreen(deps: deps, mode: RoomMode.join)));
       await tester.pump();
       // KLD-098: the code field first; relay and IP address under "Erweitert".
-      expect(find.text('Kein Relay eingerichtet – Adresse eingeben'), findsNothing);
+      expect(find.text('Kein Server eingerichtet – Adresse eingeben'), findsNothing);
       await openAdvanced(tester, 'pair-join-advanced');
-      expect(find.text('Kein Relay eingerichtet – Adresse eingeben'), findsOneWidget);
+      expect(find.text('Kein Server eingerichtet – Adresse eingeben'), findsOneWidget);
       final codeY = tester.getTopLeft(find.byKey(const Key('room-join-title'))).dy;
       final nearbyY = tester.getTopLeft(find.byKey(const Key('pair-nearby-title'))).dy;
       final directY = tester.getTopLeft(find.byKey(const Key('pair-direct-title'))).dy;
@@ -267,7 +267,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       expect(r.calls.single, (Uri.parse('ws://192.168.1.20:4749/relay'), 'K7Q2M', 'Pixel'));
       expect(settings.value, Uri.parse('ws://192.168.1.20:4749/relay'));
-      expect(find.text('Relay: 192.168.1.20:4749'), findsOneWidget);
+      expect(find.text('Server: 192.168.1.20:4749'), findsOneWidget);
       expect(find.byKey(const Key('room-error')), findsOneWidget);
       await unmountAndSettleSockets(tester, created);
     });
@@ -308,13 +308,13 @@ void main() {
       await tester.pumpAndSettle();
       // No automatic join to a relay that is not this page's server.
       expect(r.calls, isEmpty);
-      expect(find.text('Relay aus Link: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.text('Server aus Link: 10.0.0.9:4749'), findsOneWidget);
       expect(find.byKey(const Key('room-link-relay-foreign')), findsOneWidget);
-      expect(find.textContaining('fremden Relay'), findsOneWidget);
+      expect(find.textContaining('fremden Server'), findsOneWidget);
       // The saved setting and the relay line are unchanged.
       expect(settings.value, isNull);
       await openAdvanced(tester, 'web-join-advanced');
-      expect(find.text('Relay: 192.168.1.5:8000'), findsOneWidget);
+      expect(find.text('Server: 192.168.1.5:8000'), findsOneWidget);
 
       await _tapVisible(tester, find.byKey(const Key('room-join-button')));
       await tester.pumpAndSettle();
@@ -325,7 +325,7 @@ void main() {
       await _tapVisible(tester, find.byKey(const Key('room-link-relay-save')));
       await tester.pumpAndSettle();
       expect(settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
-      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.text('Server: 10.0.0.9:4749'), findsOneWidget);
       expect(find.byKey(const Key('room-link-relay')), findsNothing);
     });
 
@@ -353,11 +353,11 @@ void main() {
       await tester.pumpAndSettle();
       // The page's own relay is not foreign: joined right away, no warning.
       expect(r.calls.single.$1, _pageRelay);
-      expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
+      expect(find.text('Server aus Link: 192.168.1.5:8000'), findsOneWidget);
       expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
       expect(settings.value, saved);
       await openAdvanced(tester, 'web-join-advanced');
-      expect(find.text('Relay: 10.0.0.9:4749'), findsOneWidget);
+      expect(find.text('Server: 10.0.0.9:4749'), findsOneWidget);
     });
 
     testWidgets('an invalid code is prefilled but not joined', (tester) async {
@@ -395,7 +395,7 @@ void main() {
       expect(link, 'http://127.0.0.1:${server.port}/?room=$code');
       expect(tester.widget<KlunkiQrCode>(find.byKey(const Key('relay-qr'))).data, link);
       // KLD-098: the relay address is under "Erweitert".
-      expect(find.text('Relay: 127.0.0.1:${server.port}', skipOffstage: false), findsOneWidget);
+      expect(find.text('Server: 127.0.0.1:${server.port}', skipOffstage: false), findsOneWidget);
       expect(find.text('Raum von Ada: 4 Gewinnt'), findsOneWidget);
       expect(find.textContaining('scannen den QR-Code oder geben den Raumcode ein'), findsOneWidget);
 
@@ -427,7 +427,7 @@ void main() {
       await pumpUntil(tester, () => find.byKey(const Key('relay-host-error')).evaluate().isNotEmpty,
           what: 'error shown');
       expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data,
-          'Kein Relay erreichbar unter 127.0.0.1:$port.');
+          'Kein Server erreichbar unter 127.0.0.1:$port.');
       expect(find.byKey(const Key('relay-start-command')), findsOneWidget);
       expect(find.byKey(const Key('relay-host-waiting')), findsNothing);
     }, timeout: _timeout);
@@ -452,7 +452,7 @@ void main() {
       await tester.tap(find.byKey(const Key('relay-host-start')));
       await tester.pump();
       expect(tried, 0);
-      expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data, contains('nur sichere Relays (wss://)'));
+      expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data, contains('nur sichere Server (wss://)'));
       expect(find.byKey(const Key('relay-start-command')), findsNothing);
     }, timeout: _timeout);
 
@@ -474,7 +474,7 @@ void main() {
       await pumpUntil(tester, () => find.byKey(const Key('relay-host-error')).evaluate().isNotEmpty,
           what: 'room lost');
       expect(tester.widget<Text>(find.byKey(const Key('relay-host-error'))).data,
-          'Die Verbindung zum Relay ist abgebrochen.');
+          'Die Verbindung zum Server ist abgebrochen.');
       expect(find.byKey(const Key('relay-host-start')), findsOneWidget);
       await unmountAndSettleSockets(tester, created);
     }, timeout: _timeout);

@@ -86,11 +86,11 @@ class AppLocalizationsFa extends AppLocalizations {
       'بقیه «ورود به اتاق» را می‌زنند و این کد QR را اسکن می‌کنند. دستگاه‌های همان Wi-Fi اتاق را در «اتاق‌های نزدیک» هم پیدا می‌کنند.';
 
   @override
-  String get roomViaRelay => 'باز کردن اتاق از راه رله';
+  String get roomViaRelay => 'باز کردن اتاق از راه سرور';
 
   @override
   String get roomViaRelayHelper =>
-      'با کد اتاق، برای بازیکنان در مرورگر هم. به رایانه‌ای نیاز دارد که «klunki relay» روی آن اجرا شود. وقتی خاموش است، اتاق روی همین دستگاه اجرا می‌شود و دستگاه‌های همان Wi-Fi خودشان آن را پیدا می‌کنند.';
+      'با کد اتاق، برای بازیکنان در مرورگر هم. به یک سرور نیاز دارد (مثلاً رایانه‌ای که «klunki relay» روی آن اجرا شود). وقتی خاموش است، اتاق روی همین دستگاه اجرا می‌شود و دستگاه‌های همان Wi-Fi خودشان آن را پیدا می‌کنند.';
 
   @override
   String get roomTypeCode => 'تایپ کد اتاق';
@@ -932,7 +932,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get webJoinHttpsWarning =>
-      'در مرورگر با https، Klunki فقط به رله‌های امن (wss://) دسترسی دارد – از اپ یا نسخهٔ http محلی استفاده کن.';
+      'در مرورگر با https، Klunki فقط به سرورهای امن (wss://) دسترسی دارد – از اپ یا نسخهٔ http محلی استفاده کن.';
 
   @override
   String get webJoinAddressLabel => 'IP، IP:پورت، پیوند ws:// یا klunki://';
@@ -1285,7 +1285,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String relayInfo(String address) {
-    return 'رله: $address';
+    return 'سرور: $address';
   }
 
   @override
@@ -1305,15 +1305,15 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get relayAddressLabel => 'نشانی رله';
+  String get relayAddressLabel => 'سرور';
 
   @override
   String get relayAddressHelper =>
-      'رایانه‌ای در Wi-Fi که «klunki relay» را اجرا می‌کند، مثلاً 192.168.1.20:4749';
+      'نشانی سرور، مثلاً 192.168.1.20:4749 (در Wi-Fi) یا wss://spiele.example (در اینترنت)';
 
   @override
   String get relayAddressInvalid =>
-      'نشانی رله نامعتبر است. نمونه: 192.168.1.20:4749';
+      'نشانی سرور نامعتبر است. نمونه: 192.168.1.20:4749';
 
   @override
   String relayErrorUnknownCode(String code) {
@@ -1334,15 +1334,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String relayErrorUnreachable(String address) {
-    return 'هیچ رله‌ای در $address در دسترس نیست.';
+    return 'هیچ سروری در $address در دسترس نیست.';
   }
 
   @override
-  String get relayErrorLost => 'اتصال به رله قطع شد.';
+  String get relayErrorLost => 'اتصال به سرور قطع شد.';
 
   @override
   String get relayStartHint =>
-      'اتاق‌های کددار به رله نیاز دارند. آن را روی رایانه‌ای در Wi-Fi اجرا کن و Klunki را از نشانی آن باز کن:';
+      'اتاق‌های کددار به سرور نیاز دارند. آن را روی رایانه‌ای در Wi-Fi اجرا کن و Klunki را از نشانی آن باز کن:';
 
   @override
   String relayRoomLost(String reason) {
@@ -1351,18 +1351,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String relayFromLink(String address) {
-    return 'رله از پیوند: $address';
+    return 'سرور از پیوند: $address';
   }
 
   @override
   String get relayLinkSaveDefault => 'ذخیره به‌عنوان پیش‌فرض';
 
   @override
-  String get relayLinkUseSaved => 'استفاده از رله ذخیره‌شده';
+  String get relayLinkUseSaved => 'استفاده از سرور ذخیره‌شده';
 
   @override
   String get relayLinkForeign =>
-      'توجه: این پیوند به رله دیگری اشاره می‌کند، نه به سرور این صفحه. فقط اگر به فرستنده اعتماد داری بپیوند: رله بیگانه همه حرکت‌ها را می‌بیند.';
+      'توجه: این پیوند به سرور دیگری اشاره می‌کند، نه به سرور این صفحه. فقط اگر به فرستنده اعتماد داری بپیوند: سرور بیگانه همه حرکت‌ها را می‌بیند.';
 
   @override
   String get pairingSeatTaken =>
@@ -1402,7 +1402,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get relayChange => 'تغییر';
 
   @override
-  String get relayNotSet => 'هیچ رله‌ای تنظیم نشده – نشانی را وارد کن';
+  String get relayNotSet => 'هیچ سروری تنظیم نشده – نشانی را وارد کن';
 
   @override
   String relayUseDefault(String address) {
@@ -1413,19 +1413,87 @@ class AppLocalizationsFa extends AppLocalizations {
   String get relaySave => 'اعمال';
 
   @override
-  String get relayClubCodeLabel => 'کد باشگاه (فقط در صورت نیاز)';
+  String get relayClubCodeLabel => 'کد باشگاه';
 
   @override
   String get relayClubCodeHelper =>
-      'فقط برای سرورهایی که کد باشگاه می‌خواهند. کد باشگاه هرگز در پیوند یا کد QR اتاق نمی‌آید.';
+      'فقط برای همین سرور ذخیره می‌شود. کد باشگاه هرگز در پیوند یا کد QR اتاق نمی‌آید.';
 
   @override
   String get relayErrorClubMissing =>
-      'این سرور کد باشگاه می‌خواهد. آن را در «پیشرفته» با «تغییر» وارد کن. از کسی که سرور را اداره می‌کند بپرس.';
+      'این سرور کد باشگاه می‌خواهد. از کسی که سرور را اداره می‌کند بپرس.';
 
   @override
   String get relayErrorClubWrong =>
       'این سرور این کد باشگاه را نمی‌شناسد. از کسی که سرور را اداره می‌کند بپرس.';
+
+  @override
+  String get serverKindLan =>
+      'سرور در Wi-Fi (رایانه‌ای که «klunki relay» روی آن اجرا می‌شود)';
+
+  @override
+  String get serverKindInternet => 'سرور در اینترنت';
+
+  @override
+  String get serverHelpLink => 'چطور کار می‌کند؟';
+
+  @override
+  String get serverClubCodeRemove => 'حذف کد باشگاه';
+
+  @override
+  String get serverClubCodeRetry => 'امتحان با کد باشگاه';
+
+  @override
+  String get helpTitle => 'چطور با هم بازی کنید';
+
+  @override
+  String get helpSectionRoomsTitle => 'بازی با دیگران';
+
+  @override
+  String get helpSectionRoomsBody =>
+      'یک نفر «باز کردن اتاق» را می‌زند و یک بازی انتخاب می‌کند. Klunki سپس یک کد اتاق و یک کد QR نشان می‌دهد.\n\nنفر دیگر «ورود به اتاق» را می‌زند و کد QR را اسکن می‌کند یا کد اتاق را تایپ می‌کند. بازی شروع می‌شود.';
+
+  @override
+  String get helpSectionWifiTitle => 'در همان Wi-Fi';
+
+  @override
+  String get helpSectionWifiBody =>
+      'یکی از شما اپ را دارد؟ پس در Wi-Fi به سرور نیازی ندارید: خود اپ سرور است، حتی برای بازیکنان در مرورگر (کد QR).\n\nدستگاه‌های همان Wi-Fi خودشان همدیگر را پیدا می‌کنند.';
+
+  @override
+  String get helpSectionServerTitle => 'کی به سرور نیاز دارید؟';
+
+  @override
+  String get helpSectionServerBody =>
+      'فقط وقتی همه در مرورگر بازی می‌کنند یا در یک Wi-Fi نیستید. سرور حرکت‌ها را بین دستگاه‌های شما جابه‌جا می‌کند.\n\nKlunki از روی نشانی می‌فهمد چه سروری است: «سرور در Wi-Fi» یا «سرور در اینترنت».';
+
+  @override
+  String get helpSectionOwnServerTitle => 'سرور خودتان در Wi-Fi';
+
+  @override
+  String get helpSectionOwnServerBody =>
+      'روی رایانه‌ای در Wi-Fi، در پوشهٔ Klunki «klunki relay» را اجرا کنید. رایانه سپس نشانی‌اش را نشان می‌دهد، مثلاً 192.168.1.20:4749.\n\nاین نشانی را در Klunki در «پیشرفته» با «تغییر» وارد کنید. هر کس آن را در مرورگر باز کند، می‌تواند فوراً بازی کند.';
+
+  @override
+  String get helpSectionComingTitle => 'به‌زودی ساده‌تر (در دست آماده‌سازی)';
+
+  @override
+  String get helpSectionComingBody =>
+      'این راه‌ها برای داشتن سرور در دست آماده‌سازی‌اند:\n• سرور در اینترنت برای گروه دوستان (با Cloudflare، رایگان)\n• برنامهٔ آماده برای دانلود برای Mac، Windows و Linux\n• Docker برای NAS یا Raspberry Pi\n\nسرورهای اینترنتی معمولاً با کد باشگاه محافظت می‌شوند.';
+
+  @override
+  String get helpSectionClubTitle => 'کد باشگاه چیست؟';
+
+  @override
+  String get helpSectionClubBody =>
+      'کد باشگاه مثل کلید یک سرور است: فقط کسی که آن را می‌داند می‌تواند آنجا اتاق باز کند یا وارد اتاق شود. آن را از کسی می‌گیری که سرور را اداره می‌کند.\n\nKlunki فقط وقتی سروری به آن نیاز دارد آن را می‌پرسد و برای همان سرور به خاطر می‌سپارد.';
+
+  @override
+  String get helpSectionDataTitle => 'با داده‌های من چه می‌شود؟';
+
+  @override
+  String get helpSectionDataBody =>
+      'سرور فقط حرکت‌ها را جابه‌جا می‌کند و چیزی از آن‌ها را برای همیشه نگه نمی‌دارد. اگر مستقیم در همان Wi-Fi بازی کنید، هیچ چیز از سرور غریبه نمی‌گذرد.\n\nکد باشگاه روی دستگاه تو می‌ماند و هرگز در پیوند یا کد QR اتاق نمی‌آید. با «تغییر» کنار سرور می‌توانی آن را ببینی، عوض کنی یا حذف کنی.';
 
   @override
   String get joinDirectTitle => 'اتصال مستقیم به یک دستگاه';

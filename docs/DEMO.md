@@ -430,7 +430,7 @@ also serves the PWA. The host stays authoritative; the relay only forwards messa
    and dashes do not matter) → **Raum beitreten**. Both switch to the game.
 
 The PWA uses its own origin as the relay (`ws://<location.host>/relay`). Hosting and joining share **one**
-relay setting, shown as the line "Relay: <mac-ip>:8000 · ändern" under **Erweitert** on both room screens;
+relay setting, shown as the line "Server: <mac-ip>:8000 · ändern" under **Erweitert** on both room screens;
 "ändern" takes another relay (`host:port`, "Standard: …" goes back to the page's own), and the room's link then
 carries `&relay=…`. The iOS/Android apps can join a browser's room too: **Raum beitreten** → close the camera →
 type the code under **Raumcode eintippen**; the first time the app asks for the relay address (`<mac-ip>:8000`)
@@ -471,7 +471,7 @@ dart run packages/klunki_net/bin/klunki.dart join --relay ws://127.0.0.1:8000 --
 A browser can join a CLI host's room and vice versa.
 
 Troubleshooting:
-- "Kein Relay erreichbar unter …" = the page is not served by `klunki relay` (e.g. a plain python server):
+- "Kein Server erreichbar unter …" = the page is not served by `klunki relay` (e.g. a plain python server):
   start the relay as in step 1 and open the page from it, or set the relay with "ändern" on the relay line.
 - "Kein Raum mit dem Code …" = typo or the host is gone; rooms also expire after 10 minutes without traffic
   ("Der Raum ist abgelaufen").

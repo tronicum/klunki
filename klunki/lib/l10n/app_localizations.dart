@@ -255,13 +255,13 @@ abstract class AppLocalizations {
   /// KLD-098: app, start-a-room screen, under "Erweitert": switch to open the room through the relay (with a room code) instead of directly on this device. Remembered.
   ///
   /// In de, this message translates to:
-  /// **'Raum über ein Relay öffnen'**
+  /// **'Raum über einen Server öffnen'**
   String get roomViaRelay;
 
   /// KLD-098: explanation below roomViaRelay. "klunki relay" is the command and stays as is.
   ///
   /// In de, this message translates to:
-  /// **'Mit Raumcode, auch für Mitspieler im Browser. Dafür muss auf einem Rechner „klunki relay“ laufen. Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.'**
+  /// **'Mit Raumcode, auch für Mitspieler im Browser. Dafür braucht ihr einen Server (z. B. einen Rechner, auf dem „klunki relay“ läuft). Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.'**
   String get roomViaRelayHelper;
 
   /// KLD-098: join screen: heading above the room code field.
@@ -1485,7 +1485,7 @@ abstract class AppLocalizations {
   /// Browser join and host screens: shown when the page was opened over https (browsers block ws:// relays and hosts from https pages; only wss:// works). Also the error when such a connection is attempted.
   ///
   /// In de, this message translates to:
-  /// **'Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.'**
+  /// **'Im Browser über https kann Klunki nur sichere Server (wss://) erreichen – nutze die App oder die lokale http-Version.'**
   String get webJoinHttpsWarning;
 
   /// Browser join screen: label of the address field (IP, IP:port, ws:// URL or klunki:// link).
@@ -2055,7 +2055,7 @@ abstract class AppLocalizations {
   /// Small line with the relay address (host:port).
   ///
   /// In de, this message translates to:
-  /// **'Relay: {address}'**
+  /// **'Server: {address}'**
   String relayInfo(String address);
 
   /// KLD-098: helper below the room code field.
@@ -2085,19 +2085,19 @@ abstract class AppLocalizations {
   /// Label of the relay address field.
   ///
   /// In de, this message translates to:
-  /// **'Relay-Adresse'**
+  /// **'Server'**
   String get relayAddressLabel;
 
   /// Helper under the relay address field.
   ///
   /// In de, this message translates to:
-  /// **'Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749'**
+  /// **'Adresse des Servers, z. B. 192.168.1.20:4749 (im WLAN) oder wss://spiele.example (im Internet)'**
   String get relayAddressHelper;
 
   /// Error for a malformed relay address.
   ///
   /// In de, this message translates to:
-  /// **'Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749'**
+  /// **'Ungültige Server-Adresse. Beispiel: 192.168.1.20:4749'**
   String get relayAddressInvalid;
 
   /// Room-code join: no open room with this code; code = the grouped code.
@@ -2127,19 +2127,19 @@ abstract class AppLocalizations {
   /// Relay not reachable; address = host:port or ws:// URL.
   ///
   /// In de, this message translates to:
-  /// **'Kein Relay erreichbar unter {address}.'**
+  /// **'Kein Server erreichbar unter {address}.'**
   String relayErrorUnreachable(String address);
 
   /// Relay: the connection to the relay broke (relay stopped, network loss).
   ///
   /// In de, this message translates to:
-  /// **'Die Verbindung zum Relay ist abgebrochen.'**
+  /// **'Die Verbindung zum Server ist abgebrochen.'**
   String get relayErrorLost;
 
   /// Shown when no relay is reachable, followed by the start command.
   ///
   /// In de, this message translates to:
-  /// **'Räume mit Raumcode brauchen ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:'**
+  /// **'Räume mit Raumcode brauchen einen Server. Starte ihn auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:'**
   String get relayStartHint;
 
   /// Relay room lost while waiting; reason = the relay error text.
@@ -2151,7 +2151,7 @@ abstract class AppLocalizations {
   /// KLD-075 room join: the relay a ?room= link or scanned room QR names, used for this join only (not saved); address = host:port.
   ///
   /// In de, this message translates to:
-  /// **'Relay aus Link: {address}'**
+  /// **'Server aus Link: {address}'**
   String relayFromLink(String address);
 
   /// KLD-075 room join: button that saves the link's relay as the default relay setting.
@@ -2163,13 +2163,13 @@ abstract class AppLocalizations {
   /// KLD-075 room join: button that ignores the link's relay and goes back to the saved/default relay.
   ///
   /// In de, this message translates to:
-  /// **'Gespeichertes Relay verwenden'**
+  /// **'Gespeicherten Server verwenden'**
   String get relayLinkUseSaved;
 
   /// KLD-075 PWA: warning when a ?room= link names a relay other than the page's own server (possible phishing/abuse).
   ///
   /// In de, this message translates to:
-  /// **'Achtung: Dieser Link führt zu einem fremden Relay, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremdes Relay sieht alle Spielzüge.'**
+  /// **'Achtung: Dieser Link führt zu einem fremden Server, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremder Server sieht alle Spielzüge.'**
   String get relayLinkForeign;
 
   /// KLD-071: joining failed because the host's seat is taken ("session full"): only the original guest (with its session token) can rejoin.
@@ -2241,7 +2241,7 @@ abstract class AppLocalizations {
   /// Relay line when no relay address is set (native app before the first relay).
   ///
   /// In de, this message translates to:
-  /// **'Kein Relay eingerichtet – Adresse eingeben'**
+  /// **'Kein Server eingerichtet – Adresse eingeben'**
   String get relayNotSet;
 
   /// Relay dialog: button back to the default relay (the page's own server); address = host:port.
@@ -2259,19 +2259,19 @@ abstract class AppLocalizations {
   /// Relay dialog (KLD-112): label of the optional club code field (server access code of a self-hosted relay, `klunki relay --codes`).
   ///
   /// In de, this message translates to:
-  /// **'Clubcode (nur wenn nötig)'**
+  /// **'Clubcode'**
   String get relayClubCodeLabel;
 
   /// Relay dialog (KLD-112): helper under the club code field; the code is never shared in room links or QR codes.
   ///
   /// In de, this message translates to:
-  /// **'Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.'**
+  /// **'Wird nur für diesen Server gespeichert. Der Clubcode kommt nie in Raum-Links oder QR-Codes.'**
   String get relayClubCodeHelper;
 
-  /// Room start/join error (KLD-112): the relay requires a club code and none was entered. “ändern” is the relayChange button under “Erweitert”.
+  /// Room start/join error (KLD-112): the relay requires a club code and none was entered. KLD-113: the club code field is shown right under it.
   ///
   /// In de, this message translates to:
-  /// **'Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.'**
+  /// **'Dieser Server braucht einen Clubcode. Frag die Person, die den Server betreibt.'**
   String get relayErrorClubMissing;
 
   /// Room start/join error (KLD-112): the relay does not accept the entered club code (unknown, revoked, or too many wrong tries).
@@ -2279,6 +2279,126 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.'**
   String get relayErrorClubWrong;
+
+  /// KLD-113: what kind of server an address names, shown under the server address: a computer at home (private IP, .local name). The command name stays as is.
+  ///
+  /// In de, this message translates to:
+  /// **'Server im WLAN (ein Rechner, auf dem „klunki relay“ läuft)'**
+  String get serverKindLan;
+
+  /// KLD-113: the kind of server for any other address (e.g. wss://spiele.example).
+  ///
+  /// In de, this message translates to:
+  /// **'Server im Internet'**
+  String get serverKindInternet;
+
+  /// KLD-113: link in the server dialog and the club code prompt that opens the help screen.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie geht das?'**
+  String get serverHelpLink;
+
+  /// KLD-113: tooltip of the button next to a saved club code in the server dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Clubcode entfernen'**
+  String get serverClubCodeRemove;
+
+  /// KLD-113: button under the club code field that appears when a server asks for a club code; joins / starts the room again with it.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Clubcode versuchen'**
+  String get serverClubCodeRetry;
+
+  /// KLD-113: title of the help screen (reached from 'Über Klunki' and the server dialog); also the entry in 'Über Klunki'. All help* keys are also used by the website FAQ (de, en); keep them plain text, paragraphs separated by a blank line.
+  ///
+  /// In de, this message translates to:
+  /// **'So spielt ihr zusammen'**
+  String get helpTitle;
+
+  /// KLD-113 help section 1 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit anderen spielen'**
+  String get helpSectionRoomsTitle;
+
+  /// KLD-113 help section 1: how rooms work. Button names must match roomStart / roomJoin.
+  ///
+  /// In de, this message translates to:
+  /// **'Eine Person tippt auf „Raum starten“ und wählt ein Spiel. Klunki zeigt dann einen Raumcode und einen QR-Code.\n\nDie andere Person tippt auf „Raum beitreten“ und scannt den QR-Code oder tippt den Raumcode ein. Schon geht es los.'**
+  String get helpSectionRoomsBody;
+
+  /// KLD-113 help section 2 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Im selben WLAN'**
+  String get helpSectionWifiTitle;
+
+  /// KLD-113 help section 2: on the same Wi-Fi no server is needed, the app is the server.
+  ///
+  /// In de, this message translates to:
+  /// **'Hat einer von euch die App? Dann braucht ihr im WLAN keinen Server: Die App ist selbst der Server, auch für Mitspieler im Browser (QR-Code).\n\nGeräte im selben WLAN finden sich von selbst.'**
+  String get helpSectionWifiBody;
+
+  /// KLD-113 help section 3 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Wann braucht ihr einen Server?'**
+  String get helpSectionServerTitle;
+
+  /// KLD-113 help section 3: when a server is needed. The two quoted names must match serverKindLan (without the parenthesis) and serverKindInternet.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur wenn alle im Browser spielen oder wenn ihr nicht im selben WLAN seid. Der Server reicht die Spielzüge zwischen euren Geräten weiter.\n\nKlunki erkennt an der Adresse, was für ein Server es ist: „Server im WLAN“ oder „Server im Internet“.'**
+  String get helpSectionServerBody;
+
+  /// KLD-113 help section 4 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Eigener Server im WLAN'**
+  String get helpSectionOwnServerTitle;
+
+  /// KLD-113 help section 4: own server on the Wi-Fi. The app shows the start command after this text. Button names must match roomAdvanced / relayChange.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf einem Rechner im WLAN startet ihr im Klunki-Ordner „klunki relay“. Der Rechner zeigt dann seine Adresse an, zum Beispiel 192.168.1.20:4749.\n\nTragt die Adresse in Klunki unter „Erweitert“ bei „ändern“ ein. Wer sie im Browser öffnet, kann gleich mitspielen.'**
+  String get helpSectionOwnServerBody;
+
+  /// KLD-113 help section 5 title: ready-made servers, not available yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Bald einfacher (in Vorbereitung)'**
+  String get helpSectionComingTitle;
+
+  /// KLD-113 help section 5: the ways to get a server that are in preparation (one line each, starting with •). No links yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Wege zu einem Server sind in Vorbereitung:\n• Server im Internet für Freundeskreise (mit Cloudflare, kostenlos)\n• Fertiges Programm zum Herunterladen für Mac, Windows und Linux\n• Docker für NAS oder Raspberry Pi\n\nServer im Internet sind meist mit einem Clubcode geschützt.'**
+  String get helpSectionComingBody;
+
+  /// KLD-113 help section 6 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Was ist ein Clubcode?'**
+  String get helpSectionClubTitle;
+
+  /// KLD-113 help section 6: what a club code is and who gives it.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Clubcode ist wie ein Schlüssel für einen Server: Nur wer ihn kennt, kann dort Räume starten oder beitreten. Du bekommst ihn von der Person, die den Server betreibt.\n\nKlunki fragt erst danach, wenn ein Server ihn braucht, und merkt ihn sich für diesen Server.'**
+  String get helpSectionClubBody;
+
+  /// KLD-113 help section 7 title.
+  ///
+  /// In de, this message translates to:
+  /// **'Was passiert mit meinen Daten?'**
+  String get helpSectionDataTitle;
+
+  /// KLD-113 help section 7: what happens with data; the club code is never in room links or QR codes.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Server reicht nur die Spielzüge weiter und speichert nichts davon dauerhaft. Spielt ihr direkt im selben WLAN, läuft gar nichts über einen fremden Server.\n\nDer Clubcode bleibt auf deinem Gerät und kommt nie in Raum-Links oder QR-Codes. Beim Server unter „ändern“ kannst du ihn sehen, ändern oder entfernen.'**
+  String get helpSectionDataBody;
 
   /// Join screens, under "Erweitert": heading of the direct connection to a device the room runs on (IP address).
   ///

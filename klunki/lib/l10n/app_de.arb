@@ -96,11 +96,11 @@
   "@roomDirectWaitingHint": {
     "description": "KLD-098: waiting screen of a room running directly on this device (no room code): how the others get in. Quoted texts are roomJoin and roomNearby."
   },
-  "roomViaRelay": "Raum über ein Relay öffnen",
+  "roomViaRelay": "Raum über einen Server öffnen",
   "@roomViaRelay": {
     "description": "KLD-098: app, start-a-room screen, under \"Erweitert\": switch to open the room through the relay (with a room code) instead of directly on this device. Remembered."
   },
-  "roomViaRelayHelper": "Mit Raumcode, auch für Mitspieler im Browser. Dafür muss auf einem Rechner „klunki relay“ laufen. Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.",
+  "roomViaRelayHelper": "Mit Raumcode, auch für Mitspieler im Browser. Dafür braucht ihr einen Server (z. B. einen Rechner, auf dem „klunki relay“ läuft). Ausgeschaltet läuft der Raum direkt auf diesem Gerät, und Geräte im selben WLAN finden ihn von selbst.",
   "@roomViaRelayHelper": {
     "description": "KLD-098: explanation below roomViaRelay. \"klunki relay\" is the command and stays as is."
   },
@@ -1430,7 +1430,7 @@
   "@pairingLinkCopied": {
     "description": "Snackbar after copying the join link."
   },
-  "webJoinHttpsWarning": "Im Browser über https kann Klunki nur sichere Relays (wss://) erreichen – nutze die App oder die lokale http-Version.",
+  "webJoinHttpsWarning": "Im Browser über https kann Klunki nur sichere Server (wss://) erreichen – nutze die App oder die lokale http-Version.",
   "@webJoinHttpsWarning": {
     "description": "Browser join and host screens: shown when the page was opened over https (browsers block ws:// relays and hosts from https pages; only wss:// works). Also the error when such a connection is attempted."
   },
@@ -1991,7 +1991,7 @@
   "@relayWaitingHint": {
     "description": "KLD-098: relay room waiting screen: how the others get in (the quoted text is roomJoin)."
   },
-  "relayInfo": "Relay: {address}",
+  "relayInfo": "Server: {address}",
   "@relayInfo": {
     "description": "Small line with the relay address (host:port).",
     "placeholders": {
@@ -2021,15 +2021,15 @@
       }
     }
   },
-  "relayAddressLabel": "Relay-Adresse",
+  "relayAddressLabel": "Server",
   "@relayAddressLabel": {
     "description": "Label of the relay address field."
   },
-  "relayAddressHelper": "Rechner im WLAN, auf dem „klunki relay“ läuft, z. B. 192.168.1.20:4749",
+  "relayAddressHelper": "Adresse des Servers, z. B. 192.168.1.20:4749 (im WLAN) oder wss://spiele.example (im Internet)",
   "@relayAddressHelper": {
     "description": "Helper under the relay address field."
   },
-  "relayAddressInvalid": "Ungültige Relay-Adresse. Beispiel: 192.168.1.20:4749",
+  "relayAddressInvalid": "Ungültige Server-Adresse. Beispiel: 192.168.1.20:4749",
   "@relayAddressInvalid": {
     "description": "Error for a malformed relay address."
   },
@@ -2059,7 +2059,7 @@
   "@relayErrorExpired": {
     "description": "Relay: the room expired after 10 idle minutes."
   },
-  "relayErrorUnreachable": "Kein Relay erreichbar unter {address}.",
+  "relayErrorUnreachable": "Kein Server erreichbar unter {address}.",
   "@relayErrorUnreachable": {
     "description": "Relay not reachable; address = host:port or ws:// URL.",
     "placeholders": {
@@ -2068,11 +2068,11 @@
       }
     }
   },
-  "relayErrorLost": "Die Verbindung zum Relay ist abgebrochen.",
+  "relayErrorLost": "Die Verbindung zum Server ist abgebrochen.",
   "@relayErrorLost": {
     "description": "Relay: the connection to the relay broke (relay stopped, network loss)."
   },
-  "relayStartHint": "Räume mit Raumcode brauchen ein Relay. Starte es auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:",
+  "relayStartHint": "Räume mit Raumcode brauchen einen Server. Starte ihn auf einem Rechner im WLAN und öffne Klunki über dessen Adresse:",
   "@relayStartHint": {
     "description": "Shown when no relay is reachable, followed by the start command."
   },
@@ -2085,7 +2085,7 @@
       }
     }
   },
-  "relayFromLink": "Relay aus Link: {address}",
+  "relayFromLink": "Server aus Link: {address}",
   "@relayFromLink": {
     "description": "KLD-075 room join: the relay a ?room= link or scanned room QR names, used for this join only (not saved); address = host:port.",
     "placeholders": {
@@ -2098,11 +2098,11 @@
   "@relayLinkSaveDefault": {
     "description": "KLD-075 room join: button that saves the link's relay as the default relay setting."
   },
-  "relayLinkUseSaved": "Gespeichertes Relay verwenden",
+  "relayLinkUseSaved": "Gespeicherten Server verwenden",
   "@relayLinkUseSaved": {
     "description": "KLD-075 room join: button that ignores the link's relay and goes back to the saved/default relay."
   },
-  "relayLinkForeign": "Achtung: Dieser Link führt zu einem fremden Relay, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremdes Relay sieht alle Spielzüge.",
+  "relayLinkForeign": "Achtung: Dieser Link führt zu einem fremden Server, nicht zum Server dieser Seite. Tritt nur bei, wenn du dem Absender vertraust: Ein fremder Server sieht alle Spielzüge.",
   "@relayLinkForeign": {
     "description": "KLD-075 PWA: warning when a ?room= link names a relay other than the page's own server (possible phishing/abuse)."
   },
@@ -2150,7 +2150,7 @@
   "@relayChange": {
     "description": "Relay line: action that opens the relay address dialog (lower case, after \"Relay: <address> ·\")."
   },
-  "relayNotSet": "Kein Relay eingerichtet – Adresse eingeben",
+  "relayNotSet": "Kein Server eingerichtet – Adresse eingeben",
   "@relayNotSet": {
     "description": "Relay line when no relay address is set (native app before the first relay)."
   },
@@ -2167,21 +2167,101 @@
   "@relaySave": {
     "description": "Relay dialog: confirm button."
   },
-  "relayClubCodeLabel": "Clubcode (nur wenn nötig)",
+  "relayClubCodeLabel": "Clubcode",
   "@relayClubCodeLabel": {
     "description": "Relay dialog (KLD-112): label of the optional club code field (server access code of a self-hosted relay, `klunki relay --codes`)."
   },
-  "relayClubCodeHelper": "Nur für Server, die einen Clubcode verlangen. Der Clubcode kommt nie in Raum-Links oder QR-Codes.",
+  "relayClubCodeHelper": "Wird nur für diesen Server gespeichert. Der Clubcode kommt nie in Raum-Links oder QR-Codes.",
   "@relayClubCodeHelper": {
     "description": "Relay dialog (KLD-112): helper under the club code field; the code is never shared in room links or QR codes."
   },
-  "relayErrorClubMissing": "Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. Frag die Person, die den Server betreibt.",
+  "relayErrorClubMissing": "Dieser Server braucht einen Clubcode. Frag die Person, die den Server betreibt.",
   "@relayErrorClubMissing": {
-    "description": "Room start/join error (KLD-112): the relay requires a club code and none was entered. “ändern” is the relayChange button under “Erweitert”."
+    "description": "Room start/join error (KLD-112): the relay requires a club code and none was entered. KLD-113: the club code field is shown right under it."
   },
   "relayErrorClubWrong": "Dieser Server kennt den Clubcode nicht. Frag die Person, die den Server betreibt.",
   "@relayErrorClubWrong": {
     "description": "Room start/join error (KLD-112): the relay does not accept the entered club code (unknown, revoked, or too many wrong tries)."
+  },
+  "serverKindLan": "Server im WLAN (ein Rechner, auf dem „klunki relay“ läuft)",
+  "@serverKindLan": {
+    "description": "KLD-113: what kind of server an address names, shown under the server address: a computer at home (private IP, .local name). The command name stays as is."
+  },
+  "serverKindInternet": "Server im Internet",
+  "@serverKindInternet": {
+    "description": "KLD-113: the kind of server for any other address (e.g. wss://spiele.example)."
+  },
+  "serverHelpLink": "Wie geht das?",
+  "@serverHelpLink": {
+    "description": "KLD-113: link in the server dialog and the club code prompt that opens the help screen."
+  },
+  "serverClubCodeRemove": "Clubcode entfernen",
+  "@serverClubCodeRemove": {
+    "description": "KLD-113: tooltip of the button next to a saved club code in the server dialog."
+  },
+  "serverClubCodeRetry": "Mit Clubcode versuchen",
+  "@serverClubCodeRetry": {
+    "description": "KLD-113: button under the club code field that appears when a server asks for a club code; joins / starts the room again with it."
+  },
+  "helpTitle": "So spielt ihr zusammen",
+  "@helpTitle": {
+    "description": "KLD-113: title of the help screen (reached from 'Über Klunki' and the server dialog); also the entry in 'Über Klunki'. All help* keys are also used by the website FAQ (de, en); keep them plain text, paragraphs separated by a blank line."
+  },
+  "helpSectionRoomsTitle": "Mit anderen spielen",
+  "@helpSectionRoomsTitle": {
+    "description": "KLD-113 help section 1 title."
+  },
+  "helpSectionRoomsBody": "Eine Person tippt auf „Raum starten“ und wählt ein Spiel. Klunki zeigt dann einen Raumcode und einen QR-Code.\n\nDie andere Person tippt auf „Raum beitreten“ und scannt den QR-Code oder tippt den Raumcode ein. Schon geht es los.",
+  "@helpSectionRoomsBody": {
+    "description": "KLD-113 help section 1: how rooms work. Button names must match roomStart / roomJoin."
+  },
+  "helpSectionWifiTitle": "Im selben WLAN",
+  "@helpSectionWifiTitle": {
+    "description": "KLD-113 help section 2 title."
+  },
+  "helpSectionWifiBody": "Hat einer von euch die App? Dann braucht ihr im WLAN keinen Server: Die App ist selbst der Server, auch für Mitspieler im Browser (QR-Code).\n\nGeräte im selben WLAN finden sich von selbst.",
+  "@helpSectionWifiBody": {
+    "description": "KLD-113 help section 2: on the same Wi-Fi no server is needed, the app is the server."
+  },
+  "helpSectionServerTitle": "Wann braucht ihr einen Server?",
+  "@helpSectionServerTitle": {
+    "description": "KLD-113 help section 3 title."
+  },
+  "helpSectionServerBody": "Nur wenn alle im Browser spielen oder wenn ihr nicht im selben WLAN seid. Der Server reicht die Spielzüge zwischen euren Geräten weiter.\n\nKlunki erkennt an der Adresse, was für ein Server es ist: „Server im WLAN“ oder „Server im Internet“.",
+  "@helpSectionServerBody": {
+    "description": "KLD-113 help section 3: when a server is needed. The two quoted names must match serverKindLan (without the parenthesis) and serverKindInternet."
+  },
+  "helpSectionOwnServerTitle": "Eigener Server im WLAN",
+  "@helpSectionOwnServerTitle": {
+    "description": "KLD-113 help section 4 title."
+  },
+  "helpSectionOwnServerBody": "Auf einem Rechner im WLAN startet ihr im Klunki-Ordner „klunki relay“. Der Rechner zeigt dann seine Adresse an, zum Beispiel 192.168.1.20:4749.\n\nTragt die Adresse in Klunki unter „Erweitert“ bei „ändern“ ein. Wer sie im Browser öffnet, kann gleich mitspielen.",
+  "@helpSectionOwnServerBody": {
+    "description": "KLD-113 help section 4: own server on the Wi-Fi. The app shows the start command after this text. Button names must match roomAdvanced / relayChange."
+  },
+  "helpSectionComingTitle": "Bald einfacher (in Vorbereitung)",
+  "@helpSectionComingTitle": {
+    "description": "KLD-113 help section 5 title: ready-made servers, not available yet."
+  },
+  "helpSectionComingBody": "Diese Wege zu einem Server sind in Vorbereitung:\n• Server im Internet für Freundeskreise (mit Cloudflare, kostenlos)\n• Fertiges Programm zum Herunterladen für Mac, Windows und Linux\n• Docker für NAS oder Raspberry Pi\n\nServer im Internet sind meist mit einem Clubcode geschützt.",
+  "@helpSectionComingBody": {
+    "description": "KLD-113 help section 5: the ways to get a server that are in preparation (one line each, starting with •). No links yet."
+  },
+  "helpSectionClubTitle": "Was ist ein Clubcode?",
+  "@helpSectionClubTitle": {
+    "description": "KLD-113 help section 6 title."
+  },
+  "helpSectionClubBody": "Ein Clubcode ist wie ein Schlüssel für einen Server: Nur wer ihn kennt, kann dort Räume starten oder beitreten. Du bekommst ihn von der Person, die den Server betreibt.\n\nKlunki fragt erst danach, wenn ein Server ihn braucht, und merkt ihn sich für diesen Server.",
+  "@helpSectionClubBody": {
+    "description": "KLD-113 help section 6: what a club code is and who gives it."
+  },
+  "helpSectionDataTitle": "Was passiert mit meinen Daten?",
+  "@helpSectionDataTitle": {
+    "description": "KLD-113 help section 7 title."
+  },
+  "helpSectionDataBody": "Der Server reicht nur die Spielzüge weiter und speichert nichts davon dauerhaft. Spielt ihr direkt im selben WLAN, läuft gar nichts über einen fremden Server.\n\nDer Clubcode bleibt auf deinem Gerät und kommt nie in Raum-Links oder QR-Codes. Beim Server unter „ändern“ kannst du ihn sehen, ändern oder entfernen.",
+  "@helpSectionDataBody": {
+    "description": "KLD-113 help section 7: what happens with data; the club code is never in room links or QR codes."
   },
   "joinDirectTitle": "Direkt mit einem Gerät verbinden",
   "@joinDirectTitle": {

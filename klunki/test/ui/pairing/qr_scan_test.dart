@@ -223,7 +223,7 @@ void main() {
     expect(find.byKey(const Key('room-progress')), findsOneWidget);
     expect(tester.widget<TextField>(find.byKey(const Key('room-code'))).controller!.text, 'K7Q 2M');
     expect(calls.settings.value, isNull);
-    expect(find.text('Relay aus Link: 192.168.1.5:8000'), findsOneWidget);
+    expect(find.text('Server aus Link: 192.168.1.5:8000'), findsOneWidget);
     expect(find.byKey(const Key('relay-line-unset'), skipOffstage: false), findsOneWidget); // under "Erweitert"
     // An app has no page origin: no foreign-relay warning.
     expect(find.byKey(const Key('room-link-relay-foreign')), findsNothing);
@@ -241,8 +241,8 @@ void main() {
     await _settle(tester);
     expect(calls.relay, [(Uri.parse('ws://10.0.0.9:4749/relay'), 'ABCDE', 'Pixel')]);
     expect(calls.settings.value, saved);
-    expect(find.text('Relay: 192.168.1.20:4749', skipOffstage: false), findsOneWidget);
-    expect(find.text('Relay aus Link: 10.0.0.9:4749'), findsOneWidget);
+    expect(find.text('Server: 192.168.1.20:4749', skipOffstage: false), findsOneWidget);
+    expect(find.text('Server aus Link: 10.0.0.9:4749'), findsOneWidget);
     expect(find.byKey(const Key('room-error')), findsOneWidget);
 
     // A retry by hand still goes to the link's relay.
@@ -256,7 +256,7 @@ void main() {
     await tester.tap(find.byKey(const Key('room-link-relay-save')));
     await _settle(tester);
     expect(calls.settings.value, Uri.parse('ws://10.0.0.9:4749/relay'));
-    expect(find.text('Relay: 10.0.0.9:4749', skipOffstage: false), findsOneWidget);
+    expect(find.text('Server: 10.0.0.9:4749', skipOffstage: false), findsOneWidget);
     expect(find.byKey(const Key('room-link-relay')), findsNothing);
     await _drain(tester);
   });

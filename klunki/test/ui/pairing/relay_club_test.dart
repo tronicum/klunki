@@ -48,7 +48,7 @@ void main() {
     expect(classifyRelayError(const NetException('relay: no room with code K7Q2M')), RelayFailure.unknownCode);
   });
 
-  testWidgets('the relay dialog has a "Clubcode" field; it is saved with the relay; a room link has no club code',
+  testWidgets('a saved club code is in the server dialog (KLD-113: only then); a room link has no club code',
       (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
@@ -68,14 +68,12 @@ void main() {
     await openAdvanced(tester, 'web-join-advanced');
     await _tapVisible(tester, find.byKey(const Key('relay-change')));
     await tester.pumpAndSettle();
-    expect(find.text('Clubcode (nur wenn nötig)'), findsOneWidget);
-    expect(find.textContaining('kommt nie in Raum-Links oder QR-Codes'), findsOneWidget);
-    expect(tester.widget<TextField>(find.byKey(const Key('relay-dialog-club'))).controller!.text, isEmpty);
+    expect(find.byKey(const Key('relay-dialog-club')), findsNothing, reason: 'KLD-113: asked for only when needed');
     await tester.enterText(find.byKey(const Key('relay-dialog-address')), 'spiele.example:4749');
-    await tester.enterText(find.byKey(const Key('relay-dialog-club')), 'k7qx-m2pa');
     await tester.tap(find.byKey(const Key('relay-dialog-save')));
     await tester.pumpAndSettle();
     expect(settings.value, _club);
+    await settings.setClubCode(_club, 'k7qx-m2pa'); // as the club code prompt does
     expect(settings.clubCodeFor(_club), 'K7QXM2PA');
 
     // Reopened: prefilled.
@@ -100,7 +98,7 @@ void main() {
     expect(link, isNot(contains('club=')));
   });
 
-  testWidgets('a missing club code: the sentence says where to enter it', (tester) async {
+  testWidgets('a missing club code: the sentence, and the field right there (KLD-113)', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -115,8 +113,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(tester.widget<Text>(find.byKey(const Key('room-error'))).data,
-        'Dieser Server braucht einen Clubcode. Gib ihn unter „Erweitert“ bei „ändern“ ein. '
-        'Frag die Person, die den Server betreibt.');
+        'Dieser Server braucht einen Clubcode. Frag die Person, die den Server betreibt.');
+    expect(find.byKey(const Key('room-club-field')), findsOneWidget);
     final l10n = await AppLocalizations.delegate.load(const Locale('ar'));
     expect(l10n.relayErrorClubWrong, isNotEmpty);
   });

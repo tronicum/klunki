@@ -5,6 +5,7 @@ import 'package:klunki/app/build_info.dart';
 import 'package:klunki/app/site_links.dart';
 import 'package:klunki/app/web_channel.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/ui/help_screen.dart';
 import 'package:klunki/ui/ltr.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
@@ -128,6 +129,14 @@ class AboutScreen extends StatelessWidget {
                   ),
                 const SizedBox(height: 16),
                 const Divider(),
+                // KLD-113: "So spielt ihr zusammen", stored in the app.
+                ListTile(
+                  key: const Key('about-help'),
+                  leading: const Icon(Icons.groups_outlined),
+                  title: Text(l10n.helpTitle),
+                  trailing: const Icon(Icons.chevron_right, size: 20),
+                  onTap: () => openHelpScreen(context),
+                ),
                 // Stored in the app (chevron); Support opens the web page (open_in_new).
                 for (final (key, icon, page) in [
                   (const Key('about-privacy'), Icons.privacy_tip_outlined, LegalPage.privacy),
