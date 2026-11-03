@@ -120,7 +120,12 @@ void main() {
       for (var i = 0; i < 4; i++) {
         await tester.tap(find.byKey(Key('wordtiles-rack-$i')));
         await frame();
-        await tester.tap(find.byKey(Key('wordtiles-sq-14-${3 + i}')), warnIfMissed: false);
+        // Only a square on screen: zoomed in, the bottom row can lie below
+        // the visible board, where a tap would hit the bench bar.
+        final sq = find.byKey(Key('wordtiles-sq-14-${3 + i}'));
+        if (tester.getRect(find.byKey(const Key('wordtiles-board-area'))).contains(tester.getCenter(sq))) {
+          await tester.tap(sq, warnIfMissed: false);
+        }
         await frame();
         await tester.pump(const Duration(milliseconds: 400)); // zoom animation
         await frame();

@@ -63,9 +63,10 @@ import 'wordtiles_tiles.dart';
 ///   hides it like the rack). Open, a bench tile leaves a gap in the rack;
 ///   closed, its tiles are back in the rack (nothing is ever out of sight).
 ///   On a small phone ([benchOverlayMargin], [benchMinBoardShare]) the
-///   collapsed bench is a button in the score row and the open bench lies
-///   over the lower part of the board (`wordtiles-bench-overlay`), so the
-///   board keeps its size.
+///   open bench lies over the lower part of the board
+///   (`wordtiles-bench-overlay`), so the board keeps its size; its handle is
+///   a slim bar between the board and the rack, right where it opens
+///   (`wordtiles-bench-bar`, KLD-094 step 8f).
 /// * **Layout** (KLD-094 step 8b): portrait stacks the score row, the board
 ///   (as wide as the screen), the rack and actions and the open bench with
 ///   small fixed gaps; the space left over is at the very bottom, and the
@@ -116,6 +117,10 @@ class WordTilesBoard extends StatefulWidget {
   /// a phone they stay smaller so both rows fit without scrolling (KLD-094
   /// step 8e).
   static const double tileMax = 54;
+
+  /// The height of the bench's handle between the board and the rack on a
+  /// small phone (KLD-094 step 8f); its tap area is higher.
+  static const double benchBarHeight = 26;
 
   /// The bench may use up to this width (the rack keeps 420).
   static const double benchMaxWidth = 600;
@@ -983,23 +988,21 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       if (benchOpen) _maybeBenchCoach();
       final benchOverlay = compact && benchOpen;
       final board = _boardView(context);
-      // Compact: the collapsed bench is a button in the score row (no row of
-      // its own); open, the whole bench is the overlay.
+      // Compact: the bench's handle is a slim bar between the board and the
+      // rack, right where the overlay opens ([_benchBar]); the score row
+      // only as high as its buttons, so the board loses just a few pixels.
       // The same height open or closed, so the board keeps its size (two
       // players fit one line; more players would need a second line here).
-      final scores = SizedBox(
-        height: compact ? kMinInteractiveDimension : null,
-        child: _scoreBar(context, l10n,
-            extra: compact && !benchOpen ? _benchView(context, l10n, box.maxWidth, false) : null),
-      );
+      final scores = SizedBox(height: compact ? 32 : null, child: _scoreBar(context, l10n));
       final info = _infoLine(context, l10n);
+      final preview = _previewLine(context, l10n);
       // KLD-094 step 8: the bench below the actions (rack and actions right
       // under the board, the bench is the optional extra).
       // KLD-117: "Zug zurück" (hot-seat) right under the actions, at the end
       // of the bench line (the actions row is full on a phone; as dense as
-      // the bench line). On a small phone, where the bench button is in the
-      // score row, just the ↶ icon in the actions row, so the board keeps
-      // its size. Nothing in network play.
+      // the bench line). On a small phone, where the bench has its slim bar
+      // above the rack, just the ↶ icon in the actions row, so the board
+      // keeps its size. Nothing in network play.
       const undo = UndoMoveButton(visualDensity: VisualDensity(horizontal: -4, vertical: -4));
       final Widget bench = compact
           ? const SizedBox.shrink()
@@ -1011,7 +1014,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _previewLine(context, l10n),
+          // Compact: the preview line is part of the bench bar.
+          if (!compact) preview,
           const SizedBox(height: 4),
           LayoutBuilder(
               builder: (context, rackBox) => _rackView(context, min(rackBox.maxWidth, 420.0), benchShown: benchOpen)),
@@ -1055,7 +1059,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: scores),
-          Padding(padding: const EdgeInsets.fromLTRB(12, 4, 12, 4), child: info),
+          Padding(padding: EdgeInsets.fromLTRB(12, compact ? 2 : 4, 12, compact ? 2 : 4), child: info),
           Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -1080,9 +1084,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
                           boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 6),
                           child: LayoutBuilder(
-                            builder: (context, b) => _benchView(context, l10n, min(b.maxWidth, WordTilesBoard.benchMaxWidth), true),
+                            builder: (context, b) => KeyedSubtree(
+                              key: const Key('wordtiles-bench'),
+                              child: _benchRows(context, l10n, min(b.maxWidth, WordTilesBoard.benchMaxWidth)),
+                            ),
                           ),
                         ),
                       ),
@@ -1091,14 +1098,14 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
               ),
             ),
           ),
+          if (compact) _benchBar(context, l10n, benchOpen, preview),
           Padding(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: controls),
         ],
       );
     });
   }
 
-  /// [extra]: the collapsed bench button on a small phone.
-  Widget _scoreBar(BuildContext context, AppLocalizations l10n, {Widget? extra}) {
+  Widget _scoreBar(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final labels = PlayerLabelsScope.of(context);
     final g = game;
@@ -1147,8 +1154,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
 
-    // Scores (scaled down when space is short), then the bench
-    // button on a small phone, the bag and "So geht's" (KLD-094 step 5).
+    // Scores (scaled down when space is short), then the bag and "So
+    // geht's" (KLD-094 step 5).
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1166,7 +1173,6 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             ),
           ),
         ),
-        if (extra != null) Flexible(child: extra),
         Row(mainAxisSize: MainAxisSize.min, children: [
         // KLD-094 step 6: the host's options in the header of a network
         // game ("EN" plus a book for "Wörterbuch prüfen"; the full text as
@@ -1675,8 +1681,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   /// The bench: a header to open / collapse it and, when open, the practice
   /// rows with their base scores.
-  /// On a small phone the open bench is an overlay over the board and the
-  /// collapsed one a button in the score row (`build`).
+  /// On a small phone the open bench is an overlay over the board with its
+  /// handle below it instead ([_benchBar]).
   ///
   /// [trailing] (the take-back button, KLD-117) sits at the end of the header.
   Widget _benchView(BuildContext context, AppLocalizations l10n, double width, bool open, {Widget? trailing}) {
@@ -1716,6 +1722,103 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [header, _benchRows(context, l10n, width)],
+    );
+  }
+
+  /// Small phone (KLD-094 step 8f): the bench's handle between the board and the
+  /// rack, where the overlay opens. Closed a slim tab "› Bänkchen" under
+  /// the board; open the foot of the overlay, which grows upwards from it
+  /// ("⌄ Bänkchen", and "clear" at the end). Only
+  /// [WordTilesBoard.benchBarHeight] high; the tap areas reach
+  /// [kMinInteractiveDimension] down over [preview] (the score preview
+  /// line, a text without taps) so the board loses only that bar.
+  Widget _benchBar(BuildContext context, AppLocalizations l10n, bool open, Widget preview) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    const bar = WordTilesBoard.benchBarHeight;
+    const hit = kMinInteractiveDimension;
+    final clear = open && _onBench.isNotEmpty;
+    final radius = BorderRadius.vertical(bottom: Radius.circular(open ? 14 : 10));
+    final label = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20, color: scheme.primary),
+        const SizedBox(width: 2),
+        Flexible(
+          child: Text(l10n.wordtilesBench,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelLarge?.copyWith(color: scheme.primary)),
+        ),
+      ],
+    );
+    final look = Container(
+      height: bar,
+      padding: const EdgeInsetsDirectional.only(start: 8, end: 12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: radius,
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: label,
+    );
+    return Padding(
+      key: const Key('wordtiles-bench-bar'),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Stack(
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Open, the bar is as wide as the overlay above it; closed a
+              // tab at the start side.
+              SizedBox(
+                height: bar,
+                child: Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: open ? SizedBox(width: double.infinity, child: look) : look,
+                ),
+              ),
+              Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: preview),
+            ],
+          ),
+          PositionedDirectional(
+            start: 0,
+            end: clear ? hit : 0,
+            top: 0,
+            height: hit,
+            child: Semantics(
+              button: true,
+              expanded: open,
+              label: l10n.wordtilesBench,
+              excludeSemantics: true,
+              child: GestureDetector(
+                key: const Key('wordtiles-bench-toggle'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () => setState(() => _benchOpen = !open),
+              ),
+            ),
+          ),
+          if (clear)
+            PositionedDirectional(
+              end: 0,
+              top: 0,
+              width: hit,
+              height: hit,
+              child: IconButton(
+                key: const Key('wordtiles-bench-clear'),
+                tooltip: l10n.wordtilesBenchClear,
+                padding: const EdgeInsets.only(top: (bar - 20) / 2),
+                alignment: Alignment.topCenter,
+                constraints: const BoxConstraints.tightFor(width: hit, height: hit),
+                iconSize: 20,
+                icon: const Icon(Icons.vertical_align_bottom),
+                onPressed: _benchActive ? _clearBench : null,
+              ),
+            ),
+        ],
+      ),
     );
   }
 

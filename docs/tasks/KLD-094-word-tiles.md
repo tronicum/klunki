@@ -626,6 +626,24 @@ size". Correction: on phones smaller bench tiles are fine (no scrolling); where 
   no overflow); layout tests unchanged and green. Screenshots `--plain-name kld094-8e` (`-bench-de-desktop-1280x800`,
   `-desktop-1440x900`, `-tablet-landscape`, `-tablet-portrait`, `-phone`). No rules change.
 
+## Step 8f (the Bänkchen handle where the bench opens): what was built
+Maintainer feedback (iPhone 15 Pro): on phones where the open bench lies over the lower board, the "› Bänkchen" link
+sat in the score row above the board, far from where the bench appears.
+- **Which phones:** every layout with the bench overlay, i.e. 320 × 568 to 375 × 667, 360 × 760, and also 393 × 852 /
+  390 × 844 *with* their iOS safe areas (top 59 / 47, bottom 34): their board area is too short for the bench below
+  the actions. Without safe areas 393 × 852 keeps the bench below the actions (unchanged).
+- **Handle:** a slim bar (`wordtiles-bench-bar`, 26 px, `WordTilesBoard.benchBarHeight`) right under the board, above
+  the score preview line and the rack: closed a tab "› Bänkchen" at the start side, open the full-width foot of the
+  overlay ("⌄ Bänkchen", "clear" at the end), which grows upwards from it. The tap area (`wordtiles-bench-toggle`) is
+  48 px high and the whole bar wide; it reaches down over the preview line (text only). The score row is now only as
+  high as its buttons (32 instead of 48), so the board is ≈ 6 px smaller (375 × 667: 268 instead of 274 px). The ↶
+  take-back stays icon-only in the actions row (KLD-117); cover and coach unchanged. Other layouts unchanged.
+- **Tests:** `wordtiles_layout_test.dart` (handle between board bottom and rack top, ≥ 44 px tap area, opens and
+  closes from the same spot, overlay on top of it, no overflow on 320 × 568, 360 × 640, 375 × 667, 360 × 760,
+  393 × 852 and 390 × 844 with safe areas; RTL; no bar where the bench is below), `wordtiles_polish_test.dart`.
+  Screenshots `--plain-name kld094-8f` in `undo_shots_test.dart` (`-open-`/`-closed-de-375x667`,
+  `-de-393x852-safe`, `-ar-375x667`). No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -662,7 +680,7 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 5. **Hot-seat polish (done, see "Step 5").**
 6. **Network (done, see "Step 6").**
 7. **Release (done, see "Step 7").**
-8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8e").**
+8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8f").**
 9. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 

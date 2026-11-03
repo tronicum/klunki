@@ -37,9 +37,12 @@ Future<void> _pump(WidgetTester tester) async {
   await tester.pump();
 }
 
-Future<void> _start(WidgetTester tester, Size size) async {
+/// [safe]: an iPhone's top and bottom safe areas (notch, home indicator).
+Future<void> _start(WidgetTester tester, Size size, {(double, double) safe = (0, 0)}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
+  tester.view.padding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
+  tester.view.viewPadding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
   addTearDown(tester.view.reset);
   final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
   addTearDown(c.dispose);
@@ -126,23 +129,74 @@ void main() {
     });
   }
 
-  for (final size in [const Size(375, 667), const Size(320, 568), const Size(360, 640), const Size(360, 760)]) {
-    testWidgets('small phone $size: the open bench lies over the lower board; no gaps, no overflow', (tester) async {
-      await _start(tester, size);
+  // The iPhone 15 Pro (393 × 852) and 14 (390 × 844) with their safe areas
+  // have too little height for the bench below the actions: overlay too.
+  for (final (size, safe) in [
+    (const Size(375, 667), (20.0, 0.0)),
+    (const Size(375, 667), (0.0, 0.0)),
+    (const Size(320, 568), (0.0, 0.0)),
+    (const Size(360, 640), (0.0, 0.0)),
+    (const Size(360, 760), (0.0, 0.0)),
+    (const Size(393, 852), (59.0, 34.0)),
+    (const Size(390, 844), (47.0, 34.0)),
+  ]) {
+    testWidgets('small phone $size, safe areas $safe: the open bench lies over the lower board, its handle between '
+        'board and rack; no gaps, no overflow', (tester) async {
+      await _start(tester, size, safe: safe);
       expect(_benchShown(), isFalse, reason: 'closed at first: the overlay would cover the board');
       final closed = _board(tester);
-      expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
-      expect(_rect(tester, 'wordtiles-rack').top - closed.bottom, inInclusiveRange(0, 32));
+      final help = _rect(tester, 'wordtiles-help');
+      expect(closed.top - help.bottom, _underScoreRow);
+      // KLD-094 step 8f: the handle is a slim bar right under the board
+      // (no longer in the score row), with a finger-sized tap area.
+      final bar = _rect(tester, 'wordtiles-bench-bar');
+      final toggle = _rect(tester, 'wordtiles-bench-toggle');
+      final rack = _rect(tester, 'wordtiles-rack');
+      expect(toggle.top, greaterThanOrEqualTo(help.bottom + 100), reason: 'not in the score row');
+      expect(bar.top - closed.bottom, inInclusiveRange(0, 3), reason: 'right under the board');
+      expect(toggle.top, closeTo(bar.top, 0.5));
+      expect(toggle.bottom, lessThanOrEqualTo(rack.top), reason: 'between board and rack');
+      expect(toggle.height, greaterThanOrEqualTo(44), reason: 'a finger-sized tap area');
+      // The bar costs the board at most its own height: bar and preview
+      // line together are at most 26 + 22 + a few pixels.
+      expect(rack.top - closed.bottom, inInclusiveRange(0, 56));
       await _toggleBench(tester, size);
       final overlay = tester.getRect(find.byKey(_overlay));
       expect(_board(tester), closed, reason: 'the board keeps its size');
       expect(overlay.bottom, closeTo(closed.bottom, 6), reason: 'over the lower part of the board');
+      expect(overlay.bottom, closeTo(_rect(tester, 'wordtiles-bench-bar').top, 0.5),
+          reason: 'grows upwards from the handle');
       expect(overlay.top, greaterThan(closed.top));
-      expect(_rect(tester, 'wordtiles-play').bottom, lessThanOrEqualTo(size.height));
+      expect(_rect(tester, 'wordtiles-bench-toggle'), toggle, reason: 'the same spot closes it');
+      expect(_rect(tester, 'wordtiles-play').bottom, lessThanOrEqualTo(size.height - safe.$2));
       await _toggleBench(tester, size);
       expect(find.byKey(_overlay), findsNothing);
+      expect(_benchShown(), isFalse);
     });
   }
+
+  testWidgets('right to left: the handle starts at the right side', (tester) async {
+    const size = Size(375, 667);
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
+    addTearDown(c.dispose);
+    await tester.pumpWidget(localizedApp(buildGameScreen(c), locale: const Locale('ar')));
+    await _pump(tester);
+    expect(tester.takeException(), isNull);
+    final label = tester.getRect(find.descendant(
+        of: find.byKey(const Key('wordtiles-bench-bar')), matching: find.byIcon(Icons.chevron_right)));
+    expect(label.center.dx, greaterThan(size.width / 2));
+    await _toggleBench(tester, size);
+    expect(find.byKey(_overlay), findsOneWidget);
+  });
+
+  testWidgets('bench below the actions (393 × 852 without safe areas): no handle bar', (tester) async {
+    await _start(tester, const Size(393, 852));
+    expect(find.byKey(const Key('wordtiles-bench-bar')), findsNothing);
+    expect(_rect(tester, 'wordtiles-bench-toggle').top, greaterThan(_rect(tester, 'wordtiles-play').bottom));
+  });
 
   testWidgets('tablet portrait: the bench below the actions, the board a little smaller', (tester) async {
     const size = Size(820, 1180);
