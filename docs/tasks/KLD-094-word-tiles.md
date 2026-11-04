@@ -671,6 +671,21 @@ sat in the score row above the board, far from where the bench appears.
   long names, RTL, network names, same names, hint, help). Screenshots `--plain-name kld094-8g` in
   `undo_shots_test.dart`. No rules change.
 
+## Step 8h (web beta report): a mouse drags laid tiles at once
+- **"Dragging of placed letters in the github version does not work."** The deployed PWA had the step 8g code
+  (67ac2fe, build 2026110402; not a stale cache). Reproduced in headless Firefox against that build and a local
+  release build: a mouse click-and-drag on a laid tile did nothing (desktop: the tile stayed; phone width, zoomed:
+  the board scrolled); with a 300 ms rest before moving it worked, and touch with a rest worked. Cause: the hold
+  is for fingers (step 8g), but a mouse presses and moves in one go; the delayed drag recognizer gives up after
+  1 px of mouse movement (the precise-pointer slop) and the board's pan wins. Fix: the laid tile's recognizer
+  (`_MouseDragsAtOnce`) hands a mouse pointer to an immediate drag; fingers and pens keep the hold. The draggable
+  is also re-made when the board zooms in or out (`ValueKey(zoomed)`): the recognizer reads its delay only once,
+  so a tile laid before the auto-zoom kept the unzoomed 120 ms.
+- **Tests:** `wordtiles_move_tiles_test.dart` group "mouse" (click-and-drag with and without a rest on a tablet,
+  1200 × 900 and a zoomed phone layout, click takes the tile back; 3 of them fail before the fix). Browser check:
+  mouse drag without a rest moves the tile at 1200 × 900 and 412 × 1400, touch with a rest still moves it, touch
+  without a rest still scrolls the zoomed board. No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:

@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -24,7 +26,8 @@ import 'wordtiles_tiles.dart';
 ///   tile and then a square. A blank asks for its letter first
 ///   ([BlankLetterDialog]). A tile laid this turn goes back to the rack with
 ///   a tap; held a moment (KLD-094 step 8g: [laidTileHold]), it drags to
-///   another square, back to the rack or onto the bench.
+///   another square, back to the rack or onto the bench. A mouse drags it at
+///   once (step 8h).
 ///   The line under the board previews the words and the score
 ///   ([WordTilesGame.checkPlacement]) or says why the tiles do not fit;
 ///   "Legen" plays them (a refused placement shows the reason in red).
@@ -1634,6 +1637,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// * Zoomed: [laidTileHold]; a plain drag still scrolls the board.
   /// * Not zoomed (the board cannot scroll): [laidTileHoldUnzoomed], just
   ///   long enough that two fingers starting on the tile still zoom.
+  /// * A mouse drags at once (KLD-094 step 8h, the PWA on a computer: a
+  ///   click-and-drag did nothing, a mouse does not rest before it moves).
   ///
   /// The lifted tile is at least finger size and as big as on screen; it
   /// keeps the spot under the finger (the default anchor took the unzoomed
@@ -1648,9 +1653,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return local * (size / tile);
     }
 
-    return LongPressDraggable<_Drag>(
+    final zoomed = scale > 1.01;
+    return _LaidTileDraggable<_Drag>(
+      // The delay is read once, when the recognizer is made: a new one when
+      // the board zooms in or out.
+      key: ValueKey(zoomed),
       data: _Drag(pending.rackIndex, sq),
-      delay: scale > 1.01 ? WordTilesBoard.laidTileHold : WordTilesBoard.laidTileHoldUnzoomed,
+      delay: zoomed ? WordTilesBoard.laidTileHold : WordTilesBoard.laidTileHoldUnzoomed,
       maxSimultaneousDrags: _canLay ? 1 : 0,
       dragAnchorStrategy: anchor,
       feedback: _feedback(context, pending.letter, pending.tile, size),
@@ -2231,4 +2240,53 @@ class _RenderBoardWithHandle extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+}
+
+/// A [LongPressDraggable] for a finger (and a pen) that a mouse drags at
+/// once (KLD-094 step 8h): a mouse has no scroll to tell apart from the drag,
+/// and it presses and moves in one go (it lost to the board's pan, or moved
+/// past the 1 px a mouse may wobble before the hold was over).
+class _LaidTileDraggable<T extends Object> extends LongPressDraggable<T> {
+  const _LaidTileDraggable({
+    super.key,
+    required super.child,
+    required super.feedback,
+    super.data,
+    super.childWhenDragging,
+    super.dragAnchorStrategy,
+    super.maxSimultaneousDrags,
+    super.delay,
+  });
+
+  @override
+  DelayedMultiDragGestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) =>
+      _MouseDragsAtOnce(delay: delay, allowedButtonsFilter: allowedButtonsFilter)
+        ..onStart = (position) {
+          final drag = onStart(position);
+          if (drag != null && hapticFeedbackOnStart) HapticFeedback.selectionClick();
+          return drag;
+        };
+}
+
+/// Holds a finger or a pen for [delay]; a mouse goes to an immediate drag.
+class _MouseDragsAtOnce extends DelayedMultiDragGestureRecognizer {
+  _MouseDragsAtOnce({super.delay, super.allowedButtonsFilter});
+
+  late final ImmediateMultiDragGestureRecognizer _mouse =
+      ImmediateMultiDragGestureRecognizer(allowedButtonsFilter: allowedButtonsFilter);
+
+  @override
+  void addAllowedPointer(PointerDownEvent event) {
+    if (event.kind != PointerDeviceKind.mouse) return super.addAllowedPointer(event);
+    _mouse
+      ..onStart = onStart
+      ..gestureSettings = gestureSettings
+      ..addPointer(event);
+  }
+
+  @override
+  void dispose() {
+    _mouse.dispose();
+    super.dispose();
+  }
 }

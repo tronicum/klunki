@@ -195,6 +195,64 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  // KLD-094 step 8h, the PWA on a computer ("dragging of placed letters in
+  // the github version does not work"): the mouse presses a laid tile and
+  // drags at once (it needs no hold: a mouse does not scroll the board by
+  // dragging a tile), or after a pause; both move the tile. A click still
+  // takes it back.
+  group('mouse', () {
+    Future<void> mouse(WidgetTester tester, Offset from, Offset to,
+        {Duration hold = Duration.zero}) async {
+      final g = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await g.addPointer(location: from);
+      await g.down(from);
+      if (hold > Duration.zero) await tester.pump(hold);
+      for (var i = 1; i <= 12; i++) {
+        await g.moveTo(Offset.lerp(from, to, i / 12)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
+      await g.removePointer();
+      await tester.pumpAndSettle();
+    }
+
+    for (final (name, size) in [('tablet', Size(1180, 820)), ('desktop browser', Size(1200, 900))]) {
+      for (final hold in [0, 300]) {
+        testWidgets('$name: click and drag (hold $hold ms) moves a laid tile', (tester) async {
+          await _start(tester, size: size);
+          await _lay(tester, [(0, 7, 7)]);
+          await tester.pumpAndSettle();
+          await mouse(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(7, 9)),
+              hold: Duration(milliseconds: hold));
+          expect(_letter(7, 9, 'H'), findsOneWidget);
+          expect(_letter(7, 7, 'H'), findsNothing);
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+
+    testWidgets('phone layout, zoomed in: the mouse drags the laid tile at once', (tester) async {
+      await _start(tester, size: const Size(390, 844));
+      await _lay(tester, [(0, 7, 7)]);
+      await tester.pumpAndSettle();
+      final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).transformationController!;
+      expect(viewer.value.getMaxScaleOnAxis(), greaterThan(1.5));
+      await mouse(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(8, 7)));
+      expect(_letter(8, 7, 'H'), findsOneWidget);
+      expect(_letter(7, 7, 'H'), findsNothing);
+    });
+
+    testWidgets('a mouse click takes the laid tile back to the rack', (tester) async {
+      await _start(tester);
+      await _lay(tester, [(0, 7, 7)]);
+      await tester.pumpAndSettle();
+      await tester.tap(_sq(7, 7), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      expect(_rack(0), findsOneWidget);
+      expect(_letter(7, 7, 'H'), findsNothing);
+    });
+  });
+
   // KLD-094 step 8g: the iPhone 15 Pro playtest (393 × 852 with its safe
   // areas: the small-phone layout with the Bänkchen bar under the board).
   // A finger, not a test tap: it rests a while and wobbles a few pixels

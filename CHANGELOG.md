@@ -7,6 +7,9 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+- Wortgewandt: in the browser, a tile laid this turn now drags with the mouse right away (click and drag, no
+  waiting); fingers still rest a moment first.
+
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
 1.0.0 was an internal TestFlight test build only (not released).
