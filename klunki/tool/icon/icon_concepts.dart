@@ -64,6 +64,13 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-final-d2': ('tile-1 + elfenbein Würfel, 6, mit Oberseite', paintConceptFinalD2),
   'c5-final-d3': ('tile-1 + weißer Würfel, 5, 3D (Oberseite und Seite)', paintConceptFinalD3),
   'c5-final-d4': ('tile-1 + kleiner elfenbein Würfel, 6, stark gedreht', paintConceptFinalD4),
+  // Maintainer feedback on d4: zoom in, bigger lettering.
+  'c5-zoom-a': ('d4 herangezoomt, Schrift etwas fetter', paintConceptZoomA),
+  'c5-zoom-b': ('d4: größere Tasche, breiter Patch, große fette Schrift', paintConceptZoomB),
+  'c5-zoom-c': ('wie b ohne Karte und Würfel, größerer Buchstabenstein', paintConceptZoomC),
+  'c5-zoom-d': ('d4 ohne Schriftzug, am weitesten herangezoomt', paintConceptZoomD),
+  // The maintainer's pick: "just zoom the app icon so the unused brown space is used".
+  'c5-zoom-b-fill': ('zoom-b unverändert, nur größer: füllt das Quadrat', paintConceptZoomBFill),
 };
 
 /// Concepts that letter the word "Klunki" with Roboto: the renderer must load
@@ -614,14 +621,18 @@ void _c5(
   bool chip = true,
   void Function(Canvas c)? extra,
   void Function(Canvas c)? behindChip,
+  double zoom = 1.04,
+  double dy = -24,
+  double pocketScale = 0.83,
+  bool card = true,
 }) {
   _table(c);
-  _fit(c, 1.04, dy: -24);
+  _fit(c, zoom, dy: dy);
   final c4 = _p.connect4;
   _pocket(
     c,
     const Offset(512, 540),
-    0.83,
+    pocketScale,
     _denim,
     pieces: (c) {
       if (phone == _C5Phone.behind) {
@@ -630,7 +641,7 @@ void _c5(
       }
       _flag(c, flagBox, _p.gostrategy.red, lineWidth: 4.5 * 360 / flagBox.width);
       if (flagWord) _flagWord(c, flagBox);
-      if (phone == _C5Phone.cardAndPhone) {
+      if (phone == _C5Phone.cardAndPhone && card) {
         _card(c, const Offset(364, 392), const Size(190, 290), -0.46, _p.quartett.sets['E']!, outline: 12);
       }
       if (phone == _C5Phone.insteadOfCard || phone == _C5Phone.cardAndPhone) {
@@ -881,6 +892,136 @@ void paintConceptFinalD3(Canvas canvas, double size) =>
 void paintConceptFinalD4(Canvas canvas, double size) =>
     _final(canvas, size, (c) => _die(c, const Offset(716, 466), 80, 0.62, 6, _dieIvory));
 
+// ------------------------------------- zoom round on c5-final-d4 (z) --
+//
+// Maintainer feedback on c5-final-d4: the motif leaves a lot of table around
+// it and "Klunki" is a blur at home-screen size. These variants fill more of
+// the square (the group spans ~85–90 % instead of ~68 %) and set the word
+// bigger and bolder; some drop small pieces so the rest can grow.
+
+/// d4's die (smaller ivory die, 6 pips, strongly turned).
+void _dieD4(Canvas c) => _die(c, const Offset(716, 466), 80, 0.62, 6, _dieIvory);
+
+/// The cb-c patch (light leather, cream letters with a dark edge above),
+/// sized [size], lettered at [fontSize] and thickened by [bold].
+void Function(Canvas c, _Leather leather) _zoomPatch(Size size, double fontSize, double bold) =>
+    (c, leather) => _patch(
+      c,
+      top: const Color(0xFFCB8A4C),
+      bottom: const Color(0xFFA0602C),
+      stitch: const Color(0xFFFBE6C2),
+      size: size,
+      fontSize: fontSize,
+      bold: bold,
+      spacing: 0,
+      letters: [
+        (_fill(const Color(0xFF4A2410)), const Offset(0, -5)),
+        (_fill(const Color(0xFFFFEDCF)), const Offset(0, 2)),
+      ],
+    );
+
+/// d4 drawn with the given zoom, pocket size, patch and optional pieces.
+void _zoomed(
+  Canvas canvas,
+  double size, {
+  required double zoom,
+  required double dy,
+  double pocketScale = 0.83,
+  void Function(Canvas c, _Leather leather)? patch,
+  bool card = true,
+  bool die = true,
+  Offset tileAt = const Offset(318, 474),
+  double tileSide = 136,
+}) => _grid(
+  canvas,
+  size,
+  (c) => _c5(
+    c,
+    _C5Phone.cardAndPhone,
+    emblem: patch,
+    extra: (c) => _letterTile(c, tileAt, tileSide, -0.22),
+    behindChip: die ? _dieD4 : null,
+    zoom: zoom,
+    dy: dy,
+    pocketScale: pocketScale,
+    card: card,
+  ),
+);
+
+/// zoom-a: d4 unchanged, only zoomed in; the letters a little bolder.
+void paintConceptZoomA(Canvas canvas, double size) =>
+    _zoomed(canvas, size, zoom: 1.30, dy: -16, patch: _zoomPatch(const Size(408, 180), 112, 5));
+
+/// zoom-b: bigger pocket (the patch and its word grow with it), zoomed in;
+/// a wider patch with bigger, bolder letters. All pieces kept.
+void paintConceptZoomB(Canvas canvas, double size) =>
+    _zoomed(canvas, size, zoom: 1.22, dy: -70, pocketScale: 0.95, patch: _zoomPatch(const Size(446, 196), 132, 7));
+
+/// zoom-b-fill: the zoom-b artwork unchanged, only scaled up so it fills the
+/// square: the table stays full-bleed, the motif (measured: 69 % × 86 % of
+/// the side, centred at 49 % / 50 %) grows by [_fillScale] and moves up a bit,
+/// so the pocket's tip keeps a small margin and only the flag pole's knob
+/// touches the top edge.
+void paintConceptZoomBFill(Canvas canvas, double size) => _filled(
+  canvas,
+  size,
+  paintConceptZoomB,
+  scale: _fillScale,
+  from: const Offset(0.492, 0.501),
+  to: const Offset(0.5, _fillCentreY),
+);
+
+const double _fillScale = 1.16;
+const double _fillCentreY = 0.475;
+
+/// Draws [base]'s table unchanged and its motif (the foreground layer) scaled
+/// by [scale] so that the point [from] (fractions of the side) lands on [to].
+void _filled(
+  Canvas canvas,
+  double size,
+  void Function(Canvas, double) base, {
+  required double scale,
+  required Offset from,
+  required Offset to,
+}) {
+  final layer = iconLayer;
+  if (layer != IconLayer.foreground) {
+    iconLayer = IconLayer.background;
+    base(canvas, size);
+  }
+  if (layer != IconLayer.background) {
+    iconLayer = IconLayer.foreground;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, size, size));
+    canvas.translate(to.dx * size, to.dy * size);
+    canvas.scale(scale);
+    canvas.translate(-from.dx * size, -from.dy * size);
+    base(canvas, size);
+    canvas.restore();
+  }
+  iconLayer = layer;
+}
+
+/// zoom-c: like b without the green card and the die (fewer small parts),
+/// a bigger letter tile; the patch takes most of the pocket front.
+void paintConceptZoomC(Canvas canvas, double size) => _zoomed(
+  canvas,
+  size,
+  zoom: 1.24,
+  dy: -74,
+  pocketScale: 0.95,
+  patch: _zoomPatch(const Size(448, 206), 142, 8),
+  card: false,
+  die: false,
+  tileAt: const Offset(322, 462),
+  tileSide: 160,
+);
+
+/// zoom-d: no lettering (the name sits under the icon anyway): a smaller
+/// plain stitched pocket (as in c1), so the pieces get most of the room, all
+/// pieces kept, zoomed in furthest.
+void paintConceptZoomD(Canvas canvas, double size) => _zoomed(canvas, size, zoom: 1.40, dy: 10, pocketScale: 0.72);
+
 /// tile-2: the tile replaces the red piece.
 void paintConceptCbTile2(Canvas canvas, double size) =>
     _cb(canvas, size, _tilePatch, chip: false, tile: (c) => _letterTile(c, const Offset(636, 456), 168, 0.14));
@@ -998,10 +1139,12 @@ void _patch(
   double spacing = 2,
   Offset nudge = Offset.zero,
   double stretch = 1,
+  Size size = const Size(408, 180),
+  double bold = 0,
   required _Letters letters,
 }) {
   final r = RRect.fromRectAndRadius(
-    Rect.fromCenter(center: _front, width: 408, height: 180),
+    Rect.fromCenter(center: _front, width: size.width, height: size.height),
     const Radius.circular(22),
   );
   c.save();
@@ -1012,7 +1155,25 @@ void _patch(
   c.drawRRect(r, Paint()..shader = ui.Gradient.linear(r.outerRect.topCenter, r.outerRect.bottomCenter, [top, bottom]));
   _dashed(c, Path()..addRRect(r.deflate(16)), _stroke(stitch, 6), 18, 12);
   c.drawRRect(r, _stroke(_ink, 10));
-  _word(c, _front + nudge, fontSize, letters, spacing: spacing, face: face, stretch: stretch);
+  // [bold] > 0 thickens every letter layer with a stroke in its own paint
+  // (Roboto Bold is the heaviest bundled weight).
+  final layers = [
+    for (final (paint, shift) in letters) ...[
+      if (bold > 0)
+        (
+          Paint()
+            ..color = paint.color
+            ..shader = paint.shader
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = bold
+            ..strokeJoin = StrokeJoin.round
+            ..isAntiAlias = true,
+          shift,
+        ),
+      (paint, shift),
+    ],
+  ];
+  _word(c, _front + nudge, fontSize, layers, spacing: spacing, face: face, stretch: stretch);
   c.restore();
 }
 

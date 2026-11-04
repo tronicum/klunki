@@ -108,6 +108,37 @@ it is partly hidden:
 `c5-final-compare.png` shows c5-cb-tile-1 and d1–d4 at 256, 180 and 60 px.
 The pips read at 180 px; at 60 px the die is a small white speck.
 
+Feedback on the applied c5-final-d4: the motif leaves a lot of table around
+it (it spans ~59 % × 69 % of the side) and "Klunki" is a blur at home-screen
+size. Zoomed variants (step 1 only, not exported):
+
+| id | variant |
+|---|---|
+| c5-zoom-a | d4 unchanged, only zoomed in (~74 % × 86 %); letters a little bolder (stroke on top of Roboto Bold) |
+| c5-zoom-b | Bigger pocket (0.95 instead of 0.83) with a wider patch and bigger, bolder letters; all pieces; ~69 % × 86 % |
+| c5-zoom-c | Like b without the green card and the die, a bigger letter tile, the biggest letters; ~68 % × 88 % |
+| c5-zoom-d | No patch and no lettering (the name is under the icon anyway): a smaller plain pocket, all pieces, zoomed in furthest; ~79 % × 86 % |
+
+`--plain-name c5-zoom` writes `c5-zoom-compare.png` (one row per icon, d4
+first: 1024 px; 180/120/60/30 px plain and in the iOS mask on a light and a
+dark home screen; the 66 % / 80 % safe circles; the Android adaptive icon as
+the export builds it; a home-screen row and the 30 px menu header), the rows
+alone as `c5-zoom-row-<id>.png`, and `c5-zoom-small.png` (all at 120/60/30 px).
+The export shrinks the Android foreground until it fits the 66 dp circle, so
+a bigger motif gains nothing there (scale 0.78 for d4, ~0.61–0.64 zoomed):
+on Android the zoom only helps the legacy icon, and a variant is only bigger
+in the adaptive icon if it is more compact (round) rather than just larger.
+
+The maintainer picked **c5-zoom-b** (2026-11-04), then asked to "just zoom
+the app icon so the unused brown space is used". That is **c5-zoom-b-fill**,
+the app icon now: the zoom-b painter unchanged, the table full-bleed, the
+motif scaled by 1.16 and moved up a little, so it spans ~80 % × 98 % of the
+side; the pocket's tip keeps a small margin and the top of the flag pole
+touches the edge (its knob is cut slightly). The Android adaptive foreground
+and the maskable web icons can't be cropped, so they use the uncropped zoom-b
+art, centred on its smallest enclosing circle and fitted into the safe circle
+(0.662 and 0.866 of the zoom-b art; before centring 0.625 and 0.818).
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for
@@ -144,19 +175,24 @@ The test writes, per concept:
   and a dark home screen.
 
 The render test only writes into `KLUNKI_ICON_OUT`. The app icon in use is
-**c5-final-d4**, applied with the export below (KLD-097 step 2).
+**c5-zoom-b-fill** (before 2026-11-04: c5-final-d4), applied with the export below
+(KLD-097 step 2).
 
 ## Exporting all app sizes (step 2)
 
 ```sh
 cd klunki
-KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-final-d1 \
+KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-zoom-b-fill \
   flutter test tool/icon/export_icon_test.dart
 ```
 
 Opt-in like the render test. Every size is drawn straight from the painter
 (vector, no downscaling) into a tree that mirrors the app, so after review it
-can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .`):
+can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .`).
+Outside `klunki/`: `store/play-store-512.png` and the iOS 1024 icon go to
+`docs/store/` (`play-store-512.png`, `app-icon-1024.png`), and the landing page
+uses copies of `web/icons/Icon-192.png` and `web/favicon.png` as
+`site/assets/icon-192.png` and `site/assets/favicon.png`.
 
 - `ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-*.png`: all 15
   files the existing `Contents.json` names (20–83.5 pt, the 1024 marketing
@@ -165,11 +201,15 @@ can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .
   (48 dp, legacy, opaque), `ic_launcher_foreground.png` (108 dp, transparent)
   and `ic_launcher_background.png` (108 dp, the table), plus
   `mipmap-anydpi-v26/ic_launcher.xml` (adaptive icon). The foreground is the
-  motif without the table, shrunk until every visible pixel (shadows too)
-  sits inside the 66 dp safe circle; the test prints the factor (0.78 for
-  c5-final-d1). The painters draw one layer at a time via `iconLayer`.
-- `web/icons/Icon-{192,512}.png`, `Icon-maskable-{192,512}.png` (the motif is
-  already inside the 80 % maskable circle) and `web/favicon.png` (32 px; the
+  motif without the table, centred on the smallest circle around it and
+  shrunk until every visible pixel (shadows too) sits inside the 66 dp safe
+  circle; the test prints the factor (0.78 for c5-final-d4, 0.662 for
+  c5-zoom-b-fill). A concept that crops its motif at the edge names its
+  uncropped source in `_motifSource` (c5-zoom-b-fill → c5-zoom-b); the
+  foreground and the maskable icons are drawn from that. The painters draw one layer at a time via `iconLayer`.
+- `web/icons/Icon-{192,512}.png`, `Icon-maskable-{192,512}.png` (the table to the
+  edges, the motif shrunk until it fits the 80 % maskable circle; the test
+  prints the factor, 0.866 for c5-zoom-b-fill) and `web/favicon.png` (32 px; the
   old one is 16 px).
 - `store/play-store-512.png`: the Google Play listing icon (not part of the
   app; kept in `docs/store/` with the 1024 marketing PNG).

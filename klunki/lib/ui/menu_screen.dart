@@ -168,7 +168,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final blocked = _networkBlocked;
     void explain() => showNetworkUnavailableSheet(context);
     return Scaffold(
-      // KLD-097: one slim row (48 instead of 56): the app icon (c5-final-d4,
+      // KLD-097: one slim row (48 instead of 56): the app icon (c5-zoom-b-fill,
       // as on the home screen) and the "Klunki" wordmark, so the game tiles
       // start higher on phones.
       appBar: AppBar(

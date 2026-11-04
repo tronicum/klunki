@@ -2,6 +2,7 @@
 // painter to an image, and a small PNG encoder (Flutter's own PNG export is
 // always RGBA; the App Store icon must not have an alpha channel).
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -26,6 +27,102 @@ Future<ui.Image> renderImage(int w, int h, void Function(Canvas c) body) {
   final c = Canvas(rec, Rect.fromLTWH(0, 0, w.toDouble(), h.toDouble()));
   body(c);
   return rec.endRecording().toImage(w, h);
+}
+
+/// Where [paint]'s motif (the foreground layer: everything but the table,
+/// shadows included, alpha > 32) lies, measured at 512 px: its bounding box
+/// as fractions of the icon side, and its farthest pixel from the centre as a
+/// fraction of the side.
+Future<({Rect box, double radius})> motifExtent(IconConcept paint) async {
+  const px = 512;
+  iconLayer = IconLayer.foreground;
+  final img = await renderImage(px, px, (c) => paint(c, px.toDouble()));
+  iconLayer = IconLayer.full;
+  final data = (await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!.buffer.asUint8List();
+  var maxR = 0.0;
+  var l = px, t = px, r = 0, b = 0;
+  for (var y = 0; y < px; y++) {
+    for (var x = 0; x < px; x++) {
+      if (data[(y * px + x) * 4 + 3] > 32) {
+        maxR = math.max(maxR, Offset(x + 0.5 - px / 2, y + 0.5 - px / 2).distance);
+        l = math.min(l, x);
+        t = math.min(t, y);
+        r = math.max(r, x + 1);
+        b = math.max(b, y + 1);
+      }
+    }
+  }
+  return (box: Rect.fromLTRB(l / px, t / px, r / px, b / px), radius: maxR / px);
+}
+
+/// Android adaptive icons: 108 dp layers, safe circle 66 dp in diameter.
+const double adaptiveSafeRadius = 33 / 108;
+
+/// The scale (≤ 1) that brings every visible foreground pixel of [paint]
+/// inside the 66 dp safe circle of the 108 dp adaptive layer.
+Future<double> foregroundSafeScale(IconConcept paint) async =>
+    math.min(1.0, adaptiveSafeRadius / (await motifExtent(paint)).radius);
+
+/// Web maskable icons: the browser may crop to a circle of 80 % of the side.
+const double maskableSafeRadius = 0.4;
+
+/// How to fit [paint]'s motif into a safe circle of [safeRadius] (fraction of
+/// the side): the centre of the smallest circle around every visible
+/// foreground pixel (shadows included; fractions of the side) and the scale
+/// (≤ 1) that makes that circle the safe circle. Drawing the motif scaled by
+/// `scale` around `centre`, moved to the middle, uses the safe zone fully even
+/// when the motif is not centred.
+Future<({Offset centre, double scale})> motifSafeFit(IconConcept paint, double safeRadius) async {
+  const px = 512;
+  iconLayer = IconLayer.foreground;
+  final img = await renderImage(px, px, (c) => paint(c, px.toDouble()));
+  iconLayer = IconLayer.full;
+  final data = (await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!.buffer.asUint8List();
+  // The outline is enough: the leftmost and rightmost visible pixel per row.
+  final pts = <Offset>[];
+  for (var y = 0; y < px; y++) {
+    int? l, r;
+    for (var x = 0; x < px; x++) {
+      if (data[(y * px + x) * 4 + 3] > 32) {
+        l ??= x;
+        r = x;
+      }
+    }
+    if (l != null) {
+      pts
+        ..add(Offset(l + 0.5, y + 0.5))
+        ..add(Offset(r! + 0.5, y + 0.5));
+    }
+  }
+  double reach(Offset c) => pts.fold(0.0, (m, p) => math.max(m, (p - c).distance));
+  // Coarse-to-fine search for the centre with the smallest reach.
+  var best = const Offset(px / 2, px / 2);
+  var bestR = reach(best);
+  for (var step = 32.0; step >= 0.25; step /= 2) {
+    var moved = true;
+    while (moved) {
+      moved = false;
+      for (final d in const [
+        Offset(1, 0),
+        Offset(-1, 0),
+        Offset(0, 1),
+        Offset(0, -1),
+        Offset(1, 1),
+        Offset(-1, -1),
+        Offset(1, -1),
+        Offset(-1, 1),
+      ]) {
+        final c = best + d * step;
+        final r = reach(c);
+        if (r < bestR) {
+          best = c;
+          bestR = r;
+          moved = true;
+        }
+      }
+    }
+  }
+  return (centre: best / px.toDouble(), scale: math.min(1.0, safeRadius * px / bestR));
 }
 
 // ---------------------------------------------------------------- PNG --

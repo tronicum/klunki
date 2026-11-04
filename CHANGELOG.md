@@ -21,6 +21,9 @@ short German summary ("Kurz") for the store notes and the testers.
   device is away). "Neu verbinden" stays as a fallback. During a running game the screen no longer turns off
   by itself (iPhone, Android).
 
+### App
+- The app icon fills its square on the home screen: a larger pocket and a bolder "Klunki" on the patch.
+
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
 1.0.0 was an internal TestFlight test build only (not released).
