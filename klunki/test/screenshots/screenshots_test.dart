@@ -55,6 +55,7 @@ import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/relay_server.dart';
 
+import '../support/asset_images.dart';
 import '../ui/pairing/pairing_test_utils.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
@@ -119,6 +120,7 @@ Widget _themed(Widget home, {Locale locale = const Locale('de'), bool webFonts =
     );
 
 Future<void> _shot(WidgetTester tester, String name, {Duration settle = const Duration(seconds: 2)}) async {
+  await precacheShownImages(tester);
   await tester.pump(settle);
   await tester.pump();
   final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
@@ -1005,6 +1007,7 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
 
   Future<void> shot(WidgetTester tester, String path, Size size, double dpr,
       {Duration settle = const Duration(seconds: 2)}) async {
+    await precacheShownImages(tester);
     await tester.pump(settle);
     await tester.pump();
     final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));

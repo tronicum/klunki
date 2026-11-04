@@ -51,7 +51,18 @@ Done with `klunki/tool/icon/export_icon_test.dart` (opt-in, see the README):
 `KLUNKI_ICON_EXPORT=<dir> KLUNKI_ICON_ID=c5-final-d4 flutter test
 tool/icon/export_icon_test.dart`, then `cp -R <dir>/{ios,android,web,assets}
 klunki/`. `assets/icon/app_icon.png` (384 px) is the copy the About screen
-shows (KLD-102); the menu app bar keeps the three-chip `KlunkiLogo`.
+shows (KLD-102).
+
+Step 2b (maintainer feedback): the menu app bar showed the old three-chip
+`KlunkiLogo` and its header took a lot of room. It now shows the same PNG
+(`KlunkiAppIcon`, 30 px, rounded square; it reads on the cream and the dark
+background) next to "Klunki" in a 48 px app bar instead of 56, and "Wähle ein
+Spiel" is a slim label like "Mit anderen Geräten spielen" instead of a big
+headline; the painter `KlunkiLogo` is gone. On a 375 × 667 phone the first game
+tile starts 24 pt higher (78 instead of 102). Screenshot tests decode the
+asset images before a shot (`test/support/asset_images.dart`). No other place
+drew the old mark: the PWA has no own splash logo, the landing page uses
+`Icon-192.png` (its `shot-menu.jpg` is an older menu screenshot).
 
 Matching colours (user-approved): web `theme_color` / meta theme-color
 `#C9772B`, `background_color` / page background `#FBF4E8`; iOS

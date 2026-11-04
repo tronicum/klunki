@@ -249,4 +249,19 @@ void main() {
       await tester.pumpAndSettle();
     }
   });
+
+  // KLD-097: the header shows the app icon (c5-final-d4, the bundled PNG as
+  // on the About screen) next to "Klunki" in one slim row, and the games
+  // start right below it.
+  testWidgets('slim header with the app icon; the first game tile starts high up', (tester) async {
+    await _pumpMenu(tester, size: const Size(375, 667));
+    final icon = find.descendant(of: find.byKey(const Key('menu-app-icon')), matching: find.byType(Image));
+    expect((tester.widget<Image>(icon).image as AssetImage).assetName, 'assets/icon/app_icon.png');
+    expect(tester.getSize(icon), const Size.square(30));
+    expect(find.descendant(of: find.byType(AppBar), matching: find.text('Klunki')), findsOneWidget);
+    expect(tester.getSize(find.byType(AppBar)).height, 48);
+    expect(find.text('Wähle ein Spiel'), findsOneWidget);
+    // Was 136 (test font) with the big headline and the 56 px app bar.
+    expect(tester.getTopLeft(find.byKey(Key('menu-${appGameSpecs.first.id}'))).dy, lessThanOrEqualTo(82));
+  });
 }

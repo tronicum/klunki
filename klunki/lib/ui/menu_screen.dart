@@ -168,15 +168,18 @@ class _MenuScreenState extends State<MenuScreen> {
     final blocked = _networkBlocked;
     void explain() => showNetworkUnavailableSheet(context);
     return Scaffold(
+      // KLD-097: one slim row (48 instead of 56): the app icon (c5-final-d4,
+      // as on the home screen) and the "Klunki" wordmark, so the game tiles
+      // start higher on phones.
       appBar: AppBar(
         backgroundColor: palette.backgroundTop,
+        toolbarHeight: 48,
+        titleSpacing: 12,
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const ExcludeSemantics(
-              child: SizedBox.square(dimension: 30, child: CustomPaint(painter: KlunkiLogo())),
-            ),
-            const SizedBox(width: 10),
+            const KlunkiAppIcon(key: Key('menu-app-icon'), size: 30),
+            const SizedBox(width: 8),
             Flexible(
               child: Text(l10n.appTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
@@ -196,11 +199,10 @@ class _MenuScreenState extends State<MenuScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      l10n.menuChooseGame,
-                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 12),
+                    // KLD-097: a slim label like the network section's
+                    // instead of a big headline.
+                    _SectionLabel(icon: Icons.casino_outlined, text: l10n.menuChooseGame),
+                    const SizedBox(height: 8),
                     // KLD-105: every tile starts its game on this device (the
                     // tile, "An einem Gerät") or a room for it ("Mit anderen").
                     _GameGrid(
@@ -848,32 +850,4 @@ class _BetaBadge extends StatelessWidget {
       ),
     );
   }
-}
-
-/// The app mark: three game pieces in the classic piece colours.
-class KlunkiLogo extends CustomPainter {
-  const KlunkiLogo();
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.shortestSide;
-    final r = s * 0.27;
-    const colors = [Color(0xFFD32F2F), Color(0xFFFFC107), Color(0xFF1C5DB8)];
-    final centers = [Offset(s * 0.3, s * 0.64), Offset(s * 0.7, s * 0.64), Offset(s * 0.5, s * 0.3)];
-    for (var i = 0; i < 3; i++) {
-      canvas.drawCircle(centers[i] + Offset(0, s * 0.03), r, Paint()..color = const Color(0x33000000));
-      canvas.drawCircle(centers[i], r, Paint()..color = colors[i]);
-      canvas.drawCircle(
-        centers[i],
-        r * 0.6,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = s * 0.03
-          ..color = Colors.white.withValues(alpha: 0.45),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(KlunkiLogo old) => false;
 }

@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/l10n/locale_controller.dart';
+import '../support/asset_images.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _boundary = Key('shot-boundary');
@@ -40,6 +41,7 @@ Future<void> _loadFonts() async {
 }
 
 Future<void> _shot(WidgetTester tester, String name) async {
+  await precacheShownImages(tester);
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pump();

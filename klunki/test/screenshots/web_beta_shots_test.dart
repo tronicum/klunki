@@ -20,6 +20,7 @@ import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/ui/menu_screen.dart';
+import '../support/asset_images.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _boundary = Key('shot-boundary');
@@ -59,6 +60,7 @@ Future<void> _setup(WidgetTester tester, Size size, Brightness b) async {
 /// Real shadows only while capturing; the binding checks that the test
 /// leaves `debugDisableShadows` as it found it.
 Future<void> _shot(WidgetTester tester, String name) async {
+  await precacheShownImages(tester);
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pump();
