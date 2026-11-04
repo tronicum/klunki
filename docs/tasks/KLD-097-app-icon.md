@@ -45,6 +45,12 @@ Quartett card behind the phone (c5-k1-card-b), a lighter patch (c5-cb-c), a
 word-game letter tile (c5-cb-tile-1) and a small die behind the red piece.
 **Final pick: `c5-final-d4`** (smaller ivory die, 6 pips, turned).
 
+**Follow-up (zoom round):** maintainer feedback on d4: too much margin, the
+lettering is unreadable at ~60 pt and in the 30 px header. Zoomed variants
+`c5-zoom-a` … `d` (one without lettering) and the comparison sheet
+`c5-zoom-compare.png` are in `klunki/tool/icon/README.md`; the platform icons
+stay d4 until the maintainer picks one.
+
 ## Step 2 — apply the chosen concept everywhere (done)
 
 Done with `klunki/tool/icon/export_icon_test.dart` (opt-in, see the README):

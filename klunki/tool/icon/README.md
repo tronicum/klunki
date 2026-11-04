@@ -108,6 +108,27 @@ it is partly hidden:
 `c5-final-compare.png` shows c5-cb-tile-1 and d1–d4 at 256, 180 and 60 px.
 The pips read at 180 px; at 60 px the die is a small white speck.
 
+Feedback on the applied c5-final-d4: the motif leaves a lot of table around
+it (it spans ~59 % × 69 % of the side) and "Klunki" is a blur at home-screen
+size. Zoomed variants (step 1 only, not exported):
+
+| id | variant |
+|---|---|
+| c5-zoom-a | d4 unchanged, only zoomed in (~74 % × 86 %); letters a little bolder (stroke on top of Roboto Bold) |
+| c5-zoom-b | Bigger pocket (0.95 instead of 0.83) with a wider patch and bigger, bolder letters; all pieces; ~69 % × 86 % |
+| c5-zoom-c | Like b without the green card and the die, a bigger letter tile, the biggest letters; ~68 % × 88 % |
+| c5-zoom-d | No patch and no lettering (the name is under the icon anyway): a smaller plain pocket, all pieces, zoomed in furthest; ~79 % × 86 % |
+
+`--plain-name c5-zoom` writes `c5-zoom-compare.png` (one row per icon, d4
+first: 1024 px; 180/120/60/30 px plain and in the iOS mask on a light and a
+dark home screen; the 66 % / 80 % safe circles; the Android adaptive icon as
+the export builds it; a home-screen row and the 30 px menu header), the rows
+alone as `c5-zoom-row-<id>.png`, and `c5-zoom-small.png` (all at 120/60/30 px).
+The export shrinks the Android foreground until it fits the 66 dp circle, so
+a bigger motif gains nothing there (scale 0.78 for d4, ~0.61–0.64 zoomed):
+on Android the zoom only helps the legacy icon, and a variant is only bigger
+in the adaptive icon if it is more compact (round) rather than just larger.
+
 The pieces are clipped to "above the opening or inside the pocket", so nothing
 pokes out beside the pocket below its opening. The preview sheet's first row
 ends with a 180 px tile that has the safe-zone guides drawn on it: cyan for

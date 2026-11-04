@@ -2,6 +2,7 @@
 // painter to an image, and a small PNG encoder (Flutter's own PNG export is
 // always RGBA; the App Store icon must not have an alpha channel).
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -27,6 +28,40 @@ Future<ui.Image> renderImage(int w, int h, void Function(Canvas c) body) {
   body(c);
   return rec.endRecording().toImage(w, h);
 }
+
+/// Where [paint]'s motif (the foreground layer: everything but the table,
+/// shadows included, alpha > 32) lies, measured at 512 px: its bounding box
+/// as fractions of the icon side, and its farthest pixel from the centre as a
+/// fraction of the side.
+Future<({Rect box, double radius})> motifExtent(IconConcept paint) async {
+  const px = 512;
+  iconLayer = IconLayer.foreground;
+  final img = await renderImage(px, px, (c) => paint(c, px.toDouble()));
+  iconLayer = IconLayer.full;
+  final data = (await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!.buffer.asUint8List();
+  var maxR = 0.0;
+  var l = px, t = px, r = 0, b = 0;
+  for (var y = 0; y < px; y++) {
+    for (var x = 0; x < px; x++) {
+      if (data[(y * px + x) * 4 + 3] > 32) {
+        maxR = math.max(maxR, Offset(x + 0.5 - px / 2, y + 0.5 - px / 2).distance);
+        l = math.min(l, x);
+        t = math.min(t, y);
+        r = math.max(r, x + 1);
+        b = math.max(b, y + 1);
+      }
+    }
+  }
+  return (box: Rect.fromLTRB(l / px, t / px, r / px, b / px), radius: maxR / px);
+}
+
+/// Android adaptive icons: 108 dp layers, safe circle 66 dp in diameter.
+const double adaptiveSafeRadius = 33 / 108;
+
+/// The scale (≤ 1) that brings every visible foreground pixel of [paint]
+/// inside the 66 dp safe circle of the 108 dp adaptive layer.
+Future<double> foregroundSafeScale(IconConcept paint) async =>
+    math.min(1.0, adaptiveSafeRadius / (await motifExtent(paint)).radius);
 
 // ---------------------------------------------------------------- PNG --
 
