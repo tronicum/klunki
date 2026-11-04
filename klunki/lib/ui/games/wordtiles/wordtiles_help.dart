@@ -15,7 +15,8 @@ Future<void> showWordTilesHelp(BuildContext context, WordTilesGame game) => show
 );
 
 /// The rules in short: premium squares legend (2B/3B/2W/3W), bingo bonus,
-/// the blank (0 points), swapping, passing, the dictionary check with
+/// the blank (0 points), "Joker tauschen" (on or off in this game, KLD-094
+/// step 9), swapping, passing, the dictionary check with
 /// "Trotzdem zulassen" (or the challenge without it; the mode of this game
 /// comes first), the bench and the end. Numbers come from the engine.
 ///
@@ -101,6 +102,15 @@ class WordTilesHelpSheet extends StatelessWidget {
                   child: LetterTile(letter: '', points: 0, blank: true, size: 32),
                 ),
                 l10n.wordtilesHelpBlank,
+              ),
+              // KLD-094 step 9: the house rule "Joker tauschen", and whether
+              // it is on in this game.
+              KeyedSubtree(
+                key: const Key('wordtiles-help-joker'),
+                child: item(
+                  icon(Icons.published_with_changes),
+                  '${l10n.wordtilesHelpJoker}\n${game.jokerSwap ? l10n.wordtilesHelpJokerOn : l10n.wordtilesHelpJokerOff}',
+                ),
               ),
               item(icon(Icons.swap_horiz), l10n.wordtilesHelpSwap(WordTilesGame.rackSize)),
               item(icon(Icons.skip_next_outlined), l10n.wordtilesHelpPass(game.scorelessLimit)),

@@ -9,7 +9,10 @@ import 'text_game.dart';
 /// the word: column first (`h8 HAUS`) runs across, row first (`8h HAUS`)
 /// runs down. Letters already on the board are typed too and must match; a
 /// lower-case letter is a blank. Also `pass`, `exchange QX?`, `challenge`,
-/// `accept`. The board shows premiums as `*` triple word, `+` double word,
+/// `accept`. With "Joker tauschen" on ([WordTilesGame.jokerSwap]) a
+/// placement may end in `joker f7 …`: the squares whose blanks are taken
+/// first, each for the real letter it stands for (`h8 HAUS joker f7`).
+/// The board shows premiums as `*` triple word, `+` double word,
 /// `^` triple letter, `:` double letter; blanks in lower case. The rack
 /// shown is the one of the player to move (a debug view).
 class WordTilesText extends TextGame {
@@ -24,10 +27,12 @@ class WordTilesText extends TextGame {
   String get title => 'Wortgewandt';
   @override
   String get moveHelp =>
-      '"h8 HAUS" (across), "8h HAUS" (down; lower case = blank), "pass", "exchange QX?", "challenge", "accept"';
+      '"h8 HAUS" (across), "8h HAUS" (down; lower case = blank), "pass", "exchange QX?", "challenge", "accept"'
+      '${game.jokerSwap ? ', "h8 HAUS joker f7" (take the blank on f7 first)' : ''}';
 
   @override
-  WordTilesText restart() => WordTilesText(game: WordTilesGame(seed: game.seed, tileSet: game.tileSet));
+  WordTilesText restart() =>
+      WordTilesText(game: WordTilesGame(seed: game.seed, tileSet: game.tileSet, jokerSwap: game.jokerSwap));
 
   static const _cols = 'abcdefghijklmno';
   static String square(int row, int col) => '${_cols[col]}${row + 1}';
@@ -60,6 +65,7 @@ class WordTilesText extends TextGame {
   }
 
   static final _place = RegExp(r'^(?:([a-o])(\d{1,2})|(\d{1,2})([a-o]))\s+(\S+)$');
+  static final _square = RegExp(r'^([a-o])(\d{1,2})$');
 
   @override
   Map<String, dynamic>? parse(String input) {
@@ -76,7 +82,23 @@ class WordTilesText extends TextGame {
         if (words.length != 2) return null;
         return {'action': 'exchange', 'tiles': text.split(RegExp(r'\s+'))[1].toUpperCase().split('')};
     }
-    final m = _place.firstMatch(text.replaceFirstMapped(RegExp(r'^\S+'), (x) => x[0]!.toLowerCase()));
+    // "… joker f7 g9": the blanks taken first ("Joker tauschen").
+    final swaps = <JokerSwap>[];
+    var placement = text;
+    final at = words.indexOf('joker');
+    if (at >= 0) {
+      if (at == words.length - 1) return null;
+      for (final sq in words.sublist(at + 1)) {
+        final s = _square.firstMatch(sq);
+        if (s == null) return null;
+        final r = int.parse(s[2]!) - 1, c = _cols.indexOf(s[1]!);
+        final t = r < WordTilesGame.size ? game.tileAt(r, c) : null;
+        if (t == null || !t.blank) return null;
+        swaps.add(JokerSwap(r, c, t.letter));
+      }
+      placement = text.split(RegExp(r'\s+')).sublist(0, at).join(' ');
+    }
+    final m = _place.firstMatch(placement.replaceFirstMapped(RegExp(r'^\S+'), (x) => x[0]!.toLowerCase()));
     if (m == null) return null;
     final across = m[1] != null;
     final col = _cols.indexOf(across ? m[1]! : m[4]!);
@@ -97,7 +119,7 @@ class WordTilesText extends TextGame {
       tiles.add(ch == upper ? PlacedTile(r, c, upper) : PlacedTile(r, c, TileSet.blank, upper));
     }
     if (tiles.isEmpty) return null;
-    return WordTilesGame.placeMove(tiles);
+    return WordTilesGame.placeMove(tiles, swaps: swaps);
   }
 
   @override
@@ -123,7 +145,11 @@ class WordTilesText extends TextGame {
           }
         }
         final start = across ? square(row, col) : '${row + 1}${_cols[col]}';
-        return '$start $b';
+        final swaps = move['swaps'];
+        final joker = swaps is List && swaps.isNotEmpty
+            ? ' joker ${[for (final s in swaps) square((s as Map)['row'] as int, s['col'] as int)].join(' ')}'
+            : '';
+        return '$start $b$joker';
       case 'exchange':
         final tiles = move['tiles'];
         return tiles is List ? 'exchange ${tiles.join()}' : 'exchange ${move['count']}';
@@ -138,7 +164,8 @@ class WordTilesText extends TextGame {
     final who = _seatMark(p['seat'] as int);
     final text = switch (p['action']) {
       'place' => '$who lays ${[for (final w in p['words'] as List) '${(w as Map)['word']} (${w['score']})'].join(', ')}'
-          '${p['bingo'] == true ? ' with all tiles (+${WordTilesGame.bingoBonus})' : ''}: ${p['score']} points.',
+          '${p['bingo'] == true ? ' with all tiles (+${WordTilesGame.bingoBonus})' : ''}: ${p['score']} points'
+          '${p['swaps'] is List ? ' (took ${(p['swaps'] as List).length} blank${(p['swaps'] as List).length == 1 ? '' : 's'})' : ''}.',
       'exchange' => '$who exchanges ${p['count']} tile${p['count'] == 1 ? '' : 's'}.',
       'pass' => '$who passes.',
       'accept' => '$who accepts.',

@@ -671,6 +671,65 @@ sat in the score row above the board, far from where the bench appears.
   long names, RTL, network names, same names, hint, help). Screenshots `--plain-name kld094-8g` in
   `undo_shots_test.dart`. No rules change.
 
+## Step 9 (house rule "Joker tauschen"): what was built
+Maintainer request (2026-11-04): the well-known house rule, as an option at game start, **off by default**.
+
+**Rules as implemented (rules version 4):**
+- A player who holds the letter that a laid blank stands for may, **on their turn and before laying**, put that
+  letter on the blank's square and take the blank onto the rack. One or more swaps per turn (each needs its own
+  letter on the rack; a square only once).
+- The swap is **part of a placement**: the same turn must lay at least one tile ("simplest fair variant"). The
+  blank taken may be laid in that placement (with any letter) or kept. No swap alone, none with "Tauschen"
+  (exchange) or "Passen": those moves refuse a `swaps` key.
+- The swap itself scores nothing and changes no score; the old word stays as it is. From then on the square is a
+  real letter: a word laid through it (in this turn or later) counts its points, like any letter on the board.
+- Withdrawn after a challenge (no word list): the blank goes back onto its square and the rack is restored, as for
+  the tiles. "Trotzdem zulassen" (word list): the request carries the swaps; they happen only when the other player
+  agrees.
+- Public information: the board change and the swap are in the move, the view and the turn log (`swaps`: how many);
+  the opponent learns that the blank went to the rack (as at a real table). Nothing else of the rack is revealed.
+
+**Engine / protocol:**
+- `GameConfig.jokerSwap` (JSON `joker: true`, written only when on, so every default config and the content hash are
+  unchanged); `WordTilesGame(jokerSwap: …)`; the view has `jokerSwap: true` only when on.
+- `place` (and `requestAllow`) take an optional non-empty `'swaps': [{'row', 'col', 'tile'}]` (`JokerSwap`,
+  `WordTilesGame.placeMove(tiles, swaps: …)`); refused when the option is off, the square holds no blank or a blank
+  for another letter, the letter is not on the rack, a square repeats, or the list is malformed. `checkPlacement`
+  applies the swaps first (the blanks join the rack for the check); `canSwapJokerAt(row, col, letter)` for the UI.
+  The event, the turn log (`WordTilesTurn.swaps`) and the open request (`allowRequest.swaps`) show them.
+- **Rules version 3 → 4** (the move format changed: an old build would refuse a swap); the content hash is the same
+  (`compat_test.dart` golden `(4, 1, 9cf165a9…)`). `protocolVersion` unchanged: the only new wire data are the
+  optional `joker` config key and the `swaps` move field, and mismatched builds refuse each other by the rules
+  version anyway. `PROTOCOL.md` documents both. `verifyRedactedGame` takes `jokerSwap`.
+- Debug console: `h8 HAUS joker f7` (the blank on f7 is taken first), shown in `help` when the rule is on.
+
+**UI:**
+- Start options (and "Raum starten" for a network room, where the host picks): a "Joker tauschen" switch under
+  "Wörterbuch prüfen" with a one-line explanation (`wordtiles-joker`, `wordtiles-joker-explain`); the room line /
+  header summary adds "· Joker tauschen".
+- In the game: drag a matching rack (or bench) tile onto a laid blank, or tap the tile and then the blank. The swap
+  is **staged** until "Legen": the real letter shows on the square like a tile laid this turn
+  (`wordtiles-swapped-<row>-<col>`, a tap takes the swap back, together with the freed blank wherever it lies),
+  the blank appears at the end of the rack. With only a swap staged, "Legen" stays disabled and the line under the
+  board says "Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht." "Alle zurück", "Tauschen",
+  "Zurücknehmen" (unknown word) drop the staged swaps.
+- Hint line when a swap is possible: "Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker
+  zu nehmen."; history "… (Joker getauscht)"; "So geht's" explains the rule and says whether it is on in this game.
+  7 locales (Chinese reworded to stay inside the font subset: "自选玩法" for "house rule").
+- **Tests:** `packages/klunki_engine/test/word_tiles_joker_test.dart` (config, valid swap and its score, the blank
+  laid in the same turn, every refusal, no swap alone / with exchange / pass, several swaps, replay through JSON
+  and from a config, redaction and view round trip, withdrawal after a challenge, "Trotzdem zulassen" with swaps,
+  text adapter); `klunki/test/ui/games/wordtiles_joker_swap_test.dart` (tap and drag staging, undo by tap and by
+  "Alle zurück", "Legen" sends the swap, option off, help, the start option through the menu). Live UI:
+  `wordtiles_live_test.dart` "Joker tauschen" seeds 1 and 4 (`WordTilesJokerAdapter`: lays blanks when it can and
+  swaps through the UI, rack tile then blank, whenever a letter matches; full hot-seat games, every turn shown once).
+- Screenshots `--plain-name kld094-step9` in `wordtiles_shots_test.dart` (options de/en, hint, staged swap,
+  placement, handover, help on 390 × 844 and 375 × 667).
+
+**Open for the maintainer:** (a) swap allowed only with a placement (implemented) or also as a turn of its own?
+(b) may a blank that was laid in the opponent's still challengeable placement be swapped (now yes; laying accepts
+that placement anyway)? (c) the hint line shows every turn while a swap is possible: keep, or show once per game?
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
@@ -708,7 +767,8 @@ limit, a player-count option). **Recommendation: wait for KLD-088.**
 6. **Network (done, see "Step 6").**
 7. **Release (done, see "Step 7").**
 8. **Playtest fixes (done, see "Step 8"; follow-ups "Step 8b" to "Step 8f").**
-9. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
+9. **House rule "Joker tauschen" (done, see "Step 9").**
+10. **Pause/resume (KLD-079) and async play:** games last 20–60 minutes, so save and resume (the move log replays;
    the secret seed and salts are saved on the host) and later play-by-turns over the relay.
 
 ## Open questions (🧑)

@@ -2435,6 +2435,42 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get wordtilesOptionJoker => 'Joker tauschen';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · Joker tauschen';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker zu nehmen.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (Joker getauscht)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'In diesem Spiel an.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'Du kannst die Steine zurücknehmen oder $player fragen, ob es trotzdem zählt.';
   }

@@ -30,7 +30,11 @@ import '../../l10n/l10n_test_utils.dart';
 import 'live_ui_driver.dart';
 
 /// The text of [t] as the screen shows it (German, default names Anna / Ben).
-String turnText(AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
+String turnText(AppLocalizations l10n, WordTilesTurn t) => t.action == 'place' && t.swaps > 0
+    ? l10n.wordtilesMoveJoker(_turnText(l10n, t))
+    : _turnText(l10n, t);
+
+String _turnText(AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
       'place' when t.allowed.isNotEmpty =>
         l10n.wordtilesMovePlaceAllowed(t.words.join(', '), t.score, t.allowed.join(', ')),
       'place' => l10n.wordtilesMovePlace(t.words.join(', '), t.score),
@@ -202,7 +206,11 @@ class WordTilesAdapter extends LiveUiAdapter {
       // The banner shows the open placement: the last turn in the log.
       final g = engine as WordTilesGame;
       expect(g.challengeable, isNotNull, reason: '${d.name}: banner without an open placement');
-      return _record(m!.group(1)!, deL10n.wordtilesMovePlace(m.group(2)!, int.parse(m.group(3)!)));
+      final text = deL10n.wordtilesMovePlace(m!.group(2)!, int.parse(m.group(3)!));
+      // The banner does not repeat "Joker getauscht" (the board shows it);
+      // the log entry of the open placement does (KLD-094 step 9).
+      final swapped = g.turns.isNotEmpty && g.turns.last.action == 'place' && g.turns.last.swaps > 0;
+      return _record(m.group(1)!, swapped ? deL10n.wordtilesMoveJoker(text) : text);
     }
     return null;
   }
@@ -298,14 +306,21 @@ class WordTilesAdapter extends LiveUiAdapter {
   /// Lays the tiles of [move] like a user: rack tile, then square (a blank
   /// through the letter picker). On a phone the board zooms in on the first
   /// tile; a square outside the zoomed view is reached by zooming out first.
-  Future<void> lay(WidgetTester tester, UiDevice d, WordTilesGame g, Map<String, dynamic> move) async {
+  ///
+  /// [exclude]: rack tiles already used this turn (a "Joker tauschen" swap).
+  Future<void> lay(WidgetTester tester, UiDevice d, WordTilesGame g, Map<String, dynamic> move,
+      {Set<int> exclude = const {}, bool fidget = true}) async {
     final rack = g.rackOf(g.currentSeat);
     final tiles = (move['tiles'] as List).cast<Map<String, dynamic>>();
     final used = <int>[];
     for (final t in tiles) {
-      used.add([for (var k = 0; k < rack.length; k++) if (rack[k] == t['tile'] && !used.contains(k)) k].first);
+      used.add([
+        for (var k = 0; k < rack.length; k++)
+          if (rack[k] == t['tile'] && !used.contains(k) && !exclude.contains(k)) k
+      ].first);
     }
-    await fidgetBench(tester, d, g, used.toSet());
+    // Not after a staged swap: its letter lies on the board, not in the rack.
+    if (fidget) await fidgetBench(tester, d, g, used.toSet());
     for (final (n, t) in tiles.indexed) {
       final i = used[n];
       await d.tapKey(tester, Key('wordtiles-rack-$i'));
@@ -348,6 +363,78 @@ class WordTilesAdapter extends LiveUiAdapter {
           source: 'engine',
         ),
     ];
+  }
+}
+
+/// "Joker tauschen" on (KLD-094 step 9): whenever the player to move holds a
+/// letter that a blank on the board stands for (and no placement waits for
+/// an answer), it swaps through the UI (the rack tile, then the blank) and
+/// lays the best sample placement that fits with the swap; otherwise as
+/// [WordTilesAdapter].
+class WordTilesJokerAdapter extends WordTilesAdapter {
+  @override
+  Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
+    final g = d.controller(tester).game as WordTilesGame;
+    if (g.isOver || g.canChallenge || g.endPending || !g.jokerSwap) return super.play(tester, d, rng);
+    final rack = g.rackOf(g.currentSeat);
+    const n = WordTilesGame.size;
+    JokerSwap? swap;
+    var from = -1;
+    for (var sq = 0; sq < n * n && swap == null; sq++) {
+      final t = g.tileAt(sq ~/ n, sq % n);
+      if (t == null || !t.blank) continue;
+      from = rack.indexOf(t.letter);
+      if (from >= 0) swap = JokerSwap(sq ~/ n, sq % n, t.letter);
+    }
+    if (swap == null) {
+      // The sample bot rarely lays a blank: lay one (as the commonest letter)
+      // when it can, so there is something to swap later.
+      final withBlank = [
+        for (final m in g.legalMoves)
+          if (m['action'] == 'place' && (m['tiles'] as List).any((t) => (t as Map)['tile'] == TileSet.blank)) m,
+      ];
+      if (withBlank.isEmpty) return super.play(tester, d, rng);
+      final m = withBlank.first;
+      await readCoach(tester, d);
+      checkRack(tester, d, g);
+      tapped.update('place', (k) => k + 1, ifAbsent: () => 1);
+      await lay(tester, d, g, m);
+      await d.tapKey(tester, const Key('wordtiles-play'));
+      return m;
+    }
+    Map<String, dynamic>? best;
+    var bestScore = -1;
+    for (final m in g.legalMoves) {
+      if (m['action'] != 'place') continue;
+      final with_ = {
+        ...m,
+        'swaps': [swap.toJson()],
+      };
+      final c = g.checkPlacement(with_);
+      if (c.ok && c.score > bestScore) {
+        best = with_;
+        bestScore = c.score;
+      }
+    }
+    if (best == null) return super.play(tester, d, rng);
+    await readCoach(tester, d);
+    checkRack(tester, d, g);
+    tapped.update('joker', (k) => k + 1, ifAbsent: () => 1);
+    await d.tapKey(tester, Key('wordtiles-rack-$from'));
+    final sq = Key('wordtiles-sq-${swap.row}-${swap.col}');
+    if (!_onScreen(tester, d, sq)) {
+      await d.tapKey(tester, const Key('wordtiles-zoom'));
+      await settle(tester, d);
+    }
+    await d.tapKey(tester, sq);
+    expect(d.on(find.byKey(Key('wordtiles-swapped-${swap.row}-${swap.col}'))), findsOneWidget,
+        reason: '${d.name}: swap staged');
+    await lay(tester, d, g, best, exclude: {from}, fidget: false);
+    final preview = d.on(find.byKey(const Key('wordtiles-preview')));
+    expect(preview, findsOneWidget, reason: '${d.name}: score preview for $best');
+    expect(tester.widget<Text>(preview).data, endsWith('$bestScore Punkte'));
+    await d.tapKey(tester, const Key('wordtiles-play'));
+    return best;
   }
 }
 

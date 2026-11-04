@@ -3935,6 +3935,60 @@ abstract class AppLocalizations {
   /// **'{language} · ohne Wörterbuch'**
   String wordtilesOptionsSummaryFree(String language);
 
+  /// Word tiles start options: switch for the house rule 'Joker tauschen' (KLD-094 step 9): a player holding the letter a laid blank stands for may put it there and take the blank.
+  ///
+  /// In de, this message translates to:
+  /// **'Joker tauschen'**
+  String get wordtilesOptionJoker;
+
+  /// Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default).
+  ///
+  /// In de, this message translates to:
+  /// **'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.'**
+  String get wordtilesOptionJokerExplain;
+
+  /// Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.
+  ///
+  /// In de, this message translates to:
+  /// **'{summary} · Joker tauschen'**
+  String wordtilesOptionsSummaryJoker(String summary);
+
+  /// Word tiles hint line ('Joker tauschen' on): the player to move holds a letter that a blank on the board stands for.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker zu nehmen.'**
+  String get wordtilesHintJoker;
+
+  /// Word tiles: the line under the board after a staged 'Joker tauschen' while no tile is laid yet; the swap only counts together with a placement.
+  ///
+  /// In de, this message translates to:
+  /// **'Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht.'**
+  String get wordtilesJokerStaged;
+
+  /// Word tiles history: a placement that came with 'Joker tauschen'; {move} is the placement text (wordtilesMovePlace).
+  ///
+  /// In de, this message translates to:
+  /// **'{move} (Joker getauscht)'**
+  String wordtilesMoveJoker(String move);
+
+  /// Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9).
+  ///
+  /// In de, this message translates to:
+  /// **'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.'**
+  String get wordtilesHelpJoker;
+
+  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game.
+  ///
+  /// In de, this message translates to:
+  /// **'In diesem Spiel an.'**
+  String get wordtilesHelpJokerOn;
+
+  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is off in this game (it is chosen before the game).
+  ///
+  /// In de, this message translates to:
+  /// **'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.'**
+  String get wordtilesHelpJokerOff;
+
   /// KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): "Trotzdem zulassen" sends a request to the other player ({player}).
   ///
   /// In de, this message translates to:

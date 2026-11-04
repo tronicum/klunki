@@ -2424,6 +2424,42 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get wordtilesOptionJoker => 'Swap the blank';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'House rule: if you hold the letter a blank on the board stands for, you may put it there and take the blank. Then you still lay tiles in the same turn.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · swap the blank';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Drag the matching letter onto a blank on the board to take the blank.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Blank taken. Now lay tiles too, or the swap does not count.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (blank swapped)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Swap the blank (house rule): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'On in this game.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Off in this game. You can turn it on before a game.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'You can take the tiles back or ask $player to let it count anyway.';
   }

@@ -2439,6 +2439,42 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get wordtilesOptionJoker => 'Cambiar el comodín';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'Regla de casa: si tienes la letra que representa un comodín del tablero, puedes ponerla en su lugar y llevarte el comodín. Después colocas fichas en el mismo turno.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · cambiar el comodín';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Arrastra la letra que corresponde a un comodín del tablero para llevarte el comodín.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Comodín tomado. Ahora coloca fichas, o el cambio no cuenta.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (comodín cambiado)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Cambiar el comodín (regla de casa): si tienes la letra que representa un comodín del tablero, arrástrala sobre el comodín. El comodín pasa a tus fichas y colocas fichas en el mismo turno (el comodín puede ser una de ellas). Sin colocar, el cambio no cuenta. La palabra de antes y sus puntos se quedan.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'Activada en esta partida.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Desactivada en esta partida. Podéis activarla antes de una partida.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'Puedes retirar las fichas o preguntar a $player si cuenta igualmente.';
   }

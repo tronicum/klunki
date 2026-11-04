@@ -2446,6 +2446,42 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get wordtilesOptionJoker => 'Échanger le joker';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'Règle maison : si tu as la lettre que remplace un joker sur le plateau, tu peux la poser à sa place et prendre le joker. Ensuite, tu poses encore des lettres dans le même tour.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · échange du joker';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Glisse la bonne lettre sur un joker du plateau pour prendre le joker.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Joker pris. Pose maintenant des lettres, sinon l’échange ne compte pas.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (joker échangé)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Échanger le joker (règle maison) : si tu as la lettre que remplace un joker sur le plateau, glisse-la sur le joker. Le joker rejoint tes lettres, et tu poses encore des lettres dans le même tour (le joker peut en faire partie). Sans pose, l’échange ne compte pas. L’ancien mot et ses points restent.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'Activée dans cette partie.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Désactivée dans cette partie. Vous pouvez l’activer avant une partie.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'Tu peux reprendre les lettres ou demander à $player si le mot compte quand même.';
   }

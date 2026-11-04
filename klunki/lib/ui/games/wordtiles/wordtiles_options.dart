@@ -5,8 +5,9 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../game_titles.dart';
 import 'word_list_loader.dart';
 
-/// The start options of a Wortgewandt game (KLD-094 step 4).
-typedef WordTilesOptions = ({String tiles, bool dictionary});
+/// The start options of a Wortgewandt game (KLD-094 step 4); [joker]: the
+/// house rule "Joker tauschen" (step 9, off by default).
+typedef WordTilesOptions = ({String tiles, bool dictionary, bool joker});
 
 /// The tile language that follows the app language: German tiles for a
 /// German UI, English tiles for every other language (for now).
@@ -16,25 +17,28 @@ String defaultWordTilesTiles(Locale locale) => locale.languageCode == 'de' ? Til
 /// when one exists for it.
 WordTilesOptions defaultWordTilesOptions(Locale locale) {
   final tiles = defaultWordTilesTiles(locale);
-  return (tiles: tiles, dictionary: WordListLoader.available.contains(tiles));
+  return (tiles: tiles, dictionary: WordListLoader.available.contains(tiles), joker: false);
 }
 
 /// The tile languages, named by their endonyms (like the language picker).
 const Map<String, String> wordTilesTileNames = {'de': 'Deutsch', 'en': 'English'};
 
 /// The options of a game as one line ("English · Wörterbuch prüfen" /
-/// "Deutsch · ohne Wörterbuch"): the room and the game header of a network
-/// game show what the host chose (KLD-094 step 6).
+/// "Deutsch · ohne Wörterbuch", plus "· Joker tauschen" when on): the room
+/// and the game header of a network game show what the host chose (KLD-094
+/// step 6).
 String wordTilesOptionsSummary(AppLocalizations l10n, GameConfig config) {
   final tiles = config.tiles ?? TileSet.german.id;
   final name = wordTilesTileNames[tiles] ?? tiles;
-  return config.dictionary ? l10n.wordtilesOptionsSummaryDict(name) : l10n.wordtilesOptionsSummaryFree(name);
+  final summary = config.dictionary ? l10n.wordtilesOptionsSummaryDict(name) : l10n.wordtilesOptionsSummaryFree(name);
+  return config.jokerSwap ? l10n.wordtilesOptionsSummaryJoker(summary) : summary;
 }
 
 /// Asks for the tile language and "Wörterbuch prüfen" before a Wortgewandt
 /// game (on by default when a list exists for the chosen language); null
 /// when cancelled. Keys: `wordtiles-options`, `wordtiles-tiles-<id>`,
-/// `wordtiles-dict`, `wordtiles-options-next`, `wordtiles-options-cancel`.
+/// `wordtiles-dict`, `wordtiles-joker`, `wordtiles-options-next`,
+/// `wordtiles-options-cancel`.
 Future<WordTilesOptions?> showWordTilesOptionsDialog(BuildContext context) => showDialog<WordTilesOptions>(
       context: context,
       builder: (_) => _WordTilesOptionsDialog(initial: defaultWordTilesOptions(Localizations.localeOf(context))),
@@ -76,9 +80,11 @@ class _WordTilesOptionsDialogState extends State<_WordTilesOptionsDialog> {
 }
 
 /// The tile language (segmented, endonyms) and the "Wörterbuch prüfen"
-/// switch with a line that explains the chosen mode: in the start dialog
-/// and, for a network game, on "Raum starten" (KLD-094 step 6). Keys:
-/// `<keyPrefix>tiles-<id>`, `<keyPrefix>dict`, `<keyPrefix>dict-explain`
+/// switch with a line that explains the chosen mode, then the house rule
+/// "Joker tauschen" (KLD-094 step 9, off by default) with its explanation:
+/// in the start dialog and, for a network game, on "Raum starten" (KLD-094
+/// step 6). Keys: `<keyPrefix>tiles-<id>`, `<keyPrefix>dict`,
+/// `<keyPrefix>dict-explain`, `<keyPrefix>joker`, `<keyPrefix>joker-explain`
 /// (prefix `wordtiles-` in the dialog).
 class WordTilesOptionsPicker extends StatelessWidget {
   final WordTilesOptions value;
@@ -114,7 +120,8 @@ class WordTilesOptionsPicker extends StatelessWidget {
           selected: {value.tiles},
           showSelectedIcon: false,
           onSelectionChanged: enabled
-              ? (s) => onChanged((tiles: s.single, dictionary: WordListLoader.available.contains(s.single)))
+              ? (s) => onChanged(
+                  (tiles: s.single, dictionary: WordListLoader.available.contains(s.single), joker: value.joker))
               : null,
         ),
         const SizedBox(height: 16),
@@ -123,11 +130,24 @@ class WordTilesOptionsPicker extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           title: Text(l10n.wordtilesOptionDictionary),
           value: dict,
-          onChanged: hasList && enabled ? (v) => onChanged((tiles: value.tiles, dictionary: v)) : null,
+          onChanged: hasList && enabled ? (v) => onChanged((tiles: value.tiles, dictionary: v, joker: value.joker)) : null,
         ),
         Text(
           dict ? l10n.wordtilesOptionDictionaryOn : l10n.wordtilesOptionDictionaryOff,
           key: Key('${keyPrefix}dict-explain'),
+          style: theme.textTheme.bodySmall,
+        ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          key: Key('${keyPrefix}joker'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.wordtilesOptionJoker),
+          value: value.joker,
+          onChanged: enabled ? (v) => onChanged((tiles: value.tiles, dictionary: value.dictionary, joker: v)) : null,
+        ),
+        Text(
+          l10n.wordtilesOptionJokerExplain,
+          key: Key('${keyPrefix}joker-explain'),
           style: theme.textTheme.bodySmall,
         ),
       ],

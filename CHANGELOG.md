@@ -7,6 +7,11 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+### Games
+- **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
+  off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
+  tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).
+
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
 1.0.0 was an internal TestFlight test build only (not released).
