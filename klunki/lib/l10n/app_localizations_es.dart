@@ -2092,6 +2092,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'La primera palabra debe pasar por la estrella del centro.';
 
   @override
+  String wordtilesHintZoom(String hint) {
+    return '$hint Con dos dedos haces zoom.';
+  }
+
+  @override
   String get wordtilesHintSelected => 'Toca una casilla libre.';
 
   @override
@@ -2369,6 +2374,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get wordtilesHelpBench =>
       'En el banquito pruebas palabras. Solo muestra los puntos de las letras, no si es una palabra.';
+
+  @override
+  String get wordtilesHelpZoom =>
+      'Con dos dedos haces zoom en el tablero y lo mueves. Para mover una ficha que acabas de colocar, mantenla pulsada un momento y arrástrala; un toque la devuelve.';
 
   @override
   String get wordtilesHelpEnd =>

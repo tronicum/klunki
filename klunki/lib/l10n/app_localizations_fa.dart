@@ -2074,6 +2074,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get wordtilesHintFirst => 'واژهٔ اول باید از ستارهٔ وسط بگذرد.';
 
   @override
+  String wordtilesHintZoom(String hint) {
+    return '$hint با دو انگشت صفحه را بزرگ و کوچک کن.';
+  }
+
+  @override
   String get wordtilesHintSelected => 'یک خانهٔ خالی را لمس کن.';
 
   @override
@@ -2348,6 +2353,10 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get wordtilesHelpBench =>
       'روی نیمکت تمرین واژه‌ها را امتحان می‌کنی. فقط امتیاز حرف‌ها را نشان می‌دهد، نه این‌که واژه هست یا نه.';
+
+  @override
+  String get wordtilesHelpZoom =>
+      'با دو انگشت صفحه را بزرگ و کوچک و جابه‌جا می‌کنی. برای جابه‌جا کردن کاشی‌ای که تازه گذاشته‌ای، لحظه‌ای نگهش دار و بکشش؛ یک لمس آن را برمی‌گرداند.';
 
   @override
   String get wordtilesHelpEnd =>

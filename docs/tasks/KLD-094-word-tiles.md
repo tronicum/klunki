@@ -644,6 +644,33 @@ sat in the score row above the board, far from where the bench appears.
   Screenshots `--plain-name kld094-8f` in `undo_shots_test.dart` (`-open-`/`-closed-de-375x667`,
   `-de-393x852-safe`, `-ar-375x667`). No rules change.
 
+## Step 8g (iPhone 15 Pro playtest of 0fb20a1): moving laid tiles, handle as wide as the board, names, zoom hint
+- **Moving laid tiles did not work on the phone.** Cause: the tile was a `LongPressDraggable` with Flutter's default
+  500 ms delay and no sign before it was over, inside the board's `InteractiveViewer`. A finger that rests "long" for
+  0.3–0.45 s and then moves exceeds the touch slop before the half second: the drag recognizer gives up, the
+  viewer's pan wins (zoomed: the board scrolls; unzoomed: nothing at all, the board cannot pan). The widget tests
+  held exactly 600 ms without wobble, so they passed. On top of that the lifted tile used the default anchor: the
+  unzoomed offset into a tile shown bigger, so it hung up to ≈ 14 px beside the finger and landed a square off from
+  where it was shown on the unzoomed board. Not caused by the step 8f bar (hit tests over the whole board are
+  clean). Fix: zoomed, a laid tile lifts after 250 ms (`laidTileHold`; a plain pan still scrolls); unzoomed after
+  120 ms (`laidTileHoldUnzoomed`; two fingers starting on a tile still zoom); the lifted tile keeps the spot under
+  the finger; the draggable follows the zoom (`ValueListenableBuilder` on the transformation).
+- **Handle and open bench as wide as the board** on overlay phones: board and handle are laid out together
+  (`_BoardWithHandle`, the board as big as width and height after the handle allow, both centred), so the bar, the
+  closed tab and the overlay line up with the board's edges (RTL too). Before, they were ≈ 4–5 px wider per side
+  on 393 × 852 with safe areas.
+- **Names next to the scores:** "① Anna 8  ② Ben 0" in the score row (the player labels the shell uses, "Anna (1)" for
+  same names); names ellipsize first, the row only scales down when even tokens and scores do not fit. The shell's
+  players legend is off for this game (`GameScreen.showPlayersLegend: false`), other games keep it.
+- **Two-finger zoom:** the hint line from the second word on adds "Mit zwei Fingern zoomst du." while the board is
+  not zoomed (`wordtilesHintZoom`; not to the one-line first-word hint, which would wrap and shrink the board on the
+  first turn); "So geht's" has a line on zoom and moving a laid tile (`wordtilesHelpZoom`). 7 locales.
+- **Tests:** `wordtiles_move_tiles_test.dart` group "iPhone 15 Pro, a real finger" (393 × 852 with safe areas,
+  frames of 16 ms, rest 160–700 ms with wobble, zoomed and unzoomed, anchor, pinch on a tile, tap, rack drag, bench;
+  7 of them fail on 0fb20a1), `wordtiles_layout_test.dart` (edges), `wordtiles_score_names_test.dart` (320–430 px,
+  long names, RTL, network names, same names, hint, help). Screenshots `--plain-name kld094-8g` in
+  `undo_shots_test.dart`. No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:

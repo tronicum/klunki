@@ -3407,6 +3407,12 @@ abstract class AppLocalizations {
   /// **'Das erste Wort muss über den Stern in der Mitte gehen.'**
   String get wordtilesHintFirst;
 
+  /// Word tiles: the hint line (hint: wordtilesHintPlace) plus a short sentence that two fingers zoom the board; shown while the board is not zoomed (KLD-094 step 8g).
+  ///
+  /// In de, this message translates to:
+  /// **'{hint} Mit zwei Fingern zoomst du.'**
+  String wordtilesHintZoom(String hint);
+
   /// Word tiles: hint after a rack tile was tapped.
   ///
   /// In de, this message translates to:
@@ -3838,6 +3844,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.'**
   String get wordtilesHelpBench;
+
+  /// Word tiles rules sheet: two fingers zoom and move the board; a tile laid this turn moves after a short hold and a drag, a tap takes it back (KLD-094 step 8g).
+  ///
+  /// In de, this message translates to:
+  /// **'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein hältst du kurz fest und ziehst ihn woandershin; antippen nimmt ihn zurück.'**
+  String get wordtilesHelpZoom;
 
   /// Word tiles rules sheet: how the game ends and the rack penalties.
   ///

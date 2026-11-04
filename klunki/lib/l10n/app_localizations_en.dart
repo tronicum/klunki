@@ -2078,6 +2078,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The first word must cross the star in the centre.';
 
   @override
+  String wordtilesHintZoom(String hint) {
+    return '$hint Pinch with two fingers to zoom.';
+  }
+
+  @override
   String get wordtilesHintSelected => 'Tap a free square.';
 
   @override
@@ -2354,6 +2359,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get wordtilesHelpBench =>
       'Try out words on the bench. It shows only the letter points, not whether it is a word.';
+
+  @override
+  String get wordtilesHelpZoom =>
+      'Zoom the board with two fingers and move it around. To move a tile you just laid, hold it briefly and drag it; a tap takes it back.';
 
   @override
   String get wordtilesHelpEnd =>

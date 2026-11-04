@@ -157,6 +157,14 @@ void main() {
       expect(toggle.top, closeTo(bar.top, 0.5));
       expect(toggle.bottom, lessThanOrEqualTo(rack.top), reason: 'between board and rack');
       expect(toggle.height, greaterThanOrEqualTo(44), reason: 'a finger-sized tap area');
+      // KLD-094 step 8g: the handle is exactly as wide as the board.
+      final edges = _rect(tester, 'wordtiles-board');
+      expect(bar.left, closeTo(edges.left, 0.5));
+      expect(bar.right, closeTo(edges.right, 0.5));
+      final tab = tester.getRect(find
+          .ancestor(of: find.byIcon(Icons.chevron_right), matching: find.byType(Container))
+          .first);
+      expect(tab.left, closeTo(edges.left, 0.5), reason: 'the closed tab starts at the board edge');
       // The bar costs the board at most its own height: bar and preview
       // line together are at most 26 + 22 + a few pixels.
       expect(rack.top - closed.bottom, inInclusiveRange(0, 56));
@@ -167,6 +175,10 @@ void main() {
       expect(overlay.bottom, closeTo(_rect(tester, 'wordtiles-bench-bar').top, 0.5),
           reason: 'grows upwards from the handle');
       expect(overlay.top, greaterThan(closed.top));
+      expect(overlay.left, closeTo(edges.left, 0.5), reason: 'the open bench lines up with the board');
+      expect(overlay.right, closeTo(edges.right, 0.5));
+      expect(_rect(tester, 'wordtiles-bench-bar').left, closeTo(edges.left, 0.5));
+      expect(_rect(tester, 'wordtiles-bench-bar').right, closeTo(edges.right, 0.5));
       expect(_rect(tester, 'wordtiles-bench-toggle'), toggle, reason: 'the same spot closes it');
       expect(_rect(tester, 'wordtiles-play').bottom, lessThanOrEqualTo(size.height - safe.$2));
       await _toggleBench(tester, size);
@@ -188,8 +200,16 @@ void main() {
     final label = tester.getRect(find.descendant(
         of: find.byKey(const Key('wordtiles-bench-bar')), matching: find.byIcon(Icons.chevron_right)));
     expect(label.center.dx, greaterThan(size.width / 2));
+    final edges = _rect(tester, 'wordtiles-board');
+    final tab = tester.getRect(find
+        .ancestor(of: find.byIcon(Icons.chevron_right), matching: find.byType(Container))
+        .first);
+    expect(tab.right, closeTo(edges.right, 0.5), reason: 'the closed tab starts at the board edge (right)');
     await _toggleBench(tester, size);
     expect(find.byKey(_overlay), findsOneWidget);
+    final overlay = tester.getRect(find.byKey(_overlay));
+    expect(overlay.left, closeTo(edges.left, 0.5));
+    expect(overlay.right, closeTo(edges.right, 0.5));
   });
 
   testWidgets('bench below the actions (393 × 852 without safe areas): no handle bar', (tester) async {
