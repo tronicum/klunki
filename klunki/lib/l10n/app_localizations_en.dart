@@ -1331,6 +1331,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'The device that started room $code can\'t be reached right now. Try again in a moment.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'The room was closed: whoever started it has left. The game is over.';
 
@@ -2066,7 +2071,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesScore(String player, int score) {
-    return '$player: $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player: $_temp0';
   }
 
   @override
@@ -2099,12 +2110,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesPreview(String words, int score) {
-    return '$words: $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words: $_temp0';
   }
 
   @override
   String wordtilesPreviewBingo(String words, int score, int bonus) {
-    return '$words: $score points (incl. $bonus bonus for all tiles)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words: $_temp0 (incl. $bonus bonus for all tiles)';
   }
 
   @override
@@ -2134,7 +2157,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesOpenPlacement(String player, String words, int score) {
-    return '$player played $words for $score points.';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player played $words for $_temp0.';
   }
 
   @override
@@ -2162,7 +2191,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesMovePlace(String words, int score) {
-    return '$words for $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words for $_temp0';
   }
 
   @override
@@ -2254,7 +2289,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
-    return '$words for $score points (allowed: $allowed)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words for $_temp0 (allowed: $allowed)';
   }
 
   @override
@@ -2375,7 +2416,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesResultBestWord(String word, String player, int score) {
-    return 'Best word: $word ($player, $score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'Best word: $word ($player, $_temp0)';
   }
 
   @override
@@ -2424,6 +2471,53 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player played $words for $_temp0 (blank swapped).';
+  }
+
+  @override
+  String get wordtilesOptionJoker => 'Swap the blank';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'House rule: if you hold the letter a blank on the board stands for, you may put it there and take the blank. Then you still lay tiles in the same turn.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · swap the blank';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Drag the matching letter onto a blank on the board to take the blank.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Blank taken. Now lay tiles too, or the swap does not count.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (blank swapped)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Swap the blank (house rule): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'On in this game.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Off in this game. You can turn it on before a game.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'You can take the tiles back or ask $player to let it count anyway.';
   }
@@ -2457,7 +2551,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesAllowLine(String player, String words, int score) {
-    return '$player would like to allow “$words” ($score points).';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player would like to allow “$words” ($_temp0).';
   }
 
   @override
@@ -2467,12 +2567,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wordtilesMoveAllowRequest(String words, int score) {
-    return 'asks to allow $words ($score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'asks to allow $words ($_temp0)';
   }
 
   @override
   String wordtilesMoveAllowAccept(String words, int score) {
-    return 'agreed: $words counts ($score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'agreed: $words counts ($_temp0)';
   }
 
   @override

@@ -1361,6 +1361,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'الجهاز الذي فتح الغرفة $code غير متاح الآن. حاول مرة أخرى بعد لحظة.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'أُغلقت الغرفة: غادر من فتحها. انتهت اللعبة.';
 
@@ -2446,6 +2451,47 @@ class AppLocalizationsAr extends AppLocalizations {
   String wordtilesOptionsSummaryFree(String language) {
     return '$language · بدون قاموس';
   }
+
+  @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return 'من $player: $words مقابل $score نقطة (مع تبديل بلاطة فارغة).';
+  }
+
+  @override
+  String get wordtilesOptionJoker => 'تبديل البلاطة الفارغة';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'قاعدة منزلية: إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فضعه مكانها وخذ البلاطة الفارغة. بعد ذلك تضع بلاطات في الدور نفسه.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · تبديل البلاطة الفارغة';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'اسحب الحرف المطابق إلى بلاطة فارغة على اللوحة لتأخذ البلاطة الفارغة.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'البلاطة الفارغة معك الآن. ضع بلاطات أيضًا، وإلا فلن يُحسب التبديل.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (مع تبديل بلاطة فارغة)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'تبديل البلاطة الفارغة (قاعدة منزلية): إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فاسحبه إليها. تنضمّ البلاطة الفارغة إلى بلاطاتك، وتضع بلاطات في الدور نفسه (ويمكن أن تكون البلاطة الفارغة منها). بلا وضع بلاطات لا يُحسب التبديل. تبقى الكلمة القديمة ونقاطها.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'مفعّلة في هذه اللعبة.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'غير مفعّلة في هذه اللعبة. يمكنكم تفعيلها قبل اللعبة.';
 
   @override
   String wordtilesUnknownAskNet(String player) {

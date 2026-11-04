@@ -21,7 +21,7 @@ void main() {
     'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     'chess': (3, 1, '5f2d81a850dc003d33424219c180126a'),
-    'wordtiles': (3, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
+    'wordtiles': (4, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
   };
 
   test('golden fingerprint per game and deck', () {

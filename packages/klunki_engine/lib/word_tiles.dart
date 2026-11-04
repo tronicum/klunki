@@ -24,6 +24,14 @@ part 'word_tiles_view.dart';
 ///   {'row': 7, 'col': 8, 'tile': '?', 'letter': 'E'}, …]}`: lay tiles from
 ///   the rack; a blank (`'?'`) names the letter it stands for, a letter tile
 ///   carries no `letter`.
+///   With the house rule "Joker tauschen" ([jokerSwap], KLD-094 step 9,
+///   rules version 4) the move may also carry `'swaps': [{'row': 7, 'col':
+///   9, 'tile': 'E'}, …]`: before laying, the player puts the real letter
+///   `tile` from the rack on a square that holds a blank standing for that
+///   letter and takes the blank onto the rack (where it may be laid again
+///   in the same placement). One or more swaps, always together with a
+///   placement (no swap alone, none with an exchange or a pass); the
+///   swapped square scores like any letter already on the board.
 /// * `{'action': 'exchange', 'tiles': ['Q', '?']}`: swap rack tiles with the
 ///   bag (only while the bag holds at least [rackSize] tiles).
 /// * `{'action': 'pass'}`.
@@ -325,6 +333,23 @@ class BoardTile {
   String toString() => blank ? letter.toLowerCase() : letter;
 }
 
+/// A "Joker tauschen" swap (KLD-094 step 9): the real letter [tile] from
+/// the rack goes onto the square [row], [col], which holds a blank standing
+/// for [tile]; the blank goes onto the rack.
+class JokerSwap {
+  final int row;
+  final int col;
+  final String tile;
+  const JokerSwap(this.row, this.col, this.tile);
+
+  Map<String, dynamic> toJson() => {'row': row, 'col': col, 'tile': tile};
+
+  @override
+  bool operator ==(Object other) => other is JokerSwap && other.row == row && other.col == col && other.tile == tile;
+  @override
+  int get hashCode => Object.hash(row, col, tile);
+}
+
 /// One tile of a placement: square, rack tile, and for a blank its letter.
 class PlacedTile {
   final int row;
@@ -397,12 +422,16 @@ class PlacementCheck {
   final int score;
   final bool bingo;
   final List<PlacedTile> tiles;
+
+  /// The "Joker tauschen" swaps made before the tiles are laid.
+  final List<JokerSwap> swaps;
   const PlacementCheck.error(PlacementError this.error)
       : words = const [],
         score = 0,
         bingo = false,
-        tiles = const [];
-  const PlacementCheck(this.tiles, this.words, this.score, this.bingo) : error = null;
+        tiles = const [],
+        swaps = const [];
+  const PlacementCheck(this.tiles, this.words, this.score, this.bingo, {this.swaps = const []}) : error = null;
   bool get ok => error == null;
 }
 
@@ -427,11 +456,25 @@ class WordTilesTurn {
   /// For a placement in [WordCheck.dictionary]: the words the list does not
   /// know that the players let stand ("Trotzdem zulassen").
   final List<String> allowed;
+
+  /// For a placement: how many blanks the player took with "Joker tauschen"
+  /// before laying (KLD-094 step 9).
+  final int swaps;
   const WordTilesTurn(this.seat, this.action,
-      {this.words = const [], this.score = 0, this.count = 0, this.withdrawn = false, this.allowed = const []});
+      {this.words = const [],
+      this.score = 0,
+      this.count = 0,
+      this.withdrawn = false,
+      this.allowed = const [],
+      this.swaps = 0});
 
   WordTilesTurn copyWith({bool? withdrawn}) => WordTilesTurn(seat, action,
-      words: words, score: score, count: count, withdrawn: withdrawn ?? this.withdrawn, allowed: allowed);
+      words: words,
+      score: score,
+      count: count,
+      withdrawn: withdrawn ?? this.withdrawn,
+      allowed: allowed,
+      swaps: swaps);
 
   Map<String, dynamic> toJson() => {
         'seat': seat,
@@ -441,6 +484,7 @@ class WordTilesTurn {
         if (count != 0) 'count': count,
         if (withdrawn) 'withdrawn': true,
         if (allowed.isNotEmpty) 'allowed': allowed,
+        if (swaps != 0) 'swaps': swaps,
       };
 
   static WordTilesTurn fromJson(Object? j) {
@@ -450,7 +494,8 @@ class WordTilesTurn {
         score: j['score'] as int? ?? 0,
         count: j['count'] as int? ?? 0,
         withdrawn: j['withdrawn'] == true,
-        allowed: [for (final w in (j['allowed'] as List? ?? const [])) w as String]);
+        allowed: [for (final w in (j['allowed'] as List? ?? const [])) w as String],
+        swaps: j['swaps'] as int? ?? 0);
   }
 }
 
@@ -464,8 +509,10 @@ class _OpenPlacement {
   final int drawn;
   final int scorelessBefore;
   final int turnIndex;
+  final List<JokerSwap> swaps;
   const _OpenPlacement(this.seat, this.tiles, this.words, this.score, this.rackBefore, this.drawn,
-      this.scorelessBefore, this.turnIndex);
+      this.scorelessBefore, this.turnIndex,
+      [this.swaps = const []]);
 }
 
 /// The open "Trotzdem zulassen" request (KLD-094 step 6).
@@ -475,7 +522,8 @@ class _AllowRequest {
   final List<String> allow;
   final List<String> words;
   final int score;
-  const _AllowRequest(this.seat, this.tiles, this.allow, this.words, this.score);
+  final List<JokerSwap> swaps;
+  const _AllowRequest(this.seat, this.tiles, this.allow, this.words, this.score, [this.swaps = const []]);
 }
 
 /// The rules engine. See the library docs above for moves; the design and
@@ -533,6 +581,10 @@ class WordTilesGame extends Game implements SeatGame {
   final int playerCount;
   final WordCheck check;
 
+  /// The house rule "Joker tauschen" (KLD-094 step 9, off by default): a
+  /// `place` move may carry `swaps` (see the library docs).
+  final bool jokerSwap;
+
   /// The word check: required in [WordCheck.dictionary]; optional in
   /// [WordCheck.challenge] (null: the challenger decides).
   final WordValidator? validator;
@@ -578,6 +630,7 @@ class WordTilesGame extends Game implements SeatGame {
       this.playerCount = 2,
       this.check = WordCheck.challenge,
       this.validator,
+      this.jokerSwap = false,
       int? scorelessLimit})
       : scorelessLimit = scorelessLimit ?? defaultScorelessLimit(playerCount),
         _racks = List.generate(playerCount, (_) => <String>[]),
@@ -601,7 +654,8 @@ class WordTilesGame extends Game implements SeatGame {
   }
 
   /// The empty shell of a view ([WordTilesView]): no bag, no racks dealt.
-  WordTilesGame._view(this.tileSet, this.playerCount, this.check, this.validator, this.scorelessLimit)
+  WordTilesGame._view(this.tileSet, this.playerCount, this.check, this.validator, this.scorelessLimit,
+      {this.jokerSwap = false})
       : seed = 0,
         _racks = List.generate(playerCount, (_) => <String>[]),
         _scores = List.filled(playerCount, 0),
@@ -824,6 +878,29 @@ class WordTilesGame extends Game implements SeatGame {
     return out;
   }
 
+  /// Parses a move's `swaps` (KLD-094 step 9): a non-empty list of
+  /// `{row, col, tile}` with a letter tile; null if malformed.
+  List<JokerSwap>? _parseSwaps(Object? raw) {
+    if (raw is! List || raw.isEmpty) return null;
+    final out = <JokerSwap>[];
+    for (final s in raw) {
+      if (s is! Map || s.length != 3) return null;
+      final row = s['row'], col = s['col'], tile = s['tile'];
+      if (row is! int || col is! int || tile is! String || !tileSet.counts.containsKey(tile)) return null;
+      out.add(JokerSwap(row, col, tile));
+    }
+    return out;
+  }
+
+  /// Whether a player could take the blank on [row], [col] by laying [tile]
+  /// there ("Joker tauschen", [jokerSwap]): the rule is on and the square
+  /// holds a blank standing for [tile]. Does not look at any rack.
+  bool canSwapJokerAt(int row, int col, String tile) {
+    if (!jokerSwap || row < 0 || row >= size || col < 0 || col >= size) return false;
+    final b = _board[row * size + col];
+    return b != null && b.blank && b.letter == tile;
+  }
+
   /// Checks a `place` [move] for the seat to move, without changing
   /// anything: the error, or the words and the score it would make. The UI
   /// uses it for a live score preview and to explain a refused placement.
@@ -836,6 +913,24 @@ class WordTilesGame extends Game implements SeatGame {
     final tiles = _parseTiles(move['tiles']);
     if (tiles == null) return const PlacementCheck.error(PlacementError.malformed);
     if (tiles.isEmpty) return const PlacementCheck.error(PlacementError.empty);
+    // "Joker tauschen" (KLD-094 step 9): the swaps happen first; the blanks
+    // they free join the rack, the real letters stand on their squares.
+    var swaps = const <JokerSwap>[];
+    final rack = List<String>.of(_racks[_seat]);
+    final swapped = <int, String>{};
+    if (move.containsKey('swaps')) {
+      final s = jokerSwap ? _parseSwaps(move['swaps']) : null;
+      if (s == null) return const PlacementCheck.error(PlacementError.malformed);
+      for (final x in s) {
+        if (!canSwapJokerAt(x.row, x.col, x.tile) || swapped.containsKey(x.row * size + x.col)) {
+          return const PlacementCheck.error(PlacementError.malformed);
+        }
+        if (!rack.remove(x.tile)) return const PlacementCheck.error(PlacementError.notOnRack);
+        swapped[x.row * size + x.col] = x.tile;
+      }
+      rack.addAll(List.filled(s.length, TileSet.blank));
+      swaps = s;
+    }
     final squares = <int>{};
     for (final t in tiles) {
       if (t.row < 0 || t.row >= size || t.col < 0 || t.col >= size) {
@@ -845,7 +940,6 @@ class WordTilesGame extends Game implements SeatGame {
         return const PlacementCheck.error(PlacementError.occupied);
       }
     }
-    final rack = List<String>.of(_racks[_seat]);
     for (final t in tiles) {
       if (!rack.remove(t.tile)) return const PlacementCheck.error(PlacementError.notOnRack);
     }
@@ -863,7 +957,9 @@ class WordTilesGame extends Game implements SeatGame {
     BoardTile? at(int r, int c) {
       if (r < 0 || r >= size || c < 0 || c >= size) return null;
       final p = placed[r * size + c];
-      return p != null ? BoardTile(p.letter, blank: p.isBlank) : _board[r * size + c];
+      if (p != null) return BoardTile(p.letter, blank: p.isBlank);
+      final s = swapped[r * size + c];
+      return s != null ? BoardTile(s) : _board[r * size + c];
     }
 
     // No gaps between the first and the last new tile.
@@ -928,7 +1024,7 @@ class WordTilesGame extends Game implements SeatGame {
     }
     final bingo = tiles.length == rackSize;
     final score = words.fold(0, (a, w) => a + w.score) + (bingo ? bingoBonus : 0);
-    return PlacementCheck(tiles, words, score, bingo);
+    return PlacementCheck(tiles, words, score, bingo, swaps: swaps);
   }
 
   /// The `allow` list of a placement (empty when absent); null if malformed
@@ -948,7 +1044,9 @@ class WordTilesGame extends Game implements SeatGame {
   List<String> unknownWords(Map<String, dynamic> move) {
     final v = validator;
     if (check != WordCheck.dictionary || v == null) return const [];
-    final c = checkPlacement({'action': 'place', 'tiles': move['tiles']}, checkWords: false);
+    final c = checkPlacement(
+        {'action': 'place', 'tiles': move['tiles'], if (move.containsKey('swaps')) 'swaps': move['swaps']},
+        checkWords: false);
     if (!c.ok) return const [];
     final out = <String>[];
     for (final w in c.words) {
@@ -1030,7 +1128,7 @@ class WordTilesGame extends Game implements SeatGame {
 
   GameEvent? _place(Map<String, dynamic> move) {
     // `allow` only through requestAllow / acceptAllow (rules 3).
-    if (move.length != 2 || move.containsKey('allow')) return null;
+    if (move.length != (move.containsKey('swaps') ? 3 : 2) || move.containsKey('allow')) return null;
     final c = checkPlacement(move);
     if (!c.ok) return null;
     return _lay(c, const []);
@@ -1043,6 +1141,12 @@ class WordTilesGame extends Game implements SeatGame {
     final seat = _seat;
     final rackBefore = List<String>.of(_racks[seat]);
     final scorelessBefore = _scoreless;
+    for (final s in c.swaps) {
+      _board[s.row * size + s.col] = BoardTile(s.tile);
+      _racks[seat]
+        ..remove(s.tile)
+        ..add(TileSet.blank);
+    }
     for (final t in c.tiles) {
       _board[t.row * size + t.col] = BoardTile(t.letter, blank: t.isBlank);
       _racks[seat].remove(t.tile);
@@ -1051,9 +1155,11 @@ class WordTilesGame extends Game implements SeatGame {
     final drawn = _draw(seat, rackSize - _racks[seat].length);
     _scoreless = c.score == 0 ? _scoreless + 1 : 0;
     final words = [for (final w in c.words) w.word];
-    _turns.add(WordTilesTurn(seat, 'place', words: words, score: c.score, count: c.tiles.length, allowed: allowed));
+    _turns.add(WordTilesTurn(seat, 'place',
+        words: words, score: c.score, count: c.tiles.length, allowed: allowed, swaps: c.swaps.length));
     _open = check == WordCheck.challenge
-        ? _OpenPlacement(seat, c.tiles, words, c.score, rackBefore, drawn, scorelessBefore, _turns.length - 1)
+        ? _OpenPlacement(
+            seat, c.tiles, words, c.score, rackBefore, drawn, scorelessBefore, _turns.length - 1, c.swaps)
         : null;
     _seat = _next(seat);
     final out = _racks[seat].isEmpty && _bag.isEmpty;
@@ -1074,6 +1180,7 @@ class WordTilesGame extends Game implements SeatGame {
       'bingo': c.bingo,
       'drew': drawn,
       if (allowed.isNotEmpty) 'allowed': allowed,
+      if (c.swaps.isNotEmpty) 'swaps': [for (final s in c.swaps) s.toJson()],
     });
   }
 
@@ -1143,6 +1250,10 @@ class WordTilesGame extends Game implements SeatGame {
       for (final t in o.tiles) {
         _board[t.row * size + t.col] = null;
       }
+      // Swapped blanks go back onto their squares (the rack is restored).
+      for (final s in o.swaps) {
+        _board[s.row * size + s.col] = BoardTile(s.tile, blank: true);
+      }
       final rack = _racks[o.seat];
       final drawn = rack.sublist(rack.length - o.drawn);
       _bag.addAll(drawn.reversed);
@@ -1180,11 +1291,14 @@ class WordTilesGame extends Game implements SeatGame {
 
   /// [player] asks to let the placement [tiles] stand although the list
   /// lacks the words [allow].
-  static Map<String, dynamic> requestAllowMove(Player player, List<PlacedTile> tiles, List<String> allow) => {
+  static Map<String, dynamic> requestAllowMove(Player player, List<PlacedTile> tiles, List<String> allow,
+          {List<JokerSwap> swaps = const []}) =>
+      {
         'action': requestAllow,
         'player': player.name,
         'tiles': [for (final t in tiles) t.toJson()],
         'allow': allow,
+        if (swaps.isNotEmpty) 'swaps': [for (final s in swaps) s.toJson()],
       };
 
   /// [player] agrees to the other player's open request.
@@ -1212,9 +1326,17 @@ class WordTilesGame extends Game implements SeatGame {
 
   /// [requestAllowMove] for [seat] in this game: names the player with two
   /// seats, the seat with 3–4.
-  Map<String, dynamic> requestAllowMoveFor(int seat, List<PlacedTile> tiles, List<String> allow) => playerCount == 2
-      ? requestAllowMove(Player.values[seat], tiles, allow)
-      : {'action': requestAllow, 'seat': seat, 'tiles': [for (final t in tiles) t.toJson()], 'allow': allow};
+  Map<String, dynamic> requestAllowMoveFor(int seat, List<PlacedTile> tiles, List<String> allow,
+          {List<JokerSwap> swaps = const []}) =>
+      playerCount == 2
+          ? requestAllowMove(Player.values[seat], tiles, allow, swaps: swaps)
+          : {
+              'action': requestAllow,
+              'seat': seat,
+              'tiles': [for (final t in tiles) t.toJson()],
+              'allow': allow,
+              if (swaps.isNotEmpty) 'swaps': [for (final s in swaps) s.toJson()],
+            };
 
   /// [acceptAllowMove] for [seat] in this game (see [requestAllowMoveFor]).
   Map<String, dynamic> acceptAllowMoveFor(int seat) =>
@@ -1230,11 +1352,13 @@ class WordTilesGame extends Game implements SeatGame {
   Player playerOf(Map<String, dynamic> move) => allowPlayerOf(move) ?? super.playerOf(move);
 
   /// The open request: the placer's seat, the tiles, the words to allow, all
-  /// formed words and the score it would make; null if none is open.
-  ({int seat, List<PlacedTile> tiles, List<String> allow, List<String> words, int score})? get allowRequest {
+  /// formed words, the score it would make and its "Joker tauschen" swaps;
+  /// null if none is open.
+  ({int seat, List<PlacedTile> tiles, List<String> allow, List<String> words, int score, List<JokerSwap> swaps})?
+      get allowRequest {
     final r = _request;
     if (r == null || isOver) return null;
-    return (seat: r.seat, tiles: r.tiles, allow: r.allow, words: r.words, score: r.score);
+    return (seat: r.seat, tiles: r.tiles, allow: r.allow, words: r.words, score: r.score, swaps: r.swaps);
   }
 
   /// The seat that answers an open request: the next one.
@@ -1256,14 +1380,16 @@ class WordTilesGame extends Game implements SeatGame {
 
   GameEvent? _requestAllow(Map<String, dynamic> move) {
     final p = _allowSeatOf(move);
-    if (move.length != 4 || p == null || p != _seat || check != WordCheck.dictionary) return null;
+    final hasSwaps = move.containsKey('swaps');
+    if (move.length != (hasSwaps ? 5 : 4) || p == null || p != _seat || check != WordCheck.dictionary) return null;
     final raw = move['allow'];
     if (raw is! List || raw.any((w) => w is! String)) return null;
     final allow = raw.cast<String>().toList();
     if (!canRequestAllow(allow)) return null;
-    final c = checkPlacement({'action': 'place', 'tiles': move['tiles'], 'allow': allow});
+    final c = checkPlacement(
+        {'action': 'place', 'tiles': move['tiles'], 'allow': allow, if (hasSwaps) 'swaps': move['swaps']});
     if (!c.ok) return null;
-    _request = _AllowRequest(_seat, c.tiles, allow, [for (final w in c.words) w.word], c.score);
+    _request = _AllowRequest(_seat, c.tiles, allow, [for (final w in c.words) w.word], c.score, c.swaps);
     return _event({
       'action': requestAllow,
       'seat': _seat,
@@ -1278,7 +1404,7 @@ class WordTilesGame extends Game implements SeatGame {
     final r = _request;
     if (move.length != 2 || p == null || r == null || p != _next(r.seat)) return null;
     _request = null;
-    final c = checkPlacement(placeMove(r.tiles, allow: r.allow));
+    final c = checkPlacement(placeMove(r.tiles, allow: r.allow, swaps: r.swaps));
     if (!c.ok) {
       _request = r; // cannot happen: nothing changed since the request
       return null;
@@ -1349,10 +1475,14 @@ class WordTilesGame extends Game implements SeatGame {
   // --- moves for players and tests ---
 
   /// A move map for [tiles].
-  static Map<String, dynamic> placeMove(List<PlacedTile> tiles, {List<String> allow = const []}) => {
+  /// [swaps]: "Joker tauschen" before laying (only with [jokerSwap]).
+  static Map<String, dynamic> placeMove(List<PlacedTile> tiles,
+          {List<String> allow = const [], List<JokerSwap> swaps = const []}) =>
+      {
         'action': 'place',
         'tiles': [for (final t in tiles) t.toJson()],
         if (allow.isNotEmpty) 'allow': allow,
+        if (swaps.isNotEmpty) 'swaps': [for (final s in swaps) s.toJson()],
       };
 
   /// A sample of legal moves for the seat to move, in a fixed order (not
@@ -1436,6 +1566,7 @@ class WordTilesGame extends Game implements SeatGame {
       'players': playerCount,
       'check': check.name,
       'scorelessLimit': scorelessLimit,
+      if (jokerSwap) 'jokerSwap': true,
       'board': [
         for (var r = 0; r < size; r++) [for (var c = 0; c < size; c++) _board[r * size + c]?.toString() ?? '.'].join(),
       ],
@@ -1461,6 +1592,7 @@ class WordTilesGame extends Game implements SeatGame {
           'allow': r.allow,
           'words': r.words,
           'score': r.score,
+          if (r.swaps.isNotEmpty) 'swaps': [for (final s in r.swaps) s.toJson()],
         },
       if (_declined.isNotEmpty) 'declined': [for (final d in _declined) d],
       'turns': [for (final t in _turns) t.toJson()],

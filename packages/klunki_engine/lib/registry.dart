@@ -26,8 +26,10 @@ import 'word_tiles.dart';
 /// Word tiles (KLD-094 step 4): [tiles] picks the tile set ([TileSet.byId],
 /// JSON `tiles`; null = German), [dictionary] (JSON `dict`, written only
 /// when on) checks every word against the list registered in [WordLists]
-/// for that tile set ([WordCheck.dictionary]); off = challenge mode. Other
-/// games ignore both.
+/// for that tile set ([WordCheck.dictionary]); off = challenge mode.
+/// [jokerSwap] (KLD-094 step 9, JSON `joker`, written only when on; off by
+/// default) turns on the house rule "Joker tauschen"
+/// ([WordTilesGame.jokerSwap]). Other games ignore all three.
 ///
 /// [chessWhite] (KLD-059 step 4a, chess only): the player who plays White,
 /// JSON `white` (`"b"`), written only when it is [Player.b] (absent = A, as
@@ -49,6 +51,7 @@ class GameConfig {
   final bool pickLowCards;
   final String? tiles;
   final bool dictionary;
+  final bool jokerSwap;
   final Player chessWhite;
   final int players;
   const GameConfig(this.gameId,
@@ -57,6 +60,7 @@ class GameConfig {
       this.pickLowCards = true,
       this.tiles,
       this.dictionary = false,
+      this.jokerSwap = false,
       this.chessWhite = Player.a,
       this.players = 2});
 
@@ -71,6 +75,7 @@ class GameConfig {
         if (!pickLowCards) 'pickLow': false,
         if (tiles != null) 'tiles': tiles,
         if (dictionary) 'dict': true,
+        if (jokerSwap) 'joker': true,
         if (chessWhite == Player.b) 'white': 'b',
         if (players != 2) 'players': players,
       };
@@ -81,6 +86,7 @@ class GameConfig {
       pickLowCards: json['pickLow'] != false,
       tiles: json['tiles'] as String?,
       dictionary: json['dict'] == true,
+      jokerSwap: json['joker'] == true,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
       players: json['players'] as int? ?? 2);
 
@@ -90,6 +96,7 @@ class GameConfig {
       pickLowCards: pickLowCards,
       tiles: tiles,
       dictionary: dictionary,
+      jokerSwap: jokerSwap,
       chessWhite: chessWhite,
       players: players ?? this.players);
 
@@ -102,16 +109,17 @@ class GameConfig {
       other.pickLowCards == pickLowCards &&
       other.tiles == tiles &&
       other.dictionary == dictionary &&
+      other.jokerSwap == jokerSwap &&
       other.chessWhite == chessWhite &&
       other.players == players;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, chessWhite, players);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
-      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}'
+      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'})';
 }
 
@@ -205,19 +213,28 @@ final List<GameSpec> gameSpecs = [
   // file hashes are in the fingerprint. Step 7: released in the app (a menu
   // tile; `appReady` is not part of the fingerprint). KLD-088 step 1: 2–4
   // seats (GameConfig.players, JSON `players` only when not 2; one device
-  // only for now). Two seats are unchanged, so still rules 3.
+  // only for now). Two seats are unchanged, so still rules 3. Rules 4
+  // (step 9): the house rule "Joker tauschen" (GameConfig.jokerSwap, JSON
+  // `joker`; `swaps` on `place` / `requestAllow`, the view's `jokerSwap`).
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 3, maxPlayers: 4),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 4, maxPlayers: 4),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
   final tileSet = TileSet.byId(c.tiles ?? TileSet.german.id) ??
       (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
-  if (!c.dictionary) return WordTilesGame(seed: c.seed, tileSet: tileSet, playerCount: c.players);
+  if (!c.dictionary) {
+    return WordTilesGame(seed: c.seed, tileSet: tileSet, playerCount: c.players, jokerSwap: c.jokerSwap);
+  }
   final list = WordLists.of(tileSet.id) ??
       (throw ArgumentError.value(tileSet.id, 'tiles', 'no word list loaded for this tile set'));
   return WordTilesGame(
-      seed: c.seed, tileSet: tileSet, check: WordCheck.dictionary, validator: list, playerCount: c.players);
+      seed: c.seed,
+      tileSet: tileSet,
+      check: WordCheck.dictionary,
+      validator: list,
+      playerCount: c.players,
+      jokerSwap: c.jokerSwap);
 }
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

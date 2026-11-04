@@ -1,5 +1,5 @@
 {
-  "about": "Relay protocol vectors (KLD-114). The Dart relay (test/relay_vectors_test.dart, real sockets) and the Cloudflare Worker port (deploy/cloudflare/test, fakes) both run every scenario and must agree. Steps: open a connection (query appended to /relay, {room} = the code from the last 'room' step, {roomLower} = the same in lower case); 'room' expects relay.room and keeps its code; 'recv' expects one JSON message (compared as JSON), 'recvText' one exact line, 'recvFill' a line of N 'x'; 'send' a text line (or 'fill': N times 'x'), 'sendBinary' a binary frame; 'closed' expects no further message and the relay closing with 'code'; 'close' closes from the client side. Limits are the defaults: 256 Ki characters per frame.",
+  "about": "Relay protocol vectors (KLD-114). The Dart relay (test/relay_vectors_test.dart, real sockets) and the Cloudflare Worker port (deploy/cloudflare/test, fakes) both run every scenario and must agree. Steps: open a connection (query appended to /relay, {room} = the code from the last 'room' step, {roomLower} = the same in lower case); 'room' expects relay.room and keeps its code (and its host key as {key}, KLD-120); 'recv' expects one JSON message (compared as JSON), 'recvText' one exact line, 'recvFill' a line of N 'x'; 'send' a text line (or 'fill': N times 'x'), 'sendBinary' a binary frame; 'closed' expects no further message and the relay closing with 'code'; 'close' closes from the client side (with 'code': that close code, else a normal close). Limits are the defaults: 256 Ki characters per frame.",
   "normalizeRoomCode": [
     ["K7Q2M", "K7Q2M"],
     ["k7q-2m", "K7Q2M"],
@@ -222,6 +222,53 @@
         {"open": "x", "query": "join=22222&club=MNPQ-RSTU"},
         {"recv": "x", "json": {"t": "relay.error", "message": "no room with code 22222"}},
         {"closed": "x", "code": 1008}
+      ]
+    },
+    {
+      "name": "KLD-120: a host whose connection drops keeps its room and comes back with its key",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"close": "h", "code": 4000},
+        {"closed": "g", "code": 1000},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "g2", "json": {"t": "relay.error", "error": "host-away", "message": "the host of room {room} is away, try again in a moment"}},
+        {"closed": "g2", "code": 1008},
+        {"open": "x", "query": "resume={room}&key=00000000000000000000000000000000"},
+        {"recv": "x", "json": {"t": "relay.error", "message": "no room with code {room}"}},
+        {"closed": "x", "code": 1008},
+        {"open": "h2", "query": "resume={roomLower}&key={key}"},
+        {"recv": "h2", "json": {"t": "relay.room", "code": "{room}", "key": "{key}"}},
+        {"open": "g3", "query": "join={room}"},
+        {"recv": "h2", "json": {"t": "relay.peer"}},
+        {"send": "g3", "text": "hi"},
+        {"recvText": "h2", "text": "hi"},
+        {"close": "h2"},
+        {"recv": "g3", "json": {"t": "relay.closed", "reason": "host left"}},
+        {"closed": "g3", "code": 1001},
+        {"open": "g4", "query": "join={room}"},
+        {"recv": "g4", "json": {"t": "relay.error", "message": "no room with code {room}"}},
+        {"closed": "g4", "code": 1008}
+      ]
+    },
+    {
+      "name": "KLD-120: coming back replaces a host connection that still looks open and drops the guest",
+      "steps": [
+        {"open": "h", "query": "create"},
+        {"room": "h"},
+        {"open": "g", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer"}},
+        {"open": "h2", "query": "resume={room}&key={key}"},
+        {"recv": "h2", "json": {"t": "relay.room", "code": "{room}", "key": "{key}"}},
+        {"recv": "h", "json": {"t": "relay.closed", "reason": "replaced by a new host connection"}},
+        {"closed": "h", "code": 1001},
+        {"closed": "g", "code": 1000},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "h2", "json": {"t": "relay.peer"}},
+        {"send": "h2", "text": "still the same room"},
+        {"recvText": "g2", "text": "still the same room"}
       ]
     }
   ]

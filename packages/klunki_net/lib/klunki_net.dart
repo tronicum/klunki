@@ -25,6 +25,8 @@ export 'src/events.dart'
         MoveRejected,
         Resynced,
         NetError,
+        RoomReconnecting,
+        RoomReconnected,
         NetException,
         GameVerified,
         VerificationFailed,
@@ -47,6 +49,7 @@ export 'src/relay/relay_protocol.dart'
         normalizeClubCode,
         newClubCode,
         relayClubMissingText,
-        relayClubWrongText;
+        relayClubWrongText,
+        relayHostAwayText;
 export 'src/names.dart' show maxPlayerNameLength, sanitizePlayerName, playerNameOr;
 export 'src/host.dart' show KlunkiHost;

@@ -1406,7 +1406,7 @@
       }
     }
   },
-  "pairingReconnecting": "Verbinde neu…",
+  "pairingReconnecting": "Verbindung wird wiederhergestellt …",
   "@pairingReconnecting": {
     "description": "Connection banner while the guest reconnects."
   },
@@ -2049,6 +2049,15 @@
   "relayErrorRoomFull": "Raum {code} ist schon voll: Dort spielen bereits zwei.",
   "@relayErrorRoomFull": {
     "description": "Relay error: the room already has a guest.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "relayErrorHostAway": "Das Gerät, das Raum {code} gestartet hat, ist gerade nicht erreichbar. Versuch es gleich noch einmal.",
+  "@relayErrorHostAway": {
+    "description": "KLD-120, relay: the room exists, but the device that started it is away for the moment (e.g. its phone is locked); trying again soon may work.",
     "placeholders": {
       "code": {
         "type": "String"
@@ -3084,7 +3093,7 @@
       }
     }
   },
-  "wordtilesScore": "{player}: {score} Punkte",
+  "wordtilesScore": "{player}: {score, plural, one{{score} Punkt} other{{score} Punkte}}",
   "@wordtilesScore": {
     "description": "Word tiles: a player's score (screen reader text of the score bar).",
     "placeholders": {
@@ -3134,7 +3143,7 @@
       }
     }
   },
-  "wordtilesPreview": "{words}: {score} Punkte",
+  "wordtilesPreview": "{words}: {score, plural, one{{score} Punkt} other{{score} Punkte}}",
   "@wordtilesPreview": {
     "description": "Word tiles: live preview of the words laid and their score.",
     "placeholders": {
@@ -3146,7 +3155,7 @@
       }
     }
   },
-  "wordtilesPreviewBingo": "{words}: {score} Punkte (mit {bonus} Bonus für alle Steine)",
+  "wordtilesPreviewBingo": "{words}: {score, plural, one{{score} Punkt} other{{score} Punkte}} (mit {bonus} Bonus für alle Steine)",
   "@wordtilesPreviewBingo": {
     "description": "Word tiles: live preview when all rack tiles are laid (bonus = 50).",
     "placeholders": {
@@ -3189,7 +3198,7 @@
   "@wordtilesErrorOther": {
     "description": "Word tiles: placement error for every other case."
   },
-  "wordtilesOpenPlacement": "{player} legte {words} für {score} Punkte.",
+  "wordtilesOpenPlacement": "{player} legte {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}.",
   "@wordtilesOpenPlacement": {
     "description": "Word tiles: the last placement, which the player to move may challenge.",
     "placeholders": {
@@ -3238,7 +3247,7 @@
       }
     }
   },
-  "wordtilesMovePlace": "{words} für {score} Punkte",
+  "wordtilesMovePlace": "{words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}",
   "@wordtilesMovePlace": {
     "description": "Word tiles: a placement in the move list and the last-turn line (after \"{player}: \").",
     "placeholders": {
@@ -3356,7 +3365,7 @@
   "@wordtilesUnknownAllow": {
     "description": "Word tiles: unknown word notice, the players agree the word counts (house rule)."
   },
-  "wordtilesMovePlaceAllowed": "{words} für {score} Punkte (zugelassen: {allowed})",
+  "wordtilesMovePlaceAllowed": "{words} für {score, plural, one{{score} Punkt} other{{score} Punkte}} (zugelassen: {allowed})",
   "@wordtilesMovePlaceAllowed": {
     "description": "Word tiles history: a placement with words the players allowed although the word list lacks them.",
     "placeholders": {
@@ -3534,7 +3543,7 @@
       }
     }
   },
-  "wordtilesResultBestWord": "Bestes Wort: {word} ({player}, {score} Punkte)",
+  "wordtilesResultBestWord": "Bestes Wort: {word} ({player}, {score, plural, one{{score} Punkt} other{{score} Punkte}})",
   "@wordtilesResultBestWord": {
     "description": "Word tiles result: the highest-scoring single word of the game. word = the word, player = who laid it, score = its points.",
     "placeholders": {
@@ -3627,6 +3636,67 @@
       }
     }
   },
+  "wordtilesOpenPlacementJoker": "{player} legte {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}} (Joker getauscht).",
+  "@wordtilesOpenPlacementJoker": {
+    "description": "Word tiles: like wordtilesOpenPlacement, when that placement came with \"Joker tauschen\" (KLD-094 step 9).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesOptionJoker": "Joker tauschen",
+  "@wordtilesOptionJoker": {
+    "description": "Word tiles start options: switch for the house rule 'Joker tauschen' (KLD-094 step 9): a player holding the letter a laid blank stands for may put it there and take the blank."
+  },
+  "wordtilesOptionJokerExplain": "Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.",
+  "@wordtilesOptionJokerExplain": {
+    "description": "Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default)."
+  },
+  "wordtilesOptionsSummaryJoker": "{summary} · Joker tauschen",
+  "@wordtilesOptionsSummaryJoker": {
+    "description": "Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesHintJoker": "Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker zu nehmen.",
+  "@wordtilesHintJoker": {
+    "description": "Word tiles hint line ('Joker tauschen' on): the player to move holds a letter that a blank on the board stands for."
+  },
+  "wordtilesJokerStaged": "Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht.",
+  "@wordtilesJokerStaged": {
+    "description": "Word tiles: the line under the board after a staged 'Joker tauschen' while no tile is laid yet; the swap only counts together with a placement."
+  },
+  "wordtilesMoveJoker": "{move} (Joker getauscht)",
+  "@wordtilesMoveJoker": {
+    "description": "Word tiles history: a placement that came with 'Joker tauschen'; {move} is the placement text (wordtilesMovePlace).",
+    "placeholders": {
+      "move": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesHelpJoker": "Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.",
+  "@wordtilesHelpJoker": {
+    "description": "Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9)."
+  },
+  "wordtilesHelpJokerOn": "In diesem Spiel an.",
+  "@wordtilesHelpJokerOn": {
+    "description": "Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game."
+  },
+  "wordtilesHelpJokerOff": "In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.",
+  "@wordtilesHelpJokerOff": {
+    "description": "Word tiles rules sheet: under wordtilesHelpJoker, the house rule is off in this game (it is chosen before the game)."
+  },
   "wordtilesUnknownAskNet": "Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.",
   "@wordtilesUnknownAskNet": {
     "description": "KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): \"Trotzdem zulassen\" sends a request to the other player ({player}).",
@@ -3682,7 +3752,7 @@
   "@wordtilesAllowYouDecide": {
     "description": "KLD-094 step 6: status line of the player who has to answer a request."
   },
-  "wordtilesAllowLine": "{player} möchte „{words}“ zulassen ({score} Punkte).",
+  "wordtilesAllowLine": "{player} möchte „{words}“ zulassen ({score, plural, one{{score} Punkt} other{{score} Punkte}}).",
   "@wordtilesAllowLine": {
     "description": "KLD-094 step 6: the line above the board on both devices while a request is open.",
     "placeholders": {
@@ -3709,7 +3779,7 @@
       }
     }
   },
-  "wordtilesMoveAllowRequest": "möchte {words} zulassen ({score} Punkte)",
+  "wordtilesMoveAllowRequest": "möchte {words} zulassen ({score, plural, one{{score} Punkt} other{{score} Punkte}})",
   "@wordtilesMoveAllowRequest": {
     "description": "KLD-094 step 6: history entry after \"{player}: \" for a request to allow words.",
     "placeholders": {
@@ -3721,7 +3791,7 @@
       }
     }
   },
-  "wordtilesMoveAllowAccept": "einverstanden: {words} zählt ({score} Punkte)",
+  "wordtilesMoveAllowAccept": "einverstanden: {words} zählt ({score, plural, one{{score} Punkt} other{{score} Punkte}})",
   "@wordtilesMoveAllowAccept": {
     "description": "KLD-094 step 6: history entry after \"{player}: \" when the other player agreed (the placement counts).",
     "placeholders": {

@@ -3,7 +3,14 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_net/guest_web.dart'
-    show NetException, PeerAge, VersionMismatch, relayClubMissingText, relayClubWrongText, versionDisplay;
+    show
+        NetException,
+        PeerAge,
+        VersionMismatch,
+        relayClubMissingText,
+        relayClubWrongText,
+        relayHostAwayText,
+        versionDisplay;
 
 import '../../app/build_info.dart' show appBuildLabel;
 import '../../net/room_link.dart';
@@ -18,6 +25,11 @@ enum RelayFailure {
 
   /// The room already has a guest.
   roomFull,
+
+  /// KLD-120: the room is open, but the device that started it is away for
+  /// the moment (its connection dropped, e.g. a locked phone). Trying again
+  /// soon may work.
+  hostAway,
 
   /// The host refused the join: its guest seat belongs to someone else, who
   /// can come back only with the session token (`session full`, KLD-071).
@@ -53,6 +65,7 @@ RelayFailure? classifyRelayError(Object error) {
   if (isSeatTaken(error)) return RelayFailure.seatTaken;
   if (s == 'relay: $relayClubMissingText') return RelayFailure.clubMissing;
   if (s == 'relay: $relayClubWrongText') return RelayFailure.clubWrong;
+  if (s == 'relay: $relayHostAwayText') return RelayFailure.hostAway;
   if (s.contains('no room with code')) return RelayFailure.unknownCode;
   if (s.contains('is full')) return RelayFailure.roomFull;
   if (s.contains('host left') || s.contains('host connection failed')) return RelayFailure.hostLeft;
@@ -128,6 +141,7 @@ String? relayErrorText(BuildContext context, Object error, {String? code, Uri? r
     null => null,
     RelayFailure.unknownCode => l10n.relayErrorUnknownCode(room),
     RelayFailure.roomFull => l10n.relayErrorRoomFull(room),
+    RelayFailure.hostAway => l10n.relayErrorHostAway(room),
     RelayFailure.seatTaken => l10n.pairingSeatTaken,
     RelayFailure.hostLeft => l10n.relayErrorRoomClosed,
     RelayFailure.expired => l10n.relayErrorExpired,

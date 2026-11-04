@@ -150,13 +150,13 @@ describe('rooms', () => {
     try {
       const { open } = makeRelay();
       const h = await open('h', 'create');
-      assert.deepEqual(await h.nextJson(), { t: 'relay.room', code: '22222' });
+      assert.deepEqual(await h.nextJson(), { t: 'relay.room', code: '22222', key: '0'.repeat(32) });
       const h2 = await open('h2', 'create');
       assert.deepEqual(await h2.nextJson(), { t: 'relay.error', message: 'too many rooms, try again later' });
       await h2.expectClosed(1008);
       await h.close();
       const h3 = await open('h3', 'create');
-      assert.deepEqual(await h3.nextJson(), { t: 'relay.room', code: '22222' }, 'the code is free again');
+      assert.deepEqual(await h3.nextJson(), { t: 'relay.room', code: '22222', key: '0'.repeat(32) }, 'the code is free again');
     } finally {
       crypto.getRandomValues = real;
     }
@@ -207,7 +207,7 @@ describe('rooms', () => {
     assert.deepEqual(await g.nextJson(), { t: 'relay.error', message: 'line too long (max 10 characters)' });
   });
 
-  test('a failed guest connection: relay.left "guest connection failed"; a failed host closes the room', async () => {
+  test('a failed guest connection: relay.left "guest connection failed"; a failed host is away (KLD-120)', async () => {
     const { open, rooms } = makeRelay();
     const h = await open('h', 'create');
     const { code } = await h.nextJson();
@@ -223,8 +223,45 @@ describe('rooms', () => {
     const hostSide = h.ws.other;
     hostSide.readyState = 3;
     await object.call('webSocketError', hostSide, new Error('reset'));
-    assert.deepEqual(await g2.nextJson(), { t: 'relay.closed', reason: 'host connection failed' });
-    await g2.expectClosed(1001);
+    await g2.expectClosed(1000); // dropped without a message; the room waits for the host
+    const g3 = await open('g3', `join=${code}`);
+    assert.deepEqual(await g3.nextJson(), {
+      t: 'relay.error',
+      error: 'host-away',
+      message: `the host of room ${code} is away, try again in a moment`,
+    });
+  });
+
+  test('KLD-120: a host that stays away longer than HOST_GRACE_SECONDS loses the room', async () => {
+    let now = 1_000_000;
+    Date.now = () => now;
+    const { open, rooms } = makeRelay({ HOST_GRACE_SECONDS: '60' });
+    const h = await open('h', 'create');
+    const { code, key } = await h.nextJson();
+    const storage = rooms.objects.get(code).ctx.storage;
+    await h.close(4000);
+    assert.equal(storage.alarmAt, 1_000_000 + 60_000);
+    now += 30_000;
+    rooms.hibernateAll();
+    const h2 = await open('h2', `resume=${code}&key=${key}`);
+    assert.deepEqual(await h2.nextJson(), { t: 'relay.room', code, key }, 'back within the grace period');
+    await h2.close(4000);
+    now += 60_000;
+    await rooms.runAlarm(code);
+    assert.equal(storage.alarmAt, null, 'nothing left behind');
+    assert.deepEqual([...storage.values.keys()], []);
+    const late = await open('late', `resume=${code}&key=${key}`);
+    assert.deepEqual(await late.nextJson(), { t: 'relay.error', message: `no room with code ${code}` });
+  });
+
+  test('KLD-120: HOST_GRACE_SECONDS=0 closes the room when the host drops, as before', async () => {
+    const { open } = makeRelay({ HOST_GRACE_SECONDS: '0' });
+    const h = await open('h', 'create');
+    const { code } = await h.nextJson();
+    const g = await open('g', `join=${code}`);
+    await h.nextJson();
+    await h.close(4000);
+    assert.deepEqual(await g.nextJson(), { t: 'relay.closed', reason: 'host left' });
   });
 
   test('a host waiting alone leaves: the room and its alarm are gone', async () => {

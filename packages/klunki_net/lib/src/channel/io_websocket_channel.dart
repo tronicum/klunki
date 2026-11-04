@@ -11,7 +11,7 @@ import 'channel.dart';
 /// subscription shuts down the socket's read side, the peer's next frames
 /// stay unread, and the close then resets the connection (RST) instead of
 /// finishing it, so a peer could lose our last message (`bye`, `error`).
-class IoWebSocketChannel implements MessageChannel {
+class IoWebSocketChannel implements AbandonableChannel {
   final WebSocket _ws;
   final Zone _zone = Zone.current;
   // Synchronous, like the stream it forwards: a message must be handled
@@ -53,10 +53,16 @@ class IoWebSocketChannel implements MessageChannel {
   /// own 5 s close timeout). Runs in the zone that created the channel, like
   /// the WebSocket's own callbacks and timers, whoever calls it.
   @override
-  Future<void> close() => _closed ??= _zone.run<Future<void>>(() async {
+  Future<void> close() => _close(WebSocketStatus.normalClosure);
+
+  /// Like [close], with [closeCodeAway]: not leaving (KLD-120).
+  @override
+  Future<void> abandon() => _close(closeCodeAway);
+
+  Future<void> _close(int code) => _closed ??= _zone.run<Future<void>>(() async {
         if (!_incoming.isClosed) unawaited(_incoming.close());
         try {
-          await _ws.close(WebSocketStatus.normalClosure).timeout(const Duration(seconds: 2));
+          await _ws.close(code).timeout(const Duration(seconds: 2));
         } catch (_) {
           // already closed, or the peer vanished
         }

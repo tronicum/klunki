@@ -98,8 +98,12 @@ void main() {
       });
 
       String? room;
-      String fill(String s) =>
-          room == null ? s : s.replaceAll('{roomLower}', room.toLowerCase()).replaceAll('{room}', room);
+      String? key; // the room's host key (KLD-120)
+      String fill(String s) {
+        if (room != null) s = s.replaceAll('{roomLower}', room.toLowerCase()).replaceAll('{room}', room);
+        return key == null ? s : s.replaceAll('{key}', key);
+      }
+
       Object? fillJson(Object? v) => switch (v) {
             String s => fill(s),
             Map m => {for (final e in m.entries) e.key: fillJson(e.value)},
@@ -111,12 +115,13 @@ void main() {
         final step = steps[i];
         final at = 'step ${i + 1} ${jsonEncode(step)}';
         if (step['open'] case final String who) {
-          peers[who] = _Peer(await WebSocket.connect(
-              'ws://127.0.0.1:${relay.port}/relay?${fill(step['query'] as String)}'));
+          peers[who] =
+              _Peer(await WebSocket.connect('ws://127.0.0.1:${relay.port}/relay?${fill(step['query'] as String)}'));
         } else if (step['room'] case final String who) {
           final msg = jsonDecode(await peers[who]!.next(at)) as Map<String, dynamic>;
           expect(msg['t'], 'relay.room', reason: at);
           room = msg['code'] as String;
+          key = msg['key'] as String?;
           expect(normalizeRoomCode(room), room, reason: at);
         } else if (step['recv'] case final String who) {
           expect(jsonDecode(await peers[who]!.next(at)), fillJson(step['json']), reason: at);
@@ -131,7 +136,7 @@ void main() {
         } else if (step['closed'] case final String who) {
           await peers[who]!.expectClosed(at, step['code'] as int?);
         } else if (step['close'] case final String who) {
-          await peers[who]!.ws.close();
+          await peers[who]!.ws.close(step['code'] as int?);
         } else {
           fail('unknown step $at');
         }

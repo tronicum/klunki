@@ -22,7 +22,9 @@ const int roomCodeLength = 5;
 /// lookalikes 0/O, 1/I/L (31 symbols, 31^5 ≈ 28.6 million codes).
 const String roomCodeAlphabet = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
 
-/// relay → host: the room exists; `code` is what the guest types.
+/// relay → host: the room exists; `code` is what the guest types. Since
+/// KLD-120 also `key`: the room's secret host key, which lets the host come
+/// back after its connection dropped ([relayResumeUri]).
 const String relayRoom = 'relay.room';
 
 /// relay → host: a guest joined the room; game lines follow.
@@ -44,6 +46,32 @@ const String relayError = 'relay.error';
 /// host → relay: drop the current guest connection (the host session closed
 /// it); lines sent before it are delivered first.
 const String relayKick = 'relay.kick';
+
+// ------------------------------------------- host away and back (KLD-120)
+
+/// Query parameter of a host that comes back to its room:
+/// `?resume=CODE&key=KEY` ([relayResumeUri]).
+const String relayResumeParam = 'resume';
+
+/// Query parameter carrying the room's host key (from `relay.room`).
+const String relayKeyParam = 'key';
+
+/// `relay.error {error: "host-away"}`: the room exists, but its host's
+/// connection dropped and it has not come back yet; try again in a moment.
+const String relayErrorHostAway = 'host-away';
+
+/// The client-side text of a [relayErrorHostAway] refusal
+/// (`NetException("relay: the host is away")`), fixed whatever the relay's
+/// `message` says, so apps can recognise it and retry.
+const String relayHostAwayText = 'the host is away';
+
+/// The URL a host uses to come back to room [code] with its [key] (and
+/// `&club=CODE` when [clubCode] is set).
+Uri relayResumeUri(Uri relay, String code, String key, {String? clubCode}) => relay.replace(queryParameters: {
+      relayResumeParam: code,
+      relayKeyParam: key,
+      if (clubCode != null) relayClubParam: clubCode,
+    });
 
 /// Encodes a relay control message.
 String relayControl(String t, [Map<String, Object?> fields = const {}]) => jsonEncode({'t': t, ...fields});
@@ -157,6 +185,7 @@ const String relayClubWrongText = 'club code not accepted';
 String relayRefusalText(Map<String, dynamic> control, String fallback) => switch (control[relayErrorField]) {
       relayErrorClubMissing => relayClubMissingText,
       relayErrorClubWrong => relayClubWrongText,
+      relayErrorHostAway => relayHostAwayText,
       _ => '${control['message'] ?? fallback}',
     };
 
