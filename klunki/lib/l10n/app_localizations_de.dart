@@ -2414,7 +2414,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein hältst du kurz fest und ziehst ihn woandershin; antippen nimmt ihn zurück.';
+      'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein ziehst du einfach woandershin; antippen nimmt ihn zurück.';
 
   @override
   String get wordtilesHelpEnd =>

@@ -2391,7 +2391,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'بإصبعين تكبّر اللوحة وتصغّرها وتحرّكها. لنقل بلاطة وضعتها للتو، اضغط عليها لحظة ثم اسحبها؛ لمسة واحدة تعيدها.';
+      'بإصبعين تكبّر اللوحة وتصغّرها وتحرّكها. لنقل بلاطة وضعتها للتو، اسحبها مباشرة؛ لمسة واحدة تعيدها.';
 
   @override
   String get wordtilesHelpEnd =>

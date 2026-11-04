@@ -733,6 +733,29 @@ the Wortgewandt point strings use ICU plurals in de/en/fr/es ("1 Punkt", "1 poin
 `wordtilesScore`, `Preview`, `PreviewBingo`, `OpenPlacement`, `MovePlace`, `MovePlaceAllowed`, `ResultBestWord`,
 `AllowLine`, `MoveAllowRequest`, `MoveAllowAccept`.
 
+## Step 8h (web beta report): laid tiles drag at once, finger and mouse
+- **"Dragging of placed letters in the github version does not work."** The deployed PWA had the step 8g code
+  (67ac2fe, build 2026110402; not a stale cache). Reproduced in headless Firefox against that build and a local
+  release build: a mouse click-and-drag on a laid tile did nothing (desktop: the tile stayed; phone width, zoomed:
+  the board scrolled); with a 300 ms rest before moving it worked, and touch with a rest worked. Cause: the step 8g
+  hold (`LongPressDraggable`, 120 / 250 ms) is for fingers, but a mouse presses and moves in one go; the delayed
+  recognizer gives up after 1 px of mouse movement (the precise-pointer slop) and the board's pan wins. Also, the
+  recognizer read its delay only once, so a tile laid before the auto-zoom kept the unzoomed 120 ms.
+- **Maintainer decision (2026-11-04): no hold at all.** A finger, pen or mouse that starts on a tile laid this
+  turn drags it at once, zoomed or not; a drag that starts anywhere else (empty squares, tiles of earlier turns)
+  scrolls the zoomed board; a tap still takes the tile back. The laid tile's recognizer (`_LaidTileRecognizer`)
+  accepts after the touch slop (18 px), before the board's pan (36 px). For pinches it watches all pointers (a
+  global pointer route): a tile that has not lifted yet lets go when a second pointer touches down, and a pointer
+  that comes down while another is down is left to the board, so two fingers still zoom when one starts on a
+  laid tile. `laidTileHold` / `laidTileHoldUnzoomed` are gone; "So geht's" (`wordtilesHelpZoom`, 7 locales) no
+  longer says to hold the tile first. Rack and bench drags unchanged.
+- **Tests:** `wordtiles_move_tiles_test.dart`: group "mouse" (click-and-drag with and without a rest on a tablet,
+  1200 × 900 and a zoomed phone layout, a click takes the tile back; 3 fail on 67ac2fe); in "iPhone 15 Pro, a real
+  finger": drag without a rest, zoomed and unzoomed (the board does not move); a drag from an empty square
+  scrolls; a pinch with the first or the second finger on the laid tile zooms (fails without the pointer watch).
+  Browser check (headless Firefox, release build, semantics off): mouse and touch drags without a rest move the
+  tile at 1200 × 900 and 412 × 1400 (zoomed). No rules change.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:

@@ -624,7 +624,7 @@
   "wordtilesHelpDictionary": "选了“查字典”时，每组字出牌后查字典。字典里没有时，你们取回这些牌，或都同意后选“仍然接受”。接受的字会记在记录里。",
   "wordtilesHelpChallenge": "没有字典时可以否认上一组字：这些牌被取回，不得分。",
   "wordtilesHelpBench": "在试牌上可以试试组字。只显示字母的分数，不显示是不是字。",
-  "wordtilesHelpZoom": "用两指可以缩放和移动棋盘。本轮放下的牌：按一下再拖动；点一下就取回。",
+  "wordtilesHelpZoom": "用两指可以缩放和移动棋盘。本轮放下的牌可以直接拖动；点一下就取回。",
   "wordtilesHelpEnd": "牌堆空了且有人出完所有牌时，本局结束。剩余的牌按分数失分；出完牌的人得到这些分数。",
   "wordtilesResultRack": "剩余牌：{points}",
   "wordtilesResultBestWord": "最高分的字：{word}（{player}，{score} 分）",

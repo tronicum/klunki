@@ -624,7 +624,7 @@
   "wordtilesHelpDictionary": "Con «Comprobar en el diccionario» cada palabra se busca al colocarla. Si falta, retirad las fichas o permitidla juntos: «Permitir igualmente». Las palabras permitidas aparecen en el historial.",
   "wordtilesHelpChallenge": "Sin diccionario se puede dudar de la última palabra: las fichas vuelven y no puntúan.",
   "wordtilesHelpBench": "En el banquito pruebas palabras. Solo muestra los puntos de las letras, no si es una palabra.",
-  "wordtilesHelpZoom": "Con dos dedos haces zoom en el tablero y lo mueves. Para mover una ficha que acabas de colocar, mantenla pulsada un momento y arrástrala; un toque la devuelve.",
+  "wordtilesHelpZoom": "Con dos dedos haces zoom en el tablero y lo mueves. Arrastra una ficha que acabas de colocar para moverla; un toque la devuelve.",
   "wordtilesHelpEnd": "La partida termina cuando la bolsa está vacía y alguien ha colocado todas sus fichas. Los puntos de las fichas que quedan se restan; quien terminó los suma.",
   "wordtilesResultRack": "Fichas restantes: {points}",
   "wordtilesResultBestWord": "Mejor palabra: {word} ({player}, {score, plural, one{{score} punto} other{{score} puntos}})",

@@ -11,6 +11,8 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).
+- **Wortgewandt**: a tile laid this turn drags right away, with a finger or the mouse (no more resting on it
+  first); on a zoomed board a drag that starts elsewhere still scrolls.
 
 ### Playing together
 - **A locked phone no longer ends a game with others** (KLD-120). After unlocking, the game goes on by

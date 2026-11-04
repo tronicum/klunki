@@ -2291,7 +2291,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesHelpBench => '在试牌上可以试试组字。只显示字母的分数，不显示是不是字。';
 
   @override
-  String get wordtilesHelpZoom => '用两指可以缩放和移动棋盘。本轮放下的牌：按一下再拖动；点一下就取回。';
+  String get wordtilesHelpZoom => '用两指可以缩放和移动棋盘。本轮放下的牌可以直接拖动；点一下就取回。';
 
   @override
   String get wordtilesHelpEnd => '牌堆空了且有人出完所有牌时，本局结束。剩余的牌按分数失分；出完牌的人得到这些分数。';

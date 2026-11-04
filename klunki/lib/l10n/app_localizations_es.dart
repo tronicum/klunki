@@ -2418,7 +2418,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'Con dos dedos haces zoom en el tablero y lo mueves. Para mover una ficha que acabas de colocar, mantenla pulsada un momento y arrástrala; un toque la devuelve.';
+      'Con dos dedos haces zoom en el tablero y lo mueves. Arrastra una ficha que acabas de colocar para moverla; un toque la devuelve.';
 
   @override
   String get wordtilesHelpEnd =>

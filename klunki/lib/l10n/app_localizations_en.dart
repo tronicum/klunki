@@ -2403,7 +2403,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'Zoom the board with two fingers and move it around. To move a tile you just laid, hold it briefly and drag it; a tap takes it back.';
+      'Zoom the board with two fingers and move it around. Drag a tile you just laid to move it; a tap takes it back.';
 
   @override
   String get wordtilesHelpEnd =>
