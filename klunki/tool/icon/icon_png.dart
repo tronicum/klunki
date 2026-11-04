@@ -66,10 +66,64 @@ Future<double> foregroundSafeScale(IconConcept paint) async =>
 /// Web maskable icons: the browser may crop to a circle of 80 % of the side.
 const double maskableSafeRadius = 0.4;
 
-/// The scale (≤ 1) that brings every visible foreground pixel of [paint]
-/// inside the 80 % safe circle of a maskable web icon.
-Future<double> maskableSafeScale(IconConcept paint) async =>
-    math.min(1.0, maskableSafeRadius / (await motifExtent(paint)).radius);
+/// How to fit [paint]'s motif into a safe circle of [safeRadius] (fraction of
+/// the side): the centre of the smallest circle around every visible
+/// foreground pixel (shadows included; fractions of the side) and the scale
+/// (≤ 1) that makes that circle the safe circle. Drawing the motif scaled by
+/// `scale` around `centre`, moved to the middle, uses the safe zone fully even
+/// when the motif is not centred.
+Future<({Offset centre, double scale})> motifSafeFit(IconConcept paint, double safeRadius) async {
+  const px = 512;
+  iconLayer = IconLayer.foreground;
+  final img = await renderImage(px, px, (c) => paint(c, px.toDouble()));
+  iconLayer = IconLayer.full;
+  final data = (await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!.buffer.asUint8List();
+  // The outline is enough: the leftmost and rightmost visible pixel per row.
+  final pts = <Offset>[];
+  for (var y = 0; y < px; y++) {
+    int? l, r;
+    for (var x = 0; x < px; x++) {
+      if (data[(y * px + x) * 4 + 3] > 32) {
+        l ??= x;
+        r = x;
+      }
+    }
+    if (l != null) {
+      pts
+        ..add(Offset(l + 0.5, y + 0.5))
+        ..add(Offset(r! + 0.5, y + 0.5));
+    }
+  }
+  double reach(Offset c) => pts.fold(0.0, (m, p) => math.max(m, (p - c).distance));
+  // Coarse-to-fine search for the centre with the smallest reach.
+  var best = const Offset(px / 2, px / 2);
+  var bestR = reach(best);
+  for (var step = 32.0; step >= 0.25; step /= 2) {
+    var moved = true;
+    while (moved) {
+      moved = false;
+      for (final d in const [
+        Offset(1, 0),
+        Offset(-1, 0),
+        Offset(0, 1),
+        Offset(0, -1),
+        Offset(1, 1),
+        Offset(-1, -1),
+        Offset(1, -1),
+        Offset(-1, 1),
+      ]) {
+        final c = best + d * step;
+        final r = reach(c);
+        if (r < bestR) {
+          best = c;
+          bestR = r;
+          moved = true;
+        }
+      }
+    }
+  }
+  return (centre: best / px.toDouble(), scale: math.min(1.0, safeRadius * px / bestR));
+}
 
 // ---------------------------------------------------------------- PNG --
 

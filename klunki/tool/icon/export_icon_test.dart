@@ -1,7 +1,7 @@
 // KLD-097 step 2: exports one icon concept in every size the app needs.
 //
 //   cd klunki
-//   KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-zoom-b \
+//   KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-zoom-b-fill \
 //     flutter test tool/icon/export_icon_test.dart
 //
 // Opt-in like render_icons_test.dart (skipped unless both variables are set).
@@ -12,8 +12,8 @@
 //   the existing Contents.json names, RGB without alpha (incl. the 1024
 //   marketing icon). Contents.json itself is unchanged and not written.
 // - android/app/src/main/res/mipmap-*dpi/ic_launcher.png (48 dp, legacy),
-//   ic_launcher_foreground.png (108 dp, transparent, motif shrunk into the
-//   66 dp safe circle), ic_launcher_background.png (108 dp, the table), and
+//   ic_launcher_foreground.png (108 dp, transparent, motif centred on its
+//   smallest enclosing circle and shrunk into the 66 dp safe circle), ic_launcher_background.png (108 dp, the table), and
 //   mipmap-anydpi-v26/ic_launcher.xml (adaptive icon, API 26+).
 // - web/icons/Icon-{192,512}.png, Icon-maskable-{192,512}.png (table full
 //   size, motif shrunk into the 80 % maskable safe circle), web/favicon.png (32 px).
@@ -49,6 +49,10 @@ const _android = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0, 'xxhdpi': 3.0, 'xxxhdp
 /// Adaptive icon geometry: 108 dp layers, safe circle 66 dp in diameter.
 const _safeRadius = adaptiveSafeRadius;
 
+/// Concepts that crop their motif at the icon's edge, and the uncropped
+/// source art to fit into the Android and maskable safe circles instead.
+const _motifSource = {'c5-zoom-b-fill': 'c5-zoom-b'};
+
 const _adaptiveXml = '''<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@mipmap/ic_launcher_background" />
@@ -79,20 +83,25 @@ void main() {
         );
       }
 
-      // Android: fit the foreground motif into the safe circle.
-      final fit = await foregroundSafeScale(paint);
+      // Android: fit the foreground motif into the safe circle, centred on
+      // its smallest enclosing circle. A concept that crops its motif at the
+      // edge (c5-zoom-b-fill) uses its uncropped source art here.
+      final motif = iconConcepts[_motifSource[_id] ?? _id]!.$2;
+      final fit = await motifSafeFit(motif, _safeRadius);
       // ignore: avoid_print
-      print('Android foreground scale for $_id: ${fit.toStringAsFixed(3)}');
-      void foreground(Canvas c, double px) {
+      print('Android foreground scale for $_id: ${fit.scale.toStringAsFixed(3)}');
+      void fitted(Canvas c, double px, ({Offset centre, double scale}) f) {
         iconLayer = IconLayer.foreground;
         c.save();
         c.translate(px / 2, px / 2);
-        c.scale(fit);
-        c.translate(-px / 2, -px / 2);
-        paint(c, px);
+        c.scale(f.scale);
+        c.translate(-f.centre.dx * px, -f.centre.dy * px);
+        motif(c, px);
         c.restore();
         iconLayer = IconLayer.full;
       }
+
+      void foreground(Canvas c, double px) => fitted(c, px, fit);
 
       void background(Canvas c, double px) {
         iconLayer = IconLayer.background;
@@ -121,19 +130,12 @@ void main() {
       // Web, Play Store. Maskable icons: the table fills the square, the
       // motif is shrunk (if needed) until every visible pixel sits inside the
       // 80 % safe circle the browser may crop to.
-      final maskFit = await maskableSafeScale(paint);
+      final maskFit = await motifSafeFit(motif, maskableSafeRadius);
       // ignore: avoid_print
-      print('Maskable web icon scale for $_id: ${maskFit.toStringAsFixed(3)}');
+      print('Maskable web icon scale for $_id: ${maskFit.scale.toStringAsFixed(3)}');
       void maskable(Canvas c, double px) {
         background(c, px);
-        iconLayer = IconLayer.foreground;
-        c.save();
-        c.translate(px / 2, px / 2);
-        c.scale(maskFit);
-        c.translate(-px / 2, -px / 2);
-        paint(c, px);
-        c.restore();
-        iconLayer = IconLayer.full;
+        fitted(c, px, maskFit);
       }
 
       for (final s in [192, 512]) {

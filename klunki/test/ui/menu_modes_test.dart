@@ -250,7 +250,7 @@ void main() {
     }
   });
 
-  // KLD-097: the header shows the app icon (c5-zoom-b, the bundled PNG as
+  // KLD-097: the header shows the app icon (c5-zoom-b-fill, the bundled PNG as
   // on the About screen) next to "Klunki" in one slim row, and the games
   // start right below it.
   testWidgets('slim header with the app icon; the first game tile starts high up', (tester) async {

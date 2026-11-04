@@ -16,7 +16,7 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 // offline and while the web pages are not published); Support is a help
 // page and opens in the browser.
 
-/// The app icon (KLD-097, c5-zoom-b) as on the home screen: the bundled
+/// The app icon (KLD-097, c5-zoom-b-fill) as on the home screen: the bundled
 /// 384 px PNG (written by `tool/icon/export_icon_test.dart`) in a rounded
 /// square. Decorative; the app name is next to it.
 class KlunkiAppIcon extends StatelessWidget {

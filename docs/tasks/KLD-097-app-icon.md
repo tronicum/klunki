@@ -3,7 +3,7 @@
 - **ID:** `KLD-097`
 - **Title:** A real Klunki app icon instead of the default Flutter icon (concepts, then every platform)
 - **Milestone:** release basics (part of KLD-076 "icons")
-- **Status:** DONE (step 1: concepts; step 2: **c5-zoom-b** (since 2026-11-04, before: c5-final-d4) applied on iOS, Android and web; the look on real home screens is still to be checked by 🧑)
+- **Status:** DONE (step 1: concepts; step 2: **c5-zoom-b-fill** (since 2026-11-04, before: c5-final-d4) applied on iOS, Android and web; the look on real home screens is still to be checked by 🧑)
 - **Depends on:** KLD-062 (Spieltisch look)
 - **Touched paths:**
   - step 1: `klunki/tool/icon/**`, `docs/tasks/KLD-097-app-icon.md`, `docs/tasks/BOARD.md`
@@ -61,10 +61,23 @@ screen, menu header), `docs/store/` and the landing page's
 maskable circle as is, so the export now draws the maskable web icons as the
 full table plus the motif shrunk until it fits (0.818 for zoom-b).
 
+**Zoomed to fill (2026-11-04, same day):** the maintainer: "just zoom the
+app icon so the unused brown space is used". `c5-zoom-b-fill` keeps the
+zoom-b artwork exactly and scales the motif by 1.16 (moved up a little) over
+the unchanged full-bleed table: ~80 % × 98 % of the side instead of
+69 % × 86 %; the flag pole's knob is cut slightly at the top edge. Applied to
+iOS (iPhone, iPad, Spotlight, Settings, 1024), the Android legacy icon, the
+web icons and favicon, `assets/icon/app_icon.png`, `docs/store/` and
+`site/assets/`. The Android adaptive foreground and the maskable web icons
+must stay inside their safe circles: they use the uncropped zoom-b art,
+now centred on its smallest enclosing circle, which makes it ~6 % bigger
+there (0.662 instead of 0.625; maskable 0.866 instead of 0.818). The menu
+header keeps its layout (30 px icon) and shows the new PNG.
+
 ## Step 2 — apply the chosen concept everywhere (done)
 
 Done with `klunki/tool/icon/export_icon_test.dart` (opt-in, see the README):
-`KLUNKI_ICON_EXPORT=<dir> KLUNKI_ICON_ID=c5-zoom-b flutter test
+`KLUNKI_ICON_EXPORT=<dir> KLUNKI_ICON_ID=c5-zoom-b-fill flutter test
 tool/icon/export_icon_test.dart`, then `cp -R <dir>/{ios,android,web,assets}
 klunki/`. `assets/icon/app_icon.png` (384 px) is the copy the About screen
 shows (KLD-102).

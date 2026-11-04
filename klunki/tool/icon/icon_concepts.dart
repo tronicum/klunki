@@ -69,6 +69,8 @@ final Map<String, (String, IconConcept)> iconConcepts = {
   'c5-zoom-b': ('d4: größere Tasche, breiter Patch, große fette Schrift', paintConceptZoomB),
   'c5-zoom-c': ('wie b ohne Karte und Würfel, größerer Buchstabenstein', paintConceptZoomC),
   'c5-zoom-d': ('d4 ohne Schriftzug, am weitesten herangezoomt', paintConceptZoomD),
+  // The maintainer's pick: "just zoom the app icon so the unused brown space is used".
+  'c5-zoom-b-fill': ('zoom-b unverändert, nur größer: füllt das Quadrat', paintConceptZoomBFill),
 };
 
 /// Concepts that letter the word "Klunki" with Roboto: the renderer must load
@@ -954,6 +956,51 @@ void paintConceptZoomA(Canvas canvas, double size) =>
 /// a wider patch with bigger, bolder letters. All pieces kept.
 void paintConceptZoomB(Canvas canvas, double size) =>
     _zoomed(canvas, size, zoom: 1.22, dy: -70, pocketScale: 0.95, patch: _zoomPatch(const Size(446, 196), 132, 7));
+
+/// zoom-b-fill: the zoom-b artwork unchanged, only scaled up so it fills the
+/// square: the table stays full-bleed, the motif (measured: 69 % × 86 % of
+/// the side, centred at 49 % / 50 %) grows by [_fillScale] and moves up a bit,
+/// so the pocket's tip keeps a small margin and only the flag pole's knob
+/// touches the top edge.
+void paintConceptZoomBFill(Canvas canvas, double size) => _filled(
+  canvas,
+  size,
+  paintConceptZoomB,
+  scale: _fillScale,
+  from: const Offset(0.492, 0.501),
+  to: const Offset(0.5, _fillCentreY),
+);
+
+const double _fillScale = 1.16;
+const double _fillCentreY = 0.475;
+
+/// Draws [base]'s table unchanged and its motif (the foreground layer) scaled
+/// by [scale] so that the point [from] (fractions of the side) lands on [to].
+void _filled(
+  Canvas canvas,
+  double size,
+  void Function(Canvas, double) base, {
+  required double scale,
+  required Offset from,
+  required Offset to,
+}) {
+  final layer = iconLayer;
+  if (layer != IconLayer.foreground) {
+    iconLayer = IconLayer.background;
+    base(canvas, size);
+  }
+  if (layer != IconLayer.background) {
+    iconLayer = IconLayer.foreground;
+    canvas.save();
+    canvas.clipRect(Rect.fromLTWH(0, 0, size, size));
+    canvas.translate(to.dx * size, to.dy * size);
+    canvas.scale(scale);
+    canvas.translate(-from.dx * size, -from.dy * size);
+    base(canvas, size);
+    canvas.restore();
+  }
+  iconLayer = layer;
+}
 
 /// zoom-c: like b without the green card and the die (fewer small parts),
 /// a bigger letter tile; the patch takes most of the pocket front.

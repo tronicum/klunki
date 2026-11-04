@@ -8,7 +8,7 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### App
-- The app icon is bigger on the home screen: a larger pocket and a bolder "Klunki" on the patch.
+- The app icon fills its square on the home screen: a larger pocket and a bolder "Klunki" on the patch.
 
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
