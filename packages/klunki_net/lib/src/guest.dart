@@ -221,7 +221,14 @@ class KlunkiGuest {
 
   /// Opens a new connection (after a disconnect) using the token from
   /// `welcome`; the snapshot is replayed and must extend the local log.
-  Future<void> reconnect() => _open();
+  ///
+  /// Single-flight: a call while a reconnect is still running joins it
+  /// instead of opening a second connection. Two parallel attempts (the
+  /// automatic retry loop and a tap on "reconnect", say) would otherwise
+  /// race for the one seat, and over the relay the loser is told that the
+  /// room is full.
+  Future<void> reconnect() => _reconnecting ??= _open().whenComplete(() => _reconnecting = null);
+  Future<void>? _reconnecting;
 
   /// Says `bye` and closes the connection.
   Future<void> close({String reason = 'guest left'}) async {
