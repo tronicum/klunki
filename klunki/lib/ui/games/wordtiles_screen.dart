@@ -193,7 +193,7 @@ String describeWordTilesMove(AppLocalizations l10n, AcceptedMove m) {
         for (final w in raw is List ? raw : const [])
           if (w is Map && w['word'] is String) w['word'] as String else if (w is String) w,
       ];
-  return switch (m.move['action']) {
+  final text = switch (m.move['action']) {
     // KLD-094 step 4: words the players let stand although the list lacks them.
     'place' when words(p['allowed']).isNotEmpty => l10n.wordtilesMovePlaceAllowed(
         words(p['words']).join(', '), p['score'] as int? ?? 0, words(p['allowed']).join(', ')),
@@ -211,4 +211,8 @@ String describeWordTilesMove(AppLocalizations l10n, AcceptedMove m) {
     WordTilesGame.declineAllow => l10n.wordtilesMoveAllowDecline(words(p['allow']).join(', ')),
     _ => m.move.toString(),
   };
+  // KLD-094 step 9: the placement came with "Joker tauschen".
+  final swaps = p['swaps'];
+  final placed = m.move['action'] == 'place' || m.move['action'] == WordTilesGame.acceptAllow;
+  return placed && swaps is List && swaps.isNotEmpty ? l10n.wordtilesMoveJoker(text) : text;
 }

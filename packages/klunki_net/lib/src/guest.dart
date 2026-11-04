@@ -518,6 +518,7 @@ class KlunkiGuest {
         pickLowCards: _config.pickLowCards,
         tiles: _config.tiles,
         dictionary: _config.dictionary,
+        jokerSwap: _config.jokerSwap,
         me: _me,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,

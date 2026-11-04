@@ -80,6 +80,14 @@ import 'wordtiles_tiles.dart';
 /// * Hot-seat: the shell's handover cover hides the rack between turns
 ///   (`GameSpec.hiddenInformation`); the board resets its pending tiles when
 ///   the turn changes.
+/// * **Joker tauschen** (house rule, KLD-094 step 9, [WordTilesGame.jokerSwap]):
+///   drag a rack tile onto a laid blank that stands for its letter (or tap
+///   the tile, then the blank). The swap is only staged: the real letter
+///   shows on the square like a tile laid this turn (a tap takes it back,
+///   `wordtiles-swapped-<row>-<col>`), the blank joins the rack at its end
+///   and may be laid like any rack tile. "Legen" sends the swaps with the
+///   placement; with no tile laid there is nothing to send, and "Alle
+///   zurück", swapping or passing drop the staged swaps.
 ///
 /// The board itself is always left-to-right ([LtrBoard]): the letters are
 /// Latin and the columns are the engine's.
@@ -199,6 +207,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   bool _exchanging = false;
   final Set<int> _swap = {};
 
+  /// "Joker tauschen" staged this turn (KLD-094 step 9): board square → the
+  /// rack index of the real letter put there. Each swap adds a blank to
+  /// [_rack], at index [_gameRack] length + its position in this map.
+  final Map<int, int> _jokers = {};
+
   /// "Legen" was tapped on a placement that does not fit: the reason shows
   /// in the error colour until the tiles change.
   bool _tried = false;
@@ -249,7 +262,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// One player per device (KLD-094 step 6), not hot-seat.
   bool get _network => controller.transport.localPlayers.length == 1;
 
-  List<String> get _rack => game.rackOf(_seat);
+  /// The rack as the engine has it.
+  List<String> get _gameRack => game.rackOf(_seat);
+
+  /// The rack on screen: [_gameRack] plus a blank per staged swap
+  /// ([_jokers]).
+  List<String> get _rack {
+    final rack = _gameRack;
+    return _jokers.isEmpty ? rack : [...rack, for (final _ in _jokers.keys) TileSet.blank];
+  }
 
   /// While a "Trotzdem zulassen" request is open nobody lays tiles: the
   /// placer waits for the answer.
@@ -428,7 +449,19 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     // Tiles off the bench first (the laid ones left it).
     final order = [for (var i = 0; i < rack.length; i++) if (!bench.contains(i)) i, ...bench];
     final used = <int>{};
+    // "Joker tauschen": the swapped letters left the rack; the blanks they
+    // freed were never on it, so laid blanks use them up first.
+    for (final s in r.swaps) {
+      for (final i in order) {
+        if (rack[i] == s.tile && used.add(i)) break;
+      }
+    }
+    var freed = r.swaps.length;
     for (final t in r.tiles) {
+      if (t.isBlank && freed > 0) {
+        freed--;
+        continue;
+      }
       for (final i in order) {
         if (rack[i] == t.tile && used.add(i)) break;
       }
@@ -438,6 +471,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   void _resetTurn() {
     _pending.clear();
+    _jokers.clear();
     _selected = null;
     _exchanging = false;
     _swap.clear();
@@ -477,7 +511,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   }
 
   void _saveBench() {
-    final rack = _rack;
+    // Not the blanks of staged swaps: they are not the engine's yet.
+    final rack = _gameRack;
     _benchSaved[_seat] = [
       for (final row in _bench) [for (final i in row) i == null || i >= rack.length ? null : rack[i]],
     ];
@@ -622,11 +657,94 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   void _recallAll() {
     setState(() {
       _pending.clear();
+      _dropJokers();
       _selected = null;
       _tried = false;
       _notice = null;
     });
     _zoomOut();
+  }
+
+  // ------------------------------------------------------- "Joker tauschen"
+
+  /// The staged swaps as the engine takes them.
+  List<JokerSwap> get _jokerSwaps {
+    final rack = _gameRack;
+    return [for (final e in _jokers.entries) JokerSwap(e.key ~/ _n, e.key % _n, rack[e.value])];
+  }
+
+  /// Whether rack tile [rackIndex] may take the blank on [sq] now: the rule
+  /// is on, it is a real letter of the engine's rack (not a blank, not used
+  /// for another swap) and the blank stands for it.
+  bool _canSwapJoker(int sq, int rackIndex) {
+    final rack = _gameRack;
+    if (!_canLay || !game.jokerSwap || _jokers.containsKey(sq)) return false;
+    if (rackIndex < 0 || rackIndex >= rack.length || _jokers.containsValue(rackIndex)) return false;
+    return game.canSwapJokerAt(sq ~/ _n, sq % _n, rack[rackIndex]);
+  }
+
+  /// Whether the player to move holds a letter that a blank on the board
+  /// stands for (the hint line says so).
+  bool get _jokerSwapPossible {
+    if (!game.jokerSwap) return false;
+    final letters = _gameRack.toSet();
+    for (final t in game.board) {
+      if (t != null && t.blank && letters.contains(t.letter)) return true;
+    }
+    return false;
+  }
+
+  /// Stages a swap: rack tile [rackIndex] onto the blank on [sq], the blank
+  /// to the end of the rack.
+  void _swapJoker(int sq, int rackIndex) {
+    if (!_canSwapJoker(sq, rackIndex)) return;
+    setState(() {
+      _pending.removeWhere((_, p) => p.rackIndex == rackIndex);
+      _removeFromBench(rackIndex);
+      _jokers[sq] = rackIndex;
+      final blank = _gameRack.length + _jokers.length - 1;
+      if (_order.length == blank) _order.add(blank);
+      _selected = null;
+      _tried = false;
+      _notice = null;
+      _saveBench();
+    });
+  }
+
+  /// Takes the staged swap on [sq] back: the letter returns to the rack,
+  /// its blank leaves it (from the board or the bench too).
+  void _undoJoker(int sq) {
+    final keys = _jokers.keys.toList();
+    final k = keys.indexOf(sq);
+    if (k < 0) return;
+    final gone = _gameRack.length + k;
+    int? map(int? i) => i == null || i < gone ? i : (i == gone ? null : i - 1);
+    setState(() {
+      _jokers.remove(sq);
+      final pending = Map.of(_pending);
+      _pending.clear();
+      pending.forEach((s, p) {
+        final i = map(p.rackIndex);
+        if (i != null) _pending[s] = _Pending(i, p.tile, p.letter);
+      });
+      _bench = [for (final row in _bench) [for (final i in row) map(i)]];
+      _order = [for (final i in _order) ?map(i)];
+      _selected = map(_selected);
+      _tried = false;
+      _notice = null;
+    });
+  }
+
+  /// Drops every staged swap (inside setState): the blanks they freed leave
+  /// the board, the bench and the rack.
+  void _dropJokers() {
+    if (_jokers.isEmpty) return;
+    final real = _gameRack.length;
+    _jokers.clear();
+    _pending.removeWhere((_, p) => p.rackIndex >= real);
+    _bench = [for (final row in _bench) [for (final i in row) i == null || i >= real ? null : i]];
+    _order = [for (final i in _order) if (i < real) i];
+    if ((_selected ?? 0) >= real) _selected = null;
   }
 
   void _shuffle() {
@@ -695,7 +813,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   Future<void> _play() async {
     if (_pending.isEmpty || !_canLay) return;
     final placed = _placed;
-    final move = WordTilesGame.placeMove(placed);
+    final swaps = _jokerSwaps;
+    final move = WordTilesGame.placeMove(placed, swaps: swaps);
     if (!game.checkPlacement(move, checkWords: false).ok) {
       setState(() => _tried = true);
       return;
@@ -722,7 +841,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     setState(() => _busy = true);
     _hotSeatAgreeing = !_network;
     try {
-      final r = await controller.submit(WordTilesGame.requestAllowMove(me, placed, unknown));
+      final r = await controller.submit(WordTilesGame.requestAllowMove(me, placed, unknown, swaps: swaps));
       if (r.isAccepted && !_network && mounted) await controller.submit(WordTilesGame.acceptAllowMove(other));
       if (!r.isAccepted && mounted) setState(() => _busy = false);
     } finally {
@@ -813,6 +932,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     }
     setState(() {
       _pending.clear();
+      _dropJokers();
       _selected = null;
       _exchanging = true;
       _swap.clear();
@@ -955,6 +1075,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         hint = l10n.wordtilesHintExchange;
       } else if (_selected != null) {
         hint = l10n.wordtilesHintSelected;
+      } else if (_pending.isEmpty && _jokers.isEmpty && _jokerSwapPossible) {
+        // KLD-094 step 9: "Joker tauschen" is on and a letter on the rack
+        // matches a blank on the board.
+        hint = l10n.wordtilesHintJoker;
       } else if (_pending.isEmpty) {
         // KLD-094 step 8g: from the second word on, the hint adds that two
         // fingers zoom (while the board is not zoomed). Not to the first
@@ -1334,7 +1458,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.wordtilesOpenPlacement(who, wordList(context, open.words), open.score),
+            // KLD-094 step 9: the open placement is the last turn; say when
+            // it came with "Joker tauschen".
+            Text(
+                g.turns.isNotEmpty && g.turns.last.swaps > 0
+                    ? l10n.wordtilesOpenPlacementJoker(who, wordList(context, open.words), open.score)
+                    : l10n.wordtilesOpenPlacement(who, wordList(context, open.words), open.score),
                 style: theme.textTheme.bodyLarge),
             if (g.endPending)
               Padding(
@@ -1425,9 +1554,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (notice != null) {
       text = notice;
       error = true;
+    } else if (_pending.isEmpty && _jokers.isNotEmpty) {
+      // A staged swap counts only together with a placement.
+      text = l10n.wordtilesJokerStaged;
     } else if (_pending.isNotEmpty) {
       // Never the word list here (see the class docs): only "Legen" asks it.
-      final check = game.checkPlacement(WordTilesGame.placeMove(_placed), checkWords: false);
+      final check = game.checkPlacement(WordTilesGame.placeMove(_placed, swaps: _jokerSwaps), checkWords: false);
       if (check.ok) {
         final words = wordList(context, [for (final w in check.words) w.word]);
         text = check.bingo
@@ -1484,6 +1616,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     // The tiles of an open "Trotzdem zulassen" request lie on the board,
     // ringed, while the other player decides (KLD-094 step 6).
     final requested = {for (final t in game.allowRequest?.tiles ?? const <PlacedTile>[]) t.row * _n + t.col: t};
+    // ... and the real letters of its "Joker tauschen" swaps.
+    final requestedSwaps = {for (final s in game.allowRequest?.swaps ?? const <JokerSwap>[]) s.row * _n + s.col};
     return Container(
       key: const Key('wordtiles-board'),
       width: size,
@@ -1495,7 +1629,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             Row(
               children: [
                 for (var col = 0; col < _n; col++)
-                  _square(context, l10n, c, r, col, cell - (2 / _n), open, last, requested),
+                  _square(context, l10n, c, r, col, cell - (2 / _n), open, last, requested, requestedSwaps),
               ],
             ),
         ],
@@ -1504,7 +1638,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   }
 
   Widget _square(BuildContext context, AppLocalizations l10n, WordTilesColors c, int r, int col, double cell,
-      Set<int> open, Set<int> last, Map<int, PlacedTile> requested) {
+      Set<int> open, Set<int> last, Map<int, PlacedTile> requested, Set<int> requestedSwaps) {
     final sq = r * _n + col;
     final key = Key('wordtiles-sq-$r-$col');
     final tile = game.tileAt(r, col);
@@ -1524,6 +1658,62 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             size: cell - 2 * inset,
             face: c.pending,
             ring: c.open,
+          ),
+        ),
+      );
+    }
+    final swappedIn = _jokers[sq];
+    if (tile != null && (swappedIn != null || requestedSwaps.contains(sq))) {
+      // "Joker tauschen": the real letter, staged like a tile laid this
+      // turn (a tap takes the swap back), or ringed in an open request.
+      final staged = swappedIn != null;
+      return SizedBox.square(
+        key: key,
+        dimension: cell,
+        child: GestureDetector(
+          onTap: staged && _canLay ? () => _undoJoker(sq) : null,
+          child: Padding(
+            padding: EdgeInsets.all(inset),
+            child: LetterTile(
+              key: Key('wordtiles-swapped-$r-$col'),
+              letter: tile.letter,
+              points: game.tileSet.pointsOf(tile.letter),
+              size: cell - 2 * inset,
+              face: c.pending,
+              ring: staged ? (_tried ? Theme.of(context).colorScheme.error : c.select) : c.open,
+            ),
+          ),
+        ),
+      );
+    }
+    if (tile != null && tile.blank && game.jokerSwap && _canLay) {
+      // A blank that a matching rack tile may take (drag it here, or tap
+      // the tile and then the blank).
+      final sel = _selected;
+      return SizedBox.square(
+        key: key,
+        dimension: cell,
+        child: DragTarget<_Drag>(
+          onWillAcceptWithDetails: (d) => _canSwapJoker(sq, d.data.rackIndex),
+          onAcceptWithDetails: (d) => _swapJoker(sq, d.data.rackIndex),
+          builder: (context, candidates, _) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: sel != null ? () => _swapJoker(sq, sel) : null,
+            child: Padding(
+              padding: EdgeInsets.all(inset),
+              child: LetterTile(
+                letter: tile.letter,
+                points: 0,
+                blank: true,
+                size: cell - 2 * inset,
+                face: last.contains(sq) ? c.lastMove : null,
+                ring: candidates.isNotEmpty || (sel != null && _canSwapJoker(sq, sel))
+                    ? c.select
+                    : open.contains(sq)
+                        ? c.open
+                        : null,
+              ),
+            ),
           ),
         ),
       );
@@ -1690,7 +1880,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final c = WordTilesColors.of(context);
     final rack = _rack;
     if (_order.length != rack.length) _order = List.generate(rack.length, (i) => i);
-    final laid = {for (final p in _pending.values) p.rackIndex, ..._requestedRackTiles};
+    final laid = {for (final p in _pending.values) p.rackIndex, ..._jokers.values, ..._requestedRackTiles};
     final bench = benchShown ? _onBench : const <int>{};
     final shown = [for (final i in _order) if (!laid.contains(i)) i];
     const gap = 6.0;
@@ -2088,7 +2278,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
               tooltip: l10n.wordtilesRecall,
               visualDensity: compact,
               icon: const Icon(Icons.vertical_align_bottom),
-              onPressed: _pending.isNotEmpty ? _recallAll : null,
+              onPressed: _pending.isNotEmpty || _jokers.isNotEmpty ? _recallAll : null,
             ),
             IconButton(
               key: const Key('wordtiles-shuffle'),
@@ -2164,15 +2354,18 @@ String placementErrorText(AppLocalizations l10n, PlacementError e) => switch (e)
 /// One turn of the public log, without the player ("HAUS, AUS für 14
 /// Punkte", "2 Steine getauscht", …).
 String describeWordTilesTurn(BuildContext context, AppLocalizations l10n, WordTilesTurn t) => switch (t.action) {
-      'place' => t.allowed.isEmpty
-          ? l10n.wordtilesMovePlace(wordList(context, t.words), t.score)
-          : l10n.wordtilesMovePlaceAllowed(wordList(context, t.words), t.score, wordList(context, t.allowed)),
+      'place' when t.swaps > 0 => l10n.wordtilesMoveJoker(_describePlace(context, l10n, t)),
+      'place' => _describePlace(context, l10n, t),
       'exchange' => l10n.wordtilesMoveExchange(t.count),
       'pass' => l10n.wordtilesMovePass,
       'challenge' => t.withdrawn ? l10n.wordtilesMoveChallengeWithdrawn(wordList(context, t.words)) : l10n.wordtilesMoveChallengeFailed,
       'accept' => l10n.wordtilesMoveAccept,
       _ => t.action,
     };
+
+String _describePlace(BuildContext context, AppLocalizations l10n, WordTilesTurn t) => t.allowed.isEmpty
+    ? l10n.wordtilesMovePlace(wordList(context, t.words), t.score)
+    : l10n.wordtilesMovePlaceAllowed(wordList(context, t.words), t.score, wordList(context, t.allowed));
 
 /// Small phone (KLD-094 step 8g): the board square with the bench's handle
 /// right under it, both exactly as wide as the board, so the handle and the

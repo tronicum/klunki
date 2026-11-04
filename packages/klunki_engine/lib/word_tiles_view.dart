@@ -17,8 +17,9 @@ class WordTilesView extends WordTilesGame {
   Player get viewer =>
       WordTilesGame.playerOfSeat(viewerSeat) ?? (throw StateError('seat $viewerSeat has no Player (KLD-088)'));
 
-  WordTilesView._(this.viewerSeat, TileSet tileSet, int players, WordCheck check, WordValidator? validator, int limit)
-      : super._view(tileSet, players, check, validator, limit);
+  WordTilesView._(this.viewerSeat, TileSet tileSet, int players, WordCheck check, WordValidator? validator, int limit,
+      {bool jokerSwap = false})
+      : super._view(tileSet, players, check, validator, limit, jokerSwap: jokerSwap);
 
   /// Rebuilds the view from [WordTilesGame.viewJson]; throws
   /// [BadViewException] if [j] is malformed. [validator] is the word check
@@ -32,7 +33,8 @@ class WordTilesView extends WordTilesGame {
       final check = WordCheck.values.byName(j['check'] as String);
       if (viewerSeat < 0 || viewerSeat >= players) throw BadViewException('bad viewer seat $viewerSeat');
       final v = WordTilesView._(viewerSeat, tileSet, players, check,
-          validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int)
+          validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int,
+          jokerSwap: j['jokerSwap'] == true)
         .._lazyList = validator == null;
       final rows = (j['board'] as List).cast<String>();
       if (rows.length != WordTilesGame.size) throw const BadViewException('bad board');
@@ -84,8 +86,11 @@ class WordTilesView extends WordTilesGame {
         final tiles = v._parseTiles(r['tiles']) ?? (throw const BadViewException('bad request tiles'));
         final seat = r['seat'] as int;
         if (seat < 0 || seat >= players || tiles.isEmpty) throw const BadViewException('bad request');
-        v._request = _AllowRequest(
-            seat, tiles, (r['allow'] as List).cast<String>(), (r['words'] as List).cast<String>(), r['score'] as int);
+        final swaps = r.containsKey('swaps')
+            ? v._parseSwaps(r['swaps']) ?? (throw const BadViewException('bad request swaps'))
+            : const <JokerSwap>[];
+        v._request = _AllowRequest(seat, tiles, (r['allow'] as List).cast<String>(),
+            (r['words'] as List).cast<String>(), r['score'] as int, swaps);
       }
       for (final d in j['declined'] as List? ?? const []) {
         v._declined.add((d as List).cast<String>().toList());

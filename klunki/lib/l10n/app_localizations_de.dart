@@ -2078,7 +2078,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesScore(String player, int score) {
-    return '$player: $score Punkte';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$player: $_temp0';
   }
 
   @override
@@ -2111,12 +2117,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesPreview(String words, int score) {
-    return '$words: $score Punkte';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$words: $_temp0';
   }
 
   @override
   String wordtilesPreviewBingo(String words, int score, int bonus) {
-    return '$words: $score Punkte (mit $bonus Bonus für alle Steine)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$words: $_temp0 (mit $bonus Bonus für alle Steine)';
   }
 
   @override
@@ -2147,7 +2165,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesOpenPlacement(String player, String words, int score) {
-    return '$player legte $words für $score Punkte.';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$player legte $words für $_temp0.';
   }
 
   @override
@@ -2175,7 +2199,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesMovePlace(String words, int score) {
-    return '$words für $score Punkte';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$words für $_temp0';
   }
 
   @override
@@ -2269,7 +2299,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
-    return '$words für $score Punkte (zugelassen: $allowed)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$words für $_temp0 (zugelassen: $allowed)';
   }
 
   @override
@@ -2391,7 +2427,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesResultBestWord(String word, String player, int score) {
-    return 'Bestes Wort: $word ($player, $score Punkte)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return 'Bestes Wort: $word ($player, $_temp0)';
   }
 
   @override
@@ -2440,6 +2482,53 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$player legte $words für $_temp0 (Joker getauscht).';
+  }
+
+  @override
+  String get wordtilesOptionJoker => 'Joker tauschen';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · Joker tauschen';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker zu nehmen.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (Joker getauscht)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'In diesem Spiel an.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'Du kannst die Steine zurücknehmen oder $player fragen, ob es trotzdem zählt.';
   }
@@ -2473,7 +2562,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesAllowLine(String player, String words, int score) {
-    return '$player möchte „$words“ zulassen ($score Punkte).';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return '$player möchte „$words“ zulassen ($_temp0).';
   }
 
   @override
@@ -2483,12 +2578,24 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String wordtilesMoveAllowRequest(String words, int score) {
-    return 'möchte $words zulassen ($score Punkte)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return 'möchte $words zulassen ($_temp0)';
   }
 
   @override
   String wordtilesMoveAllowAccept(String words, int score) {
-    return 'einverstanden: $words zählt ($score Punkte)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score Punkte',
+      one: '$score Punkt',
+    );
+    return 'einverstanden: $words zählt ($_temp0)';
   }
 
   @override

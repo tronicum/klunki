@@ -89,10 +89,11 @@ class GameNotInAppScreen extends StatelessWidget {
 /// Quartett, KLD-069) and pushes its screen. The controller lives as long as
 /// the route and is disposed when it is popped.
 Future<void> openGame(BuildContext context, String gameId,
-    {int? seed, String? deck, String? tiles, bool dictionary = false}) {
+    {int? seed, String? deck, String? tiles, bool dictionary = false, bool jokerSwap = false}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
-        config: GameConfig(gameId, seed: seed ?? newGameSeed(), deck: deck, tiles: tiles, dictionary: dictionary)),
+        config: GameConfig(gameId,
+            seed: seed ?? newGameSeed(), deck: deck, tiles: tiles, dictionary: dictionary, jokerSwap: jokerSwap)),
   ));
 }
 
@@ -119,7 +120,8 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
   if (words != null && words.dictionary) {
     if (!await loadWordListWithProgress(context, words.tiles) || !context.mounted) return;
   }
-  return openGame(context, gameId, deck: deck, tiles: words?.tiles, dictionary: words?.dictionary ?? false);
+  return openGame(context, gameId,
+      deck: deck, tiles: words?.tiles, dictionary: words?.dictionary ?? false, jokerSwap: words?.joker ?? false);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

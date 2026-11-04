@@ -59,7 +59,7 @@ compatible; a host without WebSocket support simply omits them.
 |---|---|---|---|
 | `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
-| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
+| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, joker?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `joker: true` = Wortgewandt house rule "Joker tauschen", KLD-094 step 9; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
@@ -447,7 +447,16 @@ game the guest also checks what it can at once: each view must be its own
   word list (`dict: true`, "Wörterbuch prüfen"); both travel in the
   `welcome` `config` (`publicJson`, the seed is secret and committed as
   `seedCommit`). The guest builds the same `GameConfig` from them.
-- **Fingerprint.** Rules version 3. The content hash covers the tile sets,
+- **"Joker tauschen" (KLD-094 step 9, rules 4).** The host may turn on the
+  house rule: `joker: true` in the `welcome` `config` (written only when on).
+  Then a `place` (and a `requestAllow`) may carry `swaps: [{row, col,
+  tile}, …]`: before the tiles are laid, the real letter `tile` from the
+  mover's rack replaces the blank on that square and the blank joins the
+  rack. Always together with tiles; refused without the option. Public like
+  the rest of a placement (the board change shows it anyway); the view says
+  `jokerSwap: true`, its turn log `swaps: n`, an open `allowRequest` its
+  `swaps`.
+- **Fingerprint.** Rules version 4 (3 before "Joker tauschen"). The content hash covers the tile sets,
   the board layout and `WordLists.revisions`: per language the list's source
   and the SHA-256 of the bundled `words.txt.gz`. Builds with different lists
   (or rules 2) refuse each other (`incompatible-content` / `-rules`). The
@@ -459,7 +468,7 @@ game the guest also checks what it can at once: each view must be its own
   guest as `{action: exchange, count}` with a `commit`; placements, passes
   and challenges are public. At the end `reveal` brings the seed and the
   exchanged tiles; the guest replays the game (`verifyRedactedGame` with the
-  config's `tiles` and `dict`).
+  config's `tiles`, `dict` and `joker`).
 - **"Trotzdem zulassen" (dictionary mode).** The word check runs locally at
   "Legen" (no round trip); "Zurücknehmen" is local too. Letting a word the
   list lacks count needs the other player:

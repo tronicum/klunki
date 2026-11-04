@@ -2423,6 +2423,47 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return '$player $words را با $score امتیاز گذاشت (با عوض کردن کاشی خالی).';
+  }
+
+  @override
+  String get wordtilesOptionJoker => 'عوض کردن کاشی خالی';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      'قانون خانگی: اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، می‌توانی آن را همان‌جا بگذاری و کاشی خالی را برداری. بعد در همان نوبت کاشی هم می‌گذاری.';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · عوض کردن کاشی خالی';
+  }
+
+  @override
+  String get wordtilesHintJoker =>
+      'حرف همانند را روی یک کاشی خالیِ صفحه بکش تا کاشی خالی را برداری.';
+
+  @override
+  String get wordtilesJokerStaged =>
+      'کاشی خالی برداشته شد. حالا کاشی هم بگذار، وگرنه تعویض حساب نمی‌شود.';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move (با عوض کردن کاشی خالی)';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      'عوض کردن کاشی خالی (قانون خانگی): اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، آن را روی کاشی خالی بکش. کاشی خالی به کاشی‌های تو می‌آید و در همان نوبت کاشی هم می‌گذاری (کاشی خالی هم می‌تواند جزو آن‌ها باشد). بدون گذاشتن کاشی، تعویض حساب نمی‌شود. واژهٔ قبلی و امتیازش می‌ماند.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'در این بازی روشن است.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'در این بازی خاموش است. می‌توانید پیش از بازی روشنش کنید.';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return 'می‌توانی حرف‌ها را پس بگیری یا از $player بپرسی که به‌هرحال حساب شود یا نه.';
   }

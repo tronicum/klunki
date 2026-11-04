@@ -2350,6 +2350,44 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return '$player 出了 $words，得 $score 分（换了空白牌）。';
+  }
+
+  @override
+  String get wordtilesOptionJoker => '换空白牌';
+
+  @override
+  String get wordtilesOptionJokerExplain =>
+      '自选玩法：如果你有棋盘上空白牌代表的字母，可以把它放到那里，取走空白牌。然后本轮还要出牌。';
+
+  @override
+  String wordtilesOptionsSummaryJoker(String summary) {
+    return '$summary · 换空白牌';
+  }
+
+  @override
+  String get wordtilesHintJoker => '把相同的字母牌拖到棋盘上的空白牌上，就能取走空白牌。';
+
+  @override
+  String get wordtilesJokerStaged => '已取走空白牌。现在还要出牌，不然不算换。';
+
+  @override
+  String wordtilesMoveJoker(String move) {
+    return '$move（换了空白牌）';
+  }
+
+  @override
+  String get wordtilesHelpJoker =>
+      '换空白牌（自选玩法）：如果你有棋盘上空白牌代表的字母，把它拖到空白牌上。空白牌回到你手里，本轮你还要出牌（可以用这张空白牌）。不出牌就不算换。之前的字和分数不变。';
+
+  @override
+  String get wordtilesHelpJokerOn => '本局已打开。';
+
+  @override
+  String get wordtilesHelpJokerOff => '本局没有打开。可以在开局前打开。';
+
+  @override
   String wordtilesUnknownAskNet(String player) {
     return '可以取回这些牌，或者问 $player 是否仍然算数。';
   }

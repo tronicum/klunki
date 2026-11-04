@@ -54,6 +54,25 @@ void main() {
     });
   }
 
+  // KLD-094 step 9: "Joker tauschen" on; the adapter swaps through the UI
+  // whenever it can (rack tile, then the blank) and lays a placement with it.
+  // Seeds where a blank meets a matching letter (2 and 3 never do).
+  for (final seed in [1, 4]) {
+    testWidgets('hot-seat "Joker tauschen" seed $seed: swaps staged through the UI and played', (tester) async {
+      tester.view.physicalSize = const Size(1180, 820);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final adapter = WordTilesJokerAdapter();
+      final log = await playHotSeat(tester, adapter, GameConfig('wordtiles', seed: seed, jokerSwap: true),
+          rng: Random(seed * 7));
+      log.printIfVerbose();
+      final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
+      expect((c.game as WordTilesGame).isOver, isTrue);
+      expect(adapter.tapped['joker'] ?? 0, greaterThan(0), reason: '${adapter.tapped}');
+      expect(c.moves.where((m) => m.move['swaps'] != null).length, adapter.tapped['joker']);
+    });
+  }
+
   // KLD-094 step 6: over the network (host Anna, guest Ben side by side over
   // real sockets through the Wi-Fi latency proxy), with the German word
   // list: the first "Trotzdem zulassen" is declined on the other device, the

@@ -3398,7 +3398,7 @@ abstract class AppLocalizations {
   /// Word tiles: a player's score (screen reader text of the score bar).
   ///
   /// In de, this message translates to:
-  /// **'{player}: {score} Punkte'**
+  /// **'{player}: {score, plural, one{{score} Punkt} other{{score} Punkte}}'**
   String wordtilesScore(String player, int score);
 
   /// Word tiles: hint line while the player can lay tiles.
@@ -3446,13 +3446,13 @@ abstract class AppLocalizations {
   /// Word tiles: live preview of the words laid and their score.
   ///
   /// In de, this message translates to:
-  /// **'{words}: {score} Punkte'**
+  /// **'{words}: {score, plural, one{{score} Punkt} other{{score} Punkte}}'**
   String wordtilesPreview(String words, int score);
 
   /// Word tiles: live preview when all rack tiles are laid (bonus = 50).
   ///
   /// In de, this message translates to:
-  /// **'{words}: {score} Punkte (mit {bonus} Bonus für alle Steine)'**
+  /// **'{words}: {score, plural, one{{score} Punkt} other{{score} Punkte}} (mit {bonus} Bonus für alle Steine)'**
   String wordtilesPreviewBingo(String words, int score, int bonus);
 
   /// Word tiles: placement error: not in one row or column.
@@ -3500,7 +3500,7 @@ abstract class AppLocalizations {
   /// Word tiles: the last placement, which the player to move may challenge.
   ///
   /// In de, this message translates to:
-  /// **'{player} legte {words} für {score} Punkte.'**
+  /// **'{player} legte {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}.'**
   String wordtilesOpenPlacement(String player, String words, int score);
 
   /// Word tiles: button: accept the last placement.
@@ -3542,7 +3542,7 @@ abstract class AppLocalizations {
   /// Word tiles: a placement in the move list and the last-turn line (after "{player}: ").
   ///
   /// In de, this message translates to:
-  /// **'{words} für {score} Punkte'**
+  /// **'{words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}'**
   String wordtilesMovePlace(String words, int score);
 
   /// Word tiles: a swap in the move list (count = tiles swapped).
@@ -3680,7 +3680,7 @@ abstract class AppLocalizations {
   /// Word tiles history: a placement with words the players allowed although the word list lacks them.
   ///
   /// In de, this message translates to:
-  /// **'{words} für {score} Punkte (zugelassen: {allowed})'**
+  /// **'{words} für {score, plural, one{{score} Punkt} other{{score} Punkte}} (zugelassen: {allowed})'**
   String wordtilesMovePlaceAllowed(String words, int score, String allowed);
 
   /// Word tiles: the collapsible practice rows next to the rack ("Bänkchen") where a player tries out words; private like the rack.
@@ -3872,7 +3872,7 @@ abstract class AppLocalizations {
   /// Word tiles result: the highest-scoring single word of the game. word = the word, player = who laid it, score = its points.
   ///
   /// In de, this message translates to:
-  /// **'Bestes Wort: {word} ({player}, {score} Punkte)'**
+  /// **'Bestes Wort: {word} ({player}, {score, plural, one{{score} Punkt} other{{score} Punkte}})'**
   String wordtilesResultBestWord(String word, String player, int score);
 
   /// Word tiles result: words the players let stand with "Trotzdem zulassen" during the game. words = comma separated.
@@ -3941,6 +3941,66 @@ abstract class AppLocalizations {
   /// **'{language} · ohne Wörterbuch'**
   String wordtilesOptionsSummaryFree(String language);
 
+  /// Word tiles: like wordtilesOpenPlacement, when that placement came with "Joker tauschen" (KLD-094 step 9).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} legte {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}} (Joker getauscht).'**
+  String wordtilesOpenPlacementJoker(String player, String words, int score);
+
+  /// Word tiles start options: switch for the house rule 'Joker tauschen' (KLD-094 step 9): a player holding the letter a laid blank stands for may put it there and take the blank.
+  ///
+  /// In de, this message translates to:
+  /// **'Joker tauschen'**
+  String get wordtilesOptionJoker;
+
+  /// Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default).
+  ///
+  /// In de, this message translates to:
+  /// **'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.'**
+  String get wordtilesOptionJokerExplain;
+
+  /// Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.
+  ///
+  /// In de, this message translates to:
+  /// **'{summary} · Joker tauschen'**
+  String wordtilesOptionsSummaryJoker(String summary);
+
+  /// Word tiles hint line ('Joker tauschen' on): the player to move holds a letter that a blank on the board stands for.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehe den passenden Buchstaben auf einen Joker auf dem Brett, um den Joker zu nehmen.'**
+  String get wordtilesHintJoker;
+
+  /// Word tiles: the line under the board after a staged 'Joker tauschen' while no tile is laid yet; the swap only counts together with a placement.
+  ///
+  /// In de, this message translates to:
+  /// **'Joker genommen. Lege jetzt noch Steine, sonst gilt der Tausch nicht.'**
+  String get wordtilesJokerStaged;
+
+  /// Word tiles history: a placement that came with 'Joker tauschen'; {move} is the placement text (wordtilesMovePlace).
+  ///
+  /// In de, this message translates to:
+  /// **'{move} (Joker getauscht)'**
+  String wordtilesMoveJoker(String move);
+
+  /// Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9).
+  ///
+  /// In de, this message translates to:
+  /// **'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.'**
+  String get wordtilesHelpJoker;
+
+  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game.
+  ///
+  /// In de, this message translates to:
+  /// **'In diesem Spiel an.'**
+  String get wordtilesHelpJokerOn;
+
+  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is off in this game (it is chosen before the game).
+  ///
+  /// In de, this message translates to:
+  /// **'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.'**
+  String get wordtilesHelpJokerOff;
+
   /// KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): "Trotzdem zulassen" sends a request to the other player ({player}).
   ///
   /// In de, this message translates to:
@@ -3992,7 +4052,7 @@ abstract class AppLocalizations {
   /// KLD-094 step 6: the line above the board on both devices while a request is open.
   ///
   /// In de, this message translates to:
-  /// **'{player} möchte „{words}“ zulassen ({score} Punkte).'**
+  /// **'{player} möchte „{words}“ zulassen ({score, plural, one{{score} Punkt} other{{score} Punkte}}).'**
   String wordtilesAllowLine(String player, String words, int score);
 
   /// KLD-094 step 6: the line above the board right after {player} declined a request.
@@ -4004,13 +4064,13 @@ abstract class AppLocalizations {
   /// KLD-094 step 6: history entry after "{player}: " for a request to allow words.
   ///
   /// In de, this message translates to:
-  /// **'möchte {words} zulassen ({score} Punkte)'**
+  /// **'möchte {words} zulassen ({score, plural, one{{score} Punkt} other{{score} Punkte}})'**
   String wordtilesMoveAllowRequest(String words, int score);
 
   /// KLD-094 step 6: history entry after "{player}: " when the other player agreed (the placement counts).
   ///
   /// In de, this message translates to:
-  /// **'einverstanden: {words} zählt ({score} Punkte)'**
+  /// **'einverstanden: {words} zählt ({score, plural, one{{score} Punkt} other{{score} Punkte}})'**
   String wordtilesMoveAllowAccept(String words, int score);
 
   /// KLD-094 step 6: history entry after "{player}: " when the other player declined a request.

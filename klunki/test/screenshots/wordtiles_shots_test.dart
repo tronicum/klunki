@@ -550,6 +550,64 @@ void main() {
       }
     }
   });
+
+  // KLD-094 step 9: the house rule "Joker tauschen": the start option, the
+  // hint, a staged swap and a placement with it on a phone, the help
+  // (`--plain-name kld094-step9`).
+  group('kld094-step9', () {
+    for (final (lang, locale) in [('de', Locale('de')), ('en', Locale('en'))]) {
+      testWidgets('options $lang', skip: skip, (tester) async {
+        tester.view.physicalSize = const Size(390, 844) * 2;
+        tester.view.devicePixelRatio = 2;
+        addTearDown(tester.view.reset);
+        await _pumpScreen(tester, locale: locale, child: const Scaffold(body: SizedBox.expand()));
+        showWordTilesOptionsDialog(tester.element(find.byType(Scaffold)));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-joker')));
+        await _tap(tester, find.byKey(const Key('wordtiles-joker')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-step9/options-$lang-joker-on');
+      });
+    }
+
+    for (final (name, size) in [('iphone', Size(390, 844)), ('iphone-se', Size(375, 667))]) {
+      testWidgets('swap $name', skip: skip, (tester) async {
+        final c = await _pump(tester, size, config: const GameConfig('wordtiles', seed: 1, jokerSwap: true));
+        // BIRNE with a blank I (Anna); Ben holds an I and accepts first.
+        await _midGame(tester, c);
+        await _tap(tester, find.byKey(const Key('wordtiles-accept')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-step9/$name-1-hint');
+        await tester.ensureVisible(find.byKey(Key('wordtiles-rack-${_rackIndex(c, 'I')}')));
+        await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, 'I')}')));
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-sq-11-6')));
+        await _tap(tester, find.byKey(const Key('wordtiles-sq-11-6')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('wordtiles-swapped-11-6')), findsOneWidget);
+        await _shot(tester, 'kld094-step9/$name-2-staged');
+        // IM down from the swapped I; the blank stays on the rack.
+        await _tap(tester, find.byKey(Key('wordtiles-rack-${_rackIndex(c, 'M')}')));
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-sq-12-6')));
+        await _tap(tester, find.byKey(const Key('wordtiles-sq-12-6')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-step9/$name-3-laid');
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-play')));
+        await _tap(tester, find.byKey(const Key('wordtiles-play')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-step9/$name-4-handover');
+        if (find.byKey(const Key('handover-continue')).evaluate().isNotEmpty) {
+          await _tap(tester, find.byKey(const Key('handover-continue')));
+          await tester.pumpAndSettle();
+        }
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-help')));
+        await _tap(tester, find.byKey(const Key('wordtiles-help')));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byKey(const Key('wordtiles-help-joker')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-step9/$name-5-help');
+      });
+    }
+  });
 }
 
 class _NeverBundle extends CachingAssetBundle {
