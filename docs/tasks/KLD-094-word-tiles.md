@@ -755,6 +755,16 @@ the Wortgewandt point strings use ICU plurals in de/en/fr/es ("1 Punkt", "1 poin
   scrolls; a pinch with the first or the second finger on the laid tile zooms (fails without the pointer watch).
   Browser check (headless Firefox, release build, semantics off): mouse and touch drags without a rest move the
   tile at 1200 × 900 and 412 × 1400 (zoomed). No rules change.
+- **Follow-up (browser playtest: "if i touch another letter the first one can only be removed by click not by
+  drag"):** the pointer watch counted every press anywhere in the app as a second finger. A finger resting on a
+  rack letter, the bench or the screen's edge, or a press whose release the browser never passes on (a right
+  click that opens the browser's menu: Flutter keeps that mouse down), left every laid-tile drag to the board
+  while taps still worked. Now only fingers and pens that come down on the board count (`_onBoard`, the board's
+  clip area); a mouse never counts. Tests: group "… after touching another letter" (mouse and touch: another
+  tile laid, a rack tile selected, other tiles dragged, rack drag, tap swap, bench and back, a press without a
+  release) and "a finger resting on a rack letter" (tablet, zoomed phone); 4 of them fail on 1bd39cc; a finger
+  resting on the board still makes it a pinch. Browser check: the same sequences in headless Firefox (mouse and
+  touch), a synthetic press without release, and a second touch resting on a rack letter during the drag.
 
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it

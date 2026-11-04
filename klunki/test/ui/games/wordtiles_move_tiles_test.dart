@@ -447,4 +447,167 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  // KLD-094 step 8h, browser playtest: "if i touch another letter the first
+  // one can only be removed by click not by drag". One mouse (or one finger
+  // after the other) does everything in a row: lay, select, drag other
+  // tiles, then drag the first one again.
+  for (final kind in [PointerDeviceKind.mouse, PointerDeviceKind.touch]) {
+    group('${kind.name}: after touching another letter', () {
+      late TestGesture mouse;
+      var next = 100;
+
+      Future<TestGesture> press(WidgetTester tester, Offset at) async {
+        if (kind == PointerDeviceKind.mouse) {
+          await mouse.down(at);
+          return mouse;
+        }
+        return tester.startGesture(at, kind: kind, pointer: next++);
+      }
+
+      Future<void> click(WidgetTester tester, Finder f) async {
+        await tester.ensureVisible(f);
+        final g = await press(tester, tester.getCenter(f));
+        await tester.pump(const Duration(milliseconds: 60));
+        await g.up();
+        await tester.pumpAndSettle();
+      }
+
+      Future<void> drag(WidgetTester tester, Finder from, Finder to) async {
+        final a = tester.getCenter(from);
+        final b = tester.getCenter(to);
+        final g = await press(tester, a);
+        for (var i = 1; i <= 12; i++) {
+          await g.moveTo(Offset.lerp(a, b, i / 12)!);
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        await g.up();
+        await tester.pumpAndSettle();
+      }
+
+      Future<void> start(WidgetTester tester) async {
+        await _start(tester, size: const Size(1200, 900));
+        if (kind == PointerDeviceKind.mouse) {
+          mouse = await tester.createGesture(kind: kind);
+          await mouse.addPointer(location: Offset.zero);
+          addTearDown(mouse.removePointer);
+        }
+        await click(tester, _rack(0));
+        await click(tester, _sq(7, 7)); // H
+        expect(_letter(7, 7, 'H'), findsOneWidget);
+      }
+
+      testWidgets('another tile laid by tap, then the first one drags', (tester) async {
+        await start(tester);
+        await click(tester, _rack(1));
+        await click(tester, _sq(7, 8)); // A
+        await drag(tester, _sq(7, 7), _sq(8, 7));
+        expect(_letter(8, 7, 'H'), findsOneWidget);
+      });
+
+      testWidgets('dragged once, a rack tile selected, then it drags again', (tester) async {
+        await start(tester);
+        await drag(tester, _sq(7, 7), _sq(7, 9));
+        expect(_letter(7, 9, 'H'), findsOneWidget);
+        await click(tester, _rack(1));
+        await drag(tester, _sq(7, 9), _sq(8, 9));
+        expect(_letter(8, 9, 'H'), findsOneWidget);
+      });
+
+      testWidgets('another laid tile dragged, then the first one drags', (tester) async {
+        await start(tester);
+        await click(tester, _rack(1));
+        await click(tester, _sq(7, 8)); // A
+        await drag(tester, _sq(7, 8), _sq(8, 8));
+        expect(_letter(8, 8, 'A'), findsOneWidget);
+        await drag(tester, _sq(7, 7), _sq(6, 7));
+        expect(_letter(6, 7, 'H'), findsOneWidget);
+        await drag(tester, _sq(8, 8), _sq(9, 8));
+        expect(_letter(9, 8, 'A'), findsOneWidget);
+      });
+
+      testWidgets('a rack tile dragged onto the board, then the first one drags', (tester) async {
+        await start(tester);
+        await drag(tester, _rack(1), _sq(7, 8));
+        expect(_letter(7, 8, 'A'), findsOneWidget);
+        await drag(tester, _sq(7, 7), _sq(8, 7));
+        expect(_letter(8, 7, 'H'), findsOneWidget);
+      });
+
+      testWidgets('a rack tile swapped in by tap, then it drags', (tester) async {
+        await start(tester);
+        await click(tester, _rack(1));
+        await click(tester, _sq(7, 7)); // A takes the square, H back to the rack
+        expect(_letter(7, 7, 'A'), findsOneWidget);
+        await drag(tester, _sq(7, 7), _sq(8, 7));
+        expect(_letter(8, 7, 'A'), findsOneWidget);
+      });
+
+      // A press whose release never reaches the app (a right click that
+      // opens the browser's menu, a button let go outside the window) must
+      // not count as a finger that stays down: the next drag still lifts.
+      testWidgets('a press without a release elsewhere, then it drags', (tester) async {
+        await start(tester);
+        final lost = await tester.createGesture(kind: PointerDeviceKind.mouse, buttons: kSecondaryMouseButton);
+        await lost.down(tester.getCenter(_rack(1)));
+        await tester.pump();
+        await drag(tester, _sq(7, 7), _sq(8, 7));
+        expect(_letter(8, 7, 'H'), findsOneWidget);
+        await lost.cancel();
+      });
+
+      testWidgets('dropped on the bench and back, then it drags', (tester) async {
+        await start(tester);
+        final slot = find.byKey(const Key('wordtiles-bench-0-0'));
+        await drag(tester, _sq(7, 7), slot);
+        await drag(tester, slot, _sq(7, 8));
+        expect(_letter(7, 8, 'H'), findsOneWidget);
+        await drag(tester, _sq(7, 8), _sq(8, 8));
+        expect(_letter(8, 8, 'H'), findsOneWidget);
+      });
+    });
+  }
+
+  // A finger that rests on another letter (the rack) or anywhere off the
+  // board cannot pinch the board: a second finger still drags the laid tile.
+  // On the board, a resting finger makes it a pinch: the tile stays.
+  for (final (name, size) in [('tablet', Size(1180, 820)), ('phone, zoomed', Size(393, 852))]) {
+    testWidgets('$name: a finger resting on a rack letter, another finger drags the laid tile', (tester) async {
+      await _start(tester, size: size);
+      await _lay(tester, [(0, 7, 7)]);
+      await tester.pumpAndSettle();
+      final rest = await tester.startGesture(tester.getCenter(_rack(1)), pointer: 41);
+      await tester.pump(const Duration(milliseconds: 100));
+      final a = tester.getCenter(_sq(7, 7));
+      final b = tester.getCenter(_sq(8, 7));
+      final g = await tester.startGesture(a, pointer: 42);
+      for (var i = 1; i <= 12; i++) {
+        await g.moveTo(Offset.lerp(a, b, i / 12)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await g.up();
+      await tester.pumpAndSettle();
+      expect(_letter(8, 7, 'H'), findsOneWidget);
+      await rest.cancel();
+      await tester.pumpAndSettle();
+    });
+  }
+
+  testWidgets('a finger resting on the board: the other finger pinches, the laid tile stays', (tester) async {
+    await _start(tester);
+    await _lay(tester, [(0, 7, 7)]);
+    await tester.pumpAndSettle();
+    final rest = await tester.startGesture(tester.getCenter(_sq(3, 3)), pointer: 41);
+    await tester.pump(const Duration(milliseconds: 100));
+    final a = tester.getCenter(_sq(7, 7));
+    final g = await tester.startGesture(a, pointer: 42);
+    for (var i = 1; i <= 12; i++) {
+      await g.moveTo(a + Offset(6.0 * i, 6.0 * i));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await g.up();
+    await rest.up();
+    await tester.pumpAndSettle();
+    expect(_letter(7, 7, 'H'), findsOneWidget);
+  });
 }
