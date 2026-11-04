@@ -35,7 +35,7 @@ Usage:
   dart run packages/klunki_net/bin/klunki.dart join ws://<ip>[:port] [--name NAME]
 
 Through a relay (browser vs browser, or terminals that cannot reach each other):
-  dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR] [--codes FILE]
+  dart run packages/klunki_net/bin/klunki.dart relay [--port N] [--web DIR] [--codes FILE] [--host-grace SECONDS] [--log-rooms]
   dart run packages/klunki_net/bin/klunki.dart host <game> --relay ws://<relay>[:port] [--club CODE] [--seed S] [--deck D] [--color C] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart join --relay ws://<relay>[:port] --room CODE [--club CODE] [--name NAME]
   dart run packages/klunki_net/bin/klunki.dart relay-code new [--label TEXT]
@@ -56,7 +56,11 @@ relay --codes FILE: only players with a club code from FILE may use the relay
 (one code per line, optional "# label"; edits apply to the next connection,
 a removed line is revoked, running games may finish). relay-code new prints
 a random code line to append to FILE; players enter it as "Clubcode"
-(host/join: --club CODE).
+(host/join: --club CODE). relay --host-grace SECONDS: how long a room waits for
+a host whose connection dropped, e.g. a locked phone (default 300; 0 = off).
+relay --log-rooms: one line per room event with the time and the room code
+(opened, guest joined/gone, host away/back, closed, close codes; no names or
+addresses), to see what happened to a game. Off by default: no logs.
 In the game: type a move on your turn; "board", "moves", "resign", "help", "quit".''';
 
 /// Runs the `klunki` network CLI. Returns the exit code.
@@ -345,17 +349,34 @@ class _RelayArgs {
 
   /// `--codes FILE`: gate the relay with club codes (KLD-112).
   final String? codes;
-  _RelayArgs(this.port, this.web, this.codes);
+
+  /// `--host-grace SECONDS`: how long a room waits for a host whose
+  /// connection dropped (KLD-120); 0 closes it at once.
+  final Duration hostGrace;
+
+  /// `--log-rooms`: log room events (off by default, the relay logs nothing).
+  final bool logRooms;
+  _RelayArgs(this.port, this.web, this.codes, this.hostGrace, this.logRooms);
 }
 
 _RelayArgs? _parseRelay(List<String> args) {
   var port = defaultRelayPort;
   String? web, codes;
+  var hostGrace = const Duration(minutes: 5);
+  var logRooms = false;
   for (var i = 1; i < args.length; i++) {
     final a = args[i];
-    if ((a != '--port' && a != '--web' && a != '--codes') || i + 1 >= args.length) return null;
+    if (a == '--log-rooms') {
+      logRooms = true;
+      continue;
+    }
+    if (!const {'--port', '--web', '--codes', '--host-grace'}.contains(a) || i + 1 >= args.length) return null;
     final v = args[++i];
-    if (a == '--port') {
+    if (a == '--host-grace') {
+      final seconds = int.tryParse(v);
+      if (seconds == null || seconds < 0) return null;
+      hostGrace = Duration(seconds: seconds);
+    } else if (a == '--port') {
       final p = int.tryParse(v);
       if (p == null || p < 0 || p > 65535) return null;
       port = p;
@@ -365,8 +386,10 @@ _RelayArgs? _parseRelay(List<String> args) {
       web = v;
     }
   }
-  return _RelayArgs(port, web, codes);
+  return _RelayArgs(port, web, codes, hostGrace, logRooms);
 }
+
+String _clock(DateTime t) => [t.hour, t.minute, t.second].map((n) => '$n'.padLeft(2, '0')).join(':');
 
 Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Future<void>? stop) async {
   Directory? web;
@@ -391,7 +414,13 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
   }
   final RelayServer relay;
   try {
-    relay = await RelayServer.start(port: args.port, address: bindAddress, webRoot: web, clubCodes: clubCodes);
+    relay = await RelayServer.start(
+        port: args.port,
+        address: bindAddress,
+        webRoot: web,
+        clubCodes: clubCodes,
+        hostGrace: args.hostGrace,
+        log: args.logRooms ? (line) => out.writeln('${_clock(DateTime.now())} $line') : null);
   } on SocketException catch (e) {
     out.writeln('Cannot listen on port ${args.port}: ${e.message}');
     return 1;
@@ -399,6 +428,11 @@ Future<int> _runRelay(_RelayArgs args, StringSink out, Object? bindAddress, Futu
   final ips = await _addresses(bindAddress);
   out.writeln('Klunki relay listening on port ${relay.port}: '
       '${ips.map((ip) => 'ws://$ip:${relay.port}$relayPath').join(', ')}');
+  // KLD-120: this line tells which build runs (older relays lack it).
+  out.writeln(args.hostGrace > Duration.zero
+      ? 'Host grace: a room waits ${args.hostGrace.inSeconds} s for a host whose connection dropped (KLD-120).'
+      : 'Host grace: off (--host-grace 0), a dropped host closes its room.');
+  if (args.logRooms) out.writeln('Logging room events (--log-rooms): time, room code, what happened.');
   if (clubCodes != null) {
     out.writeln('Club codes required (${args.codes}); edits apply to the next connection.');
   }

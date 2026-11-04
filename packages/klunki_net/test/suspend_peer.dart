@@ -8,7 +8,12 @@
 //
 // Prints one JSON object per line: {"e":"ready",...} once, then
 // {"e":"event","kind":...,"text":...} for every NetEvent. Reads commands on
-// stdin: `move {"col":3}`, `reconnect`, `resume`, `quit`.
+// stdin: `move {"col":3}`, `play {"col":3}` (retries the move until it is
+// accepted, answers {"e":"played","ms":...}), `reconnect`, `resume MS` (the
+// app came back after MS ms: test/app_policy.dart), `quit`.
+//
+// Environment: KLUNKI_PEER_PING_MS / KLUNKI_PEER_TIMEOUT_MS (keepalive,
+// default 100 / 800), KLUNKI_PEER_POLICY (`current`, default, or `before`).
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -16,8 +21,10 @@ import 'dart:io';
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
 
-const _ping = Duration(milliseconds: 100);
-const _timeout = Duration(milliseconds: 800);
+import 'app_policy.dart';
+
+final _ping = Duration(milliseconds: int.tryParse(Platform.environment['KLUNKI_PEER_PING_MS'] ?? '') ?? 100);
+final _timeout = Duration(milliseconds: int.tryParse(Platform.environment['KLUNKI_PEER_TIMEOUT_MS'] ?? '') ?? 800);
 
 void _say(Map<String, Object?> m) => stdout.writeln(jsonEncode(m));
 
@@ -43,10 +50,13 @@ Future<void> main(List<String> args) async {
   final events = host?.events ?? guest!.events;
   events.listen((e) => _say({
         'e': 'event',
+        'at': DateTime.now().toIso8601String().substring(11),
         'kind': e.runtimeType.toString(),
         'text': '$e',
         'moves': host?.moves.length ?? guest!.moves.length,
       }));
+  final policy = AppPolicy.named(Platform.environment['KLUNKI_PEER_POLICY'] ?? 'current',
+      timeout: _timeout, host: host, guest: guest);
   _say({'e': 'ready', 'port': host?.port, 'code': host?.roomCode});
   await for (final line in stdin.transform(utf8.decoder).transform(const LineSplitter())) {
     final space = line.indexOf(' ');
@@ -65,9 +75,24 @@ Future<void> main(List<String> args) async {
           _say({'e': 'reconnect', 'ok': false, 'error': '$e'});
         }
       case 'resume':
-        await host?.resume(away: Duration(milliseconds: int.tryParse(rest) ?? 0));
+        await policy.resumed(Duration(milliseconds: int.tryParse(rest) ?? 0));
         _say({'e': 'resumed'});
+      case 'play':
+        final move = jsonDecode(rest) as Map<String, dynamic>;
+        final clock = Stopwatch()..start();
+        while (true) {
+          String? reason;
+          try {
+            reason = host != null ? host.submitLocal(move) : await guest!.submit(move);
+          } catch (e) {
+            reason = '$e';
+          }
+          if (reason == null) break;
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+        _say({'e': 'played', 'ms': clock.elapsedMilliseconds});
       case 'quit':
+        await policy.dispose();
         await host?.close();
         await guest?.close();
         exit(0);

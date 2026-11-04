@@ -37,6 +37,8 @@ export 'src/events.dart'
         VersionMismatch;
 export 'src/compat.dart' show BuildCompat, compareBuilds, versionDisplay;
 export 'src/guest.dart' show KlunkiGuest;
+export 'src/reconnect.dart'
+    show pauseMakesStale, nextRetryDelay, reconnectRetryable, GuestReconnector, PauseClock;
 export 'src/relay/relay_protocol.dart'
     show
         relayPath,

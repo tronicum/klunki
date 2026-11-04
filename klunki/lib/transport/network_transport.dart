@@ -77,9 +77,9 @@ class NetworkTransport implements GameTransport {
   /// it shows the manual "Neu verbinden" button.
   final Duration reconnectFor;
   Future<void>? _autoLoop;
-  Completer<void>? _wakeLoop;
+  GuestReconnector? _reconnector;
   Object? _reconnectError;
-  Stopwatch? _away; // running while the app is in the background
+  PauseClock? _away; // running while the app is in the background
 
   NetworkTransport._host(KlunkiHost host)
       : role = NetRole.host,
@@ -287,7 +287,7 @@ class NetworkTransport implements GameTransport {
     final closing = _closing;
     if (closing != null) return closing;
     _disposed = true;
-    _wakeLoop?.complete();
+    _reconnector?.stop();
     _netSub.cancel();
     _setState(NetConnectionState.closed);
     _accepted.close();
@@ -394,12 +394,15 @@ class NetworkTransport implements GameTransport {
   /// `paused`; on a phone: locked or switched away). Nothing is closed:
   /// iOS suspends the app soon, and [appResumed] picks up from there.
   void appPaused() {
-    _away ??= Stopwatch()..start();
+    _away ??= PauseClock();
   }
 
-  /// The app is in the foreground again: the host listens again (LAN) or
-  /// comes back to its relay room; the guest reconnects right away when it
-  /// lost the connection or was away long enough for the host to drop it.
+  /// The app is in the foreground again. After a pause of at least
+  /// [pauseMakesStale] the connections are not trusted (the system may
+  /// have dropped them without a word, and the other side gave up on us
+  /// after its timeout): the host listens again (LAN) or comes back to its
+  /// relay room at once, the guest reconnects at once. Waiting for the
+  /// keepalive to notice would cost another timeout (KLD-120).
   void appResumed() {
     final away = _away?.elapsed ?? Duration.zero;
     _away = null;
@@ -410,73 +413,39 @@ class NetworkTransport implements GameTransport {
       return;
     }
     final guest = _guest!;
-    if (!guest.connected || away >= guest.timeout) _startAutoReconnect(force: guest.connected);
+    if (!guest.connected || away >= pauseMakesStale) _startAutoReconnect(force: guest.connected);
   }
 
   /// Guest: (re)starts the automatic reconnect, or skips its current wait.
   void _startAutoReconnect({bool force = false}) {
     if (!autoReconnect || _disposed || _guest == null) return;
     if (_autoLoop != null) {
-      _wakeLoop?.complete();
+      _reconnector?.wake();
       return;
     }
     _autoLoop = _runAutoReconnect(force: force).whenComplete(() => _autoLoop = null);
   }
 
-  /// Retries [KlunkiGuest.reconnect] with a short backoff for
+  /// Retries [KlunkiGuest.reconnect] ([GuestReconnector]) for
   /// [reconnectFor], while [connection] shows [NetConnectionState.reconnecting].
-  /// Stops early when retrying cannot help ([_retryable]).
+  /// Stops early when retrying cannot help ([reconnectRetryable]).
   Future<void> _runAutoReconnect({required bool force}) async {
     final guest = _guest!;
     _reconnectError = null;
     _setState(NetConnectionState.reconnecting);
-    final clock = Stopwatch()..start();
-    var delay = Duration.zero;
-    while (!_disposed) {
-      if (delay > Duration.zero) {
-        final wake = _wakeLoop = Completer<void>();
-        await Future.any([wake.future, Future<void>.delayed(delay)]);
-        _wakeLoop = null;
-        if (_disposed) return;
-      }
-      if (guest.connected && !force) break;
-      force = false;
-      try {
-        await guest.reconnect();
-        if (_disposed) return;
-        _peerName = guest.hostName ?? _peerName;
-        _catchUp();
-        break;
-      } catch (e) {
-        if (_disposed) return;
-        if (!_retryable(e)) {
-          _reconnectError = e;
-          if (e is NetException) _lastDisconnectReason = e.message;
-          break;
-        }
-      }
-      if (clock.elapsed >= reconnectFor) break;
-      delay = _nextDelay(delay);
+    final reconnector = _reconnector = GuestReconnector(guest, within: reconnectFor);
+    final result = await reconnector.run(force: force);
+    _reconnector = null;
+    if (_disposed) return;
+    if (result.connected) {
+      _peerName = guest.hostName ?? _peerName;
+      _catchUp();
     }
-    if (!_disposed) _setState(guest.connected ? NetConnectionState.connected : NetConnectionState.peerMissing);
-  }
-
-  static Duration _nextDelay(Duration d) {
-    final next = d == Duration.zero ? const Duration(milliseconds: 500) : d * 2;
-    return next > const Duration(seconds: 3) ? const Duration(seconds: 3) : next;
-  }
-
-  /// Whether another try may work: the host or the network is not back yet
-  /// (no answer, connection refused, the relay says the host is away, the
-  /// relay still holds our old connection). Not: other builds, a taken
-  /// seat, a diverged game, a room that is gone, a club code problem.
-  static bool _retryable(Object e) {
-    if (e is! NetException) return true;
-    if (e.mismatch != null) return false;
-    final m = e.message;
-    if (m.contains('session full') || m.contains('diverged') || m.contains('different game')) return false;
-    if (m.startsWith('relay:')) return m == 'relay: $relayHostAwayText' || m.contains('is full');
-    return true;
+    if (result.error case final e?) {
+      _reconnectError = e;
+      if (e is NetException) _lastDisconnectReason = e.message;
+    }
+    _setState(guest.connected ? NetConnectionState.connected : NetConnectionState.peerMissing);
   }
 
   /// Whether a disconnect [reason] is worth reconnecting after: not when

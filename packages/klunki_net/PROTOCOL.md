@@ -579,6 +579,9 @@ relay and a client, never forwarded.
   open rooms (`maxRooms`); text frames only. A guest breaking a rule loses
   its own connection; a host breaking one closes the room.
 - The relay keeps no logs, names or addresses beyond the open connections.
+  (`klunki relay --log-rooms` is an operator's opt-in for a diagnosis: one line
+  per room event with the time, room code and close codes; no names or
+  addresses. `--host-grace SECONDS` sets `hostGrace`.)
 - **Keepalive is end to end:** `ping` / `pong` are game messages between host and
   guest, and a relay must forward them like any other line. A relay that
   answered them itself (e.g. a Cloudflare WebSocket auto-response) would hide
