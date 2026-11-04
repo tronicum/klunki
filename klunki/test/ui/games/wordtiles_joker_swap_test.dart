@@ -110,8 +110,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('drag the A onto the blank; a tap on the swapped square undoes it, the laid blank too',
-      (tester) async {
+  testWidgets('drag the A onto the blank; a tap on the swapped square undoes it, the laid blank too', (tester) async {
     final c = await _start(tester);
     await _drag(tester, _rack(0), _sq(7, 7));
     expect(_swapped, findsOneWidget);
@@ -131,6 +130,32 @@ void main() {
     expect(_swapped, findsNothing);
     expect(c.moves, isEmpty);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the challenge banner says "(Joker getauscht)"; one point is "1 Punkt"', (tester) async {
+    final c = await _start(tester);
+    await _tap(tester, _rack(0));
+    await _tap(tester, _sq(7, 7));
+    // The blank as N below the A: AN, 1 point (the A).
+    await _tap(tester, _rack(7));
+    await _tap(tester, _sq(8, 7));
+    await _tap(tester, find.byKey(const Key('wordtiles-blank-N')));
+    expect(_text(tester, const Key('wordtiles-preview')), 'AN: 1 Punkt');
+    await _tap(tester, find.byKey(_play));
+    await tester.pumpAndSettle();
+    if (find.byKey(const Key('handover-continue')).evaluate().isNotEmpty) {
+      await _tap(tester, find.byKey(const Key('handover-continue')));
+      await tester.pumpAndSettle();
+    }
+    expect(_game(c).canChallenge, isTrue);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('wordtiles-open')),
+        matching: find.text('Anna legte AN für 1 Punkt (Joker getauscht).'),
+      ),
+      findsOneWidget,
+    );
+    expect(describeWordTilesMove(deL10n, c.moves.single), 'AN für 1 Punkt (Joker getauscht)');
   });
 
   testWidgets('"Alle zurück" drops the staged swap; with the rule off nothing is staged', (tester) async {

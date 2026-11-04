@@ -2453,6 +2453,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return 'من $player: $words مقابل $score نقطة (مع تبديل بلاطة فارغة).';
+  }
+
+  @override
   String get wordtilesOptionJoker => 'تبديل البلاطة الفارغة';
 
   @override

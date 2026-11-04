@@ -54,7 +54,7 @@ class WordTilesAdapter extends LiveUiAdapter {
   final Map<String, int> tapped = {};
 
   final _line = RegExp(r'^(Anna|Ben): (.+)$');
-  final _open = RegExp(r'^(Anna|Ben) legte (.+) für (-?\d+) Punkte\.$');
+  final _open = RegExp(r'^(Anna|Ben) legte (.+) für (-?\d+) Punkte?( \(Joker getauscht\))?\.$');
 
   TurnRecord _record(String name, String text) => TurnRecord(
         index: 0,
@@ -207,10 +207,8 @@ class WordTilesAdapter extends LiveUiAdapter {
       final g = engine as WordTilesGame;
       expect(g.challengeable, isNotNull, reason: '${d.name}: banner without an open placement');
       final text = deL10n.wordtilesMovePlace(m!.group(2)!, int.parse(m.group(3)!));
-      // The banner does not repeat "Joker getauscht" (the board shows it);
-      // the log entry of the open placement does (KLD-094 step 9).
-      final swapped = g.turns.isNotEmpty && g.turns.last.action == 'place' && g.turns.last.swaps > 0;
-      return _record(m.group(1)!, swapped ? deL10n.wordtilesMoveJoker(text) : text);
+      // KLD-094 step 9: the banner says "(Joker getauscht)" like the log.
+      return _record(m.group(1)!, m.group(4) != null ? deL10n.wordtilesMoveJoker(text) : text);
     }
     return null;
   }

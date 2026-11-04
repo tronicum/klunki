@@ -1458,7 +1458,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.wordtilesOpenPlacement(who, wordList(context, open.words), open.score),
+            // KLD-094 step 9: the open placement is the last turn; say when
+            // it came with "Joker tauschen".
+            Text(
+                g.turns.isNotEmpty && g.turns.last.swaps > 0
+                    ? l10n.wordtilesOpenPlacementJoker(who, wordList(context, open.words), open.score)
+                    : l10n.wordtilesOpenPlacement(who, wordList(context, open.words), open.score),
                 style: theme.textTheme.bodyLarge),
             if (g.endPending)
               Padding(

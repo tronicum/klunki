@@ -2423,6 +2423,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return '$player $words را با $score امتیاز گذاشت (با عوض کردن کاشی خالی).';
+  }
+
+  @override
   String get wordtilesOptionJoker => 'عوض کردن کاشی خالی';
 
   @override

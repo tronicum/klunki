@@ -2350,6 +2350,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    return '$player 出了 $words，得 $score 分（换了空白牌）。';
+  }
+
+  @override
   String get wordtilesOptionJoker => '换空白牌';
 
   @override

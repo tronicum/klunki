@@ -726,9 +726,12 @@ Maintainer request (2026-11-04): the well-known house rule, as an option at game
 - Screenshots `--plain-name kld094-step9` in `wordtiles_shots_test.dart` (options de/en, hint, staged swap,
   placement, handover, help on 390 × 844 and 375 × 667).
 
-**Open for the maintainer:** (a) swap allowed only with a placement (implemented) or also as a turn of its own?
-(b) may a blank that was laid in the opponent's still challengeable placement be swapped (now yes; laying accepts
-that placement anyway)? (c) the hint line shows every turn while a swap is possible: keep, or show once per game?
+**Maintainer decisions (2026-11-04):** a swap only together with a placement; a blank of a still challengeable
+placement may be swapped; the hint shows every turn while a swap is possible; no version bump (goes into 1.1.0).
+Follow-ups done: the challenge banner says "… (Joker getauscht)." (`wordtilesOpenPlacementJoker`, 7 locales), and
+the Wortgewandt point strings use ICU plurals in de/en/fr/es ("1 Punkt", "1 point", "1 punto"; fr also "0 point"):
+`wordtilesScore`, `Preview`, `PreviewBingo`, `OpenPlacement`, `MovePlace`, `MovePlaceAllowed`, `ResultBestWord`,
+`AllowLine`, `MoveAllowRequest`, `MoveAllowAccept`.
 
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it

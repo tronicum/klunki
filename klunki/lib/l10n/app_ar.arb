@@ -639,6 +639,7 @@
   "appBetaAndroid": "تنزيل التطبيق على Android",
   "wordtilesOptionsSummaryDict": "{language} · مع التحقق من القاموس",
   "wordtilesOptionsSummaryFree": "{language} · بدون قاموس",
+  "wordtilesOpenPlacementJoker": "من {player}: {words} مقابل {score} نقطة (مع تبديل بلاطة فارغة).",
   "wordtilesOptionJoker": "تبديل البلاطة الفارغة",
   "wordtilesOptionJokerExplain": "قاعدة منزلية: إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فضعه مكانها وخذ البلاطة الفارغة. بعد ذلك تضع بلاطات في الدور نفسه.",
   "wordtilesOptionsSummaryJoker": "{summary} · تبديل البلاطة الفارغة",

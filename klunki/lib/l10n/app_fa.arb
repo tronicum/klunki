@@ -639,6 +639,7 @@
   "appBetaAndroid": "دریافت اپ برای Android",
   "wordtilesOptionsSummaryDict": "{language} · با واژه‌نامه",
   "wordtilesOptionsSummaryFree": "{language} · بدون واژه‌نامه",
+  "wordtilesOpenPlacementJoker": "{player} {words} را با {score} امتیاز گذاشت (با عوض کردن کاشی خالی).",
   "wordtilesOptionJoker": "عوض کردن کاشی خالی",
   "wordtilesOptionJokerExplain": "قانون خانگی: اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، می‌توانی آن را همان‌جا بگذاری و کاشی خالی را برداری. بعد در همان نوبت کاشی هم می‌گذاری.",
   "wordtilesOptionsSummaryJoker": "{summary} · عوض کردن کاشی خالی",

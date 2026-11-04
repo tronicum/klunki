@@ -639,6 +639,7 @@
   "appBetaAndroid": "下载 Android 应用",
   "wordtilesOptionsSummaryDict": "{language} · 查字典",
   "wordtilesOptionsSummaryFree": "{language} · 不查字典",
+  "wordtilesOpenPlacementJoker": "{player} 出了 {words}，得 {score} 分（换了空白牌）。",
   "wordtilesOptionJoker": "换空白牌",
   "wordtilesOptionJokerExplain": "自选玩法：如果你有棋盘上空白牌代表的字母，可以把它放到那里，取走空白牌。然后本轮还要出牌。",
   "wordtilesOptionsSummaryJoker": "{summary} · 换空白牌",

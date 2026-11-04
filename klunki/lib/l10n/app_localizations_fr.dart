@@ -2088,7 +2088,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesScore(String player, int score) {
-    return '$player : $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player : $_temp0';
   }
 
   @override
@@ -2121,12 +2127,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesPreview(String words, int score) {
-    return '$words : $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words : $_temp0';
   }
 
   @override
   String wordtilesPreviewBingo(String words, int score, int bonus) {
-    return '$words : $score points (dont $bonus de bonus pour toutes les tuiles)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words : $_temp0 (dont $bonus de bonus pour toutes les tuiles)';
   }
 
   @override
@@ -2157,7 +2175,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesOpenPlacement(String player, String words, int score) {
-    return '$player a posé $words pour $score points.';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player a posé $words pour $_temp0.';
   }
 
   @override
@@ -2185,7 +2209,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesMovePlace(String words, int score) {
-    return '$words pour $score points';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words pour $_temp0';
   }
 
   @override
@@ -2280,7 +2310,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesMovePlaceAllowed(String words, int score, String allowed) {
-    return '$words pour $score points (accepté : $allowed)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$words pour $_temp0 (accepté : $allowed)';
   }
 
   @override
@@ -2402,7 +2438,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesResultBestWord(String word, String player, int score) {
-    return 'Meilleur mot : $word ($player, $score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'Meilleur mot : $word ($player, $_temp0)';
   }
 
   @override
@@ -2448,6 +2490,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String wordtilesOptionsSummaryFree(String language) {
     return '$language · sans dictionnaire';
+  }
+
+  @override
+  String wordtilesOpenPlacementJoker(String player, String words, int score) {
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player a posé $words pour $_temp0 (joker échangé).';
   }
 
   @override
@@ -2520,7 +2573,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesAllowLine(String player, String words, int score) {
-    return '$player voudrait faire accepter « $words » ($score points).';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$player voudrait faire accepter « $words » ($_temp0).';
   }
 
   @override
@@ -2530,12 +2589,24 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String wordtilesMoveAllowRequest(String words, int score) {
-    return 'demande d’accepter $words ($score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'demande d’accepter $words ($_temp0)';
   }
 
   @override
   String wordtilesMoveAllowAccept(String words, int score) {
-    return 'd’accord : $words compte ($score points)';
+    String _temp0 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return 'd’accord : $words compte ($_temp0)';
   }
 
   @override
