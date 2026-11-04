@@ -52,10 +52,21 @@ class _IoHostListener implements HostListener {
   final ServerSocket _tcp;
   final HttpServer? _http;
   final _channels = StreamController<MessageChannel>();
+  bool _closed = false;
 
   _IoHostListener(this._tcp, this._http) {
-    _tcp.listen((socket) => _channels.add(SocketChannel(socket)));
-    _http?.listen(_onRequest);
+    _tcp.listen((socket) => _channels.add(SocketChannel(socket)),
+        onError: (Object e) => _lost('TCP listener failed: $e'), onDone: () => _lost('TCP listener closed'));
+    _http?.listen(_onRequest,
+        onError: (Object e) => _lost('WebSocket listener failed: $e'),
+        onDone: () => _lost('WebSocket listener closed'));
+  }
+
+  /// KLD-120: a listening socket ended without [close] (iOS may take it
+  /// from a suspended app): reported on [channels], so the host binds again.
+  void _lost(String why) {
+    if (_closed || _channels.isClosed) return;
+    _channels.addError(NetException(why));
   }
 
   @override
@@ -91,6 +102,7 @@ class _IoHostListener implements HostListener {
 
   @override
   Future<void> close() async {
+    _closed = true;
     await _tcp.close();
     await _http?.close(force: true); // upgraded WebSockets are detached and stay open
     unawaited(_channels.close());

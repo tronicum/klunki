@@ -17,10 +17,14 @@ enum NetConnectionState {
   connected,
 
   /// The other side went away (bye, socket closed, timeout). The host keeps
-  /// listening; the guest can call [NetworkTransport.reconnect].
+  /// listening; the guest can call [NetworkTransport.reconnect]. For the
+  /// guest this follows [reconnecting] once the automatic reconnect gave up
+  /// (KLD-120).
   peerMissing,
 
-  /// Guest: a [NetworkTransport.reconnect] is in progress.
+  /// Guest: reconnecting ([NetworkTransport.reconnect], or the automatic
+  /// reconnect with retries, KLD-120). Host through a relay: coming back to
+  /// the room after its relay connection dropped (KLD-120).
   reconnecting,
 
   /// The transport was disposed.
@@ -66,8 +70,21 @@ class NetworkTransport implements GameTransport {
   bool _disposed = false;
   Future<void>? _closing;
 
+  /// Guest (KLD-120): reconnect by itself after the connection dropped.
+  final bool autoReconnect;
+
+  /// Guest (KLD-120): how long the automatic reconnect keeps trying before
+  /// it shows the manual "Neu verbinden" button.
+  final Duration reconnectFor;
+  Future<void>? _autoLoop;
+  Completer<void>? _wakeLoop;
+  Object? _reconnectError;
+  Stopwatch? _away; // running while the app is in the background
+
   NetworkTransport._host(KlunkiHost host)
       : role = NetRole.host,
+        autoReconnect = false,
+        reconnectFor = Duration.zero,
         _host = host,
         _guest = null,
         _state = ValueNotifier(host.guestConnected ? NetConnectionState.connected : NetConnectionState.connecting),
@@ -75,7 +92,7 @@ class NetworkTransport implements GameTransport {
     _init(host.events);
   }
 
-  NetworkTransport._guest(KlunkiGuest guest)
+  NetworkTransport._guest(KlunkiGuest guest, {this.autoReconnect = true, this.reconnectFor = defaultReconnectFor})
       : role = NetRole.guest,
         _host = null,
         _guest = guest,
@@ -117,10 +134,12 @@ class NetworkTransport implements GameTransport {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    bool autoReconnect = true,
+    Duration reconnectFor = defaultReconnectFor,
   }) async {
     final guest = await KlunkiGuest.connect(host, port,
         name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
-    return NetworkTransport._guest(guest);
+    return NetworkTransport._guest(guest, autoReconnect: autoReconnect, reconnectFor: reconnectFor);
   }
 
   /// Joins the host over WebSocket at [url] (`ws://host:wsPort`, e.g.
@@ -132,10 +151,12 @@ class NetworkTransport implements GameTransport {
     String? token,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    bool autoReconnect = true,
+    Duration reconnectFor = defaultReconnectFor,
   }) async {
     final guest = await KlunkiGuest.connectWebSocket(url,
         name: name, token: token, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat());
-    return NetworkTransport._guest(guest);
+    return NetworkTransport._guest(guest, autoReconnect: autoReconnect, reconnectFor: reconnectFor);
   }
 
   /// Hosts [config] through the relay at [relayUrl] (`ws://host:port/relay`,
@@ -167,6 +188,8 @@ class NetworkTransport implements GameTransport {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
     String? clubCode,
+    bool autoReconnect = true,
+    Duration reconnectFor = defaultReconnectFor,
   }) async {
     final guest = await KlunkiGuest.connectRelay(relayUrl, code,
         name: name,
@@ -175,7 +198,7 @@ class NetworkTransport implements GameTransport {
         timeout: timeout,
         compat: appBuildCompat(),
         clubCode: clubCode);
-    return NetworkTransport._guest(guest);
+    return NetworkTransport._guest(guest, autoReconnect: autoReconnect, reconnectFor: reconnectFor);
   }
 
   void _init(Stream<NetEvent> events) {
@@ -248,6 +271,10 @@ class NetworkTransport implements GameTransport {
     return RejectReason.illegal; // 'illegal move', 'move is not JSON', anything else
   }
 
+  /// How long a guest keeps reconnecting by itself (KLD-120): as long as a
+  /// relay keeps a room for a host that is away.
+  static const Duration defaultReconnectFor = Duration(minutes: 5);
+
   /// Says `bye` and closes the session (fire and forget; await [close] to
   /// wait for it). Afterwards [submit] rejects with [RejectReason.disconnected].
   @override
@@ -260,6 +287,7 @@ class NetworkTransport implements GameTransport {
     final closing = _closing;
     if (closing != null) return closing;
     _disposed = true;
+    _wakeLoop?.complete();
     _netSub.cancel();
     _setState(NetConnectionState.closed);
     _accepted.close();
@@ -322,6 +350,11 @@ class NetworkTransport implements GameTransport {
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
 
+  /// Guest (KLD-120): why the automatic reconnect gave up early (e.g. a
+  /// [NetException] with a version mismatch, the seat is taken, the room is
+  /// gone), else null.
+  Object? get reconnectError => _reconnectError;
+
   /// Host: the listening TCP port.
   int? get port => _host?.port;
 
@@ -355,6 +388,101 @@ class NetworkTransport implements GameTransport {
     _setState(guest.connected ? NetConnectionState.connected : NetConnectionState.peerMissing);
   }
 
+  // ---- Locked phone, app in the background (KLD-120) ---------------------
+
+  /// The app went to the background (`AppLifecycleState.hidden` /
+  /// `paused`; on a phone: locked or switched away). Nothing is closed:
+  /// iOS suspends the app soon, and [appResumed] picks up from there.
+  void appPaused() {
+    _away ??= Stopwatch()..start();
+  }
+
+  /// The app is in the foreground again: the host listens again (LAN) or
+  /// comes back to its relay room; the guest reconnects right away when it
+  /// lost the connection or was away long enough for the host to drop it.
+  void appResumed() {
+    final away = _away?.elapsed ?? Duration.zero;
+    _away = null;
+    if (_disposed) return;
+    final host = _host;
+    if (host != null) {
+      unawaited(host.resume(away: away).catchError((Object _) {}));
+      return;
+    }
+    final guest = _guest!;
+    if (!guest.connected || away >= guest.timeout) _startAutoReconnect(force: guest.connected);
+  }
+
+  /// Guest: (re)starts the automatic reconnect, or skips its current wait.
+  void _startAutoReconnect({bool force = false}) {
+    if (!autoReconnect || _disposed || _guest == null) return;
+    if (_autoLoop != null) {
+      _wakeLoop?.complete();
+      return;
+    }
+    _autoLoop = _runAutoReconnect(force: force).whenComplete(() => _autoLoop = null);
+  }
+
+  /// Retries [KlunkiGuest.reconnect] with a short backoff for
+  /// [reconnectFor], while [connection] shows [NetConnectionState.reconnecting].
+  /// Stops early when retrying cannot help ([_retryable]).
+  Future<void> _runAutoReconnect({required bool force}) async {
+    final guest = _guest!;
+    _reconnectError = null;
+    _setState(NetConnectionState.reconnecting);
+    final clock = Stopwatch()..start();
+    var delay = Duration.zero;
+    while (!_disposed) {
+      if (delay > Duration.zero) {
+        final wake = _wakeLoop = Completer<void>();
+        await Future.any([wake.future, Future<void>.delayed(delay)]);
+        _wakeLoop = null;
+        if (_disposed) return;
+      }
+      if (guest.connected && !force) break;
+      force = false;
+      try {
+        await guest.reconnect();
+        if (_disposed) return;
+        _peerName = guest.hostName ?? _peerName;
+        _catchUp();
+        break;
+      } catch (e) {
+        if (_disposed) return;
+        if (!_retryable(e)) {
+          _reconnectError = e;
+          if (e is NetException) _lastDisconnectReason = e.message;
+          break;
+        }
+      }
+      if (clock.elapsed >= reconnectFor) break;
+      delay = _nextDelay(delay);
+    }
+    if (!_disposed) _setState(guest.connected ? NetConnectionState.connected : NetConnectionState.peerMissing);
+  }
+
+  static Duration _nextDelay(Duration d) {
+    final next = d == Duration.zero ? const Duration(milliseconds: 500) : d * 2;
+    return next > const Duration(seconds: 3) ? const Duration(seconds: 3) : next;
+  }
+
+  /// Whether another try may work: the host or the network is not back yet
+  /// (no answer, connection refused, the relay says the host is away, the
+  /// relay still holds our old connection). Not: other builds, a taken
+  /// seat, a diverged game, a room that is gone, a club code problem.
+  static bool _retryable(Object e) {
+    if (e is! NetException) return true;
+    if (e.mismatch != null) return false;
+    final m = e.message;
+    if (m.contains('session full') || m.contains('diverged') || m.contains('different game')) return false;
+    if (m.startsWith('relay:')) return m == 'relay: $relayHostAwayText' || m.contains('is full');
+    return true;
+  }
+
+  /// Whether a disconnect [reason] is worth reconnecting after: not when
+  /// the host said goodbye or the relay closed the room.
+  static bool _shouldReconnect(String reason) => !reason.startsWith('peer left') && !reason.startsWith('relay:');
+
   void _onNetEvent(NetEvent e) {
     if (_disposed) return;
     switch (e) {
@@ -365,7 +493,14 @@ class NetworkTransport implements GameTransport {
       case PeerDisconnected(:final reason):
         _lastDisconnectReason = reason;
         // A disconnect of the old connection during reconnect() is expected.
-        if (_state.value != NetConnectionState.reconnecting) _setState(NetConnectionState.peerMissing);
+        if (_state.value != NetConnectionState.reconnecting) {
+          _setState(NetConnectionState.peerMissing);
+          if (role == NetRole.guest && _shouldReconnect(reason)) _startAutoReconnect();
+        }
+      case RoomReconnecting():
+        _setState(NetConnectionState.reconnecting);
+      case RoomReconnected():
+        _setState(_host!.guestConnected ? NetConnectionState.connected : NetConnectionState.peerMissing);
       case MoveAccepted():
       case Resynced():
         _catchUp();
