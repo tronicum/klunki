@@ -7,6 +7,9 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+### App
+- The app icon is bigger on the home screen: a larger pocket and a bolder "Klunki" on the patch.
+
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
 1.0.0 was an internal TestFlight test build only (not released).

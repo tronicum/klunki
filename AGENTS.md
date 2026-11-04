@@ -98,7 +98,7 @@ troubleshooting: `docs/BUILDING.md`.
     `room_flow_shots_test.dart`, `wordtiles_shots_test.dart`; per-card groups like `--plain-name kld100`)
   - `KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name appstore` (`docs/APPSTORE.md`)
   - `KLUNKI_PLAYSTORE=/tmp/playstore flutter test test/screenshots --plain-name playstore` (`docs/PLAYSTORE.md`)
-- App icon: `KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-final-d4 flutter test tool/icon/export_icon_test.dart`
+- App icon: `KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-zoom-b flutter test tool/icon/export_icon_test.dart`
   (concept renders: `KLUNKI_ICON_OUT=… flutter test tool/icon/render_icons_test.dart`; see `tool/icon/README.md`).
 - Builds: `flutter build web --release` then `python3 -I build/web/pwa_finalize.py` (once per build) and
   `python3 -I tool/check_pwa_external_urls.py build/web` (no CDN URLs); `flutter build apk|appbundle|ios`.

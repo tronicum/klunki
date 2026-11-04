@@ -63,6 +63,14 @@ const double adaptiveSafeRadius = 33 / 108;
 Future<double> foregroundSafeScale(IconConcept paint) async =>
     math.min(1.0, adaptiveSafeRadius / (await motifExtent(paint)).radius);
 
+/// Web maskable icons: the browser may crop to a circle of 80 % of the side.
+const double maskableSafeRadius = 0.4;
+
+/// The scale (≤ 1) that brings every visible foreground pixel of [paint]
+/// inside the 80 % safe circle of a maskable web icon.
+Future<double> maskableSafeScale(IconConcept paint) async =>
+    math.min(1.0, maskableSafeRadius / (await motifExtent(paint)).radius);
+
 // ---------------------------------------------------------------- PNG --
 
 /// Writes [img] as an 8-bit PNG: RGB without an alpha channel (colour type 2;

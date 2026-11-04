@@ -1,7 +1,7 @@
 // KLD-097 step 2: exports one icon concept in every size the app needs.
 //
 //   cd klunki
-//   KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-final-d1 \
+//   KLUNKI_ICON_EXPORT=/tmp/klunki-icon KLUNKI_ICON_ID=c5-zoom-b \
 //     flutter test tool/icon/export_icon_test.dart
 //
 // Opt-in like render_icons_test.dart (skipped unless both variables are set).
@@ -15,8 +15,8 @@
 //   ic_launcher_foreground.png (108 dp, transparent, motif shrunk into the
 //   66 dp safe circle), ic_launcher_background.png (108 dp, the table), and
 //   mipmap-anydpi-v26/ic_launcher.xml (adaptive icon, API 26+).
-// - web/icons/Icon-{192,512}.png, Icon-maskable-{192,512}.png (the motif is
-//   already inside the 80 % maskable safe circle), web/favicon.png (32 px).
+// - web/icons/Icon-{192,512}.png, Icon-maskable-{192,512}.png (table full
+//   size, motif shrunk into the 80 % maskable safe circle), web/favicon.png (32 px).
 // - store/play-store-512.png (Google Play listing icon; kept in docs/store/).
 // - assets/icon/app_icon.png (384 px, shown on the About screen).
 // - check/android-adaptive.png: foreground on background with a circle and a
@@ -118,10 +118,30 @@ void main() {
         ..parent.createSync(recursive: true)
         ..writeAsStringSync(_adaptiveXml);
 
-      // Web, Play Store.
+      // Web, Play Store. Maskable icons: the table fills the square, the
+      // motif is shrunk (if needed) until every visible pixel sits inside the
+      // 80 % safe circle the browser may crop to.
+      final maskFit = await maskableSafeScale(paint);
+      // ignore: avoid_print
+      print('Maskable web icon scale for $_id: ${maskFit.toStringAsFixed(3)}');
+      void maskable(Canvas c, double px) {
+        background(c, px);
+        iconLayer = IconLayer.foreground;
+        c.save();
+        c.translate(px / 2, px / 2);
+        c.scale(maskFit);
+        c.translate(-px / 2, -px / 2);
+        paint(c, px);
+        c.restore();
+        iconLayer = IconLayer.full;
+      }
+
       for (final s in [192, 512]) {
         await full(s, 'web/icons/Icon-$s.png');
-        await full(s, 'web/icons/Icon-maskable-$s.png');
+        await writePng(
+          await renderImage(s, s, (c) => maskable(c, s.toDouble())),
+          '$out/web/icons/Icon-maskable-$s.png',
+        );
       }
       await full(32, 'web/favicon.png');
       await full(512, 'store/play-store-512.png');
