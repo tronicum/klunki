@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki_engine/klunki_engine.dart';
+import 'package:klunki_net/klunki_net.dart' show pauseMakesStale;
 import 'package:klunki_net/relay_server.dart';
 
 final _loopback = InternetAddress.loopbackIPv4;
@@ -176,7 +177,8 @@ void main() {
     expect(states, isEmpty);
 
     guest.appPaused();
-    await Future<void>.delayed(_timeout); // the host would have dropped a suspended guest
+    // Longer than pauseMakesStale: the old connection is not trusted.
+    await Future<void>.delayed(pauseMakesStale);
     guest.appResumed();
     await _until(() => states.contains(NetConnectionState.connected), what: 'renewed');
     expect(states.first, NetConnectionState.reconnecting);
@@ -222,7 +224,7 @@ void main() {
       expect((await relayHost.submit({'col': 3})).isAccepted, isTrue);
 
       relayHost.appPaused();
-      await Future<void>.delayed(_timeout);
+      await Future<void>.delayed(pauseMakesStale);
       relayHost.appResumed();
       await _until(() => hostStates.contains(NetConnectionState.reconnecting), what: 'coming back');
       await _until(

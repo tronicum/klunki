@@ -48,8 +48,27 @@ repository, except where noted.
    docker compose logs relay
    # Club codes loaded from /data/codes.txt: 2 (Familie Müller, Ben)
    # Klunki relay listening on port 4749: …
+   # Host grace: a room waits 300 s for a host whose connection dropped (KLD-120).
    ```
-   The addresses it prints are the container's own; players use your DNS name.
+   The addresses it prints are the container's own; players use your DNS name. No "Host grace" line: the image
+   is older than this line (2026-11-04); built before KLD-120 it closes a room as soon as the phone that started
+   it is locked for a few seconds. Rebuild it.
+   After `git pull`, `docker compose up -d --build` builds a new image from this checkout (the build context is
+   the repo root) and restarts the relay; running games end then. `--host-grace SECONDS` in the `command` of
+   `compose.yaml` changes the 5 minutes (0 = off).
+
+   To see what happens to a game (e.g. a phone that is locked), add `--log-rooms` to the `command` for a while:
+   then the log has one line per room event (room code and WebSocket close code, no names, no addresses). Remove
+   it again afterwards: the privacy page promises a relay that writes no logs.
+   ```
+   12:00:01 Room K7QX2: opened
+   12:00:09 Room K7QX2: guest joined
+   12:01:30 Room K7QX2: host away (close code 1001), the room waits 300 s for it   # a phone locked
+   12:02:10 Room K7QX2: host back after 40 s
+   12:02:11 Room K7QX2: guest joined
+   12:10:00 Room K7QX2: host left (close code 1000)                                 # "Spiel verlassen"
+   12:10:00 Room K7QX2: closed: host left
+   ```
 5. **Check it from anywhere** with the Dart SDK (opens a room, joins it, sends one line each way):
    ```bash
    cd deploy/docker/relay && dart pub get --offline
@@ -107,8 +126,9 @@ commented in `compose.yaml` and `Caddyfile`). Then `https://relay.example.org/` 
 - The relay **stores nothing**: no database, no files written (the container runs read-only), rooms live in memory
   and are gone after 10 minutes without a message, when the host leaves, or on restart.
 - It **logs no codes and no addresses**: the log shows the labels from `codes.txt` (or a 6-character hash for a
-  code without a label) when the file is loaded or changes, and nothing per connection. `compose.yaml` keeps the
-  container log small (1 MB, rotated).
+  code without a label) when the file is loaded or changes, and nothing per connection (unless you add
+  `--log-rooms` for a diagnosis: then room codes, times and close codes, still no names or addresses).
+  `compose.yaml` keeps the container log small (1 MB, rotated).
 - The club code travels in the WebSocket URL (`?create&club=…`). The provided Caddyfile has **no access log**, so
   Caddy does not store it either. If you turn on an access log, remove the `club` parameter from it (an example
   is in the Caddyfile).

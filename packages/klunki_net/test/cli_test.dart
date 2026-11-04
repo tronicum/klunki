@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:klunki_engine/debug.dart';
@@ -444,6 +445,27 @@ void main() {
     expect(await host.exitCode, 0);
   });
 
+  test('relay --host-grace --log-rooms: the room events are logged with the time', () async {
+    final stop = Completer<void>();
+    final out = StringBuffer();
+    final relayExit = runCli(['relay', '--port', '0', '--host-grace', '0', '--log-rooms'],
+        out: out, bindAddress: InternetAddress.loopbackIPv4, relayStop: stop.future);
+    await until(() => out.toString().contains('Press Ctrl+C to stop.'));
+    expect(out.toString(), contains('Host grace: off (--host-grace 0), a dropped host closes its room.'));
+    final port = RegExp(r'listening on port (\d+):').firstMatch(out.toString())![1]!;
+    final host = await WebSocket.connect('ws://127.0.0.1:$port/relay?create');
+    final first = Completer<String>();
+    host.listen((f) => first.isCompleted ? null : first.complete(f as String));
+    final code = (jsonDecode(await first.future) as Map<String, dynamic>)['code'];
+    await host.close();
+    await until(() => out.toString().contains('Room $code: closed'));
+    expect(out.toString(), matches(RegExp('\\d\\d:\\d\\d:\\d\\d Room $code: opened\n')));
+    expect(out.toString(), contains('Room $code: host left (close code 1005)'));
+    stop.complete();
+    expect(await relayExit, 0);
+    expect(await runCli(['relay', '--host-grace', '-1'], err: StringBuffer()), usageExit);
+  });
+
   test('relay: a wrong room code is reported; the relay command starts and stops', () async {
     final stop = Completer<void>();
     final out = StringBuffer();
@@ -460,6 +482,9 @@ void main() {
     stop.complete();
     expect(await relayExit, 0);
     expect(out.toString(), contains('Relay stopped.'));
+    // KLD-120: the startup line that tells a relay with host grace apart.
+    expect(out.toString(),
+        contains('Host grace: a room waits 300 s for a host whose connection dropped (KLD-120).'));
 
     final missing = StringBuffer();
     expect(await runCli(['relay', '--port', '0', '--web', '/no/such/dir'], out: missing), 1);

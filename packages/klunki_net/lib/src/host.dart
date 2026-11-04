@@ -12,6 +12,7 @@ import 'compat.dart';
 import 'connection.dart';
 import 'events.dart';
 import 'names.dart';
+import 'reconnect.dart';
 import 'relay/relay_client.dart';
 import 'secrecy/secrecy.dart';
 
@@ -184,14 +185,14 @@ class KlunkiHost {
   /// how long it was suspended, as far as it knows). A direct host listens
   /// again on the same ports (iOS may have taken the listening socket from
   /// the suspended app; connected guests are not touched). A relay host
-  /// that was away for at least the keepalive timeout comes back to its
-  /// room on a fresh connection (the relay has dropped the old one, or will
-  /// soon); the guest rejoins.
+  /// that was away for at least [pauseMakesStale] comes back to its
+  /// room on a fresh connection at once (the old one may be dead without a
+  /// word, and the relay drops it soon anyway); the guest rejoins.
   Future<void> resume({Duration away = Duration.zero}) async {
     if (_closing) return;
     final server = _server;
     if (server is RelayHostListener) {
-      if (away >= _timeout || server.reattaching) server.reattach();
+      if (away >= pauseMakesStale || server.reattaching) server.reattach();
       return;
     }
     await _rebind();
@@ -528,6 +529,14 @@ class KlunkiHost {
     if (conn != _guest) return;
     _guest = null;
     _emit(PeerDisconnected(reason, timedOut: timedOut));
+    // KLD-120: through a relay, silence from the guest may as well be our
+    // own relay connection gone quiet (the system silenced it while the app
+    // was suspended, a NAT forgot it). It has no keepalive of its own, so
+    // come back to the room on a fresh one: cheap, and the guest is gone
+    // anyway. Otherwise the host could wait forever while the relay, which
+    // dropped the quiet connection, tells the guest that the host is away.
+    final server = _server;
+    if (timedOut && !_closing && server is RelayHostListener) server.reattach();
   }
 
   void _emit(NetEvent e) {

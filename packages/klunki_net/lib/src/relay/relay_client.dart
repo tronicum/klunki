@@ -5,6 +5,7 @@ import '../channel/channel.dart';
 import '../channel/listener.dart';
 import '../channel/platform.dart' as platform;
 import '../events.dart';
+import '../reconnect.dart';
 import 'relay_protocol.dart';
 
 /// Web-safe relay clients: they only use the platform's WebSocket
@@ -184,16 +185,11 @@ class RelayHostListener implements HostListener {
         if (e.message.startsWith('relay:') || e.message.startsWith('not a Klunki relay')) break;
       }
       if (clock.elapsed >= reattachFor) break;
-      delay = _nextDelay(delay);
+      delay = nextRetryDelay(delay, clock.elapsed, slow: const Duration(seconds: 5));
     }
     _reattaching = false;
     unawaited(old.abandon());
     _fail(last.startsWith('relay') ? last : 'relay connection lost ($last)');
-  }
-
-  static Duration _nextDelay(Duration d) {
-    final next = d == Duration.zero ? const Duration(milliseconds: 500) : d * 2;
-    return next > const Duration(seconds: 5) ? const Duration(seconds: 5) : next;
   }
 
   /// The room is lost: the session cannot continue in it.

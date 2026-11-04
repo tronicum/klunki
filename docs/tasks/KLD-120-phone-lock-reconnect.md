@@ -125,4 +125,50 @@ differently from the app.
 - iOS may still kill a suspended app after a long time (memory); then the host's room is gone and a new room is
   needed (the guest ends with the button / "Raum geschlossen").
 - A background task (`beginBackgroundTask`) could keep the connection for ~30 s after locking; not needed now.
-- The relay CLI has no flag for `hostGrace` (default 5 min); add `--host-grace` if an operator needs it.
+- Done in the follow-up below: `klunki relay --host-grace SECONDS`.
+
+## Follow-up (2026-11-04): field reports from the maintainer's phones
+
+1. "The game is gone after 10-15 s if the phone is locked (relay)": played on the maintainer's Docker relay
+   (`deploy/docker`, behind Caddy). That relay runs the same code as the CLI (`relay/bin/relay.dart` calls
+   `runCli`, the default `hostGrace` is 5 min), but its image is built from the server's checkout at
+   `docker compose up -d --build` time. An image from before KLD-120 closes a room as soon as the host's
+   connection ends; the guest's 10 s keepalive then ends with "Raum geschlossen" (the 10-15 s). After the image
+   was rebuilt from main both phones came back, which confirms it. Caddy does not turn a dropped phone into a
+   "host left": it ends its upstream connection with a FIN or a reset (close code 1006 at the relay) and
+   forwards close frames unchanged (1001 on a config reload); only 1000 or no code means leaving. New tests:
+   `relay_resume_test.dart` (a proxy drops the host with FIN / reset; close codes 1001, 4000, none, 1000).
+   To tell the relay builds apart, the relay start now prints `Host grace: a room waits 300 s …` (missing on
+   an old image), and `--log-rooms` (opt-in, the privacy page promises no logs) prints one line per room event
+   (`Room K7QX2: host away (close code 1001), the room waits 300 s for it`, `host back after 40 s`, `closed: …`).
+2. "Disconnected after 10-15 s, both reconnected, but it took ~20 s": the app trusted its old connection after
+   a pause shorter than the keepalive timeout (10 s), and measured the pause with a `Stopwatch`, a monotonic
+   clock that may stand still while a phone sleeps. A connection the system silenced looked open until the
+   keepalive gave up (10 s more), then the retries waited 0.5, 1, 2, 3 s.
+   Now (`klunki_net/lib/src/reconnect.dart`, shared by the app and the relay host): after a pause of
+   `pauseMakesStale` (2 s) or more the guest reconnects at once and a relay host comes back to its room at
+   once; the pause is the longer of the monotonic and the wall clock (`PauseClock`); retries wait 0.5 s, then
+   1 s for 30 s, then 3 s (guest) / 5 s (relay host). The app's loop moved to `GuestReconnector`.
+   Measured with `KLUNKI_RESUME_MEASURE=1 dart test test/resume_timing_test.dart` (real values: ping 2 s,
+   timeout 10 s, relay ping 20 s, locked 30 s; time from unlocking until the guest's next move is accepted).
+   The locked side is a SIGSTOPped process; its sockets are *kept* (SIGSTOP alone), *dropped* (reset on the
+   phone's side, the far end hears nothing) or *silent* (everything swallowed, nothing closed: the old
+   connection looks open). "Before" is the first KLD-120 build with a pause that looked 4 s long (a sleeping
+   phone's monotonic clock); with the real 30 s it forced a reconnect too and was as fast as now.
+
+   | locked | via | sockets | before (pause looked 4 s) | now |
+   |---|---|---|---|---|
+   | guest | LAN | kept / dropped | 0.0 s | 0.0 s |
+   | guest | LAN | silent | 10.0 s | 0.0 s |
+   | guest | relay | kept / dropped | 0.0 s | 0.0 s |
+   | guest | relay | silent | 10.0 s | 0.0 s |
+   | host | LAN | kept / dropped / silent | 0.0 s | 0.0 s |
+   | host | relay | kept | 0.0 s | 0.0 s |
+   | host | relay | dropped | 1.0 s | 1.0 s |
+   | host | relay | silent | never (12.0 s with the fix below) | 1.0 s |
+
+   Found on the way: a relay host whose relay connection went silent waited forever (its relay link has no
+   keepalive of its own; the relay dropped the quiet connection and told the guest "host away"). Now a guest
+   timeout on a relay host also makes it come back to the room on a fresh connection. The ~20 s on the phones
+   fits "silent" plus the old retry steps. The regular run checks every case is ready within 3 s with short
+   keepalive values, and the silent relay host case without a noticed pause.

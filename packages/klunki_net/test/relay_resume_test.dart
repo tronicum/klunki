@@ -138,6 +138,95 @@ void main() {
       expect(await guest.nextJson(), {'t': 'relay.closed', 'reason': 'host left'});
       await until(() => relay.roomCount == 0);
     });
+
+    // A locked phone behind a reverse proxy (the Docker relay sits behind
+    // Caddy): the phone's connection to the proxy ends, and the proxy ends
+    // its own connection to the relay with a FIN or a reset, never with a
+    // WebSocket close frame of its own. Either way the host is away, not
+    // gone: only a close frame with 1000 or no code is a host leaving.
+    for (final how in ['FIN', 'reset']) {
+      test('the proxy in front of the relay drops the host connection ($how): the room waits', () async {
+        final proxy = await ServerSocket.bind(loopback, 0);
+        addTearDown(proxy.close);
+        final upstream = Completer<Socket>();
+        proxy.listen((inbound) async {
+          final out = await Socket.connect(loopback, relay.port);
+          out.done.ignore();
+          inbound.done.ignore();
+          void forward(Socket to, List<int> data) {
+            try {
+              to.add(data);
+            } on StateError catch (_) {} // the proxy closed that side
+          }
+
+          inbound.listen((d) => forward(out, d), onError: (_) {});
+          out.listen((d) => forward(inbound, d), onError: (_) {});
+          upstream.complete(out);
+        });
+        final host = _Raw(await WebSocket.connect('ws://127.0.0.1:${proxy.port}/relay?create'));
+        final room = await host.nextJson();
+        final code = room['code'] as String, key = room['key'] as String;
+        final guest = await _Raw.connect(relay, 'join=$code');
+        expect((await host.nextJson())['t'], 'relay.peer');
+
+        final out = await upstream.future;
+        if (how == 'FIN') {
+          unawaited(out.close()); // a FIN, no close frame
+        } else {
+          out.destroy();
+        }
+        await guest.expectClosed();
+        expect(relay.roomCount, 1, reason: 'the host is away, the room waits');
+        final back = await _Raw.connect(relay, 'resume=$code&key=$key');
+        expect((await back.nextJson())['t'], 'relay.room');
+      });
+    }
+
+    for (final code in [1001, 4000, null, 1000]) {
+      final leaves = code == null || code == 1000;
+      test('a close frame with ${code ?? 'no code'} from the host: ${leaves ? 'the host left' : 'away'}', () async {
+        final (host, _, _) = await openRoom();
+        await (code == null ? host.ws.close() : host.ws.close(code));
+        await host.expectClosed();
+        if (leaves) {
+          await until(() => relay.roomCount == 0);
+        } else {
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+          expect(relay.roomCount, 1);
+        }
+      });
+    }
+
+    test('the relay logs room events, with close codes and no addresses', () async {
+      await relay.close();
+      final log = <String>[];
+      relay = await RelayServer.start(
+          port: 0, address: loopback, pingInterval: null, hostGrace: const Duration(seconds: 30), log: log.add);
+      final (host, code, key) = await openRoom();
+      final guest = await _Raw.connect(relay, 'join=$code');
+      expect((await host.nextJson())['t'], 'relay.peer');
+      await host.ws.close(4000);
+      await guest.expectClosed();
+      final back = await _Raw.connect(relay, 'resume=$code&key=$key');
+      expect((await back.nextJson())['t'], 'relay.room');
+      final guest2 = await _Raw.connect(relay, 'join=$code');
+      expect((await back.nextJson())['t'], 'relay.peer');
+      await guest2.ws.close();
+      await until(() => log.any((l) => l.contains('guest gone')));
+      await back.ws.close(1000);
+      await until(() => relay.roomCount == 0);
+      expect(log.map((l) => l.replaceAll(RegExp(r'after \d+ s'), 'after N s')), [
+        'Room $code: opened',
+        'Room $code: guest joined',
+        'Room $code: host away (close code 4000), the room waits 30 s for it',
+        'Room $code: host back after N s',
+        'Room $code: guest joined',
+        'Room $code: guest gone (guest disconnected, close code 1005)',
+        'Room $code: host left (close code 1000)',
+        'Room $code: closed: host left',
+      ]);
+      expect(log.join('\n'), isNot(contains('127.0.0.1')));
+    });
   });
 
   group('KlunkiHost through the relay comes back', () {

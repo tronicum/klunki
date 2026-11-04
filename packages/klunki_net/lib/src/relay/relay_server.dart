@@ -57,6 +57,11 @@ class RelayServer {
   final ClubCodes? clubCodes;
   final ClubStrikes _strikes;
 
+  /// One line per room event (opened, guest in/out, host away/back, closed
+  /// with its reason), e.g. the relay terminal; null: quiet. Room codes and
+  /// WebSocket close codes only, no addresses.
+  final void Function(String line)? log;
+
   final Duration? _pingInterval;
   final Random _random;
   final Map<String, _Room> _rooms = {};
@@ -64,7 +69,7 @@ class RelayServer {
   bool _closed = false;
 
   RelayServer._(this._http, this.webRoot, this._webRootPath, this.idleTimeout, this.maxLineLength, this.maxRooms,
-      this._pingInterval, this._random, this.clubCodes, this._strikes, this.hostGrace) {
+      this._pingInterval, this._random, this.clubCodes, this._strikes, this.hostGrace, this.log) {
     var shortest = idleTimeout;
     if (hostGrace > Duration.zero && hostGrace < shortest) shortest = hostGrace;
     final period = Duration(microseconds: (shortest.inMicroseconds ~/ 4).clamp(10000, 30000000));
@@ -83,6 +88,7 @@ class RelayServer {
   /// [clubCodes]: require a club code (KLD-112); [clubStrikes] limits wrong
   /// codes per address (default: 10 per 10 minutes). [hostGrace]: how long
   /// a room waits for its host after the host's connection dropped (KLD-120).
+  /// [log]: see [RelayServer.log].
   static Future<RelayServer> start({
     int port = defaultRelayPort,
     Object? address,
@@ -95,6 +101,7 @@ class RelayServer {
     ClubCodes? clubCodes,
     ClubStrikes? clubStrikes,
     Duration hostGrace = const Duration(minutes: 5),
+    void Function(String line)? log,
   }) async {
     String? rootPath;
     if (webRoot != null) {
@@ -107,7 +114,7 @@ class RelayServer {
     final http = await _bind(address, port);
     http.autoCompress = false;
     return RelayServer._(http, webRoot, rootPath, idleTimeout, maxLineLength, maxRooms, pingInterval,
-        random ?? Random.secure(), clubCodes, clubStrikes ?? ClubStrikes(), hostGrace);
+        random ?? Random.secure(), clubCodes, clubStrikes ?? ClubStrikes(), hostGrace, log);
   }
 
   int get port => _http.port;
@@ -238,6 +245,7 @@ class RelayServer {
       if (room.idle.elapsed > idleTimeout) {
         room.shutDown('room expired (idle)');
       } else if ((room.away?.elapsed ?? Duration.zero) > hostGrace) {
+        room._log('the host did not come back within ${hostGrace.inSeconds} s');
         room.shutDown('host left');
       }
     }
@@ -342,11 +350,21 @@ class _Room {
 
   _Room(this.server, this.code, this.key);
 
+  void _log(String event) => server.log?.call('Room $code: $event');
+
   /// The host's connection: a new room, or the host coming back (KLD-120).
   /// A connection the host still had is replaced, and a guest is dropped:
   /// its session was with the host's old connection; it rejoins.
   void attachHost(WebSocket ws) {
     final old = host;
+    final wasAway = away?.elapsed;
+    if (wasAway != null) {
+      _log('host back after ${wasAway.inSeconds} s');
+    } else if (old != null) {
+      _log('host back (its old connection is replaced)');
+    } else {
+      _log('opened');
+    }
     host = ws;
     away = null;
     idle.reset();
@@ -363,6 +381,7 @@ class _Room {
 
   void attachGuest(WebSocket ws) {
     guest = ws;
+    _log('guest joined');
     ws.done.catchError((_) {});
     idle.reset();
     RelayServer._send(host!, relayControl(relayPeer));
@@ -377,9 +396,12 @@ class _Room {
     if (_closed || !identical(ws, host)) return;
     final code = ws.closeCode;
     final left = !failed && (code == WebSocketStatus.normalClosure || code == WebSocketStatus.noStatusReceived);
+    final how = failed ? 'connection error' : 'close code $code';
     if (left || server.hostGrace <= Duration.zero) {
+      _log(left ? 'host left ($how)' : 'host connection ended ($how), no grace period');
       return shutDown(failed ? 'host connection failed' : 'host left');
     }
+    _log('host away ($how), the room waits ${server.hostGrace.inSeconds} s for it');
     host = null;
     away = Stopwatch()..start();
     _dropGuest();
@@ -446,6 +468,7 @@ class _Room {
   void _guestGone(WebSocket ws, String reason) {
     if (_closed || !identical(ws, guest)) return;
     guest = null;
+    _log('guest gone ($reason, close code ${ws.closeCode})');
     final h = host;
     if (h != null) RelayServer._send(h, relayControl(relayLeft, {'reason': reason}));
   }
@@ -455,6 +478,7 @@ class _Room {
   void shutDown(String reason) {
     if (_closed) return;
     _closed = true;
+    _log('closed: $reason');
     server._rooms.remove(code);
     for (final ws in [host, guest]) {
       if (ws == null) continue;

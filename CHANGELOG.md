@@ -20,6 +20,11 @@ short German summary ("Kurz") for the store notes and the testers.
   room opens it again (also through the relay server, which now keeps the room for 5 minutes while that
   device is away). "Neu verbinden" stays as a fallback. During a running game the screen no longer turns off
   by itself (iPhone, Android).
+- **Back in the game faster after unlocking** (KLD-120 follow-up): the app no longer waits for the old
+  connection to time out, it reconnects at once after any pause of 2 s or more, and retries every second
+  while the other device is still coming back.
+- Relay operators: `klunki relay --host-grace SECONDS` and `--log-rooms` (one line per room event, off by
+  default); the relay start shows "Host grace: …", which tells a current relay from one built before KLD-120.
 
 ### App
 - The app icon fills its square on the home screen: a larger pocket and a bolder "Klunki" on the patch.
