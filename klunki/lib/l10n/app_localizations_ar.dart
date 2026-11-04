@@ -1361,6 +1361,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'الجهاز الذي فتح الغرفة $code غير متاح الآن. حاول مرة أخرى بعد لحظة.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'أُغلقت الغرفة: غادر من فتحها. انتهت اللعبة.';
 

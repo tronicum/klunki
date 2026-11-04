@@ -19,7 +19,15 @@ import 'relay_protocol.dart';
 ///   unchanged to the other side. Relay control lines from the guest are
 ///   refused (`relay.error`, close), so a guest cannot impersonate the relay.
 /// - The host leaving (or the room expiring) closes the room: the guest gets
-///   `relay.closed`, then the connection is closed.
+///   `relay.closed`, then the connection is closed. Leaving means a clean
+///   close (WebSocket close code 1000, or none). A host connection that
+///   drops otherwise (a locked phone, lost Wi-Fi, no answer to the relay's
+///   ping; KLD-120) only makes the host *away*: the guest's connection is
+///   closed (no message), joins get `relay.error {error: "host-away"}`, and
+///   for [hostGrace] the host can come back with `?resume=CODE&key=KEY`
+///   (the key came with `relay.room`). Then it gets `relay.room` again and
+///   the guest can rejoin. A host that does not come back in time closes
+///   the room (`host left`).
 /// - Anything else on `/relay` without a WebSocket upgrade: `426`. With
 ///   [webRoot], other paths serve files from it (GET/HEAD only).
 /// - With [clubCodes] (KLD-112, `--codes FILE`) the relay is gated: every
@@ -41,6 +49,10 @@ class RelayServer {
   /// Most rooms open at once; further `create`s get `relay.error`.
   final int maxRooms;
 
+  /// How long a room waits for a host whose connection dropped (KLD-120);
+  /// zero closes the room at once, like before.
+  final Duration hostGrace;
+
   /// The club codes of a gated relay (KLD-112), or null: an open relay.
   final ClubCodes? clubCodes;
   final ClubStrikes _strikes;
@@ -52,8 +64,10 @@ class RelayServer {
   bool _closed = false;
 
   RelayServer._(this._http, this.webRoot, this._webRootPath, this.idleTimeout, this.maxLineLength, this.maxRooms,
-      this._pingInterval, this._random, this.clubCodes, this._strikes) {
-    final period = Duration(microseconds: (idleTimeout.inMicroseconds ~/ 4).clamp(10000, 30000000));
+      this._pingInterval, this._random, this.clubCodes, this._strikes, this.hostGrace) {
+    var shortest = idleTimeout;
+    if (hostGrace > Duration.zero && hostGrace < shortest) shortest = hostGrace;
+    final period = Duration(microseconds: (shortest.inMicroseconds ~/ 4).clamp(10000, 30000000));
     _sweeper = Timer.periodic(period, (_) => _sweep());
     _http.listen(_onRequest);
   }
@@ -67,7 +81,8 @@ class RelayServer {
   /// `/relay`. [pingInterval]: WebSocket-level pings that detect vanished
   /// peers (null = off). [random] picks room codes (tests pass a seeded one).
   /// [clubCodes]: require a club code (KLD-112); [clubStrikes] limits wrong
-  /// codes per address (default: 10 per 10 minutes).
+  /// codes per address (default: 10 per 10 minutes). [hostGrace]: how long
+  /// a room waits for its host after the host's connection dropped (KLD-120).
   static Future<RelayServer> start({
     int port = defaultRelayPort,
     Object? address,
@@ -79,6 +94,7 @@ class RelayServer {
     Random? random,
     ClubCodes? clubCodes,
     ClubStrikes? clubStrikes,
+    Duration hostGrace = const Duration(minutes: 5),
   }) async {
     String? rootPath;
     if (webRoot != null) {
@@ -91,7 +107,7 @@ class RelayServer {
     final http = await _bind(address, port);
     http.autoCompress = false;
     return RelayServer._(http, webRoot, rootPath, idleTimeout, maxLineLength, maxRooms, pingInterval,
-        random ?? Random.secure(), clubCodes, clubStrikes ?? ClubStrikes());
+        random ?? Random.secure(), clubCodes, clubStrikes ?? ClubStrikes(), hostGrace);
   }
 
   int get port => _http.port;
@@ -141,6 +157,8 @@ class RelayServer {
     if (query.containsKey('create')) return _create(ws);
     final join = query['join'];
     if (join != null) return _join(ws, join);
+    final resume = query[relayResumeParam];
+    if (resume != null) return _resume(ws, resume, query[relayKeyParam] ?? '');
     _refuse(ws, 'bad request: use ?create or ?join=CODE');
   }
 
@@ -150,16 +168,41 @@ class RelayServer {
     do {
       code = newRoomCode(_random);
     } while (_rooms.containsKey(code));
-    final room = _rooms[code] = _Room(this, code, ws);
-    room.start();
+    final room = _rooms[code] = _Room(this, code, _newKey());
+    room.attachHost(ws);
   }
+
+  String _newKey() => List.generate(16, (_) => _random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
 
   void _join(WebSocket ws, String raw) {
     final code = normalizeRoomCode(raw);
     final room = code == null ? null : _rooms[code];
     if (room == null) return _refuse(ws, 'no room with code ${code ?? raw.trim().toUpperCase()}');
+    if (room.host == null) {
+      return _refuse(ws, 'the host of room $code is away, try again in a moment', error: relayErrorHostAway);
+    }
     if (room.guest != null) return _refuse(ws, 'room $code is full');
     room.attachGuest(ws);
+  }
+
+  /// KLD-120: a host comes back to its room. A wrong key gets the same
+  /// answer as an unknown code.
+  void _resume(WebSocket ws, String raw, String key) {
+    final code = normalizeRoomCode(raw);
+    final room = code == null ? null : _rooms[code];
+    if (room == null || !_sameKey(key, room.key)) {
+      return _refuse(ws, 'no room with code ${code ?? raw.trim().toUpperCase()}');
+    }
+    room.attachHost(ws);
+  }
+
+  static bool _sameKey(String a, String b) {
+    if (a.length != b.length) return false;
+    var diff = 0;
+    for (var i = 0; i < a.length; i++) {
+      diff |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return diff == 0;
   }
 
   void _refuse(WebSocket ws, String message, {String? error}) {
@@ -192,7 +235,11 @@ class RelayServer {
   void _sweep() {
     _strikes.prune();
     for (final room in _rooms.values.toList()) {
-      if (room.idle.elapsed > idleTimeout) room.shutDown('room expired (idle)');
+      if (room.idle.elapsed > idleTimeout) {
+        room.shutDown('room expired (idle)');
+      } else if ((room.away?.elapsed ?? Duration.zero) > hostGrace) {
+        room.shutDown('host left');
+      }
     }
   }
 
@@ -280,26 +327,62 @@ class RelayServer {
 class _Room {
   final RelayServer server;
   final String code;
-  final WebSocket host;
+
+  /// The secret that lets the host come back (KLD-120), sent with `relay.room`.
+  final String key;
+
+  /// The host's connection; null while the host is away (KLD-120).
+  WebSocket? host;
   WebSocket? guest;
   final Stopwatch idle = Stopwatch()..start();
+
+  /// Running while the host is away.
+  Stopwatch? away;
   bool _closed = false;
 
-  _Room(this.server, this.code, this.host);
+  _Room(this.server, this.code, this.key);
 
-  void start() {
-    host.done.catchError((_) {});
-    RelayServer._send(host, relayControl(relayRoom, {'code': code}));
-    host.listen(_fromHost, onDone: () => shutDown('host left'), onError: (_) => shutDown('host connection failed'));
+  /// The host's connection: a new room, or the host coming back (KLD-120).
+  /// A connection the host still had is replaced, and a guest is dropped:
+  /// its session was with the host's old connection; it rejoins.
+  void attachHost(WebSocket ws) {
+    final old = host;
+    host = ws;
+    away = null;
+    idle.reset();
+    if (old != null) {
+      RelayServer._send(old, relayControl(relayClosed, {'reason': 'replaced by a new host connection'}));
+      RelayServer._close(old, WebSocketStatus.goingAway);
+    }
+    _dropGuest();
+    ws.done.catchError((_) {});
+    RelayServer._send(ws, relayControl(relayRoom, {'code': code, 'key': key}));
+    ws.listen((frame) => _fromHost(ws, frame),
+        onDone: () => _hostGone(ws), onError: (_) => _hostGone(ws, failed: true));
   }
 
   void attachGuest(WebSocket ws) {
     guest = ws;
     ws.done.catchError((_) {});
     idle.reset();
-    RelayServer._send(host, relayControl(relayPeer));
+    RelayServer._send(host!, relayControl(relayPeer));
     ws.listen((frame) => _fromGuest(ws, frame),
         onDone: () => _guestGone(ws, 'guest disconnected'), onError: (_) => _guestGone(ws, 'guest connection failed'));
+  }
+
+  /// The host's connection [ws] ended. A clean close (code 1000, or none)
+  /// is the host leaving; anything else (no close frame, no answer to the
+  /// relay's ping, "going away") makes it away for [RelayServer.hostGrace].
+  void _hostGone(WebSocket ws, {bool failed = false}) {
+    if (_closed || !identical(ws, host)) return;
+    final code = ws.closeCode;
+    final left = !failed && (code == WebSocketStatus.normalClosure || code == WebSocketStatus.noStatusReceived);
+    if (left || server.hostGrace <= Duration.zero) {
+      return shutDown(failed ? 'host connection failed' : 'host left');
+    }
+    host = null;
+    away = Stopwatch()..start();
+    _dropGuest();
   }
 
   /// Checks one frame; returns the line to forward, or null after refusing.
@@ -315,9 +398,9 @@ class _Room {
     return frame;
   }
 
-  void _fromHost(Object? frame) {
-    if (_closed) return;
-    final line = _check(host, frame);
+  void _fromHost(WebSocket ws, Object? frame) {
+    if (_closed || !identical(ws, host)) return;
+    final line = _check(ws, frame);
     if (line == null) return;
     idle.reset();
     final control = parseRelayControl(line);
@@ -335,7 +418,8 @@ class _Room {
     if (line == null) return;
     if (parseRelayControl(line) != null) return _violation(ws, 'relay control messages are not allowed from a guest');
     idle.reset();
-    RelayServer._send(host, line);
+    final h = host;
+    if (h != null) RelayServer._send(h, line);
   }
 
   /// A rule broken by [ws]: `relay.error`, then close. The host breaking a
@@ -350,18 +434,20 @@ class _Room {
     }
   }
 
-  /// The host asked to drop the guest (after the lines it already sent).
+  /// Drops the guest without `relay.left`: the host asked for it
+  /// (`relay.kick`), or the host's connection changed (KLD-120).
   void _dropGuest() {
     final g = guest;
     if (g == null) return;
-    guest = null; // no `relay.left`: the host already knows
+    guest = null;
     RelayServer._close(g);
   }
 
   void _guestGone(WebSocket ws, String reason) {
     if (_closed || !identical(ws, guest)) return;
     guest = null;
-    RelayServer._send(host, relayControl(relayLeft, {'reason': reason}));
+    final h = host;
+    if (h != null) RelayServer._send(h, relayControl(relayLeft, {'reason': reason}));
   }
 
   /// Closes the room: the guest and (if still there) the host get
@@ -375,6 +461,7 @@ class _Room {
       RelayServer._send(ws, relayControl(relayClosed, {'reason': reason}));
       RelayServer._close(ws, WebSocketStatus.goingAway);
     }
+    host = null;
     guest = null;
   }
 }

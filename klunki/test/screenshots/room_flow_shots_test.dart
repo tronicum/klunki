@@ -28,6 +28,7 @@ import 'package:klunki_net/relay_server.dart';
 
 import '../l10n/l10n_test_utils.dart';
 import '../ui/pairing/pairing_test_utils.dart';
+import '../support/asset_images.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _boundary = Key('shot-boundary');
@@ -60,6 +61,7 @@ Future<void> _setup(WidgetTester tester, {double height = 1500}) async {
 /// Real shadows only while capturing; the binding checks that the test
 /// leaves `debugDisableShadows` as it found it.
 Future<void> _shot(WidgetTester tester, String name) async {
+  await precacheShownImages(tester);
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pump();

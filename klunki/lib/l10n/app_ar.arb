@@ -336,6 +336,7 @@
   "relayAddressInvalid": "عنوان خادم غير صالح. مثال: 192.168.1.20:4749",
   "relayErrorUnknownCode": "لا توجد غرفة بالرمز {code}. هل الرمز صحيح، وهل ما زالت الغرفة مفتوحة؟",
   "relayErrorRoomFull": "الغرفة {code} ممتلئة: يلعب فيها اثنان بالفعل.",
+  "relayErrorHostAway": "الجهاز الذي فتح الغرفة {code} غير متاح الآن. حاول مرة أخرى بعد لحظة.",
   "relayErrorRoomClosed": "أُغلقت الغرفة: غادر من فتحها. انتهت اللعبة.",
   "relayErrorExpired": "انتهت صلاحية الغرفة (10 دقائق دون نشاط).",
   "relayErrorUnreachable": "لا يوجد خادم متاح على {address}.",

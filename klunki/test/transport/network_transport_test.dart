@@ -16,8 +16,14 @@ final _loopback = InternetAddress.loopbackIPv4;
 Future<NetworkTransport> _host(GameConfig config) => NetworkTransport.host(config,
     name: 'Ada', address: _loopback, pingInterval: const Duration(milliseconds: 50), timeout: const Duration(seconds: 2));
 
-Future<NetworkTransport> _join(int port, {String? token}) => NetworkTransport.join(_loopback, port,
-    name: 'Bea', token: token, pingInterval: const Duration(milliseconds: 50), timeout: const Duration(seconds: 2));
+/// [auto]: reconnect by itself (KLD-120); off for the tests of the manual
+/// reconnect.
+Future<NetworkTransport> _join(int port, {String? token, bool auto = false}) => NetworkTransport.join(_loopback, port,
+    name: 'Bea',
+    token: token,
+    pingInterval: const Duration(milliseconds: 50),
+    timeout: const Duration(seconds: 2),
+    autoReconnect: auto);
 
 /// Polls [condition] until it holds (fails after [limit]).
 Future<void> _until(bool Function() condition, {Duration limit = const Duration(seconds: 5)}) async {

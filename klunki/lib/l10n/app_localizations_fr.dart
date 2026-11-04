@@ -1343,6 +1343,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'L’appareil qui a ouvert la salle $code est injoignable pour le moment. Réessaie dans un instant.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'La salle a été fermée : la personne qui l’a ouverte est partie. La partie est terminée.';
 

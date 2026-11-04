@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../app/screen_awake.dart';
 import '../../game/game_controller.dart';
 import '../../transport/network_transport.dart';
 import '../game_visuals.dart' show tokenSidesOf;
@@ -17,8 +18,15 @@ import '../shell/screen_registry.dart';
 /// "Gegner: Ben" (KLD-067), plus a banner while the
 /// other side is missing. The game shell names both players through a
 /// [PlayerLabelsScope] (KLD-056, KLD-106): "Du bist am Zug", "Warte auf Ben…",
-/// "Ben gewinnt!", "Ben: …" in the history. The guest gets a "Neu verbinden" button there (the full
-/// reconnect UX is KLD-036).
+/// "Ben gewinnt!", "Ben: …" in the history.
+///
+/// KLD-120, a locked phone: the session tells the transport when the app
+/// goes to the background and comes back ([NetworkTransport.appPaused],
+/// [NetworkTransport.appResumed]); the guest then reconnects by itself
+/// ("Verbindung wird wiederhergestellt …"), the host listens again or comes
+/// back to its relay room. The guest's "Neu verbinden" button is the
+/// fallback once the automatic reconnect gave up. While the game runs the
+/// screen does not lock by itself ([ScreenAwake]).
 ///
 /// One local player per device, so the controller never asks for a
 /// handover. Leaving the route disposes the controller, which disposes the
@@ -32,15 +40,19 @@ class NetworkGameSession extends StatefulWidget {
   State<NetworkGameSession> createState() => _NetworkGameSessionState();
 }
 
-class _NetworkGameSessionState extends State<NetworkGameSession> {
+class _NetworkGameSessionState extends State<NetworkGameSession> with WidgetsBindingObserver {
   late final GameController _controller = GameController(
     widget.transport,
     transportFactory: (_) => throw UnsupportedError('a network game cannot be restarted locally'),
   );
+  bool? _screenOn;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _controller.addListener(_keepScreenOn);
+    _keepScreenOn();
     // KLD-094 step 6: a guest of a Wortgewandt game with "Wörterbuch prüfen"
     // loads the same word list (the fingerprint made sure it is the same)
     // to check its own words at "Legen" and the host's game at the end.
@@ -53,8 +65,31 @@ class _NetworkGameSessionState extends State<NetworkGameSession> {
     }
   }
 
+  /// The screen stays on while the game runs (KLD-120), not after it.
+  void _keepScreenOn() {
+    final on = !_controller.game.isOver;
+    if (on == _screenOn) return;
+    _screenOn = on;
+    ScreenAwake.keepOn(on);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.hidden || AppLifecycleState.paused:
+        widget.transport.appPaused();
+      case AppLifecycleState.resumed:
+        widget.transport.appResumed();
+      case AppLifecycleState.inactive || AppLifecycleState.detached:
+        break; // inactive: e.g. Control Center pulled down; the app still runs
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _controller.removeListener(_keepScreenOn);
+    if (_screenOn ?? false) ScreenAwake.keepOn(false);
     _controller.dispose();
     super.dispose();
   }
@@ -158,6 +193,15 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
         final missing = state == NetConnectionState.peerMissing;
         final reconnecting = state == NetConnectionState.reconnecting;
         final roomClosed = missing ? _roomClosedText(context) : null;
+        // KLD-120: why the automatic reconnect gave up (the manual button's
+        // own error wins).
+        final autoError = t.reconnectError;
+        final reconnectError = _reconnectError ??
+            (autoError == null || roomClosed != null
+                ? null
+                : versionMismatchText(context, autoError) ??
+                    relayErrorText(context, autoError, code: t.roomCode, relay: t.relayUrl) ??
+                    (isSeatTaken(autoError) ? l10n.pairingSeatTaken : l10n.pairingReconnectFailed));
         return Material(
           key: const Key('net-bar'),
           color: theme.colorScheme.surfaceContainer,
@@ -207,10 +251,11 @@ class _NetworkConnectionBarState extends State<NetworkConnectionBar> {
                     child: Text(l10n.networkVerificationFailed,
                         style: TextStyle(color: theme.colorScheme.onErrorContainer)),
                   ),
-                if (_reconnectError != null && missing)
+                if (reconnectError != null && missing)
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-                    child: Text(_reconnectError!, style: TextStyle(color: theme.colorScheme.error)),
+                    child: Text(reconnectError,
+                        key: const Key('net-reconnect-error'), style: TextStyle(color: theme.colorScheme.error)),
                   ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

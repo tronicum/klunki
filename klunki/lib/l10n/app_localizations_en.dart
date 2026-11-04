@@ -1331,6 +1331,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'The device that started room $code can\'t be reached right now. Try again in a moment.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'The room was closed: whoever started it has left. The game is over.';
 

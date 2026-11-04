@@ -26,6 +26,18 @@ abstract class MessageChannel {
   String get kind;
 }
 
+/// WebSocket close code of a client that drops its connection without
+/// leaving (KLD-120): a relay keeps a host's room for it. Browsers may only
+/// send 1000 or 3000–4999, so it is an application code.
+const int closeCodeAway = 4000;
+
+/// A channel that can also be closed without "leaving" ([closeCodeAway]):
+/// the WebSocket channels.
+abstract class AbandonableChannel implements MessageChannel {
+  /// Closes the channel with [closeCodeAway]. Never throws.
+  Future<void> abandon();
+}
+
 /// Input on the wire that is not a protocol message at all; the receiver
 /// answers with `error "malformed input (<what>)"`.
 class MalformedInput implements Exception {

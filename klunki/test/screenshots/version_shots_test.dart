@@ -25,6 +25,7 @@ import 'package:klunki/profile/relay_settings.dart';
 import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart';
 import 'package:klunki_net/klunki_net.dart';
+import '../support/asset_images.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _boundary = Key('shot-boundary');
@@ -54,6 +55,7 @@ Future<void> _loadFonts() async {
 }
 
 Future<void> _shot(WidgetTester tester, String name) async {
+  await precacheShownImages(tester);
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 400));
   await tester.pump();

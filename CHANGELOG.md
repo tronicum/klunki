@@ -12,6 +12,13 @@ short German summary ("Kurz") for the store notes and the testers.
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).
 
+### Playing together
+- **A locked phone no longer ends a game with others** (KLD-120). After unlocking, the game goes on by
+  itself: the joined device reconnects ("Verbindung wird wiederhergestellt …"), the device that started the
+  room opens it again (also through the relay server, which now keeps the room for 5 minutes while that
+  device is away). "Neu verbinden" stays as a fallback. During a running game the screen no longer turns off
+  by itself (iPhone, Android).
+
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 
 1.0.0 was an internal TestFlight test build only (not released).

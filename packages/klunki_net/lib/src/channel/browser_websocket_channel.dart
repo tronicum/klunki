@@ -30,7 +30,7 @@ extension type _CloseEvent._(JSObject _) implements JSObject {
 }
 
 /// One message per text frame over the browser's `WebSocket` (the PWA guest).
-class BrowserWebSocketChannel implements MessageChannel {
+class BrowserWebSocketChannel implements AbandonableChannel {
   final _JsWebSocket _ws;
   final _incoming = StreamController<String>();
 
@@ -99,9 +99,14 @@ class BrowserWebSocketChannel implements MessageChannel {
 
   /// The browser sends buffered frames before the close frame.
   @override
-  Future<void> close() async {
+  Future<void> close() => _close(1000);
+
+  @override
+  Future<void> abandon() => _close(closeCodeAway);
+
+  Future<void> _close(int code) async {
     try {
-      _ws.close(1000);
+      _ws.close(code);
     } catch (_) {}
     if (!_incoming.isClosed) unawaited(_incoming.close());
   }

@@ -24,10 +24,17 @@ export const relayErrorClubWrong = 'club-wrong';
 export const relayClubMissingText = 'club code required';
 export const relayClubWrongText = 'club code not accepted';
 
+// KLD-120: a host whose connection dropped comes back with the room's key.
+export const relayResumeParam = 'resume';
+export const relayKeyParam = 'key';
+export const relayErrorHostAway = 'host-away';
+
 /** WebSocket close codes the Dart relay uses (dart:io WebSocketStatus). */
 export const closeNormal = 1000;
 export const closeGoingAway = 1001;
 export const closePolicyViolation = 1008;
+/** A clean close without a status (the client sent none). */
+export const closeNoStatus = 1005;
 
 /** Encodes a relay control message (`t` first, like the Dart relay). */
 export function relayControl(t, fields = {}) {

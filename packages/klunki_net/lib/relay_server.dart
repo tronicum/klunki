@@ -21,6 +21,7 @@ export 'src/relay/relay_protocol.dart'
         normalizeClubCode,
         newClubCode,
         relayClubMissingText,
-        relayClubWrongText;
+        relayClubWrongText,
+        relayHostAwayText;
 export 'src/relay/club_codes.dart' show ClubCodes, ClubCode, ClubStrikes;
 export 'src/relay/relay_server.dart' show RelayServer, mimeTypeFor;

@@ -335,6 +335,7 @@
   "relayAddressInvalid": "Invalid server address. Example: 192.168.1.20:4749",
   "relayErrorUnknownCode": "No room with the code {code}. Is the code right, and is the room still open?",
   "relayErrorRoomFull": "Room {code} is already full: two are playing there.",
+  "relayErrorHostAway": "The device that started room {code} can't be reached right now. Try again in a moment.",
   "relayErrorRoomClosed": "The room was closed: whoever started it has left. The game is over.",
   "relayErrorExpired": "The room expired (10 minutes without activity).",
   "relayErrorUnreachable": "No server reachable at {address}.",

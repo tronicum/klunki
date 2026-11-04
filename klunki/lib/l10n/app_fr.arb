@@ -336,6 +336,7 @@
   "relayAddressInvalid": "Adresse de serveur invalide. Exemple : 192.168.1.20:4749",
   "relayErrorUnknownCode": "Aucune salle avec le code {code}. Le code est-il juste, et la salle est-elle encore ouverte ?",
   "relayErrorRoomFull": "La salle {code} est déjà pleine : deux joueurs y jouent.",
+  "relayErrorHostAway": "L’appareil qui a ouvert la salle {code} est injoignable pour le moment. Réessaie dans un instant.",
   "relayErrorRoomClosed": "La salle a été fermée : la personne qui l’a ouverte est partie. La partie est terminée.",
   "relayErrorExpired": "La salle a expiré (10 minutes sans activité).",
   "relayErrorUnreachable": "Aucun serveur joignable à {address}.",

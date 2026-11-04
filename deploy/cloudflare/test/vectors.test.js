@@ -36,7 +36,11 @@ async function run(scenario, { hibernate }) {
   const { open, rooms } = makeRelay(scenario.codes === undefined ? {} : { CLUB_CODES: scenario.codes });
   const peers = new Map();
   let room = null;
-  const fill = (s) => (room === null ? s : s.replaceAll('{roomLower}', room.toLowerCase()).replaceAll('{room}', room));
+  let key = null; // the room's host key (KLD-120)
+  const fill = (s) => {
+    const r = room === null ? s : s.replaceAll('{roomLower}', room.toLowerCase()).replaceAll('{room}', room);
+    return key === null ? r : r.replaceAll('{key}', key);
+  };
   const fillJson = (v) =>
     typeof v === 'string'
       ? fill(v)
@@ -52,6 +56,7 @@ async function run(scenario, { hibernate }) {
       const msg = await peers.get(step.room).nextJson();
       assert.equal(msg.t, 'relay.room', at);
       room = msg.code;
+      key = msg.key ?? null;
       assert.equal(normalizeRoomCode(room), room, at);
     } else if (step.recv !== undefined) {
       assert.deepEqual(await peers.get(step.recv).nextJson(), fillJson(step.json), at);
@@ -66,7 +71,7 @@ async function run(scenario, { hibernate }) {
     } else if (step.closed !== undefined) {
       await peers.get(step.closed).expectClosed(step.code);
     } else if (step.close !== undefined) {
-      await peers.get(step.close).close();
+      await peers.get(step.close).close(step.code);
     } else {
       assert.fail(`unknown step ${at}`);
     }

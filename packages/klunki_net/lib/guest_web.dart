@@ -39,4 +39,5 @@ export 'src/relay/relay_protocol.dart'
         normalizeClubCode,
         newClubCode,
         relayClubMissingText,
-        relayClubWrongText;
+        relayClubWrongText,
+        relayHostAwayText;

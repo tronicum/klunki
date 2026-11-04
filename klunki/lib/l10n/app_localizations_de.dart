@@ -916,7 +916,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get pairingReconnecting => 'Verbinde neu…';
+  String get pairingReconnecting => 'Verbindung wird wiederhergestellt …';
 
   @override
   String get pairingReconnect => 'Neu verbinden';
@@ -1332,6 +1332,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String relayErrorRoomFull(String code) {
     return 'Raum $code ist schon voll: Dort spielen bereits zwei.';
+  }
+
+  @override
+  String relayErrorHostAway(String code) {
+    return 'Das Gerät, das Raum $code gestartet hat, ist gerade nicht erreichbar. Versuch es gleich noch einmal.';
   }
 
   @override

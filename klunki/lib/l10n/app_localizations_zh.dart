@@ -1295,6 +1295,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return '开启房间 $code 的设备暂时连不上，请等一下再试。';
+  }
+
+  @override
   String get relayErrorRoomClosed => '房间已关闭：创建房间的人已离开。游戏结束。';
 
   @override

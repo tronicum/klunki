@@ -173,8 +173,8 @@ can be copied over `klunki/` (`cp -R /tmp/klunki-icon/{ios,android,web,assets} .
   old one is 16 px).
 - `store/play-store-512.png`: the Google Play listing icon (not part of the
   app; kept in `docs/store/` with the 1024 marketing PNG).
-- `assets/icon/app_icon.png`: 384 px copy for the About screen
-  (`KlunkiAppIcon` in `lib/ui/about_screen.dart`). The app shows this PNG
+- `assets/icon/app_icon.png`: 384 px copy for the About screen and the
+  menu's app bar (`KlunkiAppIcon` in `lib/ui/about_screen.dart`). The app shows this PNG
   rather than running the painter, so the painters stay in `tool/` and the
   in-app icon is pixel-identical to the home-screen icon.
 - `check/android-adaptive.png`: the adaptive layers unmasked, under a circle

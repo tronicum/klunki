@@ -583,6 +583,10 @@ class _Play {
           _out.writeln('The relay room is gone; the game cannot continue.');
           _finish(1, 'relay room closed');
         }
+      case RoomReconnecting(:final reason):
+        _out.writeln('Lost the relay ($reason); coming back to the room…');
+      case RoomReconnected():
+        _out.writeln('Back in the room; the guest can rejoin.');
       case IncompatiblePeer(:final mismatch):
         _out.writeln('A guest was refused: ${mismatch.message}');
       case MoveRejected():

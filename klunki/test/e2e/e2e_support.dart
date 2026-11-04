@@ -65,7 +65,10 @@ class AppStack {
 
   static Future<NetworkTransport> joinTransport(int port,
           {String name = 'Pixel (Android)', String? token, Duration timeout = netTimeout}) =>
-      NetworkTransport.join(loopback, port, name: name, token: token, pingInterval: pingInterval, timeout: timeout);
+      // The scripts reconnect by hand at a chosen point (the button's path);
+      // the automatic reconnect (KLD-120) has its own tests.
+      NetworkTransport.join(loopback, port,
+          name: name, token: token, pingInterval: pingInterval, timeout: timeout, autoReconnect: false);
 
   /// Replaces the stack after an app restart (the old controller is disposed).
   Future<void> replace(NetworkTransport next) async {

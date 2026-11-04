@@ -193,6 +193,25 @@ class VersionMismatch {
   String toString() => 'VersionMismatch(${kind.code}, peer ${peer.name}, $detail)';
 }
 
+/// Host through a relay (KLD-120): the connection to the relay dropped (a
+/// locked phone, lost Wi-Fi) and the host is trying to come back to its
+/// room ([reason]: what ended the connection). [RoomReconnected] follows on
+/// success; otherwise a [NetError] starting with `relay`: the room is lost.
+class RoomReconnecting extends NetEvent {
+  final String reason;
+  const RoomReconnecting(this.reason);
+  @override
+  String toString() => 'RoomReconnecting($reason)';
+}
+
+/// Host through a relay (KLD-120): back in the room after
+/// [RoomReconnecting]; the guest can rejoin.
+class RoomReconnected extends NetEvent {
+  const RoomReconnected();
+  @override
+  String toString() => 'RoomReconnected()';
+}
+
 /// A protocol problem (malformed input, divergent logs, refused handshake).
 class NetError extends NetEvent {
   final String message;

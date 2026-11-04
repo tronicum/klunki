@@ -1342,6 +1342,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'El dispositivo que abrió la sala $code no está disponible ahora. Prueba otra vez en un momento.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'La sala se ha cerrado: quien la abrió se ha ido. La partida ha terminado.';
 

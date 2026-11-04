@@ -12,6 +12,8 @@
 //                         origins are refused (apps send no Origin and pass)
 //   IDLE_TIMEOUT_SECONDS  optional, default 600
 //   MAX_LINE_LENGTH       optional, default 262144 (UTF-16 code units)
+//   HOST_GRACE_SECONDS    optional, default 300: how long a room waits for a
+//                         host whose connection dropped (KLD-120); 0 = none
 //
 // Nothing is logged: no console output at all (club codes travel in the URL).
 
@@ -28,7 +30,10 @@ import {
   relayError,
   relayErrorClubMissing,
   relayErrorClubWrong,
+  relayErrorHostAway,
+  relayKeyParam,
   relayPath,
+  relayResumeParam,
 } from './protocol.js';
 
 /** How often `create` draws a new code when the drawn one is in use. */
@@ -70,12 +75,17 @@ export function createRelay({ strikes = new ClubStrikes() } = {}) {
     return codes;
   }
 
-  function room(env, op, code) {
+  function room(env, op, code, key) {
     const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
     // A fixed internal URL: the club code in the client's URL never reaches
     // the room object.
     return stub.fetch('https://room.internal/', {
-      headers: { Upgrade: 'websocket', 'X-Klunki-Op': op, 'X-Klunki-Room': code },
+      headers: {
+        Upgrade: 'websocket',
+        'X-Klunki-Op': op,
+        'X-Klunki-Room': code,
+        ...(key === undefined ? {} : { 'X-Klunki-Key': key }),
+      },
     });
   }
 
@@ -126,6 +136,18 @@ export function createRelay({ strikes = new ClubStrikes() } = {}) {
         const response = await room(env, 'join', code);
         if (response.status === 101) return response;
         if (response.status === 409) return refuse(`room ${code} is full`);
+        if (response.status === 423) {
+          return refuse(`the host of room ${code} is away, try again in a moment`, relayErrorHostAway);
+        }
+        return refuse(`no room with code ${code}`);
+      }
+      const resume = query.get(relayResumeParam);
+      if (resume !== null) {
+        // KLD-120: the host comes back; a wrong key reads like an unknown code.
+        const code = normalizeRoomCode(resume);
+        if (code === null) return refuse(`no room with code ${resume.trim().toUpperCase()}`);
+        const response = await room(env, 'resume', code, query.get(relayKeyParam) ?? '');
+        if (response.status === 101) return response;
         return refuse(`no room with code ${code}`);
       }
       return refuse('bad request: use ?create or ?join=CODE');

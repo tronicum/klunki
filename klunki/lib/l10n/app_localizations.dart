@@ -1449,7 +1449,7 @@ abstract class AppLocalizations {
   /// Connection banner while the guest reconnects.
   ///
   /// In de, this message translates to:
-  /// **'Verbinde neu…'**
+  /// **'Verbindung wird wiederhergestellt …'**
   String get pairingReconnecting;
 
   /// Guest's button in the connection banner.
@@ -2117,6 +2117,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Raum {code} ist schon voll: Dort spielen bereits zwei.'**
   String relayErrorRoomFull(String code);
+
+  /// KLD-120, relay: the room exists, but the device that started it is away for the moment (e.g. its phone is locked); trying again soon may work.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Gerät, das Raum {code} gestartet hat, ist gerade nicht erreichbar. Versuch es gleich noch einmal.'**
+  String relayErrorHostAway(String code);
 
   /// KLD-098: the room was closed because whoever started it left; the game is over.
   ///
