@@ -3,10 +3,12 @@
 // another laid tile (they swap), back to the rack or onto the bench. A tap
 // still takes it back to the rack; a plain pan still scrolls a zoomed
 // board; tiles of earlier turns stay where they are.
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/ui/games/wordtiles/wordtiles_board.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_tiles.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -30,18 +32,22 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
   await _pump(tester);
 }
 
-void _size(WidgetTester tester, Size size) {
+/// [safe]: an iPhone's top and bottom safe areas (notch, home indicator).
+void _size(WidgetTester tester, Size size, {(double, double) safe = (0, 0)}) {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
+  tester.view.padding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
+  tester.view.viewPadding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
   addTearDown(tester.view.reset);
 }
 
 Future<GameController> _start(
   WidgetTester tester, {
   Size size = const Size(1180, 820),
+  (double, double) safe = (0, 0),
   Locale locale = testLocale,
 }) async {
-  _size(tester, size);
+  _size(tester, size, safe: safe);
   final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
   addTearDown(c.dispose);
   _game(c).debugSetup(
@@ -187,5 +193,163 @@ void main() {
     await _longDrag(tester, _sq(7, 7), tester.getCenter(_sq(7, 9)));
     expect(_letter(7, 9, 'H'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  // KLD-094 step 8g: the iPhone 15 Pro playtest (393 × 852 with its safe
+  // areas: the small-phone layout with the Bänkchen bar under the board).
+  // A finger, not a test tap: it rests a while and wobbles a few pixels
+  // (within the touch slop) before it moves, in frames of 16 ms. Before the
+  // fix a laid tile needed Flutter's full 500 ms long press; a finger that
+  // started moving earlier scrolled the zoomed board, and on the unzoomed
+  // board nothing moved at all.
+  group('iPhone 15 Pro, a real finger', () {
+    const phone = Size(393, 852);
+    const safe = (59.0, 34.0);
+
+    InteractiveViewer viewer(WidgetTester tester) => tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
+    double scale(WidgetTester tester) => viewer(tester).transformationController!.value.getMaxScaleOnAxis();
+
+    Future<void> unzoom(WidgetTester tester) async {
+      viewer(tester).transformationController!.value = Matrix4.identity();
+      await tester.pumpAndSettle();
+      expect(scale(tester), 1);
+    }
+
+    /// Finger down on [from], resting [hold] while wobbling up to [wobble]
+    /// px, then a move to [to] in steps; [check] runs mid-drag.
+    Future<void> finger(WidgetTester tester, Offset from, Offset to,
+        {Duration hold = Duration.zero, double wobble = 3, void Function(Offset at)? check}) async {
+      final g = await tester.startGesture(from, kind: PointerDeviceKind.touch);
+      final frames = hold.inMilliseconds ~/ 16;
+      for (var i = 0; i < frames; i++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        await g.moveTo(from + Offset(i.isEven ? wobble : -wobble / 2, wobble / 3));
+      }
+      for (var i = 1; i <= 12; i++) {
+        await g.moveTo(Offset.lerp(from, to, i / 12)!);
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      check?.call(to);
+      await g.up();
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> layH(WidgetTester tester) async {
+      await _lay(tester, [(0, 7, 7)]);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('small-phone layout: the Bänkchen bar is under the board', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      expect(find.byKey(const Key('wordtiles-bench-bar')), findsOneWidget);
+    });
+
+    testWidgets('not zoomed: a laid tile moves after a short rest', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      await unzoom(tester);
+      await finger(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(9, 7)),
+          hold: const Duration(milliseconds: 160));
+      expect(_letter(9, 7, 'H'), findsOneWidget);
+      expect(_letter(7, 7, 'H'), findsNothing);
+    });
+
+    testWidgets('not zoomed: rest a little longer, then drag', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      await unzoom(tester);
+      await finger(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(7, 10)),
+          hold: const Duration(milliseconds: 300));
+      expect(_letter(7, 10, 'H'), findsOneWidget);
+    });
+
+    for (final hold in [300, 450, 700]) {
+      testWidgets('zoomed in: rest $hold ms (wobbling), then drag: the tile moves', (tester) async {
+        await _start(tester, size: phone, safe: safe);
+        await layH(tester);
+        expect(scale(tester), greaterThan(1.5), reason: 'zoomed in on the first tile');
+        await finger(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(9, 7)),
+            hold: Duration(milliseconds: hold), wobble: 6);
+        expect(_letter(9, 7, 'H'), findsOneWidget);
+        expect(_letter(7, 7, 'H'), findsNothing);
+      });
+    }
+
+    testWidgets('zoomed in: a plain drag starting on the laid tile scrolls the board', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      final before = viewer(tester).transformationController!.value.getTranslation();
+      final from = tester.getCenter(_sq(7, 7));
+      await finger(tester, from, from + const Offset(-80, -40));
+      expect(viewer(tester).transformationController!.value.getTranslation(), isNot(before));
+      expect(_letter(7, 7, 'H'), findsOneWidget, reason: 'the tile stays');
+      expect(WordTilesBoard.laidTileHold, lessThan(kLongPressTimeout));
+      expect(WordTilesBoard.laidTileHoldUnzoomed, lessThan(WordTilesBoard.laidTileHold));
+    });
+
+    for (final zoomed in [false, true]) {
+      testWidgets('${zoomed ? 'zoomed' : 'not zoomed'}: the lifted tile keeps the spot under the finger',
+          (tester) async {
+        await _start(tester, size: phone, safe: safe);
+        await layH(tester);
+        if (!zoomed) await unzoom(tester);
+        final tile = tester.getRect(_sq(7, 7));
+        // Near the tile's top left corner: the finger stays near the lifted
+        // tile's top left corner (before: the tile hung beside the finger).
+        final from = tile.topLeft + Offset(tile.width * 0.25, tile.height * 0.25);
+        final target = tester.getCenter(_sq(9, 9));
+        await finger(tester, from, target, hold: const Duration(milliseconds: 300), check: (at) {
+          final lifted = tester.getRect(find.byWidgetPredicate((w) => w is LetterTile && w.lifted));
+          expect(lifted.width, greaterThanOrEqualTo(52));
+          expect((at.dx - lifted.left) / lifted.width, closeTo(0.25, 0.06));
+          expect((at.dy - lifted.top) / lifted.height, closeTo(0.25, 0.06));
+        });
+        expect(_letter(9, 9, 'H'), findsOneWidget, reason: 'dropped on the square under the finger');
+      });
+    }
+
+    testWidgets('not zoomed: two fingers starting on a laid tile zoom, the tile stays', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      await unzoom(tester);
+      final c = tester.getCenter(_sq(7, 7));
+      final a = await tester.startGesture(c, pointer: 1);
+      final b = await tester.startGesture(c + const Offset(40, 40), pointer: 2);
+      for (var i = 1; i <= 10; i++) {
+        await a.moveTo(c - Offset(6.0 * i, 6.0 * i));
+        await b.moveTo(c + Offset(40 + 6.0 * i, 40 + 6.0 * i));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      await a.up();
+      await b.up();
+      await tester.pumpAndSettle();
+      expect(scale(tester), greaterThan(1.2));
+      expect(_letter(7, 7, 'H'), findsOneWidget);
+    });
+
+    testWidgets('a tap still takes the laid tile back; rack tiles still drag onto the board', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      await _tap(tester, _sq(7, 7));
+      expect(_rack(0), findsOneWidget);
+      expect(_letter(7, 7, 'H'), findsNothing);
+      await finger(tester, tester.getCenter(_rack(1)), tester.getCenter(_sq(7, 7)));
+      expect(_letter(7, 7, 'A'), findsOneWidget);
+    });
+
+    testWidgets('the open Bänkchen: a laid tile drags onto it, a bench tile back onto the board', (tester) async {
+      await _start(tester, size: phone, safe: safe);
+      await layH(tester);
+      await unzoom(tester);
+      await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
+      final slot = find.byKey(const Key('wordtiles-bench-0-0'));
+      expect(slot, findsOneWidget);
+      await finger(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(slot), hold: const Duration(milliseconds: 160));
+      expect(find.descendant(of: slot, matching: find.text('H')), findsOneWidget);
+      expect(_letter(7, 7, 'H'), findsNothing);
+      await finger(tester, tester.getCenter(slot), tester.getCenter(_sq(3, 7)));
+      expect(_letter(3, 7, 'H'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

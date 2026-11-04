@@ -105,6 +105,7 @@ class WordTilesHelpSheet extends StatelessWidget {
               item(icon(Icons.swap_horiz), l10n.wordtilesHelpSwap(WordTilesGame.rackSize)),
               item(icon(Icons.skip_next_outlined), l10n.wordtilesHelpPass(game.scorelessLimit)),
               if (dict) ...[dictionary, challenge] else ...[challenge, dictionary],
+              item(icon(Icons.pinch_outlined), l10n.wordtilesHelpZoom),
               item(icon(Icons.view_week_outlined), l10n.wordtilesHelpBench),
               item(icon(Icons.flag_outlined), l10n.wordtilesHelpEnd),
             ],

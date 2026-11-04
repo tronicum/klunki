@@ -301,4 +301,69 @@ void main() {
       });
     }
   });
+
+  // KLD-094 step 8g (iPhone 15 Pro playtest): names next to the scores (no
+  // players legend at the top), the Bänkchen bar and the open bench as wide
+  // as the board, the hint about two-finger zoom, a laid tile dragged after
+  // a short hold, "So geht's" with the zoom line.
+  group('kld094-8g', () {
+    for (final locale in ['de', 'ar']) {
+      testWidgets('kld094-8g $locale', skip: skip != null, (tester) async {
+        SeenTips.debugReset();
+        SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+        final c = await _pump(tester, 'wordtiles', locale, size: const Size(393, 852), safe: (59.0, 34.0));
+        (c.game as WordTilesGame).debugSetup(
+          racks: const [
+            ['H', 'A', 'U', 'S', 'E', 'N', '?'],
+            ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+          ],
+          bag: List.filled(40, 'E'),
+        );
+        await tester.pump();
+        Future<void> tap(String key) async {
+          await tester.tap(find.byKey(Key(key)));
+          await tester.pumpAndSettle();
+        }
+
+        // Anna lays HAUS, Ben accepts: Ben's turn, "① Anna 7  ② Ben 0".
+        for (final (i, col) in [(0, 7), (1, 8), (2, 9), (3, 10)]) {
+          await tap('wordtiles-rack-$i');
+          await tap('wordtiles-sq-7-$col');
+        }
+        await tap('wordtiles-play');
+        await tap('handover-continue');
+        await tap('wordtiles-accept');
+        await _shot(tester, 'kld094-8g-closed-$locale-393x852-safe');
+        await tap('wordtiles-bench-toggle');
+        for (final (i, s) in [(0, 0), (1, 1)]) {
+          await tap('wordtiles-rack-$i');
+          await tap('wordtiles-bench-0-$s');
+        }
+        await _shot(tester, 'kld094-8g-open-$locale-393x852-safe');
+        await tap('wordtiles-bench-toggle');
+        if (locale != 'de') return;
+        // A laid tile (zoomed in), held a moment and dragged.
+        await tap('wordtiles-rack-2');
+        await tap('wordtiles-sq-8-8');
+        Finder sq(int r, int col) => find.byKey(Key('wordtiles-sq-$r-$col'));
+        final from = tester.getCenter(sq(8, 8));
+        final to = tester.getCenter(sq(9, 8));
+        final g = await tester.startGesture(from);
+        await tester.pump(const Duration(milliseconds: 300));
+        for (var i = 1; i <= 4; i++) {
+          await g.moveTo(Offset.lerp(from, to, i / 5)!);
+          await tester.pump();
+        }
+        await _shot(tester, 'kld094-8g-drag-de-393x852-safe');
+        await g.moveTo(to);
+        await tester.pump();
+        await g.up();
+        await tester.pumpAndSettle();
+        await tap('wordtiles-help');
+        await tester.ensureVisible(find.byIcon(Icons.pinch_outlined));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094-8g-help-de-393x852-safe');
+      });
+    }
+  });
 }

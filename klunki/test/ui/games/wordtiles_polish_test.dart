@@ -45,11 +45,12 @@ void main() {
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
   });
 
-  testWidgets('score bar: token and score, the name only in the semantics label', (tester) async {
+  testWidgets('score bar: token, name and score (KLD-094 step 8g); the semantics label says it all', (tester) async {
     _size(tester, const Size(1180, 820));
     await _start(tester);
     final seat = find.byKey(const Key('wordtiles-score-0'));
-    expect(find.descendant(of: seat, matching: find.text('Anna')), findsNothing);
+    expect(find.descendant(of: seat, matching: find.text('Anna')), findsOneWidget);
+    expect(find.byKey(const Key('shell-players')), findsNothing, reason: 'no second legend');
     expect(find.descendant(of: seat, matching: find.text('0')), findsOneWidget);
     expect(tester.getSemantics(seat).label, deL10n.wordtilesScore('Anna', 0));
   });

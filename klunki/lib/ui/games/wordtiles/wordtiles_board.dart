@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -22,7 +23,8 @@ import 'wordtiles_tiles.dart';
 /// * **Laying tiles:** drag a rack tile onto a free square, or tap a rack
 ///   tile and then a square. A blank asks for its letter first
 ///   ([BlankLetterDialog]). A tile laid this turn goes back to the rack with
-///   a tap (or a long-press drag to another square or back to the rack).
+///   a tap; held a moment (KLD-094 step 8g: [laidTileHold]), it drags to
+///   another square, back to the rack or onto the bench.
 ///   The line under the board previews the words and the score
 ///   ([WordTilesGame.checkPlacement]) or says why the tiles do not fit;
 ///   "Legen" plays them (a refused placement shows the reason in red).
@@ -121,6 +123,14 @@ class WordTilesBoard extends StatefulWidget {
   /// The height of the bench's handle between the board and the rack on a
   /// small phone (KLD-094 step 8f); its tap area is higher.
   static const double benchBarHeight = 26;
+
+  /// How long a finger rests on a tile laid this turn before it moves on a
+  /// zoomed board (a plain drag scrolls; KLD-094 step 8g).
+  static const Duration laidTileHold = Duration(milliseconds: 250);
+
+  /// The same on the unzoomed board, which cannot scroll: only so long that
+  /// two fingers starting on the tile still zoom.
+  static const Duration laidTileHoldUnzoomed = Duration(milliseconds: 120);
 
   /// The bench may use up to this width (the rack keeps 420).
   static const double benchMaxWidth = 600;
@@ -946,7 +956,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       } else if (_selected != null) {
         hint = l10n.wordtilesHintSelected;
       } else if (_pending.isEmpty) {
-        hint = game.boardEmpty ? l10n.wordtilesHintFirst : l10n.wordtilesHintPlace;
+        // KLD-094 step 8g: from the second word on, the hint adds that two
+        // fingers zoom (while the board is not zoomed). Not to the first
+        // word's one-line hint: a second line would make the board smaller
+        // on the first turn.
+        hint = game.boardEmpty
+            ? l10n.wordtilesHintFirst
+            : _zoomed
+                ? l10n.wordtilesHintPlace
+                : l10n.wordtilesHintZoom(l10n.wordtilesHintPlace);
       }
     }
     shell.setHint(hint);
@@ -1055,6 +1073,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       // wide as the screen and only gets smaller when the rest does not fit
       // below it (a Flexible, not centred in an Expanded: no empty bands
       // above and below the board).
+      final area = _boardArea(context, l10n, board, benchOverlay);
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1063,55 +1082,62 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           Flexible(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Stack(
-                key: const Key('wordtiles-board-area'),
-                alignment: Alignment.topCenter,
-                children: [
-                  AspectRatio(aspectRatio: 1, child: board),
-                  // Small phone: the open bench lies over the lower part of
-                  // the board (KLD-094 step 5), which keeps its size.
-                  if (benchOverlay)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        key: const Key('wordtiles-bench-overlay'),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                          boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4, 2, 4, 6),
-                          child: LayoutBuilder(
-                            builder: (context, b) => KeyedSubtree(
-                              key: const Key('wordtiles-bench'),
-                              child: _benchRows(context, l10n, min(b.maxWidth, WordTilesBoard.benchMaxWidth)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+              // KLD-094 step 8g: on a small phone the handle and the open
+              // bench exactly as wide as the board.
+              child: compact
+                  ? _BoardWithHandle(board: area, handle: _benchBar(context, l10n, benchOpen, preview))
+                  : area,
             ),
           ),
-          if (compact) _benchBar(context, l10n, benchOpen, preview),
           Padding(padding: const EdgeInsets.fromLTRB(8, 0, 8, 8), child: controls),
         ],
       );
     });
   }
 
+  /// The board, with the open bench over its lower part on a small phone.
+  Widget _boardArea(BuildContext context, AppLocalizations l10n, Widget board, bool benchOverlay) => Stack(
+      key: const Key('wordtiles-board-area'),
+      alignment: Alignment.topCenter,
+      children: [
+        AspectRatio(aspectRatio: 1, child: board),
+        // Small phone: the open bench lies over the lower part of
+        // the board (KLD-094 step 5), which keeps its size.
+        if (benchOverlay)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              key: const Key('wordtiles-bench-overlay'),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 10, offset: Offset(0, -2))],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4, 2, 4, 6),
+                child: LayoutBuilder(
+                  builder: (context, b) => KeyedSubtree(
+                    key: const Key('wordtiles-bench'),
+                    child: _benchRows(context, l10n, min(b.maxWidth, WordTilesBoard.benchMaxWidth)),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+
   Widget _scoreBar(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
     final labels = PlayerLabelsScope.of(context);
     final g = game;
     final penalties = g.rackPenalties;
-    // KLD-094 step 5: token and score only; the names are in the shell's
-    // legend right above (the semantics label and a tooltip keep them).
+    // KLD-094 step 8g: token, name and score ("① Anna 8"); the name gives
+    // way first (ellipsis) when space is short. The shell shows no players
+    // legend for this game ([GameScreen.showPlayersLegend]).
     Widget seat(int s) {
       final p = WordTilesGame.playerOfSeat(s);
       final label = p == null ? '${s + 1}' : labels.label(context, l10n, p);
@@ -1134,6 +1160,18 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
                 PlayerToken(gameId: controller.spec.id, player: p, size: 22)
               else
                 Text('${s + 1}', style: theme.textTheme.labelLarge),
+              if (p != null) ...[
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    key: Key('wordtiles-name-$s'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelLarge?.copyWith(fontWeight: on ? FontWeight.w700 : null),
+                  ),
+                ),
+              ],
               const SizedBox(width: 6),
               Text('${g.scoreOf(s)}',
                   textDirection: TextDirection.ltr,
@@ -1159,19 +1197,24 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Flexible(
-          // Scaled down rather than wrapped when space is short (end scores
-          // with penalties on a small phone; more players later).
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+        // One line: the names shorten (ellipsis) when space is short (long
+        // names); only when even token and score do not fit (end scores with
+        // penalties on a small phone, large text) the row is scaled down.
+        Expanded(
+          child: LayoutBuilder(builder: (context, box) {
+            final row = Row(
               children: [
-                for (var s = 0; s < g.playerCount; s++) ...[if (s > 0) const SizedBox(width: 6), seat(s)],
+                for (var s = 0; s < g.playerCount; s++) ...[if (s > 0) const SizedBox(width: 6), Flexible(child: seat(s))],
               ],
-            ),
-          ),
+            );
+            final needed = _scoreRowMinWidth(context, theme, penalties);
+            if (box.maxWidth >= needed) return row;
+            return FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: SizedBox(width: needed, child: row),
+            );
+          }),
         ),
         Row(mainAxisSize: MainAxisSize.min, children: [
         // KLD-094 step 6: the host's options in the header of a network
@@ -1206,6 +1249,33 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         ]),
       ],
     );
+  }
+
+  /// The width the score row needs with each name cut to a few letters:
+  /// padding, token, score and penalty of every seat (see [_scoreBar]).
+  double _scoreRowMinWidth(BuildContext context, ThemeData theme, List<int> penalties) {
+    final scaler = MediaQuery.textScalerOf(context);
+    double width(String text, TextStyle? style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: TextDirection.ltr,
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final w = painter.width;
+      painter.dispose();
+      return w;
+    }
+
+    const name = 28.0; // "An…"
+    var total = 0.0;
+    for (var s = 0; s < game.playerCount; s++) {
+      final pen = penalties[s];
+      total += (s > 0 ? 6 : 0) + 14 + 22 + 4 + name + 6 + 2;
+      total += width('${game.scoreOf(s)}', theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800));
+      if (pen != 0) total += 4 + width(pen > 0 ? '(+$pen)' : '(−${-pen})', theme.textTheme.labelMedium);
+    }
+    return total;
   }
 
   Widget _optionsChip(BuildContext context, AppLocalizations l10n) {
@@ -1500,15 +1570,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           },
           builder: (context, _, _) => GestureDetector(
             onTap: () => _tapSquare(sq),
-            child: LongPressDraggable<_Drag>(
-              data: _Drag(pending.rackIndex, sq),
-              maxSimultaneousDrags: _canLay ? 1 : 0,
-              // At least finger size, as big as the tile on screen when
-              // zoomed in further.
-              feedback: _feedback(context, pending.letter, pending.tile,
-                  max(52.0, (cell - 2 * inset) * _zoom.value.getMaxScaleOnAxis())),
-              childWhenDragging: const SizedBox(),
-              child: Padding(padding: EdgeInsets.all(inset), child: face),
+            // Rebuilt as the zoom changes (pinch, the zoom button, auto-zoom).
+            child: ValueListenableBuilder<Matrix4>(
+              valueListenable: _zoom,
+              builder: (context, _, _) => _laidTileDraggable(context, sq, pending, cell - 2 * inset, inset, face),
             ),
           ),
         ),
@@ -1557,6 +1622,40 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           ),
         ),
       ),
+    );
+  }
+
+  /// A tile laid this turn, ready to be dragged elsewhere (KLD-094 step 8d,
+  /// fixed in step 8g after the iPhone playtest): the finger rests on it a
+  /// moment, then drags. Before, that took Flutter's 500 ms long press, with
+  /// no sign before it was over: a finger that started moving earlier
+  /// scrolled the zoomed board, or did nothing at all on the unzoomed one.
+  ///
+  /// * Zoomed: [laidTileHold]; a plain drag still scrolls the board.
+  /// * Not zoomed (the board cannot scroll): [laidTileHoldUnzoomed], just
+  ///   long enough that two fingers starting on the tile still zoom.
+  ///
+  /// The lifted tile is at least finger size and as big as on screen; it
+  /// keeps the spot under the finger (the default anchor took the unzoomed
+  /// offset into the bigger tile, so the tile hung beside the finger, and
+  /// the square it lands on was not the one it was shown over).
+  Widget _laidTileDraggable(BuildContext context, int sq, _Pending pending, double tile, double inset, Widget face) {
+    final scale = _zoom.value.getMaxScaleOnAxis();
+    final size = max(52.0, tile * scale);
+    Offset anchor(Draggable<Object> draggable, BuildContext context, Offset position) {
+      final box = context.findRenderObject()! as RenderBox;
+      final local = box.globalToLocal(position) - Offset(inset, inset);
+      return local * (size / tile);
+    }
+
+    return LongPressDraggable<_Drag>(
+      data: _Drag(pending.rackIndex, sq),
+      delay: scale > 1.01 ? WordTilesBoard.laidTileHold : WordTilesBoard.laidTileHoldUnzoomed,
+      maxSimultaneousDrags: _canLay ? 1 : 0,
+      dragAnchorStrategy: anchor,
+      feedback: _feedback(context, pending.letter, pending.tile, size),
+      childWhenDragging: const SizedBox(),
+      child: Padding(padding: EdgeInsets.all(inset), child: face),
     );
   }
 
@@ -1762,9 +1861,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       ),
       child: label,
     );
-    return Padding(
+    return KeyedSubtree(
       key: const Key('wordtiles-bench-bar'),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Stack(
         children: [
           Column(
@@ -2075,3 +2173,62 @@ String describeWordTilesTurn(BuildContext context, AppLocalizations l10n, WordTi
       'accept' => l10n.wordtilesMoveAccept,
       _ => t.action,
     };
+
+/// Small phone (KLD-094 step 8g): the board square with the bench's handle
+/// right under it, both exactly as wide as the board, so the handle and the
+/// open bench over the board line up with the board's edges. The board is
+/// as big as the width and the height left after the handle allow (the
+/// handle may wrap its preview line, so it is measured at the board's
+/// width); both are centred, the box is only as high as they are.
+class _BoardWithHandle extends MultiChildRenderObjectWidget {
+  _BoardWithHandle({required Widget board, required Widget handle}) : super(children: [board, handle]);
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderBoardWithHandle();
+}
+
+class _BoardWithHandleData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderBoardWithHandle extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _BoardWithHandleData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _BoardWithHandleData> {
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _BoardWithHandleData) child.parentData = _BoardWithHandleData();
+  }
+
+  @override
+  void performLayout() {
+    final board = firstChild!;
+    final handle = childAfter(board)!;
+    final width = constraints.maxWidth;
+    double handleAt(double w) {
+      handle.layout(BoxConstraints.tightFor(width: w), parentUsesSize: true);
+      return handle.size.height;
+    }
+
+    // The handle's height barely depends on the width (a wrapping preview
+    // line): settles in a step or two.
+    var side = width;
+    for (var i = 0; i < 3; i++) {
+      final next = max(0.0, min(width, constraints.maxHeight - handleAt(side)));
+      if ((next - side).abs() < 0.5) break;
+      side = next;
+    }
+    final h = handleAt(side);
+    side = max(0.0, min(side, constraints.maxHeight - h));
+    board.layout(BoxConstraints.tight(Size.square(side)));
+    final left = (width - side) / 2;
+    (board.parentData! as _BoardWithHandleData).offset = Offset(left, 0);
+    (handle.parentData! as _BoardWithHandleData).offset = Offset(left, side);
+    size = constraints.constrain(Size(width, side + h));
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+}

@@ -2102,6 +2102,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesHintFirst => 'يجب أن تمر الكلمة الأولى بالنجمة في الوسط.';
 
   @override
+  String wordtilesHintZoom(String hint) {
+    return '$hint بإصبعين تكبّر اللوحة وتصغّرها.';
+  }
+
+  @override
   String get wordtilesHintSelected => 'المس خانة فارغة.';
 
   @override
@@ -2378,6 +2383,10 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get wordtilesHelpBench =>
       'على مقعد التجربة تجرّب الكلمات. يعرض نقاط الحروف فقط، لا إن كانت كلمة.';
+
+  @override
+  String get wordtilesHelpZoom =>
+      'بإصبعين تكبّر اللوحة وتصغّرها وتحرّكها. لنقل بلاطة وضعتها للتو، اضغط عليها لحظة ثم اسحبها؛ لمسة واحدة تعيدها.';
 
   @override
   String get wordtilesHelpEnd =>

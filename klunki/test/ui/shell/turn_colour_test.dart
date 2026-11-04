@@ -101,9 +101,14 @@ void main() {
   });
 
   group('tokens (KLD-106): number "1" / "2" or the game piece, never X / O', () {
+    // The word game names the players in its score row instead of the
+    // shell's legend (KLD-094 step 8g).
+    Finder players() => find.byKey(const Key('shell-players')).evaluate().isNotEmpty
+        ? find.byKey(const Key('shell-players'))
+        : find.ancestor(of: find.byKey(const Key('wordtiles-score-0')), matching: find.byType(Row)).first;
     List<String> tokenTexts(WidgetTester tester) => [
           for (final t in tester.widgetList<Text>(find.descendant(
-              of: find.byKey(const Key('shell-players')),
+              of: players(),
               matching: find.descendant(of: find.byType(PlayerToken), matching: find.byType(Text)))))
             t.data!,
         ];

@@ -2085,6 +2085,11 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das erste Wort muss über den Stern in der Mitte gehen.';
 
   @override
+  String wordtilesHintZoom(String hint) {
+    return '$hint Mit zwei Fingern zoomst du.';
+  }
+
+  @override
   String get wordtilesHintSelected => 'Tippe ein freies Feld an.';
 
   @override
@@ -2365,6 +2370,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get wordtilesHelpBench =>
       'Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.';
+
+  @override
+  String get wordtilesHelpZoom =>
+      'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein hältst du kurz fest und ziehst ihn woandershin; antippen nimmt ihn zurück.';
 
   @override
   String get wordtilesHelpEnd =>

@@ -147,6 +147,11 @@ class GameScreen extends StatefulWidget {
   /// the shell puts it in a small row under the board (KLD-117).
   final bool boardPlacesUndo;
 
+  /// Hot-seat: both players (token and name) at the top right (KLD-067).
+  /// Off for a board that names the players itself (the word game's score
+  /// row, KLD-094 step 8g).
+  final bool showPlayersLegend;
+
   const GameScreen({
     super.key,
     required this.controller,
@@ -156,6 +161,7 @@ class GameScreen extends StatefulWidget {
     this.handoverDetail,
     this.resultDetail,
     this.boardPlacesUndo = false,
+    this.showPlayersLegend = true,
   });
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
@@ -649,7 +655,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                                   badge: override?.badge,
                                 ),
                                 // Hot-seat: both players with their colours (KLD-067).
-                                if (labels.local == null)
+                                if (labels.local == null && widget.showPlayersLegend)
                                   _PlayersLegend(
                                     gameId: controller.spec.id,
                                     labels: labels,
