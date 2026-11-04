@@ -27,6 +27,7 @@ import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConso
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import '../support/asset_images.dart';
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
 const _boundary = Key('shot-boundary');
@@ -56,6 +57,7 @@ Future<void> _loadFonts() async {
 }
 
 Future<void> _shot(WidgetTester tester, String name) async {
+  await precacheShownImages(tester);
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pump();
