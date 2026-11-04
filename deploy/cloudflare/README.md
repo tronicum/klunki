@@ -61,7 +61,9 @@ Cloudflare's command-line tool the first time.
 
 Optional settings in `wrangler.toml` under `[vars]`: `ALLOWED_ORIGINS` (comma-separated web origins whose pages
 may use the relay, e.g. `https://example.github.io`; apps send no Origin and always pass; browsers from other
-pages get `403`), `IDLE_TIMEOUT_SECONDS` (default 600), `MAX_LINE_LENGTH` (default 262144).
+pages get `403`), `IDLE_TIMEOUT_SECONDS` (default 600), `MAX_LINE_LENGTH` (default 262144),
+`HOST_GRACE_SECONDS` (default 300: how long a room waits for a host whose connection dropped, e.g. a locked
+phone; 0 closes the room at once; KLD-120).
 
 ## Revoke a code
 

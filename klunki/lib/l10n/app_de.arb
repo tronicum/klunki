@@ -1406,7 +1406,7 @@
       }
     }
   },
-  "pairingReconnecting": "Verbinde neu…",
+  "pairingReconnecting": "Verbindung wird wiederhergestellt …",
   "@pairingReconnecting": {
     "description": "Connection banner while the guest reconnects."
   },
@@ -2049,6 +2049,15 @@
   "relayErrorRoomFull": "Raum {code} ist schon voll: Dort spielen bereits zwei.",
   "@relayErrorRoomFull": {
     "description": "Relay error: the room already has a guest.",
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "relayErrorHostAway": "Das Gerät, das Raum {code} gestartet hat, ist gerade nicht erreichbar. Versuch es gleich noch einmal.",
+  "@relayErrorHostAway": {
+    "description": "KLD-120, relay: the room exists, but the device that started it is away for the moment (e.g. its phone is locked); trying again soon may work.",
     "placeholders": {
       "code": {
         "type": "String"

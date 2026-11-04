@@ -127,6 +127,23 @@ export class Response {
 class FakeStorage {
   constructor() {
     this.alarmAt = null;
+    this.values = new Map();
+  }
+
+  async get(key) {
+    return this.values.has(key) ? structuredClone(this.values.get(key)) : undefined;
+  }
+
+  async put(key, value) {
+    this.values.set(key, structuredClone(value));
+  }
+
+  async delete(key) {
+    return this.values.delete(key);
+  }
+
+  async deleteAll() {
+    this.values.clear();
   }
 
   async setAlarm(time) {

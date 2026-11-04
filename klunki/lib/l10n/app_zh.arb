@@ -336,6 +336,7 @@
   "relayAddressInvalid": "服务器地址无效。示例：192.168.1.20:4749",
   "relayErrorUnknownCode": "没有房间码为 {code} 的房间。请确认房间码正确，且房间仍然开着。",
   "relayErrorRoomFull": "房间 {code} 已满：已有两人在玩。",
+  "relayErrorHostAway": "开启房间 {code} 的设备暂时连不上，请等一下再试。",
   "relayErrorRoomClosed": "房间已关闭：创建房间的人已离开。游戏结束。",
   "relayErrorExpired": "房间已过期（10 分钟无活动）。",
   "relayErrorUnreachable": "无法连接 {address} 上的服务器。",

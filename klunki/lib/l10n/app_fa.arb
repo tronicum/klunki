@@ -336,6 +336,7 @@
   "relayAddressInvalid": "نشانی سرور نامعتبر است. نمونه: 192.168.1.20:4749",
   "relayErrorUnknownCode": "اتاقی با کد {code} وجود ندارد. آیا کد درست است و اتاق هنوز باز است؟",
   "relayErrorRoomFull": "اتاق {code} پر است: دو نفر در آن بازی می‌کنند.",
+  "relayErrorHostAway": "دستگاهی که اتاق {code} را باز کرده، الان در دسترس نیست. کمی بعد دوباره امتحان کن.",
   "relayErrorRoomClosed": "اتاق بسته شد: کسی که آن را باز کرده بود رفت. بازی تمام شد.",
   "relayErrorExpired": "اتاق منقضی شد (۱۰ دقیقه بدون فعالیت).",
   "relayErrorUnreachable": "هیچ سروری در {address} در دسترس نیست.",

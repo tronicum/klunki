@@ -43,7 +43,12 @@ class KlunkiHost {
 
   /// What this build sends and checks in the handshake (KLD-085).
   final BuildCompat compat;
-  final HostListener _server;
+  HostListener _server; // replaced when a direct host binds again (KLD-120)
+  StreamSubscription<MessageChannel>? _serverSub;
+  StreamSubscription<NetEvent>? _statusSub;
+  final Object? _address; // where a direct host listens (for binding again)
+  Future<void>? _rebinding;
+  bool _closing = false;
   final Duration _pingInterval;
   final Duration _timeout;
   final _events = StreamController<NetEvent>.broadcast();
@@ -68,7 +73,8 @@ class KlunkiHost {
   Map<String, dynamic>? Function(String type, Map<String, dynamic> fields)? debugRewriteOutgoing;
 
   KlunkiHost._(
-      this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat)
+      this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat,
+      [this._address])
       : _redaction = specById(config.gameId)?.redaction {
     final redaction = _redaction;
     if (redaction != null) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
@@ -92,9 +98,8 @@ class KlunkiHost {
   }) async {
     _validateLog(config, moves);
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
-    return KlunkiHost._(
-        config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout, createGame(config),
-        compat ?? BuildCompat())
+    return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout,
+        createGame(config), compat ?? BuildCompat(), address)
       .._listen(moves);
   }
 
@@ -112,6 +117,13 @@ class KlunkiHost {
   /// emits a [NetError] starting with `relay` (after [PeerDisconnected] if a
   /// guest was connected); the session cannot continue in that room.
   ///
+  /// KLD-120: a relay connection that merely drops (a locked phone, lost
+  /// Wi-Fi) is not the end: the host comes back to its room
+  /// ([RoomReconnecting], then [RoomReconnected]) and the guest rejoins
+  /// with its token. [resume] does that at once after the app was
+  /// suspended. Only a relay that no longer has the room (or an older relay
+  /// without host keys) ends it with the [NetError].
+  ///
   /// [clubCode]: the club code of a gated relay (KLD-112; sent only to the
   /// relay, never to the guest). A gated relay refuses a missing or wrong
   /// one with `NetException("relay: club code required" / "… not accepted")`.
@@ -128,9 +140,8 @@ class KlunkiHost {
   }) async {
     _validateLog(config, moves);
     final relay = await RelayHostListener.connect(relayUrl, timeout: timeout, clubCode: clubCode);
-    return KlunkiHost._(
-        config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout, createGame(config),
-        compat ?? BuildCompat())
+    return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout,
+        createGame(config), compat ?? BuildCompat())
       .._listen(moves);
   }
 
@@ -152,10 +163,70 @@ class KlunkiHost {
       final reason = _apply(_game.playerOf(m), m); // a resign may come from either player
       if (reason != null) throw StateError('resumed move does not apply: $reason');
     }
-    _server.channels.listen(_onChannel, onError: (Object e) {
+    _listenTo(_server);
+    final server = _server;
+    if (server is RelayHostListener) _statusSub = server.status.listen(_emit);
+  }
+
+  void _listenTo(HostListener server) {
+    _serverSub = server.channels.listen(_onChannel, onError: (Object e) {
+      // KLD-120: a direct host whose listening socket broke (iOS may take it
+      // from a suspended app) listens again on the same ports.
+      if (server is! RelayHostListener && identical(server, _server)) {
+        unawaited(_rebind());
+        return;
+      }
       _emit(NetError(e is NetException ? e.message : '$e'));
     });
   }
+
+  /// KLD-120: call when the app comes back from the background ([away]:
+  /// how long it was suspended, as far as it knows). A direct host listens
+  /// again on the same ports (iOS may have taken the listening socket from
+  /// the suspended app; connected guests are not touched). A relay host
+  /// that was away for at least the keepalive timeout comes back to its
+  /// room on a fresh connection (the relay has dropped the old one, or will
+  /// soon); the guest rejoins.
+  Future<void> resume({Duration away = Duration.zero}) async {
+    if (_closing) return;
+    final server = _server;
+    if (server is RelayHostListener) {
+      if (away >= _timeout || server.reattaching) server.reattach();
+      return;
+    }
+    await _rebind();
+  }
+
+  /// Binds the direct listener again on its ports; retries for a while if
+  /// a port is still taken, then reports a [NetError].
+  Future<void> _rebind() => _rebinding ??= () async {
+        try {
+          final old = _server;
+          final port = old.port, wsPort = old.wsPort;
+          await _serverSub?.cancel();
+          await old.close();
+          Object? error;
+          for (var attempt = 0; attempt < 20 && !_closing; attempt++) {
+            if (attempt > 0) await Future<void>.delayed(const Duration(milliseconds: 500));
+            if (_closing) return;
+            try {
+              final server = await bindHostListener(address: _address, port: port, wsPort: wsPort);
+              if (_closing) {
+                await server.close();
+                return;
+              }
+              _server = server;
+              _listenTo(server);
+              return;
+            } catch (e) {
+              error = e;
+            }
+          }
+          if (!_closing) _emit(NetError('cannot listen again on port $port: $error'));
+        } finally {
+          _rebinding = null;
+        }
+      }();
 
   /// The relay room's code when hosting through a relay ([startRelay]),
   /// otherwise null. Shown to the user; the guest types it.
@@ -197,6 +268,9 @@ class KlunkiHost {
   /// Says `bye` to the guest and stops listening (a relay host leaves its
   /// room, which the relay then closes).
   Future<void> close({String reason = 'host closed the game'}) async {
+    _closing = true;
+    await _rebinding;
+    await _statusSub?.cancel();
     _guest?.close(reason);
     for (final c in _pending.toList()) {
       c.close(reason);
@@ -448,8 +522,8 @@ class KlunkiHost {
         ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
         : mismatchFromError(conn.peerError, compat);
     if (mismatch != null && (wasPending || conn == _guest)) {
-      _emit(IncompatiblePeer(mismatch.withSides(
-          myBuild: compat.build, myName: name, peerName: conn == _guest ? _guestName : null)));
+      _emit(IncompatiblePeer(
+          mismatch.withSides(myBuild: compat.build, myName: name, peerName: conn == _guest ? _guestName : null)));
     }
     if (conn != _guest) return;
     _guest = null;

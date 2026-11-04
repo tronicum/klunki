@@ -215,6 +215,20 @@ receives a fresh `welcome`, checks that its own log is a prefix of `moves`
 `replay(config, moves)` and continues. A non-prefix log or a snapshot that
 does not replay (`replay` returns null) is a divergence → `error`.
 
+**A locked phone (KLD-120).** A suspended app reads nothing and answers no
+`ping`, so the other side drops the connection after `timeout`; the host
+keeps the guest's seat (the token) for as long as the session runs. Nothing
+changes on the wire; the apps do this:
+- The guest reconnects by itself: on every disconnect except a `bye` from the
+  host or a relay that closed the room, and when the app comes back to the
+  foreground, retrying with a short backoff (0.5 s, 1 s, 2 s, then every
+  3 s) for up to 5 minutes, then it shows a button. It stops early on a
+  version mismatch, `session full`, a divergence or a room that is gone.
+- A direct (LAN) host listens again on the same ports when the app comes
+  back (`KlunkiHost.resume`): iOS may take the listening socket from a
+  suspended app. Connections that are still open are kept.
+- A relay host comes back to its room ("Host away and back" below).
+
 **Version mismatch.** See "Build compatibility" below. The apps also compare
 the join payload's `v` and the mDNS `v` with their own version first, so an
 old host shows up as incompatible before anyone connects.
@@ -505,6 +519,7 @@ on every other path, so a PWA served by the relay finds it at
 |---|---|---|
 | `?create` | host | opens a room; the relay answers `relay.room` |
 | `?join=CODE` | guest | joins room `CODE` (case-insensitive; spaces and dashes ignored) |
+| `?resume=CODE&key=KEY` | host | comes back to its room after its connection dropped (KLD-120); `KEY` from `relay.room` |
 
 **Control messages.** Relay control messages are JSON objects with a `t` key
 (never `type`) whose value starts with `relay.`; game messages always have
@@ -513,11 +528,11 @@ relay and a client, never forwarded.
 
 | `t` | direction | fields | meaning |
 |---|---|---|---|
-| `relay.room` | relay → host | `code` | the room exists; show `code` to the user |
+| `relay.room` | relay → host | `code`, `key` | the room exists; show `code` to the user. `key` (KLD-120, 32 hex digits) is the room's secret host key for `?resume`; never shown or sent to the guest. Relays before KLD-120 send no `key` |
 | `relay.peer` | relay → host | – | a guest joined; its game messages follow |
 | `relay.left` | relay → host | `reason` | the guest's connection ended; the room stays open, a guest may join again with the same code (reconnect with the token, as usual) |
-| `relay.closed` | relay → host, guest | `reason` | the room is gone (`host left`, `room expired (idle)`, `host broke the relay rules`, `relay shutting down`); the relay closes the connection right after |
-| `relay.error` | relay → anyone | `message` | refused or rule broken: `no room with code …`, `room … is full`, `too many rooms, try again later`, `bad request: …`, `line too long (max N characters)`, `binary frames are not relayed`, `relay control messages are not allowed from a guest`; the relay closes that connection right after |
+| `relay.closed` | relay → host, guest | `reason` | the room is gone (`host left`, `room expired (idle)`, `host broke the relay rules`, `relay shutting down`), or (to an old host connection only) `replaced by a new host connection`; the relay closes the connection right after |
+| `relay.error` | relay → anyone | `message`, optional `error` | refused or rule broken: `no room with code …`, `room … is full`, `the host of room … is away, try again in a moment` (`error: "host-away"`, KLD-120), `too many rooms, try again later`, `bad request: …`, `line too long (max N characters)`, `binary frames are not relayed`, `relay control messages are not allowed from a guest`; the relay closes that connection right after |
 | `relay.kick` | host → relay | – | drop the current guest (the host session closed it, e.g. after `error "session full"`); lines sent before it are delivered first; no `relay.left` follows |
 
 **Rules.**
@@ -531,6 +546,23 @@ relay and a client, never forwarded.
   `relay.left`, its session reports `PeerDisconnected`, the room stays open.
 - **Host leaves:** the room is closed; the guest gets `relay.closed "host left"`
   and is disconnected. A polite host sends `bye` first, which is forwarded.
+  Leaving means a clean WebSocket close: close code 1000, or none (1005).
+- **Host away and back (KLD-120).** Any other end of the host's connection
+  (no close frame, an error, no answer to the relay's ping, close code 1001,
+  or 4000 = "dropped, not leaving", which a host sends when it gives up a
+  connection itself) only makes the host *away*: the guest's connection is
+  closed (no message; the guest reconnects), and a guest that joins meanwhile
+  gets `relay.error {error: "host-away"}` (retry). For `hostGrace` (default 5
+  minutes; `HOST_GRACE_SECONDS` on the Worker; 0 = close at once, the old
+  behaviour) the host can come back with `?resume=CODE&key=KEY`: it gets
+  `relay.room {code, key}` again and the guest rejoins with its token. A
+  wrong key gets the same answer as an unknown code. A resume while the old
+  host connection is still open replaces it (`relay.closed "replaced by a new
+  host connection"` to the old one) and drops the guest. A host that does not
+  come back in time closes the room as `host left`. Compatibility: hosts
+  before KLD-120 ignore `key` and close cleanly when they leave, so for them
+  only a dropped connection differs (the room waits instead of closing). A
+  KLD-120 host on an older relay gets no `key` and loses the room as before.
 - **Idle expiry:** a room in which no frame was forwarded for 10 minutes
   (`idleTimeout`) is closed with `relay.closed "room expired (idle)"`. A
   running game never idles: keepalive `ping`s pass every 2 s.

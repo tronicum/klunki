@@ -1329,6 +1329,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String relayErrorHostAway(String code) {
+    return 'دستگاهی که اتاق $code را باز کرده، الان در دسترس نیست. کمی بعد دوباره امتحان کن.';
+  }
+
+  @override
   String get relayErrorRoomClosed =>
       'اتاق بسته شد: کسی که آن را باز کرده بود رفت. بازی تمام شد.';
 

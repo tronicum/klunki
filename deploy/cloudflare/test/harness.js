@@ -41,8 +41,8 @@ export class Client {
     await flush();
   }
 
-  async close() {
-    this.ws.close(1000);
+  async close(code = 1000) {
+    this.ws.close(code);
     await flush();
   }
 }

@@ -9,9 +9,15 @@
 // object keeps NO state in memory: who is host and guest comes from the
 // socket tags, everything else from each socket's attachment
 // (`{role, code, active, gone}`), which survives hibernation.
+//
+// KLD-120: the room's host key and, while the host is away (its connection
+// dropped without a clean close), the time it went away live in storage, so
+// they outlive the host's socket. The host comes back with
+// `?resume=CODE&key=KEY` within HOST_GRACE_SECONDS.
 
 import {
   closeGoingAway,
+  closeNoStatus,
   closeNormal,
   closePolicyViolation,
   parseRelayControl,
@@ -26,6 +32,7 @@ import {
 
 /** Defaults of the Dart relay (`RelayServer.start`). */
 export const defaultIdleTimeoutMs = 10 * 60 * 1000;
+export const defaultHostGraceMs = 5 * 60 * 1000;
 export const defaultMaxLineLength = 256 * 1024;
 
 const OPEN = 1;
@@ -51,6 +58,18 @@ function send(ws, line) {
   }
 }
 
+/** 16 random bytes as hex: the room's host key (KLD-120). */
+function newKey() {
+  return [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function sameKey(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 function close(ws, code) {
   try {
     ws.close(code, '');
@@ -64,6 +83,8 @@ export class RelayRoom {
     this.ctx = ctx;
     this.idleTimeoutMs = positive(env?.IDLE_TIMEOUT_SECONDS, defaultIdleTimeoutMs / 1000) * 1000;
     this.maxLineLength = positive(env?.MAX_LINE_LENGTH, defaultMaxLineLength);
+    const grace = Number(env?.HOST_GRACE_SECONDS);
+    this.hostGraceMs = Number.isFinite(grace) && grace >= 0 ? grace * 1000 : defaultHostGraceMs;
   }
 
   /** The current host socket, or null (none, or it is leaving). */
@@ -78,26 +99,43 @@ export class RelayRoom {
 
   /**
    * Called by the Worker only (Durable Objects have no public URL):
-   * header `X-Klunki-Op: create|join`, `X-Klunki-Room: CODE`. Answers 101
-   * with the client's WebSocket, or 409 (create: code in use; join: room
-   * full) / 404 (join: no room) without one; the Worker turns those into
-   * the relay's `relay.error` messages.
+   * header `X-Klunki-Op: create|join|resume`, `X-Klunki-Room: CODE` (resume:
+   * also `X-Klunki-Key`). Answers 101 with the client's WebSocket, or 409
+   * (create: code in use; join: room full) / 404 (join, resume: no room, or
+   * a wrong key) / 423 (join: the host is away, KLD-120) without one; the
+   * Worker turns those into the relay's `relay.error` messages.
    */
   async fetch(request) {
     const op = request.headers.get('X-Klunki-Op');
     const code = request.headers.get('X-Klunki-Room') ?? '';
     if (op === 'create') {
-      if (this.host() !== null) return new Response(null, { status: 409 });
-      const [client, server] = Object.values(new WebSocketPair());
-      this.ctx.acceptWebSocket(server, ['host']);
-      server.serializeAttachment({ role: 'host', code, active: Date.now() });
-      send(server, relayControl(relayRoom, { code }));
-      await this.ctx.storage.setAlarm(Date.now() + this.idleTimeoutMs);
-      return new Response(null, { status: 101, webSocket: client });
+      if (this.host() !== null || (await this.ctx.storage.get('key')) !== undefined) {
+        return new Response(null, { status: 409 });
+      }
+      const key = newKey();
+      await this.ctx.storage.put('key', key);
+      return this.attachHost(code, key);
+    }
+    if (op === 'resume') {
+      const key = await this.ctx.storage.get('key');
+      if (!sameKey(request.headers.get('X-Klunki-Key') ?? '', key)) return new Response(null, { status: 404 });
+      // A host connection that still looks open is replaced.
+      const old = this.host();
+      if (old !== null) {
+        mark(old, { gone: true });
+        send(old, relayControl(relayClosed, { reason: 'replaced by a new host connection' }));
+        close(old, closeGoingAway);
+      }
+      this.dropGuest();
+      await this.ctx.storage.delete('away');
+      return this.attachHost(code, key);
     }
     if (op === 'join') {
       const host = this.host();
-      if (host === null) return new Response(null, { status: 404 });
+      if (host === null) {
+        const away = await this.ctx.storage.get('away');
+        return new Response(null, { status: away === undefined ? 404 : 423 });
+      }
       if (this.guest() !== null) return new Response(null, { status: 409 });
       const [client, server] = Object.values(new WebSocketPair());
       this.ctx.acceptWebSocket(server, ['guest']);
@@ -109,6 +147,16 @@ export class RelayRoom {
     return new Response(null, { status: 400 });
   }
 
+  /** The host's connection, new or coming back (KLD-120). */
+  async attachHost(code, key) {
+    const [client, server] = Object.values(new WebSocketPair());
+    this.ctx.acceptWebSocket(server, ['host']);
+    server.serializeAttachment({ role: 'host', code, active: Date.now() });
+    send(server, relayControl(relayRoom, { code, key }));
+    await this.ctx.storage.setAlarm(Date.now() + this.idleTimeoutMs);
+    return new Response(null, { status: 101, webSocket: client });
+  }
+
   // ------------------------------------------------- hibernation handlers
 
   webSocketMessage(ws, message) {
@@ -118,19 +166,27 @@ export class RelayRoom {
     else if (a.role === 'guest') this.fromGuest(ws, message);
   }
 
-  webSocketClose(ws, _code, _reason, _wasClean) {
+  webSocketClose(ws, code, _reason, _wasClean) {
     // Complete the closing handshake (needed with older compatibility
     // dates; harmless otherwise).
     close(ws, closeNormal);
-    this.gone(ws, 'disconnected');
+    return this.gone(ws, 'disconnected', code);
   }
 
   webSocketError(ws, _error) {
-    this.gone(ws, 'connection failed');
+    return this.gone(ws, 'connection failed');
   }
 
-  /** Idle expiry: no forwarded frame for `idleTimeoutMs` closes the room. */
+  /**
+   * Idle expiry: no forwarded frame for `idleTimeoutMs` closes the room;
+   * so does a host that stays away longer than `hostGraceMs` (KLD-120).
+   */
   async alarm() {
+    const away = await this.ctx.storage.get('away');
+    if (away !== undefined) {
+      if (Date.now() - away >= this.hostGraceMs) return this.shutDown('host left');
+      return this.ctx.storage.setAlarm(away + this.hostGraceMs);
+    }
     const host = this.host();
     if (host === null) return this.shutDown('room expired (idle)');
     const active = attachment(host).active ?? 0;
@@ -205,12 +261,25 @@ export class RelayRoom {
     close(guest, closeNormal);
   }
 
-  /** A socket's connection ended (closed by the client, or failed). */
-  gone(ws, what) {
+  /**
+   * A socket's connection ended (closed by the client, or failed). A host
+   * that closes cleanly (1000, or no status) leaves; any other end makes it
+   * away for `hostGraceMs` (KLD-120): the guest is dropped, the room waits.
+   */
+  async gone(ws, what, code) {
     const a = attachment(ws);
     if (a.gone) return;
-    if (a.role === 'host') this.shutDown(`host ${what === 'disconnected' ? 'left' : 'connection failed'}`);
-    else if (a.role === 'guest') this.guestGone(ws, `guest ${what}`);
+    if (a.role === 'guest') return this.guestGone(ws, `guest ${what}`);
+    if (a.role !== 'host') return;
+    const left = what === 'disconnected' && (code === closeNormal || code === closeNoStatus);
+    if (left || this.hostGraceMs <= 0) {
+      return this.shutDown(`host ${what === 'disconnected' ? 'left' : 'connection failed'}`);
+    }
+    mark(ws, { gone: true });
+    this.dropGuest();
+    const now = Date.now();
+    await this.ctx.storage.put('away', now);
+    await this.ctx.storage.setAlarm(now + this.hostGraceMs);
   }
 
   guestGone(ws, reason) {
@@ -232,6 +301,6 @@ export class RelayRoom {
       send(ws, relayControl(relayClosed, { reason }));
       close(ws, closeGoingAway);
     }
-    return this.ctx.storage.deleteAlarm();
+    return Promise.all([this.ctx.storage.deleteAlarm(), this.ctx.storage.deleteAll()]);
   }
 }
