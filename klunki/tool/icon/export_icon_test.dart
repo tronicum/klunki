@@ -22,8 +22,6 @@
 // - check/android-adaptive.png: foreground on background with a circle and a
 //   squircle mask and the 66 dp safe circle, for review.
 import 'dart:io';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,7 +47,7 @@ const _ios = [
 const _android = {'mdpi': 1.0, 'hdpi': 1.5, 'xhdpi': 2.0, 'xxhdpi': 3.0, 'xxxhdpi': 4.0};
 
 /// Adaptive icon geometry: 108 dp layers, safe circle 66 dp in diameter.
-const _safeRadius = 33 / 108;
+const _safeRadius = adaptiveSafeRadius;
 
 const _adaptiveXml = '''<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
@@ -82,7 +80,7 @@ void main() {
       }
 
       // Android: fit the foreground motif into the safe circle.
-      final fit = await _foregroundScale(paint);
+      final fit = await foregroundSafeScale(paint);
       // ignore: avoid_print
       print('Android foreground scale for $_id: ${fit.toStringAsFixed(3)}');
       void foreground(Canvas c, double px) {
@@ -158,23 +156,4 @@ void main() {
       await writePng(sheet, '$out/check/android-adaptive.png');
     });
   });
-}
-
-/// The scale (≤ 1) that brings every visible foreground pixel (alpha > 32,
-/// shadows included) inside the 66 dp safe circle of the 108 dp layer.
-Future<double> _foregroundScale(IconConcept paint) async {
-  const px = 512;
-  iconLayer = IconLayer.foreground;
-  final img = await renderImage(px, px, (c) => paint(c, px.toDouble()));
-  iconLayer = IconLayer.full;
-  final data = (await img.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!.buffer.asUint8List();
-  var maxR = 0.0;
-  for (var y = 0; y < px; y++) {
-    for (var x = 0; x < px; x++) {
-      if (data[(y * px + x) * 4 + 3] > 32) {
-        maxR = math.max(maxR, Offset(x + 0.5 - px / 2, y + 0.5 - px / 2).distance);
-      }
-    }
-  }
-  return math.min(1.0, _safeRadius * px / maxR);
 }
