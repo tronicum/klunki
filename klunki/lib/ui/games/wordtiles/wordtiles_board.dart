@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -25,9 +24,8 @@ import 'wordtiles_tiles.dart';
 /// * **Laying tiles:** drag a rack tile onto a free square, or tap a rack
 ///   tile and then a square. A blank asks for its letter first
 ///   ([BlankLetterDialog]). A tile laid this turn goes back to the rack with
-///   a tap; held a moment (KLD-094 step 8g: [laidTileHold]), it drags to
-///   another square, back to the rack or onto the bench. A mouse drags it at
-///   once (step 8h).
+///   a tap; a finger or the mouse drags it at once (KLD-094 step 8h) to
+///   another square, back to the rack or onto the bench.
 ///   The line under the board previews the words and the score
 ///   ([WordTilesGame.checkPlacement]) or says why the tiles do not fit;
 ///   "Legen" plays them (a refused placement shows the reason in red).
@@ -134,14 +132,6 @@ class WordTilesBoard extends StatefulWidget {
   /// The height of the bench's handle between the board and the rack on a
   /// small phone (KLD-094 step 8f); its tap area is higher.
   static const double benchBarHeight = 26;
-
-  /// How long a finger rests on a tile laid this turn before it moves on a
-  /// zoomed board (a plain drag scrolls; KLD-094 step 8g).
-  static const Duration laidTileHold = Duration(milliseconds: 250);
-
-  /// The same on the unzoomed board, which cannot scroll: only so long that
-  /// two fingers starting on the tile still zoom.
-  static const Duration laidTileHoldUnzoomed = Duration(milliseconds: 120);
 
   /// The bench may use up to this width (the rack keeps 420).
   static const double benchMaxWidth = 600;
@@ -1818,17 +1808,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     );
   }
 
-  /// A tile laid this turn, ready to be dragged elsewhere (KLD-094 step 8d,
-  /// fixed in step 8g after the iPhone playtest): the finger rests on it a
-  /// moment, then drags. Before, that took Flutter's 500 ms long press, with
-  /// no sign before it was over: a finger that started moving earlier
-  /// scrolled the zoomed board, or did nothing at all on the unzoomed one.
-  ///
-  /// * Zoomed: [laidTileHold]; a plain drag still scrolls the board.
-  /// * Not zoomed (the board cannot scroll): [laidTileHoldUnzoomed], just
-  ///   long enough that two fingers starting on the tile still zoom.
-  /// * A mouse drags at once (KLD-094 step 8h, the PWA on a computer: a
-  ///   click-and-drag did nothing, a mouse does not rest before it moves).
+  /// A tile laid this turn, ready to be dragged elsewhere (KLD-094 step 8d):
+  /// a finger or the mouse drags it at once (step 8h; step 8g had a hold
+  /// first, which a mouse never did: in the PWA a click-and-drag did nothing).
+  /// One finger that starts on the tile moves it, also on a zoomed board; a
+  /// drag that starts anywhere else scrolls the board. A second finger on the
+  /// board before the tile lifts makes it a pinch ([_LaidTileRecognizer]).
   ///
   /// The lifted tile is at least finger size and as big as on screen; it
   /// keeps the spot under the finger (the default anchor took the unzoomed
@@ -1843,13 +1828,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return local * (size / tile);
     }
 
-    final zoomed = scale > 1.01;
     return _LaidTileDraggable<_Drag>(
-      // The delay is read once, when the recognizer is made: a new one when
-      // the board zooms in or out.
-      key: ValueKey(zoomed),
       data: _Drag(pending.rackIndex, sq),
-      delay: zoomed ? WordTilesBoard.laidTileHold : WordTilesBoard.laidTileHoldUnzoomed,
       maxSimultaneousDrags: _canLay ? 1 : 0,
       dragAnchorStrategy: anchor,
       feedback: _feedback(context, pending.letter, pending.tile, size),
@@ -2435,51 +2415,115 @@ class _RenderBoardWithHandle extends RenderBox
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
 }
 
-/// A [LongPressDraggable] for a finger (and a pen) that a mouse drags at
-/// once (KLD-094 step 8h): a mouse has no scroll to tell apart from the drag,
-/// and it presses and moves in one go (it lost to the board's pan, or moved
-/// past the 1 px a mouse may wobble before the hold was over).
-class _LaidTileDraggable<T extends Object> extends LongPressDraggable<T> {
+/// The draggable of a tile laid this turn ([_LaidTileRecognizer]).
+class _LaidTileDraggable<T extends Object> extends Draggable<T> {
   const _LaidTileDraggable({
-    super.key,
     required super.child,
     required super.feedback,
     super.data,
     super.childWhenDragging,
     super.dragAnchorStrategy,
     super.maxSimultaneousDrags,
-    super.delay,
   });
 
   @override
-  DelayedMultiDragGestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) =>
-      _MouseDragsAtOnce(delay: delay, allowedButtonsFilter: allowedButtonsFilter)
-        ..onStart = (position) {
-          final drag = onStart(position);
-          if (drag != null && hapticFeedbackOnStart) HapticFeedback.selectionClick();
-          return drag;
-        };
+  MultiDragGestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) =>
+      _LaidTileRecognizer()..onStart = onStart;
 }
 
-/// Holds a finger or a pen for [delay]; a mouse goes to an immediate drag.
-class _MouseDragsAtOnce extends DelayedMultiDragGestureRecognizer {
-  _MouseDragsAtOnce({super.delay, super.allowedButtonsFilter});
+/// Drags a laid tile at once (KLD-094 step 8h): it wins over the board's pan
+/// because it decides after the touch slop (18 px), the pan only after twice
+/// that. But a pinch must still zoom when one finger starts on the tile: a
+/// tile that has not lifted yet lets go as soon as another pointer touches
+/// down, and a pointer that comes down while another one is down anywhere is
+/// left to the board.
+class _LaidTileRecognizer extends MultiDragGestureRecognizer {
+  _LaidTileRecognizer() : super(debugOwner: null) {
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_watch);
+  }
 
-  late final ImmediateMultiDragGestureRecognizer _mouse =
-      ImmediateMultiDragGestureRecognizer(allowedButtonsFilter: allowedButtonsFilter);
+  /// The pointers down anywhere in the app (from the time this recognizer
+  /// was made).
+  final Set<int> _down = {};
+  final Map<int, _LaidTileDragState> _pending = {};
+
+  void _watch(PointerEvent event) {
+    if (event is PointerDownEvent) {
+      _down.add(event.pointer);
+      for (final state in [..._pending.values]) {
+        if (state.pointer != event.pointer) state.letGo();
+      }
+    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+      _down.remove(event.pointer);
+    }
+  }
 
   @override
   void addAllowedPointer(PointerDownEvent event) {
-    if (event.kind != PointerDeviceKind.mouse) return super.addAllowedPointer(event);
-    _mouse
-      ..onStart = onStart
-      ..gestureSettings = gestureSettings
-      ..addPointer(event);
+    // [_watch] sees this pointer's down only after the hit test targets.
+    if (_down.any((p) => p != event.pointer)) return;
+    super.addAllowedPointer(event);
+  }
+
+  @override
+  MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
+      _pending[event.pointer] = _LaidTileDragState(this, event);
+
+  @override
+  void dispose() {
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(_watch);
+    super.dispose();
+  }
+
+  @override
+  String get debugDescription => 'laid tile drag';
+}
+
+class _LaidTileDragState extends MultiDragPointerState {
+  _LaidTileDragState(this._owner, PointerDownEvent event)
+    : pointer = event.pointer,
+      super(event.position, event.kind, _owner.gestureSettings);
+
+  final _LaidTileRecognizer _owner;
+  final int pointer;
+  bool _decided = false;
+
+  /// Another pointer touched down before the tile lifted: leave it to the
+  /// board (a pinch).
+  void letGo() {
+    _decide();
+    resolve(GestureDisposition.rejected);
+  }
+
+  void _decide() {
+    _decided = true;
+    if (identical(_owner._pending[pointer], this)) _owner._pending.remove(pointer);
+  }
+
+  @override
+  void checkForResolutionAfterMove() {
+    if (_decided) return;
+    if (pendingDelta!.distance > computeHitSlop(kind, gestureSettings)) {
+      _decide();
+      resolve(GestureDisposition.accepted);
+    }
+  }
+
+  @override
+  void accepted(GestureMultiDragStartCallback starter) {
+    _decide();
+    starter(initialPosition);
+  }
+
+  @override
+  void rejected() {
+    _decide();
+    super.rejected();
   }
 
   @override
   void dispose() {
-    _mouse.dispose();
+    _decide();
     super.dispose();
   }
 }

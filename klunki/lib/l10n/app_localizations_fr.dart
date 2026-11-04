@@ -2425,7 +2425,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. Pour déplacer une tuile que tu viens de poser, garde le doigt dessus un instant puis fais-la glisser ; un toucher la reprend.';
+      'Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. Fais glisser une tuile que tu viens de poser pour la déplacer ; un toucher la reprend.';
 
   @override
   String get wordtilesHelpEnd =>

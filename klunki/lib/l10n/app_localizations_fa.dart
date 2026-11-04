@@ -2361,7 +2361,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesHelpZoom =>
-      'با دو انگشت صفحه را بزرگ و کوچک و جابه‌جا می‌کنی. برای جابه‌جا کردن کاشی‌ای که تازه گذاشته‌ای، لحظه‌ای نگهش دار و بکشش؛ یک لمس آن را برمی‌گرداند.';
+      'با دو انگشت صفحه را بزرگ و کوچک و جابه‌جا می‌کنی. کاشی‌ای را که تازه گذاشته‌ای مستقیم بکش تا جابه‌جا شود؛ یک لمس آن را برمی‌گرداند.';
 
   @override
   String get wordtilesHelpEnd =>

@@ -624,7 +624,7 @@
   "wordtilesHelpDictionary": "Avec « Vérifier dans le dictionnaire », chaque mot est vérifié à la pose. S’il manque, reprenez les lettres ou acceptez-le ensemble : « Accepter quand même ». Les mots acceptés figurent dans l’historique.",
   "wordtilesHelpChallenge": "Sans dictionnaire, le dernier mot peut être contesté : les lettres sont reprises et ne rapportent rien.",
   "wordtilesHelpBench": "Sur le banc d’essai, tu essaies des mots. Il n’affiche que les points des lettres, pas si c’est un mot.",
-  "wordtilesHelpZoom": "Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. Pour déplacer une tuile que tu viens de poser, garde le doigt dessus un instant puis fais-la glisser ; un toucher la reprend.",
+  "wordtilesHelpZoom": "Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. Fais glisser une tuile que tu viens de poser pour la déplacer ; un toucher la reprend.",
   "wordtilesHelpEnd": "La partie se termine quand le sac est vide et que quelqu’un a posé toutes ses lettres. Les points des lettres restantes sont retirés ; qui a fini les reçoit en plus.",
   "wordtilesResultRack": "Lettres restantes : {points}",
   "wordtilesResultBestWord": "Meilleur mot : {word} ({player}, {score, plural, one{{score} point} other{{score} points}})",

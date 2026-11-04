@@ -3526,9 +3526,9 @@
   "@wordtilesHelpBench": {
     "description": "Word tiles rules sheet: the practice rows (\"Bänkchen\", see wordtilesBench)."
   },
-  "wordtilesHelpZoom": "Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein hältst du kurz fest und ziehst ihn woandershin; antippen nimmt ihn zurück.",
+  "wordtilesHelpZoom": "Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein ziehst du einfach woandershin; antippen nimmt ihn zurück.",
   "@wordtilesHelpZoom": {
-    "description": "Word tiles rules sheet: two fingers zoom and move the board; a tile laid this turn moves after a short hold and a drag, a tap takes it back (KLD-094 step 8g)."
+    "description": "Word tiles rules sheet: two fingers zoom and move the board; a tile laid this turn moves by dragging it, no hold (KLD-094 step 8h); a tap takes it back."
   },
   "wordtilesHelpEnd": "Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.",
   "@wordtilesHelpEnd": {

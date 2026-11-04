@@ -1,14 +1,13 @@
 // KLD-094 step 8d: a tile laid on the board this turn (not yet played with
-// "Legen") moves by long-press and drag: to another free square, onto
-// another laid tile (they swap), back to the rack or onto the bench. A tap
-// still takes it back to the rack; a plain pan still scrolls a zoomed
-// board; tiles of earlier turns stay where they are.
+// "Legen") moves by drag (step 8h: at once, no hold): to another free
+// square, onto another laid tile (they swap), back to the rack or onto the
+// bench. A tap still takes it back to the rack; a pan that starts elsewhere
+// still scrolls a zoomed board; tiles of earlier turns stay where they are.
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
-import 'package:klunki/ui/games/wordtiles/wordtiles_board.dart';
 import 'package:klunki/ui/games/wordtiles/wordtiles_tiles.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -168,7 +167,7 @@ void main() {
     expect(find.byKey(const Key('wordtiles-blank-picker')), findsNothing, reason: 'not asked again');
   });
 
-  testWidgets('phone, zoomed in: long-press drags the tile, a plain pan scrolls the board', (tester) async {
+  testWidgets('phone, zoomed in: a long drag moves the tile, a pan from an empty square scrolls', (tester) async {
     await _start(tester, size: const Size(390, 844));
     final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).transformationController!;
     await _lay(tester, [(0, 7, 7)]);
@@ -178,9 +177,9 @@ void main() {
     expect(_letter(7, 8, 'H'), findsOneWidget);
     expect(_letter(7, 7, 'H'), findsNothing);
 
-    // A plain pan starting on the laid tile scrolls; the tile stays.
+    // A pan starting on the empty square next to it scrolls; the tile stays.
     final before = viewer.value.getTranslation();
-    await tester.dragFrom(tester.getCenter(_sq(7, 8)), const Offset(-60, 0));
+    await tester.dragFrom(tester.getCenter(_sq(7, 7)), const Offset(-60, 0));
     await tester.pumpAndSettle();
     expect(viewer.value.getTranslation(), isNot(before));
     expect(_letter(7, 8, 'H'), findsOneWidget);
@@ -333,17 +332,55 @@ void main() {
       });
     }
 
-    testWidgets('zoomed in: a plain drag starting on the laid tile scrolls the board', (tester) async {
+    // KLD-094 step 8h (maintainer decision): no rest any more.
+    for (final zoomed in [false, true]) {
+      testWidgets('${zoomed ? 'zoomed in' : 'not zoomed'}: a finger drags the laid tile at once', (tester) async {
+        await _start(tester, size: phone, safe: safe);
+        await layH(tester);
+        if (!zoomed) await unzoom(tester);
+        final before = viewer(tester).transformationController!.value.clone();
+        await finger(tester, tester.getCenter(_sq(7, 7)), tester.getCenter(_sq(8, 8)), wobble: 0);
+        expect(_letter(8, 8, 'H'), findsOneWidget);
+        expect(_letter(7, 7, 'H'), findsNothing);
+        expect(viewer(tester).transformationController!.value, before, reason: 'the board did not scroll');
+      });
+    }
+
+    testWidgets('zoomed in: a drag starting on an empty square scrolls the board', (tester) async {
       await _start(tester, size: phone, safe: safe);
       await layH(tester);
       final before = viewer(tester).transformationController!.value.getTranslation();
-      final from = tester.getCenter(_sq(7, 7));
+      final from = tester.getCenter(_sq(8, 8));
       await finger(tester, from, from + const Offset(-80, -40));
       expect(viewer(tester).transformationController!.value.getTranslation(), isNot(before));
       expect(_letter(7, 7, 'H'), findsOneWidget, reason: 'the tile stays');
-      expect(WordTilesBoard.laidTileHold, lessThan(kLongPressTimeout));
-      expect(WordTilesBoard.laidTileHoldUnzoomed, lessThan(WordTilesBoard.laidTileHold));
     });
+
+    // Fingers 1 and 2 pinch in, one of them starting on the laid tile.
+    for (final first in [true, false]) {
+      testWidgets('zoomed in: a pinch with the ${first ? 'first' : 'second'} finger on the laid tile zooms',
+          (tester) async {
+        await _start(tester, size: phone, safe: safe);
+        await layH(tester);
+        final start = scale(tester);
+        final tile = tester.getCenter(_sq(7, 7));
+        final other = tile + const Offset(70, 70);
+        final (p1, p2) = first ? (tile, other) : (other, tile);
+        final a = await tester.startGesture(p1, pointer: 1);
+        await tester.pump(const Duration(milliseconds: 16));
+        final b = await tester.startGesture(p2, pointer: 2);
+        for (var i = 1; i <= 10; i++) {
+          await a.moveTo(Offset.lerp(p1, (p1 + p2) / 2, i / 20)!);
+          await b.moveTo(Offset.lerp(p2, (p1 + p2) / 2, i / 20)!);
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        await a.up();
+        await b.up();
+        await tester.pumpAndSettle();
+        expect(scale(tester), lessThan(start - 0.2), reason: 'zoomed out');
+        expect(_letter(7, 7, 'H'), findsOneWidget);
+      });
+    }
 
     for (final zoomed in [false, true]) {
       testWidgets('${zoomed ? 'zoomed' : 'not zoomed'}: the lifted tile keeps the spot under the finger',

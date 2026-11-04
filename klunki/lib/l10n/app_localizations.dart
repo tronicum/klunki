@@ -3851,10 +3851,10 @@ abstract class AppLocalizations {
   /// **'Auf dem Bänkchen probierst du Wörter aus. Es zeigt nur die Punkte der Buchstaben, nicht ob es ein Wort ist.'**
   String get wordtilesHelpBench;
 
-  /// Word tiles rules sheet: two fingers zoom and move the board; a tile laid this turn moves after a short hold and a drag, a tap takes it back (KLD-094 step 8g).
+  /// Word tiles rules sheet: two fingers zoom and move the board; a tile laid this turn moves by dragging it, no hold (KLD-094 step 8h); a tap takes it back.
   ///
   /// In de, this message translates to:
-  /// **'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein hältst du kurz fest und ziehst ihn woandershin; antippen nimmt ihn zurück.'**
+  /// **'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Einen eben gelegten Stein ziehst du einfach woandershin; antippen nimmt ihn zurück.'**
   String get wordtilesHelpZoom;
 
   /// Word tiles rules sheet: how the game ends and the rack penalties.
