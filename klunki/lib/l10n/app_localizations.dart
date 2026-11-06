@@ -4078,6 +4078,420 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'abgelehnt: {words}'**
   String wordtilesMoveAllowDecline(String words);
+
+  /// Game title: the traditional shedding card game Mau-Mau (KLD-118). A traditional generic name; keep "Mau-Mau" unless the language has its own common name for this game.
+  ///
+  /// In de, this message translates to:
+  /// **'Mau-Mau'**
+  String get menuGameMauMau;
+
+  /// Menu tile one-liner for Mau-Mau (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'Passende Karten ablegen, bis keine mehr übrig ist'**
+  String get menuDescMauMau;
+
+  /// Result reason (Mau-Mau, KLD-118): the winner laid the last card.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Karten abgelegt'**
+  String get engineReasonMaumauEmptyHand;
+
+  /// Mau-Mau (KLD-118): the suit clubs of the French deck, used in card names and on its own (suit picker, "Wunsch: …").
+  ///
+  /// In de, this message translates to:
+  /// **'Kreuz'**
+  String get maumauSuitClubs;
+
+  /// Mau-Mau (KLD-118): the suit spades of the French deck, used in card names and on its own (suit picker, "Wunsch: …").
+  ///
+  /// In de, this message translates to:
+  /// **'Pik'**
+  String get maumauSuitSpades;
+
+  /// Mau-Mau (KLD-118): the suit hearts of the French deck, used in card names and on its own (suit picker, "Wunsch: …").
+  ///
+  /// In de, this message translates to:
+  /// **'Herz'**
+  String get maumauSuitHearts;
+
+  /// Mau-Mau (KLD-118): the suit diamonds of the French deck, used in card names and on its own (suit picker, "Wunsch: …").
+  ///
+  /// In de, this message translates to:
+  /// **'Karo'**
+  String get maumauSuitDiamonds;
+
+  /// Mau-Mau (KLD-118): the rank jack as a word in a sentence (card names like "Pik Bube").
+  ///
+  /// In de, this message translates to:
+  /// **'Bube'**
+  String get maumauRankJack;
+
+  /// Mau-Mau (KLD-118): the rank queen as a word in a sentence (card names like "Pik Bube").
+  ///
+  /// In de, this message translates to:
+  /// **'Dame'**
+  String get maumauRankQueen;
+
+  /// Mau-Mau (KLD-118): the rank king as a word in a sentence (card names like "Pik Bube").
+  ///
+  /// In de, this message translates to:
+  /// **'König'**
+  String get maumauRankKing;
+
+  /// Mau-Mau (KLD-118): the rank ace as a word in a sentence (card names like "Pik Bube").
+  ///
+  /// In de, this message translates to:
+  /// **'Ass'**
+  String get maumauRankAce;
+
+  /// Mau-Mau (KLD-118): the one-letter index of the jack printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character.
+  ///
+  /// In de, this message translates to:
+  /// **'B'**
+  String get maumauRankLetterJack;
+
+  /// Mau-Mau (KLD-118): the one-letter index of the queen printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character.
+  ///
+  /// In de, this message translates to:
+  /// **'D'**
+  String get maumauRankLetterQueen;
+
+  /// Mau-Mau (KLD-118): the one-letter index of the king printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character.
+  ///
+  /// In de, this message translates to:
+  /// **'K'**
+  String get maumauRankLetterKing;
+
+  /// Mau-Mau (KLD-118): the one-letter index of the ace printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character.
+  ///
+  /// In de, this message translates to:
+  /// **'A'**
+  String get maumauRankLetterAce;
+
+  /// Mau-Mau (KLD-118): a card in a sentence, e.g. "Herz 7", "Pik Bube". suit = maumauSuit*, rank = "7"…"10" or maumauRank*.
+  ///
+  /// In de, this message translates to:
+  /// **'{suit} {rank}'**
+  String maumauCardName(String suit, String rank);
+
+  /// Mau-Mau start options (KLD-118): line above the house-rule switches.
+  ///
+  /// In de, this message translates to:
+  /// **'Welche Regeln sollen gelten?'**
+  String get maumauOptionsIntro;
+
+  /// Mau-Mau start options (KLD-118): button that goes on to "Wer spielt?".
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get maumauOptionsNext;
+
+  /// Mau-Mau house rule switch (KLD-118): a 7 makes the next player draw two cards.
+  ///
+  /// In de, this message translates to:
+  /// **'7: zwei Karten ziehen'**
+  String get maumauOptionSeven;
+
+  /// Explains maumauOptionSeven. "der andere" = the other player; no gendered words for players in other languages.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach einer 7 muss der andere 2 Karten ziehen.'**
+  String get maumauOptionSevenExplain;
+
+  /// Mau-Mau house rule switch (KLD-118): sevens can be stacked.
+  ///
+  /// In de, this message translates to:
+  /// **'7 auf 7'**
+  String get maumauOptionStack;
+
+  /// Explains maumauOptionStack.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer selbst eine 7 hat, legt sie drauf. Dann muss der andere 4 Karten ziehen.'**
+  String get maumauOptionStackExplain;
+
+  /// Mau-Mau house rule switch (KLD-118): an 8 makes the next player miss a turn.
+  ///
+  /// In de, this message translates to:
+  /// **'8: aussetzen'**
+  String get maumauOptionEight;
+
+  /// Explains maumauOptionEight.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach einer 8 muss der andere einmal aussetzen.'**
+  String get maumauOptionEightExplain;
+
+  /// Mau-Mau start options (KLD-118): the jack rule, always on (a plain line, not a switch). "Farbe" = suit.
+  ///
+  /// In de, this message translates to:
+  /// **'Bube: passt fast immer. Wer ihn legt, wünscht sich eine Farbe.'**
+  String get maumauOptionJackInfo;
+
+  /// Mau-Mau house rule switch (KLD-118): a jack may be laid on a jack.
+  ///
+  /// In de, this message translates to:
+  /// **'Bube auf Bube'**
+  String get maumauOptionJackOnJack;
+
+  /// Explains maumauOptionJackOnJack.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Bube darf auch auf einem Buben liegen.'**
+  String get maumauOptionJackOnJackExplain;
+
+  /// Mau-Mau house rule switch (KLD-118): an ace lets the same player lay again.
+  ///
+  /// In de, this message translates to:
+  /// **'Ass: noch mal'**
+  String get maumauOptionAce;
+
+  /// Explains maumauOptionAce.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer ein Ass legt, ist gleich noch mal dran.'**
+  String get maumauOptionAceExplain;
+
+  /// Mau-Mau house rule switch (KLD-118): say "Mau!" on the second-to-last card. "Mau!" stays as it is.
+  ///
+  /// In de, this message translates to:
+  /// **'„Mau!“ sagen'**
+  String get maumauOptionMau;
+
+  /// Explains maumauOptionMau.
+  ///
+  /// In de, this message translates to:
+  /// **'Bei der vorletzten Karte erst „Mau!“ drücken. Wer es vergisst, zieht eine Strafkarte.'**
+  String get maumauOptionMauExplain;
+
+  /// Mau-Mau (KLD-118): the other player's hand size next to the card backs.
+  ///
+  /// In de, this message translates to:
+  /// **'{player}: {count, plural, =1{1 Karte} other{{count} Karten}}'**
+  String maumauOpponentCards(String player, int count);
+
+  /// Mau-Mau (KLD-118): heading over the own hand (hot-seat: the player to move).
+  ///
+  /// In de, this message translates to:
+  /// **'Deine Karten ({count})'**
+  String maumauYourCards(int count);
+
+  /// Mau-Mau (KLD-118): label under the face-down draw pile.
+  ///
+  /// In de, this message translates to:
+  /// **'Stapel: {count}'**
+  String maumauStock(int count);
+
+  /// Mau-Mau (KLD-118): screen-reader label of the draw pile.
+  ///
+  /// In de, this message translates to:
+  /// **'Stapel zum Ziehen, {count, plural, =1{1 Karte} other{{count} Karten}}'**
+  String maumauStockLabel(int count);
+
+  /// Mau-Mau (KLD-118): label under the face-up discard pile.
+  ///
+  /// In de, this message translates to:
+  /// **'Ablage'**
+  String get maumauDiscard;
+
+  /// Mau-Mau (KLD-118): badge under the discard pile after a jack; suit = maumauSuit*.
+  ///
+  /// In de, this message translates to:
+  /// **'Wunsch: {suit}'**
+  String maumauWish(String suit);
+
+  /// Mau-Mau (KLD-118): button that draws a card.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte ziehen'**
+  String get maumauDraw;
+
+  /// Mau-Mau (KLD-118): button (and badge under the pile) when a 7 makes the player draw count (2, 4, …) cards.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} Karten ziehen'**
+  String maumauDrawPenalty(int count);
+
+  /// Mau-Mau (KLD-118): button that keeps a drawn card that would fit (ends the turn).
+  ///
+  /// In de, this message translates to:
+  /// **'Behalten'**
+  String get maumauKeep;
+
+  /// Mau-Mau (KLD-118): button when nothing is left to draw and no card fits.
+  ///
+  /// In de, this message translates to:
+  /// **'Passen'**
+  String get maumauPass;
+
+  /// Mau-Mau (KLD-118): toggle button, pressed before laying the second-to-last card. Usually kept as "Mau!".
+  ///
+  /// In de, this message translates to:
+  /// **'Mau!'**
+  String get maumauMauButton;
+
+  /// Mau-Mau (KLD-118): button under drawn cards that ends the turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get maumauContinue;
+
+  /// Mau-Mau (KLD-118): title of the suit picker after laying a jack. "Farbe" = suit.
+  ///
+  /// In de, this message translates to:
+  /// **'Welche Farbe wünschst du dir?'**
+  String get maumauPickSuitTitle;
+
+  /// Mau-Mau (KLD-118): shown to the drawer over the drawn card when it does not fit (the turn ends).
+  ///
+  /// In de, this message translates to:
+  /// **'Gezogen – die Karte passt leider nicht.'**
+  String get maumauDrewNoFit;
+
+  /// Mau-Mau (KLD-118): shown over the cards drawn because of a 7.
+  ///
+  /// In de, this message translates to:
+  /// **'Du ziehst {count, plural, =1{1 Karte} other{{count} Karten}}:'**
+  String maumauDrewPenalty(int count);
+
+  /// Mau-Mau hint line (KLD-118): the normal turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Lege eine passende Karte oder ziehe eine.'**
+  String get maumauHintPlay;
+
+  /// Mau-Mau hint line (KLD-118): a jack wished a suit.
+  ///
+  /// In de, this message translates to:
+  /// **'Gewünscht ist {suit}. Lege so eine Karte oder ziehe eine.'**
+  String maumauHintWish(String suit);
+
+  /// Mau-Mau hint line (KLD-118): a 7 was laid and the player has no 7 to answer.
+  ///
+  /// In de, this message translates to:
+  /// **'Du musst {count} Karten ziehen.'**
+  String maumauHintPenalty(int count);
+
+  /// Mau-Mau hint line (KLD-118): a 7 was laid and the player may answer with a 7.
+  ///
+  /// In de, this message translates to:
+  /// **'Lege eine 7 oder ziehe {count} Karten.'**
+  String maumauHintPenaltyStack(int count);
+
+  /// Mau-Mau hint line (KLD-118): the drawn card fits.
+  ///
+  /// In de, this message translates to:
+  /// **'Die gezogene Karte passt. Lege sie oder behalte sie.'**
+  String get maumauHintDrawn;
+
+  /// Mau-Mau hint line (KLD-118): no card left to draw and none fits.
+  ///
+  /// In de, this message translates to:
+  /// **'Nichts mehr zum Ziehen. Du musst passen.'**
+  String get maumauHintPass;
+
+  /// Mau-Mau hint line (KLD-118, house rule "Mau"): before the second-to-last card.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorletzte Karte: erst „Mau!“ drücken, dann legen.'**
+  String get maumauHintMau;
+
+  /// Mau-Mau (KLD-118): what happened last; card = maumauCardName. No gendered words for the player.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat {card} gelegt.'**
+  String maumauLastPlayed(String player, String card);
+
+  /// Mau-Mau (KLD-118): a jack was laid with a wish.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat {card} gelegt und wünscht sich {suit}.'**
+  String maumauLastPlayedWish(String player, String card, String suit);
+
+  /// Mau-Mau (KLD-118): the player drew cards (never says which).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat {count, plural, =1{eine Karte} other{{count} Karten}} gezogen.'**
+  String maumauLastDrew(String player, int count);
+
+  /// Mau-Mau (KLD-118): the player drew the cards of a 7.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat {count, plural, =1{eine Strafkarte} other{{count} Strafkarten}} gezogen.'**
+  String maumauLastDrewPenalty(String player, int count);
+
+  /// Mau-Mau (KLD-118): the player drew a fitting card and kept it.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat eine Karte gezogen und behalten.'**
+  String maumauLastKept(String player);
+
+  /// Mau-Mau (KLD-118): nothing left to draw, the player passed.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat gepasst.'**
+  String maumauLastPassed(String player);
+
+  /// Mau-Mau (KLD-118, house rule): the player said "Mau!" with the second-to-last card.
+  ///
+  /// In de, this message translates to:
+  /// **'„Mau!“, sagt {player}.'**
+  String maumauExtraMau(String player);
+
+  /// Mau-Mau (KLD-118, house rule): the player forgot "Mau!".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat „Mau!“ vergessen und zieht eine Strafkarte.'**
+  String maumauExtraForgotMau(String player);
+
+  /// Mau-Mau (KLD-118): after a 7; player = the one who has to draw. French: "À {player} de …" (no "que" before the name).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} muss {count} Karten ziehen.'**
+  String maumauExtraPenalty(String player, int count);
+
+  /// Mau-Mau (KLD-118): after an 8 (or an ace with the house rule); player = the one who misses the turn.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} muss aussetzen.'**
+  String maumauExtraAgain(String player);
+
+  /// Mau-Mau (KLD-118): the draw pile ran out; the discard pile became the new draw pile.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Ablage wurde neu gemischt.'**
+  String get maumauExtraReshuffled;
+
+  /// Mau-Mau history entry after "{player}: " (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'legt {card}'**
+  String maumauMovePlay(String card);
+
+  /// Mau-Mau history entry after "{player}: " for a jack (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'legt {card}, wünscht sich {suit}'**
+  String maumauMovePlayWish(String card, String suit);
+
+  /// Mau-Mau history entry after "{player}: " (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'zieht {count, plural, =1{eine Karte} other{{count} Karten}}'**
+  String maumauMoveDraw(int count);
+
+  /// Mau-Mau history entry after "{player}: " (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'passt'**
+  String get maumauMovePass;
+
+  /// Mau-Mau history entry after "{player}: " (KLD-118).
+  ///
+  /// In de, this message translates to:
+  /// **'behält die gezogene Karte'**
+  String get maumauMoveKeep;
 }
 
 class _AppLocalizationsDelegate

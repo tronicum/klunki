@@ -3811,5 +3811,428 @@
         "type": "String"
       }
     }
+  },
+  "menuGameMauMau": "Mau-Mau",
+  "@menuGameMauMau": {
+    "description": "Game title: the traditional shedding card game Mau-Mau (KLD-118). A traditional generic name; keep \"Mau-Mau\" unless the language has its own common name for this game."
+  },
+  "menuDescMauMau": "Passende Karten ablegen, bis keine mehr übrig ist",
+  "@menuDescMauMau": {
+    "description": "Menu tile one-liner for Mau-Mau (KLD-118)."
+  },
+  "engineReasonMaumauEmptyHand": "Alle Karten abgelegt",
+  "@engineReasonMaumauEmptyHand": {
+    "description": "Result reason (Mau-Mau, KLD-118): the winner laid the last card."
+  },
+  "maumauSuitClubs": "Kreuz",
+  "@maumauSuitClubs": {
+    "description": "Mau-Mau (KLD-118): the suit clubs of the French deck, used in card names and on its own (suit picker, \"Wunsch: …\")."
+  },
+  "maumauSuitSpades": "Pik",
+  "@maumauSuitSpades": {
+    "description": "Mau-Mau (KLD-118): the suit spades of the French deck, used in card names and on its own (suit picker, \"Wunsch: …\")."
+  },
+  "maumauSuitHearts": "Herz",
+  "@maumauSuitHearts": {
+    "description": "Mau-Mau (KLD-118): the suit hearts of the French deck, used in card names and on its own (suit picker, \"Wunsch: …\")."
+  },
+  "maumauSuitDiamonds": "Karo",
+  "@maumauSuitDiamonds": {
+    "description": "Mau-Mau (KLD-118): the suit diamonds of the French deck, used in card names and on its own (suit picker, \"Wunsch: …\")."
+  },
+  "maumauRankJack": "Bube",
+  "@maumauRankJack": {
+    "description": "Mau-Mau (KLD-118): the rank jack as a word in a sentence (card names like \"Pik Bube\")."
+  },
+  "maumauRankQueen": "Dame",
+  "@maumauRankQueen": {
+    "description": "Mau-Mau (KLD-118): the rank queen as a word in a sentence (card names like \"Pik Bube\")."
+  },
+  "maumauRankKing": "König",
+  "@maumauRankKing": {
+    "description": "Mau-Mau (KLD-118): the rank king as a word in a sentence (card names like \"Pik Bube\")."
+  },
+  "maumauRankAce": "Ass",
+  "@maumauRankAce": {
+    "description": "Mau-Mau (KLD-118): the rank ace as a word in a sentence (card names like \"Pik Bube\")."
+  },
+  "maumauRankLetterJack": "B",
+  "@maumauRankLetterJack": {
+    "description": "Mau-Mau (KLD-118): the one-letter index of the jack printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character."
+  },
+  "maumauRankLetterQueen": "D",
+  "@maumauRankLetterQueen": {
+    "description": "Mau-Mau (KLD-118): the one-letter index of the queen printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character."
+  },
+  "maumauRankLetterKing": "K",
+  "@maumauRankLetterKing": {
+    "description": "Mau-Mau (KLD-118): the one-letter index of the king printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character."
+  },
+  "maumauRankLetterAce": "A",
+  "@maumauRankLetterAce": {
+    "description": "Mau-Mau (KLD-118): the one-letter index of the ace printed in the card corners (de B/D/K/A, en J/Q/K/A, fr V/D/R/A). Exactly one character."
+  },
+  "maumauCardName": "{suit} {rank}",
+  "@maumauCardName": {
+    "description": "Mau-Mau (KLD-118): a card in a sentence, e.g. \"Herz 7\", \"Pik Bube\". suit = maumauSuit*, rank = \"7\"…\"10\" or maumauRank*.",
+    "placeholders": {
+      "suit": {
+        "type": "String"
+      },
+      "rank": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauOptionsIntro": "Welche Regeln sollen gelten?",
+  "@maumauOptionsIntro": {
+    "description": "Mau-Mau start options (KLD-118): line above the house-rule switches."
+  },
+  "maumauOptionsNext": "Weiter",
+  "@maumauOptionsNext": {
+    "description": "Mau-Mau start options (KLD-118): button that goes on to \"Wer spielt?\"."
+  },
+  "maumauOptionSeven": "7: zwei Karten ziehen",
+  "@maumauOptionSeven": {
+    "description": "Mau-Mau house rule switch (KLD-118): a 7 makes the next player draw two cards."
+  },
+  "maumauOptionSevenExplain": "Nach einer 7 muss der andere 2 Karten ziehen.",
+  "@maumauOptionSevenExplain": {
+    "description": "Explains maumauOptionSeven. \"der andere\" = the other player; no gendered words for players in other languages."
+  },
+  "maumauOptionStack": "7 auf 7",
+  "@maumauOptionStack": {
+    "description": "Mau-Mau house rule switch (KLD-118): sevens can be stacked."
+  },
+  "maumauOptionStackExplain": "Wer selbst eine 7 hat, legt sie drauf. Dann muss der andere 4 Karten ziehen.",
+  "@maumauOptionStackExplain": {
+    "description": "Explains maumauOptionStack."
+  },
+  "maumauOptionEight": "8: aussetzen",
+  "@maumauOptionEight": {
+    "description": "Mau-Mau house rule switch (KLD-118): an 8 makes the next player miss a turn."
+  },
+  "maumauOptionEightExplain": "Nach einer 8 muss der andere einmal aussetzen.",
+  "@maumauOptionEightExplain": {
+    "description": "Explains maumauOptionEight."
+  },
+  "maumauOptionJackInfo": "Bube: passt fast immer. Wer ihn legt, wünscht sich eine Farbe.",
+  "@maumauOptionJackInfo": {
+    "description": "Mau-Mau start options (KLD-118): the jack rule, always on (a plain line, not a switch). \"Farbe\" = suit."
+  },
+  "maumauOptionJackOnJack": "Bube auf Bube",
+  "@maumauOptionJackOnJack": {
+    "description": "Mau-Mau house rule switch (KLD-118): a jack may be laid on a jack."
+  },
+  "maumauOptionJackOnJackExplain": "Ein Bube darf auch auf einem Buben liegen.",
+  "@maumauOptionJackOnJackExplain": {
+    "description": "Explains maumauOptionJackOnJack."
+  },
+  "maumauOptionAce": "Ass: noch mal",
+  "@maumauOptionAce": {
+    "description": "Mau-Mau house rule switch (KLD-118): an ace lets the same player lay again."
+  },
+  "maumauOptionAceExplain": "Wer ein Ass legt, ist gleich noch mal dran.",
+  "@maumauOptionAceExplain": {
+    "description": "Explains maumauOptionAce."
+  },
+  "maumauOptionMau": "„Mau!“ sagen",
+  "@maumauOptionMau": {
+    "description": "Mau-Mau house rule switch (KLD-118): say \"Mau!\" on the second-to-last card. \"Mau!\" stays as it is."
+  },
+  "maumauOptionMauExplain": "Bei der vorletzten Karte erst „Mau!“ drücken. Wer es vergisst, zieht eine Strafkarte.",
+  "@maumauOptionMauExplain": {
+    "description": "Explains maumauOptionMau."
+  },
+  "maumauOpponentCards": "{player}: {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@maumauOpponentCards": {
+    "description": "Mau-Mau (KLD-118): the other player's hand size next to the card backs.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauYourCards": "Deine Karten ({count})",
+  "@maumauYourCards": {
+    "description": "Mau-Mau (KLD-118): heading over the own hand (hot-seat: the player to move).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauStock": "Stapel: {count}",
+  "@maumauStock": {
+    "description": "Mau-Mau (KLD-118): label under the face-down draw pile.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauStockLabel": "Stapel zum Ziehen, {count, plural, =1{1 Karte} other{{count} Karten}}",
+  "@maumauStockLabel": {
+    "description": "Mau-Mau (KLD-118): screen-reader label of the draw pile.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauDiscard": "Ablage",
+  "@maumauDiscard": {
+    "description": "Mau-Mau (KLD-118): label under the face-up discard pile."
+  },
+  "maumauWish": "Wunsch: {suit}",
+  "@maumauWish": {
+    "description": "Mau-Mau (KLD-118): badge under the discard pile after a jack; suit = maumauSuit*.",
+    "placeholders": {
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauDraw": "Karte ziehen",
+  "@maumauDraw": {
+    "description": "Mau-Mau (KLD-118): button that draws a card."
+  },
+  "maumauDrawPenalty": "{count} Karten ziehen",
+  "@maumauDrawPenalty": {
+    "description": "Mau-Mau (KLD-118): button (and badge under the pile) when a 7 makes the player draw count (2, 4, …) cards.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauKeep": "Behalten",
+  "@maumauKeep": {
+    "description": "Mau-Mau (KLD-118): button that keeps a drawn card that would fit (ends the turn)."
+  },
+  "maumauPass": "Passen",
+  "@maumauPass": {
+    "description": "Mau-Mau (KLD-118): button when nothing is left to draw and no card fits."
+  },
+  "maumauMauButton": "Mau!",
+  "@maumauMauButton": {
+    "description": "Mau-Mau (KLD-118): toggle button, pressed before laying the second-to-last card. Usually kept as \"Mau!\"."
+  },
+  "maumauContinue": "Weiter",
+  "@maumauContinue": {
+    "description": "Mau-Mau (KLD-118): button under drawn cards that ends the turn."
+  },
+  "maumauPickSuitTitle": "Welche Farbe wünschst du dir?",
+  "@maumauPickSuitTitle": {
+    "description": "Mau-Mau (KLD-118): title of the suit picker after laying a jack. \"Farbe\" = suit."
+  },
+  "maumauDrewNoFit": "Gezogen – die Karte passt leider nicht.",
+  "@maumauDrewNoFit": {
+    "description": "Mau-Mau (KLD-118): shown to the drawer over the drawn card when it does not fit (the turn ends)."
+  },
+  "maumauDrewPenalty": "Du ziehst {count, plural, =1{1 Karte} other{{count} Karten}}:",
+  "@maumauDrewPenalty": {
+    "description": "Mau-Mau (KLD-118): shown over the cards drawn because of a 7.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauHintPlay": "Lege eine passende Karte oder ziehe eine.",
+  "@maumauHintPlay": {
+    "description": "Mau-Mau hint line (KLD-118): the normal turn."
+  },
+  "maumauHintWish": "Gewünscht ist {suit}. Lege so eine Karte oder ziehe eine.",
+  "@maumauHintWish": {
+    "description": "Mau-Mau hint line (KLD-118): a jack wished a suit.",
+    "placeholders": {
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauHintPenalty": "Du musst {count} Karten ziehen.",
+  "@maumauHintPenalty": {
+    "description": "Mau-Mau hint line (KLD-118): a 7 was laid and the player has no 7 to answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauHintPenaltyStack": "Lege eine 7 oder ziehe {count} Karten.",
+  "@maumauHintPenaltyStack": {
+    "description": "Mau-Mau hint line (KLD-118): a 7 was laid and the player may answer with a 7.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauHintDrawn": "Die gezogene Karte passt. Lege sie oder behalte sie.",
+  "@maumauHintDrawn": {
+    "description": "Mau-Mau hint line (KLD-118): the drawn card fits."
+  },
+  "maumauHintPass": "Nichts mehr zum Ziehen. Du musst passen.",
+  "@maumauHintPass": {
+    "description": "Mau-Mau hint line (KLD-118): no card left to draw and none fits."
+  },
+  "maumauHintMau": "Vorletzte Karte: erst „Mau!“ drücken, dann legen.",
+  "@maumauHintMau": {
+    "description": "Mau-Mau hint line (KLD-118, house rule \"Mau\"): before the second-to-last card."
+  },
+  "maumauLastPlayed": "{player} hat {card} gelegt.",
+  "@maumauLastPlayed": {
+    "description": "Mau-Mau (KLD-118): what happened last; card = maumauCardName. No gendered words for the player.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauLastPlayedWish": "{player} hat {card} gelegt und wünscht sich {suit}.",
+  "@maumauLastPlayedWish": {
+    "description": "Mau-Mau (KLD-118): a jack was laid with a wish.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "card": {
+        "type": "String"
+      },
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauLastDrew": "{player} hat {count, plural, =1{eine Karte} other{{count} Karten}} gezogen.",
+  "@maumauLastDrew": {
+    "description": "Mau-Mau (KLD-118): the player drew cards (never says which).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauLastDrewPenalty": "{player} hat {count, plural, =1{eine Strafkarte} other{{count} Strafkarten}} gezogen.",
+  "@maumauLastDrewPenalty": {
+    "description": "Mau-Mau (KLD-118): the player drew the cards of a 7.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauLastKept": "{player} hat eine Karte gezogen und behalten.",
+  "@maumauLastKept": {
+    "description": "Mau-Mau (KLD-118): the player drew a fitting card and kept it.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauLastPassed": "{player} hat gepasst.",
+  "@maumauLastPassed": {
+    "description": "Mau-Mau (KLD-118): nothing left to draw, the player passed.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauExtraMau": "„Mau!“, sagt {player}.",
+  "@maumauExtraMau": {
+    "description": "Mau-Mau (KLD-118, house rule): the player said \"Mau!\" with the second-to-last card.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauExtraForgotMau": "{player} hat „Mau!“ vergessen und zieht eine Strafkarte.",
+  "@maumauExtraForgotMau": {
+    "description": "Mau-Mau (KLD-118, house rule): the player forgot \"Mau!\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauExtraPenalty": "{player} muss {count} Karten ziehen.",
+  "@maumauExtraPenalty": {
+    "description": "Mau-Mau (KLD-118): after a 7; player = the one who has to draw. French: \"À {player} de …\" (no \"que\" before the name).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauExtraAgain": "{player} muss aussetzen.",
+  "@maumauExtraAgain": {
+    "description": "Mau-Mau (KLD-118): after an 8 (or an ace with the house rule); player = the one who misses the turn.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauExtraReshuffled": "Die Ablage wurde neu gemischt.",
+  "@maumauExtraReshuffled": {
+    "description": "Mau-Mau (KLD-118): the draw pile ran out; the discard pile became the new draw pile."
+  },
+  "maumauMovePlay": "legt {card}",
+  "@maumauMovePlay": {
+    "description": "Mau-Mau history entry after \"{player}: \" (KLD-118).",
+    "placeholders": {
+      "card": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauMovePlayWish": "legt {card}, wünscht sich {suit}",
+  "@maumauMovePlayWish": {
+    "description": "Mau-Mau history entry after \"{player}: \" for a jack (KLD-118).",
+    "placeholders": {
+      "card": {
+        "type": "String"
+      },
+      "suit": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauMoveDraw": "zieht {count, plural, =1{eine Karte} other{{count} Karten}}",
+  "@maumauMoveDraw": {
+    "description": "Mau-Mau history entry after \"{player}: \" (KLD-118).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauMovePass": "passt",
+  "@maumauMovePass": {
+    "description": "Mau-Mau history entry after \"{player}: \" (KLD-118)."
+  },
+  "maumauMoveKeep": "behält die gezogene Karte",
+  "@maumauMoveKeep": {
+    "description": "Mau-Mau history entry after \"{player}: \" (KLD-118)."
   }
 }

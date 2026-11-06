@@ -50,6 +50,9 @@ const sameAsEnglish = {
   'Source',
   // KLD-108: the web beta badge (Spanish spells it the same).
   'Beta',
+  // KLD-118: the traditional game name and its call.
+  'Mau-Mau',
+  'Mau!',
 };
 
 Map<String, dynamic> _arb(String locale) =>
