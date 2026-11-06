@@ -49,7 +49,20 @@ final _specs = <_Spec>[
     {'action': 'accept'},
     {'action': 'pass', 'x': 1},
   ]),
+  // A fixed deal: A holds nothing that fits and draws a card that does not
+  // fit either, so the turn passes.
+  _Spec('MauMauGame', _mauMau, {'action': 'draw'}, [
+    {'action': 'pass'},
+    {'action': 'play', 'card': 'c7'},
+    {'action': 'play', 'card': 'h8'},
+    {'action': 'play', 'card': 'x9'},
+    {'action': 'draw', 'x': 1},
+  ]),
 ];
+
+MauMauGame _mauMau() => MauMauGame()
+  ..debugSetup(
+      a: ['c7', 'c8', 'sK', 'sQ', 'cA'], b: ['h8', 'd7', 'd8', 'sA', 'c10'], top: 'h9', stock: ['dK', 'dQ', 'd10']);
 
 void main() {
   for (final spec in _specs) {
