@@ -82,7 +82,10 @@ void main() {
     expect(_local('wordtiles'), findsOneWidget);
     expect(_network('wordtiles'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('wordtiles')));
-    expect(hotSeatOnlyGames, isEmpty);
+    // KLD-121: Mäxchen is one device only for now.
+    expect(_local('maexchen'), findsOneWidget);
+    expect(_network('maexchen'), findsNothing);
+    expect(hotSeatOnlyGames, {'maexchen'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {
@@ -237,6 +240,11 @@ void main() {
       if (spec.id == 'wordtiles') {
         // Wortgewandt: its start options first (KLD-094).
         await tester.tap(find.byKey(const Key('wordtiles-options-next')));
+        await tester.pumpAndSettle();
+      }
+      if (spec.id == 'maexchen') {
+        // Mäxchen: lives and "Mäxchen doppelt" first (KLD-121).
+        await tester.tap(find.byKey(const Key('maexchen-options-next')));
         await tester.pumpAndSettle();
       }
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget, reason: spec.id);

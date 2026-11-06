@@ -43,6 +43,7 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.chessDrawAgreed => l10n.engineReasonChessDrawAgreed,
     GameEndReason.wordtilesPlayedOut => l10n.engineReasonWordtilesPlayedOut(p('a'), p('b')),
     GameEndReason.wordtilesScoreless => l10n.engineReasonWordtilesScoreless(p('turns'), p('a'), p('b')),
+    GameEndReason.maexchenNoLives => l10n.engineReasonMaexchenNoLives,
   };
 }
 

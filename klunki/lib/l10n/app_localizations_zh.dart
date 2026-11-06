@@ -2443,4 +2443,154 @@ class AppLocalizationsZh extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return '拒绝：$words';
   }
+
+  @override
+  String get menuGameMaexchen => '点数大王';
+
+  @override
+  String get menuDescMaexchen => '出点数，叫大数：信还是不信？';
+
+  @override
+  String get engineReasonMaexchenNoLives => '机会用完了';
+
+  @override
+  String get maexchenOptionLives => '开始时的机会';
+
+  @override
+  String get maexchenOptionDouble => '大王算两次';
+
+  @override
+  String get maexchenOptionDoubleExplain => '不信大王，而大王是对的，就少两次机会。';
+
+  @override
+  String get maexchenOptionsNext => '下一步';
+
+  @override
+  String get maexchenRoll => '出点数';
+
+  @override
+  String get maexchenPeek => '看点数';
+
+  @override
+  String get maexchenCover => '合上';
+
+  @override
+  String get maexchenPickTitle => '你叫多少？';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return '叫 $value';
+  }
+
+  @override
+  String get maexchenOrder => '从小到大：31、32 … 65，然后对子 11 … 66，最大是大王 (21)。';
+
+  @override
+  String get maexchenBelieve => '相信';
+
+  @override
+  String get maexchenDoubt => '不信';
+
+  @override
+  String get maexchenGiveUp => '放弃一次机会';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return '$player 叫 $value';
+  }
+
+  @override
+  String get maexchenNewRound => '新一局：叫什么都可以';
+
+  @override
+  String get maexchenHintRoll => '点出点数，然后私下看筒下面。';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return '你相信了 $value。出点数，再叫比 $value 大的。';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst => '私下看一看，然后叫一个数。叫的数可以和点数不同！';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return '叫比 $value 大的数。叫的数可以和点数不同！';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return '$player 叫了 $value。你相信吗？';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return '$player 叫了大王！没有更大的了：不信，还是放弃一次机会？';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return '筒下面：$value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return '叫的不对！$player 少一次机会。';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return '叫的是对的！$player 少一次机会。';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return '是大王！$player 少两次机会。';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return '$player 放弃一次机会。筒不打开。';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 次机会',
+    );
+    return '$player：$_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return '第 $round 局';
+  }
+
+  @override
+  String get maexchenMoveRoll => '出点数';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return '叫 $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => '相信';
+
+  @override
+  String get maexchenMoveDoubt => '不信';
+
+  @override
+  String get maexchenMoveGiveUp => '放弃一次机会';
+
+  @override
+  String get maexchenMaexchenName => '大王';
+
+  @override
+  String get maexchenMaexchenCall => '大王！';
+
+  @override
+  String get maexchenAnnouncedLabel => '已叫';
 }

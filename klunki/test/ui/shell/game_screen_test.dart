@@ -40,6 +40,8 @@ void main() {
       expect(find.text('Debug-Konsole'), findsOneWidget);
 
       for (final spec in appGameSpecs) {
+        await tester.ensureVisible(find.text(spec.title)); // the last tiles lie below the fold
+        await tester.pumpAndSettle();
         await tester.tap(find.text(spec.title));
         await tester.pumpAndSettle();
         if (spec.usesDeck) {
@@ -53,6 +55,11 @@ void main() {
           await tester.tap(find.byKey(const Key('wordtiles-dict')));
           await tester.pumpAndSettle();
           await tester.tap(find.byKey(const Key('wordtiles-options-next')));
+          await tester.pumpAndSettle();
+        }
+        if (spec.id == 'maexchen') {
+          // Mäxchen asks for lives and "Mäxchen doppelt" first (KLD-121).
+          await tester.tap(find.byKey(const Key('maexchen-options-next')));
           await tester.pumpAndSettle();
         }
         // "Wer spielt?" (KLD-103), prefilled with the default names.

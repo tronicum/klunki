@@ -3811,5 +3811,240 @@
         "type": "String"
       }
     }
+  },
+  "menuGameMaexchen": "Mäxchen",
+  "@menuGameMaexchen": {
+    "description": "Game title: the dice bluffing game (KLD-121), traditional German name Mäxchen (also Meiern). Other languages: the name this game has there (en Mia), no brand names."
+  },
+  "menuDescMaexchen": "Würfeln, flunkern, durchschauen",
+  "@menuDescMaexchen": {
+    "description": "Menu tile one-liner for Mäxchen (KLD-121)."
+  },
+  "engineReasonMaexchenNoLives": "Keine Leben mehr übrig",
+  "@engineReasonMaexchenNoLives": {
+    "description": "Result reason (Mäxchen, KLD-121): the losing player has no lives left."
+  },
+  "maexchenOptionLives": "Leben zu Beginn",
+  "@maexchenOptionLives": {
+    "description": "Mäxchen start option: how many lives each player has at the start (3 or 5)."
+  },
+  "maexchenOptionDouble": "Mäxchen doppelt",
+  "@maexchenOptionDouble": {
+    "description": "Mäxchen start option (house rule, on by default): doubting a real Mäxchen costs 2 lives. Mäxchen = the highest roll, 2 and 1."
+  },
+  "maexchenOptionDoubleExplain": "Wer ein echtes Mäxchen anzweifelt, verliert 2 Leben.",
+  "@maexchenOptionDoubleExplain": {
+    "description": "Explains the house rule \"Mäxchen doppelt\" under its switch."
+  },
+  "maexchenOptionsNext": "Weiter",
+  "@maexchenOptionsNext": {
+    "description": "Button that closes the Mäxchen start options and goes on to the player names."
+  },
+  "maexchenRoll": "Würfeln",
+  "@maexchenRoll": {
+    "description": "Mäxchen button: shake the cup (roll the two dice under it)."
+  },
+  "maexchenPeek": "Nachschauen",
+  "@maexchenPeek": {
+    "description": "Mäxchen button: lift the cup to look at the own dice secretly."
+  },
+  "maexchenCover": "Becher zu",
+  "@maexchenCover": {
+    "description": "Mäxchen button: put the cup back over the dice."
+  },
+  "maexchenPickTitle": "Was sagst du an?",
+  "@maexchenPickTitle": {
+    "description": "Mäxchen: heading over the values the player may announce."
+  },
+  "maexchenAnnounce": "{value} ansagen",
+  "@maexchenAnnounce": {
+    "description": "Mäxchen button: announce the chosen value. value = e.g. \"54\" or the name of the highest value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenOrder": "Von klein nach groß: 31, 32 … 65, dann Pasch 11 … 66, dann Mäxchen (21).",
+  "@maexchenOrder": {
+    "description": "Mäxchen: the order of the values, low to high, under the announcement picker. \"Pasch\" = doubles."
+  },
+  "maexchenBelieve": "Glauben",
+  "@maexchenBelieve": {
+    "description": "Mäxchen button: believe the announcement (then roll and announce higher)."
+  },
+  "maexchenDoubt": "Anzweifeln",
+  "@maexchenDoubt": {
+    "description": "Mäxchen button: doubt the announcement; the cup is lifted."
+  },
+  "maexchenGiveUp": "Leben abgeben",
+  "@maexchenGiveUp": {
+    "description": "Mäxchen button after an announced Mäxchen: lose one life without lifting the cup. Not \"Aufgeben\" (that is resigning the game)."
+  },
+  "maexchenAnnounced": "{player} sagt {value}",
+  "@maexchenAnnounced": {
+    "description": "Mäxchen: what the player announced, e.g. \"Anna sagt 54\". value = number or the name of the highest value.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenNewRound": "Neue Runde: jede Zahl ist erlaubt",
+  "@maexchenNewRound": {
+    "description": "Mäxchen: banner at the start of a round, no announcement yet."
+  },
+  "maexchenHintRoll": "Tippe auf Würfeln, dann schau heimlich unter den Becher.",
+  "@maexchenHintRoll": {
+    "description": "Mäxchen hint for the player who rolls."
+  },
+  "maexchenHintBelieved": "Du glaubst {value}. Würfle und sag mehr als {value} an.",
+  "@maexchenHintBelieved": {
+    "description": "Mäxchen hint after believing an announcement: roll and announce more. value = the announcement.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenHintAnnounceFirst": "Schau heimlich nach und sag eine Zahl an. Flunkern ist erlaubt!",
+  "@maexchenHintAnnounceFirst": {
+    "description": "Mäxchen hint for the roller at the start of a round."
+  },
+  "maexchenHintAnnounceHigher": "Sag mehr als {value} an. Flunkern ist erlaubt!",
+  "@maexchenHintAnnounceHigher": {
+    "description": "Mäxchen hint for the roller: announce more than the last value. value = the last announcement.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenHintRespond": "{player} sagt {value}. Glaubst du das?",
+  "@maexchenHintRespond": {
+    "description": "Mäxchen hint for the player who answers an announcement.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenHintRespondMaexchen": "{player} sagt Mäxchen! Höher geht es nicht: anzweifeln oder ein Leben abgeben?",
+  "@maexchenHintRespondMaexchen": {
+    "description": "Mäxchen hint when the other player announced the highest value (Mäxchen): it cannot be beaten.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenUnderCup": "Unter dem Becher: {value}",
+  "@maexchenUnderCup": {
+    "description": "Mäxchen: the real value under the lifted cup. value = number or the name of the highest value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenVerdictBluff": "Geflunkert! {player} verliert ein Leben.",
+  "@maexchenVerdictBluff": {
+    "description": "Mäxchen reveal: the announcement was a lie; the player who announced it loses a life.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenVerdictTrue": "Stimmt! {player} verliert ein Leben.",
+  "@maexchenVerdictTrue": {
+    "description": "Mäxchen reveal: the announcement was true; the doubting player loses a life.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenVerdictTrueTwo": "Echtes Mäxchen! {player} verliert 2 Leben.",
+  "@maexchenVerdictTrueTwo": {
+    "description": "Mäxchen reveal: a real Mäxchen was doubted (house rule on); the doubting player loses 2 lives.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenVerdictGaveUp": "{player} gibt ein Leben ab. Der Becher bleibt zu.",
+  "@maexchenVerdictGaveUp": {
+    "description": "Mäxchen: the player gave up a life after an announced Mäxchen; the dice stay hidden.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenLivesOf": "{player}: {count, plural, =1{1 Leben} other{{count} Leben}}",
+  "@maexchenLivesOf": {
+    "description": "Mäxchen: accessibility label of a player's hearts. count = lives left.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maexchenRoundLabel": "Runde {round}",
+  "@maexchenRoundLabel": {
+    "description": "Mäxchen: the round number.",
+    "placeholders": {
+      "round": {
+        "type": "int"
+      }
+    }
+  },
+  "maexchenMoveRoll": "würfelt",
+  "@maexchenMoveRoll": {
+    "description": "Mäxchen move history: the player rolled."
+  },
+  "maexchenMoveAnnounce": "sagt {value}",
+  "@maexchenMoveAnnounce": {
+    "description": "Mäxchen move history: the player announced a value.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "maexchenMoveBelieve": "glaubt es",
+  "@maexchenMoveBelieve": {
+    "description": "Mäxchen move history: the player believed the announcement."
+  },
+  "maexchenMoveDoubt": "zweifelt an",
+  "@maexchenMoveDoubt": {
+    "description": "Mäxchen move history: the player doubted the announcement."
+  },
+  "maexchenMoveGiveUp": "gibt ein Leben ab",
+  "@maexchenMoveGiveUp": {
+    "description": "Mäxchen move history: the player gave up a life after an announced Mäxchen."
+  },
+  "maexchenMaexchenName": "Mäxchen",
+  "@maexchenMaexchenName": {
+    "description": "Mäxchen: the name of the highest value (2 and 1), shown in the picker and inside sentences."
+  },
+  "maexchenMaexchenCall": "Mäxchen!",
+  "@maexchenMaexchenCall": {
+    "description": "Mäxchen: the big button label for announcing the highest value, called out loud."
+  },
+  "maexchenAnnouncedLabel": "Angesagt",
+  "@maexchenAnnouncedLabel": {
+    "description": "Mäxchen: small caption over the current announcement."
   }
 }

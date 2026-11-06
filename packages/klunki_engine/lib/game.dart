@@ -75,7 +75,10 @@ enum GameEndReason {
   wordtilesPlayedOut('wordtiles.playedOut'),
   /// Word tiles: `turns` consecutive scoreless turns; every rack value was
   /// subtracted. params: `turns`, `a`, `b` (final scores).
-  wordtilesScoreless('wordtiles.scorelessTurns');
+  wordtilesScoreless('wordtiles.scorelessTurns'),
+  /// Mäxchen (KLD-121): the loser has no lives left. params: `a`, `b`
+  /// (lives left).
+  maexchenNoLives('maexchen.noLives');
 
   final String code;
   const GameEndReason(this.code);

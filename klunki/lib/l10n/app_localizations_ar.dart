@@ -2549,4 +2549,158 @@ class AppLocalizationsAr extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'رفض: $words';
   }
+
+  @override
+  String get menuGameMaexchen => 'ميا';
+
+  @override
+  String get menuDescMaexchen => 'ارموا النرد، خادعوا، واكشفوا الخدعة';
+
+  @override
+  String get engineReasonMaexchenNoLives => 'لم تبقَ أي أرواح';
+
+  @override
+  String get maexchenOptionLives => 'الأرواح في البداية';
+
+  @override
+  String get maexchenOptionDouble => 'ميا مضاعفة';
+
+  @override
+  String get maexchenOptionDoubleExplain => 'الشكّ في ميا حقيقية يكلّف روحين.';
+
+  @override
+  String get maexchenOptionsNext => 'التالي';
+
+  @override
+  String get maexchenRoll => 'ارمِ النرد';
+
+  @override
+  String get maexchenPeek => 'انظر';
+
+  @override
+  String get maexchenCover => 'غطِّ';
+
+  @override
+  String get maexchenPickTitle => 'ماذا تعلن؟';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return 'أعلن $value';
+  }
+
+  @override
+  String get maexchenOrder =>
+      'من الأصغر إلى الأكبر: 31، 32 … 65، ثم الأزواج 11 … 66، ثم ميا (21).';
+
+  @override
+  String get maexchenBelieve => 'أصدّق';
+
+  @override
+  String get maexchenDoubt => 'أشكّ';
+
+  @override
+  String get maexchenGiveUp => 'التخلّي عن روح';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return 'إعلان $player: $value';
+  }
+
+  @override
+  String get maexchenNewRound => 'جولة جديدة: أي قيمة مسموحة';
+
+  @override
+  String get maexchenHintRoll => 'اضغط ارمِ النرد، ثم انظر تحت الكوب سرًّا.';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return 'صدّقتَ $value. ارمِ النرد وأعلن أكثر من $value.';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst =>
+      'انظر سرًّا وأعلن قيمة. الخداع مسموح!';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return 'أعلن أكثر من $value. الخداع مسموح!';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return 'إعلان $player: $value. هل تصدّق؟';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return 'إعلان $player: ميا! لا شيء أعلى منها: تشكّ أم تتخلّى عن روح؟';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return 'تحت الكوب: $value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return 'خدعة! روح أقل لدى $player.';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return 'كان صحيحًا! روح أقل لدى $player.';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return 'ميا حقيقية! روحان أقل لدى $player.';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return 'روح أقل لدى $player. يبقى الكوب مغطّى.';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أرواح',
+      two: 'روحان',
+      one: 'روح واحدة',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return 'الجولة $round';
+  }
+
+  @override
+  String get maexchenMoveRoll => 'رمي النرد';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return 'إعلان $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => 'تصديق';
+
+  @override
+  String get maexchenMoveDoubt => 'تشكيك';
+
+  @override
+  String get maexchenMoveGiveUp => 'التخلّي عن روح';
+
+  @override
+  String get maexchenMaexchenName => 'ميا';
+
+  @override
+  String get maexchenMaexchenCall => 'ميا!';
+
+  @override
+  String get maexchenAnnouncedLabel => 'المُعلَن';
 }

@@ -2606,4 +2606,159 @@ class AppLocalizationsEs extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'rechazado: $words';
   }
+
+  @override
+  String get menuGameMaexchen => 'Mia';
+
+  @override
+  String get menuDescMaexchen => 'Tirar los dados, farolear, descubrir';
+
+  @override
+  String get engineReasonMaexchenNoLives => 'No quedan vidas';
+
+  @override
+  String get maexchenOptionLives => 'Vidas al empezar';
+
+  @override
+  String get maexchenOptionDouble => 'Mia doble';
+
+  @override
+  String get maexchenOptionDoubleExplain =>
+      'Dudar de una Mia verdadera cuesta 2 vidas.';
+
+  @override
+  String get maexchenOptionsNext => 'Siguiente';
+
+  @override
+  String get maexchenRoll => 'Tirar';
+
+  @override
+  String get maexchenPeek => 'Mirar';
+
+  @override
+  String get maexchenCover => 'Tapar';
+
+  @override
+  String get maexchenPickTitle => '¿Qué anuncias?';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return 'Anunciar $value';
+  }
+
+  @override
+  String get maexchenOrder =>
+      'De menor a mayor: 31, 32 … 65, luego dobles 11 … 66, luego Mia (21).';
+
+  @override
+  String get maexchenBelieve => 'Creer';
+
+  @override
+  String get maexchenDoubt => 'Dudar';
+
+  @override
+  String get maexchenGiveUp => 'Ceder una vida';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return '$player anuncia $value';
+  }
+
+  @override
+  String get maexchenNewRound => 'Nueva ronda: vale cualquier valor';
+
+  @override
+  String get maexchenHintRoll =>
+      'Toca Tirar y luego mira bajo el cubilete a escondidas.';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return 'Crees el $value. Tira y anuncia más que $value.';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst =>
+      'Mira a escondidas y anuncia un valor. ¡Se vale farolear!';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return 'Anuncia más que $value. ¡Se vale farolear!';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return '$player anuncia $value. ¿Te lo crees?';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return '$player anuncia Mia. Nada la supera: ¿dudar o ceder una vida?';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return 'Bajo el cubilete: $value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return '¡Farol! $player pierde una vida.';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return '¡Era verdad! $player pierde una vida.';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return '¡Una Mia de verdad! $player pierde 2 vidas.';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return '$player cede una vida. El cubilete sigue tapado.';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vidas',
+      one: '1 vida',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return 'Ronda $round';
+  }
+
+  @override
+  String get maexchenMoveRoll => 'tira los dados';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return 'anuncia $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => 'se lo cree';
+
+  @override
+  String get maexchenMoveDoubt => 'duda';
+
+  @override
+  String get maexchenMoveGiveUp => 'cede una vida';
+
+  @override
+  String get maexchenMaexchenName => 'Mia';
+
+  @override
+  String get maexchenMaexchenCall => '¡Mia!';
+
+  @override
+  String get maexchenAnnouncedLabel => 'Anunciado';
 }

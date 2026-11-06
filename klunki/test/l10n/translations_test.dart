@@ -50,6 +50,8 @@ const sameAsEnglish = {
   'Source',
   // KLD-108: the web beta badge (Spanish spells it the same).
   'Beta',
+  // KLD-121: the dice bluffing game's name in French and Spanish too.
+  'Mia',
 };
 
 Map<String, dynamic> _arb(String locale) =>
@@ -108,7 +110,7 @@ void main() {
         expect(find.text(l10n.menuGameSchiffe), findsOneWidget);
       });
 
-      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess', 'wordtiles']) {
+      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess', 'wordtiles', 'maexchen']) {
         testWidgets('$code: $id renders and plays to the result dialog without overflow', (tester) async {
           await phone(tester);
           await pumpGame(tester, id, locale: locale);
