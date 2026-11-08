@@ -7,6 +7,7 @@ import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
@@ -14,6 +15,10 @@ import '../../l10n/l10n_test_utils.dart';
 void main() {
   // The one-time Bänkchen explanation is seen: where the bench starts open
   // (KLD-094 step 8c) it would come up over the first word tile turn.
+  // Mock storage first: without it SeenTips' background load fails on the
+  // plugin channel, and under a loaded full run that error could land after
+  // the first (synchronous, non-widget) test had finished and fail it.
+  setUpAll(() => SharedPreferences.setMockInitialValues({}));
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
     expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id, ...previewGames});
