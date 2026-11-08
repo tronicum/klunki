@@ -3056,6 +3056,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get maexchenAnnouncedLabel => 'Announced';
 
   @override
+  String get maexchenPickFirst => 'Choose a number';
+
+  @override
+  String get maexchenShakeHint => 'or shake the phone';
+
+  @override
+  String get shakeToRollSetting => 'Shake to roll';
+
+  @override
+  String get shakeToRollExplain =>
+      'Shake the phone like a dice cup instead of tapping Roll.';
+
+  @override
   String get confirmMoveSetting => 'Confirm move';
 
   @override

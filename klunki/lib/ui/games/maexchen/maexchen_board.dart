@@ -1,10 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
 import '../../shell/game_screen.dart';
+import '../shake_to_roll.dart';
 import 'maexchen_dice.dart';
 import 'maexchen_screen.dart' show maexchenValueLabel;
 
@@ -86,7 +90,8 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
       _choice = null;
       _freshReveal = grew && action == 'doubt';
     });
-    if (grew && action == 'roll') _shake.forward(from: 0);
+    // The cup wobbles; when the dice land the phone gives a short knock.
+    if (grew && action == 'roll') _shake.forward(from: 0).then((_) => HapticFeedback.mediumImpact());
     if (_freshReveal) {
       // The cup stays down for a moment, then lifts: a short reveal (the
       // pause is the first part of the curve, see [_liftShown]).
@@ -148,11 +153,104 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
     };
   }
 
+  /// A roll is allowed now, by the button or by shaking the phone.
+  bool get _canRoll =>
+      controller.canAct && !game.isOver && game.phase == MaexchenPhase.roll && !controller.needsHandover;
+
+  /// Rolls: a tap on "Würfeln" ([shaken] false, which also asks the web on
+  /// iOS for motion access) or a shake.
+  void _roll({bool shaken = false}) {
+    if (!_canRoll) return;
+    if (!shaken) ShakeToRoll.askPermissionFromTap();
+    _submit(MaexchenGame.rollMove);
+  }
+
+  /// Phones narrower than this get the compact controls ("Zug zurück" as an
+  /// icon next to "Nachschauen").
+  static const double _narrow = 420;
+
+  /// Below this height (a phone in landscape) the value grid is denser.
+  static const double _low = 320;
+
+  /// What the table part keeps at least before the controls below scroll
+  /// inside (small phones, large text): while announcing enough for the
+  /// lifted cup and the dice (the value order help scrolls away first).
+  static double _minTop(bool announcing) => announcing ? 240 : 170;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final hint = _hint(l10n);
     GameScreen.of(context).setHint(hint.isEmpty ? null : hint);
+    return ShakeToRoll(
+      enabled: _canRoll,
+      onShake: () => _roll(shaken: true),
+      builder: (context, shakeReady) => LayoutBuilder(
+        builder: (context, box) => _layout(context, l10n, box, shakeReady),
+      ),
+    );
+  }
+
+  /// The table on top, the controls pinned below it, so the action button is
+  /// always on screen (KLD-121 follow-up: on a phone the "ansagen" button
+  /// was below the fold). Landscape on a wide screen: the controls beside
+  /// the table. On a tablet the column keeps a phone-like width.
+  Widget _layout(BuildContext context, AppLocalizations l10n, BoxConstraints box, bool shakeReady) {
+    final actions = controller.canAct && !game.isOver
+        ? _actions(context, l10n, shakeReady, narrow: box.maxWidth < _narrow, dense: box.maxHeight < _low)
+        : null;
+    final announcing = actions != null && game.phase == MaexchenPhase.announce;
+    final table = _tableSection(context, minTable: announcing ? 96 : 130);
+    final wide = box.maxWidth >= 560 && box.maxWidth > box.maxHeight * 1.2;
+    if (wide) {
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1100),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: table),
+              if (actions != null)
+                SizedBox(
+                  width: min(460.0, box.maxWidth * 0.46),
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 4, 12, 8),
+                    child: Column(
+                      key: const Key('maexchen-controls'),
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [Flexible(child: actions)],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: table),
+            if (actions != null)
+              ConstrainedBox(
+                key: const Key('maexchen-controls'),
+                constraints: BoxConstraints(maxHeight: max(0.0, box.maxHeight - _minTop(announcing))),
+                child: Padding(padding: const EdgeInsets.fromLTRB(12, 6, 12, 8), child: actions),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Lives, announcement (or how the round ended) and the table with the
+  /// cup, which takes the room that is left (at least [minTable]); scrolls
+  /// only when even that does not fit.
+  Widget _tableSection(BuildContext context, {required double minTable}) {
     final last = game.lastRound;
     final roundOver = game.phase == MaexchenPhase.roll && game.roller == null && game.announced == null && last != null;
     return CustomScrollView(
@@ -161,20 +259,20 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
         SliverFillRemaining(
           hasScrollBody: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _LivesRow(game: game),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 if (roundOver)
                   MaexchenRoundSummary(key: ValueKey('summary-${last.round}'), end: last, animate: _freshReveal)
                 else
                   _AnnouncementBanner(game: game),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Expanded(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 150),
+                    constraints: BoxConstraints(minHeight: minTable),
                     child: GestureDetector(
                       key: const Key('maexchen-table'),
                       onTap: _canPeek ? _togglePeek : null,
@@ -189,8 +287,6 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                if (controller.canAct) _actions(context, l10n),
               ],
             ),
           ),
@@ -199,143 +295,280 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
     );
   }
 
-  Widget _actions(BuildContext context, AppLocalizations l10n) {
+  /// A small row above the big buttons: [leading] (the shake hint, the peek
+  /// button) and "Zug zurück" at the end.
+  Widget _toolRow({Widget? leading, bool undoIcon = false}) => Row(
+        children: [
+          Expanded(child: Align(alignment: AlignmentDirectional.centerStart, child: leading)),
+          const SizedBox(width: 8),
+          UndoMoveButton(iconOnly: undoIcon),
+        ],
+      );
+
+  Widget _actions(BuildContext context, AppLocalizations l10n, bool shakeReady,
+      {required bool narrow, required bool dense}) {
     final theme = Theme.of(context);
-    final big = FilledButton.styleFrom(minimumSize: const Size(0, 56), textStyle: theme.textTheme.titleMedium);
+    final big = FilledButton.styleFrom(
+      minimumSize: const Size(0, 56),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      textStyle: theme.textTheme.titleMedium,
+    );
     switch (game.phase) {
       case MaexchenPhase.roll:
-        return FilledButton.icon(
-          key: const Key('maexchen-roll'),
-          style: big,
-          onPressed: () => _submit(MaexchenGame.rollMove),
-          icon: const Icon(Icons.casino_outlined),
-          label: Text(l10n.maexchenRoll),
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _toolRow(
+              leading: shakeReady
+                  ? Row(
+                      key: const Key('maexchen-shake-hint'),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.vibration, size: 18, color: theme.colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(l10n.maexchenShakeHint,
+                              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                        ),
+                      ],
+                    )
+                  : null,
+            ),
+            const SizedBox(height: 4),
+            FilledButton.icon(
+              key: const Key('maexchen-roll'),
+              style: big,
+              onPressed: _canRoll ? _roll : null,
+              icon: const Icon(Icons.casino_outlined),
+              label: Text(l10n.maexchenRoll),
+            ),
+          ],
         );
       case MaexchenPhase.announce:
-        return _picker(context, l10n);
+        return _picker(context, l10n, narrow: narrow, dense: dense);
       case MaexchenPhase.respond:
         final maexchen = game.announced == MaexchenGame.maexchen;
-        return Row(
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              child: maexchen
-                  ? FilledButton.tonalIcon(
-                      key: const Key('maexchen-giveup'),
-                      style: big,
-                      onPressed: () => _submit(MaexchenGame.giveUpMove),
-                      icon: const Icon(Icons.heart_broken_outlined),
-                      label: Text(l10n.maexchenGiveUp, textAlign: TextAlign.center),
-                    )
-                  : FilledButton.icon(
-                      key: const Key('maexchen-believe'),
-                      style: big,
-                      onPressed: () => _submit(MaexchenGame.believeMove),
-                      icon: const Icon(Icons.thumb_up_alt_outlined),
-                      label: Text(l10n.maexchenBelieve),
-                    ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.icon(
-                key: const Key('maexchen-doubt'),
-                style: big.copyWith(
-                  backgroundColor: WidgetStatePropertyAll(theme.colorScheme.error),
-                  foregroundColor: WidgetStatePropertyAll(theme.colorScheme.onError),
+            _toolRow(),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: maexchen
+                      ? FilledButton.tonalIcon(
+                          key: const Key('maexchen-giveup'),
+                          style: big,
+                          onPressed: () => _submit(MaexchenGame.giveUpMove),
+                          icon: const Icon(Icons.heart_broken_outlined),
+                          label: Text(l10n.maexchenGiveUp, textAlign: TextAlign.center),
+                        )
+                      : FilledButton.icon(
+                          key: const Key('maexchen-believe'),
+                          style: big,
+                          onPressed: () => _submit(MaexchenGame.believeMove),
+                          icon: const Icon(Icons.thumb_up_alt_outlined),
+                          label: Text(l10n.maexchenBelieve, textAlign: TextAlign.center),
+                        ),
                 ),
-                onPressed: () => _submit(MaexchenGame.doubtMove),
-                icon: const Icon(Icons.search),
-                label: Text(l10n.maexchenDoubt),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    key: const Key('maexchen-doubt'),
+                    style: big.copyWith(
+                      backgroundColor: WidgetStatePropertyAll(theme.colorScheme.error),
+                      foregroundColor: WidgetStatePropertyAll(theme.colorScheme.onError),
+                    ),
+                    onPressed: () => _submit(MaexchenGame.doubtMove),
+                    icon: const Icon(Icons.search),
+                    label: Text(l10n.maexchenDoubt, textAlign: TextAlign.center),
+                  ),
+                ),
+              ],
             ),
           ],
         );
     }
   }
 
-  Widget _picker(BuildContext context, AppLocalizations l10n) {
+  /// The announcement controls: "Nachschauen", the values that beat the
+  /// announcement as a compact grid (8 per row, low to high, then a wide
+  /// "Mäxchen!"), the order as help text, and "`<Wert>` ansagen" (before a
+  /// value is chosen it is off and says "Wähle eine Zahl"). The grid and the
+  /// help scroll inside when the screen is very small; the buttons never do.
+  Widget _picker(BuildContext context, AppLocalizations l10n, {required bool narrow, required bool dense}) {
     final theme = Theme.of(context);
-    final accent = KlunkiPalette.of(context).accent('maexchen');
-    final values = MaexchenGame.valuesAbove(game.announced);
-    final plain = values.where((v) => v != MaexchenGame.maexchen).toList();
     final choice = _choice;
     return Column(
       key: const Key('maexchen-picker'),
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(child: Text(l10n.maexchenPickTitle, style: theme.textTheme.titleMedium)),
-            OutlinedButton.icon(
-              key: const Key('maexchen-peek'),
-              onPressed: _togglePeek,
-              icon: Icon(_peek ? Icons.visibility_off_outlined : Icons.visibility_outlined),
-              label: Text(_peek ? l10n.maexchenCover : l10n.maexchenPeek),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Directionality(
-          // Values read low to high, left to right, in every language.
-          textDirection: TextDirection.ltr,
-          child: Wrap(
-            spacing: 5,
-            runSpacing: 2,
-            children: [
-              for (final v in plain)
-                ChoiceChip(
-                  key: Key('maexchen-value-$v'),
-                  label: SizedBox(
-                    width: 26,
-                    child: Text('$v',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w700, color: choice == v ? accent.onColor : null)),
-                  ),
-                  labelPadding: EdgeInsets.zero,
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-                  selected: choice == v,
-                  selectedColor: accent.color,
-                  showCheckmark: false,
-                  visualDensity: VisualDensity.compact,
-                  onSelected: (_) => setState(() => _choice = v),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 6),
-        Center(
-          child: ChoiceChip(
-            key: const Key('maexchen-value-21'),
-            label: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const ValueDice(value: MaexchenGame.maexchen, size: 20),
-                const SizedBox(width: 10),
-                Text(l10n.maexchenMaexchenCall,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 17,
-                        color: choice == MaexchenGame.maexchen ? accent.onColor : null)),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-            selectedColor: accent.color,
-            selected: choice == MaexchenGame.maexchen,
-            showCheckmark: false,
-            onSelected: (_) => setState(() => _choice = MaexchenGame.maexchen),
+        _toolRow(
+          undoIcon: narrow,
+          leading: FilledButton.tonalIcon(
+            key: const Key('maexchen-peek'),
+            style: FilledButton.styleFrom(
+                visualDensity: dense ? const VisualDensity(horizontal: -2, vertical: -3) : VisualDensity.compact),
+            onPressed: _togglePeek,
+            icon: Icon(_peek ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+            label: Text(_peek ? l10n.maexchenCover : l10n.maexchenPeek, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
         ),
         const SizedBox(height: 4),
-        Text(l10n.maexchenOrder, key: const Key('maexchen-order'), style: theme.textTheme.bodySmall),
+        Flexible(
+          child: SingleChildScrollView(
+            key: const Key('maexchen-values'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // "Was sagst du an?" for screen readers (the hint and the
+                // button say it on screen).
+                Semantics(
+                  container: true,
+                  label: l10n.maexchenPickTitle,
+                  child: _valueGrid(context, l10n, dense: dense),
+                ),
+                const SizedBox(height: 4),
+                Text(l10n.maexchenOrder, key: const Key('maexchen-order'), style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 8),
         FilledButton.icon(
           key: const Key('maexchen-announce'),
-          style: FilledButton.styleFrom(minimumSize: const Size(0, 52), textStyle: theme.textTheme.titleMedium),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(0, 52),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            textStyle: theme.textTheme.titleMedium,
+          ),
           onPressed: choice == null ? null : () => _submit(MaexchenGame.announceMove(choice)),
-          icon: const Icon(Icons.campaign_outlined),
-          label: Text(choice == null ? l10n.maexchenPickTitle : l10n.maexchenAnnounce(maexchenValueLabel(l10n, choice))),
+          icon: Icon(choice == null ? Icons.touch_app_outlined : Icons.campaign_outlined),
+          label: Text(
+            choice == null ? l10n.maexchenPickFirst : l10n.maexchenAnnounce(maexchenValueLabel(l10n, choice)),
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
+    );
+  }
+
+  /// The values above the announcement, [_columns] per row; "Mäxchen!" is
+  /// the last cell, as wide as the rest of its row (a row of its own when
+  /// fewer than 3 cells are left).
+  Widget _valueGrid(BuildContext context, AppLocalizations l10n, {required bool dense}) {
+    final values = MaexchenGame.valuesAbove(game.announced);
+    final plain = values.where((v) => v != MaexchenGame.maexchen).toList();
+    final rows = <List<int>>[for (var i = 0; i < plain.length; i += _columns) plain.sublist(i, min(i + _columns, plain.length))];
+    final lastFree = rows.isEmpty ? 0 : _columns - rows.last.length;
+    final ownRow = lastFree < 3;
+    Widget cell(int v) => _ValueCell(
+          minHeight: dense ? 34 : 40,
+          key: Key('maexchen-value-$v'),
+          selected: _choice == v,
+          onTap: () => setState(() => _choice = v),
+          semanticsLabel: maexchenValueLabel(l10n, v),
+          child: v == MaexchenGame.maexchen
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const ValueDice(value: MaexchenGame.maexchen, size: 18),
+                    const SizedBox(width: 8),
+                    Text(l10n.maexchenMaexchenCall),
+                  ],
+                )
+              : Text('$v'),
+        );
+    // Cells of a row share its height (one may wrap with large text).
+    Widget row(List<Widget> cells) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 1.5),
+          child: IntrinsicHeight(child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: cells)),
+        );
+    Widget slot(Widget child, {int flex = 1}) =>
+        Expanded(flex: flex, child: Padding(padding: const EdgeInsets.symmetric(horizontal: 2), child: child));
+    return Directionality(
+      // Values read low to high, left to right, in every language.
+      textDirection: TextDirection.ltr,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < rows.length; i++)
+            row([
+              for (final v in rows[i]) slot(cell(v)),
+              if (i == rows.length - 1 && !ownRow)
+                slot(cell(MaexchenGame.maexchen), flex: lastFree)
+              else if (rows[i].length < _columns)
+                Spacer(flex: _columns - rows[i].length),
+            ]),
+          if (ownRow) row([slot(cell(MaexchenGame.maexchen))]),
+        ],
+      ),
+    );
+  }
+
+  static const int _columns = 8;
+}
+
+/// One value in the announcement grid: a rounded button, filled with the
+/// game's colour when chosen.
+class _ValueCell extends StatelessWidget {
+  final bool selected;
+  final VoidCallback onTap;
+  final String semanticsLabel;
+  final Widget child;
+  final double minHeight;
+  const _ValueCell(
+      {super.key,
+      required this.selected,
+      required this.onTap,
+      required this.semanticsLabel,
+      required this.child,
+      this.minHeight = 40});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = KlunkiPalette.of(context).accent('maexchen');
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+      side: BorderSide(color: selected ? accent.color : theme.colorScheme.outlineVariant),
+    );
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: semanticsLabel,
+      excludeSemantics: true,
+      child: Material(
+        color: selected ? accent.color : theme.colorScheme.surfaceContainerLow,
+        shape: shape,
+        child: InkWell(
+          customBorder: shape,
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                      color: selected ? accent.onColor : theme.colorScheme.onSurface,
+                    ),
+                    child: child,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -361,7 +594,7 @@ class _LivesRow extends StatelessWidget {
               child: AnimatedContainer(
                 key: Key('maexchen-lives-${p.name}'),
                 duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(14),
@@ -420,8 +653,8 @@ class _AnnouncementBanner extends StatelessWidget {
     final a = game.announced;
     return Container(
       key: const Key('maexchen-announced'),
-      constraints: const BoxConstraints(minHeight: 64),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      constraints: const BoxConstraints(minHeight: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: KlunkiPalette.of(context).accent('maexchen').container,
         borderRadius: BorderRadius.circular(14),

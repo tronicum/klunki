@@ -4488,6 +4488,22 @@
   "@maexchenAnnouncedLabel": {
     "description": "Mäxchen: small caption over the current announcement."
   },
+  "maexchenPickFirst": "Wähle eine Zahl",
+  "@maexchenPickFirst": {
+    "description": "Mäxchen: the announce button before a value is chosen (disabled); tells the player to pick a value first."
+  },
+  "maexchenShakeHint": "oder schüttle das Handy",
+  "@maexchenShakeHint": {
+    "description": "Dice games: small hint next to the roll button when shaking the phone rolls too (starts lowercase, follows the button)."
+  },
+  "shakeToRollSetting": "Schütteln zum Würfeln",
+  "@shakeToRollSetting": {
+    "description": "Dice games: setting (switch) in the start options: shaking the phone rolls the dice."
+  },
+  "shakeToRollExplain": "Schüttle das Handy wie einen Würfelbecher, statt auf Würfeln zu tippen.",
+  "@shakeToRollExplain": {
+    "description": "Dice games: explanation under the shake-to-roll switch."
+  },
   "confirmMoveSetting": "Zug bestätigen",
   "@confirmMoveSetting": {
     "description": "KLD-122: the setting \"confirm move\": a move only counts after the player taps confirmMoveCommit. Switch label in \"Wer spielt?\" (per player), on \"Raum starten\" (this device, network) and the tooltip of the in-game toggle."

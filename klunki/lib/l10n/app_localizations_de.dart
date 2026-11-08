@@ -3070,6 +3070,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get maexchenAnnouncedLabel => 'Angesagt';
 
   @override
+  String get maexchenPickFirst => 'Wähle eine Zahl';
+
+  @override
+  String get maexchenShakeHint => 'oder schüttle das Handy';
+
+  @override
+  String get shakeToRollSetting => 'Schütteln zum Würfeln';
+
+  @override
+  String get shakeToRollExplain =>
+      'Schüttle das Handy wie einen Würfelbecher, statt auf Würfeln zu tippen.';
+
+  @override
   String get confirmMoveSetting => 'Zug bestätigen';
 
   @override

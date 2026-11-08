@@ -4739,6 +4739,30 @@ abstract class AppLocalizations {
   /// **'Angesagt'**
   String get maexchenAnnouncedLabel;
 
+  /// Mäxchen: the announce button before a value is chosen (disabled); tells the player to pick a value first.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle eine Zahl'**
+  String get maexchenPickFirst;
+
+  /// Dice games: small hint next to the roll button when shaking the phone rolls too (starts lowercase, follows the button).
+  ///
+  /// In de, this message translates to:
+  /// **'oder schüttle das Handy'**
+  String get maexchenShakeHint;
+
+  /// Dice games: setting (switch) in the start options: shaking the phone rolls the dice.
+  ///
+  /// In de, this message translates to:
+  /// **'Schütteln zum Würfeln'**
+  String get shakeToRollSetting;
+
+  /// Dice games: explanation under the shake-to-roll switch.
+  ///
+  /// In de, this message translates to:
+  /// **'Schüttle das Handy wie einen Würfelbecher, statt auf Würfeln zu tippen.'**
+  String get shakeToRollExplain;
+
   /// KLD-122: the setting "confirm move": a move only counts after the player taps confirmMoveCommit. Switch label in "Wer spielt?" (per player), on "Raum starten" (this device, network) and the tooltip of the in-game toggle.
   ///
   /// In de, this message translates to:

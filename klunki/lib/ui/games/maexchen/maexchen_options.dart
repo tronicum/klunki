@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../../platform/shake.dart';
+import '../../../profile/shake_settings.dart';
 import '../../game_titles.dart';
 
 /// The start options of a Mäxchen game (KLD-121): lives per player (3 or 5)
-/// and the house rule "Mäxchen doppelt" (on by default).
+/// and the house rule "Mäxchen doppelt" (on by default). On a device that
+/// may have a motion sensor the dialog also shows the device setting
+/// "Schütteln zum Würfeln" ([ShakeSettings], stored at once, not part of the
+/// game's config).
 typedef MaexchenOptions = ({int lives, bool double});
 
 const MaexchenOptions defaultMaexchenOptions = (lives: MaexchenGame.defaultLives, double: true);
 
 /// Asks for the lives and "Mäxchen doppelt" before a game; null when
 /// cancelled. Keys: `maexchen-options`, `maexchen-lives-<n>`,
-/// `maexchen-double`, `maexchen-options-next`, `maexchen-options-cancel`.
+/// `maexchen-double`, `maexchen-shake`, `maexchen-options-next`,
+/// `maexchen-options-cancel`.
 Future<MaexchenOptions?> showMaexchenOptionsDialog(BuildContext context) => showDialog<MaexchenOptions>(
       context: context,
       builder: (_) => const _MaexchenOptionsDialog(),
@@ -64,6 +70,25 @@ class _MaexchenOptionsDialogState extends State<_MaexchenOptionsDialog> {
             onChanged: (v) => setState(() => _options = (lives: _options.lives, double: v)),
           ),
           Text(l10n.maexchenOptionDoubleExplain, style: theme.textTheme.bodySmall),
+          if (Motion.maybeAvailable) ...[
+            const SizedBox(height: 12),
+            ListenableBuilder(
+              listenable: ShakeSettings.shared(),
+              builder: (context, _) => SwitchListTile(
+                key: const Key('maexchen-shake'),
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.vibration),
+                title: Text(l10n.shakeToRollSetting),
+                value: ShakeSettings.shared().enabled,
+                onChanged: (v) {
+                  // A tap: the web on iOS may ask for motion access now.
+                  if (v) Motion.askPermission();
+                  ShakeSettings.shared().setEnabled(v);
+                },
+              ),
+            ),
+            Text(l10n.shakeToRollExplain, style: theme.textTheme.bodySmall),
+          ],
         ],
       ),
       actions: [
