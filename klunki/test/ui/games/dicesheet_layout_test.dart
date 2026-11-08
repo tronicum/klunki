@@ -127,6 +127,24 @@ void main() {
         _onScreen(tester, d, 'no roll left', ['dicesheet-roll', ...dice, ...sheet]);
         expect(tester.widget<FilledButton>(_key('dicesheet-roll')).onPressed, isNull);
 
+        // The bonus row: "Bonus" and its rule line ("+35 ab 63") whole and
+        // apart from the next row once scrolled into view.
+        final rule = find.textContaining('ab 63');
+        await tester.ensureVisible(rule);
+        await tester.pumpAndSettle();
+        final viewport = tester.getRect(_key('dicesheet-sheet-scroll'));
+        // With the Anfängermodus tip under it, at least a whole box row of
+        // the sheet stays visible.
+        expect(viewport.height, greaterThanOrEqualTo(48), reason: '${d.name}: sheet $viewport');
+        final bonus = tester.getRect(find.text('Bonus'));
+        final line = tester.getRect(rule);
+        final next = tester.getRect(find.text('Dreierpasch'));
+        expect(bonus.bottom <= line.top + 0.5 && line.bottom <= next.top + 0.5, isTrue,
+            reason: '${d.name}: Bonus $bonus, rule $line, next row $next');
+        expect(line.top >= viewport.top - 0.5 && line.bottom <= viewport.bottom + 0.5, isTrue,
+            reason: '${d.name}: $line in the visible sheet $viewport');
+        expect(tester.renderObject<RenderParagraph>(rule).didExceedMaxLines, isFalse, reason: '${d.name}: cut');
+
         // A box further down: scroll the sheet to it, fill it.
         await tester.ensureVisible(_key('dicesheet-score-chance'));
         await tester.pumpAndSettle();

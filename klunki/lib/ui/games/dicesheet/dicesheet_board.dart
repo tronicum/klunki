@@ -323,7 +323,10 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    GameScreen.of(context).setHint(_hint(l10n));
+    // The tip says what to do: no hint line under it then (room for the
+    // sheet on a small phone).
+    final advice = _advice;
+    GameScreen.of(context).setHint(advice != null && _boxTip(advice) ? null : _hint(l10n));
     _maybeCoach();
     return ShakeToRoll(
       enabled: _canRoll,
@@ -1149,7 +1152,7 @@ class _TipBubble extends StatelessWidget {
     final scheme = theme.colorScheme;
     final edge = tipInk(context);
     final fill = Color.alphaBlend(tipColor.withValues(alpha: 0.12), scheme.surface);
-    final more = compact && text.extra.isNotEmpty;
+    // Compact: the first line only; a tap shows the rest and the end link.
     final body = Material(
       color: fill,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: BorderSide(color: edge, width: 2)),
@@ -1157,7 +1160,7 @@ class _TipBubble extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(10, 8, 6, 0),
+          padding: EdgeInsetsDirectional.fromSTEB(10, 8, 6, compact ? 8 : 0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1197,17 +1200,14 @@ class _TipBubble extends StatelessWidget {
                       ],
                     ),
                   ),
+                  // Compact: more on a tap.
+                  if (compact) Icon(Icons.expand_more, key: const Key('dicesheet-tip-more'), color: edge),
                 ],
               ),
-              Row(
-                children: [
-                  if (more)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 24),
-                      child: Icon(Icons.expand_more, key: const Key('dicesheet-tip-more'), color: edge),
-                    ),
-                  const Spacer(),
-                  TextButton(
+              if (!compact)
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton(
                     key: const Key('dicesheet-beginner-end'),
                     style: TextButton.styleFrom(
                       foregroundColor: scheme.onSurfaceVariant,
@@ -1219,8 +1219,7 @@ class _TipBubble extends StatelessWidget {
                     onPressed: onEnd,
                     child: Text(l10n.dicesheetBeginnerEnd),
                   ),
-                ],
-              ),
+                ),
             ],
           ),
         ),
