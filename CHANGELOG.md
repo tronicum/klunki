@@ -8,6 +8,13 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **New game: Ausgewürfelt** (KLD-119), the five-dice score-sheet game for **2 to 4 players on one device**, the
+  first Klunki game for more than two: roll five dice up to three times (tap dice to keep them, or shake the
+  phone), then write the result into one box of your column: ones to sixes (35 bonus from 63), three and four
+  of a kind, full house, small and large straight, five of a kind, chance. The sheet shows what every free box
+  would score; a mis-tap can be taken back until the next player rolls. After 13 rounds the ranking shows who
+  won. House rule "Extra-Fünfer" (off by default): 100 extra for another five of a kind, which then counts as a
+  joker. "Wer spielt?" now asks how many play (2, 3 or 4) for this game.
 - **Mau-Mau** (new, KLD-118): the classic card game for two on one device. Lay a card of the same suit or
   rank, or draw; whoever is out of cards first wins. 7 = the other player draws 2 (another 7 passes on 2 more),
   8 = the other player misses a turn, jack = wish a suit, ace = lay another card (ace after ace too), and

@@ -3,8 +3,9 @@
 - **ID:** `KLD-088`
 - **Title:** 3–4 players: seats next to `Player {a, b}`, first for Wortgewandt on one device, network later
 - **Milestone:** Long-term games
-- **Status:** IN_PROGRESS: step 1 ✅ (design + seat interface + Wortgewandt engine for 2–4 seats); next: step 2
-  (hot-seat UI for 3–4 players in Wortgewandt)
+- **Status:** IN_PROGRESS: step 1 ✅ (design + seat interface + Wortgewandt engine for 2–4 seats); the generic
+  hot-seat seat shell ✅ via KLD-119 (Ausgewürfelt, 2–4 players, no secrets); next: step 2 (Wortgewandt for 3–4:
+  the seat handover cover, its board in the seat shell)
 - **Depends on:** KLD-094 (Wortgewandt), KLD-060 (Baulöwe engine, the first n-seat engine), KLD-064 (redaction),
   KLD-085 (fingerprint), KLD-103 (player names)
 - **Touched paths (step 1):**
@@ -120,6 +121,7 @@ What needs to change (all keyed by seat instead of `Player`, 2-player paths unto
 | game | seats | notes |
 |---|---|---|
 | **Wortgewandt** | 2–4 | step 1 done (engine); hot-seat next |
+| **Ausgewürfelt** (KLD-119) | 2–4 | done: engine + hot-seat in the seat shell (no secrets, no cover) |
 | **Baulöwe** (KLD-060) | 2–6 | engine has seats; network only by design, so it needs the network step |
 | Quartett (Sets) | 2–4 | classic "ask anyone for a card": natural for 3–4, needs a target seat in `ask` moves |
 | Quartett (Trumpf) | 2–4 | possible (highest value wins the round), deck of 32 splits unevenly for 3 |
@@ -127,11 +129,29 @@ What needs to change (all keyed by seat instead of `Player`, 2-player paths unto
 
 ### Recommended order
 1. ✅ Step 1: this design, `SeatGame`/`SeatResult`, `GameConfig.players`, Wortgewandt engine for 2–4 seats.
-2. Step 2: **hot-seat 3–4 players for Wortgewandt** (shell by seat, names, cover, score bar, result ranking).
+2. Step 2: **hot-seat 3–4 players for Wortgewandt** (shell by seat ✅ via KLD-119, names ✅, cover, score bar,
+   result ranking ✅).
 3. Step 3: Baulöwe implements `SeatGame`, registry entry (`maxPlayers: 6`).
 4. Step 4: n-player network (lobby, protocol bump, per-seat redaction and commitments, relay rooms with
    several guests); Wortgewandt and Baulöwe over the network.
 5. Later: Quartett (Sets) for 3–4.
+
+## Seat shell (done with KLD-119, 2026-11-08)
+Built for Ausgewürfelt, generic for the next n-player game (see `docs/tasks/KLD-119-dice-score-game.md`):
+- `AcceptedMove.seat` (optional, `player.index` by default); `HotSeatTransport` attributes moves by
+  `SeatGame.seatOfMove` when a game has more than two seats; `GameController` tracks the turn as an int
+  (`actorSeat` / player index), `seatGame`, `canResignSeats`, `resignSeat`. Two-player paths unchanged.
+- `ui/shell/seat_game_screen.dart`: `SeatGameScreen` (status pill and turn edge in the seat colour, resign per seat
+  with the others playing on, history by seat, ranking result dialog with points and "aufgegeben", "Nochmal"),
+  the board's `GameShell` (`GameShellScope` in `game_screen.dart`, so `UndoMoveButton` works); no handover cover.
+- `ui/shell/seat_labels.dart`: `SeatLabels`, `SeatNamesBuilder`, `seatColor` (blue / orange / green / purple,
+  Okabe–Ito based, lighter in dark mode) and `SeatToken` (colour + number 1–4).
+- "Wer spielt?" for 2–4 (`ui/seat_players_dialog.dart`): player count (2 · 3 · 4, the last choice) and n names;
+  players 1/2 in the existing two-player store, 3/4 and the count in `ExtraSeatNames`
+  (`profile/seat_names.dart`); default names `playerDefaultNameC/D` (de Cleo / Dani). The menu uses it for the
+  games in `seatGames` (`screen_registry.dart`).
+- Missing for Wortgewandt: a handover cover by seat (hidden racks), its board and score bar for 4 in the seat shell,
+  "Trotzdem zulassen" by the next seat in the UI.
 
 ## Step 1 (done): engine
 - `seats.dart`: `SeatGame`, `SeatResult` (`placesFor(scores, out:)`: competition ranking, seats that left last).
@@ -170,6 +190,7 @@ no protocol bump (3–4 seats never go on the wire yet).
 ## Acceptance criteria
 - [x] Step 1: design in this card; `SeatGame` / `SeatResult`; `GameConfig.players`; Wortgewandt engine 2–4 seats
       with tests; 2-player behaviour, goldens and protocol unchanged; network refuses 3–4.
+- [x] Generic seat shell for 2–4 on one device (KLD-119: Ausgewürfelt through the real UI with 2 and 4 players).
 - [ ] Step 2: hot-seat 3–4 players for Wortgewandt through the real UI (live-UI game, screenshots, 7 locales).
 - [ ] Step 3: Baulöwe as `SeatGame` in the registry.
 - [ ] Step 4: n-player network (protocol bump, lobby, per-seat redaction and commitments).
