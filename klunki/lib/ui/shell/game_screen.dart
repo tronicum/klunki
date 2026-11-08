@@ -215,16 +215,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   GlobalKey get rulesButtonKey => _rulesKey;
 
   /// Counts a started game and decides about the "Neu hier?" line.
-  void _countGame() {
-    final id = controller.spec.id;
-    if (!hasRules(id)) {
-      _rulesIntro = false;
-      return;
-    }
-    final tips = SeenTips.shared;
-    final n = tips.countUp(SeenTips.gamesStarted(id));
-    _rulesIntro = n <= rulesIntroGames && !tips.has(SeenTips.rulesOpened(id));
-  }
+  void _countGame() => _rulesIntro = countGameForRulesIntro(controller.spec.id);
 
   void _openRules() {
     if (_rulesIntro) setState(() => _rulesIntro = false);
@@ -637,7 +628,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
             // KLD-123: a little more room for the title next to the five
             // actions of a hot-seat game ("Regeln" is the fifth).
             titleSpacing: 4,
-            title: _ShellTitle(
+            title: ShellTitle(
                 widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
               // Hot-seat names (KLD-056), when the app provides the store.
@@ -722,7 +713,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                                   ),
                                 // KLD-123: in this row where there is room
                                 // (wide screens), else on a line of its own.
-                                if (_rulesIntro && !game.isOver) _RulesIntroLine(onTap: _openRules),
+                                if (_rulesIntro && !game.isOver) RulesIntroLine(onTap: _openRules),
                               ],
                             ),
                           ),
@@ -1190,10 +1181,22 @@ class _PlayersLegend extends StatelessWidget {
 Color visibleOn(BuildContext context, Color color, {double minRatio = 1.4}) =>
     contrastRatio(color, KlunkiPalette.of(context).card) >= minRatio ? color : Theme.of(context).colorScheme.outline;
 
-/// "Neu hier? So geht's ›" (KLD-123): opens the rules page.
-class _RulesIntroLine extends StatelessWidget {
+/// Counts a started game of [gameId] (KLD-123) and says whether its "Neu
+/// hier? So geht's" line shows: for a game with a rules page, up to the
+/// [_GameScreenState.rulesIntroGames]th game, until the page was opened.
+/// Shared by [GameScreen] and the seat shell.
+bool countGameForRulesIntro(String gameId) {
+  if (!hasRules(gameId)) return false;
+  final tips = SeenTips.shared;
+  final n = tips.countUp(SeenTips.gamesStarted(gameId));
+  return n <= _GameScreenState.rulesIntroGames && !tips.has(SeenTips.rulesOpened(gameId));
+}
+
+/// "Neu hier? So geht's ›" (KLD-123): opens the rules page. Shared by
+/// [GameScreen] and the seat shell.
+class RulesIntroLine extends StatelessWidget {
   final VoidCallback onTap;
-  const _RulesIntroLine({required this.onTap});
+  const RulesIntroLine({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1220,12 +1223,12 @@ class _RulesIntroLine extends StatelessWidget {
   }
 }
 
-/// The app bar title (KLD-123): with five actions on a phone a game title
-/// may not fit. It shrinks a little first (down to [minScale] of the app
-/// bar's size), only then it is cut with "…".
-class _ShellTitle extends StatelessWidget {
+/// The app bar title (KLD-123; also the seat shell's): with five actions on
+/// a phone a game title may not fit. It shrinks a little first (down to
+/// [minScale] of the app bar's size), only then it is cut with "…".
+class ShellTitle extends StatelessWidget {
   final String text;
-  const _ShellTitle(this.text);
+  const ShellTitle(this.text, {super.key});
 
   static const double minScale = 0.75;
 

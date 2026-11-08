@@ -119,8 +119,14 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
 
   void _roll({bool shaken = false}) {
     if (!_canRoll) return;
-    if (!shaken) ShakeToRoll.askPermissionFromTap();
-    controller.submit(DiceSheetGame.rollMove(game.rollsUsed == 0 ? const [] : _keep));
+    if (shaken) {
+      controller.submit(DiceSheetGame.rollMove(game.rollsUsed == 0 ? const [] : _keep));
+      return;
+    }
+    // KLD-123: the shake consent card first, once, on the web on iOS.
+    ShakeToRoll.rollFromTap(context, () {
+      if (mounted && _canRoll) controller.submit(DiceSheetGame.rollMove(game.rollsUsed == 0 ? const [] : _keep));
+    });
   }
 
   void _toggle(int i) {

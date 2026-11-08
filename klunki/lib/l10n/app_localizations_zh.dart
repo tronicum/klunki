@@ -3259,28 +3259,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get seatReasonOthersResigned => '其他人都放弃了';
 
   @override
-  String get dicesheetHelpTitle => '玩法';
-
-  @override
-  String get dicesheetHelpTurn =>
-      '掷五颗骰子，最多三次。点一下想留下的骰子，再掷其余的。然后在一个空格里写下这些骰子的得分。如果都不合适，就在一格里写 0。';
-
-  @override
-  String get dicesheetHelpUpper =>
-      '上半部分（一点到六点）：显示该点数的骰子之和。上半部分达到 63 分或以上，奖励 35 分。';
-
-  @override
-  String get dicesheetHelpLower =>
-      '下半部分：三条和四条（3 或 4 个相同）计所有骰子之和。葫芦（3 个相同加 2 个相同）25 分，小顺（4 个连续）30 分，大顺（5 个连续）40 分，五同（5 个相同）50 分，机会计所有骰子之和。';
-
-  @override
-  String get dicesheetHelpEnd => '13 轮后所有格子都填满。得分最多的人获胜。';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      '额外五同：五同格已有 50 分时再掷出五同，额外加 100 分。它变成百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。';
-
-  @override
   String get dicesheetBoxOnes => '一点';
 
   @override
@@ -3407,4 +3385,64 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       '五同格已有 50 分时再掷出五同：额外加 100 分。它变成百搭，先填该点数的上半格。';
+
+  @override
+  String get rulesDicesheetGoal =>
+      '用五颗骰子在你的计分表上尽量多得分。\n13 轮后所有格子都填满。得分最多的人获胜。分数相同就并列。';
+
+  @override
+  String get rulesDicesheetTurn =>
+      '2 到 4 人在一台设备上轮流玩。\n掷全部五颗骰子。最多可以掷三次。\n第 2 次和第 3 次掷之前，点一下想留下的骰子。其余的重新掷。\n然后在计分表的一个空格里写下这些骰子的得分。计分表会显示每一格能得多少分。\n如果都不合适，就划掉一格：这一格得 0 分。';
+
+  @override
+  String get rulesDicesheetUpperTitle => '上半部分：一点到六点';
+
+  @override
+  String get rulesDicesheetUpper => '只算显示这一格点数的骰子，加在一起。';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return '上半部分达到 $at 分或以上，奖励 $bonus 分。';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => '下半部分';
+
+  @override
+  String get rulesDicesheetThreeKind => '至少 3 个相同。所有骰子的点数都算。';
+
+  @override
+  String get rulesDicesheetFourKind => '至少 4 个相同。所有骰子的点数都算。';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 个相同加 2 个相同：$points 分。';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 个连续的点数：$points 分。';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 个连续的点数：$points 分。';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 个相同：$points 分。';
+  }
+
+  @override
+  String get rulesDicesheetChance => '总是可以填。所有骰子的点数都算。';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      '每一格只能填一次。\n掷出就算数。“悔棋”只收回你在计分表上写的分数，前提是还没有人再掷骰子。\n认输的人出局。其他人继续玩。\n摇一摇：不点“掷骰子”，也可以摇手机。';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return '五同格已有 50 分时再掷出五同：额外加 $bonus 分。五同格一旦填过（包括 0 分），再掷出五同就是百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。';
+  }
 }

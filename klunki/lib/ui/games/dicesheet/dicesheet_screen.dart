@@ -10,7 +10,7 @@ import 'dicesheet_board.dart';
 /// Ausgewürfelt (KLD-119): the five-dice score-sheet game for 2–4 players
 /// on one device, in the seat shell ([SeatGameScreen]). The board
 /// (`dicesheet_board.dart`) has the score sheet and the dice with "Würfeln";
-/// the app bar adds the rules.
+/// the rules are the shell's "Regeln" page (`rules/games/dicesheet_rules.dart`).
 ///
 /// Contract: `const DiceSheetScreen({super.key, required this.controller})`,
 /// built by `ui/shell/screen_registry.dart`.
@@ -20,19 +20,10 @@ class DiceSheetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return SeatNamesBuilder(
       child: SeatGameScreen(
         controller: controller,
         describeMove: describeDiceSheetMove,
-        actions: [
-          IconButton(
-            key: const Key('dicesheet-help'),
-            tooltip: l10n.dicesheetHelpTitle,
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => showDiceSheetHelp(context, extraFives: (controller.game as DiceSheetGame).extraFives),
-          ),
-        ],
         boardBuilder: (context, controller) => DiceSheetBoard(controller: controller),
       ),
     );
@@ -73,34 +64,4 @@ String describeDiceSheetMove(AppLocalizations l10n, AcceptedMove move) {
       return bonus == null ? l10n.dicesheetMoveScore(name, points) : l10n.dicesheetMoveScoreBonus(name, points, bonus);
   }
   return move.move.toString();
-}
-
-/// The rules in a dialog ("So geht's").
-Future<void> showDiceSheetHelp(BuildContext context, {required bool extraFives}) {
-  final l10n = AppLocalizations.of(context);
-  final theme = Theme.of(context);
-  Widget para(String text) =>
-      Padding(padding: const EdgeInsets.only(bottom: 10), child: Text(text, style: theme.textTheme.bodyMedium));
-  return showDialog<void>(
-    context: context,
-    builder: (ctx) => AlertDialog(
-      key: const Key('dicesheet-help-dialog'),
-      title: Text(l10n.dicesheetHelpTitle),
-      scrollable: true,
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          para(l10n.dicesheetHelpTurn),
-          para(l10n.dicesheetHelpUpper),
-          para(l10n.dicesheetHelpLower),
-          para(l10n.dicesheetHelpEnd),
-          if (extraFives) para(l10n.dicesheetHelpExtraFives),
-        ],
-      ),
-      actions: [
-        FilledButton(onPressed: () => Navigator.of(ctx).pop(), child: Text(MaterialLocalizations.of(ctx).okButtonLabel)),
-      ],
-    ),
-  );
 }

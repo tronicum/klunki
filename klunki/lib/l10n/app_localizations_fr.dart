@@ -3491,29 +3491,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get seatReasonOthersResigned => 'Tous les autres ont abandonné';
 
   @override
-  String get dicesheetHelpTitle => 'Comment jouer';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'Lance cinq dés, jusqu’à trois fois. Touche les dés à garder et relance les autres. Puis inscris ce que valent les dés dans une seule case vide. Si rien ne va, barre une case avec 0.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'En haut (As à Six) : la somme des dés qui montrent ce chiffre. Avec 63 ou plus en haut, tu gagnes une prime de 35 points.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'En bas : Brelan et Carré (3 ou 4 pareils) comptent tous les dés. Full (3 pareils et 2 pareils) 25, Petite suite (4 qui se suivent) 30, Grande suite (5 qui se suivent) 40, Cinq pareils 50, Chance compte tous les dés.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'Après 13 tours, toutes les cases sont remplies. Le plus de points gagne.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'Cinq pareils en plus : un nouveau Cinq pareils quand la case contient déjà 50 rapporte 100 points en plus. C’est alors un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut.';
-
-  @override
   String get dicesheetBoxOnes => 'As';
 
   @override
@@ -3642,4 +3619,67 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'Un nouveau Cinq pareils quand la case contient déjà 50 : 100 points en plus. C’est alors un joker, d’abord dans la case du haut de son chiffre.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'Marque le plus de points possible sur ta feuille avec cinq dés.\nAprès 13 tours, toutes les cases sont remplies. Le plus de points gagne. À égalité, vous partagez la place.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      'De 2 à 4 joueurs sur un seul appareil, chacun son tour.\nLance les cinq dés. Tu peux lancer jusqu’à trois fois.\nAvant le 2e et le 3e lancer, touche les dés à garder. Relance les autres.\nPuis inscris ce que valent les dés dans une seule case vide de ta feuille. La feuille te montre combien de points rapporte chaque case.\nSi rien ne va, barre une case : elle vaut 0.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'En haut : As à Six';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'Seuls les dés qui montrent le chiffre de la case comptent, additionnés.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'Avec $at points ou plus en haut, tu gagnes une prime de $bonus points.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'En bas';
+
+  @override
+  String get rulesDicesheetThreeKind =>
+      'Au moins 3 pareils. Tous les dés comptent.';
+
+  @override
+  String get rulesDicesheetFourKind =>
+      'Au moins 4 pareils. Tous les dés comptent.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 pareils et 2 pareils : $points points.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 chiffres qui se suivent : $points points.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 chiffres qui se suivent : $points points.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 pareils : $points points.';
+  }
+
+  @override
+  String get rulesDicesheetChance => 'Va toujours. Tous les dés comptent.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'Tu remplis chaque case une seule fois.\nUn lancer compte tout de suite. « Annuler le coup » reprend seulement ce que tu as inscrit, tant que personne n’a relancé.\nQui abandonne est éliminé. Les autres continuent.\nSecouer : au lieu de toucher « Lancer », tu peux secouer le téléphone.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'Un nouveau Cinq pareils quand la case contient déjà 50 : $bonus points en plus. Dès que la case Cinq pareils est remplie (même avec 0), un Cinq pareils est un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut.';
+  }
 }

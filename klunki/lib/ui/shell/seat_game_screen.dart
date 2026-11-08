@@ -8,6 +8,7 @@ import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
 import '../../transport/hot_seat_transport.dart';
 import '../engine_l10n.dart';
+import '../rules/rules_screen.dart';
 import '../game_titles.dart';
 import '../seat_players_dialog.dart';
 import 'game_screen.dart';
@@ -24,8 +25,11 @@ export 'seat_labels.dart';
 ///
 /// * app bar: title, "Spielernamen" ([showSeatPlayersDialog] with the
 ///   game's player count), restart, resign ("Wer gibt auf?" over the seats
-///   still in; with 3–4 seats the others play on), move history, and
-///   [actions] of the game (e.g. a rules button);
+///   still in; with 3–4 seats the others play on), move history, the
+///   game's [actions], and last "Regeln" ([RulesButton], KLD-123) as in
+///   [GameScreen]; the title shrinks before it is cut ([ShellTitle]);
+/// * "Neu hier? So geht's" next to the status for a new player of the game
+///   ([RulesIntroLine], counted as in [GameScreen]);
 /// * leaving a game under way asks first ("Spiel verlassen?", as KLD-099);
 /// * the turn edge and the status pill in the colour of the seat to move
 ///   ([seatColor], [SeatToken] with the number);
@@ -45,7 +49,7 @@ class SeatGameScreen extends StatefulWidget {
   final MoveDescriber? describeMove;
   final String? title;
 
-  /// More app-bar actions before the shell's own (e.g. the rules).
+  /// More app-bar actions before the shell's own.
   final List<Widget> actions;
 
   const SeatGameScreen({
@@ -89,6 +93,20 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
   bool _leaving = false;
   ModalRoute<Object?>? _confirmRoute;
   late GameTransport _transport;
+  final GlobalKey _rulesKey = GlobalKey(debugLabel: 'shell-rules');
+
+  /// The "Neu hier? So geht's" line (KLD-123) is shown in this game.
+  bool _rulesIntro = false;
+
+  @override
+  GlobalKey get rulesButtonKey => _rulesKey;
+
+  void _countGame() => _rulesIntro = countGameForRulesIntro(controller.spec.id);
+
+  void _openRules() {
+    if (_rulesIntro) setState(() => _rulesIntro = false);
+    openRules(context, controller.spec.id, config: controller.config);
+  }
 
   @override
   GameController get controller => widget.controller;
@@ -129,6 +147,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     super.initState();
     _transport = controller.transport;
     controller.addListener(_onChange);
+    _countGame();
   }
 
   @override
@@ -141,6 +160,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
       _hint = null;
       _resultShown = false;
       _resultHeld = false;
+      _countGame();
     }
   }
 
@@ -156,6 +176,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
       if (!identical(_transport, controller.transport)) {
         _transport = controller.transport;
         _hint = null;
+        _countGame();
       }
     });
     if (!_game.isOver) {
@@ -495,7 +516,10 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
           appBar: AppBar(
             backgroundColor: accent.color,
             foregroundColor: accent.onColor,
-            title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
+            // KLD-123: as GameScreen, room for the title next to the actions.
+            titleSpacing: 4,
+            title: ShellTitle(
+                widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
               ...widget.actions,
               if (_canRestart)
@@ -525,6 +549,12 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 icon: const Icon(Icons.history),
                 onPressed: _showHistory,
               ),
+              // KLD-123: last, in the same place as in every game.
+              if (hasRules(controller.spec.id))
+                KeyedSubtree(
+                  key: _rulesKey,
+                  child: RulesButton(key: const Key('shell-rules'), onPressed: _openRules),
+                ),
             ],
           ),
           body: KlunkiBackground(
@@ -542,9 +572,16 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
-                    child: Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: _SeatPill(seat: seat, won: over, status: _status(l10n)),
+                    // KLD-123: "Neu hier?" next to the pill where there is
+                    // room, else on a line of its own.
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        _SeatPill(seat: seat, won: over, status: _status(l10n)),
+                        if (_rulesIntro && !over) RulesIntroLine(onTap: _openRules),
+                      ],
                     ),
                   ),
                   if (_hint != null)

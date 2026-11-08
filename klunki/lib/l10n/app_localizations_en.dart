@@ -3459,29 +3459,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get seatReasonOthersResigned => 'Everyone else gave up';
 
   @override
-  String get dicesheetHelpTitle => 'How to play';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'Roll five dice, up to three times. Tap the dice you want to keep and roll the others again. Then write what the dice score into exactly one empty box. If nothing fits, cross out a box with 0.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'Top part (Ones to Sixes): the sum of the dice showing that number. 63 or more in the top part earns a 35-point bonus.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'Bottom part: Three and Four of a Kind (3 or 4 the same) count all the dice. Full House (3 the same and 2 the same) 25, Small Straight (4 in a row) 30, Large Straight (5 in a row) 40, Five of a Kind (5 the same) 50, Chance counts all the dice.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'After 13 rounds every box is filled. The most points wins.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'Extra fives: another Five of a Kind when that box already holds 50 earns 100 extra points. It is a joker then: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0.';
-
-  @override
   String get dicesheetBoxOnes => 'Ones';
 
   @override
@@ -3610,4 +3587,65 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'Another Five of a Kind when that box already holds 50: 100 extra points. It is a joker then and goes into the top box of its number first.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'Score as many points as you can on your sheet with five dice.\nAfter 13 rounds every box is filled. The most points wins. With equal points you share the place.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      '2 to 4 play on one device, taking turns.\nRoll all five dice. You may roll up to three times.\nBefore the 2nd and 3rd roll, tap the dice you want to keep. Roll the others again.\nThen write what the dice score into exactly one empty box of your sheet. The sheet shows you how many points each box gives.\nIf nothing fits, cross out a box: it gets 0.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'Top: Ones to Sixes';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'Only the dice showing the box\'s number count, added up.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'With $at points or more in the top part you get a $bonus-point bonus.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'Bottom';
+
+  @override
+  String get rulesDicesheetThreeKind => 'At least 3 the same. All dice count.';
+
+  @override
+  String get rulesDicesheetFourKind => 'At least 4 the same. All dice count.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 the same and 2 the same: $points points.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 numbers in a row: $points points.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 numbers in a row: $points points.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 the same: $points points.';
+  }
+
+  @override
+  String get rulesDicesheetChance => 'Always fits. All dice count.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'You fill each box only once.\nA roll counts at once. “Undo move” only takes back what you wrote on the sheet, as long as nobody has rolled since.\nWhoever resigns is out. The others play on.\nShaking: instead of tapping “Roll”, you can shake the phone.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'Another Five of a Kind when that box already holds 50: $bonus extra points. Once the Five of a Kind box is filled (even with 0), a Five of a Kind is a joker: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0.';
+  }
 }

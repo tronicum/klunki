@@ -3383,29 +3383,6 @@ class AppLocalizationsFa extends AppLocalizations {
   String get seatReasonOthersResigned => 'همه‌ی بقیه کنار کشیدند';
 
   @override
-  String get dicesheetHelpTitle => 'چطور بازی کنیم';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'پنج تاس را تا سه بار بینداز. روی تاس‌هایی که می‌خواهی نگه داری بزن و بقیه را دوباره بینداز. بعد امتیاز تاس‌ها را فقط در یک خانه‌ی خالی بنویس. اگر هیچ‌کدام جور نیست، یک خانه را با ۰ خط بزن.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'بخش بالا (یک‌ها تا شش‌ها): جمع تاس‌هایی که آن عدد را نشان می‌دهند. اگر بخش بالا به ۶۳ یا بیشتر برسد، ۳۵ امتیاز جایزه می‌گیری.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'بخش پایین: سه‌تایی و چهارتایی (۳ یا ۴ تاس یکسان) جمع همه‌ی تاس‌ها را می‌گیرند. فول (۳ یکسان و ۲ یکسان) ۲۵، ردیف کوچک (۴ پشت سر هم) ۳۰، ردیف بزرگ (۵ پشت سر هم) ۴۰، پنج‌تایی (۵ یکسان) ۵۰، و شانس جمع همه‌ی تاس‌ها.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'بعد از ۱۳ دور همه‌ی خانه‌ها پر می‌شوند. هر کس بیشترین امتیاز را داشته باشد برنده است.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'پنج‌تایی اضافه: اگر وقتی در خانه‌ی پنج‌تایی ۵۰ نوشته شده دوباره پنج‌تایی بیاوری، ۱۰۰ امتیاز اضافه می‌گیری. آن وقت جوکر است: اول در خانه‌ی بالای همان عدد؛ اگر پر است، در یک خانه‌ی خالی پایین با امتیاز کامل؛ وگرنه با ۰ در یک خانه‌ی بالا.';
-
-  @override
   String get dicesheetBoxOnes => 'یک‌ها';
 
   @override
@@ -3534,4 +3511,68 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'پنج‌تایی دیگر وقتی در خانه‌اش ۵۰ نوشته شده: ۱۰۰ امتیاز اضافه. آن وقت جوکر است و اول به خانه‌ی بالای همان عدد می‌رود.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'با پنج تاس تا جایی که می‌توانی امتیاز در برگه‌ات جمع کن.\nبعد از ۱۳ دور همه‌ی خانه‌ها پر می‌شوند. هر کس بیشترین امتیاز را داشته باشد برنده است. با امتیاز برابر، جایگاه را با هم شریک می‌شوید.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      '۲ تا ۴ نفر روی یک دستگاه، به نوبت بازی می‌کنند.\nهر پنج تاس را بینداز. تا سه بار می‌توانی تاس بیندازی.\nپیش از بار دوم و سوم، روی تاس‌هایی که می‌خواهی نگه داری بزن. بقیه را دوباره بینداز.\nبعد امتیاز تاس‌ها را فقط در یک خانه‌ی خالی برگه‌ات بنویس. برگه نشان می‌دهد هر خانه چند امتیاز می‌دهد.\nاگر هیچ‌کدام جور نیست، یک خانه را خط بزن: ۰ می‌گیرد.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'بالا: یک‌ها تا شش‌ها';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'فقط تاس‌هایی که عدد آن خانه را نشان می‌دهند حساب می‌شوند، با هم جمع می‌شوند.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'اگر بخش بالا به $at امتیاز یا بیشتر برسد، $bonus امتیاز جایزه می‌گیری.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'پایین';
+
+  @override
+  String get rulesDicesheetThreeKind =>
+      'دست‌کم ۳ تاس یکسان. همه‌ی تاس‌ها حساب می‌شوند.';
+
+  @override
+  String get rulesDicesheetFourKind =>
+      'دست‌کم ۴ تاس یکسان. همه‌ی تاس‌ها حساب می‌شوند.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '۳ یکسان و ۲ یکسان: $points امتیاز.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '۴ عدد پشت سر هم: $points امتیاز.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '۵ عدد پشت سر هم: $points امتیاز.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '۵ یکسان: $points امتیاز.';
+  }
+
+  @override
+  String get rulesDicesheetChance =>
+      'همیشه جور است. همه‌ی تاس‌ها حساب می‌شوند.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'هر خانه را فقط یک بار پر می‌کنی.\nهر انداختن بی‌درنگ حساب می‌شود. «برگرداندن حرکت» فقط چیزی را که در برگه نوشتی برمی‌گرداند، تا وقتی کسی دوباره تاس نینداخته.\nهر کس تسلیم شود بیرون می‌رود. بقیه ادامه می‌دهند.\nتکان دادن: به جای زدن روی «بینداز»، می‌توانی گوشی را تکان بدهی.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'اگر وقتی در خانه‌ی پنج‌تایی ۵۰ نوشته شده دوباره پنج‌تایی بیاوری: $bonus امتیاز اضافه. وقتی خانه‌ی پنج‌تایی پر شده باشد (حتی با ۰)، پنج‌تایی جوکر است: اول در خانه‌ی بالای همان عدد؛ اگر پر است، در یک خانه‌ی خالی پایین با امتیاز کامل؛ وگرنه با ۰ در یک خانه‌ی بالا.';
+  }
 }

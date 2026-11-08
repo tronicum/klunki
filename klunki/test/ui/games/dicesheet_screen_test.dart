@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/shake_settings.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/ui/shell/seat_game_screen.dart';
@@ -76,6 +77,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     ShakeSettings.debugReset();
     ExtraSeatNames.debugReset();
+    SeenTips.debugReset();
   });
 
   testWidgets('roll, keep, fill: the sheet shows what each box would score', (tester) async {
@@ -254,11 +256,18 @@ void main() {
     expect(find.textContaining('Cleo: würfelt'), findsOneWidget);
   });
 
-  testWidgets('rules dialog; the extra-fives row with the house rule', (tester) async {
+  testWidgets('rules page (KLD-123); the extra-fives row with the house rule', (tester) async {
     await _pump(tester, const GameConfig('dicesheet', seed: 1, extraFives: true));
     expect(_key('dicesheet-extra-0'), findsOneWidget);
-    await _tap(tester, 'dicesheet-help');
-    expect(_key('dicesheet-help-dialog'), findsOneWidget);
-    expect(find.textContaining('Extra-Fünfer: Würfelst du'), findsOneWidget);
+    expect(find.descendant(of: find.byType(AppBar), matching: _key('shell-rules')), findsOneWidget);
+    expect(_key('shell-rules-intro'), findsOneWidget);
+    await _tap(tester, 'shell-rules');
+    expect(_key('rules-page'), findsOneWidget);
+    for (final b in ['fours', 'threeKind', 'fourKind', 'fullHouse', 'smallStraight', 'largeStraight', 'fiveKind', 'chance']) {
+      expect(_key('rules-dicesheet-$b'), findsOneWidget, reason: b);
+    }
+    expect(find.descendant(of: _key('rules-dicesheet-fullHouse'), matching: find.text('= 25')), findsOneWidget);
+    expect(_key('rules-house-extraFives'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

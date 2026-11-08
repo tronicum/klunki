@@ -3475,29 +3475,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get seatReasonOthersResigned => 'Alle anderen haben aufgegeben';
 
   @override
-  String get dicesheetHelpTitle => 'So geht’s';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'Du würfelst mit fünf Würfeln, bis zu dreimal. Tippe die Würfel an, die liegen bleiben sollen, und würfle mit den anderen weiter. Dann trägst du in genau ein leeres Feld ein, was die Würfel dort bringen. Passt nichts, streichst du ein Feld mit 0.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'Oben (Einser bis Sechser) zählt die Summe der Würfel mit dieser Zahl. Kommst du oben auf 63 oder mehr, gibt es 35 Punkte Bonus.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'Unten: Dreierpasch und Viererpasch (3 oder 4 gleiche) zählen alle Augen. Full House (3 gleiche und 2 gleiche) 25, Kleine Straße (4 in einer Reihe) 30, Große Straße (5 in einer Reihe) 40, Fünferpasch (5 gleiche) 50, Chance zählt alle Augen.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'Nach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'Extra-Fünfer: Würfelst du noch einen Fünferpasch, wenn dort schon 50 stehen, gibt es 100 Punkte extra. Er ist dann ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.';
-
-  @override
   String get dicesheetBoxOnes => 'Einser';
 
   @override
@@ -3626,4 +3603,67 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'Noch ein Fünferpasch, wenn dort schon 50 stehen: 100 Punkte extra. Er ist dann ein Joker und kommt zuerst ins obere Feld seiner Zahl.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'Hol mit fünf Würfeln möglichst viele Punkte auf dein Blatt.\nNach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt. Bei gleich vielen Punkten teilt ihr euch den Platz.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      '2 bis 4 spielen an einem Gerät, reihum.\nDu würfelst mit allen fünf Würfeln. Du darfst bis zu dreimal würfeln.\nVor dem 2. und 3. Wurf tippst du die Würfel an, die liegen bleiben sollen. Die anderen würfelst du neu.\nDann trägst du in genau ein leeres Feld deines Blatts ein, was die Würfel dort bringen. Das Blatt zeigt dir, wie viele Punkte jedes Feld bringt.\nPasst nichts, streichst du ein Feld: Es bekommt 0.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'Oben: Einser bis Sechser';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'Es zählen nur die Würfel mit der Zahl des Felds, zusammengezählt.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'Kommst du oben auf $at Punkte oder mehr, gibt es $bonus Punkte Bonus.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'Unten';
+
+  @override
+  String get rulesDicesheetThreeKind =>
+      'Mindestens 3 gleiche. Alle Augen zählen.';
+
+  @override
+  String get rulesDicesheetFourKind =>
+      'Mindestens 4 gleiche. Alle Augen zählen.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 gleiche und 2 gleiche: $points Punkte.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 Zahlen in einer Reihe: $points Punkte.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 Zahlen in einer Reihe: $points Punkte.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 gleiche: $points Punkte.';
+  }
+
+  @override
+  String get rulesDicesheetChance => 'Passt immer. Alle Augen zählen.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurück“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'Noch ein Fünferpasch, wenn dort schon 50 stehen: $bonus Punkte extra. Ist das Feld Fünferpasch schon gefüllt (auch mit 0), ist ein Fünferpasch ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.';
+  }
 }

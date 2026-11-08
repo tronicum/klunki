@@ -3475,29 +3475,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get seatReasonOthersResigned => 'استسلم جميع الآخرين';
 
   @override
-  String get dicesheetHelpTitle => 'طريقة اللعب';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'ارمِ خمسة نرود حتى ثلاث مرات. المس النرود التي تريد إبقاءها وارمِ الباقي مرة أخرى. ثم اكتب ما تساويه النرود في خانة فارغة واحدة فقط. إن لم يناسب شيء، اشطب خانة بصفر.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'القسم العلوي (الآحاد حتى الستات): مجموع النرود التي تظهر ذلك الرقم. إذا بلغ القسم العلوي 63 أو أكثر تحصل على مكافأة 35 نقطة.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'القسم السفلي: ثلاثة متشابهة وأربعة متشابهة تحسب كل النرود. البيت الكامل (3 متشابهة و2 متشابهة) 25، السلسلة الصغيرة (4 متتالية) 30، السلسلة الكبيرة (5 متتالية) 40، خمسة متشابهة 50، والفرصة تحسب كل النرود.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'بعد 13 جولة تمتلئ كل الخانات. يفوز صاحب أكبر عدد من النقاط.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'خمسة إضافية: إذا رميت خمسة متشابهة أخرى وفي خانتها 50 بالفعل، تحصل على 100 نقطة إضافية. وتصبح عندها ورقة رابحة: أولاً في الخانة العلوية لرقمها؛ وإن كانت ممتلئة ففي خانة سفلية فارغة بكامل النقاط؛ وإلا فبصفر في خانة علوية.';
-
-  @override
   String get dicesheetBoxOnes => 'الآحاد';
 
   @override
@@ -3626,4 +3603,65 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'خمسة متشابهة أخرى وفي خانتها 50 بالفعل: 100 نقطة إضافية. وتصبح ورقة رابحة تذهب أولاً إلى الخانة العلوية لرقمها.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'اجمع على ورقتك أكبر عدد ممكن من النقاط بخمسة نرود.\nبعد 13 جولة تمتلئ كل الخانات. يفوز صاحب أكبر عدد من النقاط. عند تساوي النقاط تتقاسمون المركز.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      'يلعب من 2 إلى 4 على جهاز واحد بالتناوب.\nارمِ النرود الخمسة كلها. يمكنك الرمي حتى ثلاث مرات.\nقبل الرمية الثانية والثالثة المس النرود التي تريد إبقاءها. ثم ارمِ الباقي من جديد.\nبعدها اكتب ما تساويه النرود في خانة فارغة واحدة فقط من ورقتك. تُظهر لك الورقة كم نقطة تعطي كل خانة.\nإن لم يناسب شيء، اشطب خانة: تأخذ صفرًا.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'الأعلى: الآحاد حتى الستات';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'تُحسب فقط النرود التي تظهر رقم الخانة، مجموعةً معًا.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'إذا بلغ القسم العلوي $at نقطة أو أكثر تحصل على مكافأة $bonus نقطة.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'الأسفل';
+
+  @override
+  String get rulesDicesheetThreeKind => '3 متشابهة على الأقل. تُحسب كل النرود.';
+
+  @override
+  String get rulesDicesheetFourKind => '4 متشابهة على الأقل. تُحسب كل النرود.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 متشابهة و2 متشابهة: $points نقطة.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 أرقام متتالية: $points نقطة.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 أرقام متتالية: $points نقطة.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 متشابهة: $points نقطة.';
+  }
+
+  @override
+  String get rulesDicesheetChance => 'تناسب دائمًا. تُحسب كل النرود.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'تملأ كل خانة مرة واحدة فقط.\nالرمية تُحسب فورًا. «تراجع عن الحركة» يسترجع فقط ما كتبته في الورقة، ما دام أحد لم يرمِ بعد.\nمن يستسلم يخرج من اللعبة. ويواصل الآخرون اللعب.\nالهز: بدلًا من الضغط على «ارمِ» يمكنك هزّ الهاتف.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'خمسة متشابهة أخرى وفي خانتها 50 بالفعل: $bonus نقطة إضافية. بعد أن تُملأ خانة الخمسة المتشابهة (ولو بصفر) تصبح الخمسة المتشابهة ورقة رابحة: أولاً في الخانة العلوية لرقمها؛ وإن كانت ممتلئة ففي خانة سفلية فارغة بكامل النقاط؛ وإلا فبصفر في خانة علوية.';
+  }
 }

@@ -3484,29 +3484,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get seatReasonOthersResigned => 'Todos los demás se rindieron';
 
   @override
-  String get dicesheetHelpTitle => 'Cómo se juega';
-
-  @override
-  String get dicesheetHelpTurn =>
-      'Tira cinco dados, hasta tres veces. Toca los dados que quieres guardar y vuelve a tirar los demás. Luego anota lo que valen los dados en una sola casilla vacía. Si nada encaja, tacha una casilla con 0.';
-
-  @override
-  String get dicesheetHelpUpper =>
-      'Arriba (Unos a Seises): la suma de los dados con ese número. Con 63 o más arriba ganas 35 puntos extra.';
-
-  @override
-  String get dicesheetHelpLower =>
-      'Abajo: Trío y Póker (3 o 4 iguales) suman todos los dados. Full (3 iguales y 2 iguales) 25, Escalera corta (4 seguidos) 30, Escalera larga (5 seguidos) 40, Cinco iguales 50, Suerte suma todos los dados.';
-
-  @override
-  String get dicesheetHelpEnd =>
-      'Tras 13 rondas todas las casillas están llenas. Gana quien tenga más puntos.';
-
-  @override
-  String get dicesheetHelpExtraFives =>
-      'Cinco iguales extra: otro Cinco iguales cuando esa casilla ya tiene 50 da 100 puntos más. Entonces es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba.';
-
-  @override
   String get dicesheetBoxOnes => 'Unos';
 
   @override
@@ -3635,4 +3612,67 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get dicesheetOptionExtraFivesExplain =>
       'Otro Cinco iguales cuando esa casilla ya tiene 50: 100 puntos más. Entonces es un comodín y va primero a la casilla de arriba de su número.';
+
+  @override
+  String get rulesDicesheetGoal =>
+      'Consigue en tu hoja todos los puntos que puedas con cinco dados.\nTras 13 rondas todas las casillas están llenas. Gana quien tenga más puntos. Con los mismos puntos compartís el puesto.';
+
+  @override
+  String get rulesDicesheetTurn =>
+      'Juegan de 2 a 4 en un solo dispositivo, por turnos.\nTira los cinco dados. Puedes tirar hasta tres veces.\nAntes de la 2.ª y la 3.ª tirada, toca los dados que quieres guardar. Vuelve a tirar los demás.\nLuego anota lo que valen los dados en una sola casilla vacía de tu hoja. La hoja te muestra cuántos puntos da cada casilla.\nSi nada encaja, tacha una casilla: vale 0.';
+
+  @override
+  String get rulesDicesheetUpperTitle => 'Arriba: Unos a Seises';
+
+  @override
+  String get rulesDicesheetUpper =>
+      'Solo cuentan los dados con el número de la casilla, sumados.';
+
+  @override
+  String rulesDicesheetBonus(int at, int bonus) {
+    return 'Con $at puntos o más arriba ganas $bonus puntos extra.';
+  }
+
+  @override
+  String get rulesDicesheetLowerTitle => 'Abajo';
+
+  @override
+  String get rulesDicesheetThreeKind =>
+      'Al menos 3 iguales. Cuentan todos los dados.';
+
+  @override
+  String get rulesDicesheetFourKind =>
+      'Al menos 4 iguales. Cuentan todos los dados.';
+
+  @override
+  String rulesDicesheetFullHouse(int points) {
+    return '3 iguales y 2 iguales: $points puntos.';
+  }
+
+  @override
+  String rulesDicesheetSmallStraight(int points) {
+    return '4 números seguidos: $points puntos.';
+  }
+
+  @override
+  String rulesDicesheetLargeStraight(int points) {
+    return '5 números seguidos: $points puntos.';
+  }
+
+  @override
+  String rulesDicesheetFiveKind(int points) {
+    return '5 iguales: $points puntos.';
+  }
+
+  @override
+  String get rulesDicesheetChance => 'Siempre encaja. Cuentan todos los dados.';
+
+  @override
+  String get rulesDicesheetSpecial =>
+      'Cada casilla se llena una sola vez.\nUna tirada cuenta enseguida. «Deshacer jugada» solo quita lo que anotaste en la hoja, mientras nadie haya vuelto a tirar.\nQuien se rinde queda fuera. Los demás siguen jugando.\nAgitar: en lugar de tocar «Tirar», puedes agitar el móvil.';
+
+  @override
+  String rulesDicesheetExtraFives(int bonus) {
+    return 'Otro Cinco iguales cuando esa casilla ya tiene 50: $bonus puntos más. Cuando la casilla Cinco iguales ya está llena (también con 0), un Cinco iguales es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba.';
+  }
 }

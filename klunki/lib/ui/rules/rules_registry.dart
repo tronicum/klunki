@@ -1,5 +1,6 @@
 import 'games/chess_rules.dart';
 import 'games/connect4_rules.dart';
+import 'games/dicesheet_rules.dart';
 import 'games/gostrategy_rules.dart';
 import 'games/maexchen_rules.dart';
 import 'games/maumau_rules.dart';
@@ -26,4 +27,5 @@ final Map<String, RulesBuilder> gameRules = {
   'wordtiles': wordTilesRules,
   'maumau': mauMauRules,
   'maexchen': maexchenRules,
+  'dicesheet': diceSheetRules,
 };

@@ -5399,42 +5399,6 @@ abstract class AppLocalizations {
   /// **'Alle anderen haben aufgegeben'**
   String get seatReasonOthersResigned;
 
-  /// KLD-119: title of the rules dialog (and the tooltip of its app-bar button).
-  ///
-  /// In de, this message translates to:
-  /// **'So geht’s'**
-  String get dicesheetHelpTitle;
-
-  /// KLD-119: rules, the turn. Box names as in dicesheetBox*.
-  ///
-  /// In de, this message translates to:
-  /// **'Du würfelst mit fünf Würfeln, bis zu dreimal. Tippe die Würfel an, die liegen bleiben sollen, und würfle mit den anderen weiter. Dann trägst du in genau ein leeres Feld ein, was die Würfel dort bringen. Passt nichts, streichst du ein Feld mit 0.'**
-  String get dicesheetHelpTurn;
-
-  /// KLD-119: rules, the upper section and its bonus.
-  ///
-  /// In de, this message translates to:
-  /// **'Oben (Einser bis Sechser) zählt die Summe der Würfel mit dieser Zahl. Kommst du oben auf 63 oder mehr, gibt es 35 Punkte Bonus.'**
-  String get dicesheetHelpUpper;
-
-  /// KLD-119: rules, the lower section. Box names as in dicesheetBox*.
-  ///
-  /// In de, this message translates to:
-  /// **'Unten: Dreierpasch und Viererpasch (3 oder 4 gleiche) zählen alle Augen. Full House (3 gleiche und 2 gleiche) 25, Kleine Straße (4 in einer Reihe) 30, Große Straße (5 in einer Reihe) 40, Fünferpasch (5 gleiche) 50, Chance zählt alle Augen.'**
-  String get dicesheetHelpLower;
-
-  /// KLD-119: rules, the end.
-  ///
-  /// In de, this message translates to:
-  /// **'Nach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt.'**
-  String get dicesheetHelpEnd;
-
-  /// KLD-119: rules of the house rule "Extra-Fünfer" (dicesheetOptionExtraFives), shown when it is on.
-  ///
-  /// In de, this message translates to:
-  /// **'Extra-Fünfer: Würfelst du noch einen Fünferpasch, wenn dort schon 50 stehen, gibt es 100 Punkte extra. Er ist dann ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.'**
-  String get dicesheetHelpExtraFives;
-
   /// KLD-119: score sheet box "Ones" (row label; keep it short, the column is narrow with 4 players).
   ///
   /// In de, this message translates to:
@@ -5644,6 +5608,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Noch ein Fünferpasch, wenn dort schon 50 stehen: 100 Punkte extra. Er ist dann ein Joker und kommt zuerst ins obere Feld seiner Zahl.'**
   String get dicesheetOptionExtraFivesExplain;
+
+  /// KLD-119/KLD-123: five-dice score game rules, goal (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Hol mit fünf Würfeln möglichst viele Punkte auf dein Blatt.\nNach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt. Bei gleich vielen Punkten teilt ihr euch den Platz.'**
+  String get rulesDicesheetGoal;
+
+  /// KLD-119/KLD-123: five-dice score game rules, a turn (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'2 bis 4 spielen an einem Gerät, reihum.\nDu würfelst mit allen fünf Würfeln. Du darfst bis zu dreimal würfeln.\nVor dem 2. und 3. Wurf tippst du die Würfel an, die liegen bleiben sollen. Die anderen würfelst du neu.\nDann trägst du in genau ein leeres Feld deines Blatts ein, was die Würfel dort bringen. Das Blatt zeigt dir, wie viele Punkte jedes Feld bringt.\nPasst nichts, streichst du ein Feld: Es bekommt 0.'**
+  String get rulesDicesheetTurn;
+
+  /// KLD-119/KLD-123: five-dice rules, heading of the upper section (Ones to Sixes).
+  ///
+  /// In de, this message translates to:
+  /// **'Oben: Einser bis Sechser'**
+  String get rulesDicesheetUpperTitle;
+
+  /// KLD-119/KLD-123: five-dice rules, how an upper box scores.
+  ///
+  /// In de, this message translates to:
+  /// **'Es zählen nur die Würfel mit der Zahl des Felds, zusammengezählt.'**
+  String get rulesDicesheetUpper;
+
+  /// KLD-119/KLD-123: five-dice rules, the upper bonus. at = 63, bonus = 35.
+  ///
+  /// In de, this message translates to:
+  /// **'Kommst du oben auf {at} Punkte oder mehr, gibt es {bonus} Punkte Bonus.'**
+  String rulesDicesheetBonus(int at, int bonus);
+
+  /// KLD-119/KLD-123: five-dice rules, heading of the lower section.
+  ///
+  /// In de, this message translates to:
+  /// **'Unten'**
+  String get rulesDicesheetLowerTitle;
+
+  /// KLD-119/KLD-123: five-dice rules, the three of a kind box (shown under its name with an example).
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens 3 gleiche. Alle Augen zählen.'**
+  String get rulesDicesheetThreeKind;
+
+  /// KLD-119/KLD-123: five-dice rules, the four of a kind box.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens 4 gleiche. Alle Augen zählen.'**
+  String get rulesDicesheetFourKind;
+
+  /// KLD-119/KLD-123: five-dice rules, the full house box. points = 25.
+  ///
+  /// In de, this message translates to:
+  /// **'3 gleiche und 2 gleiche: {points} Punkte.'**
+  String rulesDicesheetFullHouse(int points);
+
+  /// KLD-119/KLD-123: five-dice rules, the small straight box. points = 30.
+  ///
+  /// In de, this message translates to:
+  /// **'4 Zahlen in einer Reihe: {points} Punkte.'**
+  String rulesDicesheetSmallStraight(int points);
+
+  /// KLD-119/KLD-123: five-dice rules, the large straight box. points = 40.
+  ///
+  /// In de, this message translates to:
+  /// **'5 Zahlen in einer Reihe: {points} Punkte.'**
+  String rulesDicesheetLargeStraight(int points);
+
+  /// KLD-119/KLD-123: five-dice rules, the five of a kind box. points = 50.
+  ///
+  /// In de, this message translates to:
+  /// **'5 gleiche: {points} Punkte.'**
+  String rulesDicesheetFiveKind(int points);
+
+  /// KLD-119/KLD-123: five-dice rules, the chance box.
+  ///
+  /// In de, this message translates to:
+  /// **'Passt immer. Alle Augen zählen.'**
+  String get rulesDicesheetChance;
+
+  /// KLD-119/KLD-123: five-dice rules, special rules (lines separated by \n); "Zug zurück" and "Würfeln" are the button labels.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurück“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.'**
+  String get rulesDicesheetSpecial;
+
+  /// KLD-119/KLD-123: five-dice rules, the house rule "Extra-Fünfer" in full (title is dicesheetOptionExtraFives). bonus = 100.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch ein Fünferpasch, wenn dort schon 50 stehen: {bonus} Punkte extra. Ist das Feld Fünferpasch schon gefüllt (auch mit 0), ist ein Fünferpasch ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.'**
+  String rulesDicesheetExtraFives(int bonus);
 }
 
 class _AppLocalizationsDelegate
