@@ -23,6 +23,12 @@ short German summary ("Kurz") for the store notes and the testers.
   doubts it and the cup is lifted. Mäxchen (2 and 1) beats everything. 3 or 5 lives, house rule "Mäxchen
   doppelt" (on by default: doubting a real Mäxchen or being caught with a fake one costs 2 lives). "Zug
   zurück" never takes back a doubt or a given-up life (the dice were shown).
+- **Mäxchen**: the buttons are always on screen, also on small phones and with large text: the controls sit
+  pinned under the table (beside it in landscape), the values to announce are a compact grid, and before a
+  value is chosen the button says "Wähle eine Zahl". New: **"Schütteln zum Würfeln"**: shake the phone like a
+  dice cup to roll (iOS, Android, and the browser on phones; in Safari on iPhone after allowing motion access
+  on the first "Würfeln" tap). The button stays; the phone gives a short knock when the dice land. On by
+  default, switch in Mäxchen's start options.
 - **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).

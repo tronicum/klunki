@@ -3022,6 +3022,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get maexchenAnnouncedLabel => 'اعلام‌شده';
 
   @override
+  String get maexchenPickFirst => 'یک عدد انتخاب کن';
+
+  @override
+  String get maexchenShakeHint => 'یا گوشی را تکان بده';
+
+  @override
+  String get shakeToRollSetting => 'تکان دادن برای ریختن تاس';
+
+  @override
+  String get shakeToRollExplain =>
+      'گوشی را مثل لیوان تاس تکان بده، به جای زدن روی «تاس بینداز».';
+
+  @override
   String get confirmMoveSetting => 'تأیید حرکت';
 
   @override

@@ -25,6 +25,9 @@ void main() {
   // Games whose board places the button in its own control row, with a
   // control of that row.
   const ownRow = {'chess': Key('chess-flip'), 'wordtiles': Key('wordtiles-bench-toggle')};
+  // Games whose board places the button in its own control panel, above
+  // the action buttons (Mäxchen, KLD-121 follow-up).
+  const ownPanel = {'maexchen': Key('maexchen-controls')};
 
   for (final id in gameScreens.keys) {
     testWidgets('$id: "Zug zurück" in the game area, not in the app bar', (tester) async {
@@ -44,7 +47,11 @@ void main() {
       }
 
       final row = ownRow[id];
-      if (row == null) {
+      final panel = ownPanel[id];
+      if (panel != null) {
+        expect(find.byKey(const Key('shell-actions')), findsNothing);
+        expect(find.descendant(of: find.byKey(panel), matching: find.byKey(undo)), findsOneWidget);
+      } else if (row == null) {
         // The shell's row under the board.
         expect(find.descendant(of: find.byKey(const Key('shell-actions')), matching: find.byKey(undo)), findsOneWidget);
       } else {

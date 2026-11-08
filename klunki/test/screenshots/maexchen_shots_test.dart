@@ -1,7 +1,10 @@
 // KLD-121 screenshots of Mäxchen on a phone (390×844): the menu tile, the
 // start options, peeking under the cup, the announcement picker, the
 // believe/doubt decision, the handover cover, the reveal and the game end;
-// plus the picker in English and Arabic and the decision in dark mode.
+// plus the picker in English and Arabic and the decision in dark mode; and
+// (KLD-121 follow-up) every phase on an iPhone SE (375×667), with text at
+// 130 %, on an iPhone 15 Pro, in landscape and on an iPad
+// (`16-<device>-<phase>`).
 // Skipped unless KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/maexchen_shots_test.dart --plain-name kld121
@@ -69,10 +72,19 @@ Future<void> _shot(WidgetTester tester, String name) async {
 }
 
 Future<void> _pumpApp(WidgetTester tester, Widget home,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light}) async {
-  tester.view.physicalSize = _phone * 2;
+    {Locale locale = const Locale('de'),
+    Brightness brightness = Brightness.light,
+    Size size = _phone,
+    EdgeInsets safe = EdgeInsets.zero,
+    double text = 1}) async {
+  tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
+  final pad = FakeViewPadding(left: safe.left * 2, top: safe.top * 2, right: safe.right * 2, bottom: safe.bottom * 2);
+  tester.view.padding = pad;
+  tester.view.viewPadding = pad;
+  tester.platformDispatcher.textScaleFactorTestValue = text;
   addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
   final theme = brightness == Brightness.dark ? KlunkiTheme.dark : KlunkiTheme.light;
   await tester.pumpWidget(RepaintBoundary(
     key: _boundary,
@@ -100,11 +112,17 @@ Future<void> _pumpApp(WidgetTester tester, Widget home,
 }
 
 Future<GameController> _game(WidgetTester tester, List<List<int>> rolls,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light, int lives = 3}) async {
+    {Locale locale = const Locale('de'),
+    Brightness brightness = Brightness.light,
+    int lives = 3,
+    Size size = _phone,
+    EdgeInsets safe = EdgeInsets.zero,
+    double text = 1}) async {
   final c = GameController.hotSeat(GameConfig('maexchen', seed: 5, lives: lives));
   addTearDown(c.dispose);
   (c.game as MaexchenGame).debugScriptRolls(rolls);
-  await _pumpApp(tester, buildGameScreen(c), locale: locale, brightness: brightness);
+  await _pumpApp(tester, buildGameScreen(c),
+      locale: locale, brightness: brightness, size: size, safe: safe, text: text);
   return c;
 }
 
@@ -236,6 +254,38 @@ void main() {
         await _tap(tester, 'maexchen-announce');
         await _tap(tester, 'handover-continue');
         await _shot(tester, '13-decision-$tag');
+      });
+    }
+
+    // KLD-121 follow-up: the actions stay on screen (no scrolling) in every
+    // phase, on small phones, with large text, in landscape, on a tablet.
+    for (final (tag, size, safe, text) in [
+      ('se', const Size(375, 667), const EdgeInsets.only(top: 20), 1.0),
+      ('se-text130', const Size(375, 667), const EdgeInsets.only(top: 20), 1.3),
+      ('15pro', const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34), 1.0),
+      ('15pro-landscape', const Size(852, 393), const EdgeInsets.fromLTRB(59, 0, 59, 21), 1.0),
+      ('ipad', const Size(820, 1180), const EdgeInsets.only(top: 24, bottom: 20), 1.0),
+      ('ipad-landscape', const Size(1180, 820), const EdgeInsets.only(top: 24, bottom: 20), 1.0),
+    ]) {
+      testWidgets('every phase on $tag', skip: skip, (tester) async {
+        await _game(tester, [[4, 1], [3, 1]], size: size, safe: safe, text: text);
+        await _shot(tester, '16-$tag-1-roll');
+        await _tap(tester, 'maexchen-roll');
+        await _shot(tester, '16-$tag-2-announce');
+        await _tap(tester, 'maexchen-peek');
+        await _tap(tester, 'maexchen-value-52');
+        await _shot(tester, '16-$tag-3-peek-and-choice');
+        await _tap(tester, 'maexchen-announce');
+        await _tap(tester, 'handover-continue');
+        await _shot(tester, '16-$tag-4-believe-or-doubt');
+        await _tap(tester, 'maexchen-doubt');
+        await _tap(tester, 'handover-continue');
+        await _shot(tester, '16-$tag-5-reveal');
+        await _tap(tester, 'maexchen-roll');
+        await _tap(tester, 'maexchen-value-21');
+        await _tap(tester, 'maexchen-announce');
+        await _tap(tester, 'handover-continue');
+        await _shot(tester, '16-$tag-6-maexchen');
       });
     }
   });

@@ -3112,6 +3112,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maexchenAnnouncedLabel => 'المُعلَن';
 
   @override
+  String get maexchenPickFirst => 'اختر رقمًا';
+
+  @override
+  String get maexchenShakeHint => 'أو هزّ الهاتف';
+
+  @override
+  String get shakeToRollSetting => 'الهز لرمي النرد';
+
+  @override
+  String get shakeToRollExplain =>
+      'هزّ الهاتف مثل كوب النرد بدلًا من الضغط على «ارمِ النرد».';
+
+  @override
   String get confirmMoveSetting => 'تأكيد الحركة';
 
   @override

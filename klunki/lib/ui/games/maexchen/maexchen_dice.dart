@@ -180,7 +180,8 @@ class _TablePainter extends CustomPainter {
         ..strokeWidth = 6
         ..color = const Color(0xFF5A3A22),
     );
-    final unit = min(min(size.width * 0.62, size.height * 0.8), 260.0);
+    // 0.52 of the width: the lifted, tilted cup stays on the felt.
+    final unit = min(min(size.width * 0.52, size.height * 0.8), 340.0);
     final cupH = unit * 0.62, cupW = unit * 0.5;
     final floor = size.height * 0.5 + cupH * 0.42;
     final d = dice;

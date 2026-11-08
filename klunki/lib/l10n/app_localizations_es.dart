@@ -3117,6 +3117,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get maexchenAnnouncedLabel => 'Anunciado';
 
   @override
+  String get maexchenPickFirst => 'Elige un número';
+
+  @override
+  String get maexchenShakeHint => 'o agita el móvil';
+
+  @override
+  String get shakeToRollSetting => 'Agitar para tirar';
+
+  @override
+  String get shakeToRollExplain =>
+      'Agita el móvil como un cubilete en lugar de tocar Tirar.';
+
+  @override
   String get confirmMoveSetting => 'Confirmar jugada';
 
   @override

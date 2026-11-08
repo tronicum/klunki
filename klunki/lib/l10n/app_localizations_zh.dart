@@ -2925,6 +2925,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get maexchenAnnouncedLabel => '已报';
 
   @override
+  String get maexchenPickFirst => '选一个数字';
+
+  @override
+  String get maexchenShakeHint => '或者摇一摇手机';
+
+  @override
+  String get shakeToRollSetting => '摇一摇掷骰子';
+
+  @override
+  String get shakeToRollExplain => '像摇骰盅一样摇手机，不用点“摇骰子”。';
+
+  @override
   String get confirmMoveSetting => '确认走棋';
 
   @override
