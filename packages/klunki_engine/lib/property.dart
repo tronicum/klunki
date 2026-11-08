@@ -4,11 +4,12 @@
 ///
 /// **Players are seats** `0 … playerCount-1` (2–6), not [Player] a/b: the
 /// game is network-only with every player on their own device, and the
-/// shared [Game] interface, the registry and the protocol only know two
-/// players today. The engine therefore stands alone (it does not extend
-/// [Game] and is not in `gameSpecs` yet); the later registry/protocol step
-/// (n-player lobby, KLD-088) maps seats to network players. See the card
-/// `docs/tasks/KLD-060-property-game.md` for the adapter plan.
+/// shared [Game] interface and the two-player protocol only know two
+/// players. The engine is a [SeatGame] only (it does not extend [Game]);
+/// it is registered as a `SeatGameSpec` in `seatGameSpecs` (KLD-060 step 2,
+/// KLD-088 step 3), next to the two-player `gameSpecs`. The n-player
+/// network step maps seats to network players. See the card
+/// `docs/tasks/KLD-060-property-game.md`.
 ///
 /// The board and cards come from a [PropertyTheme] (default: Berlin); the
 /// rules do not depend on it.
@@ -42,6 +43,7 @@ library;
 import 'dart:math';
 
 import 'property_theme.dart';
+import 'seats.dart';
 
 export 'property_theme.dart';
 
@@ -233,8 +235,9 @@ class PropertyEvent {
 }
 
 /// Baulöwe for 2–6 seats. See the library docs.
-class PropertyGame {
-  /// Rules version (KLD-085) for the fingerprint once registered.
+class PropertyGame implements SeatGame {
+  /// Rules version (KLD-085), in the fingerprint since the registry entry
+  /// (`seatGameSpecs`, KLD-060 step 2).
   static const int rulesVersion = 1;
   static const int minPlayers = 2;
   static const int maxPlayers = 6;
@@ -249,6 +252,7 @@ class PropertyGame {
   static const int maxTradeOffersPerTurn = 3;
   static const int pauseSquare = 10;
 
+  @override
   final int playerCount;
   final int seed;
 
@@ -320,6 +324,9 @@ class PropertyGame {
   final List<int> _pendingAuctions = [];
   PropertyTrade? _trade;
   final List<PropertyDebt> _debts = [];
+
+  /// Seats that went bankrupt or resigned, in the order they left.
+  final List<int> _outOrder = [];
   final List<Map<String, dynamic>> _history = [];
   PropertyResult _result = const PropertyResult();
   late List<Map<String, dynamic>> _ev;
@@ -435,7 +442,38 @@ class PropertyGame {
   /// Whether the debtor may declare bankruptcy: only when even selling every
   /// building and mortgaging everything could not pay the first debt.
   bool get canDeclareBankruptcy => phase == PropertyPhase.debt && raisable(_debts.first.debtor) < _debts.first.amount;
+  @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
+
+  /// Seats that went bankrupt or resigned, in the order they left.
+  List<int> get outSeats => List.unmodifiable(_outOrder);
+
+  // ------------------------------------------------------------ SeatGame
+
+  @override
+  int? get actorSeat => actor;
+
+  @override
+  int seatOfMove(Map<String, dynamic> move) => seatOf(move) ?? _current;
+
+  @override
+  bool isSeatOut(int seat) => _seats[seat].out;
+
+  /// Places per seat: the last one in first (`property.lastSolvent`), or by
+  /// [netWorth] at the round limit (ties share a place,
+  /// `property.roundLimit`, params `rounds`); seats that left rank behind,
+  /// the later they left the better.
+  @override
+  SeatResult get seatResult {
+    if (!_result.isOver) return const SeatResult();
+    final worth = [for (var s = 0; s < playerCount; s++) netWorth(s)];
+    return SeatResult(
+        isOver: true,
+        places: SeatResult.placesFor(worth, out: _outOrder),
+        code: _result.code,
+        params: {'rounds': _rounds},
+        reason: _result.reason);
+  }
 
   int? ownerOf(int square) => _owner[square];
   int housesOn(int square) => _houses[square];
@@ -627,6 +665,7 @@ class PropertyGame {
   /// `endTurn`, `tradeOffer` (`to`, `give`, `get`: `{money, squares, cards}`),
   /// `tradeAccept`, `tradeDecline`, `bankrupt`, `resign` (`seat`). A move may
   /// carry `seat` (the sender); it must then be the [actor].
+  @override
   PropertyEvent? applyMove(Map<String, dynamic> move) {
     if (_result.isOver) return null;
     final action = move['action'];
@@ -1090,6 +1129,7 @@ class PropertyGame {
   /// Debts from and to the seat lapse.
   void _eliminate(int seat, int? creditor, {bool resigned = false}) {
     final s = _seats[seat];
+    _outOrder.add(seat);
     for (final i in ownedBy(seat)) {
       if (_houses[i] > 0) {
         final refund = _houses[i] * (_board[i].houseCost ~/ 2);
@@ -1214,6 +1254,18 @@ class PropertyGame {
 
   // ------------------------------------------------------------------ view
 
+  /// What every seat may see of the accepted [move] with its [event]: the
+  /// move, its events (dice, drawn card ids, payments, …) and the public
+  /// view after it ([toJson]). Prepared for the n-player network step
+  /// (KLD-088 step 4): nothing in it is secret (no seed, no deck order), so
+  /// the host can send the same step to every guest; dice and cards are only
+  /// known once they are rolled or drawn.
+  Map<String, dynamic> publicStep(Map<String, dynamic> move, PropertyEvent event) => {
+        'move': Map.of(move),
+        'events': [for (final e in event.events) Map.of(e)],
+        'view': toJson(),
+      };
+
   /// The public state as JSON: everything every player may see. Leaves out
   /// the seed and the deck order (only the deck sizes).
   Map<String, dynamic> toJson() => {
@@ -1243,6 +1295,7 @@ class PropertyGame {
         if (_auction != null) 'auction': _auction!.toJson(),
         if (_trade != null) 'trade': _trade!.toJson(),
         if (_debts.isNotEmpty) 'debts': [for (final d in _debts) d.toJson()],
+        if (_outOrder.isNotEmpty) 'outOrder': List.of(_outOrder),
         if (_result.isOver) 'result': _result.toJson(),
       };
 }

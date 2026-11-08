@@ -22,6 +22,7 @@ library;
 
 import 'dart:convert';
 
+import 'property_theme.dart';
 import 'quartett.dart';
 import 'registry.dart';
 import 'sha256.dart';
@@ -60,9 +61,15 @@ class GameFingerprint {
 }
 
 /// The key a fingerprint is filed under: the game id, plus `/deck` for a
-/// game that uses a deck (the default deck when [GameConfig.deck] is null).
-/// The seed does not matter.
+/// game that uses a deck (the default deck when [GameConfig.deck] is null),
+/// or `/theme` for a game with board themes (Baulöwe, KLD-060: the default
+/// theme when [GameConfig.theme] is null). The seed, the player count and
+/// the round limit do not matter.
 String compatKey(GameConfig config) {
+  final seat = seatSpecById(config.gameId);
+  if (seat != null) {
+    return seat.usesTheme ? '${config.gameId}/${config.theme ?? PropertyTheme.defaultId}' : config.gameId;
+  }
   final spec = specById(config.gameId);
   if (spec == null || !spec.usesDeck) return config.gameId;
   return '${config.gameId}/${config.deck ?? QuartettDeck.defaultId}';
@@ -72,6 +79,12 @@ String compatKey(GameConfig config) {
 /// know the game or deck ([configProblem]).
 GameFingerprint? fingerprintOf(GameConfig config) {
   if (configProblem(config, wordList: false) != null) return null;
+  final seat = seatSpecById(config.gameId);
+  if (seat != null) {
+    final theme = seat.usesTheme ? PropertyTheme.byId(config.theme)! : null;
+    return GameFingerprint(
+        rules: seat.rulesVersion, revision: theme?.revision ?? 1, content: contentHash(seat.id, null, theme: theme));
+  }
   final spec = specById(config.gameId)!;
   final deck = spec.usesDeck ? QuartettDeck.byId(config.deck)! : null;
   return GameFingerprint(rules: spec.rulesVersion, revision: deck?.revision ?? 1, content: contentHash(spec.id, deck));
@@ -79,12 +92,15 @@ GameFingerprint? fingerprintOf(GameConfig config) {
 
 /// [GameFingerprint.content] for game [gameId] played with [deck] (null for
 /// a game without a deck). The word tile game adds its tile sets and premium
-/// layout ([WordTilesGame.gameplayData], KLD-094).
-String contentHash(String gameId, QuartettDeck? deck) {
+/// layout ([WordTilesGame.gameplayData], KLD-094); Baulöwe its board
+/// [theme]: id and [PropertyTheme.contentHash] (the whole theme JSON, texts
+/// included, KLD-060).
+String contentHash(String gameId, QuartettDeck? deck, {PropertyTheme? theme}) {
   final data = jsonEncode([
     'game',
     gameId,
     if (deck != null) deckGameplayData(deck),
+    if (theme != null) ['theme', theme.id, theme.contentHash],
     if (gameId == 'wordtiles') WordTilesGame.gameplayData(),
   ]);
   return sha256Hex('klunki-content-v1\n$data').substring(0, 32);
@@ -97,6 +113,12 @@ Map<String, GameFingerprint> allFingerprints() => {
         if (spec.usesDeck)
           for (final deck in QuartettDeck.all)
             compatKey(GameConfig(spec.id, deck: deck.id)): fingerprintOf(GameConfig(spec.id, deck: deck.id))!
+        else
+          spec.id: fingerprintOf(GameConfig(spec.id))!,
+      for (final spec in seatGameSpecs)
+        if (spec.usesTheme)
+          for (final theme in PropertyTheme.builtIn)
+            compatKey(GameConfig(spec.id, theme: theme.id)): fingerprintOf(GameConfig(spec.id, theme: theme.id))!
         else
           spec.id: fingerprintOf(GameConfig(spec.id))!,
     };

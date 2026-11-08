@@ -3,8 +3,10 @@ import 'connect4.dart';
 import 'game.dart';
 import 'gostrategy.dart';
 import 'muehle.dart';
+import 'property.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
+import 'seats.dart';
 import 'secrecy.dart';
 import 'word_tiles.dart';
 
@@ -44,6 +46,12 @@ import 'word_tiles.dart';
 /// device only (the network session is 2-player and refuses such a config).
 /// Player names are not part of the config (they are presentation, like in
 /// the 2-player games).
+///
+/// Baulöwe (KLD-060 step 2, a [SeatGameSpec]): [rounds] (JSON `rounds`,
+/// written only when set; null = play until one player is left) is the
+/// optional round limit, [theme] (JSON `theme`, written only when set; null
+/// = Berlin) the built-in board theme ([PropertyTheme.byId]). Other games
+/// ignore both.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -54,6 +62,8 @@ class GameConfig {
   final bool jokerSwap;
   final Player chessWhite;
   final int players;
+  final int? rounds;
+  final String? theme;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -62,7 +72,9 @@ class GameConfig {
       this.dictionary = false,
       this.jokerSwap = false,
       this.chessWhite = Player.a,
-      this.players = 2});
+      this.players = 2,
+      this.rounds,
+      this.theme});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -78,6 +90,8 @@ class GameConfig {
         if (jokerSwap) 'joker': true,
         if (chessWhite == Player.b) 'white': 'b',
         if (players != 2) 'players': players,
+        if (rounds != null) 'rounds': rounds,
+        if (theme != null) 'theme': theme,
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -88,7 +102,9 @@ class GameConfig {
       dictionary: json['dict'] == true,
       jokerSwap: json['joker'] == true,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
-      players: json['players'] as int? ?? 2);
+      players: json['players'] as int? ?? 2,
+      rounds: json['rounds'] as int?,
+      theme: json['theme'] as String?);
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -98,7 +114,9 @@ class GameConfig {
       dictionary: dictionary,
       jokerSwap: jokerSwap,
       chessWhite: chessWhite,
-      players: players ?? this.players);
+      players: players ?? this.players,
+      rounds: rounds,
+      theme: theme);
 
   @override
   bool operator ==(Object other) =>
@@ -111,16 +129,19 @@ class GameConfig {
       other.dictionary == dictionary &&
       other.jokerSwap == jokerSwap &&
       other.chessWhite == chessWhite &&
-      other.players == players;
+      other.players == players &&
+      other.rounds == rounds &&
+      other.theme == theme;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, rounds, theme);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
-      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'})';
+      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
+      '${rounds == null ? '' : ', rounds: $rounds'}${theme == null ? '' : ', theme: $theme'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -243,12 +264,105 @@ List<GameSpec> get appGameSpecs => [for (final s in gameSpecs) if (s.appReady) s
 
 GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
 
+/// A game for more than two players that is *only* a [SeatGame] (KLD-088
+/// step 3, KLD-060 step 2): it does not implement the two-player [Game]
+/// interface, so it is kept out of [gameSpecs] (every two-player transport,
+/// the network session, the debug console and the registry tests iterate
+/// those and expect a [Game] with [Player.a] to move). [specById] and
+/// [createGame] do not know it; [configProblem], [compatKey] and
+/// [fingerprintOf] do, so a later n-player session can check it like any
+/// other game.
+class SeatGameSpec {
+  final String id;
+  final String title;
+  final int minPlayers;
+  final int maxPlayers;
+
+  /// See [GameSpec.rulesVersion].
+  final int rulesVersion;
+
+  /// True when the seed decides something secret (dice, deck order) and must
+  /// not reach a remote player before the game is over (see
+  /// [Redaction.secretSeed]). Baulöwe: yes.
+  final bool secretSeed;
+
+  /// Whether [GameConfig.theme] picks a [PropertyTheme] (part of the
+  /// [compatKey], like a Quartett deck).
+  final bool usesTheme;
+
+  final SeatGame Function(GameConfig config) _create;
+  const SeatGameSpec(this.id, this.title, this._create,
+      {this.minPlayers = 2,
+      required this.maxPlayers,
+      this.rulesVersion = 1,
+      this.secretSeed = false,
+      this.usesTheme = false});
+
+  /// A new game for [config] (its id is not checked against [id]). Throws
+  /// [ArgumentError] for a config [configProblem] refuses.
+  SeatGame createFrom(GameConfig config) {
+    final problem = config.gameId == id ? configProblem(config) : null;
+    if (problem != null) throw ArgumentError.value(config, 'config', problem);
+    return _create(config);
+  }
+}
+
+/// The games for more than two players that are not two-player [Game]s
+/// (see [SeatGameSpec]). Not in the app menu as finished games: Baulöwe is
+/// network-only by design and only a one-device preview against computer
+/// players until the n-player network exists (KLD-060 step 3).
+final List<SeatGameSpec> seatGameSpecs = [
+  // KLD-060: Baulöwe, 2–6 seats. Rules 1: the engine of step 1 (Berlin and
+  // Fantasiestadt themes, no house-rule config keys yet).
+  SeatGameSpec('property', 'Baulöwe', _createProperty,
+      maxPlayers: PropertyGame.maxPlayers,
+      rulesVersion: PropertyGame.rulesVersion,
+      secretSeed: true,
+      usesTheme: true),
+];
+
+PropertyGame _createProperty(GameConfig c) =>
+    PropertyGame(playerCount: c.players, seed: c.seed, maxRounds: c.rounds, theme: PropertyTheme.byId(c.theme));
+
+SeatGameSpec? seatSpecById(String id) => seatGameSpecs.where((s) => s.id == id).firstOrNull;
+
+/// A new seat game for [config]; throws [ArgumentError] for an unknown id or
+/// a config [configProblem] refuses.
+SeatGame createSeatGame(GameConfig config) {
+  final spec = seatSpecById(config.gameId);
+  if (spec == null) throw ArgumentError.value(config.gameId, 'gameId', 'not a seat game');
+  return spec.createFrom(config);
+}
+
+/// Rebuilds a seat game by replaying [moves]; null if a move is refused.
+SeatGame? replaySeatGame(GameConfig config, Iterable<Map<String, dynamic>> moves) {
+  final game = createSeatGame(config);
+  for (final m in moves) {
+    if (game.applyMove(m) == null) return null;
+  }
+  return game;
+}
+
+/// The largest round limit a config may ask for (a typo guard; the app
+/// offers 20 / 30 / 40).
+const int maxRoundLimit = 1000;
+
 /// Why [config] cannot be played (unknown game or deck, a player count the
 /// game does not support), or null if it can.
 /// [wordList] false skips the check that a dictionary game's word list is
 /// loaded ([WordLists]): a network guest of a word tile game creates no
 /// engine when it joins and loads the list afterwards (KLD-094 step 6).
 String? configProblem(GameConfig config, {bool wordList = true}) {
+  final seat = seatSpecById(config.gameId);
+  if (seat != null) {
+    if (config.players < seat.minPlayers || config.players > seat.maxPlayers) {
+      return '"${config.gameId}" is for ${seat.minPlayers}–${seat.maxPlayers} players, not ${config.players}';
+    }
+    if (seat.usesTheme && PropertyTheme.byId(config.theme) == null) return 'unknown theme "${config.theme}"';
+    final r = config.rounds;
+    if (r != null && (r < 1 || r > maxRoundLimit)) return 'round limit must be 1–$maxRoundLimit, not $r';
+    return null;
+  }
   final spec = specById(config.gameId);
   if (spec == null) return 'unknown game "${config.gameId}"';
   if (spec.usesDeck && QuartettDeck.byId(config.deck) == null) return 'unknown deck "${config.deck}"';
@@ -268,7 +382,11 @@ String? configProblem(GameConfig config, {bool wordList = true}) {
 /// or deck.
 Game createGame(GameConfig config) {
   final spec = specById(config.gameId);
-  if (spec == null) throw ArgumentError.value(config.gameId, 'gameId', 'unknown game');
+  if (spec == null) {
+    final seat = seatSpecById(config.gameId) != null;
+    throw ArgumentError.value(
+        config.gameId, 'gameId', seat ? 'a seat game, not a two-player game (createSeatGame)' : 'unknown game');
+  }
   return spec.createFrom(config);
 }
 

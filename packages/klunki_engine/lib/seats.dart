@@ -28,6 +28,15 @@ abstract interface class SeatGame {
 
   /// The outcome per seat ([SeatResult.isOver] false while running).
   SeatResult get seatResult;
+
+  /// Applies [move] (made by [seatOfMove]); null if it is illegal, the state
+  /// is then unchanged. The non-null result is game-specific (a `GameEvent`,
+  /// a `PropertyEvent`). Added in KLD-088 step 3 so a seat game can be
+  /// replayed without knowing its type (`replaySeatGame`).
+  Object? applyMove(Map<String, dynamic> move);
+
+  /// The accepted moves so far, in order.
+  List<Map<String, dynamic>> get history;
 }
 
 /// The outcome of a [SeatGame]: a place per seat (1 = best; ties share a
