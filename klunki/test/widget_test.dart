@@ -41,6 +41,10 @@ void main() {
 
     await tester.tap(find.byKey(const Key('debug-menu')));
     await tester.pumpAndSettle();
+    // With Mau-Mau and Mäxchen the menu is taller than the 800x600 test
+    // screen: scroll the demo entry into view first.
+    await tester.ensureVisible(find.text('Demo: alle Spiele'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Demo: alle Spiele'));
     await tester.pumpAndSettle();
 
