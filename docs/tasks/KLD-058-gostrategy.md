@@ -209,3 +209,15 @@ can cover the final "Fahne erobert!" reveal; saved/favourite setups.
   on loopback: setups, tap move, rotation, private views, fight reveal on both, no cover); GoStrategy added to
   `game_screen_test` (menu), `coverage_test` (all locales, two sizes), `translations_test`, `rtl_test`,
   `screenshots_test`.
+
+## Rank insignia (2026-11-08, step 1: variant sheet)
+
+Maintainer decision: every piece gets a drawn rank insignia (CustomPainter, generic, no assets), the rank
+number small in a corner. Marschall crossed batons, General peaked cap (oak leaves only at large sizes),
+Oberst/Major/Hauptmann 3/2/1 stars, Leutnant one bar, Feldwebel chevrons, Mineur pickaxe, Späher binoculars,
+Spion hat over a domino mask; bomb and flag unchanged. `GoInsignia(piece, color, size)` in
+`gostrategy_pieces.dart` is public (rules pages reuse it). Looks: `GoPieceLook` (A shoulder board, B free in
+the ink colour, C free with gold stars/bars/chevrons); the app switch `goPieceLook` stays `classic` until the
+maintainer chooses. Variant sheet and a board with B:
+`KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart` (group
+`kld058-insignia`); paint test `test/ui/games/gostrategy_insignia_test.dart`.
