@@ -6,7 +6,8 @@ import '../../games/gostrategy/gostrategy_pieces.dart';
 import '../rules_model.dart';
 
 /// GoStrategy (KLD-123): who beats whom, and a table of every piece with
-/// its rank and count taken from the engine ([GoPiece]).
+/// its tile (rank insignia, KLD-058), rank and count taken from the engine
+/// ([GoPiece]).
 GameRules goStrategyRules(BuildContext context, AppLocalizations l10n, GameConfig config) => GameRules(
       goal: ruleLines(l10n.rulesGoGoal),
       turn: ruleLines(l10n.rulesGoTurn),
@@ -48,9 +49,11 @@ class _PieceTable extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // The tile as on the board (KLD-058): the rank insignia, the
+                // rank number in its badge.
                 SizedBox(
-                  width: 44,
-                  child: Center(child: GoPieceTile(owner: Player.a, piece: p, size: 34)),
+                  width: 48,
+                  child: Center(child: GoPieceTile(owner: Player.a, piece: p, size: 44)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(

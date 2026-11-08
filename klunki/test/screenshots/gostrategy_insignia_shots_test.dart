@@ -134,7 +134,7 @@ Widget _sheet({required bool all}) => Builder(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Marschall, General, Oberst, Major, Hauptmann, Leutnant, Feldwebel, Mineur, Späher, Spion, Bombe, Fahne · verdeckt · gesehen',
+              'Marschall, General, Oberst, Major, Hauptmann, Leutnant, Feldwebel, Mineur, Aufklärer, Spion, Bombe, Fahne · verdeckt · gesehen',
               style: theme.textTheme.bodySmall,
             ),
             for (final (size, label) in all ? _sizes : [(37.0, 'Brett großes Handy')]) ...[

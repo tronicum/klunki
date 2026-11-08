@@ -269,7 +269,7 @@ class GoPieceTile extends StatelessWidget {
 /// The rank insignia of [piece] (KLD-058) in a [size] square, drawn by
 /// [GoInsigniaPainter]: crossed batons (Marschall), peaked cap (General),
 /// three, two, one star (Oberst, Major, Hauptmann), a bar (Leutnant),
-/// chevrons (Feldwebel), pickaxe (Mineur), binoculars (Späher), hat and mask
+/// chevrons (Feldwebel), pickaxe (Mineur), binoculars (Aufklärer), hat and mask
 /// (Spion); bomb and flag are the usual symbols. [color] is the ink, [edge]
 /// (null: none) the thin outline. Holes (lenses, eye holes) show what lies
 /// beneath, so it works on any background (rules pages).
