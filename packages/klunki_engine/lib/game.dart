@@ -81,7 +81,12 @@ enum GameEndReason {
 
   /// Mäxchen (KLD-121): the loser has no lives left. params: `a`, `b`
   /// (lives left).
-  maexchenNoLives('maexchen.noLives');
+  maexchenNoLives('maexchen.noLives'),
+
+  /// Ausgewürfelt (KLD-119): every sheet still in is full; the highest
+  /// total wins. params: `a`, `b` (totals of seats 0 and 1; the
+  /// [SeatResult] has `score0…score3`).
+  dicesheetAllFilled('dicesheet.allFilled');
 
   final String code;
   const GameEndReason(this.code);

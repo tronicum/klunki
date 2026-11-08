@@ -40,16 +40,17 @@ void main() {
       expect(two.copyWith(players: 3).players, 3);
     });
 
-    test('only the word tile game takes 3–4 players', () {
+    test('only the word tile game and Ausgewürfelt take 3–4 players', () {
       expect(configProblem(const GameConfig('wordtiles', players: 3)), isNull);
       expect(configProblem(const GameConfig('wordtiles', players: 4)), isNull);
       expect(configProblem(const GameConfig('wordtiles', players: 5)), contains('2–4 players'));
       expect(configProblem(const GameConfig('wordtiles', players: 1)), isNotNull);
-      for (final s in gameSpecs.where((s) => s.id != 'wordtiles')) {
+      for (final s in gameSpecs.where((s) => s.id != 'wordtiles' && s.id != 'dicesheet')) {
         expect(s.maxPlayers, 2, reason: s.id);
         expect(configProblem(GameConfig(s.id, players: 3)), contains('is for 2 players'), reason: s.id);
       }
       expect(specById('wordtiles')!.maxPlayers, 4);
+      expect(specById('dicesheet')!.maxPlayers, 4);
     });
 
     test('a 4-player game deals 4 racks of 7 from the 100 tiles', () {
