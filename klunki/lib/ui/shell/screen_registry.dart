@@ -116,7 +116,8 @@ Future<void> openGame(BuildContext context, String gameId,
     int lives = 3,
     bool maexchenDouble = true,
     int players = 2,
-    bool extraFives = false}) {
+    bool extraFives = false,
+    bool randomStart = false}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
         config: GameConfig(gameId,
@@ -129,7 +130,8 @@ Future<void> openGame(BuildContext context, String gameId,
             lives: lives,
             maexchenDouble: maexchenDouble,
             players: players,
-            extraFives: extraFives)),
+            extraFives: extraFives,
+            randomStart: randomStart)),
   ));
 }
 
@@ -171,7 +173,8 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     if (sheet == null || !context.mounted) return;
   }
   if (seatGames.contains(gameId)) {
-    final n = await showSeatPlayersDialog(context);
+    final n = await showSeatPlayersDialog(context,
+        reorder: sheet?.start == DiceSheetStart.order, randomStart: sheet?.start == DiceSheetStart.random);
     if (n == null || !context.mounted) return;
     players = n;
   } else {
@@ -190,7 +193,8 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       lives: dice?.lives ?? 3,
       maexchenDouble: dice?.double ?? true,
       players: players,
-      extraFives: sheet?.extraFives ?? false);
+      extraFives: sheet?.extraFives ?? false,
+      randomStart: sheet?.start == DiceSheetStart.random);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

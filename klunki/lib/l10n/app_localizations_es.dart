@@ -3675,4 +3675,55 @@ class AppLocalizationsEs extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'Otro Cinco iguales cuando esa casilla ya tiene 50: $bonus puntos más. Cuando la casilla Cinco iguales ya está llena (también con 0), un Cinco iguales es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba.';
   }
+
+  @override
+  String get dicesheetStartTitle => '¿Quién empieza?';
+
+  @override
+  String get dicesheetStartFirst => 'Primer jugador';
+
+  @override
+  String get dicesheetStartOrder => 'Elegir el orden';
+
+  @override
+  String get dicesheetStartRandom => 'Al azar';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'Empieza el nombre de arriba de la lista. Luego, por turnos.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'En el paso siguiente ponéis los nombres en vuestro orden.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'El juego sortea quién empieza. Luego, por turnos.';
+
+  @override
+  String get seatOrderHint =>
+      'Jugáis en el orden de los nombres de aquí. Cambia el orden con las flechas.';
+
+  @override
+  String get seatMoveUp => 'Subir';
+
+  @override
+  String get seatMoveDown => 'Bajar';
+
+  @override
+  String get seatRandomStartHint => 'El juego sortea quién empieza.';
+
+  @override
+  String seatStarts(String player) {
+    return '¡Vamos! Empieza $player.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'Sorteo: ¡empieza $player!';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'Antes de jugar elegís quién empieza: el nombre de arriba de la lista, vuestro propio orden o el azar.';
 }

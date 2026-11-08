@@ -3648,4 +3648,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'Another Five of a Kind when that box already holds 50: $bonus extra points. Once the Five of a Kind box is filled (even with 0), a Five of a Kind is a joker: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0.';
   }
+
+  @override
+  String get dicesheetStartTitle => 'Who starts?';
+
+  @override
+  String get dicesheetStartFirst => 'First player';
+
+  @override
+  String get dicesheetStartOrder => 'Set the order';
+
+  @override
+  String get dicesheetStartRandom => 'Random';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'The name at the top of the list starts. Then you take turns.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'In the next step you put the names in your order.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'The game draws who starts. Then you take turns.';
+
+  @override
+  String get seatOrderHint =>
+      'You play in the order of the names here. Use the arrows to change it.';
+
+  @override
+  String get seatMoveUp => 'Move up';
+
+  @override
+  String get seatMoveDown => 'Move down';
+
+  @override
+  String get seatRandomStartHint => 'The game draws who starts.';
+
+  @override
+  String seatStarts(String player) {
+    return 'Let’s go: $player starts.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'Drawn: $player starts!';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'Before the game you choose who starts: the name at the top of the list, your own order, or chance.';
 }

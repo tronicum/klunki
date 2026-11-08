@@ -14,7 +14,8 @@ short German summary ("Kurz") for the store notes and the testers.
   of a kind, full house, small and large straight, five of a kind, chance. The sheet shows what every free box
   would score; a mis-tap can be taken back until the next player rolls. After 13 rounds the ranking shows who
   won. House rule "Extra-Fünfer" (off by default): 100 extra for another five of a kind, which then counts as a
-  joker. "Wer spielt?" now asks how many play (2, 3 or 4) for this game.
+  joker. "Wer spielt?" now asks how many play (2, 3 or 4) for this game. "Wer fängt an?" before the game: the
+  first player, your own order (arrows next to the names), or chance; the game says who starts.
 - **Mau-Mau** (new, KLD-118): the classic card game for two on one device. Lay a card of the same suit or
   rank, or draw; whoever is out of cards first wins. 7 = the other player draws 2 (another 7 passes on 2 more),
   8 = the other player misses a turn, jack = wish a suit, ace = lay another card (ace after ace too), and

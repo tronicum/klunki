@@ -20,6 +20,7 @@ GameRules diceSheetRules(BuildContext context, AppLocalizations l10n, GameConfig
     goal: ruleLines(l10n.rulesDicesheetGoal),
     turn: [
       ...ruleLines(l10n.rulesDicesheetTurn),
+      RuleItem(l10n.rulesDicesheetStart, lead: const Icon(Icons.casino_outlined, size: 26)),
       RuleItem.heading(l10n.rulesDicesheetUpperTitle),
       box(DiceBox.fours, l10n.rulesDicesheetUpper, const [4, 4, 4, 2, 6]),
       RuleItem(l10n.rulesDicesheetBonus(DiceSheetGame.upperBonusAt, DiceSheetGame.upperBonus),

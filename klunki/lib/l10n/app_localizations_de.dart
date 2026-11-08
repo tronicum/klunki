@@ -3666,4 +3666,55 @@ class AppLocalizationsDe extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'Noch ein Fünferpasch, wenn dort schon 50 stehen: $bonus Punkte extra. Ist das Feld Fünferpasch schon gefüllt (auch mit 0), ist ein Fünferpasch ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.';
   }
+
+  @override
+  String get dicesheetStartTitle => 'Wer fängt an?';
+
+  @override
+  String get dicesheetStartFirst => 'Erster Spieler';
+
+  @override
+  String get dicesheetStartOrder => 'Reihenfolge festlegen';
+
+  @override
+  String get dicesheetStartRandom => 'Zufall';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'Wer in der Liste oben steht, fängt an. Dann geht es reihum.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'Im nächsten Schritt bringt ihr die Namen in eure Reihenfolge.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'Das Spiel lost aus, wer anfängt. Dann geht es reihum.';
+
+  @override
+  String get seatOrderHint =>
+      'So wie die Namen hier stehen, seid ihr dran. Mit den Pfeilen änderst du die Reihenfolge.';
+
+  @override
+  String get seatMoveUp => 'Nach oben';
+
+  @override
+  String get seatMoveDown => 'Nach unten';
+
+  @override
+  String get seatRandomStartHint => 'Wer anfängt, lost das Spiel aus.';
+
+  @override
+  String seatStarts(String player) {
+    return 'Los geht’s: $player fängt an.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'Ausgelost: $player fängt an!';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.';
 }

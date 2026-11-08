@@ -5294,5 +5294,71 @@
         "type": "int"
       }
     }
+  },
+  "dicesheetStartTitle": "Wer fängt an?",
+  "@dicesheetStartTitle": {
+    "description": "KLD-119 follow-up: five-dice start options, heading of the choice who starts."
+  },
+  "dicesheetStartFirst": "Erster Spieler",
+  "@dicesheetStartFirst": {
+    "description": "KLD-119 follow-up: who starts: the first player in the list (default)."
+  },
+  "dicesheetStartOrder": "Reihenfolge festlegen",
+  "@dicesheetStartOrder": {
+    "description": "KLD-119 follow-up: who starts: the players set the order themselves in the next step."
+  },
+  "dicesheetStartRandom": "Zufall",
+  "@dicesheetStartRandom": {
+    "description": "KLD-119 follow-up: who starts: chance decides (the game draws the starting player)."
+  },
+  "dicesheetStartFirstExplain": "Wer in der Liste oben steht, fängt an. Dann geht es reihum.",
+  "@dicesheetStartFirstExplain": {
+    "description": "KLD-119 follow-up: explanation under the choice \"Erster Spieler\"."
+  },
+  "dicesheetStartOrderExplain": "Im nächsten Schritt bringt ihr die Namen in eure Reihenfolge.",
+  "@dicesheetStartOrderExplain": {
+    "description": "KLD-119 follow-up: explanation under the choice \"Reihenfolge festlegen\"."
+  },
+  "dicesheetStartRandomExplain": "Das Spiel lost aus, wer anfängt. Dann geht es reihum.",
+  "@dicesheetStartRandomExplain": {
+    "description": "KLD-119 follow-up: explanation under the choice \"Zufall\"."
+  },
+  "seatOrderHint": "So wie die Namen hier stehen, seid ihr dran. Mit den Pfeilen änderst du die Reihenfolge.",
+  "@seatOrderHint": {
+    "description": "KLD-119 follow-up: \"Wer spielt?\" with own order: helper text under the names."
+  },
+  "seatMoveUp": "Nach oben",
+  "@seatMoveUp": {
+    "description": "KLD-119 follow-up: \"Wer spielt?\": tooltip of the arrow that moves a name one place up."
+  },
+  "seatMoveDown": "Nach unten",
+  "@seatMoveDown": {
+    "description": "KLD-119 follow-up: \"Wer spielt?\": tooltip of the arrow that moves a name one place down."
+  },
+  "seatRandomStartHint": "Wer anfängt, lost das Spiel aus.",
+  "@seatRandomStartHint": {
+    "description": "KLD-119 follow-up: \"Wer spielt?\" with random start: helper under the first name (instead of \"fängt an\")."
+  },
+  "seatStarts": "Los geht’s: {player} fängt an.",
+  "@seatStarts": {
+    "description": "KLD-119 follow-up: shown at the start of a game for 2–4 players: who has the first turn. player = name.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "seatStartsRandom": "Ausgelost: {player} fängt an!",
+  "@seatStartsRandom": {
+    "description": "KLD-119 follow-up: as seatStarts when chance picked who starts. player = name.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesDicesheetStart": "Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.",
+  "@rulesDicesheetStart": {
+    "description": "KLD-119 follow-up: five-dice rules, who starts (a line of the turn section)."
   }
 }

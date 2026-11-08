@@ -931,5 +931,19 @@
   "rulesDicesheetFiveKind": "5 个相同：{points} 分。",
   "rulesDicesheetChance": "总是可以填。所有骰子的点数都算。",
   "rulesDicesheetSpecial": "每一格只能填一次。\n掷出就算数。“悔棋”只收回你在计分表上写的分数，前提是还没有人再掷骰子。\n认输的人出局。其他人继续玩。\n摇一摇：不点“掷骰子”，也可以摇手机。",
-  "rulesDicesheetExtraFives": "五同格已有 50 分时再掷出五同：额外加 {bonus} 分。五同格一旦填过（包括 0 分），再掷出五同就是百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。"
+  "rulesDicesheetExtraFives": "五同格已有 50 分时再掷出五同：额外加 {bonus} 分。五同格一旦填过（包括 0 分），再掷出五同就是百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。",
+  "dicesheetStartTitle": "谁先开始？",
+  "dicesheetStartFirst": "第一位玩家",
+  "dicesheetStartOrder": "自定顺序",
+  "dicesheetStartRandom": "随机",
+  "dicesheetStartFirstExplain": "名单最上面的人先开始。然后轮流进行。",
+  "dicesheetStartOrderExplain": "下一步你们把名字排成自己的顺序。",
+  "dicesheetStartRandomExplain": "由游戏抽签决定谁先开始。然后轮流进行。",
+  "seatOrderHint": "按照这里名字的顺序轮流玩。用箭头可以改变顺序。",
+  "seatMoveUp": "上移",
+  "seatMoveDown": "下移",
+  "seatRandomStartHint": "由游戏抽签决定谁先开始。",
+  "seatStarts": "开始：{player} 先来。",
+  "seatStartsRandom": "抽签结果：{player} 先来！",
+  "rulesDicesheetStart": "游戏前选择谁先开始：名单最上面的人、你们自定的顺序，或者随机。"
 }

@@ -3575,4 +3575,56 @@ class AppLocalizationsFa extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'اگر وقتی در خانه‌ی پنج‌تایی ۵۰ نوشته شده دوباره پنج‌تایی بیاوری: $bonus امتیاز اضافه. وقتی خانه‌ی پنج‌تایی پر شده باشد (حتی با ۰)، پنج‌تایی جوکر است: اول در خانه‌ی بالای همان عدد؛ اگر پر است، در یک خانه‌ی خالی پایین با امتیاز کامل؛ وگرنه با ۰ در یک خانه‌ی بالا.';
   }
+
+  @override
+  String get dicesheetStartTitle => 'چه کسی شروع می‌کند؟';
+
+  @override
+  String get dicesheetStartFirst => 'بازیکن اول';
+
+  @override
+  String get dicesheetStartOrder => 'تعیین ترتیب';
+
+  @override
+  String get dicesheetStartRandom => 'تصادفی';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'نامی که بالای فهرست است شروع می‌کند. بعد به نوبت.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'در مرحله‌ی بعد نام‌ها را به ترتیب دلخواهتان می‌چینید.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'بازی با قرعه تعیین می‌کند چه کسی شروع کند. بعد به نوبت.';
+
+  @override
+  String get seatOrderHint =>
+      'به ترتیب نام‌های اینجا بازی می‌کنید. با فلش‌ها ترتیب را عوض کن.';
+
+  @override
+  String get seatMoveUp => 'بالا ببر';
+
+  @override
+  String get seatMoveDown => 'پایین ببر';
+
+  @override
+  String get seatRandomStartHint =>
+      'بازی با قرعه تعیین می‌کند چه کسی شروع کند.';
+
+  @override
+  String seatStarts(String player) {
+    return 'شروع: نوبت اول با $player.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'قرعه: نوبت اول با $player!';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'پیش از بازی انتخاب می‌کنید چه کسی شروع کند: نام بالای فهرست، ترتیب خودتان یا قرعه.';
 }

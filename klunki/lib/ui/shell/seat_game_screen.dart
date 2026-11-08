@@ -233,8 +233,11 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
   /// Under way once a second seat moved, or after a few moves.
   bool get _underway {
     final moves = controller.moves.where((m) => m.move['action'] != 'resign');
-    return moves.length >= 4 || moves.any((m) => m.seat != 0);
+    return moves.length >= 4 || moves.any((m) => m.seat != moves.first.seat);
   }
+
+  /// The game picked its first seat by chance (KLD-119 follow-up).
+  bool get _randomStart => controller.config.randomStart;
 
   bool get _confirmLeave => !_leaving && !_game.isOver && (!_canRestart || _underway);
 
@@ -587,6 +590,26 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                       ],
                     ),
                   ),
+                  // Who starts, until the first move (KLD-119 follow-up):
+                  // with "Zufall" the draw is announced.
+                  if (!over && controller.moves.isEmpty && seat != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
+                      child: Row(
+                        children: [
+                          Icon(_randomStart ? Icons.casino_outlined : Icons.play_arrow_rounded,
+                              size: 20, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              _randomStart ? l10n.seatStartsRandom(_name(seat)) : l10n.seatStarts(_name(seat)),
+                              key: const Key('seat-starter'),
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (_hint != null)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),

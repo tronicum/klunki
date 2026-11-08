@@ -439,6 +439,50 @@ void main() {
     });
   });
 
+  group('who starts (KLD-119 follow-up)', () {
+    test('seat 0 by default; "start: random" lets the seed pick, deterministic', () {
+      expect(DiceSheetGame(seed: 5, playerCount: 4).currentSeat, 0);
+      final starts = <int>{};
+      for (var seed = 0; seed < 40; seed++) {
+        final g = createGame(GameConfig('dicesheet', seed: seed, players: 4, randomStart: true)) as DiceSheetGame;
+        expect(g.currentSeat, g.startSeat);
+        expect((createGame(GameConfig('dicesheet', seed: seed, players: 4, randomStart: true)) as DiceSheetGame).startSeat,
+            g.startSeat);
+        starts.add(g.startSeat);
+      }
+      expect(starts, {0, 1, 2, 3});
+    });
+
+    test('in the config only when random; turns go on clockwise; a full game replays', () {
+      const c = GameConfig('dicesheet', seed: 7, players: 3, randomStart: true);
+      expect(c.toJson(), {'game': 'dicesheet', 'seed': 7, 'players': 3, 'start': 'random'});
+      expect(GameConfig.fromJson(c.toJson()), c);
+      expect(c.copyWith(seed: 8).randomStart, isTrue);
+      var seed = 0;
+      late DiceSheetGame g;
+      do {
+        g = createGame(c.copyWith(seed: seed++)) as DiceSheetGame;
+      } while (g.startSeat == 0);
+      final first = g.startSeat;
+      final moves = <Map<String, dynamic>>[];
+      void play(Map<String, dynamic> m) {
+        expect(g.applyMove(m), isNotNull, reason: '$m');
+        moves.add(m);
+      }
+
+      final order = <int>[];
+      while (!g.isOver) {
+        if (g.rollsUsed == 0) order.add(g.currentSeat);
+        play(DiceSheetGame.rollMove(const []));
+        play(DiceSheetGame.scoreMove(g.allowedBoxes.first));
+      }
+      expect(order.take(3), [first, (first + 1) % 3, (first + 2) % 3]);
+      expect(order, hasLength(3 * DiceSheetGame.rounds));
+      final again = replay(c.copyWith(seed: seed - 1), moves)! as DiceSheetGame;
+      expect(again.totals, g.totals);
+    });
+  });
+
   group('debug console', () {
     test('parse / format round-trip and a full auto game', () {
       final t = DiceSheetText();

@@ -3664,4 +3664,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'خمسة متشابهة أخرى وفي خانتها 50 بالفعل: $bonus نقطة إضافية. بعد أن تُملأ خانة الخمسة المتشابهة (ولو بصفر) تصبح الخمسة المتشابهة ورقة رابحة: أولاً في الخانة العلوية لرقمها؛ وإن كانت ممتلئة ففي خانة سفلية فارغة بكامل النقاط؛ وإلا فبصفر في خانة علوية.';
   }
+
+  @override
+  String get dicesheetStartTitle => 'من يبدأ؟';
+
+  @override
+  String get dicesheetStartFirst => 'اللاعب الأول';
+
+  @override
+  String get dicesheetStartOrder => 'تحديد الترتيب';
+
+  @override
+  String get dicesheetStartRandom => 'عشوائي';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'يبدأ الاسم الأول في القائمة. ثم بالتناوب.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'في الخطوة التالية ترتّبون الأسماء كما تريدون.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'تختار اللعبة بالقرعة من يبدأ. ثم بالتناوب.';
+
+  @override
+  String get seatOrderHint =>
+      'تلعبون بترتيب الأسماء هنا. غيّر الترتيب بالأسهم.';
+
+  @override
+  String get seatMoveUp => 'إلى الأعلى';
+
+  @override
+  String get seatMoveDown => 'إلى الأسفل';
+
+  @override
+  String get seatRandomStartHint => 'تختار اللعبة بالقرعة من يبدأ.';
+
+  @override
+  String seatStarts(String player) {
+    return 'هيا: البداية مع $player.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'القرعة: البداية مع $player!';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'قبل اللعب تختارون من يبدأ: الاسم الأول في القائمة، أو ترتيبكم الخاص، أو القرعة.';
 }

@@ -59,7 +59,9 @@ import 'word_tiles.dart';
 ///
 /// Ausgewürfelt (KLD-119): [extraFives] (JSON `extraFives`, written only
 /// when on; off by default) is the house rule "Extra-Fünfer"
-/// ([DiceSheetGame.extraFives]). Other games ignore it.
+/// ([DiceSheetGame.extraFives]). [randomStart] (JSON `start: random`,
+/// written only when on) lets the seed pick the starting seat
+/// ([DiceSheetGame.randomStart]). Other games ignore both.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -74,6 +76,7 @@ class GameConfig {
   final int lives;
   final bool maexchenDouble;
   final bool extraFives;
+  final bool randomStart;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -86,7 +89,8 @@ class GameConfig {
       this.mauMau = const MauMauRules(),
       this.lives = 3,
       this.maexchenDouble = true,
-      this.extraFives = false});
+      this.extraFives = false,
+      this.randomStart = false});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -106,6 +110,7 @@ class GameConfig {
         if (lives != 3) 'lives': lives,
         if (!maexchenDouble) 'maexDouble': false,
         if (extraFives) 'extraFives': true,
+        if (randomStart) 'start': 'random',
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -120,7 +125,8 @@ class GameConfig {
       mauMau: MauMauRules.fromJson(json['maumau']),
       lives: json['lives'] as int? ?? 3,
       maexchenDouble: json['maexDouble'] != false,
-      extraFives: json['extraFives'] == true);
+      extraFives: json['extraFives'] == true,
+      randomStart: json['start'] == 'random');
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -134,7 +140,8 @@ class GameConfig {
       mauMau: mauMau,
       lives: lives,
       maexchenDouble: maexchenDouble,
-      extraFives: extraFives);
+      extraFives: extraFives,
+      randomStart: randomStart);
 
   @override
   bool operator ==(Object other) =>
@@ -151,12 +158,13 @@ class GameConfig {
       other.mauMau == mauMau &&
       other.lives == lives &&
       other.maexchenDouble == maexchenDouble &&
-      other.extraFives == extraFives;
+      other.extraFives == extraFives &&
+      other.randomStart == randomStart;
 
   @override
   int get hashCode => Object.hash(
       gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau, lives, maexchenDouble,
-      extraFives);
+      extraFives, randomStart);
 
   @override
   String toString() =>
@@ -165,7 +173,7 @@ class GameConfig {
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
-      '${extraFives ? ', extraFives' : ''})';
+      '${extraFives ? ', extraFives' : ''}${randomStart ? ', start: random' : ''})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -283,9 +291,10 @@ final List<GameSpec> gameSpecs = [
   // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
   // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network
   // session is 2-player). House rule "Extra-Fünfer" in the config
-  // (`extraFives`). A roll is final for hot-seat "Zug zurück".
+  // (`extraFives`), random start (`start`). A roll is final for hot-seat "Zug zurück".
   GameSpec('dicesheet', 'Ausgewürfelt',
-      (c, _) => DiceSheetGame(seed: c.seed, playerCount: c.players, extraFives: c.extraFives),
+      (c, _) => DiceSheetGame(
+          seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),
       maxPlayers: 4, undoBarrier: DiceSheetGame.isRoll),
 ];
 

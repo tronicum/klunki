@@ -930,5 +930,19 @@
   "rulesDicesheetFiveKind": "5 the same: {points} points.",
   "rulesDicesheetChance": "Always fits. All dice count.",
   "rulesDicesheetSpecial": "You fill each box only once.\nA roll counts at once. “Undo move” only takes back what you wrote on the sheet, as long as nobody has rolled since.\nWhoever resigns is out. The others play on.\nShaking: instead of tapping “Roll”, you can shake the phone.",
-  "rulesDicesheetExtraFives": "Another Five of a Kind when that box already holds 50: {bonus} extra points. Once the Five of a Kind box is filled (even with 0), a Five of a Kind is a joker: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0."
+  "rulesDicesheetExtraFives": "Another Five of a Kind when that box already holds 50: {bonus} extra points. Once the Five of a Kind box is filled (even with 0), a Five of a Kind is a joker: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0.",
+  "dicesheetStartTitle": "Who starts?",
+  "dicesheetStartFirst": "First player",
+  "dicesheetStartOrder": "Set the order",
+  "dicesheetStartRandom": "Random",
+  "dicesheetStartFirstExplain": "The name at the top of the list starts. Then you take turns.",
+  "dicesheetStartOrderExplain": "In the next step you put the names in your order.",
+  "dicesheetStartRandomExplain": "The game draws who starts. Then you take turns.",
+  "seatOrderHint": "You play in the order of the names here. Use the arrows to change it.",
+  "seatMoveUp": "Move up",
+  "seatMoveDown": "Move down",
+  "seatRandomStartHint": "The game draws who starts.",
+  "seatStarts": "Let’s go: {player} starts.",
+  "seatStartsRandom": "Drawn: {player} starts!",
+  "rulesDicesheetStart": "Before the game you choose who starts: the name at the top of the list, your own order, or chance."
 }

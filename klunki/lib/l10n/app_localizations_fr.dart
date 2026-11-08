@@ -3682,4 +3682,55 @@ class AppLocalizationsFr extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return 'Un nouveau Cinq pareils quand la case contient déjà 50 : $bonus points en plus. Dès que la case Cinq pareils est remplie (même avec 0), un Cinq pareils est un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut.';
   }
+
+  @override
+  String get dicesheetStartTitle => 'Qui commence ?';
+
+  @override
+  String get dicesheetStartFirst => 'Premier joueur';
+
+  @override
+  String get dicesheetStartOrder => 'Choisir l’ordre';
+
+  @override
+  String get dicesheetStartRandom => 'Hasard';
+
+  @override
+  String get dicesheetStartFirstExplain =>
+      'Le nom en haut de la liste commence. Ensuite, chacun son tour.';
+
+  @override
+  String get dicesheetStartOrderExplain =>
+      'À l’étape suivante, vous mettez les noms dans votre ordre.';
+
+  @override
+  String get dicesheetStartRandomExplain =>
+      'Le jeu tire au sort qui commence. Ensuite, chacun son tour.';
+
+  @override
+  String get seatOrderHint =>
+      'Vous jouez dans l’ordre des noms ici. Change l’ordre avec les flèches.';
+
+  @override
+  String get seatMoveUp => 'Monter';
+
+  @override
+  String get seatMoveDown => 'Descendre';
+
+  @override
+  String get seatRandomStartHint => 'Le jeu tire au sort qui commence.';
+
+  @override
+  String seatStarts(String player) {
+    return 'C’est parti : $player commence.';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return 'Tirage au sort : $player commence !';
+  }
+
+  @override
+  String get rulesDicesheetStart =>
+      'Avant la partie, vous choisissez qui commence : le nom en haut de la liste, votre propre ordre ou le hasard.';
 }

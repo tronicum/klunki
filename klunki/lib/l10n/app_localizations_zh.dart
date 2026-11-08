@@ -3445,4 +3445,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String rulesDicesheetExtraFives(int bonus) {
     return '五同格已有 50 分时再掷出五同：额外加 $bonus 分。五同格一旦填过（包括 0 分），再掷出五同就是百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。';
   }
+
+  @override
+  String get dicesheetStartTitle => '谁先开始？';
+
+  @override
+  String get dicesheetStartFirst => '第一位玩家';
+
+  @override
+  String get dicesheetStartOrder => '自定顺序';
+
+  @override
+  String get dicesheetStartRandom => '随机';
+
+  @override
+  String get dicesheetStartFirstExplain => '名单最上面的人先开始。然后轮流进行。';
+
+  @override
+  String get dicesheetStartOrderExplain => '下一步你们把名字排成自己的顺序。';
+
+  @override
+  String get dicesheetStartRandomExplain => '由游戏抽签决定谁先开始。然后轮流进行。';
+
+  @override
+  String get seatOrderHint => '按照这里名字的顺序轮流玩。用箭头可以改变顺序。';
+
+  @override
+  String get seatMoveUp => '上移';
+
+  @override
+  String get seatMoveDown => '下移';
+
+  @override
+  String get seatRandomStartHint => '由游戏抽签决定谁先开始。';
+
+  @override
+  String seatStarts(String player) {
+    return '开始：$player 先来。';
+  }
+
+  @override
+  String seatStartsRandom(String player) {
+    return '抽签结果：$player 先来！';
+  }
+
+  @override
+  String get rulesDicesheetStart => '游戏前选择谁先开始：名单最上面的人、你们自定的顺序，或者随机。';
 }

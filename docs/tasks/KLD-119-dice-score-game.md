@@ -88,7 +88,11 @@ it is the first Klunki game with more than two players in the app.
   `seatGames` (`screen_registry.dart`).
 
 ### Ausgewürfelt screen (`ui/games/dicesheet/`)
-- Start: options dialog ("Extra-Fünfer (Hausregel)", "Schütteln zum Würfeln") → "Wer spielt?" (count + names).
+- Start: options dialog ("Extra-Fünfer (Hausregel)", "Schütteln zum Würfeln", "Wer fängt an?": Erster Spieler /
+  Reihenfolge festlegen / Zufall) → "Wer spielt?" (count + names; with "Reihenfolge festlegen" arrows move the
+  names, the order is the seat order). "Zufall" is `GameConfig.randomStart` (JSON `start: random`): the seed draws
+  the first seat (`DiceSheetGame.startSeat`). Until the first move the game says "Anna fängt an." / "Ausgelost:
+  Cleo fängt an!".
 - Board: the **score sheet** on top as a table with a column per player (pinned header with token, name and
   "Runde 3/13"; pinned totals row; the boxes scroll). In the column of the player to move every empty box shows
   what it would score now as a framed number in the player's colour (a 0 quieter); a tap writes it. Upper boxes
@@ -98,7 +102,8 @@ it is the first Klunki game with more than two players in the app.
   framed in the player's colour, lock badge and "behalten"), a short tumble animation and a haptic knock; the
   "Zug zurück" button and the shake hint; the big filled **"Würfeln (noch 2)"** button with three pips (after the
   third roll it says "Feld im Blatt wählen", disabled). **Shake to roll** via `ShakeToRoll` with the shared setting.
-- Wide screens (landscape, tablets in landscape): sheet left, dice and button right. Rules dialog ("So geht's").
+- Wide screens (landscape, tablets in landscape): sheet left, dice and button right. Rules: the shared "Regeln" page (KLD-123,
+  `ui/rules/games/dicesheet_rules.dart`) with an example throw per box.
 - Menu tile with the one-device link only (`hotSeatOnlyGames`), own accent colour and illustration.
 
 ## Tests

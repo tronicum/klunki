@@ -931,5 +931,19 @@
   "rulesDicesheetFiveKind": "5 iguales: {points} puntos.",
   "rulesDicesheetChance": "Siempre encaja. Cuentan todos los dados.",
   "rulesDicesheetSpecial": "Cada casilla se llena una sola vez.\nUna tirada cuenta enseguida. «Deshacer jugada» solo quita lo que anotaste en la hoja, mientras nadie haya vuelto a tirar.\nQuien se rinde queda fuera. Los demás siguen jugando.\nAgitar: en lugar de tocar «Tirar», puedes agitar el móvil.",
-  "rulesDicesheetExtraFives": "Otro Cinco iguales cuando esa casilla ya tiene 50: {bonus} puntos más. Cuando la casilla Cinco iguales ya está llena (también con 0), un Cinco iguales es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba."
+  "rulesDicesheetExtraFives": "Otro Cinco iguales cuando esa casilla ya tiene 50: {bonus} puntos más. Cuando la casilla Cinco iguales ya está llena (también con 0), un Cinco iguales es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba.",
+  "dicesheetStartTitle": "¿Quién empieza?",
+  "dicesheetStartFirst": "Primer jugador",
+  "dicesheetStartOrder": "Elegir el orden",
+  "dicesheetStartRandom": "Al azar",
+  "dicesheetStartFirstExplain": "Empieza el nombre de arriba de la lista. Luego, por turnos.",
+  "dicesheetStartOrderExplain": "En el paso siguiente ponéis los nombres en vuestro orden.",
+  "dicesheetStartRandomExplain": "El juego sortea quién empieza. Luego, por turnos.",
+  "seatOrderHint": "Jugáis en el orden de los nombres de aquí. Cambia el orden con las flechas.",
+  "seatMoveUp": "Subir",
+  "seatMoveDown": "Bajar",
+  "seatRandomStartHint": "El juego sortea quién empieza.",
+  "seatStarts": "¡Vamos! Empieza {player}.",
+  "seatStartsRandom": "Sorteo: ¡empieza {player}!",
+  "rulesDicesheetStart": "Antes de jugar elegís quién empieza: el nombre de arriba de la lista, vuestro propio orden o el azar."
 }

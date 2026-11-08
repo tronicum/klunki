@@ -8,13 +8,19 @@ import '../../game_titles.dart';
 /// The start options of an Ausgewürfelt game (KLD-119): the house rule
 /// "Extra-Fünfer" (off by default) and, on a device that may have a motion
 /// sensor, the device setting "Schütteln zum Würfeln" ([ShakeSettings],
-/// stored at once, shared with Mäxchen). Then "Wer spielt?" asks for the
-/// player count and the names.
-typedef DiceSheetOptions = ({bool extraFives});
+/// stored at once, shared with Mäxchen), and "Wer fängt an?"
+/// ([DiceSheetStart]). Then "Wer spielt?" asks for the player count and the
+/// names (with arrows to reorder them for [DiceSheetStart.order]).
+typedef DiceSheetOptions = ({bool extraFives, DiceSheetStart start});
+
+/// "Wer fängt an?" (KLD-119 follow-up): the first name of the list
+/// (default), the players' own order (set in "Wer spielt?"), or chance
+/// ([GameConfig.randomStart]).
+enum DiceSheetStart { first, order, random }
 
 /// Asks for the options before a game; null when cancelled. Keys:
 /// `dicesheet-options`, `dicesheet-extra-fives`, `dicesheet-shake`,
-/// `dicesheet-options-next`, `dicesheet-options-cancel`.
+/// `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
 Future<DiceSheetOptions?> showDiceSheetOptionsDialog(BuildContext context) => showDialog<DiceSheetOptions>(
       context: context,
       builder: (_) => const _DiceSheetOptionsDialog(),
@@ -29,6 +35,7 @@ class _DiceSheetOptionsDialog extends StatefulWidget {
 
 class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
   bool _extraFives = false;
+  DiceSheetStart _start = DiceSheetStart.first;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +57,36 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
             onChanged: (v) => setState(() => _extraFives = v),
           ),
           Text(l10n.dicesheetOptionExtraFivesExplain, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 16),
+          Text(l10n.dicesheetStartTitle, style: theme.textTheme.titleSmall),
+          const SizedBox(height: 8),
+          SegmentedButton<DiceSheetStart>(
+            segments: [
+              for (final (s, label, icon) in [
+                (DiceSheetStart.first, l10n.dicesheetStartFirst, Icons.looks_one_outlined),
+                (DiceSheetStart.order, l10n.dicesheetStartOrder, Icons.swap_vert),
+                (DiceSheetStart.random, l10n.dicesheetStartRandom, Icons.casino_outlined),
+              ])
+                ButtonSegment(
+                  value: s,
+                  icon: Icon(icon),
+                  label: Text(label, key: Key('dicesheet-start-${s.name}'), textAlign: TextAlign.center),
+                ),
+            ],
+            selected: {_start},
+            showSelectedIcon: false,
+            onSelectionChanged: (s) => setState(() => _start = s.single),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            switch (_start) {
+              DiceSheetStart.first => l10n.dicesheetStartFirstExplain,
+              DiceSheetStart.order => l10n.dicesheetStartOrderExplain,
+              DiceSheetStart.random => l10n.dicesheetStartRandomExplain,
+            },
+            key: const Key('dicesheet-start-explain'),
+            style: theme.textTheme.bodySmall,
+          ),
           if (Motion.maybeAvailable) ...[
             const SizedBox(height: 12),
             ListenableBuilder(
@@ -79,7 +116,7 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
         ),
         FilledButton(
           key: const Key('dicesheet-options-next'),
-          onPressed: () => Navigator.of(context).pop((extraFives: _extraFives)),
+          onPressed: () => Navigator.of(context).pop((extraFives: _extraFives, start: _start)),
           child: Text(l10n.maexchenOptionsNext),
         ),
       ],

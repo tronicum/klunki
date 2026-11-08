@@ -5698,6 +5698,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Noch ein Fünferpasch, wenn dort schon 50 stehen: {bonus} Punkte extra. Ist das Feld Fünferpasch schon gefüllt (auch mit 0), ist ein Fünferpasch ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.'**
   String rulesDicesheetExtraFives(int bonus);
+
+  /// KLD-119 follow-up: five-dice start options, heading of the choice who starts.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer fängt an?'**
+  String get dicesheetStartTitle;
+
+  /// KLD-119 follow-up: who starts: the first player in the list (default).
+  ///
+  /// In de, this message translates to:
+  /// **'Erster Spieler'**
+  String get dicesheetStartFirst;
+
+  /// KLD-119 follow-up: who starts: the players set the order themselves in the next step.
+  ///
+  /// In de, this message translates to:
+  /// **'Reihenfolge festlegen'**
+  String get dicesheetStartOrder;
+
+  /// KLD-119 follow-up: who starts: chance decides (the game draws the starting player).
+  ///
+  /// In de, this message translates to:
+  /// **'Zufall'**
+  String get dicesheetStartRandom;
+
+  /// KLD-119 follow-up: explanation under the choice "Erster Spieler".
+  ///
+  /// In de, this message translates to:
+  /// **'Wer in der Liste oben steht, fängt an. Dann geht es reihum.'**
+  String get dicesheetStartFirstExplain;
+
+  /// KLD-119 follow-up: explanation under the choice "Reihenfolge festlegen".
+  ///
+  /// In de, this message translates to:
+  /// **'Im nächsten Schritt bringt ihr die Namen in eure Reihenfolge.'**
+  String get dicesheetStartOrderExplain;
+
+  /// KLD-119 follow-up: explanation under the choice "Zufall".
+  ///
+  /// In de, this message translates to:
+  /// **'Das Spiel lost aus, wer anfängt. Dann geht es reihum.'**
+  String get dicesheetStartRandomExplain;
+
+  /// KLD-119 follow-up: "Wer spielt?" with own order: helper text under the names.
+  ///
+  /// In de, this message translates to:
+  /// **'So wie die Namen hier stehen, seid ihr dran. Mit den Pfeilen änderst du die Reihenfolge.'**
+  String get seatOrderHint;
+
+  /// KLD-119 follow-up: "Wer spielt?": tooltip of the arrow that moves a name one place up.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach oben'**
+  String get seatMoveUp;
+
+  /// KLD-119 follow-up: "Wer spielt?": tooltip of the arrow that moves a name one place down.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach unten'**
+  String get seatMoveDown;
+
+  /// KLD-119 follow-up: "Wer spielt?" with random start: helper under the first name (instead of "fängt an").
+  ///
+  /// In de, this message translates to:
+  /// **'Wer anfängt, lost das Spiel aus.'**
+  String get seatRandomStartHint;
+
+  /// KLD-119 follow-up: shown at the start of a game for 2–4 players: who has the first turn. player = name.
+  ///
+  /// In de, this message translates to:
+  /// **'Los geht’s: {player} fängt an.'**
+  String seatStarts(String player);
+
+  /// KLD-119 follow-up: as seatStarts when chance picked who starts. player = name.
+  ///
+  /// In de, this message translates to:
+  /// **'Ausgelost: {player} fängt an!'**
+  String seatStartsRandom(String player);
+
+  /// KLD-119 follow-up: five-dice rules, who starts (a line of the turn section).
+  ///
+  /// In de, this message translates to:
+  /// **'Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.'**
+  String get rulesDicesheetStart;
 }
 
 class _AppLocalizationsDelegate

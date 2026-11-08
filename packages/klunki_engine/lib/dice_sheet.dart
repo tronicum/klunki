@@ -67,6 +67,9 @@ enum DiceBox {
 ///   lower box at full value (full house 25, straights 30 / 40), else an
 ///   upper box with 0. Off: five of a kind is not a full house or a
 ///   straight, and there is no extra bonus.
+/// * Who starts: seat 0, unless [randomStart] (JSON `start: random` in the
+///   config, KLD-119 follow-up): then the seed draws the starting seat (the
+///   first number of `Random(seed)`, before any dice). Then clockwise.
 /// * Resign: two seats use the common resign (the other seat wins). With
 ///   3–4 seats `{'action': 'resign', 'seat': n}` lets seat `n` leave at any
 ///   time; the others play on, the last one in wins (`common.resigned`).
@@ -102,6 +105,12 @@ class DiceSheetGame extends Game implements SeatGame {
   final int playerCount;
   final bool extraFives;
 
+  /// The seed picks the starting seat (else seat 0).
+  final bool randomStart;
+
+  /// The seat that started.
+  late final int startSeat;
+
   final Random _rng;
   int _seat = 0;
   List<int> _dice = const [];
@@ -114,11 +123,13 @@ class DiceSheetGame extends Game implements SeatGame {
   final List<List<int>> _scripted = [];
   final List<Map<String, dynamic>> _history = [];
 
-  DiceSheetGame({int seed = 0, this.playerCount = 2, this.extraFives = false})
+  DiceSheetGame({int seed = 0, this.playerCount = 2, this.extraFives = false, this.randomStart = false})
       : _rng = Random(seed),
         _sheets = [for (var s = 0; s < playerCount; s++) <DiceBox, int>{}],
         _extraBonus = List.filled(playerCount, 0) {
     if (playerCount < 2 || playerCount > 4) throw ArgumentError.value(playerCount, 'playerCount', 'must be 2..4');
+    startSeat = randomStart ? _rng.nextInt(playerCount) : 0;
+    _seat = startSeat;
   }
 
   // ------------------------------------------------------------- scoring
@@ -458,6 +469,7 @@ class DiceSheetGame extends Game implements SeatGame {
   Map<String, dynamic> toJson() => {
         'players': playerCount,
         if (extraFives) 'extraFives': true,
+        if (startSeat != 0) 'start': startSeat,
         'seat': _seat,
         'rolls': _rolls,
         'dice': List.of(_dice),

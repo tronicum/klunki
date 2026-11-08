@@ -931,5 +931,19 @@
   "rulesDicesheetFiveKind": "5 pareils : {points} points.",
   "rulesDicesheetChance": "Va toujours. Tous les dés comptent.",
   "rulesDicesheetSpecial": "Tu remplis chaque case une seule fois.\nUn lancer compte tout de suite. « Annuler le coup » reprend seulement ce que tu as inscrit, tant que personne n’a relancé.\nQui abandonne est éliminé. Les autres continuent.\nSecouer : au lieu de toucher « Lancer », tu peux secouer le téléphone.",
-  "rulesDicesheetExtraFives": "Un nouveau Cinq pareils quand la case contient déjà 50 : {bonus} points en plus. Dès que la case Cinq pareils est remplie (même avec 0), un Cinq pareils est un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut."
+  "rulesDicesheetExtraFives": "Un nouveau Cinq pareils quand la case contient déjà 50 : {bonus} points en plus. Dès que la case Cinq pareils est remplie (même avec 0), un Cinq pareils est un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut.",
+  "dicesheetStartTitle": "Qui commence ?",
+  "dicesheetStartFirst": "Premier joueur",
+  "dicesheetStartOrder": "Choisir l’ordre",
+  "dicesheetStartRandom": "Hasard",
+  "dicesheetStartFirstExplain": "Le nom en haut de la liste commence. Ensuite, chacun son tour.",
+  "dicesheetStartOrderExplain": "À l’étape suivante, vous mettez les noms dans votre ordre.",
+  "dicesheetStartRandomExplain": "Le jeu tire au sort qui commence. Ensuite, chacun son tour.",
+  "seatOrderHint": "Vous jouez dans l’ordre des noms ici. Change l’ordre avec les flèches.",
+  "seatMoveUp": "Monter",
+  "seatMoveDown": "Descendre",
+  "seatRandomStartHint": "Le jeu tire au sort qui commence.",
+  "seatStarts": "C’est parti : {player} commence.",
+  "seatStartsRandom": "Tirage au sort : {player} commence !",
+  "rulesDicesheetStart": "Avant la partie, vous choisissez qui commence : le nom en haut de la liste, votre propre ordre ou le hasard."
 }
