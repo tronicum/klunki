@@ -359,7 +359,7 @@ void main() {
         await tester.pump();
         await g.up();
         await tester.pumpAndSettle();
-        await tap('wordtiles-help');
+        await tap('shell-rules');
         await tester.ensureVisible(find.byIcon(Icons.pinch_outlined));
         await tester.pumpAndSettle();
         await _shot(tester, 'kld094-8g-help-de-393x852-safe');

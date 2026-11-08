@@ -78,6 +78,8 @@ void main() {
   setUpAll(_loadRoboto);
   setUp(SeenTips.debugReset);
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
+  // The steady layout: without the "Neu hier?" line of a new player (KLD-123).
+  setUp(() => SeenTips.shared.markFirst(SeenTips.rulesOpened('wordtiles')));
 
   // Large phones keep the full board with the bench open, so it starts
   // open there (KLD-094 step 8c); a mid-size phone (390 × 844, 375 × 812)
@@ -98,7 +100,7 @@ void main() {
       await _setBench(tester, size, open: false);
       void expectTight(String state) {
         final board = _board(tester);
-        final scoreRow = _rect(tester, 'wordtiles-help');
+        final scoreRow = _rect(tester, 'wordtiles-score-end');
         expect(board.top - scoreRow.bottom, _underScoreRow, reason: '$state: board right under the score row');
         // Between board and rack only the score preview line (22 px).
         expect(_rect(tester, 'wordtiles-rack').top - board.bottom, inInclusiveRange(0, 32),
@@ -145,7 +147,7 @@ void main() {
       await _start(tester, size, safe: safe);
       expect(_benchShown(), isFalse, reason: 'closed at first: the overlay would cover the board');
       final closed = _board(tester);
-      final help = _rect(tester, 'wordtiles-help');
+      final help = _rect(tester, 'wordtiles-score-end');
       expect(closed.top - help.bottom, _underScoreRow);
       // KLD-094 step 8f: the handle is a slim bar right under the board
       // (no longer in the score row), with a finger-sized tap area.
@@ -230,7 +232,7 @@ void main() {
     expect(_rect(tester, 'wordtiles-bench').bottom, lessThanOrEqualTo(size.height));
     await _setBench(tester, size, open: false);
     final closed = _board(tester);
-    expect(closed.top - _rect(tester, 'wordtiles-help').bottom, _underScoreRow);
+    expect(closed.top - _rect(tester, 'wordtiles-score-end').bottom, _underScoreRow);
     expect(open.top, closed.top);
     expect(open.width, greaterThan(closed.width * 0.8));
   });

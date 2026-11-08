@@ -17,6 +17,7 @@ import 'package:klunki/ui/pairing/network_unavailable.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoinScreen;
+import 'package:klunki/ui/rules/rules_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -503,6 +504,22 @@ class _GameTile extends StatelessWidget {
                     blocked: networkBlocked,
                   ),
                 ],
+                // KLD-123: the game's rules page, with the defaults.
+                if (hasRules(spec.id))
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton.icon(
+                      key: Key('menu-${spec.id}-rules'),
+                      onPressed: () => openRules(context, spec.id),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: accent.onSurface(theme.brightness),
+                        padding: const EdgeInsetsDirectional.fromSTEB(6, 0, 8, 0),
+                      ),
+                      icon: const Icon(Icons.menu_book_outlined, size: 18),
+                      label: Text(l10n.rulesButton),
+                    ),
+                  ),
               ],
             ),
           ),

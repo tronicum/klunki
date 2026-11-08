@@ -1,6 +1,7 @@
 // KLD-118 follow-up: the Mau-Mau "how to play" tour (once per device, never
-// over the handover cover, again from the ? button) and the button
-// hierarchy (what to do now filled, the alternative outlined).
+// over the handover cover; its last step points at the "Regeln" button,
+// KLD-123) and the button hierarchy (what to do now filled, the alternative
+// outlined).
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,7 +61,7 @@ void main() {
   group('tour', () {
     setUp(SeenTips.debugReset); // a fresh install
 
-    testWidgets('shows once, three steps, never again', (tester) async {
+    testWidgets('shows once, four steps, never again', (tester) async {
       await _pump(tester);
       expect(_key('maumau-coach'), findsOneWidget);
       expect(_key('maumau-coach-step-1'), findsOneWidget);
@@ -75,8 +76,12 @@ void main() {
       expect(_key('maumau-coach-step-2'), findsOneWidget);
       await _tap(tester, 'maumau-coach-next');
       expect(_key('maumau-coach-step-3'), findsOneWidget);
-      expect(_key('maumau-coach-skip'), findsNothing);
       expect(find.textContaining('„Mau!“'), findsOneWidget); // the house rule is on
+      await _tap(tester, 'maumau-coach-next');
+      // KLD-123: the last step shows where all the rules are.
+      expect(_key('maumau-coach-step-4'), findsOneWidget);
+      expect(find.text('Alle Regeln findest du hier.'), findsOneWidget);
+      expect(_key('maumau-coach-skip'), findsNothing);
       await _tap(tester, 'maumau-coach-done');
       expect(_key('maumau-coach'), findsNothing);
       // The game goes on as before.
@@ -111,14 +116,14 @@ void main() {
       expect(_key('maumau-hand-d7'), findsOneWidget, reason: "Ben's own hand under the tour");
     });
 
-    testWidgets('the ? button shows it again', (tester) async {
+    testWidgets('no ? button any more: "Regeln" in the app bar opens the rules (KLD-123)', (tester) async {
       SeenTips.shared.markFirst(SeenTips.maumauIntro);
       await _pump(tester);
       expect(_key('maumau-coach'), findsNothing);
-      await _tap(tester, 'maumau-help');
-      expect(_key('maumau-coach-step-1'), findsOneWidget);
-      await _tap(tester, 'maumau-coach-skip');
-      expect(_key('maumau-coach'), findsNothing);
+      expect(_key('maumau-help'), findsNothing);
+      await _tap(tester, 'shell-rules');
+      expect(_key('rules-page'), findsOneWidget);
+      expect(_key('rules-house-seven'), findsOneWidget);
     });
   });
 

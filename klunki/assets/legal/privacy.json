@@ -6,7 +6,7 @@
   },
   {
    "t": "meta",
-   "x": "Stand: 2. November 2026"
+   "x": "Stand: 8. November 2026"
   },
   {
    "t": "p",
@@ -114,6 +114,14 @@
   },
   {
    "t": "h2",
+   "x": "Bewegungssensor"
+  },
+  {
+   "t": "p",
+   "x": "Den Bewegungssensor nutzt Klunki nur zum Würfeln durch Schütteln. Die Bewegung wird auf dem Gerät ausgewertet und weder gespeichert noch übertragen. Im Browser auf dem iPhone fragt der Browser vorher um Erlaubnis; „Schütteln zum Würfeln“ lässt sich in den Spieloptionen ausschalten."
+  },
+  {
+   "t": "h2",
    "x": "Kartenfotos und Links"
   },
   {
@@ -180,7 +188,7 @@
   },
   {
    "t": "meta",
-   "x": "Last updated: 2 November 2026"
+   "x": "Last updated: 8 November 2026"
   },
   {
    "t": "p",
@@ -285,6 +293,14 @@
   {
    "t": "p",
    "x": "The app uses the camera only when you scan a QR code to join a room. The image is processed on the device and is neither stored nor sent anywhere. The web app does not use the camera."
+  },
+  {
+   "t": "h2",
+   "x": "Motion sensor"
+  },
+  {
+   "t": "p",
+   "x": "Klunki uses the motion sensor only for rolling the dice by shaking. The motion is processed on the device and is neither stored nor sent anywhere. In the browser on an iPhone, the browser asks for permission first; “Shake to roll” can be switched off in the game options."
   },
   {
    "t": "h2",

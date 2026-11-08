@@ -15,6 +15,8 @@ import '../game_titles.dart';
 import '../game_visuals.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
+import '../../profile/seen_tips.dart';
+import '../rules/rules_screen.dart';
 import 'confirm_move.dart';
 import 'handover_cover.dart';
 import 'player_labels.dart';
@@ -69,6 +71,10 @@ abstract interface class GameShell {
   /// KLD-091); null goes back to the live status. Safe to call from `build`
   /// (the update is deferred to after the frame then).
   void setStatusOverride(ShellStatus? status);
+
+  /// The "Regeln" button in the app bar (KLD-123), e.g. for a coach mark
+  /// pointing at it. Its context is null for a game without rules page.
+  GlobalKey get rulesButtonKey;
 }
 
 /// A status line set by the board instead of the live one, see
@@ -109,6 +115,10 @@ class ShellStatus {
 ///   Zug (X)" / "Warte auf Ben…") plus a
 ///   hint line the board can set
 ///   through [GameScreen.of] → [GameShell.setHint],
+/// * "Regeln" (KLD-123, [RulesButton]): the game's rules page, at the end
+///   of the app bar in every game, and under the status a "Neu hier? So
+///   geht's" line for a new player of this game (until the rules page was
+///   opened once for the game or from the 4th game on, [SeenTips]),
 /// * network games that offer "Zug bestätigen" (KLD-122): its toggle for
 ///   this device ([ConfirmMoveToggle]) in the app bar,
 /// * "Zug zurück" ([UndoMoveButton], hot-seat only, KLD-117) in the game
@@ -192,6 +202,35 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   /// Set once the player confirmed leaving: lets the route pop.
   bool _leaving = false;
 
+  final GlobalKey _rulesKey = GlobalKey(debugLabel: 'shell-rules');
+
+  /// The "Neu hier? So geht's" line (KLD-123) is shown in this game.
+  bool _rulesIntro = false;
+
+  /// Games of this kind started on this device, the current one included,
+  /// up to which the "Neu hier?" line shows.
+  static const int rulesIntroGames = 3;
+
+  @override
+  GlobalKey get rulesButtonKey => _rulesKey;
+
+  /// Counts a started game and decides about the "Neu hier?" line.
+  void _countGame() {
+    final id = controller.spec.id;
+    if (!hasRules(id)) {
+      _rulesIntro = false;
+      return;
+    }
+    final tips = SeenTips.shared;
+    final n = tips.countUp(SeenTips.gamesStarted(id));
+    _rulesIntro = n <= rulesIntroGames && !tips.has(SeenTips.rulesOpened(id));
+  }
+
+  void _openRules() {
+    if (_rulesIntro) setState(() => _rulesIntro = false);
+    openRules(context, controller.spec.id, config: controller.config);
+  }
+
   @override
   GameController get controller => widget.controller;
 
@@ -252,6 +291,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     super.initState();
     _transport = controller.transport;
     controller.addListener(_onChange);
+    _countGame();
   }
 
   @override
@@ -265,6 +305,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
       _statusOverride = null;
       _resultShown = false;
       _resultHeld = false;
+      _countGame();
     }
   }
 
@@ -282,6 +323,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
         _transport = controller.transport;
         _hint = null;
         _statusOverride = null;
+        _countGame();
       }
     });
     if (!controller.game.isOver) {
@@ -592,7 +634,11 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
           appBar: AppBar(
             backgroundColor: accent.color,
             foregroundColor: accent.onColor,
-            title: Text(widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
+            // KLD-123: a little more room for the title next to the five
+            // actions of a hot-seat game ("Regeln" is the fifth).
+            titleSpacing: 4,
+            title: _ShellTitle(
+                widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
               // Hot-seat names (KLD-056), when the app provides the store.
               if (_canRestart && PlayerNameScope.maybeOf(context) != null)
@@ -626,6 +672,12 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 icon: const Icon(Icons.history),
                 onPressed: _showHistory,
               ),
+              // KLD-123: last, so it is in the same place in every game.
+              if (hasRules(controller.spec.id))
+                KeyedSubtree(
+                  key: _rulesKey,
+                  child: RulesButton(key: const Key('shell-rules'), onPressed: _openRules),
+                ),
             ],
           ),
           body: KlunkiBackground(
@@ -668,6 +720,9 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                                     labels: labels,
                                     current: game.isOver ? null : game.currentPlayer,
                                   ),
+                                // KLD-123: in this row where there is room
+                                // (wide screens), else on a line of its own.
+                                if (_rulesIntro && !game.isOver) _RulesIntroLine(onTap: _openRules),
                               ],
                             ),
                           ),
@@ -1121,3 +1176,62 @@ class _PlayersLegend extends StatelessWidget {
 /// stone on paper, dark stone on the dark table), then the theme outline.
 Color visibleOn(BuildContext context, Color color, {double minRatio = 1.4}) =>
     contrastRatio(color, KlunkiPalette.of(context).card) >= minRatio ? color : Theme.of(context).colorScheme.outline;
+
+/// "Neu hier? So geht's ›" (KLD-123): opens the rules page.
+class _RulesIntroLine extends StatelessWidget {
+  final VoidCallback onTap;
+  const _RulesIntroLine({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.primary;
+    return TextButton(
+      key: const Key('shell-rules-intro'),
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 4, 0),
+        foregroundColor: color,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.menu_book_outlined, size: 18, color: color),
+          const SizedBox(width: 6),
+          Flexible(child: Text(AppLocalizations.of(context).rulesNewHere)),
+          Icon(Icons.chevron_right, size: 18, color: color),
+        ],
+      ),
+    );
+  }
+}
+
+/// The app bar title (KLD-123): with five actions on a phone a game title
+/// may not fit. It shrinks a little first (down to [minScale] of the app
+/// bar's size), only then it is cut with "…".
+class _ShellTitle extends StatelessWidget {
+  final String text;
+  const _ShellTitle(this.text);
+
+  static const double minScale = 0.75;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style;
+    return LayoutBuilder(builder: (context, box) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final width = painter.width;
+      painter.dispose();
+      if (!box.hasBoundedWidth || width <= box.maxWidth) return Text(text, maxLines: 1);
+      final scale = box.maxWidth / width;
+      final size = (style.fontSize ?? 20) * (scale < minScale ? minScale : scale);
+      return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: size * 0.98));
+    });
+  }
+}

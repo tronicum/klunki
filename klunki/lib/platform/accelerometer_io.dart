@@ -19,4 +19,7 @@ Stream<AccelSample> accelerometerSamples() {
   });
 }
 
+/// The apps need no permission for the motion sensor.
+bool get motionPermissionPending => false;
+
 void requestMotionPermission() {}

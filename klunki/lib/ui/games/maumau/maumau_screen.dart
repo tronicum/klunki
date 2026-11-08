@@ -478,7 +478,8 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     });
   }
 
-  /// The tour: lay a fitting card (the hand), else draw (the pile), who wins.
+  /// The tour: lay a fitting card (the hand), else draw (the pile), who
+  /// wins, and where the rules are (the shell's "Regeln" button, KLD-123).
   Future<void> _showCoach() {
     final l10n = AppLocalizations.of(context);
     final g = _gameOf(c);
@@ -493,6 +494,8 @@ class _MauMauBoardState extends State<_MauMauBoard> {
           icon: Icons.emoji_events_outlined,
           text: g != null && g.rules.mauCall ? l10n.maumauCoachWinMau : l10n.maumauCoachWin,
         ),
+        // KLD-123: where all the rules are.
+        CoachStep(target: GameScreen.of(context).rulesButtonKey, icon: Icons.menu_book_outlined, text: l10n.rulesCoachHere),
       ],
     );
   }
@@ -831,19 +834,8 @@ class _MauMauBoardState extends State<_MauMauBoard> {
       key: _handKey,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(child: Text(l10n.maumauYourCards(hand.length), style: theme.textTheme.titleSmall)),
-            if (arrived == null)
-              IconButton(
-                key: const Key('maumau-help'),
-                tooltip: l10n.maumauHelp,
-                visualDensity: VisualDensity.compact,
-                onPressed: _showCoach,
-                icon: const Icon(Icons.help_outline),
-              ),
-          ],
-        ),
+        // KLD-123: the rules ("?" before) are behind the shell's "Regeln".
+        Text(l10n.maumauYourCards(hand.length), style: theme.textTheme.titleSmall),
         const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, box) {

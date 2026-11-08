@@ -43,6 +43,7 @@ void main() {
   setUp(() {
     SeenTips.debugReset();
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+    SeenTips.shared.markFirst(SeenTips.rulesOpened('wordtiles')); // no "Neu hier?" line (KLD-123)
   });
 
   testWidgets('score bar: token, name and score (KLD-094 step 8g); the semantics label says it all', (tester) async {
@@ -83,18 +84,19 @@ void main() {
     expect(find.text(deL10n.wordtilesBlankScore), findsOneWidget);
   });
 
-  testWidgets('"So geht\'s" opens from the score bar with the premium legend', (tester) async {
+  testWidgets('the rules page ("So geht\'s" before, KLD-123) opens from the app bar with the premium legend',
+      (tester) async {
     _size(tester, const Size(1180, 820));
     await _start(tester);
-    await _tap(tester, find.byKey(const Key('wordtiles-help')));
-    expect(find.byKey(const Key('wordtiles-help-sheet')), findsOneWidget);
+    await _tap(tester, find.byKey(const Key('shell-rules')));
+    expect(find.byKey(const Key('rules-page')), findsOneWidget);
     for (final p in ['doubleLetter', 'tripleLetter', 'doubleWord', 'tripleWord']) {
       expect(find.byKey(Key('wordtiles-help-premium-$p')), findsOneWidget);
     }
     expect(find.text(deL10n.wordtilesHelpBingo(7, 50)), findsOneWidget);
     expect(find.text(deL10n.wordtilesHelpPass(6)), findsOneWidget);
     // No dictionary in this game: the challenge comes first.
-    expect(tester.getTopLeft(find.text(deL10n.wordtilesHelpChallenge)).dy,
+    expect(tester.getTopLeft(find.textContaining(deL10n.wordtilesHelpChallenge)).dy,
         lessThan(tester.getTopLeft(find.text(deL10n.wordtilesHelpDictionary)).dy));
   });
 
@@ -109,7 +111,7 @@ void main() {
     expect(find.descendant(of: bar, matching: find.byKey(const Key('wordtiles-bench-toggle'))), findsOneWidget);
     expect(
         find.descendant(
-            of: find.ancestor(of: find.byKey(const Key('wordtiles-help')), matching: find.byType(Row)).at(1),
+            of: find.ancestor(of: find.byKey(const Key('wordtiles-score-end')), matching: find.byType(Row)).at(1),
             matching: find.byKey(const Key('wordtiles-bench-toggle'))),
         findsNothing);
     await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));

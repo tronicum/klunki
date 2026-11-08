@@ -437,11 +437,11 @@ void main() {
         await _shot(tester, 'polish-$name-5-pass-confirm');
         await _tap(tester, find.byKey(const Key('wordtiles-pass-cancel')));
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.byKey(const Key('wordtiles-help')));
-        await _tap(tester, find.byKey(const Key('wordtiles-help')));
+        // KLD-123: "So geht's" is the shell's rules page now.
+        await _tap(tester, find.byKey(const Key('shell-rules')));
         await tester.pumpAndSettle();
         await _shot(tester, 'polish-$name-6-help');
-        await tester.drag(find.byKey(const Key('wordtiles-help-sheet')), const Offset(0, -600));
+        await tester.drag(find.byKey(const Key('rules-page')), const Offset(0, -600));
         await tester.pumpAndSettle();
         await _shot(tester, 'polish-$name-7-help-scrolled');
       });
@@ -599,10 +599,9 @@ void main() {
           await _tap(tester, find.byKey(const Key('handover-continue')));
           await tester.pumpAndSettle();
         }
-        await tester.ensureVisible(find.byKey(const Key('wordtiles-help')));
-        await _tap(tester, find.byKey(const Key('wordtiles-help')));
+        await _tap(tester, find.byKey(const Key('shell-rules')));
         await tester.pumpAndSettle();
-        await tester.ensureVisible(find.byKey(const Key('wordtiles-help-joker')));
+        await tester.ensureVisible(find.byKey(const Key('rules-house')));
         await tester.pumpAndSettle();
         await _shot(tester, 'kld094-step9/$name-5-help');
       });

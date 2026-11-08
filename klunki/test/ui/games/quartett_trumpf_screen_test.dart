@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
@@ -45,6 +46,9 @@ Future<void> tapContinue(WidgetTester tester) async {
 }
 
 void main() {
+  // Without the "Neu hier?" line of a new player (KLD-123): the default
+  // 800×600 test screen has no room to spare.
+  setUp(() => SeenTips.shared.markFirst(SeenTips.rulesOpened('quartett-trumpf')));
   testWidgets('shows the top card with all stats, the hint and stack counts', (tester) async {
     final c = await pumpGame(tester, 'quartett-trumpf', seed: 1);
     await tester.pump(); // hint is set post-frame

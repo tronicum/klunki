@@ -53,6 +53,13 @@ Stream<AccelSample> accelerometerSamples() {
 
 bool _asked = false;
 
+/// iOS Safari 13+ will ask for motion access (KLD-123): the browser has
+/// `DeviceMotionEvent.requestPermission` and it was not called yet.
+bool get motionPermissionPending {
+  if (_asked || !globalContext.has('DeviceMotionEvent')) return false;
+  return (globalContext['DeviceMotionEvent'] as JSObject).has('requestPermission');
+}
+
 /// iOS Safari 13+: `DeviceMotionEvent.requestPermission()` (must run in a
 /// user tap). Other browsers have no such method and need nothing.
 void requestMotionPermission() {

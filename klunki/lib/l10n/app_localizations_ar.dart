@@ -2333,9 +2333,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesBlankScore => 'البلاطة الفارغة تساوي 0 نقاط.';
 
   @override
-  String get wordtilesHelp => 'طريقة اللعب';
-
-  @override
   String get wordtilesHelpGoal =>
       'ضعوا كلمات كما في الكلمات المتقاطعة. لكل حرف نقاط (الرقم الصغير). تمرّ الكلمة الأولى على النجمة في الوسط، وكل كلمة بعدها تتصل بما على اللوح.';
 
@@ -2481,17 +2478,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move (مع تبديل بلاطة فارغة)';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      'تبديل البلاطة الفارغة (قاعدة منزلية): إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فاسحبه إليها. تنضمّ البلاطة الفارغة إلى بلاطاتك، وتضع بلاطات في الدور نفسه (ويمكن أن تكون البلاطة الفارغة منها). بلا وضع بلاطات لا يُحسب التبديل. تبقى الكلمة القديمة ونقاطها.';
-
-  @override
-  String get wordtilesHelpJokerOn => 'مفعّلة في هذه اللعبة.';
-
-  @override
-  String get wordtilesHelpJokerOff =>
-      'غير مفعّلة في هذه اللعبة. يمكنكم تفعيلها قبل اللعبة.';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2879,9 +2865,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get coachSkip => 'تخطي';
 
   @override
-  String get maumauHelp => 'طريقة اللعب';
-
-  @override
   String get maumauCoachPlay =>
       'اضغط على ورقة مطابقة لتضعها. الأوراق المطابقة أعلى ولها إطار.';
 
@@ -3144,4 +3127,293 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'تأكيد الحركة: متوقف.';
+
+  @override
+  String get rulesButton => 'القواعد';
+
+  @override
+  String rulesTitle(String game) {
+    return 'قواعد اللعبة: $game';
+  }
+
+  @override
+  String get rulesGoal => 'الهدف';
+
+  @override
+  String get rulesTurn => 'كيف يسير الدور';
+
+  @override
+  String get rulesSpecial => 'قواعد خاصة';
+
+  @override
+  String get rulesHouse => 'القواعد المنزلية';
+
+  @override
+  String get rulesHouseInGame => 'القواعد المنزلية في هذه اللعبة';
+
+  @override
+  String get rulesHouseNoneForGame => 'لا توجد قواعد منزلية لهذه اللعبة.';
+
+  @override
+  String get rulesHouseNoneOn => 'لا توجد قاعدة منزلية مفعّلة الآن.';
+
+  @override
+  String get rulesHouseMenuNote =>
+      'هذا هو الاقتراح. يمكنكم تغيير القواعد المنزلية قبل اللعب.';
+
+  @override
+  String get rulesNewHere => 'جديد هنا؟ هكذا تلعب';
+
+  @override
+  String get rulesCoachHere => 'تجد كل القواعد هنا.';
+
+  @override
+  String get rulesConnect4Goal =>
+      'ضع 4 من أقراصك في صف: أفقيًا أو عموديًا أو مائلًا.';
+
+  @override
+  String get rulesConnect4Turn =>
+      'انقر على عمود. يسقط قرصك إلى أدنى مكان فارغ.\nثم يأتي دور الطرف الآخر.\nالبداية مع اللاعب 1.';
+
+  @override
+  String get rulesConnect4Special =>
+      'في اللوحة 7 أعمدة و6 صفوف.\nالعمود الممتلئ لا يتسع لقرص آخر.\nإذا امتلأت اللوحة ولم تكن 4 في صف عند أحد، فالنتيجة تعادل.';
+
+  @override
+  String get rulesMuehleGoal =>
+      'أزل أحجار الطرف الآخر حتى لا يبقى منها إلا 2. أو حاصر أحجاره حتى لا تبقى له حركة.';
+
+  @override
+  String get rulesMuehleTurn =>
+      'لكل لاعب 9 أحجار. البداية مع اللاعب 1.\nأولًا تضعون بالتناوب حجرًا واحدًا على نقطة فارغة.\nبعد وضع كل الأحجار تحرّك حجرًا على خط إلى النقطة الفارغة المجاورة.\nإذا بقي لديك 3 أحجار فقط، يمكنك القفز: إلى أي نقطة فارغة.';
+
+  @override
+  String get rulesMuehleMill =>
+      '3 أحجار على خط واحد تصنع طاحونة. عندها تزيل حجرًا من أحجار الطرف الآخر.';
+
+  @override
+  String get rulesMuehleSpecial =>
+      'الأحجار في الطاحونة محميّة. فقط إذا كانت كل أحجار الطرف الآخر في طواحين، يمكنك أخذ واحد منها.\nإذا فتحت طاحونة ثم أغلقتها مرة أخرى، تُحسب من جديد.\n50 حركة متتالية بلا إزالة حجر (لكلا اللاعبين معًا): تعادل.';
+
+  @override
+  String get rulesTrumpfGoal => 'اربح كل البطاقات. من تنفد بطاقاته يخسر.';
+
+  @override
+  String get rulesTrumpfTurn =>
+      'يحصل كل لاعب على 16 بطاقة في كومة مقلوبة. تُلعب دائمًا البطاقة العليا.\nصاحب الدور يختار خاصية من بطاقته، مثل السرعة.\nالقيمة الأفضل تربح الجولة. غالبًا الأعلى أفضل، وفي بعض الخصائص الأقل. هذا مكتوب على البطاقة.\nالرابح في الجولة يضع البطاقتين تحت كومته ويختار في المرة التالية.\nالاختيار الأول للاعب 1.';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      'قيمة متساوية: جولة فاصلة! تذهب البطاقتان إلى الوعاء، ويختار صاحب الاختيار مرة أخرى. الرابح في الجولة التالية يأخذ الوعاء كله أيضًا.\nبعد 200 جولة يفوز من لديه بطاقات أكثر. عند التساوي فالنتيجة تعادل.\nإذا فرغت الكومتان، فالنتيجة تعادل أيضًا.';
+
+  @override
+  String get rulesTrumpfPickLow => '3 بطاقات أو أقل: اختر';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      'إذا بقي لديك 2 أو 3 بطاقات فقط، ترى كلها وتختار أيها تلعب. صاحب الاختيار يختار البطاقة أولًا ثم الخاصية. والطرف الآخر يختار بطاقته بعد معرفة الخاصية.';
+
+  @override
+  String get rulesSetsGoal =>
+      'اجمع رباعيات: البطاقات الـ4 كلها من مجموعة واحدة. يفوز في النهاية من لديه رباعيات أكثر.';
+
+  @override
+  String get rulesSetsTurn =>
+      'يحصل كل لاعب على 8 بطاقات. البطاقات الـ16 الأخرى في كومة مقلوبة.\nاطلب من الطرف الآخر بطاقة تنقصك. يجب أن تكون لديك بطاقة من هذه المجموعة.\nإذا كانت البطاقة عند الطرف الآخر، تنتقل إليك، ويمكنك الطلب مرة أخرى.\nإذا لم تكن عنده، فالجواب «لا يوجد»: تسحب بطاقة من الكومة، ثم يأتي دور الطرف الآخر.\nالطلب الأول للاعب 1.';
+
+  @override
+  String get rulesSetsSpecial =>
+      'إذا اكتملت لديك البطاقات الـ4 من مجموعة، تضع الرباعية فورًا.\nإذا سحبت من الكومة البطاقة التي طلبتها، يأتي مع ذلك دور الطرف الآخر.\nإذا لم تبقَ لديك بطاقات، تسحب بطاقة من الكومة.\nعند وضع الرباعيات الـ8 كلها تنتهي اللعبة. 4 مقابل 4 تعادل.';
+
+  @override
+  String get rulesSchiffeGoal => 'أغرق كل سفن الطرف الآخر قبل أن تغرق سفنك.';
+
+  @override
+  String get rulesSchiffeTurn =>
+      'أولًا يضع كل لاعب أسطوله سرًّا في بحره، وهو 10 × 10 خانات. البداية مع اللاعب 1.\nثم تطلقون النار بالتناوب: انقر خانة في بحر الطرف الآخر.\nتطلق النار على كل خانة مرة واحدة فقط.';
+
+  @override
+  String get rulesSchiffeMiss => 'ماء: خطأ. الآن دور الطرف الآخر.';
+
+  @override
+  String get rulesSchiffeHit => 'إصابة! يمكنك إطلاق النار مرة أخرى.';
+
+  @override
+  String get rulesSchiffeSunk =>
+      'غرقت: كل خانات السفينة مصابة. تعرف أي سفينة كانت.';
+
+  @override
+  String get rulesSchiffeFleet => 'الأسطول';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship (الطول: $length)';
+  }
+
+  @override
+  String get rulesSchiffeSpecial =>
+      'السفن مستقيمة: أفقية أو عمودية.\nيجب ألا تتلامس السفن، ولا حتى عند الزوايا.';
+
+  @override
+  String get rulesGoGoal =>
+      'استولِ على علم الطرف الآخر. تفوز أيضًا إذا لم تبقَ للطرف الآخر أي حركة.';
+
+  @override
+  String get rulesGoTurn =>
+      'أولًا يضع كل لاعب قطعه الـ40 سرًّا في صفوفه الأربعة. رتبة القطعة لا يراها إلا صاحبها.\nاللاعب 1 يضع قطعه أولًا ويتحرك أولًا.\nفي دورك تحرّك قطعة واحدة مربعًا واحدًا إلى الأمام أو الخلف أو اليسار أو اليمين. لا تتحرك مائلًا أبدًا.\nلا تدخل أي قطعة البحيرتين في الوسط.';
+
+  @override
+  String get rulesGoFightTitle => 'من يغلب من؟';
+
+  @override
+  String get rulesGoFight =>
+      'إذا تحركت إلى قطعة للطرف الآخر، تتقاتل القطعتان. بعدها يرى اللاعبان أي قطعتين كانتا.\nالرتبة الأعلى تفوز. والخاسرة تخرج من اللعبة.\nرتبة متساوية: تخرج القطعتان.';
+
+  @override
+  String get rulesGoPieces => 'القطع';
+
+  @override
+  String rulesGoRank(int rank) {
+    return 'الرتبة $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal =>
+      'أقوى قطعة. لا يخسر إلا أمام الجاسوس عندما يهاجمه الجاسوس.';
+
+  @override
+  String get rulesGoScout =>
+      'يسير مستقيمًا أي عدد من المربعات الفارغة، ويمكنه الهجوم في النهاية. إذا سار أكثر من مربع واحد، يرى اللاعبان أنه كشّاف.';
+
+  @override
+  String get rulesGoMiner => 'يفكّك القنابل: إذا هاجم قنبلة، يأخذ مكانها.';
+
+  @override
+  String get rulesGoSpy =>
+      'أضعف قطعة. لكن إذا هاجم الجاسوس المشير، يفوز الجاسوس.';
+
+  @override
+  String get rulesGoBomb =>
+      'لا تتحرك أبدًا. كل قطعة تهاجمها تخرج، وتبقى القنبلة. خبير الألغام وحده يفكّكها.';
+
+  @override
+  String get rulesGoFlag => 'لا يتحرك أبدًا. من يهاجمه يفوز باللعبة.';
+
+  @override
+  String get rulesGoSpecial =>
+      'يمكن للقطعة أن تتحرك ذهابًا وإيابًا بين المربعين نفسيهما 3 مرات متتالية على الأكثر.\nإذا تحركت قطعة، يعرف الطرف الآخر: ليست قنبلة ولا علمًا.\n200 حركة متتالية بلا قتال: تعادل. وكذلك إذا لم تبقَ لأحد أي حركة.';
+
+  @override
+  String get rulesChessGoal =>
+      'اجعل ملك الطرف الآخر «كش مات»: يكون مهدَّدًا ولا مهرب له.';
+
+  @override
+  String get rulesChessTurn =>
+      'الأبيض يبدأ، ثم تلعبون بالتناوب.\nالمس قطعة من قطعك ثم مربعًا. إذا كانت هناك قطعة للطرف الآخر، تأسرها.\nالحصان وحده يمكنه القفز فوق القطع الأخرى.';
+
+  @override
+  String get rulesChessPieces => 'كيف تتحرك القطع';
+
+  @override
+  String get rulesChessKing => 'مربع واحد في أي اتجاه.';
+
+  @override
+  String get rulesChessQueen => 'أي مسافة مستقيمًا أو مائلًا.';
+
+  @override
+  String get rulesChessRook => 'أي مسافة مستقيمًا.';
+
+  @override
+  String get rulesChessBishop => 'أي مسافة مائلًا.';
+
+  @override
+  String get rulesChessKnight =>
+      'مثل حرف L: مربعان مستقيمًا، ثم مربع واحد إلى الجانب. يقفز فوق القطع.';
+
+  @override
+  String get rulesChessPawn =>
+      'مربع واحد إلى الأمام، وفي حركته الأولى مربعان أيضًا. يأسر مربعًا واحدًا مائلًا إلى الأمام.';
+
+  @override
+  String get rulesChessSpecial =>
+      'كش: ملكك مهدَّد. يجب أن تنقذه فورًا. لا تجوز حركة تترك ملكك في كش.\nكش مات: الملك في كش ولا يمكن إنقاذه. من يصنع كش مات يفوز.\nالتبييت: لم يتحرك الملك ولا الرخ بعد، وكل ما بينهما فارغ. يتحرك الملك مربعين نحو الرخ، ويقفز الرخ إلى جانبه. لا يجوز إذا كان الملك في كش أو كان سيمر على مربع مهدَّد.\nالأخذ بالمرور: إذا تحرك بيدق مربعين ووصل إلى جانب بيدقك، يمكنك أسره مائلًا في حركتك التالية مباشرة، كأنه تحرك مربعًا واحدًا فقط.\nالترقية: إذا وصل بيدق إلى الصف الأخير، يصير وزيرًا أو رخًا أو فيلًا أو حصانًا. أنت تختار.';
+
+  @override
+  String get rulesChessDrawTitle => 'التعادل';
+
+  @override
+  String get rulesChessDraw =>
+      'الجمود: صاحب الدور لا يستطيع الحركة، لكنه ليس في كش.\nبقيت قطع قليلة جدًا لا تكفي لكش مات.\nالوضع نفسه يتكرر للمرة الثالثة.\n75 حركة لكل لاعب بلا أسر ولا تحريك بيدق.\nتعادل بالاتفاق: صاحب الدور يمكنه عرض التعادل. والطرف الآخر يقبل أو يرفض.';
+
+  @override
+  String get rulesWordtilesWin => 'يفوز من لديه أكثر النقاط في النهاية.';
+
+  @override
+  String get rulesWordtilesTurn =>
+      'لديك 7 بلاطات.\nضع من 1 إلى 7 بلاطات في صف واحد أو عمود واحد، بلا فراغ.\nتحصل على نقاط كل الكلمات الجديدة، ومنها الكلمات المتقاطعة معها.\nبعدها تسحب بلاطات من الكيس حتى يصير لديك 7 من جديد.';
+
+  @override
+  String get rulesWordtilesChallengeAfter =>
+      'بعد الاعتراض يلعب المعترض دوره كالعادة.';
+
+  @override
+  String get rulesWordtilesScoreless =>
+      'إذا انتهت اللعبة لأن أحدًا لم يعد يحصل على نقاط، تُطرح من كل لاعب نقاط بلاطاته الباقية.';
+
+  @override
+  String get rulesMaumauGoal => 'تخلّص من كل أوراقك قبل الطرف الآخر.';
+
+  @override
+  String get rulesMaumauTurn =>
+      'في اللعبة 32 ورقة. يحصل كل لاعب على 5، وورقة مكشوفة في الوسط. البداية مع اللاعب 1.\nضع فوقها ورقة من الشكل نفسه أو بالقيمة نفسها، مثل قلوب على قلوب أو 9 على 9.\nإذا لم تناسب أي ورقة أو لم ترد أن تضع ورقة، تسحب ورقة واحدة. إذا ناسبت، يمكنك وضعها أو الاحتفاظ بها. وإذا لم تناسب، يأتي دور الطرف الآخر.\nإذا فرغت كومة السحب، تُخلط الأوراق المرمية وتصير كومة جديدة.';
+
+  @override
+  String get rulesMaumauJack =>
+      'الولد: يناسب كل ورقة إلا الولد. تطلب شكلًا. بعدها يجب أن تأتي ورقة من هذا الشكل أو ولد.';
+
+  @override
+  String get rulesMaumauSpecial =>
+      'الورقة الأولى في الوسط لا تُعدّ ورقة خاصة.\n9 و10 والبنت والشايب أوراق عادية.\nمن يضع ورقته الأخيرة يفوز، حتى لو كانت ورقة خاصة.';
+
+  @override
+  String get rulesMaexchenGoal =>
+      'لا تخسر كل أرواحك. يفوز من تبقى له أرواح في النهاية.';
+
+  @override
+  String get rulesMaexchenTurn =>
+      'ارمِ نردين تحت الكوب. لا يراهما أحد غيرك.\nأعلن قيمة. يجب أن تكون أعلى من الإعلان السابق. الخداع مسموح أيضًا!\nالطرف الآخر يصدّقك أو يشكّ.\nعند التصديق يرمي الطرف الآخر النرد بنفسه ويجب أن يعلن قيمة أعلى.\nعند الشك يُرفع الكوب. إذا كانت الرمية أقل من الإعلان، يخسر المُعلِن روحًا. وإلا يخسر الشاكّ روحًا.';
+
+  @override
+  String get rulesMaexchenOrderTitle => 'أي رمية أعلى؟';
+
+  @override
+  String get rulesMaexchenOrder =>
+      'النرد الأعلى يُحسب أولًا: 3 و1 تساوي 31.\nمن الأصغر إلى الأكبر: 31، 32، 41، 42، 43 وهكذا حتى 65.\nأعلى منها الأزواج: 11، 22، 33، 44، 55، 66.\nالأعلى على الإطلاق 21: ميا!';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      'الإعلان الأول في الجولة يمكن أن يكون أي قيمة.\nإذا أُعلنت ميا، لا يمكنك التصديق. إما أن تشكّ أو تتخلّى عن روح دون أن تنظر.\nمن يخسر روحًا يبدأ الجولة التالية.\nالهز: بدلًا من الضغط على «ارمِ النرد» يمكنك هزّ الهاتف مثل الكوب.';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return 'عدد الأرواح لكل لاعب في البداية: $count.';
+  }
+
+  @override
+  String get shakeConsentTitle => 'رمي النرد بالهز؟';
+
+  @override
+  String get shakeConsentBody =>
+      'سيسأل المتصفح بعد قليل إن كان Klunki يستطيع الإحساس بحركة الهاتف. نستخدم ذلك لرمي النرد فقط، ويبقى على الجهاز.';
+
+  @override
+  String get shakeConsentYes => 'نعم، اسمح بالهز';
+
+  @override
+  String get shakeConsentNo => 'لا، اللمس فقط';
 }

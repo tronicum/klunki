@@ -158,11 +158,17 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
       controller.canAct && !game.isOver && game.phase == MaexchenPhase.roll && !controller.needsHandover;
 
   /// Rolls: a tap on "Würfeln" ([shaken] false, which also asks the web on
-  /// iOS for motion access) or a shake.
+  /// iOS for motion access, once after the consent card, KLD-123) or a
+  /// shake.
   void _roll({bool shaken = false}) {
     if (!_canRoll) return;
-    if (!shaken) ShakeToRoll.askPermissionFromTap();
-    _submit(MaexchenGame.rollMove);
+    if (shaken) {
+      _submit(MaexchenGame.rollMove);
+      return;
+    }
+    ShakeToRoll.rollFromTap(context, () {
+      if (mounted && _canRoll) _submit(MaexchenGame.rollMove);
+    });
   }
 
   /// Phones narrower than this get the compact controls ("Zug zurück" as an

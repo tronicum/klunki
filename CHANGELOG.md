@@ -16,8 +16,8 @@ short German summary ("Kurz") for the store notes and the testers.
   cards stay hidden between turns.
   Clearer buttons: what to do now is a strong filled button, the alternative outlined, "Mau!" stands out only
   when it is due, the draw pile glows and can be tapped. Stacked 7s show on the pile ("2 + 2 + 2 = 6 Karten
-  ziehen"), and drawn cards arrive highlighted in the hand. A short "So geht's" tour the first time (again from
-  the ? next to the hand).
+  ziehen"), and drawn cards arrive highlighted in the hand. A short "So geht's" tour the first time; its
+  last step shows where all the rules are ("Regeln").
 - **New game: Mäxchen** (KLD-121, en "Mia"), the dice bluffing game, on one device: roll two dice
   secretly under a cup, announce a value (fibbing allowed), the next player believes it and must top it, or
   doubts it and the cup is lifted. Mäxchen (2 and 1) beats everything. 3 or 5 lives, house rule "Mäxchen
@@ -37,6 +37,16 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Schach**: "Zug bestätigen" (KLD-122): a chosen move is only shown until "✓ Ziehen"; "✗ Zurück" chooses
   again. On by default for games with others (switch on "Raum starten", toggle in the game), off by default
   on one device, where each player chooses in "Wer spielt?".
+
+- **Rules for every game** (KLD-123): a "Spielregeln" page per game, the same parts everywhere (Ziel, So läuft
+  ein Zug, Besondere Regeln, and the house rules that are on in this game), with small pictures: the chess
+  pieces and how they move, a GoStrategy table of all pieces (rank, how many, who beats whom), the Mau-Mau
+  special cards, the Mäxchen value order with dice. Open it with "Regeln" (book icon) at the top right of every
+  game, or from the "Regeln" link on each game in the menu. New players see "Neu hier? So geht's" under the
+  status line in their first games. Wortgewandt's "So geht's" is part of its rules page now.
+- **Mäxchen in the browser on an iPhone**: before Safari asks for motion access, a short card says what it is
+  for ("Würfeln durch Schütteln?"); "Nein, nur tippen" turns shaking off. The privacy page now says what the
+  motion sensor is used for (only shaking to roll, on the device, nothing stored or sent).
 
 ### Playing together
 - **A locked phone no longer ends a game with others** (KLD-120). After unlocking, the game goes on by

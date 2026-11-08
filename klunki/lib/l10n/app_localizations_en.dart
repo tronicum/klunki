@@ -2345,9 +2345,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wordtilesBlankScore => 'The blank scores 0 points.';
 
   @override
-  String get wordtilesHelp => 'How to play';
-
-  @override
   String get wordtilesHelpGoal =>
       'Lay words like in a crossword. Every letter has points (the small number). The first word goes over the star in the middle, every further word connects.';
 
@@ -2505,17 +2502,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move (blank swapped)';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      'Swap the blank (house rule): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
-
-  @override
-  String get wordtilesHelpJokerOn => 'On in this game.';
-
-  @override
-  String get wordtilesHelpJokerOff =>
-      'Off in this game. You can turn it on before a game.';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2865,9 +2851,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachSkip => 'Skip';
 
   @override
-  String get maumauHelp => 'How to play';
-
-  @override
   String get maumauCoachPlay =>
       'Tap a matching card to play it. Matching cards stand higher and have a frame.';
 
@@ -3125,4 +3108,298 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Confirm move is off.';
+
+  @override
+  String get rulesButton => 'Rules';
+
+  @override
+  String rulesTitle(String game) {
+    return 'Rules: $game';
+  }
+
+  @override
+  String get rulesGoal => 'Goal';
+
+  @override
+  String get rulesTurn => 'How a turn works';
+
+  @override
+  String get rulesSpecial => 'Special rules';
+
+  @override
+  String get rulesHouse => 'House rules';
+
+  @override
+  String get rulesHouseInGame => 'House rules in this game';
+
+  @override
+  String get rulesHouseNoneForGame => 'This game has no house rules.';
+
+  @override
+  String get rulesHouseNoneOn => 'No house rule is switched on.';
+
+  @override
+  String get rulesHouseMenuNote =>
+      'These are the suggested ones. You can change the house rules before the game.';
+
+  @override
+  String get rulesNewHere => 'New here? How to play';
+
+  @override
+  String get rulesCoachHere => 'You can find all the rules here.';
+
+  @override
+  String get rulesConnect4Goal =>
+      'Get 4 of your discs in a row: across, up and down, or diagonally.';
+
+  @override
+  String get rulesConnect4Turn =>
+      'Tap a column. Your disc drops down to the lowest free space.\nThen it is the other player’s turn.\nPlayer 1 starts.';
+
+  @override
+  String get rulesConnect4Special =>
+      'The board has 7 columns and 6 rows.\nA full column takes no more discs.\nIf the board is full and nobody has 4 in a row, it is a draw.';
+
+  @override
+  String get rulesMuehleGoal =>
+      'Take the other player’s pieces until only 2 are left. Or block their pieces so they cannot move any more.';
+
+  @override
+  String get rulesMuehleTurn =>
+      'Each player has 9 pieces. Player 1 starts.\nFirst you take turns putting one piece on a free point.\nOnce all pieces are placed, you slide a piece along a line to the free point next to it.\nWith only 3 pieces left, you may jump: to any free point.';
+
+  @override
+  String get rulesMuehleMill =>
+      '3 pieces on one line make a mill. Then you take one of the other player’s pieces.';
+
+  @override
+  String get rulesMuehleSpecial =>
+      'Pieces in a mill are safe. Only if all the other player’s pieces are in mills may you take one of them.\nIf you open a mill and close it again, it counts again.\n50 moves in a row without taking a piece (both players counted): a draw.';
+
+  @override
+  String get rulesTrumpfGoal =>
+      'Win all the cards. Whoever runs out of cards loses.';
+
+  @override
+  String get rulesTrumpfTurn =>
+      'Each player gets 16 cards as a face-down pile. You always play the top card.\nThe player whose turn it is picks a property of their card, for example the speed.\nThe better value wins the round. Usually higher is better, for some properties lower. The card says which.\nThe winner of the round puts both cards under their pile and picks next.\nPlayer 1 picks first.';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      'Same value: tie-break! Both cards go into the pot, and the same player picks again. Whoever wins the next round also gets the whole pot.\nAfter 200 rounds, whoever has more cards wins. With the same number it is a draw.\nIf both piles are empty, it is a draw too.';
+
+  @override
+  String get rulesTrumpfPickLow => '3 cards or fewer: choose';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      'With only 2 or 3 cards left, you see all of them and choose which one to play. The picker chooses the card first and then the property. The other player chooses their card after hearing the property.';
+
+  @override
+  String get rulesSetsGoal =>
+      'Collect quartets: all 4 cards of a set. Whoever has more quartets at the end wins.';
+
+  @override
+  String get rulesSetsTurn =>
+      'Each player gets 8 cards. The other 16 lie face down as the pile.\nAsk the other player for a card you are missing. You must already have a card of that set.\nIf they have the card, they give it to you, and you may ask again.\nIf not, it is a miss: you draw a card from the pile, and it is the other player’s turn.\nPlayer 1 asks first.';
+
+  @override
+  String get rulesSetsSpecial =>
+      'With all 4 cards of a set, you lay the quartet down at once.\nIf you draw the card you asked for, it is still the other player’s turn.\nIf you have no cards left, you draw one from the pile.\nWhen all 8 quartets are down, the game is over. 4 to 4 is a draw.';
+
+  @override
+  String get rulesSchiffeGoal =>
+      'Sink all the other player’s ships before they sink yours.';
+
+  @override
+  String get rulesSchiffeTurn =>
+      'First each player secretly places their fleet on their own sea of 10 by 10 squares. Player 1 starts.\nThen you take turns shooting: tap a square in the other player’s sea.\nYou shoot at each square only once.';
+
+  @override
+  String get rulesSchiffeMiss =>
+      'Water: a miss. Now it is the other player’s turn.';
+
+  @override
+  String get rulesSchiffeHit => 'Hit! You may shoot again.';
+
+  @override
+  String get rulesSchiffeSunk =>
+      'Sunk: every square of the ship is hit. You find out which ship it was.';
+
+  @override
+  String get rulesSchiffeFleet => 'The fleet';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship ($length squares)';
+  }
+
+  @override
+  String get rulesSchiffeSpecial =>
+      'Ships lie straight: across or up and down.\nShips must not touch, not even at a corner.';
+
+  @override
+  String get rulesGoGoal =>
+      'Capture the other player’s flag. You also win if the other player cannot move any more.';
+
+  @override
+  String get rulesGoTurn =>
+      'First each player secretly sets up their 40 pieces on their 4 rows. Only the owner sees a piece’s rank.\nPlayer 1 sets up first and moves first.\nOn your turn you move one piece 1 square forward, back, left or right. Never diagonally.\nNo piece can go into the two lakes in the middle.';
+
+  @override
+  String get rulesGoFightTitle => 'Who beats whom?';
+
+  @override
+  String get rulesGoFight =>
+      'If you move onto the other player’s piece, they fight. Afterwards both players see which pieces they were.\nThe higher rank wins. The loser is out.\nSame rank: both are out.';
+
+  @override
+  String get rulesGoPieces => 'The pieces';
+
+  @override
+  String rulesGoRank(int rank) {
+    return 'Rank $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal =>
+      'The strongest piece. Loses only to the spy, when the spy attacks.';
+
+  @override
+  String get rulesGoScout =>
+      'Runs straight over any number of free squares and may attack at the end. If it runs more than 1 square, both players see that it is a scout.';
+
+  @override
+  String get rulesGoMiner =>
+      'Defuses bombs: if it attacks one, it takes its place.';
+
+  @override
+  String get rulesGoSpy =>
+      'The weakest piece. But if the spy attacks the marshal, the spy wins.';
+
+  @override
+  String get rulesGoBomb =>
+      'Never moves. Any attacker is out and the bomb stays. Only the miner defuses it.';
+
+  @override
+  String get rulesGoFlag => 'Never moves. Whoever attacks it wins the game.';
+
+  @override
+  String get rulesGoSpecial =>
+      'A piece may move back and forth between the same two squares at most 3 times in a row.\nOnce a piece has moved, the other player knows: it is not a bomb and not the flag.\n200 moves in a row without a fight: a draw. Also when nobody can move.';
+
+  @override
+  String get rulesChessGoal =>
+      'Checkmate the other player’s king: it is attacked and cannot escape.';
+
+  @override
+  String get rulesChessTurn =>
+      'White starts, then you take turns.\nTap one of your pieces and then a square. If one of the other player’s pieces stands there, you capture it.\nOnly the knight may jump over other pieces.';
+
+  @override
+  String get rulesChessPieces => 'How the pieces move';
+
+  @override
+  String get rulesChessKing => '1 square in any direction.';
+
+  @override
+  String get rulesChessQueen => 'Any distance straight or diagonally.';
+
+  @override
+  String get rulesChessRook => 'Any distance straight.';
+
+  @override
+  String get rulesChessBishop => 'Any distance diagonally.';
+
+  @override
+  String get rulesChessKnight =>
+      'Like an L: 2 squares straight, then 1 to the side. It jumps over pieces.';
+
+  @override
+  String get rulesChessPawn =>
+      '1 square forward, on its first move also 2. It captures 1 square diagonally forward.';
+
+  @override
+  String get rulesChessSpecial =>
+      'Check: your king is attacked. You must save it at once. A move that leaves your king in check is not allowed.\nCheckmate: the king is in check and cannot be saved. Whoever gives checkmate wins.\nCastling: king and rook have not moved yet, and everything between them is free. The king moves 2 squares towards the rook, the rook jumps next to it. Not allowed while the king is in check or if it would cross an attacked square.\nEn passant: if a pawn moves 2 squares and lands next to your pawn, you may capture it diagonally on your very next move, as if it had moved only 1 square.\nPromotion: when a pawn reaches the last row, it becomes a queen, a rook, a bishop or a knight. You choose.';
+
+  @override
+  String get rulesChessDrawTitle => 'Draw';
+
+  @override
+  String get rulesChessDraw =>
+      'Stalemate: the player whose turn it is cannot move but is not in check.\nThere are too few pieces left to give checkmate.\nThe same position comes up for the 3rd time.\n75 moves by each player without a capture or a pawn move.\nAgreed draw: the player whose turn it is can offer a draw. The other player accepts or declines.';
+
+  @override
+  String get rulesWordtilesWin =>
+      'Whoever has the most points at the end wins.';
+
+  @override
+  String get rulesWordtilesTurn =>
+      'You have 7 tiles on your rack.\nLay 1 to 7 tiles in one row or column, with no gap.\nYou score all new words, also the words across them.\nThen you draw tiles from the bag until you have 7 again.';
+
+  @override
+  String get rulesWordtilesChallengeAfter =>
+      'The player who challenged then takes their turn as usual.';
+
+  @override
+  String get rulesWordtilesScoreless =>
+      'If the game ends because nobody scores any more, everyone loses the points of their remaining tiles.';
+
+  @override
+  String get rulesMaumauGoal => 'Be the first to get rid of all your cards.';
+
+  @override
+  String get rulesMaumauTurn =>
+      'There are 32 cards. Each player gets 5, one lies face up in the middle. Player 1 starts.\nPut a card of the same suit or the same value on it, for example hearts on hearts or 9 on 9.\nIf no card fits or you do not want to play one, you draw 1 card. If it fits, you may play it or keep it. If not, it is the other player’s turn.\nWhen the pile is empty, the played cards are shuffled into a new pile.';
+
+  @override
+  String get rulesMaumauJack =>
+      'Jack: fits on any card except a jack. You wish for a suit. Then that suit must come next, or a jack.';
+
+  @override
+  String get rulesMaumauSpecial =>
+      'The first card in the middle does not count as a special card.\n9, 10, queen and king are normal cards.\nWhoever plays their last card wins, also with a special card.';
+
+  @override
+  String get rulesMaexchenGoal =>
+      'Do not lose all your lives. Whoever still has lives at the end wins.';
+
+  @override
+  String get rulesMaexchenTurn =>
+      'Roll 2 dice under the cup. Only you see them.\nAnnounce a value. It must be higher than the last announcement. You may also bluff!\nThe other player believes you or doubts.\nIf they believe you, they roll themselves and must announce even higher.\nIf they doubt, the cup is lifted. If the roll is lower than announced, the announcer loses a life. Otherwise the doubter loses one.';
+
+  @override
+  String get rulesMaexchenOrderTitle => 'Which roll is higher?';
+
+  @override
+  String get rulesMaexchenOrder =>
+      'The higher die counts first: 3 and 1 is 31.\nFrom low to high: 31, 32, 41, 42, 43 and so on up to 65.\nHigher are the doubles: 11, 22, 33, 44, 55, 66.\nThe highest is 21: Mia!';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      'The first announcement of a round may be any value.\nIf Mia is announced, you cannot believe it. You doubt, or you give up a life without looking.\nWhoever loses a life starts the next round.\nShaking: instead of tapping “Roll”, you can shake the phone like a cup.';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return 'Everyone starts with $count lives.';
+  }
+
+  @override
+  String get shakeConsentTitle => 'Roll by shaking?';
+
+  @override
+  String get shakeConsentBody =>
+      'Your browser will ask in a moment whether Klunki may sense the phone moving. We only use this for rolling the dice, and it stays on the device.';
+
+  @override
+  String get shakeConsentYes => 'Yes, allow shaking';
+
+  @override
+  String get shakeConsentNo => 'No, just tap';
 }

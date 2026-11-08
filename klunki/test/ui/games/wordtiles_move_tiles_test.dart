@@ -89,6 +89,7 @@ void main() {
   setUp(() {
     SeenTips.debugReset();
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+    SeenTips.shared.markFirst(SeenTips.rulesOpened('wordtiles')); // no "Neu hier?" line (KLD-123)
   });
 
   testWidgets('a tap still takes a laid tile back to the rack', (tester) async {

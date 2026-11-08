@@ -90,6 +90,8 @@ void main() {
   // in its own group below.
   setUp(SeenTips.debugReset);
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
+  // The steady layout: without the "Neu hier?" line of a new player (KLD-123).
+  setUp(() => SeenTips.shared.markFirst(SeenTips.rulesOpened('wordtiles')));
 
   for (final (name, size) in [('small phone', Size(375, 667)), ('large phone', Size(430, 932))]) {
     testWidgets('$name: tiles left on the bench come back into the rack when it is closed', (tester) async {
@@ -143,7 +145,10 @@ void main() {
   }
 
   group('one-time bench explanation', () {
-    setUp(SeenTips.debugReset); // nothing seen yet
+    setUp(() {
+      SeenTips.debugReset(); // nothing seen yet
+      SeenTips.shared.markFirst(SeenTips.rulesOpened('wordtiles')); // but the rules (KLD-123)
+    });
 
     testWidgets('the first opening: three steps over the empty bench, then never again', (tester) async {
       final c = await _start(tester, const Size(375, 667));

@@ -3761,12 +3761,6 @@ abstract class AppLocalizations {
   /// **'Der Joker zählt 0 Punkte.'**
   String get wordtilesBlankScore;
 
-  /// Word tiles: title / tooltip of the short rules sheet.
-  ///
-  /// In de, this message translates to:
-  /// **'So geht’s'**
-  String get wordtilesHelp;
-
   /// Word tiles rules sheet: the basic idea.
   ///
   /// In de, this message translates to:
@@ -3982,24 +3976,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{move} (Joker getauscht)'**
   String wordtilesMoveJoker(String move);
-
-  /// Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9).
-  ///
-  /// In de, this message translates to:
-  /// **'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.'**
-  String get wordtilesHelpJoker;
-
-  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game.
-  ///
-  /// In de, this message translates to:
-  /// **'In diesem Spiel an.'**
-  String get wordtilesHelpJokerOn;
-
-  /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is off in this game (it is chosen before the game).
-  ///
-  /// In de, this message translates to:
-  /// **'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.'**
-  String get wordtilesHelpJokerOff;
 
   /// KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): "Trotzdem zulassen" sends a request to the other player ({player}).
   ///
@@ -4469,12 +4445,6 @@ abstract class AppLocalizations {
   /// **'Überspringen'**
   String get coachSkip;
 
-  /// Mau-Mau (KLD-118): tooltip of the ? button next to the own hand that shows the "how to play" tour again.
-  ///
-  /// In de, this message translates to:
-  /// **'So geht’s'**
-  String get maumauHelp;
-
   /// Mau-Mau tour step 1, pointing at the own hand.
   ///
   /// In de, this message translates to:
@@ -4864,6 +4834,480 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zug bestätigen ist aus.'**
   String get confirmMoveOff;
+
+  /// KLD-123: label of the rules button (book icon + this word) in every game's app bar and on each menu tile. One short word.
+  ///
+  /// In de, this message translates to:
+  /// **'Regeln'**
+  String get rulesButton;
+
+  /// KLD-123: title of a game's rules page. game = game title, e.g. "Mühle".
+  ///
+  /// In de, this message translates to:
+  /// **'Spielregeln: {game}'**
+  String rulesTitle(String game);
+
+  /// KLD-123: rules page section: how to win.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel'**
+  String get rulesGoal;
+
+  /// KLD-123: rules page section: what a player does on a turn.
+  ///
+  /// In de, this message translates to:
+  /// **'So läuft ein Zug'**
+  String get rulesTurn;
+
+  /// KLD-123: rules page section: special rules.
+  ///
+  /// In de, this message translates to:
+  /// **'Besondere Regeln'**
+  String get rulesSpecial;
+
+  /// KLD-123: rules page section (opened from the menu): the suggested house rules.
+  ///
+  /// In de, this message translates to:
+  /// **'Hausregeln'**
+  String get rulesHouse;
+
+  /// KLD-123: rules page section (opened in a game): the house rules switched on in this game.
+  ///
+  /// In de, this message translates to:
+  /// **'Hausregeln in diesem Spiel'**
+  String get rulesHouseInGame;
+
+  /// KLD-123: rules page, house rules section of a game without house rules.
+  ///
+  /// In de, this message translates to:
+  /// **'Für dieses Spiel gibt es keine Hausregeln.'**
+  String get rulesHouseNoneForGame;
+
+  /// KLD-123: rules page, house rules section when all house rules are off.
+  ///
+  /// In de, this message translates to:
+  /// **'Gerade ist keine Hausregel an.'**
+  String get rulesHouseNoneOn;
+
+  /// KLD-123: rules page opened from the menu, under the house rules of a game where they are chosen before the start.
+  ///
+  /// In de, this message translates to:
+  /// **'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.'**
+  String get rulesHouseMenuNote;
+
+  /// KLD-123: tappable line under the status line for new players of a game; opens the rules page.
+  ///
+  /// In de, this message translates to:
+  /// **'Neu hier? So geht’s'**
+  String get rulesNewHere;
+
+  /// KLD-123: last step of the Mau-Mau first-time tour, pointing at the rules button.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Regeln findest du hier.'**
+  String get rulesCoachHere;
+
+  /// KLD-123: Four in a Row rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Bring 4 deiner Steine in eine Reihe: waagerecht, senkrecht oder schräg.'**
+  String get rulesConnect4Goal;
+
+  /// KLD-123: Four in a Row rules, a turn. Lines separated by \n are shown as a list.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf eine Spalte. Dein Stein fällt nach unten auf den untersten freien Platz.\nDann ist der andere dran.\nSpieler 1 fängt an.'**
+  String get rulesConnect4Turn;
+
+  /// KLD-123: Four in a Row rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Das Brett hat 7 Spalten und 6 Reihen.\nIn eine volle Spalte passt kein Stein mehr.\nIst das Brett voll und keiner hat 4 in einer Reihe, ist es unentschieden.'**
+  String get rulesConnect4Special;
+
+  /// KLD-123: Nine Men's Morris rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Nimm dem anderen so lange Steine weg, bis er nur noch 2 hat. Oder sperr seine Steine ein, sodass er nicht mehr ziehen kann.'**
+  String get rulesMuehleGoal;
+
+  /// KLD-123: Nine Men's Morris rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Jeder hat 9 Steine. Spieler 1 fängt an.\nZuerst setzt ihr abwechselnd je einen Stein auf einen freien Punkt.\nSind alle Steine gesetzt, schiebst du einen Stein entlang einer Linie auf den freien Punkt daneben.\nHast du nur noch 3 Steine, darfst du springen: auf jeden freien Punkt.'**
+  String get rulesMuehleTurn;
+
+  /// KLD-123: Nine Men's Morris rules: what a mill is (next to a small picture).
+  ///
+  /// In de, this message translates to:
+  /// **'3 Steine in einer Linie sind eine Mühle. Dann nimmst du dem anderen einen Stein weg.'**
+  String get rulesMuehleMill;
+
+  /// KLD-123: Nine Men's Morris rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Steine in einer Mühle sind geschützt. Nur wenn alle Steine des anderen in Mühlen stehen, darfst du einen davon nehmen.\nÖffnest du eine Mühle und schließt sie wieder, zählt sie noch einmal.\n50 Züge hintereinander ohne Wegnehmen (beide zusammengezählt): unentschieden.'**
+  String get rulesMuehleSpecial;
+
+  /// KLD-123: Quartett (Trumpf) rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Gewinne alle Karten. Wer keine Karte mehr hat, verliert.'**
+  String get rulesTrumpfGoal;
+
+  /// KLD-123: Quartett (Trumpf) rules, a turn (list, \n). Use "Runde" (round), never "Stich".
+  ///
+  /// In de, this message translates to:
+  /// **'Jeder bekommt 16 Karten als verdeckten Stapel. Gespielt wird immer die oberste Karte.\nWer dran ist, wählt eine Eigenschaft seiner Karte, zum Beispiel die Geschwindigkeit.\nDer bessere Wert gewinnt die Runde. Meist ist der höhere besser, bei manchen der niedrigere. Das steht auf der Karte.\nWer die Runde gewinnt, legt beide Karten unter seinen Stapel und wählt als Nächstes.\nSpieler 1 wählt zuerst.'**
+  String get rulesTrumpfTurn;
+
+  /// KLD-123: Quartett (Trumpf) rules, special rules (list, \n). German: a tie is "Stechen", never "Stich".
+  ///
+  /// In de, this message translates to:
+  /// **'Gleicher Wert: Stechen! Beide Karten kommen in den Topf, und wer gewählt hat, wählt noch einmal. Wer die nächste Runde gewinnt, bekommt auch den ganzen Topf.\nNach 200 Runden gewinnt, wer mehr Karten hat. Bei gleich vielen ist es unentschieden.\nSind beide Stapel leer, ist es auch unentschieden.'**
+  String get rulesTrumpfSpecial;
+
+  /// KLD-123: Quartett (Trumpf) house rule title (KLD-100).
+  ///
+  /// In de, this message translates to:
+  /// **'Mit 3 Karten oder weniger: aussuchen'**
+  String get rulesTrumpfPickLow;
+
+  /// KLD-123: Quartett (Trumpf) house rule text (KLD-100).
+  ///
+  /// In de, this message translates to:
+  /// **'Hast du nur noch 2 oder 3 Karten, siehst du alle und suchst aus, welche du spielst. Wer wählt, sucht zuerst die Karte aus und dann die Eigenschaft. Der andere sucht seine Karte aus, wenn er die Eigenschaft kennt.'**
+  String get rulesTrumpfPickLowText;
+
+  /// KLD-123: Quartett (Sets) rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Sammle Quartette: alle 4 Karten einer Gruppe. Wer am Ende mehr Quartette hat, gewinnt.'**
+  String get rulesSetsGoal;
+
+  /// KLD-123: Quartett (Sets) rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Jeder bekommt 8 Karten. Die anderen 16 liegen verdeckt als Stapel.\nFrag den anderen nach einer Karte, die dir fehlt. Von dieser Gruppe musst du schon eine Karte haben.\nHat der andere die Karte, gibt er sie dir, und du darfst noch einmal fragen.\nHat er sie nicht, heißt es Fehlanzeige: Du ziehst eine Karte vom Stapel, und der andere ist dran.\nSpieler 1 fragt zuerst.'**
+  String get rulesSetsTurn;
+
+  /// KLD-123: Quartett (Sets) rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Hast du alle 4 Karten einer Gruppe, legst du das Quartett sofort ab.\nZiehst du die gefragte Karte vom Stapel, ist trotzdem der andere dran.\nHast du keine Karten mehr, ziehst du eine vom Stapel.\nSind alle 8 Quartette abgelegt, ist das Spiel aus. Bei 4 zu 4 ist es unentschieden.'**
+  String get rulesSetsSpecial;
+
+  /// KLD-123: Sink the Fleet rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Versenke alle Schiffe des anderen, bevor er deine versenkt.'**
+  String get rulesSchiffeGoal;
+
+  /// KLD-123: Sink the Fleet rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Zuerst stellt jeder seine Flotte geheim auf sein Meer mit 10 mal 10 Feldern. Spieler 1 fängt an.\nDann schießt ihr abwechselnd: Tippe auf ein Feld im Meer des anderen.\nAuf jedes Feld schießt du nur einmal.'**
+  String get rulesSchiffeTurn;
+
+  /// KLD-123: Sink the Fleet rules, next to a miss square.
+  ///
+  /// In de, this message translates to:
+  /// **'Wasser: daneben. Jetzt ist der andere dran.'**
+  String get rulesSchiffeMiss;
+
+  /// KLD-123: Sink the Fleet rules, next to a hit square.
+  ///
+  /// In de, this message translates to:
+  /// **'Treffer! Du darfst noch einmal schießen.'**
+  String get rulesSchiffeHit;
+
+  /// KLD-123: Sink the Fleet rules, next to a sunk square.
+  ///
+  /// In de, this message translates to:
+  /// **'Versenkt: Alle Felder des Schiffs sind getroffen. Du erfährst, welches Schiff es war.'**
+  String get rulesSchiffeSunk;
+
+  /// KLD-123: Sink the Fleet rules, heading above the list of ships.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Flotte'**
+  String get rulesSchiffeFleet;
+
+  /// KLD-123: Sink the Fleet rules, one kind of ship. ship = ship name (engineShip*), e.g. "Kreuzer"; count = how many, length = squares.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} × {ship} ({length} Felder)'**
+  String rulesSchiffeShip(int count, String ship, int length);
+
+  /// KLD-123: Sink the Fleet rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Schiffe liegen gerade: waagerecht oder senkrecht.\nSchiffe dürfen sich nicht berühren, auch nicht über Eck.'**
+  String get rulesSchiffeSpecial;
+
+  /// KLD-123: GoStrategy rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Erobere die Fahne des anderen. Du gewinnst auch, wenn der andere nicht mehr ziehen kann.'**
+  String get rulesGoGoal;
+
+  /// KLD-123: GoStrategy rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Zuerst stellt jeder seine 40 Figuren geheim auf seine 4 Reihen. Den Rang einer Figur sieht nur ihr Besitzer.\nSpieler 1 stellt zuerst auf und zieht zuerst.\nIn deinem Zug ziehst du eine Figur 1 Feld nach vorne, hinten, links oder rechts. Nie schräg.\nIn die beiden Seen in der Mitte kann keine Figur.'**
+  String get rulesGoTurn;
+
+  /// KLD-123: GoStrategy rules, heading above the fight rules.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer schlägt wen?'**
+  String get rulesGoFightTitle;
+
+  /// KLD-123: GoStrategy rules, fights (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehst du auf eine Figur des anderen, kämpfen beide. Danach sehen beide, welche Figuren es waren.\nDer höhere Rang gewinnt. Der Verlierer fliegt raus.\nGleicher Rang: Beide fliegen raus.'**
+  String get rulesGoFight;
+
+  /// KLD-123: GoStrategy rules, heading above the piece table.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Figuren'**
+  String get rulesGoPieces;
+
+  /// KLD-123: GoStrategy piece table: the rank of a piece.
+  ///
+  /// In de, this message translates to:
+  /// **'Rang {rank}'**
+  String rulesGoRank(int rank);
+
+  /// KLD-123: GoStrategy piece table: how many of this piece each player has.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} ×'**
+  String rulesGoCount(int count);
+
+  /// KLD-123: GoStrategy piece table: the marshal.
+  ///
+  /// In de, this message translates to:
+  /// **'Die stärkste Figur. Verliert nur gegen den Spion, wenn der angreift.'**
+  String get rulesGoMarshal;
+
+  /// KLD-123: GoStrategy piece table: the scout.
+  ///
+  /// In de, this message translates to:
+  /// **'Läuft geradeaus beliebig weit über freie Felder und darf am Ende angreifen. Läuft er mehr als 1 Feld, sehen beide, dass er ein Aufklärer ist.'**
+  String get rulesGoScout;
+
+  /// KLD-123: GoStrategy piece table: the miner.
+  ///
+  /// In de, this message translates to:
+  /// **'Entschärft Bomben: Greift er eine an, nimmt er ihren Platz ein.'**
+  String get rulesGoMiner;
+
+  /// KLD-123: GoStrategy piece table: the spy.
+  ///
+  /// In de, this message translates to:
+  /// **'Die schwächste Figur. Greift der Spion aber den Marschall an, gewinnt er.'**
+  String get rulesGoSpy;
+
+  /// KLD-123: GoStrategy piece table: the bomb.
+  ///
+  /// In de, this message translates to:
+  /// **'Zieht nie. Wer sie angreift, fliegt raus, die Bombe bleibt. Nur der Mineur entschärft sie.'**
+  String get rulesGoBomb;
+
+  /// KLD-123: GoStrategy piece table: the flag.
+  ///
+  /// In de, this message translates to:
+  /// **'Zieht nie. Wer sie angreift, gewinnt das Spiel.'**
+  String get rulesGoFlag;
+
+  /// KLD-123: GoStrategy rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Eine Figur darf höchstens 3-mal hintereinander zwischen denselben zwei Feldern hin und her ziehen.\nHat eine Figur gezogen, weiß der andere: Sie ist keine Bombe und keine Fahne.\n200 Züge hintereinander ohne Kampf: unentschieden. Ebenso, wenn keiner mehr ziehen kann.'**
+  String get rulesGoSpecial;
+
+  /// KLD-123: chess rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Setz den König des anderen schachmatt: Er wird angegriffen und kann nicht mehr entkommen.'**
+  String get rulesChessGoal;
+
+  /// KLD-123: chess rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiß fängt an, dann zieht ihr abwechselnd.\nTippe auf eine deiner Figuren und dann auf ein Feld. Steht dort eine Figur des anderen, schlägst du sie.\nNur der Springer darf über andere Figuren springen.'**
+  String get rulesChessTurn;
+
+  /// KLD-123: chess rules, heading above the pieces.
+  ///
+  /// In de, this message translates to:
+  /// **'So ziehen die Figuren'**
+  String get rulesChessPieces;
+
+  /// KLD-123: chess rules: the king (shown after the piece name).
+  ///
+  /// In de, this message translates to:
+  /// **'1 Feld in jede Richtung.'**
+  String get rulesChessKing;
+
+  /// KLD-123: chess rules: the queen.
+  ///
+  /// In de, this message translates to:
+  /// **'Beliebig weit gerade oder schräg.'**
+  String get rulesChessQueen;
+
+  /// KLD-123: chess rules: the rook.
+  ///
+  /// In de, this message translates to:
+  /// **'Beliebig weit gerade.'**
+  String get rulesChessRook;
+
+  /// KLD-123: chess rules: the bishop.
+  ///
+  /// In de, this message translates to:
+  /// **'Beliebig weit schräg.'**
+  String get rulesChessBishop;
+
+  /// KLD-123: chess rules: the knight.
+  ///
+  /// In de, this message translates to:
+  /// **'Wie ein L: 2 Felder gerade, dann 1 zur Seite. Er springt über Figuren.'**
+  String get rulesChessKnight;
+
+  /// KLD-123: chess rules: the pawn.
+  ///
+  /// In de, this message translates to:
+  /// **'1 Feld nach vorne, beim ersten Zug auch 2. Er schlägt 1 Feld schräg nach vorne.'**
+  String get rulesChessPawn;
+
+  /// KLD-123: chess rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Schach: Dein König wird angegriffen. Du musst ihn sofort retten. Ein Zug, nach dem dein König im Schach steht, geht nicht.\nSchachmatt: Der König steht im Schach und kann nicht gerettet werden. Wer mattsetzt, gewinnt.\nRochade: König und Turm haben noch nicht gezogen, und zwischen ihnen ist alles frei. Der König geht 2 Felder zum Turm, der Turm springt neben ihn. Nicht erlaubt, wenn der König im Schach steht oder über ein angegriffenes Feld gehen müsste.\nEn passant: Zieht ein Bauer 2 Felder und landet neben deinem Bauern, darfst du ihn gleich im nächsten Zug schräg schlagen, als wäre er nur 1 Feld gezogen.\nUmwandlung: Erreicht ein Bauer die letzte Reihe, wird er eine Dame, ein Turm, ein Läufer oder ein Springer. Du suchst aus.'**
+  String get rulesChessSpecial;
+
+  /// KLD-123: chess rules, heading above the kinds of draw.
+  ///
+  /// In de, this message translates to:
+  /// **'Unentschieden (Remis)'**
+  String get rulesChessDrawTitle;
+
+  /// KLD-123: chess rules, kinds of draw (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Patt: Wer dran ist, kann nicht ziehen, steht aber nicht im Schach.\nEs sind zu wenig Figuren übrig, um mattzusetzen.\nDieselbe Stellung kommt zum 3. Mal.\n75 Züge von jedem ohne Schlagen und ohne Bauernzug.\nRemis vereinbart: Wer dran ist, kann Remis anbieten. Der andere nimmt an oder lehnt ab.'**
+  String get rulesChessDraw;
+
+  /// KLD-123: word tile game rules, goal (after wordtilesHelpGoal).
+  ///
+  /// In de, this message translates to:
+  /// **'Wer am Ende die meisten Punkte hat, gewinnt.'**
+  String get rulesWordtilesWin;
+
+  /// KLD-123: word tile game rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast 7 Steine auf deiner Bank.\nLeg 1 bis 7 Steine in eine Reihe oder Spalte, ohne Lücke.\nDu bekommst die Punkte aller neuen Wörter, auch der Wörter quer dazu.\nDanach ziehst du Steine aus dem Beutel, bis du wieder 7 hast.'**
+  String get rulesWordtilesTurn;
+
+  /// KLD-123: word tile game rules, after the challenge rule.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer angezweifelt hat, ist danach normal dran.'**
+  String get rulesWordtilesChallengeAfter;
+
+  /// KLD-123: word tile game rules, the end after scoreless turns.
+  ///
+  /// In de, this message translates to:
+  /// **'Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.'**
+  String get rulesWordtilesScoreless;
+
+  /// KLD-123: Mau-Mau rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Werde als Erster alle deine Karten los.'**
+  String get rulesMaumauGoal;
+
+  /// KLD-123: Mau-Mau rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte oder willst du keine legen, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.'**
+  String get rulesMaumauTurn;
+
+  /// KLD-123: Mau-Mau rules: the jack (next to a card picture).
+  ///
+  /// In de, this message translates to:
+  /// **'Bube: passt auf jede Karte außer auf einen Buben. Du wünschst dir eine Farbe. Dann muss diese Farbe kommen oder ein Bube.'**
+  String get rulesMaumauJack;
+
+  /// KLD-123: Mau-Mau rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Die erste Karte in der Mitte gilt nicht als Sonderkarte.\n9, 10, Dame und König sind normale Karten.\nWer die letzte Karte ablegt, gewinnt – auch mit einer Sonderkarte.'**
+  String get rulesMaumauSpecial;
+
+  /// KLD-123: dice bluffing game rules, goal.
+  ///
+  /// In de, this message translates to:
+  /// **'Verlier nicht alle deine Leben. Wer zuletzt noch Leben hat, gewinnt.'**
+  String get rulesMaexchenGoal;
+
+  /// KLD-123: dice bluffing game rules, a turn (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfle mit 2 Würfeln unter dem Becher. Nur du siehst sie.\nSag einen Wert an. Er muss höher sein als die letzte Ansage. Du darfst auch flunkern!\nDer andere glaubt dir oder zweifelt an.\nGlaubt er dir, würfelt er selbst und muss noch höher ansagen.\nZweifelt er, wird der Becher gehoben. Ist der Wurf kleiner als die Ansage, verliert der Ansager ein Leben. Sonst verliert der Zweifler eins.'**
+  String get rulesMaexchenTurn;
+
+  /// KLD-123: dice bluffing game rules, heading above the value order.
+  ///
+  /// In de, this message translates to:
+  /// **'Welcher Wurf ist höher?'**
+  String get rulesMaexchenOrderTitle;
+
+  /// KLD-123: dice bluffing game rules, value order (list, \n). Keep the numbers.
+  ///
+  /// In de, this message translates to:
+  /// **'Der höhere Würfel zählt zuerst: 3 und 1 ist 31.\nVon klein nach groß: 31, 32, 41, 42, 43 und so weiter bis 65.\nHöher sind die Pasche: 11, 22, 33, 44, 55, 66.\nAm höchsten ist 21: das Mäxchen!'**
+  String get rulesMaexchenOrder;
+
+  /// KLD-123: dice bluffing game rules, special rules (list, \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Die erste Ansage einer Runde darf jeder Wert sein.\nWird ein Mäxchen angesagt, kannst du nicht glauben. Du zweifelst an oder gibst ein Leben ab, ohne nachzuschauen.\nWer ein Leben verliert, fängt die nächste Runde an.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln wie einen Becher.'**
+  String get rulesMaexchenSpecial;
+
+  /// KLD-123: dice bluffing game rules, the lives setting.
+  ///
+  /// In de, this message translates to:
+  /// **'Jeder fängt mit {count} Leben an.'**
+  String rulesMaexchenLives(int count);
+
+  /// KLD-123: title of the one-time card before the browser (iOS Safari) asks for motion access for shake-to-roll.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln durch Schütteln?'**
+  String get shakeConsentTitle;
+
+  /// KLD-123: text of the shake consent card; the browser shows its own fixed prompt right after "yes".
+  ///
+  /// In de, this message translates to:
+  /// **'Dein Browser fragt gleich, ob Klunki die Bewegung des Handys spüren darf. Das nutzen wir nur zum Würfeln, es bleibt auf dem Gerät.'**
+  String get shakeConsentBody;
+
+  /// KLD-123: shake consent card: yes (the browser asks next).
+  ///
+  /// In de, this message translates to:
+  /// **'Ja, Schütteln erlauben'**
+  String get shakeConsentYes;
+
+  /// KLD-123: shake consent card: no (shaking is switched off; tapping the roll button still rolls).
+  ///
+  /// In de, this message translates to:
+  /// **'Nein, nur tippen'**
+  String get shakeConsentNo;
 }
 
 class _AppLocalizationsDelegate

@@ -364,6 +364,8 @@ void main() {
         await _shot(tester, '23-tour-$tag-2');
         await _tap(tester, find.byKey(const Key('maumau-coach-next')));
         await _shot(tester, '23-tour-$tag-3');
+        await _tap(tester, find.byKey(const Key('maumau-coach-next')));
+        await _shot(tester, '23-tour-$tag-4');
         await _tap(tester, find.byKey(const Key('maumau-coach-done')));
         expect(find.byKey(const Key('maumau-coach')), findsNothing);
       });

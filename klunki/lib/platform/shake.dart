@@ -97,8 +97,26 @@ abstract final class Motion {
   /// call this synchronously from a tap handler. Asks at most once; does
   /// nothing elsewhere.
   static void askPermission() {
+    if (debugPermissionPending != null) {
+      debugPermissionRequests++;
+      debugPermissionPending = false;
+      return;
+    }
     if (debugSamples == null) platform.requestMotionPermission();
   }
+
+  /// The browser will show its own motion permission prompt on the next
+  /// [askPermission] (the web on iOS, not asked yet in this page load);
+  /// never in the apps. The shake consent card comes before it (KLD-123).
+  static bool get permissionPending => debugPermissionPending ?? platform.motionPermissionPending;
+
+  /// Tests: a fake browser that asks for permission ([permissionPending]);
+  /// [askPermission] then counts [debugPermissionRequests].
+  @visibleForTesting
+  static bool? debugPermissionPending;
+
+  @visibleForTesting
+  static int debugPermissionRequests = 0;
 
   /// Tests: a fake sensor.
   @visibleForTesting
@@ -113,6 +131,8 @@ abstract final class Motion {
   @visibleForTesting
   static void debugReset() {
     debugSamples = null;
+    debugPermissionPending = null;
+    debugPermissionRequests = 0;
     working.value = false;
     unavailable = false;
   }

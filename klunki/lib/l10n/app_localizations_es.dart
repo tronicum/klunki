@@ -2360,9 +2360,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wordtilesBlankScore => 'El comodín vale 0 puntos.';
 
   @override
-  String get wordtilesHelp => 'Cómo se juega';
-
-  @override
   String get wordtilesHelpGoal =>
       'Colocad palabras como en un crucigrama. Cada letra tiene puntos (el número pequeño). La primera palabra pasa por la estrella del centro y cada una siguiente se conecta.';
 
@@ -2520,17 +2517,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move (comodín cambiado)';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      'Cambiar el comodín (regla de casa): si tienes la letra que representa un comodín del tablero, arrástrala sobre el comodín. El comodín pasa a tus fichas y colocas fichas en el mismo turno (el comodín puede ser una de ellas). Sin colocar, el cambio no cuenta. La palabra de antes y sus puntos se quedan.';
-
-  @override
-  String get wordtilesHelpJokerOn => 'Activada en esta partida.';
-
-  @override
-  String get wordtilesHelpJokerOff =>
-      'Desactivada en esta partida. Podéis activarla antes de una partida.';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2887,9 +2873,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get coachSkip => 'Saltar';
 
   @override
-  String get maumauHelp => 'Cómo se juega';
-
-  @override
   String get maumauCoachPlay =>
       'Toca una carta que encaje para echarla. Las que encajan están más arriba y tienen marco.';
 
@@ -3151,4 +3134,296 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Confirmar jugada: desactivado.';
+
+  @override
+  String get rulesButton => 'Reglas';
+
+  @override
+  String rulesTitle(String game) {
+    return 'Reglas: $game';
+  }
+
+  @override
+  String get rulesGoal => 'Objetivo';
+
+  @override
+  String get rulesTurn => 'Cómo es un turno';
+
+  @override
+  String get rulesSpecial => 'Reglas especiales';
+
+  @override
+  String get rulesHouse => 'Reglas de casa';
+
+  @override
+  String get rulesHouseInGame => 'Reglas de casa en esta partida';
+
+  @override
+  String get rulesHouseNoneForGame => 'Este juego no tiene reglas de casa.';
+
+  @override
+  String get rulesHouseNoneOn => 'Ahora no hay ninguna regla de casa activada.';
+
+  @override
+  String get rulesHouseMenuNote =>
+      'Esto es lo que se propone. Antes de la partida podéis cambiar las reglas de casa.';
+
+  @override
+  String get rulesNewHere => '¿Primera vez? Así se juega';
+
+  @override
+  String get rulesCoachHere => 'Aquí encuentras todas las reglas.';
+
+  @override
+  String get rulesConnect4Goal =>
+      'Pon 4 de tus fichas en línea: en horizontal, en vertical o en diagonal.';
+
+  @override
+  String get rulesConnect4Turn =>
+      'Toca una columna. Tu ficha cae hasta el hueco libre más bajo.\nLuego le toca al rival.\nEmpieza el Jugador 1.';
+
+  @override
+  String get rulesConnect4Special =>
+      'El tablero tiene 7 columnas y 6 filas.\nEn una columna llena ya no cabe ninguna ficha.\nSi el tablero se llena y nadie tiene 4 en línea, es empate.';
+
+  @override
+  String get rulesMuehleGoal =>
+      'Quítale fichas al rival hasta que solo le queden 2. O bloquea sus fichas para que ya no pueda mover.';
+
+  @override
+  String get rulesMuehleTurn =>
+      'Cada jugador tiene 9 fichas. Empieza el Jugador 1.\nPrimero colocáis por turnos una ficha en un punto libre.\nCuando todas las fichas están colocadas, deslizas una ficha por una línea hasta el punto libre de al lado.\nSi solo te quedan 3 fichas, puedes saltar: a cualquier punto libre.';
+
+  @override
+  String get rulesMuehleMill =>
+      '3 fichas en una línea forman un molino. Entonces le quitas una ficha al rival.';
+
+  @override
+  String get rulesMuehleSpecial =>
+      'Las fichas de un molino están protegidas. Solo si todas las fichas del rival están en molinos puedes quitar una de ellas.\nSi abres un molino y lo vuelves a cerrar, cuenta otra vez.\n50 jugadas seguidas sin quitar ninguna ficha (contando las de los dos): empate.';
+
+  @override
+  String get rulesTrumpfGoal =>
+      'Gana todas las cartas. Quien se queda sin cartas pierde.';
+
+  @override
+  String get rulesTrumpfTurn =>
+      'Cada jugador recibe 16 cartas en un mazo boca abajo. Siempre se juega la carta de arriba.\nQuien tiene el turno elige un dato de su carta, por ejemplo la velocidad.\nEl mejor valor gana la ronda. Casi siempre es mejor el más alto, en algunos datos el más bajo. Lo pone en la carta.\nQuien gana la ronda pone las dos cartas debajo de su mazo y elige a continuación.\nEl Jugador 1 elige primero.';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      'Mismo valor: ¡desempate! Las dos cartas van al bote y quien eligió vuelve a elegir. Quien gana la ronda siguiente se lleva también todo el bote.\nTras 200 rondas gana quien tiene más cartas. Con las mismas cartas es empate.\nSi los dos mazos se quedan vacíos, también es empate.';
+
+  @override
+  String get rulesTrumpfPickLow => 'Con 3 cartas o menos: elegir';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      'Si solo te quedan 2 o 3 cartas, las ves todas y eliges cuál juegas. Quien elige el dato escoge primero la carta y luego el dato. El rival escoge su carta cuando ya conoce el dato.';
+
+  @override
+  String get rulesSetsGoal =>
+      'Reúne familias: las 4 cartas de un grupo. Quien tiene más familias al final gana.';
+
+  @override
+  String get rulesSetsTurn =>
+      'Cada jugador recibe 8 cartas. Las otras 16 quedan boca abajo como mazo.\nPídele al rival una carta que te falte. Ya tienes que tener una carta de ese grupo.\nSi el rival tiene la carta, te la da y puedes volver a pedir.\nSi no la tiene: ¡nada! Robas una carta del mazo y le toca al rival.\nEl Jugador 1 pide primero.';
+
+  @override
+  String get rulesSetsSpecial =>
+      'Si tienes las 4 cartas de un grupo, bajas la familia enseguida.\nSi robas del mazo la carta que pediste, igualmente le toca al rival.\nSi no te quedan cartas, robas una del mazo.\nCuando las 8 familias están bajadas, se acaba la partida. Con 4 a 4 es empate.';
+
+  @override
+  String get rulesSchiffeGoal =>
+      'Hunde todos los barcos del rival antes de que hunda los tuyos.';
+
+  @override
+  String get rulesSchiffeTurn =>
+      'Primero cada jugador coloca su flota en secreto en su mar de 10 por 10 casillas. Empieza el Jugador 1.\nLuego disparáis por turnos: toca una casilla del mar del rival.\nA cada casilla disparas solo una vez.';
+
+  @override
+  String get rulesSchiffeMiss => 'Agua: fallo. Ahora le toca al rival.';
+
+  @override
+  String get rulesSchiffeHit => '¡Tocado! Puedes volver a disparar.';
+
+  @override
+  String get rulesSchiffeSunk =>
+      'Hundido: todas las casillas del barco están tocadas. Te enteras de qué barco era.';
+
+  @override
+  String get rulesSchiffeFleet => 'La flota';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship ($length casillas)';
+  }
+
+  @override
+  String get rulesSchiffeSpecial =>
+      'Los barcos van rectos: en horizontal o en vertical.\nLos barcos no pueden tocarse, ni siquiera por las esquinas.';
+
+  @override
+  String get rulesGoGoal =>
+      'Captura la bandera del rival. También ganas si el rival ya no puede mover.';
+
+  @override
+  String get rulesGoTurn =>
+      'Primero cada jugador coloca en secreto sus 40 piezas en sus 4 filas. El rango de una pieza solo lo ve quien la tiene.\nEl Jugador 1 coloca primero y mueve primero.\nEn tu turno mueves una pieza 1 casilla hacia delante, hacia atrás, a la izquierda o a la derecha. Nunca en diagonal.\nNinguna pieza puede entrar en los dos lagos del centro.';
+
+  @override
+  String get rulesGoFightTitle => '¿Quién gana a quién?';
+
+  @override
+  String get rulesGoFight =>
+      'Si mueves a una casilla con una pieza del rival, las dos piezas luchan. Después los dos jugadores ven qué piezas eran.\nGana el rango más alto. La pieza que pierde queda fuera.\nMismo rango: las dos quedan fuera.';
+
+  @override
+  String get rulesGoPieces => 'Las piezas';
+
+  @override
+  String rulesGoRank(int rank) {
+    return 'Rango $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal =>
+      'La pieza más fuerte. Solo pierde contra el espía, si es el espía quien ataca.';
+
+  @override
+  String get rulesGoScout =>
+      'Avanza en línea recta tantas casillas libres como quiera y al final puede atacar. Si avanza más de 1 casilla, los dos jugadores ven que es un explorador.';
+
+  @override
+  String get rulesGoMiner => 'Desactiva bombas: si ataca una, ocupa su lugar.';
+
+  @override
+  String get rulesGoSpy =>
+      'La pieza más débil. Pero si el espía ataca al mariscal, gana el espía.';
+
+  @override
+  String get rulesGoBomb =>
+      'Nunca se mueve. Quien la ataca queda fuera y la bomba se queda. Solo el minero la desactiva.';
+
+  @override
+  String get rulesGoFlag => 'Nunca se mueve. Quien la ataca gana la partida.';
+
+  @override
+  String get rulesGoSpecial =>
+      'Una pieza puede ir y volver entre las mismas dos casillas como mucho 3 veces seguidas.\nCuando una pieza se ha movido, el rival lo sabe: no es una bomba ni la bandera.\n200 jugadas seguidas sin combate: empate. También si nadie puede mover.';
+
+  @override
+  String get rulesChessGoal =>
+      'Dale jaque mate al rey del rival: está atacado y ya no puede escapar.';
+
+  @override
+  String get rulesChessTurn =>
+      'Empiezan las blancas; luego movéis por turnos.\nToca una de tus piezas y luego una casilla. Si allí hay una pieza del rival, la capturas.\nSolo el caballo puede saltar por encima de otras piezas.';
+
+  @override
+  String get rulesChessPieces => 'Cómo se mueven las piezas';
+
+  @override
+  String get rulesChessKing => '1 casilla en cualquier dirección.';
+
+  @override
+  String get rulesChessQueen =>
+      'Las casillas que quiera, en recto o en diagonal.';
+
+  @override
+  String get rulesChessRook => 'Las casillas que quiera, en recto.';
+
+  @override
+  String get rulesChessBishop => 'Las casillas que quiera, en diagonal.';
+
+  @override
+  String get rulesChessKnight =>
+      'Como una L: 2 casillas en recto y luego 1 hacia un lado. Salta por encima de las piezas.';
+
+  @override
+  String get rulesChessPawn =>
+      '1 casilla hacia delante; en su primer movimiento también 2. Captura 1 casilla en diagonal hacia delante.';
+
+  @override
+  String get rulesChessSpecial =>
+      'Jaque: tu rey está atacado. Tienes que salvarlo enseguida. No vale una jugada que deje a tu rey en jaque.\nJaque mate: el rey está en jaque y no se puede salvar. Quien da jaque mate gana.\nEnroque: el rey y la torre aún no se han movido y entre ellos todo está libre. El rey va 2 casillas hacia la torre y la torre salta a su lado. No vale si el rey está en jaque o si tendría que pasar por una casilla atacada.\nAl paso: si un peón avanza 2 casillas y queda al lado de tu peón, puedes capturarlo en diagonal justo en tu siguiente jugada, como si hubiera avanzado solo 1 casilla.\nCoronación: cuando un peón llega a la última fila, se convierte en dama, torre, alfil o caballo. Tú eliges.';
+
+  @override
+  String get rulesChessDrawTitle => 'Tablas (empate)';
+
+  @override
+  String get rulesChessDraw =>
+      'Ahogado: quien tiene el turno no puede mover, pero no está en jaque.\nQuedan muy pocas piezas para dar jaque mate.\nLa misma posición aparece por 3.ª vez.\n75 jugadas de cada jugador sin capturas y sin mover ningún peón.\nTablas por acuerdo: quien tiene el turno puede ofrecer tablas. El rival acepta o rechaza.';
+
+  @override
+  String get rulesWordtilesWin => 'Quien tiene más puntos al final gana.';
+
+  @override
+  String get rulesWordtilesTurn =>
+      'Tienes 7 fichas en tu atril.\nColoca de 1 a 7 fichas en una fila o una columna, sin huecos.\nTe llevas los puntos de todas las palabras nuevas, también de las que se cruzan con ellas.\nLuego sacas fichas de la bolsa hasta volver a tener 7.';
+
+  @override
+  String get rulesWordtilesChallengeAfter =>
+      'Después, quien impugnó juega su turno normal.';
+
+  @override
+  String get rulesWordtilesScoreless =>
+      'Si la partida termina porque nadie consigue más puntos, cada jugador pierde los puntos de las fichas que le quedan.';
+
+  @override
+  String get rulesMaumauGoal => 'Quédate sin cartas antes que el rival.';
+
+  @override
+  String get rulesMaumauTurn =>
+      'Hay 32 cartas. Cada jugador recibe 5 y una queda boca arriba en el centro. Empieza el Jugador 1.\nEcha encima una carta del mismo palo o del mismo valor, por ejemplo corazones sobre corazones o 9 sobre 9.\nSi no encaja ninguna carta o no quieres echar ninguna, robas 1 carta. Si encaja, puedes echarla o quedártela. Si no encaja, le toca al rival.\nCuando el mazo se acaba, las cartas echadas se barajan y forman un mazo nuevo.';
+
+  @override
+  String get rulesMaumauJack =>
+      'Jota: encaja sobre cualquier carta menos sobre una jota. Pides un palo. Entonces tiene que venir ese palo o una jota.';
+
+  @override
+  String get rulesMaumauSpecial =>
+      'La primera carta del centro no cuenta como carta especial.\n9, 10, reina y rey son cartas normales.\nQuien echa su última carta gana, también con una carta especial.';
+
+  @override
+  String get rulesMaexchenGoal =>
+      'No pierdas todas tus vidas. Quien al final aún tiene vidas gana.';
+
+  @override
+  String get rulesMaexchenTurn =>
+      'Tira 2 dados bajo el cubilete. Solo tú los ves.\nAnuncia un valor. Tiene que ser más alto que el último anuncio. ¡También puedes farolear!\nEl rival te cree o duda.\nSi te cree, tira a su vez y tiene que anunciar todavía más alto.\nSi duda, se levanta el cubilete. Si la tirada es más baja que lo anunciado, quien anunció pierde una vida. Si no, pierde una vida quien dudó.';
+
+  @override
+  String get rulesMaexchenOrderTitle => '¿Qué tirada es más alta?';
+
+  @override
+  String get rulesMaexchenOrder =>
+      'El dado más alto cuenta primero: 3 y 1 es 31.\nDe menor a mayor: 31, 32, 41, 42, 43 y así hasta 65.\nMás altos son los dobles: 11, 22, 33, 44, 55, 66.\nLo más alto es 21: ¡Mia!';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      'El primer anuncio de una ronda puede ser cualquier valor.\nSi se anuncia Mia, no puedes creerlo. Dudas o cedes una vida sin mirar.\nQuien pierde una vida empieza la ronda siguiente.\nAgitar: en lugar de tocar «Tirar», puedes agitar el móvil como un cubilete.';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return 'Todos empiezan con $count vidas.';
+  }
+
+  @override
+  String get shakeConsentTitle => '¿Tirar agitando?';
+
+  @override
+  String get shakeConsentBody =>
+      'Tu navegador va a preguntar si Klunki puede notar el movimiento del móvil. Solo lo usamos para tirar los dados y se queda en el dispositivo.';
+
+  @override
+  String get shakeConsentYes => 'Sí, permitir agitar';
+
+  @override
+  String get shakeConsentNo => 'No, solo tocar';
 }

@@ -13,7 +13,6 @@ import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import '../../../profile/seen_tips.dart';
 import 'wordtiles_bench_coach.dart';
-import 'wordtiles_help.dart';
 import 'wordtiles_options.dart' show wordTilesOptionsSummary, wordTilesTileNames;
 import 'wordtiles_tiles.dart';
 
@@ -76,8 +75,8 @@ import 'wordtiles_tiles.dart';
 ///   board only shrinks when the rest does not fit (`wordtiles-board-area`).
 ///   Landscape (from 480 px wide): board left, a scrolling panel right.
 /// * **Score bar** (KLD-094 step 5): token and score per player (the names
-///   are in the shell's legend; the semantics label keeps them), the bag,
-///   and "So geht's" ([showWordTilesHelp]).
+///   are in the shell's legend; the semantics label keeps them) and the bag
+///   (the rules, "So geht's" before, are the shell's "Regeln" page, KLD-123).
 /// * Hot-seat: the shell's handover cover hides the rack between turns
 ///   (`GameSpec.hiddenInformation`); the board resets its pending tiles when
 ///   the turn changes.
@@ -107,7 +106,7 @@ import 'wordtiles_tiles.dart';
 /// the bench keeps its `wordtiles-rack-<rack index>`, its place in the rack
 /// `wordtiles-rack-gap-<rack index>`); the coach `wordtiles-coach`; the unknown-word
 /// notice's `wordtiles-unknown`, `wordtiles-unknown-withdraw`,
-/// `wordtiles-unknown-allow`; step 5: `wordtiles-help`,
+/// `wordtiles-unknown-allow`; step 5:
 /// `wordtiles-bench-overlay`, `wordtiles-pass-dialog`,
 /// `wordtiles-pass-confirm`, `wordtiles-pass-cancel`.
 class WordTilesBoard extends StatefulWidget {
@@ -1319,8 +1318,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
 
-    // Scores (scaled down when space is short), then the bag and "So
-    // geht's" (KLD-094 step 5).
+    // Scores (scaled down when space is short), then the bag (KLD-094
+    // step 5).
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -1365,14 +1364,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             ),
           ),
         ),
-        IconButton(
-          key: const Key('wordtiles-help'),
-          tooltip: l10n.wordtilesHelp,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          iconSize: 22,
-          icon: const Icon(Icons.help_outline),
-          onPressed: () => showWordTilesHelp(context, game),
-        ),
+        // KLD-123: "So geht's" is the shell's "Regeln" page now; the
+        // row keeps the height the help button gave it.
+        const SizedBox(key: Key('wordtiles-score-end'), width: 4, height: 32),
         ]),
       ],
     );

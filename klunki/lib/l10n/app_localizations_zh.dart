@@ -2238,9 +2238,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesBlankScore => '空白牌 0 分。';
 
   @override
-  String get wordtilesHelp => '玩法';
-
-  @override
   String get wordtilesHelpGoal =>
       '像填字一样出牌组字。每张牌有分数（小数字）。第一组字必须经过中间格，之后每组字都要与棋盘上的字相连。';
 
@@ -2376,16 +2373,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move（换了空白牌）';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      '换空白牌（自选玩法）：如果你有棋盘上空白牌代表的字母，把它拖到空白牌上。空白牌回到你手里，本轮你还要出牌（可以用这张空白牌）。不出牌就不算换。之前的字和分数不变。';
-
-  @override
-  String get wordtilesHelpJokerOn => '本局已打开。';
-
-  @override
-  String get wordtilesHelpJokerOff => '本局没有打开。可以在开局前打开。';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2705,9 +2692,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get coachSkip => '跳过';
 
   @override
-  String get maumauHelp => '怎么玩';
-
-  @override
   String get maumauCoachPlay => '点一张能接上的牌就能出牌。能出的牌更高，并有边框。';
 
   @override
@@ -2956,4 +2940,273 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get confirmMoveOff => '确认走棋：关';
+
+  @override
+  String get rulesButton => '规则';
+
+  @override
+  String rulesTitle(String game) {
+    return '游戏规则：$game';
+  }
+
+  @override
+  String get rulesGoal => '目标';
+
+  @override
+  String get rulesTurn => '轮到你时怎么做';
+
+  @override
+  String get rulesSpecial => '特别规则';
+
+  @override
+  String get rulesHouse => '自选玩法';
+
+  @override
+  String get rulesHouseInGame => '本局的自选玩法';
+
+  @override
+  String get rulesHouseNoneForGame => '这个游戏没有自选玩法。';
+
+  @override
+  String get rulesHouseNoneOn => '现在没有打开任何自选玩法。';
+
+  @override
+  String get rulesHouseMenuNote => '这是建议的设置。开局前你们可以更改自选玩法。';
+
+  @override
+  String get rulesNewHere => '第一次玩？看看怎么玩';
+
+  @override
+  String get rulesCoachHere => '所有规则都在这里。';
+
+  @override
+  String get rulesConnect4Goal => '把你的 4 枚棋子连成一线：横着、竖着或斜着都可以。';
+
+  @override
+  String get rulesConnect4Turn => '点一列。你的棋子会落到最下面的空位。\n然后轮到对方。\n玩家 1 先走。';
+
+  @override
+  String get rulesConnect4Special =>
+      '棋盘有 7 列 6 行。\n一列满了，就不能再放棋子。\n棋盘满了，谁都没有连成 4 个，就是平局。';
+
+  @override
+  String get rulesMuehleGoal => '吃掉对方的棋子，直到对方只剩 2 枚。或者围住对方的棋子，让对方无路可走。';
+
+  @override
+  String get rulesMuehleTurn =>
+      '每人有 9 枚棋子。玩家 1 先走。\n先轮流把棋子一枚一枚放到空点上。\n所有棋子都放好后，沿着线把一枚棋子走到旁边的空点。\n只剩 3 枚棋子时，可以飞：飞到任何一个空点。';
+
+  @override
+  String get rulesMuehleMill => '3 枚棋子在一条线上，就是成三。这时你吃掉对方的一枚棋子。';
+
+  @override
+  String get rulesMuehleSpecial =>
+      '成三的棋子受保护。只有对方所有棋子都在成三里时，才可以吃其中一枚。\n把成三打开再合上，又算一次。\n连续 50 步没有吃子（两人加起来）：平局。';
+
+  @override
+  String get rulesTrumpfGoal => '赢得所有的牌。谁没有牌了，谁就输。';
+
+  @override
+  String get rulesTrumpfTurn =>
+      '每人拿 16 张牌，背面朝上叠成一堆。每次都出最上面的那张牌。\n轮到的人从自己的牌上选一项属性，比如速度。\n数值更好的赢这一轮。通常大的好，有些属性是小的好。牌上会写明。\n赢这一轮的人把两张牌都放到自己牌堆的下面，并选下一项。\n玩家 1 先选。';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      '数值一样：加赛！两张牌都进奖池，刚才选的人再选一次。谁赢下一轮，谁也拿走整个奖池。\n200 轮后，牌多的人赢。牌一样多就是平局。\n两个人的牌堆都空了，也是平局。';
+
+  @override
+  String get rulesTrumpfPickLow => '剩 3 张牌或更少：自己选';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      '只剩 2 或 3 张牌时，你能看到所有的牌，自己选出哪一张。选属性的人先选牌，再选属性。另一个人知道属性后，再选自己的牌。';
+
+  @override
+  String get rulesSetsGoal => '集齐成套的牌：一套有 4 张。最后套数多的人赢。';
+
+  @override
+  String get rulesSetsTurn =>
+      '每人拿 8 张牌。另外 16 张背面朝上，叠成牌堆。\n向对方要一张你缺少的牌。这一套里你必须已经有一张牌。\n对方有这张牌，就要给你，你可以再要一次。\n对方没有，就是“没有”：你从牌堆摸一张牌，然后轮到对方。\n玩家 1 先要。';
+
+  @override
+  String get rulesSetsSpecial =>
+      '集齐一套的 4 张牌后，马上把这一套放下。\n就算摸到了你要的那张牌，也轮到对方。\n你没有牌了，就从牌堆摸一张。\n8 套都放下后，游戏结束。4 比 4 是平局。';
+
+  @override
+  String get rulesSchiffeGoal => '在对方击沉你的舰船之前，击沉对方所有的舰船。';
+
+  @override
+  String get rulesSchiffeTurn =>
+      '先由每人偷偷把舰队放在自己 10 × 10 格的海面上。玩家 1 先开始。\n然后轮流开炮：点对方海域里的一格。\n每一格只能打一次。';
+
+  @override
+  String get rulesSchiffeMiss => '水：没打中。现在轮到对方。';
+
+  @override
+  String get rulesSchiffeHit => '命中！你可以再打一炮。';
+
+  @override
+  String get rulesSchiffeSunk => '击沉：舰船的每一格都被打中了。你会知道是哪一艘舰船。';
+
+  @override
+  String get rulesSchiffeFleet => '舰队';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship（$length 格）';
+  }
+
+  @override
+  String get rulesSchiffeSpecial => '舰船是直的：横放或竖放。\n舰船之间不能相邻，斜角也不行。';
+
+  @override
+  String get rulesGoGoal => '夺取对方的军旗。对方无路可走时，你也赢。';
+
+  @override
+  String get rulesGoTurn =>
+      '先由每人偷偷把 40 个棋子摆在自己的 4 行上。只有主人能看到棋子的军衔。\n玩家 1 先摆，也先走。\n轮到你时，把一个棋子向前、后、左或右走 1 格。不能斜着走。\n中间的两个湖里不能走棋子。';
+
+  @override
+  String get rulesGoFightTitle => '谁能打败谁？';
+
+  @override
+  String get rulesGoFight =>
+      '走到对方的棋子上时，两个棋子交战。之后双方都能看到是哪两个棋子。\n军衔高的赢。输的棋子出局。\n军衔相同：两个都出局。';
+
+  @override
+  String get rulesGoPieces => '棋子';
+
+  @override
+  String rulesGoRank(int rank) {
+    return '军衔 $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal => '最强的棋子。只会输给主动进攻的间谍。';
+
+  @override
+  String get rulesGoScout => '可以沿直线走过任意多个空格，最后还可以进攻。走超过 1 格时，双方都会看到它是侦察兵。';
+
+  @override
+  String get rulesGoMiner => '能排除炸弹：进攻炸弹时，会占据它的位置。';
+
+  @override
+  String get rulesGoSpy => '最弱的棋子。但间谍进攻元帅时，间谍赢。';
+
+  @override
+  String get rulesGoBomb => '从不移动。进攻它的棋子出局，炸弹留下。只有工兵能排除它。';
+
+  @override
+  String get rulesGoFlag => '从不移动。谁进攻它，谁就赢得游戏。';
+
+  @override
+  String get rulesGoSpecial =>
+      '一个棋子在同样的两格之间来回走，最多连续 3 次。\n一个棋子走过之后，对方就知道：它不是炸弹，也不是军旗。\n连续 200 步没有交战：平局。谁都不能走时，也是平局。';
+
+  @override
+  String get rulesChessGoal => '将死对方的王：王被攻击，而且逃不掉。';
+
+  @override
+  String get rulesChessTurn =>
+      '白方先走，然后轮流走棋。\n点你的一个棋子，再点一个格子。那里有对方的棋子，就吃掉它。\n只有马可以跳过其他棋子。';
+
+  @override
+  String get rulesChessPieces => '棋子怎么走';
+
+  @override
+  String get rulesChessKing => '向任何方向走 1 格。';
+
+  @override
+  String get rulesChessQueen => '直走或斜走，格数不限。';
+
+  @override
+  String get rulesChessRook => '直走，格数不限。';
+
+  @override
+  String get rulesChessBishop => '斜走，格数不限。';
+
+  @override
+  String get rulesChessKnight => '走“日”字：直走 2 格，再向旁边走 1 格。可以跳过棋子。';
+
+  @override
+  String get rulesChessPawn => '向前走 1 格，第一步也可以走 2 格。吃子时向斜前方走 1 格。';
+
+  @override
+  String get rulesChessSpecial =>
+      '将军：你的王被攻击了。你必须马上救它。走完后王还被将军，这一步就不允许。\n将死：王被将军，而且救不了。将死对方的人赢。\n王车易位：王和车都还没走过，中间也都是空的。王向车走 2 格，车跳到王的旁边。王被将军时不行，王要经过被攻击的格子时也不行。\n吃过路兵：对方的兵走 2 格，停在你的兵旁边，你可以在紧接着的下一步斜着吃掉它，就像它只走了 1 格。\n兵升变：兵走到最后一行时，变成后、车、象或马。由你来选。';
+
+  @override
+  String get rulesChessDrawTitle => '平局（和棋）';
+
+  @override
+  String get rulesChessDraw =>
+      '逼和：轮到的人不能走，但没有被将军。\n剩下的棋子太少，谁都不能将死对方。\n同一个局面第 3 次出现。\n双方各走 75 步，没有吃子，也没有走兵。\n提和：轮到的人可以提和。对方接受或拒绝。';
+
+  @override
+  String get rulesWordtilesWin => '最后分数最多的人赢。';
+
+  @override
+  String get rulesWordtilesTurn =>
+      '你手里有 7 张牌。\n把 1 到 7 张牌放在同一横行或同一纵列，中间不能有空格。\n所有新组成的字都算分，和它交叉的字也算。\n然后从牌堆摸牌，直到你又有 7 张。';
+
+  @override
+  String get rulesWordtilesChallengeAfter => '否认的人之后照常出牌。';
+
+  @override
+  String get rulesWordtilesScoreless => '如果因为没人再得分而结束，每个人都要减去自己剩余牌的分数。';
+
+  @override
+  String get rulesMaumauGoal => '争取第一个出完手里所有的牌。';
+
+  @override
+  String get rulesMaumauTurn =>
+      '一共有 32 张牌。每人拿 5 张，中间翻开一张。玩家 1 先出。\n出一张花色相同或点数相同的牌放上去，比如红心接红心，9 接 9。\n没有能接上的牌，或者你不想出，就摸 1 张牌。能接上，你可以出掉或者留着。接不上，就轮到对方。\n牌堆空了，弃牌会洗成新的牌堆。';
+
+  @override
+  String get rulesMaumauJack => 'J：除了 J 以外，能接在任何牌上。你指定一种花色。接下来必须出这种花色，或者出 J。';
+
+  @override
+  String get rulesMaumauSpecial =>
+      '中间的第一张牌不算特殊牌。\n9、10、Q 和 K 都是普通牌。\n谁出掉最后一张牌，谁就赢，用特殊牌也算。';
+
+  @override
+  String get rulesMaexchenGoal => '别把命都输光。最后还有命的人赢。';
+
+  @override
+  String get rulesMaexchenTurn =>
+      '在杯子下面摇 2 个骰子。只有你能看到。\n报一个数。它必须比上一次报的大。你也可以吹牛！\n对方相信你，或者怀疑。\n相信的话，对方自己摇骰子，而且要报更大的数。\n怀疑的话，就打开杯子。骰子比报的小，报数的人输一条命。不然怀疑的人输一条命。';
+
+  @override
+  String get rulesMaexchenOrderTitle => '哪个点数更大？';
+
+  @override
+  String get rulesMaexchenOrder =>
+      '大的骰子算在前面：3 和 1 是 31。\n从小到大：31、32、41、42、43，一直到 65。\n对子更大：11、22、33、44、55、66。\n最大的是 21：王牌！';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      '每一轮第一次报数，报什么都可以。\n有人报王牌时，你不能相信。你要怀疑，或者不看杯子，认输一条命。\n输了一条命的人，开始下一轮。\n摇一摇：不点“摇骰子”，也可以像摇杯子一样摇手机。';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return '每人开始时有 $count 条命。';
+  }
+
+  @override
+  String get shakeConsentTitle => '摇手机掷骰子？';
+
+  @override
+  String get shakeConsentBody =>
+      '浏览器马上会问：Klunki 能不能感知手机的移动？我们只用它来摇骰子，数据只留在设备上。';
+
+  @override
+  String get shakeConsentYes => '好，允许摇动';
+
+  @override
+  String get shakeConsentNo => '不，只点按';
 }

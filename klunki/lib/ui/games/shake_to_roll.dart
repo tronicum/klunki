@@ -1,8 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../platform/shake.dart';
+import '../../profile/seen_tips.dart';
 import '../../profile/shake_settings.dart';
 
 /// "Schütteln zum Würfeln" for a dice game (KLD-121 follow-up; Mäxchen now,
@@ -28,6 +30,21 @@ class ShakeToRoll extends StatefulWidget {
   /// motion access only inside a user tap. Nothing when the setting is off.
   static void askPermissionFromTap() {
     if (ShakeSettings.shared().enabled) Motion.askPermission();
+  }
+
+  /// The roll button's tap (KLD-123): rolls with [roll], and first, once,
+  /// where the browser will ask for motion access (the web on iOS, shaking
+  /// on), the consent card ([ShakeConsentCard]) that explains the prompt.
+  /// "Ja" asks the browser inside its own tap, "Nein" turns shaking off;
+  /// either way the dice are rolled afterwards. Elsewhere this is
+  /// [askPermissionFromTap] plus [roll].
+  static void rollFromTap(BuildContext context, VoidCallback roll) {
+    if (ShakeSettings.shared().enabled && Motion.permissionPending && !SeenTips.shared.has(SeenTips.shakeConsent)) {
+      showShakeConsent(context).then((_) => roll());
+      return;
+    }
+    askPermissionFromTap();
+    roll();
   }
 
   @override
@@ -135,5 +152,58 @@ class _ShakeToRollState extends State<ShakeToRoll> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final ready = _sub != null && Motion.working.value;
     return widget.builder(context, ready);
+  }
+}
+
+/// Shows the shake consent card ([ShakeConsentCard]); completes when it is
+/// answered.
+Future<void> showShakeConsent(BuildContext context) => showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const ShakeConsentCard(),
+    );
+
+/// "Würfeln durch Schütteln?" (KLD-123): the web on iOS shows a fixed
+/// motion permission prompt of its own; this card says first what it is
+/// for. "Ja, Schütteln erlauben" asks the browser synchronously in this tap
+/// (Safari allows the prompt only from a user tap), "Nein, nur tippen"
+/// turns "Schütteln zum Würfeln" off. Answered once per device
+/// ([SeenTips.shakeConsent]). Never in the apps (no prompt there).
+///
+/// Keys: `shake-consent`, `shake-consent-yes`, `shake-consent-no`.
+class ShakeConsentCard extends StatelessWidget {
+  const ShakeConsentCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final nav = Navigator.of(context);
+    return AlertDialog(
+      key: const Key('shake-consent'),
+      icon: const Icon(Icons.vibration),
+      title: Text(l10n.shakeConsentTitle),
+      content: Text(l10n.shakeConsentBody),
+      actions: [
+        TextButton(
+          key: const Key('shake-consent-no'),
+          onPressed: () {
+            SeenTips.shared.markFirst(SeenTips.shakeConsent);
+            ShakeSettings.shared().setEnabled(false);
+            nav.pop();
+          },
+          child: Text(l10n.shakeConsentNo),
+        ),
+        FilledButton(
+          key: const Key('shake-consent-yes'),
+          onPressed: () {
+            SeenTips.shared.markFirst(SeenTips.shakeConsent);
+            // In this tap: the browser shows its prompt only from one.
+            Motion.askPermission();
+            nav.pop();
+          },
+          child: Text(l10n.shakeConsentYes),
+        ),
+      ],
+    );
   }
 }

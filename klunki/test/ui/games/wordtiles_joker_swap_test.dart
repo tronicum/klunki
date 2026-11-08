@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
-import 'package:klunki/ui/games/wordtiles/wordtiles_help.dart';
 import 'package:klunki/ui/games/wordtiles_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -182,13 +181,12 @@ void main() {
     expect(c.moves, isEmpty);
   });
 
-  testWidgets('the help says whether the rule is on', (tester) async {
+  testWidgets('the rules page lists the house rule as on (KLD-123)', (tester) async {
     final c = await _start(tester);
-    await _tap(tester, find.byKey(const Key('wordtiles-help')));
+    await _tap(tester, find.byKey(const Key('shell-rules')));
     await tester.pumpAndSettle();
-    final joker = find.byKey(const Key('wordtiles-help-joker'));
-    expect(find.descendant(of: joker, matching: find.textContaining(deL10n.wordtilesHelpJokerOn)), findsOneWidget);
-    expect(find.byType(WordTilesHelpSheet), findsOneWidget);
+    final joker = find.byKey(const Key('rules-house-joker'));
+    expect(find.descendant(of: joker, matching: find.text(deL10n.wordtilesOptionJokerExplain)), findsOneWidget);
     expect(_game(c).jokerSwap, isTrue);
   });
 

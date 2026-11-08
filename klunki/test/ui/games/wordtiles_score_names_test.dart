@@ -168,7 +168,7 @@ void main() {
 
     testWidgets('"So geht\'s" explains zoom and moving a laid tile', (tester) async {
       await _start(tester);
-      await tester.tap(find.byKey(const Key('wordtiles-help')));
+      await tester.tap(find.byKey(const Key('shell-rules')));
       await tester.pumpAndSettle();
       expect(find.textContaining('Mit zwei Fingern zoomst du das Brett'), findsOneWidget);
       expect(find.byIcon(Icons.pinch_outlined), findsOneWidget);

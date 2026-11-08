@@ -3448,10 +3448,6 @@
   "@wordtilesBlankScore": {
     "description": "Word tiles: blank letter picker, reminds that the blank scores nothing."
   },
-  "wordtilesHelp": "So geht’s",
-  "@wordtilesHelp": {
-    "description": "Word tiles: title / tooltip of the short rules sheet."
-  },
   "wordtilesHelpGoal": "Legt Wörter wie im Kreuzworträtsel. Jeder Buchstabe hat Punkte (die kleine Zahl). Das erste Wort geht über den Stern in der Mitte, jedes weitere schließt an.",
   "@wordtilesHelpGoal": {
     "description": "Word tiles rules sheet: the basic idea."
@@ -3684,18 +3680,6 @@
         "type": "String"
       }
     }
-  },
-  "wordtilesHelpJoker": "Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.",
-  "@wordtilesHelpJoker": {
-    "description": "Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9)."
-  },
-  "wordtilesHelpJokerOn": "In diesem Spiel an.",
-  "@wordtilesHelpJokerOn": {
-    "description": "Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game."
-  },
-  "wordtilesHelpJokerOff": "In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.",
-  "@wordtilesHelpJokerOff": {
-    "description": "Word tiles rules sheet: under wordtilesHelpJoker, the house rule is off in this game (it is chosen before the game)."
   },
   "wordtilesUnknownAskNet": "Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.",
   "@wordtilesUnknownAskNet": {
@@ -4196,10 +4180,6 @@
   "@coachSkip": {
     "description": "Coach marks: button that closes the tour early."
   },
-  "maumauHelp": "So geht’s",
-  "@maumauHelp": {
-    "description": "Mau-Mau (KLD-118): tooltip of the ? button next to the own hand that shows the \"how to play\" tour again."
-  },
   "maumauCoachPlay": "Tippe auf eine passende Karte, um sie zu legen. Passende Karten stehen höher und haben einen Rahmen.",
   "@maumauCoachPlay": {
     "description": "Mau-Mau tour step 1, pointing at the own hand."
@@ -4587,5 +4567,352 @@
   "confirmMoveOff": "Zug bestätigen ist aus.",
   "@confirmMoveOff": {
     "description": "KLD-122: snack bar after turning the confirm-move toggle off during a network game."
+  },
+  "rulesButton": "Regeln",
+  "@rulesButton": {
+    "description": "KLD-123: label of the rules button (book icon + this word) in every game's app bar and on each menu tile. One short word."
+  },
+  "rulesTitle": "Spielregeln: {game}",
+  "@rulesTitle": {
+    "description": "KLD-123: title of a game's rules page. game = game title, e.g. \"Mühle\".",
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesGoal": "Ziel",
+  "@rulesGoal": {
+    "description": "KLD-123: rules page section: how to win."
+  },
+  "rulesTurn": "So läuft ein Zug",
+  "@rulesTurn": {
+    "description": "KLD-123: rules page section: what a player does on a turn."
+  },
+  "rulesSpecial": "Besondere Regeln",
+  "@rulesSpecial": {
+    "description": "KLD-123: rules page section: special rules."
+  },
+  "rulesHouse": "Hausregeln",
+  "@rulesHouse": {
+    "description": "KLD-123: rules page section (opened from the menu): the suggested house rules."
+  },
+  "rulesHouseInGame": "Hausregeln in diesem Spiel",
+  "@rulesHouseInGame": {
+    "description": "KLD-123: rules page section (opened in a game): the house rules switched on in this game."
+  },
+  "rulesHouseNoneForGame": "Für dieses Spiel gibt es keine Hausregeln.",
+  "@rulesHouseNoneForGame": {
+    "description": "KLD-123: rules page, house rules section of a game without house rules."
+  },
+  "rulesHouseNoneOn": "Gerade ist keine Hausregel an.",
+  "@rulesHouseNoneOn": {
+    "description": "KLD-123: rules page, house rules section when all house rules are off."
+  },
+  "rulesHouseMenuNote": "So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.",
+  "@rulesHouseMenuNote": {
+    "description": "KLD-123: rules page opened from the menu, under the house rules of a game where they are chosen before the start."
+  },
+  "rulesNewHere": "Neu hier? So geht’s",
+  "@rulesNewHere": {
+    "description": "KLD-123: tappable line under the status line for new players of a game; opens the rules page."
+  },
+  "rulesCoachHere": "Alle Regeln findest du hier.",
+  "@rulesCoachHere": {
+    "description": "KLD-123: last step of the Mau-Mau first-time tour, pointing at the rules button."
+  },
+  "rulesConnect4Goal": "Bring 4 deiner Steine in eine Reihe: waagerecht, senkrecht oder schräg.",
+  "@rulesConnect4Goal": {
+    "description": "KLD-123: Four in a Row rules, goal."
+  },
+  "rulesConnect4Turn": "Tippe auf eine Spalte. Dein Stein fällt nach unten auf den untersten freien Platz.\nDann ist der andere dran.\nSpieler 1 fängt an.",
+  "@rulesConnect4Turn": {
+    "description": "KLD-123: Four in a Row rules, a turn. Lines separated by \\n are shown as a list."
+  },
+  "rulesConnect4Special": "Das Brett hat 7 Spalten und 6 Reihen.\nIn eine volle Spalte passt kein Stein mehr.\nIst das Brett voll und keiner hat 4 in einer Reihe, ist es unentschieden.",
+  "@rulesConnect4Special": {
+    "description": "KLD-123: Four in a Row rules, special rules (list, \\n)."
+  },
+  "rulesMuehleGoal": "Nimm dem anderen so lange Steine weg, bis er nur noch 2 hat. Oder sperr seine Steine ein, sodass er nicht mehr ziehen kann.",
+  "@rulesMuehleGoal": {
+    "description": "KLD-123: Nine Men's Morris rules, goal."
+  },
+  "rulesMuehleTurn": "Jeder hat 9 Steine. Spieler 1 fängt an.\nZuerst setzt ihr abwechselnd je einen Stein auf einen freien Punkt.\nSind alle Steine gesetzt, schiebst du einen Stein entlang einer Linie auf den freien Punkt daneben.\nHast du nur noch 3 Steine, darfst du springen: auf jeden freien Punkt.",
+  "@rulesMuehleTurn": {
+    "description": "KLD-123: Nine Men's Morris rules, a turn (list, \\n)."
+  },
+  "rulesMuehleMill": "3 Steine in einer Linie sind eine Mühle. Dann nimmst du dem anderen einen Stein weg.",
+  "@rulesMuehleMill": {
+    "description": "KLD-123: Nine Men's Morris rules: what a mill is (next to a small picture)."
+  },
+  "rulesMuehleSpecial": "Steine in einer Mühle sind geschützt. Nur wenn alle Steine des anderen in Mühlen stehen, darfst du einen davon nehmen.\nÖffnest du eine Mühle und schließt sie wieder, zählt sie noch einmal.\n50 Züge hintereinander ohne Wegnehmen (beide zusammengezählt): unentschieden.",
+  "@rulesMuehleSpecial": {
+    "description": "KLD-123: Nine Men's Morris rules, special rules (list, \\n)."
+  },
+  "rulesTrumpfGoal": "Gewinne alle Karten. Wer keine Karte mehr hat, verliert.",
+  "@rulesTrumpfGoal": {
+    "description": "KLD-123: Quartett (Trumpf) rules, goal."
+  },
+  "rulesTrumpfTurn": "Jeder bekommt 16 Karten als verdeckten Stapel. Gespielt wird immer die oberste Karte.\nWer dran ist, wählt eine Eigenschaft seiner Karte, zum Beispiel die Geschwindigkeit.\nDer bessere Wert gewinnt die Runde. Meist ist der höhere besser, bei manchen der niedrigere. Das steht auf der Karte.\nWer die Runde gewinnt, legt beide Karten unter seinen Stapel und wählt als Nächstes.\nSpieler 1 wählt zuerst.",
+  "@rulesTrumpfTurn": {
+    "description": "KLD-123: Quartett (Trumpf) rules, a turn (list, \\n). Use \"Runde\" (round), never \"Stich\"."
+  },
+  "rulesTrumpfSpecial": "Gleicher Wert: Stechen! Beide Karten kommen in den Topf, und wer gewählt hat, wählt noch einmal. Wer die nächste Runde gewinnt, bekommt auch den ganzen Topf.\nNach 200 Runden gewinnt, wer mehr Karten hat. Bei gleich vielen ist es unentschieden.\nSind beide Stapel leer, ist es auch unentschieden.",
+  "@rulesTrumpfSpecial": {
+    "description": "KLD-123: Quartett (Trumpf) rules, special rules (list, \\n). German: a tie is \"Stechen\", never \"Stich\"."
+  },
+  "rulesTrumpfPickLow": "Mit 3 Karten oder weniger: aussuchen",
+  "@rulesTrumpfPickLow": {
+    "description": "KLD-123: Quartett (Trumpf) house rule title (KLD-100)."
+  },
+  "rulesTrumpfPickLowText": "Hast du nur noch 2 oder 3 Karten, siehst du alle und suchst aus, welche du spielst. Wer wählt, sucht zuerst die Karte aus und dann die Eigenschaft. Der andere sucht seine Karte aus, wenn er die Eigenschaft kennt.",
+  "@rulesTrumpfPickLowText": {
+    "description": "KLD-123: Quartett (Trumpf) house rule text (KLD-100)."
+  },
+  "rulesSetsGoal": "Sammle Quartette: alle 4 Karten einer Gruppe. Wer am Ende mehr Quartette hat, gewinnt.",
+  "@rulesSetsGoal": {
+    "description": "KLD-123: Quartett (Sets) rules, goal."
+  },
+  "rulesSetsTurn": "Jeder bekommt 8 Karten. Die anderen 16 liegen verdeckt als Stapel.\nFrag den anderen nach einer Karte, die dir fehlt. Von dieser Gruppe musst du schon eine Karte haben.\nHat der andere die Karte, gibt er sie dir, und du darfst noch einmal fragen.\nHat er sie nicht, heißt es Fehlanzeige: Du ziehst eine Karte vom Stapel, und der andere ist dran.\nSpieler 1 fragt zuerst.",
+  "@rulesSetsTurn": {
+    "description": "KLD-123: Quartett (Sets) rules, a turn (list, \\n)."
+  },
+  "rulesSetsSpecial": "Hast du alle 4 Karten einer Gruppe, legst du das Quartett sofort ab.\nZiehst du die gefragte Karte vom Stapel, ist trotzdem der andere dran.\nHast du keine Karten mehr, ziehst du eine vom Stapel.\nSind alle 8 Quartette abgelegt, ist das Spiel aus. Bei 4 zu 4 ist es unentschieden.",
+  "@rulesSetsSpecial": {
+    "description": "KLD-123: Quartett (Sets) rules, special rules (list, \\n)."
+  },
+  "rulesSchiffeGoal": "Versenke alle Schiffe des anderen, bevor er deine versenkt.",
+  "@rulesSchiffeGoal": {
+    "description": "KLD-123: Sink the Fleet rules, goal."
+  },
+  "rulesSchiffeTurn": "Zuerst stellt jeder seine Flotte geheim auf sein Meer mit 10 mal 10 Feldern. Spieler 1 fängt an.\nDann schießt ihr abwechselnd: Tippe auf ein Feld im Meer des anderen.\nAuf jedes Feld schießt du nur einmal.",
+  "@rulesSchiffeTurn": {
+    "description": "KLD-123: Sink the Fleet rules, a turn (list, \\n)."
+  },
+  "rulesSchiffeMiss": "Wasser: daneben. Jetzt ist der andere dran.",
+  "@rulesSchiffeMiss": {
+    "description": "KLD-123: Sink the Fleet rules, next to a miss square."
+  },
+  "rulesSchiffeHit": "Treffer! Du darfst noch einmal schießen.",
+  "@rulesSchiffeHit": {
+    "description": "KLD-123: Sink the Fleet rules, next to a hit square."
+  },
+  "rulesSchiffeSunk": "Versenkt: Alle Felder des Schiffs sind getroffen. Du erfährst, welches Schiff es war.",
+  "@rulesSchiffeSunk": {
+    "description": "KLD-123: Sink the Fleet rules, next to a sunk square."
+  },
+  "rulesSchiffeFleet": "Die Flotte",
+  "@rulesSchiffeFleet": {
+    "description": "KLD-123: Sink the Fleet rules, heading above the list of ships."
+  },
+  "rulesSchiffeShip": "{count} × {ship} ({length} Felder)",
+  "@rulesSchiffeShip": {
+    "description": "KLD-123: Sink the Fleet rules, one kind of ship. ship = ship name (engineShip*), e.g. \"Kreuzer\"; count = how many, length = squares.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "ship": {
+        "type": "String"
+      },
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesSchiffeSpecial": "Schiffe liegen gerade: waagerecht oder senkrecht.\nSchiffe dürfen sich nicht berühren, auch nicht über Eck.",
+  "@rulesSchiffeSpecial": {
+    "description": "KLD-123: Sink the Fleet rules, special rules (list, \\n)."
+  },
+  "rulesGoGoal": "Erobere die Fahne des anderen. Du gewinnst auch, wenn der andere nicht mehr ziehen kann.",
+  "@rulesGoGoal": {
+    "description": "KLD-123: GoStrategy rules, goal."
+  },
+  "rulesGoTurn": "Zuerst stellt jeder seine 40 Figuren geheim auf seine 4 Reihen. Den Rang einer Figur sieht nur ihr Besitzer.\nSpieler 1 stellt zuerst auf und zieht zuerst.\nIn deinem Zug ziehst du eine Figur 1 Feld nach vorne, hinten, links oder rechts. Nie schräg.\nIn die beiden Seen in der Mitte kann keine Figur.",
+  "@rulesGoTurn": {
+    "description": "KLD-123: GoStrategy rules, a turn (list, \\n)."
+  },
+  "rulesGoFightTitle": "Wer schlägt wen?",
+  "@rulesGoFightTitle": {
+    "description": "KLD-123: GoStrategy rules, heading above the fight rules."
+  },
+  "rulesGoFight": "Ziehst du auf eine Figur des anderen, kämpfen beide. Danach sehen beide, welche Figuren es waren.\nDer höhere Rang gewinnt. Der Verlierer fliegt raus.\nGleicher Rang: Beide fliegen raus.",
+  "@rulesGoFight": {
+    "description": "KLD-123: GoStrategy rules, fights (list, \\n)."
+  },
+  "rulesGoPieces": "Die Figuren",
+  "@rulesGoPieces": {
+    "description": "KLD-123: GoStrategy rules, heading above the piece table."
+  },
+  "rulesGoRank": "Rang {rank}",
+  "@rulesGoRank": {
+    "description": "KLD-123: GoStrategy piece table: the rank of a piece.",
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesGoCount": "{count} ×",
+  "@rulesGoCount": {
+    "description": "KLD-123: GoStrategy piece table: how many of this piece each player has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesGoMarshal": "Die stärkste Figur. Verliert nur gegen den Spion, wenn der angreift.",
+  "@rulesGoMarshal": {
+    "description": "KLD-123: GoStrategy piece table: the marshal."
+  },
+  "rulesGoScout": "Läuft geradeaus beliebig weit über freie Felder und darf am Ende angreifen. Läuft er mehr als 1 Feld, sehen beide, dass er ein Aufklärer ist.",
+  "@rulesGoScout": {
+    "description": "KLD-123: GoStrategy piece table: the scout."
+  },
+  "rulesGoMiner": "Entschärft Bomben: Greift er eine an, nimmt er ihren Platz ein.",
+  "@rulesGoMiner": {
+    "description": "KLD-123: GoStrategy piece table: the miner."
+  },
+  "rulesGoSpy": "Die schwächste Figur. Greift der Spion aber den Marschall an, gewinnt er.",
+  "@rulesGoSpy": {
+    "description": "KLD-123: GoStrategy piece table: the spy."
+  },
+  "rulesGoBomb": "Zieht nie. Wer sie angreift, fliegt raus, die Bombe bleibt. Nur der Mineur entschärft sie.",
+  "@rulesGoBomb": {
+    "description": "KLD-123: GoStrategy piece table: the bomb."
+  },
+  "rulesGoFlag": "Zieht nie. Wer sie angreift, gewinnt das Spiel.",
+  "@rulesGoFlag": {
+    "description": "KLD-123: GoStrategy piece table: the flag."
+  },
+  "rulesGoSpecial": "Eine Figur darf höchstens 3-mal hintereinander zwischen denselben zwei Feldern hin und her ziehen.\nHat eine Figur gezogen, weiß der andere: Sie ist keine Bombe und keine Fahne.\n200 Züge hintereinander ohne Kampf: unentschieden. Ebenso, wenn keiner mehr ziehen kann.",
+  "@rulesGoSpecial": {
+    "description": "KLD-123: GoStrategy rules, special rules (list, \\n)."
+  },
+  "rulesChessGoal": "Setz den König des anderen schachmatt: Er wird angegriffen und kann nicht mehr entkommen.",
+  "@rulesChessGoal": {
+    "description": "KLD-123: chess rules, goal."
+  },
+  "rulesChessTurn": "Weiß fängt an, dann zieht ihr abwechselnd.\nTippe auf eine deiner Figuren und dann auf ein Feld. Steht dort eine Figur des anderen, schlägst du sie.\nNur der Springer darf über andere Figuren springen.",
+  "@rulesChessTurn": {
+    "description": "KLD-123: chess rules, a turn (list, \\n)."
+  },
+  "rulesChessPieces": "So ziehen die Figuren",
+  "@rulesChessPieces": {
+    "description": "KLD-123: chess rules, heading above the pieces."
+  },
+  "rulesChessKing": "1 Feld in jede Richtung.",
+  "@rulesChessKing": {
+    "description": "KLD-123: chess rules: the king (shown after the piece name)."
+  },
+  "rulesChessQueen": "Beliebig weit gerade oder schräg.",
+  "@rulesChessQueen": {
+    "description": "KLD-123: chess rules: the queen."
+  },
+  "rulesChessRook": "Beliebig weit gerade.",
+  "@rulesChessRook": {
+    "description": "KLD-123: chess rules: the rook."
+  },
+  "rulesChessBishop": "Beliebig weit schräg.",
+  "@rulesChessBishop": {
+    "description": "KLD-123: chess rules: the bishop."
+  },
+  "rulesChessKnight": "Wie ein L: 2 Felder gerade, dann 1 zur Seite. Er springt über Figuren.",
+  "@rulesChessKnight": {
+    "description": "KLD-123: chess rules: the knight."
+  },
+  "rulesChessPawn": "1 Feld nach vorne, beim ersten Zug auch 2. Er schlägt 1 Feld schräg nach vorne.",
+  "@rulesChessPawn": {
+    "description": "KLD-123: chess rules: the pawn."
+  },
+  "rulesChessSpecial": "Schach: Dein König wird angegriffen. Du musst ihn sofort retten. Ein Zug, nach dem dein König im Schach steht, geht nicht.\nSchachmatt: Der König steht im Schach und kann nicht gerettet werden. Wer mattsetzt, gewinnt.\nRochade: König und Turm haben noch nicht gezogen, und zwischen ihnen ist alles frei. Der König geht 2 Felder zum Turm, der Turm springt neben ihn. Nicht erlaubt, wenn der König im Schach steht oder über ein angegriffenes Feld gehen müsste.\nEn passant: Zieht ein Bauer 2 Felder und landet neben deinem Bauern, darfst du ihn gleich im nächsten Zug schräg schlagen, als wäre er nur 1 Feld gezogen.\nUmwandlung: Erreicht ein Bauer die letzte Reihe, wird er eine Dame, ein Turm, ein Läufer oder ein Springer. Du suchst aus.",
+  "@rulesChessSpecial": {
+    "description": "KLD-123: chess rules, special rules (list, \\n)."
+  },
+  "rulesChessDrawTitle": "Unentschieden (Remis)",
+  "@rulesChessDrawTitle": {
+    "description": "KLD-123: chess rules, heading above the kinds of draw."
+  },
+  "rulesChessDraw": "Patt: Wer dran ist, kann nicht ziehen, steht aber nicht im Schach.\nEs sind zu wenig Figuren übrig, um mattzusetzen.\nDieselbe Stellung kommt zum 3. Mal.\n75 Züge von jedem ohne Schlagen und ohne Bauernzug.\nRemis vereinbart: Wer dran ist, kann Remis anbieten. Der andere nimmt an oder lehnt ab.",
+  "@rulesChessDraw": {
+    "description": "KLD-123: chess rules, kinds of draw (list, \\n)."
+  },
+  "rulesWordtilesWin": "Wer am Ende die meisten Punkte hat, gewinnt.",
+  "@rulesWordtilesWin": {
+    "description": "KLD-123: word tile game rules, goal (after wordtilesHelpGoal)."
+  },
+  "rulesWordtilesTurn": "Du hast 7 Steine auf deiner Bank.\nLeg 1 bis 7 Steine in eine Reihe oder Spalte, ohne Lücke.\nDu bekommst die Punkte aller neuen Wörter, auch der Wörter quer dazu.\nDanach ziehst du Steine aus dem Beutel, bis du wieder 7 hast.",
+  "@rulesWordtilesTurn": {
+    "description": "KLD-123: word tile game rules, a turn (list, \\n)."
+  },
+  "rulesWordtilesChallengeAfter": "Wer angezweifelt hat, ist danach normal dran.",
+  "@rulesWordtilesChallengeAfter": {
+    "description": "KLD-123: word tile game rules, after the challenge rule."
+  },
+  "rulesWordtilesScoreless": "Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.",
+  "@rulesWordtilesScoreless": {
+    "description": "KLD-123: word tile game rules, the end after scoreless turns."
+  },
+  "rulesMaumauGoal": "Werde als Erster alle deine Karten los.",
+  "@rulesMaumauGoal": {
+    "description": "KLD-123: Mau-Mau rules, goal."
+  },
+  "rulesMaumauTurn": "Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte oder willst du keine legen, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.",
+  "@rulesMaumauTurn": {
+    "description": "KLD-123: Mau-Mau rules, a turn (list, \\n)."
+  },
+  "rulesMaumauJack": "Bube: passt auf jede Karte außer auf einen Buben. Du wünschst dir eine Farbe. Dann muss diese Farbe kommen oder ein Bube.",
+  "@rulesMaumauJack": {
+    "description": "KLD-123: Mau-Mau rules: the jack (next to a card picture)."
+  },
+  "rulesMaumauSpecial": "Die erste Karte in der Mitte gilt nicht als Sonderkarte.\n9, 10, Dame und König sind normale Karten.\nWer die letzte Karte ablegt, gewinnt – auch mit einer Sonderkarte.",
+  "@rulesMaumauSpecial": {
+    "description": "KLD-123: Mau-Mau rules, special rules (list, \\n)."
+  },
+  "rulesMaexchenGoal": "Verlier nicht alle deine Leben. Wer zuletzt noch Leben hat, gewinnt.",
+  "@rulesMaexchenGoal": {
+    "description": "KLD-123: dice bluffing game rules, goal."
+  },
+  "rulesMaexchenTurn": "Würfle mit 2 Würfeln unter dem Becher. Nur du siehst sie.\nSag einen Wert an. Er muss höher sein als die letzte Ansage. Du darfst auch flunkern!\nDer andere glaubt dir oder zweifelt an.\nGlaubt er dir, würfelt er selbst und muss noch höher ansagen.\nZweifelt er, wird der Becher gehoben. Ist der Wurf kleiner als die Ansage, verliert der Ansager ein Leben. Sonst verliert der Zweifler eins.",
+  "@rulesMaexchenTurn": {
+    "description": "KLD-123: dice bluffing game rules, a turn (list, \\n)."
+  },
+  "rulesMaexchenOrderTitle": "Welcher Wurf ist höher?",
+  "@rulesMaexchenOrderTitle": {
+    "description": "KLD-123: dice bluffing game rules, heading above the value order."
+  },
+  "rulesMaexchenOrder": "Der höhere Würfel zählt zuerst: 3 und 1 ist 31.\nVon klein nach groß: 31, 32, 41, 42, 43 und so weiter bis 65.\nHöher sind die Pasche: 11, 22, 33, 44, 55, 66.\nAm höchsten ist 21: das Mäxchen!",
+  "@rulesMaexchenOrder": {
+    "description": "KLD-123: dice bluffing game rules, value order (list, \\n). Keep the numbers."
+  },
+  "rulesMaexchenSpecial": "Die erste Ansage einer Runde darf jeder Wert sein.\nWird ein Mäxchen angesagt, kannst du nicht glauben. Du zweifelst an oder gibst ein Leben ab, ohne nachzuschauen.\nWer ein Leben verliert, fängt die nächste Runde an.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln wie einen Becher.",
+  "@rulesMaexchenSpecial": {
+    "description": "KLD-123: dice bluffing game rules, special rules (list, \\n)."
+  },
+  "rulesMaexchenLives": "Jeder fängt mit {count} Leben an.",
+  "@rulesMaexchenLives": {
+    "description": "KLD-123: dice bluffing game rules, the lives setting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "shakeConsentTitle": "Würfeln durch Schütteln?",
+  "@shakeConsentTitle": {
+    "description": "KLD-123: title of the one-time card before the browser (iOS Safari) asks for motion access for shake-to-roll."
+  },
+  "shakeConsentBody": "Dein Browser fragt gleich, ob Klunki die Bewegung des Handys spüren darf. Das nutzen wir nur zum Würfeln, es bleibt auf dem Gerät.",
+  "@shakeConsentBody": {
+    "description": "KLD-123: text of the shake consent card; the browser shows its own fixed prompt right after \"yes\"."
+  },
+  "shakeConsentYes": "Ja, Schütteln erlauben",
+  "@shakeConsentYes": {
+    "description": "KLD-123: shake consent card: yes (the browser asks next)."
+  },
+  "shakeConsentNo": "Nein, nur tippen",
+  "@shakeConsentNo": {
+    "description": "KLD-123: shake consent card: no (shaking is switched off; tapping the roll button still rolls)."
   }
 }

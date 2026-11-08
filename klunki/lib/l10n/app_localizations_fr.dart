@@ -2367,9 +2367,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wordtilesBlankScore => 'Le joker vaut 0 point.';
 
   @override
-  String get wordtilesHelp => 'Comment jouer';
-
-  @override
   String get wordtilesHelpGoal =>
       'Posez des mots comme dans des mots croisés. Chaque lettre a des points (le petit chiffre). Le premier mot passe par l’étoile au milieu, chaque mot suivant s’y raccroche.';
 
@@ -2527,17 +2524,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move (joker échangé)';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      'Échanger le joker (règle maison) : si tu as la lettre que remplace un joker sur le plateau, glisse-la sur le joker. Le joker rejoint tes lettres, et tu poses encore des lettres dans le même tour (le joker peut en faire partie). Sans pose, l’échange ne compte pas. L’ancien mot et ses points restent.';
-
-  @override
-  String get wordtilesHelpJokerOn => 'Activée dans cette partie.';
-
-  @override
-  String get wordtilesHelpJokerOff =>
-      'Désactivée dans cette partie. Vous pouvez l’activer avant une partie.';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2891,9 +2877,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get coachSkip => 'Ignorer';
 
   @override
-  String get maumauHelp => 'Comment jouer';
-
-  @override
   String get maumauCoachPlay =>
       'Touche une carte qui va pour la poser. Les cartes qui vont sont plus hautes et encadrées.';
 
@@ -3154,4 +3137,300 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Confirmer le coup : désactivé.';
+
+  @override
+  String get rulesButton => 'Règles';
+
+  @override
+  String rulesTitle(String game) {
+    return 'Règles : $game';
+  }
+
+  @override
+  String get rulesGoal => 'But du jeu';
+
+  @override
+  String get rulesTurn => 'Comment se joue un tour';
+
+  @override
+  String get rulesSpecial => 'Règles spéciales';
+
+  @override
+  String get rulesHouse => 'Règles maison';
+
+  @override
+  String get rulesHouseInGame => 'Règles maison dans cette partie';
+
+  @override
+  String get rulesHouseNoneForGame => 'Ce jeu n’a pas de règles maison.';
+
+  @override
+  String get rulesHouseNoneOn =>
+      'Aucune règle maison n’est activée pour l’instant.';
+
+  @override
+  String get rulesHouseMenuNote =>
+      'Voici ce qui est proposé. Avant la partie, vous pouvez changer les règles maison.';
+
+  @override
+  String get rulesNewHere => 'Première fois ? Voici comment jouer';
+
+  @override
+  String get rulesCoachHere => 'Tu trouves toutes les règles ici.';
+
+  @override
+  String get rulesConnect4Goal =>
+      'Aligne 4 de tes jetons : à l’horizontale, à la verticale ou en diagonale.';
+
+  @override
+  String get rulesConnect4Turn =>
+      'Touche une colonne. Ton jeton tombe sur la case libre la plus basse.\nEnsuite, c’est à l’autre.\nJoueur 1 commence.';
+
+  @override
+  String get rulesConnect4Special =>
+      'Le plateau a 7 colonnes et 6 rangées.\nUne colonne pleine ne prend plus de jeton.\nSi le plateau est plein et que personne n’a aligné 4 jetons, c’est match nul.';
+
+  @override
+  String get rulesMuehleGoal =>
+      'Prends des pions à l’autre jusqu’à ce qu’il ne lui en reste que 2. Ou bloque ses pions pour qu’ils ne puissent plus bouger.';
+
+  @override
+  String get rulesMuehleTurn =>
+      'Chacun a 9 pions. Joueur 1 commence.\nD’abord, vous posez à tour de rôle un pion sur un point libre.\nQuand tous les pions sont posés, tu fais glisser un pion le long d’une ligne vers le point libre voisin.\nS’il ne te reste que 3 pions, tu peux sauter : sur n’importe quel point libre.';
+
+  @override
+  String get rulesMuehleMill =>
+      '3 pions sur une même ligne forment un moulin. Tu retires alors un pion à l’autre.';
+
+  @override
+  String get rulesMuehleSpecial =>
+      'Les pions d’un moulin sont protégés. Tu ne peux en prendre un que si tous les pions de l’autre sont dans des moulins.\nSi tu ouvres un moulin et que tu le refermes, il compte à nouveau.\n50 coups d’affilée sans prise (les deux joueurs comptés ensemble) : match nul.';
+
+  @override
+  String get rulesTrumpfGoal =>
+      'Gagne toutes les cartes. Qui n’a plus de carte perd.';
+
+  @override
+  String get rulesTrumpfTurn =>
+      'Chacun reçoit 16 cartes en une pile face cachée. On joue toujours la carte du dessus.\nQui a le tour choisit une valeur de sa carte, par exemple la vitesse.\nLa meilleure valeur gagne la manche. Le plus souvent, la plus haute est la meilleure, pour certaines c’est la plus basse. C’est écrit sur la carte.\nQui gagne la manche met les deux cartes sous sa pile et choisit ensuite.\nJoueur 1 choisit en premier.';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      'Même valeur : départage ! Les deux cartes vont au pot, et qui a choisi choisit encore. Qui gagne la manche suivante reçoit aussi tout le pot.\nAprès 200 manches, qui a le plus de cartes gagne. À nombre égal, c’est match nul.\nSi les deux piles sont vides, c’est aussi match nul.';
+
+  @override
+  String get rulesTrumpfPickLow => '3 cartes ou moins : choisir';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      'S’il ne te reste que 2 ou 3 cartes, tu les vois toutes et tu choisis laquelle jouer. Qui choisit prend d’abord la carte, puis la valeur. L’autre choisit sa carte une fois la valeur connue.';
+
+  @override
+  String get rulesSetsGoal =>
+      'Complète des familles : les 4 cartes d’une famille. Qui a le plus de familles à la fin gagne.';
+
+  @override
+  String get rulesSetsTurn =>
+      'Chacun reçoit 8 cartes. Les 16 autres forment la pioche, face cachée.\nDemande à l’autre une carte qui te manque. Tu dois déjà avoir une carte de cette famille.\nSi l’autre a la carte, elle t’est donnée, et tu peux redemander.\nSinon, c’est « Pioche » : tu tires une carte de la pioche, et c’est à l’autre.\nJoueur 1 demande en premier.';
+
+  @override
+  String get rulesSetsSpecial =>
+      'Dès que tu as les 4 cartes d’une famille, tu poses la famille.\nSi tu tires de la pioche la carte demandée, c’est quand même à l’autre.\nSi tu n’as plus de cartes, tu en tires une de la pioche.\nQuand les 8 familles sont posées, la partie est finie. À 4 contre 4, c’est match nul.';
+
+  @override
+  String get rulesSchiffeGoal =>
+      'Coule tous les navires de l’autre avant que l’autre coule les tiens.';
+
+  @override
+  String get rulesSchiffeTurn =>
+      'D’abord, chacun place sa flotte en secret sur sa mer de 10 sur 10 cases. Joueur 1 commence.\nEnsuite, vous tirez à tour de rôle : touche une case de la mer de l’autre.\nTu ne tires qu’une fois sur chaque case.';
+
+  @override
+  String get rulesSchiffeMiss =>
+      'Dans l’eau : raté. C’est maintenant à l’autre.';
+
+  @override
+  String get rulesSchiffeHit => 'Touché ! Tu peux tirer encore une fois.';
+
+  @override
+  String get rulesSchiffeSunk =>
+      'Coulé : toutes les cases du navire sont touchées. Tu apprends quel navire c’était.';
+
+  @override
+  String get rulesSchiffeFleet => 'La flotte';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship ($length cases)';
+  }
+
+  @override
+  String get rulesSchiffeSpecial =>
+      'Les navires sont posés tout droit : à l’horizontale ou à la verticale.\nLes navires ne doivent pas se toucher, même par un coin.';
+
+  @override
+  String get rulesGoGoal =>
+      'Prends le drapeau de l’autre. Tu gagnes aussi si l’autre ne peut plus bouger.';
+
+  @override
+  String get rulesGoTurn =>
+      'D’abord, chacun place en secret ses 40 pièces sur ses 4 rangées. Seul le propriétaire voit le rang d’une pièce.\nJoueur 1 se place en premier et joue en premier.\nÀ ton tour, tu déplaces une pièce de 1 case vers l’avant, l’arrière, la gauche ou la droite. Jamais en diagonale.\nAucune pièce ne peut aller dans les deux lacs du milieu.';
+
+  @override
+  String get rulesGoFightTitle => 'Qui bat qui ?';
+
+  @override
+  String get rulesGoFight =>
+      'Si tu vas sur une pièce de l’autre, les deux pièces se battent. Ensuite, les deux joueurs voient quelles pièces c’étaient.\nLe rang le plus élevé gagne. La pièce perdante sort du jeu.\nMême rang : les deux sortent du jeu.';
+
+  @override
+  String get rulesGoPieces => 'Les pièces';
+
+  @override
+  String rulesGoRank(int rank) {
+    return 'Rang $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal =>
+      'La pièce la plus forte. Ne perd que contre l’espion, quand l’espion attaque.';
+
+  @override
+  String get rulesGoScout =>
+      'Avance tout droit aussi loin qu’il veut sur des cases libres et peut attaquer à la fin. S’il avance de plus de 1 case, les deux joueurs voient que c’est un éclaireur.';
+
+  @override
+  String get rulesGoMiner =>
+      'Désamorce les bombes : s’il en attaque une, il prend sa place.';
+
+  @override
+  String get rulesGoSpy =>
+      'La pièce la plus faible. Mais si l’espion attaque le maréchal, l’espion gagne.';
+
+  @override
+  String get rulesGoBomb =>
+      'Ne bouge jamais. Qui l’attaque sort du jeu, la bombe reste. Seul le démineur la désamorce.';
+
+  @override
+  String get rulesGoFlag => 'Ne bouge jamais. Qui l’attaque gagne la partie.';
+
+  @override
+  String get rulesGoSpecial =>
+      'Une pièce peut faire l’aller-retour entre les deux mêmes cases au plus 3 fois d’affilée.\nQuand une pièce a bougé, l’autre le sait : ce n’est ni une bombe ni le drapeau.\n200 coups d’affilée sans combat : match nul. De même si plus personne ne peut bouger.';
+
+  @override
+  String get rulesChessGoal =>
+      'Fais échec et mat au roi de l’autre : il est attaqué et ne peut plus s’échapper.';
+
+  @override
+  String get rulesChessTurn =>
+      'Les Blancs commencent, puis vous jouez à tour de rôle.\nTouche une de tes pièces, puis une case. Si une pièce de l’autre s’y trouve, tu la prends.\nSeul le cavalier peut sauter par-dessus d’autres pièces.';
+
+  @override
+  String get rulesChessPieces => 'Comment bougent les pièces';
+
+  @override
+  String get rulesChessKing => '1 case dans n’importe quelle direction.';
+
+  @override
+  String get rulesChessQueen =>
+      'Aussi loin que tu veux, tout droit ou en diagonale.';
+
+  @override
+  String get rulesChessRook => 'Aussi loin que tu veux, tout droit.';
+
+  @override
+  String get rulesChessBishop => 'Aussi loin que tu veux, en diagonale.';
+
+  @override
+  String get rulesChessKnight =>
+      'Comme un L : 2 cases tout droit, puis 1 sur le côté. Il saute par-dessus les pièces.';
+
+  @override
+  String get rulesChessPawn =>
+      '1 case vers l’avant, aussi 2 à son premier coup. Il prend à 1 case en diagonale vers l’avant.';
+
+  @override
+  String get rulesChessSpecial =>
+      'Échec : ton roi est attaqué. Tu dois le sauver tout de suite. Un coup qui laisse ton roi en échec est interdit.\nÉchec et mat : le roi est en échec et ne peut pas être sauvé. Qui fait échec et mat gagne.\nRoque : le roi et la tour n’ont pas encore bougé, et tout est libre entre eux. Le roi va de 2 cases vers la tour, la tour saute à côté de lui. Interdit si le roi est en échec ou s’il doit passer par une case attaquée.\nPrise en passant : si un pion avance de 2 cases et arrive à côté de ton pion, tu peux le prendre en diagonale juste au coup suivant, comme s’il n’avait avancé que de 1 case.\nPromotion : quand un pion atteint la dernière rangée, il devient une dame, une tour, un fou ou un cavalier. C’est toi qui choisis.';
+
+  @override
+  String get rulesChessDrawTitle => 'Partie nulle';
+
+  @override
+  String get rulesChessDraw =>
+      'Pat : qui doit jouer ne peut pas bouger, mais n’est pas en échec.\nIl reste trop peu de pièces pour faire échec et mat.\nLa même position revient pour la 3e fois.\n75 coups de chaque joueur sans prise ni coup de pion.\nNulle d’un commun accord : qui doit jouer peut proposer la nulle. L’autre accepte ou refuse.';
+
+  @override
+  String get rulesWordtilesWin => 'Qui a le plus de points à la fin gagne.';
+
+  @override
+  String get rulesWordtilesTurn =>
+      'Tu as 7 tuiles sur ton chevalet.\nPose de 1 à 7 tuiles sur une seule ligne ou colonne, sans trou.\nTu marques les points de tous les nouveaux mots, aussi ceux formés en travers.\nEnsuite, tu pioches des tuiles dans le sac jusqu’à en avoir de nouveau 7.';
+
+  @override
+  String get rulesWordtilesChallengeAfter =>
+      'Qui a contesté joue ensuite son tour normalement.';
+
+  @override
+  String get rulesWordtilesScoreless =>
+      'Si la partie se termine parce que plus personne ne marque de points, chacun perd les points de ses tuiles restantes.';
+
+  @override
+  String get rulesMaumauGoal =>
+      'Débarrasse-toi de toutes tes cartes avant l’autre.';
+
+  @override
+  String get rulesMaumauTurn =>
+      'Il y a 32 cartes. Chacun en reçoit 5, une est posée face visible au milieu. Joueur 1 commence.\nPose dessus une carte de même couleur ou de même valeur, par exemple cœur sur cœur ou 9 sur 9.\nSi aucune carte ne va ou si tu ne veux pas en poser, tu pioches 1 carte. Si elle va, tu peux la poser ou la garder. Sinon, c’est à l’autre.\nQuand la pioche est vide, les cartes posées sont mélangées et forment une nouvelle pioche.';
+
+  @override
+  String get rulesMaumauJack =>
+      'Valet : va sur toutes les cartes sauf sur un valet. Tu demandes une couleur. Ensuite, il faut jouer cette couleur ou un valet.';
+
+  @override
+  String get rulesMaumauSpecial =>
+      'La première carte du milieu ne compte pas comme carte spéciale.\n9, 10, dame et roi sont des cartes normales.\nQui pose sa dernière carte gagne – même avec une carte spéciale.';
+
+  @override
+  String get rulesMaexchenGoal =>
+      'Ne perds pas toutes tes vies. Qui a encore des vies à la fin gagne.';
+
+  @override
+  String get rulesMaexchenTurn =>
+      'Lance 2 dés sous le gobelet. Personne d’autre ne les voit.\nAnnonce une valeur. Elle doit être plus haute que l’annonce précédente. Tu peux aussi bluffer !\nL’autre te croit ou doute.\nSi l’autre te croit, c’est à son tour de lancer et d’annoncer encore plus haut.\nEn cas de doute, on soulève le gobelet. Si le lancer est plus bas que l’annonce, qui a annoncé perd une vie. Sinon, qui a douté en perd une.';
+
+  @override
+  String get rulesMaexchenOrderTitle => 'Quel lancer est le plus haut ?';
+
+  @override
+  String get rulesMaexchenOrder =>
+      'Le dé le plus haut compte en premier : 3 et 1 font 31.\nDu plus petit au plus grand : 31, 32, 41, 42, 43 et ainsi de suite jusqu’à 65.\nPlus hauts encore : les doubles 11, 22, 33, 44, 55, 66.\nLe plus haut de tous est 21 : Mia !';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      'La première annonce d’une manche peut être n’importe quelle valeur.\nSi Mia est annoncé, tu ne peux pas y croire. Tu doutes ou tu cèdes une vie sans regarder.\nQui perd une vie commence la manche suivante.\nSecouer : au lieu de toucher « Lancer », tu peux secouer le téléphone comme un gobelet.';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return 'Nombre de vies au départ : $count.';
+  }
+
+  @override
+  String get shakeConsentTitle => 'Lancer en secouant ?';
+
+  @override
+  String get shakeConsentBody =>
+      'Ton navigateur va demander si Klunki peut sentir les mouvements du téléphone. Nous l’utilisons seulement pour lancer les dés, et cela reste sur l’appareil.';
+
+  @override
+  String get shakeConsentYes => 'Oui, autoriser la secousse';
+
+  @override
+  String get shakeConsentNo => 'Non, juste toucher';
 }

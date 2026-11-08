@@ -2356,9 +2356,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get wordtilesBlankScore => 'Der Joker zählt 0 Punkte.';
 
   @override
-  String get wordtilesHelp => 'So geht’s';
-
-  @override
   String get wordtilesHelpGoal =>
       'Legt Wörter wie im Kreuzworträtsel. Jeder Buchstabe hat Punkte (die kleine Zahl). Das erste Wort geht über den Stern in der Mitte, jedes weitere schließt an.';
 
@@ -2516,17 +2513,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String wordtilesMoveJoker(String move) {
     return '$move (Joker getauscht)';
   }
-
-  @override
-  String get wordtilesHelpJoker =>
-      'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.';
-
-  @override
-  String get wordtilesHelpJokerOn => 'In diesem Spiel an.';
-
-  @override
-  String get wordtilesHelpJokerOff =>
-      'In diesem Spiel aus. Ihr könnt sie vor dem Spiel einschalten.';
 
   @override
   String wordtilesUnknownAskNet(String player) {
@@ -2879,9 +2865,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get coachSkip => 'Überspringen';
 
   @override
-  String get maumauHelp => 'So geht’s';
-
-  @override
   String get maumauCoachPlay =>
       'Tippe auf eine passende Karte, um sie zu legen. Passende Karten stehen höher und haben einen Rahmen.';
 
@@ -3141,4 +3124,298 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Zug bestätigen ist aus.';
+
+  @override
+  String get rulesButton => 'Regeln';
+
+  @override
+  String rulesTitle(String game) {
+    return 'Spielregeln: $game';
+  }
+
+  @override
+  String get rulesGoal => 'Ziel';
+
+  @override
+  String get rulesTurn => 'So läuft ein Zug';
+
+  @override
+  String get rulesSpecial => 'Besondere Regeln';
+
+  @override
+  String get rulesHouse => 'Hausregeln';
+
+  @override
+  String get rulesHouseInGame => 'Hausregeln in diesem Spiel';
+
+  @override
+  String get rulesHouseNoneForGame =>
+      'Für dieses Spiel gibt es keine Hausregeln.';
+
+  @override
+  String get rulesHouseNoneOn => 'Gerade ist keine Hausregel an.';
+
+  @override
+  String get rulesHouseMenuNote =>
+      'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.';
+
+  @override
+  String get rulesNewHere => 'Neu hier? So geht’s';
+
+  @override
+  String get rulesCoachHere => 'Alle Regeln findest du hier.';
+
+  @override
+  String get rulesConnect4Goal =>
+      'Bring 4 deiner Steine in eine Reihe: waagerecht, senkrecht oder schräg.';
+
+  @override
+  String get rulesConnect4Turn =>
+      'Tippe auf eine Spalte. Dein Stein fällt nach unten auf den untersten freien Platz.\nDann ist der andere dran.\nSpieler 1 fängt an.';
+
+  @override
+  String get rulesConnect4Special =>
+      'Das Brett hat 7 Spalten und 6 Reihen.\nIn eine volle Spalte passt kein Stein mehr.\nIst das Brett voll und keiner hat 4 in einer Reihe, ist es unentschieden.';
+
+  @override
+  String get rulesMuehleGoal =>
+      'Nimm dem anderen so lange Steine weg, bis er nur noch 2 hat. Oder sperr seine Steine ein, sodass er nicht mehr ziehen kann.';
+
+  @override
+  String get rulesMuehleTurn =>
+      'Jeder hat 9 Steine. Spieler 1 fängt an.\nZuerst setzt ihr abwechselnd je einen Stein auf einen freien Punkt.\nSind alle Steine gesetzt, schiebst du einen Stein entlang einer Linie auf den freien Punkt daneben.\nHast du nur noch 3 Steine, darfst du springen: auf jeden freien Punkt.';
+
+  @override
+  String get rulesMuehleMill =>
+      '3 Steine in einer Linie sind eine Mühle. Dann nimmst du dem anderen einen Stein weg.';
+
+  @override
+  String get rulesMuehleSpecial =>
+      'Steine in einer Mühle sind geschützt. Nur wenn alle Steine des anderen in Mühlen stehen, darfst du einen davon nehmen.\nÖffnest du eine Mühle und schließt sie wieder, zählt sie noch einmal.\n50 Züge hintereinander ohne Wegnehmen (beide zusammengezählt): unentschieden.';
+
+  @override
+  String get rulesTrumpfGoal =>
+      'Gewinne alle Karten. Wer keine Karte mehr hat, verliert.';
+
+  @override
+  String get rulesTrumpfTurn =>
+      'Jeder bekommt 16 Karten als verdeckten Stapel. Gespielt wird immer die oberste Karte.\nWer dran ist, wählt eine Eigenschaft seiner Karte, zum Beispiel die Geschwindigkeit.\nDer bessere Wert gewinnt die Runde. Meist ist der höhere besser, bei manchen der niedrigere. Das steht auf der Karte.\nWer die Runde gewinnt, legt beide Karten unter seinen Stapel und wählt als Nächstes.\nSpieler 1 wählt zuerst.';
+
+  @override
+  String get rulesTrumpfSpecial =>
+      'Gleicher Wert: Stechen! Beide Karten kommen in den Topf, und wer gewählt hat, wählt noch einmal. Wer die nächste Runde gewinnt, bekommt auch den ganzen Topf.\nNach 200 Runden gewinnt, wer mehr Karten hat. Bei gleich vielen ist es unentschieden.\nSind beide Stapel leer, ist es auch unentschieden.';
+
+  @override
+  String get rulesTrumpfPickLow => 'Mit 3 Karten oder weniger: aussuchen';
+
+  @override
+  String get rulesTrumpfPickLowText =>
+      'Hast du nur noch 2 oder 3 Karten, siehst du alle und suchst aus, welche du spielst. Wer wählt, sucht zuerst die Karte aus und dann die Eigenschaft. Der andere sucht seine Karte aus, wenn er die Eigenschaft kennt.';
+
+  @override
+  String get rulesSetsGoal =>
+      'Sammle Quartette: alle 4 Karten einer Gruppe. Wer am Ende mehr Quartette hat, gewinnt.';
+
+  @override
+  String get rulesSetsTurn =>
+      'Jeder bekommt 8 Karten. Die anderen 16 liegen verdeckt als Stapel.\nFrag den anderen nach einer Karte, die dir fehlt. Von dieser Gruppe musst du schon eine Karte haben.\nHat der andere die Karte, gibt er sie dir, und du darfst noch einmal fragen.\nHat er sie nicht, heißt es Fehlanzeige: Du ziehst eine Karte vom Stapel, und der andere ist dran.\nSpieler 1 fragt zuerst.';
+
+  @override
+  String get rulesSetsSpecial =>
+      'Hast du alle 4 Karten einer Gruppe, legst du das Quartett sofort ab.\nZiehst du die gefragte Karte vom Stapel, ist trotzdem der andere dran.\nHast du keine Karten mehr, ziehst du eine vom Stapel.\nSind alle 8 Quartette abgelegt, ist das Spiel aus. Bei 4 zu 4 ist es unentschieden.';
+
+  @override
+  String get rulesSchiffeGoal =>
+      'Versenke alle Schiffe des anderen, bevor er deine versenkt.';
+
+  @override
+  String get rulesSchiffeTurn =>
+      'Zuerst stellt jeder seine Flotte geheim auf sein Meer mit 10 mal 10 Feldern. Spieler 1 fängt an.\nDann schießt ihr abwechselnd: Tippe auf ein Feld im Meer des anderen.\nAuf jedes Feld schießt du nur einmal.';
+
+  @override
+  String get rulesSchiffeMiss => 'Wasser: daneben. Jetzt ist der andere dran.';
+
+  @override
+  String get rulesSchiffeHit => 'Treffer! Du darfst noch einmal schießen.';
+
+  @override
+  String get rulesSchiffeSunk =>
+      'Versenkt: Alle Felder des Schiffs sind getroffen. Du erfährst, welches Schiff es war.';
+
+  @override
+  String get rulesSchiffeFleet => 'Die Flotte';
+
+  @override
+  String rulesSchiffeShip(int count, String ship, int length) {
+    return '$count × $ship ($length Felder)';
+  }
+
+  @override
+  String get rulesSchiffeSpecial =>
+      'Schiffe liegen gerade: waagerecht oder senkrecht.\nSchiffe dürfen sich nicht berühren, auch nicht über Eck.';
+
+  @override
+  String get rulesGoGoal =>
+      'Erobere die Fahne des anderen. Du gewinnst auch, wenn der andere nicht mehr ziehen kann.';
+
+  @override
+  String get rulesGoTurn =>
+      'Zuerst stellt jeder seine 40 Figuren geheim auf seine 4 Reihen. Den Rang einer Figur sieht nur ihr Besitzer.\nSpieler 1 stellt zuerst auf und zieht zuerst.\nIn deinem Zug ziehst du eine Figur 1 Feld nach vorne, hinten, links oder rechts. Nie schräg.\nIn die beiden Seen in der Mitte kann keine Figur.';
+
+  @override
+  String get rulesGoFightTitle => 'Wer schlägt wen?';
+
+  @override
+  String get rulesGoFight =>
+      'Ziehst du auf eine Figur des anderen, kämpfen beide. Danach sehen beide, welche Figuren es waren.\nDer höhere Rang gewinnt. Der Verlierer fliegt raus.\nGleicher Rang: Beide fliegen raus.';
+
+  @override
+  String get rulesGoPieces => 'Die Figuren';
+
+  @override
+  String rulesGoRank(int rank) {
+    return 'Rang $rank';
+  }
+
+  @override
+  String rulesGoCount(int count) {
+    return '$count ×';
+  }
+
+  @override
+  String get rulesGoMarshal =>
+      'Die stärkste Figur. Verliert nur gegen den Spion, wenn der angreift.';
+
+  @override
+  String get rulesGoScout =>
+      'Läuft geradeaus beliebig weit über freie Felder und darf am Ende angreifen. Läuft er mehr als 1 Feld, sehen beide, dass er ein Aufklärer ist.';
+
+  @override
+  String get rulesGoMiner =>
+      'Entschärft Bomben: Greift er eine an, nimmt er ihren Platz ein.';
+
+  @override
+  String get rulesGoSpy =>
+      'Die schwächste Figur. Greift der Spion aber den Marschall an, gewinnt er.';
+
+  @override
+  String get rulesGoBomb =>
+      'Zieht nie. Wer sie angreift, fliegt raus, die Bombe bleibt. Nur der Mineur entschärft sie.';
+
+  @override
+  String get rulesGoFlag => 'Zieht nie. Wer sie angreift, gewinnt das Spiel.';
+
+  @override
+  String get rulesGoSpecial =>
+      'Eine Figur darf höchstens 3-mal hintereinander zwischen denselben zwei Feldern hin und her ziehen.\nHat eine Figur gezogen, weiß der andere: Sie ist keine Bombe und keine Fahne.\n200 Züge hintereinander ohne Kampf: unentschieden. Ebenso, wenn keiner mehr ziehen kann.';
+
+  @override
+  String get rulesChessGoal =>
+      'Setz den König des anderen schachmatt: Er wird angegriffen und kann nicht mehr entkommen.';
+
+  @override
+  String get rulesChessTurn =>
+      'Weiß fängt an, dann zieht ihr abwechselnd.\nTippe auf eine deiner Figuren und dann auf ein Feld. Steht dort eine Figur des anderen, schlägst du sie.\nNur der Springer darf über andere Figuren springen.';
+
+  @override
+  String get rulesChessPieces => 'So ziehen die Figuren';
+
+  @override
+  String get rulesChessKing => '1 Feld in jede Richtung.';
+
+  @override
+  String get rulesChessQueen => 'Beliebig weit gerade oder schräg.';
+
+  @override
+  String get rulesChessRook => 'Beliebig weit gerade.';
+
+  @override
+  String get rulesChessBishop => 'Beliebig weit schräg.';
+
+  @override
+  String get rulesChessKnight =>
+      'Wie ein L: 2 Felder gerade, dann 1 zur Seite. Er springt über Figuren.';
+
+  @override
+  String get rulesChessPawn =>
+      '1 Feld nach vorne, beim ersten Zug auch 2. Er schlägt 1 Feld schräg nach vorne.';
+
+  @override
+  String get rulesChessSpecial =>
+      'Schach: Dein König wird angegriffen. Du musst ihn sofort retten. Ein Zug, nach dem dein König im Schach steht, geht nicht.\nSchachmatt: Der König steht im Schach und kann nicht gerettet werden. Wer mattsetzt, gewinnt.\nRochade: König und Turm haben noch nicht gezogen, und zwischen ihnen ist alles frei. Der König geht 2 Felder zum Turm, der Turm springt neben ihn. Nicht erlaubt, wenn der König im Schach steht oder über ein angegriffenes Feld gehen müsste.\nEn passant: Zieht ein Bauer 2 Felder und landet neben deinem Bauern, darfst du ihn gleich im nächsten Zug schräg schlagen, als wäre er nur 1 Feld gezogen.\nUmwandlung: Erreicht ein Bauer die letzte Reihe, wird er eine Dame, ein Turm, ein Läufer oder ein Springer. Du suchst aus.';
+
+  @override
+  String get rulesChessDrawTitle => 'Unentschieden (Remis)';
+
+  @override
+  String get rulesChessDraw =>
+      'Patt: Wer dran ist, kann nicht ziehen, steht aber nicht im Schach.\nEs sind zu wenig Figuren übrig, um mattzusetzen.\nDieselbe Stellung kommt zum 3. Mal.\n75 Züge von jedem ohne Schlagen und ohne Bauernzug.\nRemis vereinbart: Wer dran ist, kann Remis anbieten. Der andere nimmt an oder lehnt ab.';
+
+  @override
+  String get rulesWordtilesWin =>
+      'Wer am Ende die meisten Punkte hat, gewinnt.';
+
+  @override
+  String get rulesWordtilesTurn =>
+      'Du hast 7 Steine auf deiner Bank.\nLeg 1 bis 7 Steine in eine Reihe oder Spalte, ohne Lücke.\nDu bekommst die Punkte aller neuen Wörter, auch der Wörter quer dazu.\nDanach ziehst du Steine aus dem Beutel, bis du wieder 7 hast.';
+
+  @override
+  String get rulesWordtilesChallengeAfter =>
+      'Wer angezweifelt hat, ist danach normal dran.';
+
+  @override
+  String get rulesWordtilesScoreless =>
+      'Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.';
+
+  @override
+  String get rulesMaumauGoal => 'Werde als Erster alle deine Karten los.';
+
+  @override
+  String get rulesMaumauTurn =>
+      'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte oder willst du keine legen, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.';
+
+  @override
+  String get rulesMaumauJack =>
+      'Bube: passt auf jede Karte außer auf einen Buben. Du wünschst dir eine Farbe. Dann muss diese Farbe kommen oder ein Bube.';
+
+  @override
+  String get rulesMaumauSpecial =>
+      'Die erste Karte in der Mitte gilt nicht als Sonderkarte.\n9, 10, Dame und König sind normale Karten.\nWer die letzte Karte ablegt, gewinnt – auch mit einer Sonderkarte.';
+
+  @override
+  String get rulesMaexchenGoal =>
+      'Verlier nicht alle deine Leben. Wer zuletzt noch Leben hat, gewinnt.';
+
+  @override
+  String get rulesMaexchenTurn =>
+      'Würfle mit 2 Würfeln unter dem Becher. Nur du siehst sie.\nSag einen Wert an. Er muss höher sein als die letzte Ansage. Du darfst auch flunkern!\nDer andere glaubt dir oder zweifelt an.\nGlaubt er dir, würfelt er selbst und muss noch höher ansagen.\nZweifelt er, wird der Becher gehoben. Ist der Wurf kleiner als die Ansage, verliert der Ansager ein Leben. Sonst verliert der Zweifler eins.';
+
+  @override
+  String get rulesMaexchenOrderTitle => 'Welcher Wurf ist höher?';
+
+  @override
+  String get rulesMaexchenOrder =>
+      'Der höhere Würfel zählt zuerst: 3 und 1 ist 31.\nVon klein nach groß: 31, 32, 41, 42, 43 und so weiter bis 65.\nHöher sind die Pasche: 11, 22, 33, 44, 55, 66.\nAm höchsten ist 21: das Mäxchen!';
+
+  @override
+  String get rulesMaexchenSpecial =>
+      'Die erste Ansage einer Runde darf jeder Wert sein.\nWird ein Mäxchen angesagt, kannst du nicht glauben. Du zweifelst an oder gibst ein Leben ab, ohne nachzuschauen.\nWer ein Leben verliert, fängt die nächste Runde an.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln wie einen Becher.';
+
+  @override
+  String rulesMaexchenLives(int count) {
+    return 'Jeder fängt mit $count Leben an.';
+  }
+
+  @override
+  String get shakeConsentTitle => 'Würfeln durch Schütteln?';
+
+  @override
+  String get shakeConsentBody =>
+      'Dein Browser fragt gleich, ob Klunki die Bewegung des Handys spüren darf. Das nutzen wir nur zum Würfeln, es bleibt auf dem Gerät.';
+
+  @override
+  String get shakeConsentYes => 'Ja, Schütteln erlauben';
+
+  @override
+  String get shakeConsentNo => 'Nein, nur tippen';
 }
