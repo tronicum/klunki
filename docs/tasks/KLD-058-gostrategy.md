@@ -221,3 +221,9 @@ the ink colour, C free with gold stars/bars/chevrons); the app switch `goPieceLo
 maintainer chooses. Variant sheet and a board with B:
 `KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart` (group
 `kld058-insignia`); paint test `test/ui/games/gostrategy_insignia_test.dart`.
+
+v2 (maintainer feedback: B favourite, A possible): `GoInsigniaLayout` gives the number and the "seen" eye
+corners of their own (B/C: a top strip, number left, eye right; A: number top left, eye bottom left beside
+the board), so nothing overlaps and every insignia has the same centre. Equal weight: pictures share one
+height, stars one size for 1/2/3 (nested triangle), bar and chevrons one stroke. A: every board the same
+size and outline, 80 % of the tile height. Shots now end in `-v2`, boards for B and A.

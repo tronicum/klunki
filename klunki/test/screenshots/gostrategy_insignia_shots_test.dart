@@ -52,7 +52,7 @@ Future<void> _shot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/$name.png');
+    final f = File('$_out/$name-v2.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
@@ -217,45 +217,54 @@ void main() {
       });
     }
 
-    // A mid-game board with variant B (some fights, so a few own pieces are
-    // seen), on a large and a small phone.
-    for (final (name, size) in [('phone-large', Size(430, 932)), ('phone-small', Size(375, 667))]) {
-      for (final b in Brightness.values) {
-        final tag = b == Brightness.dark ? 'dark' : 'light';
-        testWidgets('board B $name $tag', skip: skip, (tester) async {
-          tester.view.physicalSize = size * 2;
-          tester.view.devicePixelRatio = 2;
-          addTearDown(tester.view.reset);
-          final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
-          addTearDown(c.dispose);
-          c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
-          _handover(c);
-          c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
-          _handover(c);
-          final g = c.game as GoStrategyGame;
-          for (var i = 0; i < 40 && !g.isOver; i++) {
-            final moves = g.legalMoves;
-            if (moves.isEmpty) break;
-            c.submit(moves[(i * 7 + 3) % moves.length]);
+    // A mid-game board with variants B and A (some fights, so a few own
+    // pieces are seen), on a large and a small phone.
+    for (final (variant, look) in [('B', GoPieceLook.insignia), ('A', GoPieceLook.shoulderBoard)]) {
+      for (final (name, size) in [('phone-large', Size(430, 932)), ('phone-small', Size(375, 667))]) {
+        for (final b in Brightness.values) {
+          final tag = b == Brightness.dark ? 'dark' : 'light';
+          testWidgets('board $variant $name $tag', skip: skip, (tester) async {
+            tester.view.physicalSize = size * 2;
+            tester.view.devicePixelRatio = 2;
+            addTearDown(tester.view.reset);
+            final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
+            addTearDown(c.dispose);
+            c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
             _handover(c);
-          }
-          await tester.pumpWidget(
-            _app(
-              GoPieceLookScope(
-                look: GoPieceLook.insignia,
-                child: PlayerLabelsScope(
-                  labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
-                  child: buildGameScreen(c),
+            c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
+            _handover(c);
+            final g = c.game as GoStrategyGame;
+            for (var i = 0; i < 40 && !g.isOver; i++) {
+              final moves = g.legalMoves;
+              if (moves.isEmpty) break;
+              // Every third move an attack when there is one, so pieces get seen.
+              final attacks = [
+                for (final m in moves)
+                  if (m['action'] == 'move' && g.board[m['to'] as int].owner != null) m,
+              ];
+              c.submit(
+                i % 3 == 0 && attacks.isNotEmpty ? attacks[i % attacks.length] : moves[(i * 7 + 3) % moves.length],
+              );
+              _handover(c);
+            }
+            await tester.pumpWidget(
+              _app(
+                GoPieceLookScope(
+                  look: look,
+                  child: PlayerLabelsScope(
+                    labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
+                    child: buildGameScreen(c),
+                  ),
                 ),
+                b,
               ),
-              b,
-            ),
-          );
-          await tester.pump();
-          _handover(c);
-          await tester.pump(const Duration(seconds: 3)); // let a fight reveal pass
-          await _shot(tester, 'kld058-insignia-board-B-$name-$tag');
-        });
+            );
+            await tester.pump();
+            _handover(c);
+            await tester.pump(const Duration(seconds: 3)); // let a fight reveal pass
+            await _shot(tester, 'kld058-insignia-board-$variant-$name-$tag');
+          });
+        }
       }
     }
   });

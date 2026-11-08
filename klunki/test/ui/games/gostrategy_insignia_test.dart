@@ -46,7 +46,7 @@ void main() {
       );
       await tester.pump();
       expect(tester.takeException(), isNull);
-      expect(find.byType(GoInsignia), findsNWidgets(3 * 2 * 4 * 2 * GoPiece.values.length));
+      expect(_insignias(), findsNWidgets(3 * 2 * 4 * 2 * GoPiece.values.length));
     });
   }
 
@@ -68,6 +68,8 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     // 12 free-standing plus the one inside the scoped tile.
-    expect(find.byType(GoInsignia), findsNWidgets(GoPiece.values.length + 1));
+    expect(_insignias(), findsNWidgets(GoPiece.values.length + 1));
   });
 }
+
+Finder _insignias() => find.byWidgetPredicate((w) => w is CustomPaint && w.painter is GoInsigniaPainter);
