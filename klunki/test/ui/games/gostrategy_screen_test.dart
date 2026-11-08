@@ -403,7 +403,8 @@ void main() {
           9: (Player.b, GoPiece.sergeant),
         }),
       );
-      expect(find.text('Tippe eine deiner Figuren an, dann ein markiertes Feld.'), findsOneWidget);
+      // On a phone the hint adds that two fingers zoom (KLD-058, as in Wortgewandt).
+      expect(find.text('Tippe eine deiner Figuren an, dann ein markiertes Feld. Mit zwei Fingern zoomst du.'), findsOneWidget);
       await tapOn(tester, cell(64));
       expect(squareOf(tester, 64).selected, isTrue);
       expectSelectionOnTop(tester, 64);

@@ -243,4 +243,48 @@ void main() {
       await _shot(tester, 'kld058-insignia-fight', settle: const Duration(milliseconds: 900));
     });
   });
+
+  // KLD-058 zoom (iPhone 15 Pro): the whole board, zoomed into the front
+  // with a selected piece and its targets, the setup editor zoomed.
+  group('kld058-zoom', () {
+    const iphone = Size(393, 852);
+    testWidgets('board whole', skip: skip, (tester) async {
+      _view(tester, iphone);
+      final c = _midGame(20);
+      await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 3));
+      await _shot(tester, 'kld058-zoom-board');
+    });
+
+    testWidgets('board zoomed, piece selected', skip: skip, (tester) async {
+      _view(tester, iphone);
+      final c = _midGame(20);
+      final g = c.game as GoStrategyGame;
+      await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 3));
+      // The piece with the most targets (a scout, usually) at the front.
+      final froms = {for (final m in g.legalMoves) if (m['action'] == 'move') m['from'] as int};
+      final from = froms.reduce((a, b) => g.targetsFrom(a).length >= g.targetsFrom(b).length ? a : b);
+      await tester.tap(find.byKey(Key('go-cell-$from')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('go-zoom')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld058-zoom-board-zoomed');
+    });
+
+    testWidgets('setup zoomed', skip: skip, (tester) async {
+      _view(tester, iphone);
+      final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('go-cell-74')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('go-zoom')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld058-zoom-setup');
+    });
+  });
 }

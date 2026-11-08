@@ -7,6 +7,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
+import '../../board_zoom.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import 'gostrategy_pieces.dart';
@@ -28,6 +29,14 @@ Player goViewer(GameController c) {
 /// info of the event payloads, never the full board. The board is drawn
 /// rotated for player O, so the own army is always at the bottom; the
 /// engine's square numbering is untouched (cell keys are `go-cell-<square>`).
+///
+/// Zoom (KLD-058, like Wortgewandt, [BoardZoom]): two fingers zoom and move
+/// the board (setup and play), one finger moves a zoomed board, the zoom
+/// button (`go-zoom`) zooms in on the selected piece or the own front and
+/// back out, the mouse wheel zooms in a browser. Taps select and move at any
+/// zoom. Each player keeps their own view of setup and of play (hot-seat:
+/// the turned board of the player to move, set behind the handover cover);
+/// a new game starts with the whole board.
 class GoStrategyBoard extends StatefulWidget {
   final GameController controller;
 
@@ -37,7 +46,7 @@ class GoStrategyBoard extends StatefulWidget {
   State<GoStrategyBoard> createState() => _GoStrategyBoardState();
 }
 
-class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProviderStateMixin {
+class _GoStrategyBoardState extends State<GoStrategyBoard> with TickerProviderStateMixin {
   final Random _rng = Random();
   late GameTransport _transport;
   late final AnimationController _reveal = AnimationController(vsync: this, duration: goRevealDuration)
@@ -65,6 +74,16 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
   GoFight? _fight;
   bool _fightStarted = false;
 
+  late final BoardZoom _zoom = BoardZoom(vsync: this);
+
+  /// The board's visible area: only fingers there can pinch it
+  /// ([BoardPieceDragRecognizer], setup drags).
+  final GlobalKey _boardView = GlobalKey();
+
+  /// The kept view (zoom and position) per player and setup (true) or play.
+  final Map<(Player, bool), Matrix4> _views = {};
+  (Player, bool)? _view;
+
   GameController get controller => widget.controller;
   GoStrategyGame get game => controller.game as GoStrategyGame;
 
@@ -74,6 +93,7 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
     _transport = controller.transport;
     _seen = controller.moves.length;
     controller.addListener(_onChange);
+    _syncView();
   }
 
   @override
@@ -90,6 +110,7 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
   void dispose() {
     controller.removeListener(_onChange);
     _reveal.dispose();
+    _zoom.dispose();
     super.dispose();
   }
 
@@ -103,6 +124,9 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
     _seen = controller.moves.length;
     _fight = null;
     _reveal.stop();
+    _views.clear();
+    _view = null;
+    _syncView();
   }
 
   void _onChange() {
@@ -137,7 +161,87 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
         _reveal.forward(from: 0);
       }
     });
+    _syncView();
   }
+
+  // ------------------------------------------------------------------ zoom
+
+  /// Shows the view of the player on this device (hot-seat: the player to
+  /// move) for the editor or the board, as they left it.
+  void _syncView() {
+    final me = goViewer(controller);
+    final key = (me, !game.hasSetup(me) && !game.isOver);
+    final old = _view;
+    if (old == key) return;
+    if (old != null) _views[old] = _zoom.save();
+    _view = key;
+    final kept = _views[key];
+    if (kept == null) {
+      _zoom.reset();
+    } else {
+      _zoom.restore(kept);
+    }
+  }
+
+  bool _onBoard(Offset global) {
+    final box = _boardView.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize) return false;
+    return (Offset.zero & box.size).contains(box.globalToLocal(global));
+  }
+
+  /// Zooms in on [focus] (an engine square; null: the own front) or back
+  /// out to the whole board.
+  void _toggleZoom(Player me, int? focus) {
+    final instant = reduceMotion(context);
+    if (_zoom.zoomed) {
+      _zoom.zoomOut(instant: instant, done: _settled);
+      return;
+    }
+    final side = _zoom.side;
+    if (side <= 0) return;
+    final cell = side / GoStrategyGame.size;
+    final Offset at;
+    if (focus == null) {
+      // The own army is always at the bottom: in the setup its four rows,
+      // in play its front row and the middle of the board.
+      at = Offset(side / 2, (_view?.$2 ?? false ? 8 : 6) * cell);
+    } else {
+      final flip = me == Player.b;
+      final r = GoStrategyGame.rowOf(focus), c = GoStrategyGame.colOf(focus);
+      final dr = flip ? GoStrategyGame.size - 1 - r : r, dc = flip ? GoStrategyGame.size - 1 - c : c;
+      at = Offset((dc + 0.5) * cell, (dr + 0.5) * cell);
+    }
+    // Squares of about 52 px.
+    _zoom.zoomTo(at, (52 / max(cell, 1)).clamp(1.6, 3.0), side, instant: instant, done: _settled);
+  }
+
+  void _settled() {
+    if (mounted) setState(() {});
+  }
+
+  /// The zoom button (`go-zoom`): in on [focus], or out.
+  Widget _zoomButton(AppLocalizations l10n, Player me, int? Function() focus) => ValueListenableBuilder<Matrix4>(
+        valueListenable: _zoom,
+        builder: (context, _, _) {
+          final zoomed = _zoom.zoomed;
+          return IconButton(
+            key: const Key('go-zoom'),
+            tooltip: zoomed ? l10n.wordtilesZoomOut : l10n.wordtilesZoomIn,
+            icon: Icon(zoomed ? Icons.zoom_out_map : Icons.zoom_in),
+            onPressed: () => _toggleZoom(me, focus()),
+          );
+        },
+      );
+
+  /// A [GoBoardFrame] with this board's zoom.
+  Widget _frame(Player me, double extent, Widget Function(int square, double size) square) => GoBoardFrame(
+        flip: me == Player.b,
+        extent: extent,
+        square: square,
+        zoom: _zoom,
+        viewKey: _boardView,
+        onZoomEnd: _settled,
+      );
 
   void _dismissReveal() {
     _reveal.stop();
@@ -269,6 +373,10 @@ class _GoStrategyBoardState extends State<GoStrategyBoard> with SingleTickerProv
       final piece = g.viewFor(me)[selected].piece;
       final name = piece == null ? '' : goPieceLabel(l10n, piece);
       hint = _targets.isEmpty ? l10n.goHintNoTargets(name) : l10n.goHintSelected(name);
+    } else if (!_zoom.zoomed && MediaQuery.sizeOf(context).shortestSide < 600) {
+      // A phone: the board is small, the hint says that two fingers zoom
+      // (as in Wortgewandt) while it is not zoomed.
+      hint = l10n.wordtilesHintZoom(l10n.goHintSelect);
     } else {
       hint = l10n.goHintSelect;
     }
@@ -317,6 +425,7 @@ class _Setup extends StatelessWidget {
           icon: const Icon(Icons.check),
           label: Text(l10n.goSetupDone),
         ),
+        state._zoomButton(l10n, me, () => state._swapFirst),
       ],
     );
 
@@ -326,6 +435,7 @@ class _Setup extends StatelessWidget {
       final lake = GoStrategyGame.isLake(sq);
       final cell = lake ? const GoCell(lake: true) : GoCell(owner: piece == null ? null : me, piece: piece);
       final content = lake ? l10n.goCellLake : (piece == null ? l10n.goCellFree : goPieceLabel(l10n, piece));
+      final lifted = size * state._zoom.scale;
       return DragTarget<int>(
         onWillAcceptWithDetails: (d) => home,
         onAcceptWithDetails: (d) => state._dropSetup(me, d.data, sq),
@@ -346,12 +456,16 @@ class _Setup extends StatelessWidget {
             onTap: lake ? null : () => state._tapSetup(me, sq),
           );
           if (piece == null) return view;
-          return Draggable<int>(
+          // Dragged at once by a finger or the mouse; a second finger on the
+          // board makes it a pinch ([BoardPieceDragRecognizer]).
+          return BoardPieceDraggable<int>(
+            onBoard: state._onBoard,
             data: sq,
             dragAnchorStrategy: pointerDragAnchorStrategy,
+            // As big as on screen (zoomed), centred under the finger.
             feedback: Transform.translate(
-              offset: Offset(-size * 0.5, -size * 0.5),
-              child: GoPieceTile(owner: me, piece: piece, size: size * 0.95),
+              offset: Offset(-lifted * 0.5, -lifted * 0.5),
+              child: GoPieceTile(owner: me, piece: piece, size: lifted * 0.95),
             ),
             childWhenDragging: Opacity(opacity: 0.35, child: view),
             child: view,
@@ -404,7 +518,7 @@ class _Setup extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: Center(child: GoBoardFrame(flip: me == Player.b, extent: extent, square: square))),
+              Expanded(child: Center(child: state._frame(me, extent, square))),
               const SizedBox(width: 16),
               SizedBox(
                 width: 300,
@@ -434,7 +548,7 @@ class _Setup extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(child: GoBoardFrame(flip: me == Player.b, extent: extent, square: square)),
+                    Center(child: state._frame(me, extent, square)),
                     Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
@@ -460,12 +574,28 @@ class _Setup extends StatelessWidget {
 /// builds the widget for an engine square. Files a–j under the board and
 /// ranks 1–10 on its left turn with it (the names of [goSquareName]).
 /// [extent] is the whole size including the coordinate bands.
+///
+/// With a [zoom] (KLD-058) the squares sit in an [InteractiveViewer]
+/// (pinch, pan, mouse wheel; [viewKey] marks its visible area) and the
+/// coordinates follow the zoomed squares beside the board, at their usual
+/// size; [onZoomEnd] runs after a pinch or a pan.
 class GoBoardFrame extends StatelessWidget {
   final bool flip;
   final double extent;
   final Widget Function(int square, double size) square;
+  final BoardZoom? zoom;
+  final GlobalKey? viewKey;
+  final VoidCallback? onZoomEnd;
 
-  const GoBoardFrame({super.key, required this.flip, required this.extent, required this.square});
+  const GoBoardFrame({
+    super.key,
+    required this.flip,
+    required this.extent,
+    required this.square,
+    this.zoom,
+    this.viewKey,
+    this.onZoomEnd,
+  });
 
   /// Width of the coordinate band for a frame of [extent].
   static double bandFor(double extent) => (extent * 0.045).clamp(12.0, 20.0);
@@ -486,6 +616,22 @@ class GoBoardFrame extends StatelessWidget {
     int rowAt(int dr) => flip ? GoStrategyGame.size - 1 - dr : dr;
     int colAt(int dc) => flip ? GoStrategyGame.size - 1 - dc : dc;
 
+    final grid = Column(
+      children: [
+        for (var dr = 0; dr < GoStrategyGame.size; dr++)
+          Expanded(
+            child: Row(
+              children: [
+                for (var dc = 0; dc < GoStrategyGame.size; dc++)
+                  Expanded(child: square(GoStrategyGame.square(rowAt(dr), colAt(dc)), cell)),
+              ],
+            ),
+          ),
+      ],
+    );
+    final zoom = this.zoom;
+    zoom?.layout(side);
+
     final board = Container(
       key: const Key('go-board'),
       width: side + 4,
@@ -496,60 +642,65 @@ class GoBoardFrame extends StatelessWidget {
         boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 3))],
       ),
       padding: const EdgeInsets.all(2),
-      child: Column(
-        children: [
-          for (var dr = 0; dr < GoStrategyGame.size; dr++)
-            Expanded(
-              child: Row(
+      child: zoom == null
+          ? grid
+          : ClipRect(
+              key: viewKey,
+              child: InteractiveViewer(
+                key: const Key('go-zoom-view'),
+                transformationController: zoom,
+                minScale: 1,
+                maxScale: 4,
+                onInteractionEnd: (_) => onZoomEnd?.call(),
+                child: SizedBox.square(dimension: side, child: grid),
+              ),
+            ),
+    );
+
+    // The coordinates beside the squares as shown: zoomed, a label moves
+    // with its row or column (and leaves the band with it), its text keeps
+    // its size. A visual aid only: every square's semantics label names it.
+    Widget coordinates(Matrix4 view, {required bool vertical}) {
+      final s = view.getMaxScaleOnAxis();
+      final t = view.getTranslation();
+      final offset = vertical ? t.y : t.x;
+      return ExcludeSemantics(
+        child: SizedBox(
+          width: vertical ? band : side + 4,
+          height: vertical ? side + 4 : band,
+          child: Padding(
+            padding: vertical ? const EdgeInsets.symmetric(vertical: 2) : const EdgeInsets.symmetric(horizontal: 2),
+            child: ClipRect(
+              child: Stack(
                 children: [
-                  for (var dc = 0; dc < GoStrategyGame.size; dc++)
-                    Expanded(child: square(GoStrategyGame.square(rowAt(dr), colAt(dc)), cell)),
+                  for (var i = 0; i < GoStrategyGame.size; i++)
+                    Positioned(
+                      left: vertical ? 0 : offset + s * i * cell,
+                      top: vertical ? offset + s * i * cell : 0,
+                      width: vertical ? band : s * cell,
+                      height: vertical ? s * cell : band,
+                      child: Center(
+                        child: vertical
+                            ? Text('${GoStrategyGame.size - rowAt(i)}', key: Key('go-rank-$i'), style: style)
+                            : Text(String.fromCharCode(0x61 + colAt(i)), key: Key('go-file-$i'), style: style),
+                      ),
+                    ),
                 ],
               ),
             ),
-        ],
-      ),
-    );
+          ),
+        ),
+      );
+    }
 
-    // A visual aid only: every square's semantics label already names it.
-    final ranks = ExcludeSemantics(
-      child: SizedBox(
-        width: band,
-        height: side + 4,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2),
-          child: Column(
-            children: [
-              for (var dr = 0; dr < GoStrategyGame.size; dr++)
-                Expanded(
-                  child: Center(
-                    child: Text('${GoStrategyGame.size - rowAt(dr)}', key: Key('go-rank-$dr'), style: style),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-    final files = ExcludeSemantics(
-      child: SizedBox(
-        width: side + 4,
-        height: band,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: Row(
-            children: [
-              for (var dc = 0; dc < GoStrategyGame.size; dc++)
-                Expanded(
-                  child: Center(
-                    child: Text(String.fromCharCode(0x61 + colAt(dc)), key: Key('go-file-$dc'), style: style),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+    Widget bandOf({required bool vertical}) => zoom == null
+        ? coordinates(Matrix4.identity(), vertical: vertical)
+        : ValueListenableBuilder<Matrix4>(
+            valueListenable: zoom,
+            builder: (context, view, _) => coordinates(view, vertical: vertical),
+          );
+    final ranks = bandOf(vertical: true);
+    final files = bandOf(vertical: false);
 
     return LtrBoard(
       child: SizedBox(
@@ -717,7 +868,6 @@ class _Play extends StatelessWidget {
     final view = g.viewFor(me);
     final l10n = AppLocalizations.of(context);
     final labels = PlayerLabelsScope.of(context);
-    final flip = me == Player.b;
     final canAct = state.controller.canAct && g.phase == GoStrategyPhase.play;
     final targets = state._targets.toSet();
     final last = _lastMove(state.controller.moves);
@@ -755,13 +905,15 @@ class _Play extends StatelessWidget {
     final fight = state._fight;
     Widget boardWithReveal(double extent) => Stack(
           children: [
-            GoBoardFrame(flip: flip, extent: extent, square: square),
+            state._frame(me, extent, square),
             if (fight != null)
               Positioned.fill(child: _FightReveal(fight: fight, animation: state._reveal, onDismiss: state._dismissReveal)),
           ],
         );
 
     final panel = _ArmyPanel(game: g, me: me);
+    // In on the selected piece, else on the last move, else the own front.
+    final zoom = state._zoomButton(l10n, me, () => state._selected ?? last?.$2);
 
     return LayoutBuilder(builder: (context, box) {
       final wide = box.maxWidth >= 720 && box.maxWidth > box.maxHeight;
@@ -774,7 +926,15 @@ class _Play extends StatelessWidget {
             children: [
               Expanded(child: Center(child: boardWithReveal(side))),
               const SizedBox(width: 16),
-              SizedBox(width: 300, child: SingleChildScrollView(child: panel)),
+              SizedBox(
+                width: 300,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Align(alignment: AlignmentDirectional.centerEnd, child: zoom), panel],
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -786,7 +946,18 @@ class _Play extends StatelessWidget {
           children: [
             Center(child: boardWithReveal(side)),
             const SizedBox(height: 8),
-            Expanded(child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 4), child: panel)),
+            // The zoom button beside the armies, under the board's corner.
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(padding: const EdgeInsets.symmetric(horizontal: 4), child: panel),
+                  ),
+                  zoom,
+                ],
+              ),
+            ),
           ],
         ),
       );

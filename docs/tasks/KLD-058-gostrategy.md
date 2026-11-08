@@ -230,3 +230,40 @@ eye in the same badge top right. The 22–24 px tiles of the setup legend and th
 `test/ui/games/gostrategy_insignia_test.dart`; screenshots (overview, sheet at 26–74 px, both phones' boards,
 setup, fight reveal): `KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart`
 (group `kld058-insignia`).
+
+## Zoom (2026-11-08) ✅
+
+Maintainer request: "could we have a similar zoom function in GoStrategy as in Wortgewandt? It's pretty
+small on an iPhone 15 Pro" (squares about 35 px there, 26 px on a 375 pt phone).
+
+Same interaction model as Wortgewandt (KLD-094 step 8), with the shared pieces moved to
+`klunki/lib/ui/board_zoom.dart`: `BoardZoom` (a `TransformationController` with the animated zoom-to /
+zoom-out, now also used by Wortgewandt) and `BoardPieceDraggable` / `BoardPieceDragRecognizer` (the former
+private `_LaidTileDraggable` / `_LaidTileRecognizer`: a piece drags at once, a second finger on the board
+makes it a pinch). Wortgewandt's behaviour is unchanged.
+
+- Board and setup editor sit in an `InteractiveViewer` (scale 1–4): two fingers zoom and move the board,
+  one finger moves a zoomed board (a drag that starts on a square), the mouse wheel / trackpad pinch zooms in
+  the browser. Taps select and move at any zoom; in the setup a drag of a piece still swaps it (it wins over
+  the pan, as Wortgewandt's laid tiles), a pinch with both fingers on pieces moves none.
+- Zoom button `go-zoom` (tooltips "Vergrößern" / "Ganzes Brett", reused from Wortgewandt): in play beside the
+  armies panel (tablet: above it), in the setup next to "Fertig". Zooms to squares of about 52 px on the
+  selected piece, else the last move, else the own front (setup: the swap piece, else the own four rows);
+  pressed again: the whole board. No auto-zoom and no double-tap (a double-tap would delay every tap).
+- The coordinates stay beside the board at their normal size and follow the zoomed rows and columns.
+- Each player keeps their own view, separately for setup and play (hot-seat: the turned board of the
+  player to move; it changes behind the handover cover, which builds no board). A new game starts whole.
+  A changed board size (rotation, window) keeps the zoomed part.
+- On a phone the hint adds "Mit zwei Fingern zoomst du." (key `wordtilesHintZoom`, reused) while the board
+  is whole, as in Wortgewandt.
+- Fight reveal and armies panel unchanged (the reveal covers the whole frame, not zoomed).
+
+**For the rules page (integrator, `lib/ui/rules/games/` is not on this branch):** add a line like
+Wortgewandt's `wordtilesHelpZoom`, e.g. de "Mit zwei Fingern zoomst du das Brett und schiebst es hin und
+her; die Lupe zoomt auf deine gewählte Figur." / en "Zoom the board with two fingers and move it around; the
+magnifier zooms in on your selected piece."
+
+Tests: `klunki/test/ui/games/gostrategy_zoom_test.dart` (pinch then tap-select and tap-move, pan and
+coordinates, zoom button, hint, hot-seat views per player, mouse wheel + click, setup pinch / tap swap / drag
+swap at zoom, setup and play views apart). Screenshots (iPhone 15 Pro):
+`KLUNKI_SHOTS=/tmp/zoom flutter test test/screenshots/gostrategy_insignia_shots_test.dart --plain-name kld058-zoom`.
