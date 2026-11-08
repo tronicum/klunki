@@ -3714,4 +3714,116 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       'There are 32 cards. Each player gets 5, one lies face up in the middle. Player 1 starts.\nPut a card of the same suit or the same value on it, for example hearts on hearts or 9 on 9.\nIf no card fits, you draw 1 card. If it fits, you may play it or keep it. If not, it is the other player’s turn.\nWhen the pile is empty, the played cards are shuffled into a new pile.';
+
+  @override
+  String get dicesheetBeginnerOption => 'Beginner mode';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'Tips on which box fits well right now and which dice to keep. You can still pick any box.';
+
+  @override
+  String get dicesheetTipLabel => 'Tip';
+
+  @override
+  String get dicesheetTipShow => 'Show tip';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'Tip: $box – $points points help you toward the bonus ($goal).';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'Tip: $box – all dice count, that gives $points points.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'Tip: $box – that gives $points points. Take them!';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'Tip: $box – that gives $points points.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'Tip: No good box? $box gives only $points points, but you lose the least there.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'Tip: No good box? Cross out $box, you lose the least there.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box would give $points points now, but it is worth more later.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'Save Chance for later.';
+
+  @override
+  String get dicesheetTipOnce => 'Each box can be used only once – Chance too.';
+
+  @override
+  String get dicesheetTipKeep =>
+      'Tip: Keep these dice and roll the others again:';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'Tip: Nothing goes well together. Roll all of them again.';
+
+  @override
+  String get dicesheetTipStop => 'Great roll! You don’t need to roll again.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'End beginner mode';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'Beginner mode off. You can turn it back on in the options.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count boxes left',
+      one: '1 box left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'You fill each box only once. $count boxes, $count rounds.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'Beginner mode (on at first, can be turned off in the options): a tip shows which box fits well right now and which dice to keep. You can still pick any box.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'You have up to $count rolls per turn.';
+  }
+
+  @override
+  String get dicesheetCoachKeep => 'Tap the dice that should stay.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'Then you write the roll into one box. The number shows how many points it gives.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'Each box only once – $count boxes, $count rounds. The most points wins.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'Quick tour';
 }

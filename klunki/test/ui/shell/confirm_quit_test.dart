@@ -109,7 +109,9 @@ void main() {
   // The one-time Bänkchen explanation is seen: where the bench starts open
   // (KLD-094 step 8c) it would come up over the first word tile turn.
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
-  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
+  setUp(() => SeenTips.shared
+    ..markFirst(SeenTips.maumauIntro)
+    ..markFirst(SeenTips.dicesheetIntro));
   group('network', () {
     testWidgets('resign: dialog, cancel keeps the game running', (tester) async {
       final (c, t) = await _network(tester);

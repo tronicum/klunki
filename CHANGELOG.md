@@ -16,6 +16,14 @@ short German summary ("Kurz") for the store notes and the testers.
   won. House rule "Extra-Fünfer" (off by default): 100 extra for another five of a kind, which then counts as a
   joker. "Wer spielt?" now asks how many play (2, 3 or 4) for this game. "Wer fängt an?" before the game: the
   first player, your own order (arrows next to the names), or chance; the game says who starts.
+- **Ausgewürfelt: Anfängermodus** (KLD-119), on by default: after the last roll the box that fits best glows on
+  the sheet and a tip says why in one line ("Tipp: Fünfer – 15 Punkte helfen dir beim Bonus (63)."), also when
+  another box would give more now but is worth more later, or which box to strike; while rolls are left, "Tipp"
+  shows which dice to keep. Any box can still be chosen. "Anfängermodus beenden" in the tip or the switch in the
+  start options turns it off. Filled boxes now look used (a solid chip with a check, the name faded), empty ones
+  like open slots, and the sheet says how many boxes are still free; the rules page says early that every box is
+  filled only once. The first game on a device starts with a short tour (5 steps; again via "⋮" → "Kurz
+  erklärt").
 - **GoStrategy** (KLD-058): every piece now shows a drawn rank insignia instead of the big number: crossed
   batons (Marschall), peaked cap (General), three, two or one star (Oberst, Major, Hauptmann), a bar (Leutnant),
   chevrons (Feldwebel), pickaxe (Mineur), binoculars (Aufklärer), hat and mask (Spion); bomb and flag as before.

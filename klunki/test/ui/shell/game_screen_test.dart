@@ -22,7 +22,9 @@ void main() {
   // the first (synchronous, non-widget) test had finished and fail it.
   setUpAll(() => SharedPreferences.setMockInitialValues({}));
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
-  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
+  setUp(() => SeenTips.shared
+    ..markFirst(SeenTips.maumauIntro)
+    ..markFirst(SeenTips.dicesheetIntro));
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
     expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id, ...previewGames});
     expect(appGameSpecs.map((s) => s.id), contains('gostrategy'), reason: 'KLD-058b');

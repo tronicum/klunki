@@ -5376,5 +5376,185 @@
   "rulesMaumauTurnMustPlay": "Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.",
   "@rulesMaumauTurnMustPlay": {
     "description": "KLD-118: Mau-Mau rules, a turn (lines separated by \\n) while the house rule \"Legen, wenn möglich\" is on: as rulesMaumauTurn, but drawing only when no card fits."
+  },
+  "dicesheetBeginnerOption": "Anfängermodus",
+  "@dicesheetBeginnerOption": {
+    "description": "KLD-119 Anfängermodus: the switch in the Ausgewürfelt start options."
+  },
+  "dicesheetBeginnerExplain": "Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.",
+  "@dicesheetBeginnerExplain": {
+    "description": "KLD-119 Anfängermodus: explanation under the switch."
+  },
+  "dicesheetTipLabel": "Tipp",
+  "@dicesheetTipLabel": {
+    "description": "KLD-119 Anfängermodus: the small badge on the recommended box and the tip button while rolls are left."
+  },
+  "dicesheetTipShow": "Tipp zeigen",
+  "@dicesheetTipShow": {
+    "description": "KLD-119 Anfängermodus: screen reader label of the tip button."
+  },
+  "dicesheetTipBonus": "Tipp: {box} – {points} Punkte helfen dir beim Bonus ({goal}).",
+  "@dicesheetTipBonus": {
+    "description": "KLD-119 Anfängermodus: tip for an upper box with at least three of its face. {goal} is 63.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipAllDice": "Tipp: {box} – alle Würfel zählen, das gibt {points} Punkte.",
+  "@dicesheetTipAllDice": {
+    "description": "KLD-119 Anfängermodus: tip for three/four of a kind or chance (the sum of all dice).",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipFixed": "Tipp: {box} – das gibt {points} Punkte. Nimm sie!",
+  "@dicesheetTipFixed": {
+    "description": "KLD-119 Anfängermodus: tip for a full house, a straight or five of a kind.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipPoints": "Tipp: {box} – das gibt {points} Punkte.",
+  "@dicesheetTipPoints": {
+    "description": "KLD-119 Anfängermodus: plain tip with the points.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipLeastLoss": "Tipp: Kein gutes Feld? {box} gibt nur {points} Punkte, aber da verlierst du am wenigsten.",
+  "@dicesheetTipLeastLoss": {
+    "description": "KLD-119 Anfängermodus: nothing fits well; this box loses the least.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipStrike": "Tipp: Kein gutes Feld? Streich {box}, da verlierst du am wenigsten.",
+  "@dicesheetTipStrike": {
+    "description": "KLD-119 Anfängermodus: nothing fits; strike (0) this box.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      }
+    }
+  },
+  "dicesheetTipRicher": "{box} gäbe jetzt {points} Punkte, ist aber später mehr wert.",
+  "@dicesheetTipRicher": {
+    "description": "KLD-119 Anfängermodus: second line: another box gives more points now but is worth more later.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetTipSaveChance": "Spar dir die Chance für später.",
+  "@dicesheetTipSaveChance": {
+    "description": "KLD-119 Anfängermodus: second line when the chance box would give more now. Use the chance box name of dicesheetBoxChance."
+  },
+  "dicesheetTipOnce": "Jedes Feld gibt es nur einmal – auch die Chance.",
+  "@dicesheetTipOnce": {
+    "description": "KLD-119 Anfängermodus: reminder (first turn, or using chance / striking): every box, chance included, can be filled only once per game."
+  },
+  "dicesheetTipKeep": "Tipp: Behalte diese Würfel und würfle die anderen noch mal:",
+  "@dicesheetTipKeep": {
+    "description": "KLD-119 Anfängermodus: while rolls are left; small dice follow the colon."
+  },
+  "dicesheetTipRerollAll": "Tipp: Nichts passt gut zusammen. Würfle alle noch einmal.",
+  "@dicesheetTipRerollAll": {
+    "description": "KLD-119 Anfängermodus: while rolls are left and nothing is worth keeping."
+  },
+  "dicesheetTipStop": "Super Wurf! Du musst nicht mehr würfeln.",
+  "@dicesheetTipStop": {
+    "description": "KLD-119 Anfängermodus: the roll already makes a big box; stop rolling."
+  },
+  "dicesheetBeginnerEnd": "Anfängermodus beenden",
+  "@dicesheetBeginnerEnd": {
+    "description": "KLD-119 Anfängermodus: link in the tip that turns the mode off."
+  },
+  "dicesheetBeginnerEnded": "Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.",
+  "@dicesheetBeginnerEnded": {
+    "description": "KLD-119 Anfängermodus: snackbar after turning it off."
+  },
+  "dicesheetFreeBoxes": "{count, plural, =1{noch 1 Feld frei} other{noch {count} Felder frei}}",
+  "@dicesheetFreeBoxes": {
+    "description": "KLD-119: under the round in the sheet header: the empty boxes left on the sheet of the player to move.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesDicesheetOnce": "Jedes Feld füllst du nur einmal. {count} Felder, {count} Runden.",
+  "@rulesDicesheetOnce": {
+    "description": "KLD-119: rules page, early: every box only once; {count} is 13.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesDicesheetBeginner": "Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.",
+  "@rulesDicesheetBeginner": {
+    "description": "KLD-119: rules page: one line about the Anfängermodus."
+  },
+  "dicesheetCoachRoll": "Du hast bis zu {count} Würfe pro Runde.",
+  "@dicesheetCoachRoll": {
+    "description": "KLD-119 intro tour, step 1 (the roll button); {count} is 3.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetCoachKeep": "Tippe Würfel an, die liegen bleiben sollen.",
+  "@dicesheetCoachKeep": {
+    "description": "KLD-119 intro tour, step 2 (the dice)."
+  },
+  "dicesheetCoachSheet": "Dann trägst du den Wurf in ein Feld ein. Die Zahl zeigt, wie viele Punkte es gibt.",
+  "@dicesheetCoachSheet": {
+    "description": "KLD-119 intro tour, step 3 (the score sheet)."
+  },
+  "dicesheetCoachOnce": "Jedes Feld nur einmal – {count} Felder, {count} Runden. Am meisten Punkte gewinnt.",
+  "@dicesheetCoachOnce": {
+    "description": "KLD-119 intro tour, step 4 (a box); {count} is 13.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetCoachReplay": "Kurz erklärt",
+  "@dicesheetCoachReplay": {
+    "description": "KLD-119: entry in the game's menu that shows the intro tour again."
   }
 }

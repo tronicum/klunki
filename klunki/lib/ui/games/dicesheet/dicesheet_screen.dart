@@ -4,6 +4,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
+import '../../shell/game_screen.dart' show ShellMenuEntry;
 import '../../shell/seat_game_screen.dart';
 import 'dicesheet_board.dart';
 
@@ -14,17 +15,40 @@ import 'dicesheet_board.dart';
 ///
 /// Contract: `const DiceSheetScreen({super.key, required this.controller})`,
 /// built by `ui/shell/screen_registry.dart`.
-class DiceSheetScreen extends StatelessWidget {
+class DiceSheetScreen extends StatefulWidget {
   final GameController controller;
   const DiceSheetScreen({super.key, required this.controller});
 
   @override
+  State<DiceSheetScreen> createState() => _DiceSheetScreenState();
+}
+
+class _DiceSheetScreenState extends State<DiceSheetScreen> {
+  /// "Kurz erklärt" in the "⋮" menu: the board shows the tour again.
+  final _tour = DiceSheetTourRequest();
+
+  @override
+  void dispose() {
+    _tour.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SeatNamesBuilder(
       child: SeatGameScreen(
-        controller: controller,
+        controller: widget.controller,
         describeMove: describeDiceSheetMove,
-        boardBuilder: (context, controller) => DiceSheetBoard(controller: controller),
+        menuEntries: [
+          ShellMenuEntry(
+            key: const Key('dicesheet-tour'),
+            icon: Icons.tour_outlined,
+            label: l10n.dicesheetCoachReplay,
+            onSelected: _tour.request,
+          ),
+        ],
+        boardBuilder: (context, controller) => DiceSheetBoard(controller: controller, tour: _tour),
       ),
     );
   }

@@ -3504,4 +3504,110 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       '一共有 32 张牌。每人拿 5 张，中间翻开一张。玩家 1 先出。\n出一张花色相同或点数相同的牌放上去，比如红心接红心，9 接 9。\n没有能接上的牌，就摸 1 张牌。能接上，你可以出掉或者留着。接不上，就轮到对方。\n牌堆空了，弃牌会洗成新的牌堆。';
+
+  @override
+  String get dicesheetBeginnerOption => '新手模式';
+
+  @override
+  String get dicesheetBeginnerExplain => '提示现在哪一格合适、该留下哪些骰子。你仍然可以选任何一格。';
+
+  @override
+  String get dicesheetTipLabel => '提示';
+
+  @override
+  String get dicesheetTipShow => '显示提示';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return '提示：$box – $points 分能帮你拿到奖励（$goal）。';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return '提示：$box – 所有骰子都算分，能得 $points 分。';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return '提示：$box – 能得 $points 分。就选它！';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return '提示：$box – 能得 $points 分。';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return '提示：没有好格子？$box 只得 $points 分，但损失最小。';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return '提示：没有好格子？划掉$box，这样损失最小。';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box 现在能得 $points 分，但留到以后更有用。';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => '把机会留到以后。';
+
+  @override
+  String get dicesheetTipOnce => '每一格只能用一次，机会也一样。';
+
+  @override
+  String get dicesheetTipKeep => '提示：留下这些骰子，其余的再掷一次：';
+
+  @override
+  String get dicesheetTipRerollAll => '提示：没有好的组合。全部再掷一次。';
+
+  @override
+  String get dicesheetTipStop => '好骰子！不用再掷了。';
+
+  @override
+  String get dicesheetBeginnerEnd => '退出新手模式';
+
+  @override
+  String get dicesheetBeginnerEnded => '新手模式已关闭。你可以在选项里重新打开。';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还剩 $count 格',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return '每一格只能填一次。$count 格，$count 轮。';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      '新手模式（一开始是开着的，可以在选项里关闭）：提示会告诉你现在哪一格合适、该留下哪些骰子。你仍然可以选任何一格。';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return '每轮最多可以掷 $count 次。';
+  }
+
+  @override
+  String get dicesheetCoachKeep => '点一下要留下的骰子。';
+
+  @override
+  String get dicesheetCoachSheet => '然后把这次的结果填进一格。数字表示能得多少分。';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return '每一格只能用一次：$count 格，$count 轮。得分最多的人获胜。';
+  }
+
+  @override
+  String get dicesheetCoachReplay => '快速导览';
 }

@@ -5,8 +5,9 @@
   players on one device. Keep it generic: never use the brand names of the commercial games in code, ARB strings,
   docs, store texts or commits; say "dice score-sheet game" or "five-dice game".
 - **Milestone:** long-term games
-- **Status:** step 1 DONE (engine, n-player hot-seat shell, UI, 7 locales, screenshots; 2026-11-08). Next: maintainer
-  feedback on the screenshots, then network for 2 (secret seed) and a kids' short game (open questions).
+- **Status:** step 1 DONE (engine, n-player hot-seat shell, UI, 7 locales, screenshots; 2026-11-08). Step 2 DONE
+  (Anfängermodus, "each box only once" on the sheet and the rules page, first-game tour; 2026-11-08). Next:
+  maintainer feedback on the screenshots, then network for 2 (secret seed) and a kids' short game (open questions).
 - **Depends on:** KLD-088 (seats, `SeatGame`), KLD-103 (player names), KLD-121 follow-up (`ShakeToRoll`, shake setting)
 - **Touched paths:**
   - `packages/klunki_engine/lib/dice_sheet.dart` (new), `lib/debug/dice_sheet_text.dart` (new),
@@ -106,6 +107,45 @@ it is the first Klunki game with more than two players in the app.
   `ui/rules/games/dicesheet_rules.dart`) with an example throw per box.
 - Menu tile with the one-device link only (`hotSeatOnlyGames`), own accent colour and illustration.
 
+## Step 2: Anfängermodus, "each box only once", tour (2026-11-08)
+Maintainer feedback: new players do not see that the same roll fits several boxes (three 5s: Fünfer 15 or
+Dreierpasch 20) and that fewer points now can be smarter; and that every box, Chance included, is filled only once.
+- **Advisor** (`packages/klunki_engine/lib/dice_sheet_advisor.dart`, pure, deterministic, no search):
+  `DiceSheetAdvisor.forGame(game)` / `advise(dice, options, open, upperSum, rollsLeft)` → `DiceSheetAdvice` (box,
+  points, `DiceTipReason`, a `richer` box that gives more now, `keep` positions while rolls are left).
+  - Box value = points now − the box's usual value later (`parOf`: averages of good play, ones 1.9 … sixes 19.2,
+    three of a kind 21.7, four of a kind 13.1, full house 22.6, small/large straight 29.5/32.7, five of a kind
+    16.9, chance 22). The hard boxes are worth less with fewer turns left (chance to still roll them per turn:
+    4K 0.3, FH 0.37, SS 0.6, LS 0.26, 5K 0.046). While the bonus is open and reachable, an upper box also gets
+    points − 3 × face. Highest value wins (sheet order on a tie).
+  - Reasons: 0 points → strike; value < −2 → least loss; upper ≥ 3 × face with bonus open → bonus; 3K/4K/chance →
+    all dice count; FH/straights/5K → fixed points; else plain points.
+  - Keep: stop with a made full house, large straight, five of a kind (small straight when the large one is
+    filled); else a run of 4 (or 3 without a pair) toward an open straight; two pairs toward an open full house;
+    the most common useful face (higher on a tie) when ≥ 2; else roll all again.
+  - Following the advice scores about 217 on average alone (400 seeds; the debug bot 202, greedy without rerolls
+    111; optimal play is about 254).
+- **App:** `BeginnerSettings` (`profile/beginner_settings.dart`, prefs `dicesheetBeginner`, on by default, one
+  device setting) with a switch in the start options (`dicesheet-beginner`). After the last roll (or a made big box,
+  or a joker) the recommended box glows (amber ring and bulb, `dicesheet-tip-ring`) and is scrolled into view; the
+  tip bubble (`dicesheet-tip`) between sheet and dice (beside the dice on a wide screen, notch pointing up) says
+  why in one line, plus "X gäbe jetzt N Punkte, ist aber später mehr wert." / "Spar dir die Chance für später.",
+  and on the first turn, with Chance or a strike "Jedes Feld gibt es nur einmal – auch die Chance."; on a short
+  phone only the first line until tapped. While rolls are left a "Tipp" button (`dicesheet-tip-button`) shows the
+  dice to keep (small dice in the bubble). "Anfängermodus beenden" (`dicesheet-beginner-end`) turns it off with a
+  snackbar. Advice only: every box stays tappable.
+- **Each box only once:** filled boxes are solid chips with a check (the name of a box the player to move has
+  used fades), empty ones open slots; the header says "noch N Felder frei"; the rules page says early "Jedes Feld
+  füllst du nur einmal. 13 Felder, 13 Runden." and has a line about the Anfängermodus.
+- **Tour** (`SeenTips.dicesheetIntro`, `showCoachMarks`): before the first roll of the first game on a device,
+  5 steps on the real elements ("Würfeln", the dice, the sheet, a box, "Regeln"); again via "⋮" → "Kurz erklärt"
+  (`dicesheet-tour`, `SeatGameScreen.menuEntries`).
+- Tests: `dice_sheet_advisor_test.dart` (25: table-driven boxes and keeps, par, forGame, joker, 20 whole games
+  following the advice), `dicesheet_beginner_test.dart` (11: tip, ring on the box and in view, another box,
+  keep hint, stop, strike, end + persistence, off, options switch, used/open look, tour once + replay, rules).
+- Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/dicesheet_shots_test.dart --plain-name beginner`
+  (`<dir>/beginner`: phone, SE, dark, ar).
+
 ## Tests
 - Engine (`dice_sheet_test.dart`, 27): every box's scoring, roll/keep validation, three rolls, draws independent of
   keep, undo barrier, scoring/striking/refusals, upper bonus, full 2/3/4-seat bot games with replay equality and
@@ -127,6 +167,9 @@ it is the first Klunki game with more than two players in the app.
 3. Kids' variant: a short game (e.g. only the upper section, or 6 rounds)? "Forced order" mode?
 4. Who starts: always the first name, or random from the seed?
 5. Extra-Fünfer default off (as decided in the WIP notes): keep?
+6. Anfängermodus: on until turned off (as built), or off by itself after N games? Per player instead of per device?
+7. On an iPhone SE the tip bubble leaves about two rows of the sheet visible (only its first line until tapped):
+   OK, or should the tip replace the disabled "Feld im Blatt wählen" button after the last roll?
 
 ## Acceptance criteria
 - [x] Engine with tests, rules version 1, fingerprint golden, CLI adapter.
@@ -134,3 +177,5 @@ it is the first Klunki game with more than two players in the app.
 - [x] UI: dice, keep, roll button with remaining rolls, shake to roll, sheet with suggestions, bonus progress,
       totals, ranking; actions on screen on small phones at 130 % text (layout test).
 - [x] Whole games through the real UI with 2 and 4 players; 7 locales; screenshots (phone + tablet, dark, ar).
+- [x] Step 2: Anfängermodus (advisor with tests, tip, keep hint, end link, option), used/open boxes, rules line,
+      tour; widget tests; screenshots (phone, SE, dark, ar).

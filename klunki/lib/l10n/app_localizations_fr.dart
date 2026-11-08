@@ -3748,4 +3748,118 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       'Il y a 32 cartes. Chacun en reçoit 5, une est posée face visible au milieu. Joueur 1 commence.\nPose dessus une carte de même couleur ou de même valeur, par exemple cœur sur cœur ou 9 sur 9.\nSi aucune carte ne va, tu pioches 1 carte. Si elle va, tu peux la poser ou la garder. Sinon, c’est à l’autre.\nQuand la pioche est vide, les cartes posées sont mélangées et forment une nouvelle pioche.';
+
+  @override
+  String get dicesheetBeginnerOption => 'Mode débutant';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'Des conseils : quelle case va bien maintenant et quels dés garder. Tu peux quand même choisir n’importe quelle case.';
+
+  @override
+  String get dicesheetTipLabel => 'Conseil';
+
+  @override
+  String get dicesheetTipShow => 'Voir le conseil';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'Conseil : $box – $points points t’aident pour la prime ($goal).';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'Conseil : $box – tous les dés comptent, ça fait $points points.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'Conseil : $box – ça fait $points points. Prends-les !';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'Conseil : $box – ça fait $points points.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'Conseil : pas de bonne case ? $box ne donne que $points points, mais c’est là que tu perds le moins.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'Conseil : pas de bonne case ? Barre $box, c’est là que tu perds le moins.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box donnerait $points points maintenant, mais la case vaudra davantage plus tard.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'Garde la case Chance pour plus tard.';
+
+  @override
+  String get dicesheetTipOnce =>
+      'Chaque case ne sert qu’une fois – la Chance aussi.';
+
+  @override
+  String get dicesheetTipKeep =>
+      'Conseil : garde ces dés et relance les autres :';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'Conseil : rien ne va bien ensemble. Relance tous les dés.';
+
+  @override
+  String get dicesheetTipStop =>
+      'Super lancer ! Tu n’as plus besoin de relancer.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'Quitter le mode débutant';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'Mode débutant désactivé. Tu peux le réactiver dans les options.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'encore $count cases libres',
+      one: 'encore 1 case libre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'Tu remplis chaque case une seule fois. $count cases, $count tours.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'Mode débutant (activé au début, désactivable dans les options) : un conseil montre quelle case va bien maintenant et quels dés garder. Tu peux quand même choisir n’importe quelle case.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'Tu as jusqu’à $count lancers par tour.';
+  }
+
+  @override
+  String get dicesheetCoachKeep => 'Touche les dés qui doivent rester.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'Puis tu inscris le lancer dans une case. Le nombre montre combien de points elle rapporte.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'Chaque case une seule fois – $count cases, $count tours. Le plus de points gagne.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'Visite rapide';
 }

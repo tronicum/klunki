@@ -59,6 +59,7 @@ void main() {
     // Tours of their own would cover the screen.
     SeenTips.shared
       ..markFirst(SeenTips.maumauIntro)
+      ..markFirst(SeenTips.dicesheetIntro)
       ..markFirst(SeenTips.wordtilesBench);
   });
 

@@ -21,6 +21,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/profile/beginner_settings.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/shake_settings.dart';
@@ -61,7 +62,7 @@ Future<void> _loadFonts() async {
   if (icons.existsSync()) await family('MaterialIcons', [icons.path]);
 }
 
-Future<void> _shot(WidgetTester tester, String name) async {
+Future<void> _shot(WidgetTester tester, String name, {String dir = 'kld119'}) async {
   debugDisableShadows = false;
   await tester.pump(const Duration(milliseconds: 500));
   await tester.pump();
@@ -69,7 +70,7 @@ Future<void> _shot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/kld119/$name.png');
+    final f = File('$_out/$dir/$name.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
@@ -189,6 +190,9 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     ShakeSettings.debugReset();
+    BeginnerSettings.debugReset();
+    SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
     ExtraSeatNames.debugReset();
   });
 
@@ -333,6 +337,7 @@ void main() {
 
     testWidgets('game: "Regeln", "Neu hier?", who starts, the "⋮" menu', skip: skip, (tester) async {
       SeenTips.debugReset();
+      SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
       await _game(tester);
       await _shot(tester, '23-game-rules-button');
       await _tap(tester, 'shell-menu');
@@ -374,6 +379,115 @@ void main() {
       await _shot(tester, '28-gamescreen-connect4');
       await _tap(tester, 'shell-menu');
       await _shot(tester, '29-gamescreen-menu-open');
+    });
+  });
+
+  // KLD-119 Anfängermodus, "each box only once", the tour. Into
+  // <KLUNKI_SHOTS>/beginner:
+  //
+  //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/dicesheet_shots_test.dart --plain-name beginner
+  group('kld119 beginner', () {
+    Future<void> shot(WidgetTester tester, String name) => _shot(tester, name, dir: 'beginner');
+
+    for (final (tag, locale, brightness, size, safe) in [
+      ('phone', const Locale('de'), Brightness.light, const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
+      ('se', const Locale('de'), Brightness.light, const Size(375, 667), const EdgeInsets.only(top: 20)),
+      ('dark', const Locale('de'), Brightness.dark, const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
+      ('ar', const Locale('ar'), Brightness.light, const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
+    ]) {
+      Future<GameController> game(WidgetTester tester, List<List<int>> rolls) => _game(tester,
+          locale: locale, brightness: brightness, size: size, safe: safe, rolls: rolls);
+
+      testWidgets('$tag: three fives after the last roll', skip: skip, (tester) async {
+        await game(tester, List.filled(3, [5, 5, 5, 2, 3]));
+        for (var i = 0; i < 3; i++) {
+          await _tap(tester, 'dicesheet-roll');
+        }
+        await shot(tester, 'b01-$tag-tip-three-fives');
+      });
+
+      testWidgets('$tag: a strike tip', skip: skip, (tester) async {
+        final c = await game(tester, [
+          [6, 5, 4, 3, 1],
+          [1, 1, 2, 2, 3],
+          [1, 1, 4, 4, 6],
+          [1, 3, 3, 5, 6],
+          ...List.filled(3, [2, 3, 4, 6, 6]),
+        ]);
+        await c.submit(DiceSheetGame.rollMove());
+        await c.submit(DiceSheetGame.scoreMove(DiceBox.chance));
+        for (var s = 1; s < 4; s++) {
+          await c.submit(DiceSheetGame.rollMove());
+          await c.submit(DiceSheetGame.scoreMove(DiceBox.ones));
+        }
+        await tester.pumpAndSettle();
+        for (var i = 0; i < 3; i++) {
+          await _tap(tester, 'dicesheet-roll');
+        }
+        await shot(tester, 'b02-$tag-tip-strike');
+      });
+
+      testWidgets('$tag: which dice to keep', skip: skip, (tester) async {
+        await game(tester, [
+          [6, 1, 6, 3, 6],
+        ]);
+        await _tap(tester, 'dicesheet-roll');
+        await shot(tester, 'b03-$tag-tip-button');
+        await _tap(tester, 'dicesheet-tip-button');
+        await shot(tester, 'b04-$tag-tip-keep-dice');
+      });
+
+      testWidgets('$tag: a half-filled sheet, used and open boxes', skip: skip, (tester) async {
+        final c = await game(tester, const []);
+        await _botTurns(tester, c, 24);
+        await shot(tester, 'b05-$tag-sheet-half-filled');
+        await _tap(tester, 'dicesheet-roll');
+        await shot(tester, 'b06-$tag-sheet-half-filled-rolled');
+      });
+    }
+
+    testWidgets('"Anfängermodus beenden" and the snackbar', skip: skip, (tester) async {
+      await _game(tester,
+          size: const Size(393, 852),
+          safe: const EdgeInsets.only(top: 59, bottom: 34),
+          rolls: List.filled(3, [3, 2, 6, 4, 5]));
+      await _tap(tester, 'dicesheet-roll');
+      await shot(tester, 'b07-tip-stop-large-straight');
+      await _tap(tester, 'dicesheet-beginner-end');
+      await shot(tester, 'b08-beginner-ended-snackbar');
+    });
+
+    for (final (tag, locale, brightness) in [
+      ('de', const Locale('de'), Brightness.light),
+      ('dark', const Locale('de'), Brightness.dark),
+      ('ar', const Locale('ar'), Brightness.light),
+    ]) {
+      testWidgets('options with the "Anfängermodus" switch, $tag', skip: skip, (tester) async {
+        await _pumpApp(tester, const Scaffold(body: SizedBox.expand()), locale: locale, brightness: brightness);
+        showDiceSheetOptionsDialog(tester.element(find.byType(Scaffold)));
+        await tester.pumpAndSettle();
+        await shot(tester, 'b09-$tag-options-switch');
+      });
+
+      testWidgets('the tour, $tag', skip: skip, (tester) async {
+        SeenTips.debugReset();
+        await _game(tester,
+            locale: locale,
+            brightness: brightness,
+            size: const Size(393, 852),
+            safe: const EdgeInsets.only(top: 59, bottom: 34));
+        for (var step = 1; step <= 5; step++) {
+          expect(find.byKey(const Key('dicesheet-coach')), findsOneWidget);
+          await shot(tester, 'b1$step-$tag-tour-step-$step');
+          await tester.tap(find.byKey(Key(step == 5 ? 'dicesheet-coach-done' : 'dicesheet-coach-next')));
+          await tester.pumpAndSettle();
+        }
+      });
+    }
+
+    testWidgets('rules page: once, and the Anfängermodus', skip: skip, (tester) async {
+      await _pumpApp(tester, const RulesScreen(gameId: 'dicesheet'), size: const Size(390, 2900));
+      await shot(tester, 'b20-rules-page-whole');
     });
   });
 }

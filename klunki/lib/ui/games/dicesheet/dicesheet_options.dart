@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 
 import '../../../platform/shake.dart';
+import '../../../profile/beginner_settings.dart';
 import '../../../profile/shake_settings.dart';
 import '../../game_titles.dart';
 
 /// The start options of an Ausgewürfelt game (KLD-119): the house rule
 /// "Extra-Fünfer" (off by default) and, on a device that may have a motion
 /// sensor, the device setting "Schütteln zum Würfeln" ([ShakeSettings],
-/// stored at once, shared with Mäxchen), and "Wer fängt an?"
+/// stored at once, shared with Mäxchen), the device setting
+/// "Anfängermodus" ([BeginnerSettings], stored at once), and "Wer fängt an?"
 /// ([DiceSheetStart]). Then "Wer spielt?" asks for the player count and the
 /// names (with arrows to reorder them for [DiceSheetStart.order]).
 typedef DiceSheetOptions = ({bool extraFives, DiceSheetStart start});
@@ -19,7 +21,7 @@ typedef DiceSheetOptions = ({bool extraFives, DiceSheetStart start});
 enum DiceSheetStart { first, order, random }
 
 /// Asks for the options before a game; null when cancelled. Keys:
-/// `dicesheet-options`, `dicesheet-extra-fives`, `dicesheet-shake`,
+/// `dicesheet-options`, `dicesheet-extra-fives`, `dicesheet-shake`, `dicesheet-beginner`,
 /// `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
 Future<DiceSheetOptions?> showDiceSheetOptionsDialog(BuildContext context) => showDialog<DiceSheetOptions>(
       context: context,
@@ -57,6 +59,19 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
             onChanged: (v) => setState(() => _extraFives = v),
           ),
           Text(l10n.dicesheetOptionExtraFivesExplain, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 12),
+          ListenableBuilder(
+            listenable: BeginnerSettings.shared(),
+            builder: (context, _) => SwitchListTile(
+              key: const Key('dicesheet-beginner'),
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.lightbulb_outline),
+              title: Text(l10n.dicesheetBeginnerOption),
+              value: BeginnerSettings.shared().enabled,
+              onChanged: BeginnerSettings.shared().setEnabled,
+            ),
+          ),
+          Text(l10n.dicesheetBeginnerExplain, style: theme.textTheme.bodySmall),
           const SizedBox(height: 16),
           Text(l10n.dicesheetStartTitle, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),

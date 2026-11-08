@@ -144,6 +144,7 @@ void main() {
       SeenTips.debugReset();
       SeenTips.shared
         ..markFirst(SeenTips.maumauIntro)
+        ..markFirst(SeenTips.dicesheetIntro)
         ..markFirst(SeenTips.wordtilesBench);
       ShakeSettings.debugReset();
       Motion.debugReset();

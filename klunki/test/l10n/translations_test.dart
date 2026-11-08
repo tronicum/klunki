@@ -94,6 +94,7 @@ void main() {
     setUp(() {
       SeenTips.debugReset();
       SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+      SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
     });
 
     Future<void> phone(WidgetTester tester) async {

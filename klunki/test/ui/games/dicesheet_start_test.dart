@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/beginner_settings.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/shake_settings.dart';
@@ -44,8 +45,10 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     ShakeSettings.debugReset();
-    ExtraSeatNames.debugReset();
+    BeginnerSettings.debugReset();
     SeenTips.debugReset();
+    SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
+    ExtraSeatNames.debugReset();
   });
 
   testWidgets('"Erster Spieler": no arrows; seat 1 starts and the game says so', (tester) async {

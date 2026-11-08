@@ -5806,6 +5806,162 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.'**
   String get rulesMaumauTurnMustPlay;
+
+  /// KLD-119 Anfängermodus: the switch in the Ausgewürfelt start options.
+  ///
+  /// In de, this message translates to:
+  /// **'Anfängermodus'**
+  String get dicesheetBeginnerOption;
+
+  /// KLD-119 Anfängermodus: explanation under the switch.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.'**
+  String get dicesheetBeginnerExplain;
+
+  /// KLD-119 Anfängermodus: the small badge on the recommended box and the tip button while rolls are left.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp'**
+  String get dicesheetTipLabel;
+
+  /// KLD-119 Anfängermodus: screen reader label of the tip button.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp zeigen'**
+  String get dicesheetTipShow;
+
+  /// KLD-119 Anfängermodus: tip for an upper box with at least three of its face. {goal} is 63.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: {box} – {points} Punkte helfen dir beim Bonus ({goal}).'**
+  String dicesheetTipBonus(String box, int points, int goal);
+
+  /// KLD-119 Anfängermodus: tip for three/four of a kind or chance (the sum of all dice).
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: {box} – alle Würfel zählen, das gibt {points} Punkte.'**
+  String dicesheetTipAllDice(String box, int points);
+
+  /// KLD-119 Anfängermodus: tip for a full house, a straight or five of a kind.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: {box} – das gibt {points} Punkte. Nimm sie!'**
+  String dicesheetTipFixed(String box, int points);
+
+  /// KLD-119 Anfängermodus: plain tip with the points.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: {box} – das gibt {points} Punkte.'**
+  String dicesheetTipPoints(String box, int points);
+
+  /// KLD-119 Anfängermodus: nothing fits well; this box loses the least.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: Kein gutes Feld? {box} gibt nur {points} Punkte, aber da verlierst du am wenigsten.'**
+  String dicesheetTipLeastLoss(String box, int points);
+
+  /// KLD-119 Anfängermodus: nothing fits; strike (0) this box.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: Kein gutes Feld? Streich {box}, da verlierst du am wenigsten.'**
+  String dicesheetTipStrike(String box);
+
+  /// KLD-119 Anfängermodus: second line: another box gives more points now but is worth more later.
+  ///
+  /// In de, this message translates to:
+  /// **'{box} gäbe jetzt {points} Punkte, ist aber später mehr wert.'**
+  String dicesheetTipRicher(String box, int points);
+
+  /// KLD-119 Anfängermodus: second line when the chance box would give more now. Use the chance box name of dicesheetBoxChance.
+  ///
+  /// In de, this message translates to:
+  /// **'Spar dir die Chance für später.'**
+  String get dicesheetTipSaveChance;
+
+  /// KLD-119 Anfängermodus: reminder (first turn, or using chance / striking): every box, chance included, can be filled only once per game.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Feld gibt es nur einmal – auch die Chance.'**
+  String get dicesheetTipOnce;
+
+  /// KLD-119 Anfängermodus: while rolls are left; small dice follow the colon.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: Behalte diese Würfel und würfle die anderen noch mal:'**
+  String get dicesheetTipKeep;
+
+  /// KLD-119 Anfängermodus: while rolls are left and nothing is worth keeping.
+  ///
+  /// In de, this message translates to:
+  /// **'Tipp: Nichts passt gut zusammen. Würfle alle noch einmal.'**
+  String get dicesheetTipRerollAll;
+
+  /// KLD-119 Anfängermodus: the roll already makes a big box; stop rolling.
+  ///
+  /// In de, this message translates to:
+  /// **'Super Wurf! Du musst nicht mehr würfeln.'**
+  String get dicesheetTipStop;
+
+  /// KLD-119 Anfängermodus: link in the tip that turns the mode off.
+  ///
+  /// In de, this message translates to:
+  /// **'Anfängermodus beenden'**
+  String get dicesheetBeginnerEnd;
+
+  /// KLD-119 Anfängermodus: snackbar after turning it off.
+  ///
+  /// In de, this message translates to:
+  /// **'Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.'**
+  String get dicesheetBeginnerEnded;
+
+  /// KLD-119: under the round in the sheet header: the empty boxes left on the sheet of the player to move.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{noch 1 Feld frei} other{noch {count} Felder frei}}'**
+  String dicesheetFreeBoxes(int count);
+
+  /// KLD-119: rules page, early: every box only once; {count} is 13.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Feld füllst du nur einmal. {count} Felder, {count} Runden.'**
+  String rulesDicesheetOnce(int count);
+
+  /// KLD-119: rules page: one line about the Anfängermodus.
+  ///
+  /// In de, this message translates to:
+  /// **'Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.'**
+  String get rulesDicesheetBeginner;
+
+  /// KLD-119 intro tour, step 1 (the roll button); {count} is 3.
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast bis zu {count} Würfe pro Runde.'**
+  String dicesheetCoachRoll(int count);
+
+  /// KLD-119 intro tour, step 2 (the dice).
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe Würfel an, die liegen bleiben sollen.'**
+  String get dicesheetCoachKeep;
+
+  /// KLD-119 intro tour, step 3 (the score sheet).
+  ///
+  /// In de, this message translates to:
+  /// **'Dann trägst du den Wurf in ein Feld ein. Die Zahl zeigt, wie viele Punkte es gibt.'**
+  String get dicesheetCoachSheet;
+
+  /// KLD-119 intro tour, step 4 (a box); {count} is 13.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Feld nur einmal – {count} Felder, {count} Runden. Am meisten Punkte gewinnt.'**
+  String dicesheetCoachOnce(int count);
+
+  /// KLD-119: entry in the game's menu that shows the intro tour again.
+  ///
+  /// In de, this message translates to:
+  /// **'Kurz erklärt'**
+  String get dicesheetCoachReplay;
 }
 
 class _AppLocalizationsDelegate

@@ -3742,4 +3742,117 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       'Hay 32 cartas. Cada jugador recibe 5 y una queda boca arriba en el centro. Empieza el Jugador 1.\nEcha encima una carta del mismo palo o del mismo valor, por ejemplo corazones sobre corazones o 9 sobre 9.\nSi no encaja ninguna carta, robas 1 carta. Si encaja, puedes echarla o quedártela. Si no encaja, le toca al rival.\nCuando el mazo se acaba, las cartas echadas se barajan y forman un mazo nuevo.';
+
+  @override
+  String get dicesheetBeginnerOption => 'Modo principiante';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'Consejos: qué casilla va bien ahora y qué dados guardar. Puedes elegir cualquier casilla igualmente.';
+
+  @override
+  String get dicesheetTipLabel => 'Consejo';
+
+  @override
+  String get dicesheetTipShow => 'Ver consejo';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'Consejo: $box – $points puntos te ayudan para el premio ($goal).';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'Consejo: $box – cuentan todos los dados, eso da $points puntos.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'Consejo: $box – eso da $points puntos. ¡Aprovéchalos!';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'Consejo: $box – eso da $points puntos.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'Consejo: ¿Ninguna casilla buena? $box solo da $points puntos, pero ahí pierdes lo mínimo.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'Consejo: ¿Ninguna casilla buena? Tacha $box, ahí pierdes lo mínimo.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box daría ahora $points puntos, pero vale más para después.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'Guarda la Suerte para más tarde.';
+
+  @override
+  String get dicesheetTipOnce =>
+      'Cada casilla se usa una sola vez, también la Suerte.';
+
+  @override
+  String get dicesheetTipKeep =>
+      'Consejo: guarda estos dados y vuelve a tirar los demás:';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'Consejo: nada encaja bien. Vuelve a tirar todos.';
+
+  @override
+  String get dicesheetTipStop => '¡Gran tirada! Ya no hace falta tirar más.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'Salir del modo principiante';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'Modo principiante desactivado. Puedes volver a activarlo en las opciones.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'quedan $count casillas libres',
+      one: 'queda 1 casilla libre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'Cada casilla se llena una sola vez. $count casillas, $count rondas.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'Modo principiante (activado al principio, se puede quitar en las opciones): un consejo muestra qué casilla va bien ahora y qué dados guardar. Puedes elegir cualquier casilla igualmente.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'Tienes hasta $count tiradas por turno.';
+  }
+
+  @override
+  String get dicesheetCoachKeep => 'Toca los dados que deben quedarse.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'Luego anotas la tirada en una casilla. El número muestra cuántos puntos da.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'Cada casilla una sola vez: $count casillas, $count rondas. Gana quien tenga más puntos.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'Recorrido rápido';
 }

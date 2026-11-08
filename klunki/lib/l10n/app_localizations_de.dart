@@ -3731,4 +3731,118 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.';
+
+  @override
+  String get dicesheetBeginnerOption => 'Anfängermodus';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.';
+
+  @override
+  String get dicesheetTipLabel => 'Tipp';
+
+  @override
+  String get dicesheetTipShow => 'Tipp zeigen';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'Tipp: $box – $points Punkte helfen dir beim Bonus ($goal).';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'Tipp: $box – alle Würfel zählen, das gibt $points Punkte.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'Tipp: $box – das gibt $points Punkte. Nimm sie!';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'Tipp: $box – das gibt $points Punkte.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'Tipp: Kein gutes Feld? $box gibt nur $points Punkte, aber da verlierst du am wenigsten.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'Tipp: Kein gutes Feld? Streich $box, da verlierst du am wenigsten.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box gäbe jetzt $points Punkte, ist aber später mehr wert.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'Spar dir die Chance für später.';
+
+  @override
+  String get dicesheetTipOnce =>
+      'Jedes Feld gibt es nur einmal – auch die Chance.';
+
+  @override
+  String get dicesheetTipKeep =>
+      'Tipp: Behalte diese Würfel und würfle die anderen noch mal:';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'Tipp: Nichts passt gut zusammen. Würfle alle noch einmal.';
+
+  @override
+  String get dicesheetTipStop => 'Super Wurf! Du musst nicht mehr würfeln.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'Anfängermodus beenden';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count Felder frei',
+      one: 'noch 1 Feld frei',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'Jedes Feld füllst du nur einmal. $count Felder, $count Runden.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'Du hast bis zu $count Würfe pro Runde.';
+  }
+
+  @override
+  String get dicesheetCoachKeep =>
+      'Tippe Würfel an, die liegen bleiben sollen.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'Dann trägst du den Wurf in ein Feld ein. Die Zahl zeigt, wie viele Punkte es gibt.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'Jedes Feld nur einmal – $count Felder, $count Runden. Am meisten Punkte gewinnt.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'Kurz erklärt';
 }

@@ -3730,4 +3730,118 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       'في اللعبة 32 ورقة. يحصل كل لاعب على 5، وورقة مكشوفة في الوسط. البداية مع اللاعب 1.\nضع فوقها ورقة من الشكل نفسه أو بالقيمة نفسها، مثل قلوب على قلوب أو 9 على 9.\nإذا لم تناسب أي ورقة، تسحب ورقة واحدة. إذا ناسبت، يمكنك وضعها أو الاحتفاظ بها. وإذا لم تناسب، يأتي دور الطرف الآخر.\nإذا فرغت كومة السحب، تُخلط الأوراق المرمية وتصير كومة جديدة.';
+
+  @override
+  String get dicesheetBeginnerOption => 'وضع المبتدئين';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'نصائح: أي خانة تناسب الآن وأي نرود تُبقيها. يمكنك مع ذلك اختيار أي خانة.';
+
+  @override
+  String get dicesheetTipLabel => 'نصيحة';
+
+  @override
+  String get dicesheetTipShow => 'اعرض النصيحة';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'نصيحة: $box – $points نقطة تساعدك على المكافأة ($goal).';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'نصيحة: $box – كل النرود تُحسب، وهذا يعطي $points نقطة.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'نصيحة: $box – هذا يعطي $points نقطة. خذها!';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'نصيحة: $box – هذا يعطي $points نقطة.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'نصيحة: لا توجد خانة جيدة؟ $box تعطي $points نقطة فقط، لكنك تخسر فيها أقل شيء.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'نصيحة: لا توجد خانة جيدة؟ اشطب $box، فهناك تخسر أقل شيء.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box تعطي الآن $points نقطة، لكنها أنفع لاحقًا.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'احتفظ بالفرصة لوقت لاحق.';
+
+  @override
+  String get dicesheetTipOnce =>
+      'كل خانة تُستعمل مرة واحدة فقط، والفرصة أيضًا.';
+
+  @override
+  String get dicesheetTipKeep => 'نصيحة: أبقِ هذه النرود وارمِ الباقي من جديد:';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'نصيحة: لا شيء يتناسب جيدًا. ارمِ كل النرود من جديد.';
+
+  @override
+  String get dicesheetTipStop => 'رمية رائعة! لا داعي للرمي مرة أخرى.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'إنهاء وضع المبتدئين';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'تم إيقاف وضع المبتدئين. يمكنك تشغيله من جديد في الخيارات.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقيت $count خانة',
+      few: 'بقيت $count خانات',
+      two: 'بقيت خانتان',
+      one: 'بقيت خانة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'تملأ كل خانة مرة واحدة فقط. $count خانة، $count جولة.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'وضع المبتدئين (يعمل في البداية، ويمكن إيقافه في الخيارات): تُظهر لك نصيحة أي خانة تناسب الآن وأي نرود تُبقيها. يمكنك مع ذلك اختيار أي خانة.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'لديك حتى $count رميات في كل جولة.';
+  }
+
+  @override
+  String get dicesheetCoachKeep => 'المس النرود التي يجب أن تبقى.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'ثم تكتب الرمية في خانة. الرقم يُظهر كم نقطة تعطي.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'كل خانة مرة واحدة فقط: $count خانة، $count جولة. يفوز صاحب أكبر عدد من النقاط.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'جولة سريعة';
 }

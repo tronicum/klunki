@@ -17,6 +17,7 @@ void main() {
     SeenTips.debugReset();
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
     SeenTips.shared.markFirst(SeenTips.maumauIntro);
+    SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
   });
 
   const undo = Key('shell-undo');

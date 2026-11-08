@@ -3642,4 +3642,116 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get rulesMaumauTurnMustPlay =>
       '32 کارت هست. هر بازیکن 5 کارت می‌گیرد و یک کارت رو به بالا وسط قرار می‌گیرد. بازیکن 1 شروع می‌کند.\nکارتی با همان خال یا همان ارزش رویش بگذار، مثلاً دل روی دل یا 9 روی 9.\nاگر هیچ کارتی جور نیست، 1 کارت برمی‌داری. اگر جور باشد، می‌توانی بازی‌اش کنی یا نگهش داری. اگر جور نباشد، نوبت طرف مقابل است.\nوقتی دسته خالی شود، کارت‌های بازی‌شده بُر می‌خورند و دستهٔ تازه می‌شوند.';
+
+  @override
+  String get dicesheetBeginnerOption => 'حالت مبتدی';
+
+  @override
+  String get dicesheetBeginnerExplain =>
+      'نکته‌ها: الان کدام خانه خوب است و کدام تاس‌ها را نگه داری. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
+
+  @override
+  String get dicesheetTipLabel => 'نکته';
+
+  @override
+  String get dicesheetTipShow => 'نمایش نکته';
+
+  @override
+  String dicesheetTipBonus(String box, int points, int goal) {
+    return 'نکته: $box – $points امتیاز برای جایزه ($goal) به تو کمک می‌کند.';
+  }
+
+  @override
+  String dicesheetTipAllDice(String box, int points) {
+    return 'نکته: $box – همه‌ی تاس‌ها حساب می‌شوند، $points امتیاز می‌دهد.';
+  }
+
+  @override
+  String dicesheetTipFixed(String box, int points) {
+    return 'نکته: $box – $points امتیاز می‌دهد. بگیرش!';
+  }
+
+  @override
+  String dicesheetTipPoints(String box, int points) {
+    return 'نکته: $box – $points امتیاز می‌دهد.';
+  }
+
+  @override
+  String dicesheetTipLeastLoss(String box, int points) {
+    return 'نکته: خانه‌ی خوبی نیست؟ $box فقط $points امتیاز می‌دهد، اما آنجا کمترین ضرر را می‌کنی.';
+  }
+
+  @override
+  String dicesheetTipStrike(String box) {
+    return 'نکته: خانه‌ی خوبی نیست؟ $box را خط بزن، آنجا کمترین ضرر را می‌کنی.';
+  }
+
+  @override
+  String dicesheetTipRicher(String box, int points) {
+    return '$box الان $points امتیاز می‌دهد، اما بعدًا ارزش بیشتری دارد.';
+  }
+
+  @override
+  String get dicesheetTipSaveChance => 'شانس را برای بعد نگه دار.';
+
+  @override
+  String get dicesheetTipOnce =>
+      'هر خانه فقط یک بار استفاده می‌شود، شانس هم همین‌طور.';
+
+  @override
+  String get dicesheetTipKeep =>
+      'نکته: این تاس‌ها را نگه دار و بقیه را دوباره بینداز:';
+
+  @override
+  String get dicesheetTipRerollAll =>
+      'نکته: هیچ‌چیز خوب جور نیست. همه را دوباره بینداز.';
+
+  @override
+  String get dicesheetTipStop => 'تاس عالی! دیگر لازم نیست بیندازی.';
+
+  @override
+  String get dicesheetBeginnerEnd => 'پایان حالت مبتدی';
+
+  @override
+  String get dicesheetBeginnerEnded =>
+      'حالت مبتدی خاموش شد. می‌توانی آن را در گزینه‌ها دوباره روشن کنی.';
+
+  @override
+  String dicesheetFreeBoxes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خانه‌ی خالی مانده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String rulesDicesheetOnce(int count) {
+    return 'هر خانه را فقط یک بار پر می‌کنی. $count خانه، $count دور.';
+  }
+
+  @override
+  String get rulesDicesheetBeginner =>
+      'حالت مبتدی (اول روشن است و در گزینه‌ها خاموش می‌شود): یک نکته نشان می‌دهد الان کدام خانه خوب است و کدام تاس‌ها را نگه داری. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
+
+  @override
+  String dicesheetCoachRoll(int count) {
+    return 'در هر دور تا $count بار می‌توانی تاس بیندازی.';
+  }
+
+  @override
+  String get dicesheetCoachKeep => 'روی تاس‌هایی که باید بمانند بزن.';
+
+  @override
+  String get dicesheetCoachSheet =>
+      'بعد نتیجه را در یک خانه می‌نویسی. عدد نشان می‌دهد چند امتیاز می‌دهد.';
+
+  @override
+  String dicesheetCoachOnce(int count) {
+    return 'هر خانه فقط یک بار: $count خانه، $count دور. بیشترین امتیاز برنده است.';
+  }
+
+  @override
+  String get dicesheetCoachReplay => 'آشنایی سریع';
 }

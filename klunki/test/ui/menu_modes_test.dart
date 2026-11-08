@@ -60,7 +60,9 @@ Future<void> _withOthers(WidgetTester tester, Finder link, String title, Finder 
 }
 
 void main() {
-  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
+  setUp(() => SeenTips.shared
+    ..markFirst(SeenTips.maumauIntro)
+    ..markFirst(SeenTips.dicesheetIntro));
   testWidgets('network games (chess too) get both links, hot-seat-only games only "Ein Gerät"', (tester) async {
     await _pumpMenu(tester);
     for (final spec in appGameSpecs) {

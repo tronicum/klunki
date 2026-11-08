@@ -11,6 +11,7 @@ export 'word_tiles.dart';
 export 'mau_mau.dart';
 export 'maexchen.dart';
 export 'dice_sheet.dart';
+export 'dice_sheet_advisor.dart';
 export 'property.dart';
 export 'property_bot.dart';
 export 'registry.dart';

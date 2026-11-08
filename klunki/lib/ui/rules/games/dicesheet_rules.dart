@@ -9,7 +9,8 @@ import '../rules_model.dart';
 /// Ausgewürfelt (KLD-119, KLD-123): a turn with up to three rolls, every box
 /// of the sheet with an example throw whose points come from the engine
 /// ([DiceSheetGame.scoreFor]), the upper bonus, and the house rule
-/// "Extra-Fünfer" ([GameConfig.extraFives], chosen before the game).
+/// "Extra-Fünfer" ([GameConfig.extraFives], chosen before the game). Early
+/// on: every box only once (13 boxes, 13 rounds); last: the Anfängermodus.
 ///
 /// Keys: `rules-dicesheet-<box>` (one per example row).
 GameRules diceSheetRules(BuildContext context, AppLocalizations l10n, GameConfig config) {
@@ -17,7 +18,11 @@ GameRules diceSheetRules(BuildContext context, AppLocalizations l10n, GameConfig
       RuleItem.widget(_BoxExample(name: diceBoxName(l10n, b), text: text, dice: dice, points: DiceSheetGame.scoreFor(b, dice)),
           key: Key('rules-dicesheet-${b.id}'));
   return GameRules(
-    goal: ruleLines(l10n.rulesDicesheetGoal),
+    goal: [
+      ...ruleLines(l10n.rulesDicesheetGoal),
+      RuleItem(l10n.rulesDicesheetOnce(DiceSheetGame.rounds),
+          key: const Key('rules-dicesheet-once'), lead: const Icon(Icons.check_box_outlined, size: 26)),
+    ],
     turn: [
       ...ruleLines(l10n.rulesDicesheetTurn),
       RuleItem(l10n.rulesDicesheetStart, lead: const Icon(Icons.casino_outlined, size: 26)),
@@ -36,7 +41,12 @@ GameRules diceSheetRules(BuildContext context, AppLocalizations l10n, GameConfig
       box(DiceBox.fiveKind, l10n.rulesDicesheetFiveKind(DiceSheetGame.fiveKindScore), const [4, 4, 4, 4, 4]),
       box(DiceBox.chance, l10n.rulesDicesheetChance, const [6, 5, 3, 2, 1]),
     ],
-    special: ruleLines(l10n.rulesDicesheetSpecial),
+    special: [
+      ...ruleLines(l10n.rulesDicesheetSpecial),
+      RuleItem(l10n.rulesDicesheetBeginner,
+          key: const Key('rules-dicesheet-beginner'),
+          lead: const Icon(Icons.lightbulb_outline, size: 26, color: Color(0xFFF2A900))),
+    ],
     houseRules: [
       HouseRule(
         id: 'extraFives',

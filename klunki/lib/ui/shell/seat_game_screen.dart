@@ -53,6 +53,10 @@ class SeatGameScreen extends StatefulWidget {
   /// More app-bar actions before the shell's own.
   final List<Widget> actions;
 
+  /// More entries of the "⋮" menu before "Spielernamen" (e.g. the game's
+  /// "Kurz erklärt" tour).
+  final List<ShellMenuEntry> menuEntries;
+
   const SeatGameScreen({
     super.key,
     required this.controller,
@@ -60,6 +64,7 @@ class SeatGameScreen extends StatefulWidget {
     this.describeMove,
     this.title,
     this.actions = const [],
+    this.menuEntries = const [],
   });
 
   @override
@@ -548,6 +553,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
               // As in GameScreen: names and "Neues Spiel" in the "⋮" menu.
               if (_canRestart)
                 ShellMenu(entries: [
+                  ...widget.menuEntries,
                   ShellMenuEntry(
                     key: const Key('shell-names'),
                     icon: Icons.people_outline,
