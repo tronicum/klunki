@@ -14,6 +14,10 @@ short German summary ("Kurz") for the store notes and the testers.
   "Mau!" before the second-to-last card (forget it and draw a penalty card). Before the game you choose the
   house rules (each of these can be switched off; "Bube auf Bube" can be switched on). Own card faces, the
   cards stay hidden between turns.
+  Clearer buttons: what to do now is a strong filled button, the alternative outlined, "Mau!" stands out only
+  when it is due, the draw pile glows and can be tapped. Stacked 7s show on the pile ("2 + 2 + 2 = 6 Karten
+  ziehen"), and drawn cards arrive highlighted in the hand. A short "So geht's" tour the first time (again from
+  the ? next to the hand).
 - **New game: Mäxchen** (KLD-121, en "Mia"), the dice bluffing game, on one device: roll two dice
   secretly under a cup, announce a value (fibbing allowed), the next player believes it and must top it, or
   doubts it and the cup is lifted. Mäxchen (2 and 1) beats everything. 3 or 5 lives, house rule "Mäxchen

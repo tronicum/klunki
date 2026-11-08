@@ -4349,10 +4349,10 @@ abstract class AppLocalizations {
   /// **'Gezogen – die Karte passt leider nicht.'**
   String get maumauDrewNoFit;
 
-  /// Mau-Mau (KLD-118): shown over the cards drawn because of a 7.
+  /// Mau-Mau (KLD-118): shown after drawing the cards of a 7 (chain); the hand below shows the new cards framed.
   ///
   /// In de, this message translates to:
-  /// **'Du ziehst {count, plural, =1{1 Karte} other{{count} Karten}}:'**
+  /// **'Du hast {count, plural, =1{1 Karte} other{{count} Karten}} gezogen. Neu in deiner Hand:'**
   String maumauDrewPenalty(int count);
 
   /// Mau-Mau hint line (KLD-118): the normal turn.
@@ -4450,6 +4450,66 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{player} muss {count} Karten ziehen.'**
   String maumauExtraPenalty(String player, int count);
+
+  /// Coach marks (KLD-118, reusable "how to play" tour): button to the next step.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get coachNext;
+
+  /// Coach marks: button on the last step that closes the tour and starts playing.
+  ///
+  /// In de, this message translates to:
+  /// **'Los geht’s!'**
+  String get coachDone;
+
+  /// Coach marks: button that closes the tour early.
+  ///
+  /// In de, this message translates to:
+  /// **'Überspringen'**
+  String get coachSkip;
+
+  /// Mau-Mau (KLD-118): tooltip of the ? button next to the own hand that shows the "how to play" tour again.
+  ///
+  /// In de, this message translates to:
+  /// **'So geht’s'**
+  String get maumauHelp;
+
+  /// Mau-Mau tour step 1, pointing at the own hand.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf eine passende Karte, um sie zu legen. Passende Karten stehen höher und haben einen Rahmen.'**
+  String get maumauCoachPlay;
+
+  /// Mau-Mau tour step 2, pointing at the draw pile (tapping it draws).
+  ///
+  /// In de, this message translates to:
+  /// **'Passt keine? Dann tippe auf den Stapel und ziehe eine Karte.'**
+  String get maumauCoachDraw;
+
+  /// Mau-Mau tour step 3 (no "Mau!" house rule).
+  ///
+  /// In de, this message translates to:
+  /// **'Wer zuerst keine Karten mehr hat, gewinnt.'**
+  String get maumauCoachWin;
+
+  /// Mau-Mau tour step 3 with the "Mau!" house rule on.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer zuerst keine Karten mehr hat, gewinnt. Vor der vorletzten Karte „Mau!“ drücken.'**
+  String get maumauCoachWinMau;
+
+  /// Mau-Mau: badge under the discard pile while several 7s are stacked; sum = "2 + 2 + 2" (2 per 7), count = the total to draw (4, 6 or 8).
+  ///
+  /// In de, this message translates to:
+  /// **'{sum} = {count} Karten ziehen'**
+  String maumauChainBadge(String sum, int count);
+
+  /// Mau-Mau: after a 7 laid on a 7 (the draw penalty adds up); player = the one who has to draw, count = the new total (4, 6, 8). French: "à {player} de …".
+  ///
+  /// In de, this message translates to:
+  /// **'Die 7er zählen zusammen: {player} muss jetzt {count} Karten ziehen.'**
+  String maumauExtraPenaltyStacked(String player, int count);
 
   /// Mau-Mau (KLD-118): after an 8; player = the one who misses the turn.
   ///

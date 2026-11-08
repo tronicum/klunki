@@ -2767,7 +2767,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count cards',
       one: '1 card',
     );
-    return 'You draw $_temp0:';
+    return 'You drew $_temp0. New in your hand:';
   }
 
   @override
@@ -2853,6 +2853,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return '$player has to draw $count cards.';
+  }
+
+  @override
+  String get coachNext => 'Next';
+
+  @override
+  String get coachDone => 'Let’s play!';
+
+  @override
+  String get coachSkip => 'Skip';
+
+  @override
+  String get maumauHelp => 'How to play';
+
+  @override
+  String get maumauCoachPlay =>
+      'Tap a matching card to play it. Matching cards stand higher and have a frame.';
+
+  @override
+  String get maumauCoachDraw =>
+      'Nothing matches? Tap the draw pile to draw a card.';
+
+  @override
+  String get maumauCoachWin => 'Whoever gets rid of all cards first wins.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'Whoever gets rid of all cards first wins. Before the second-to-last card, press “Mau!”.';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return 'Draw $sum = $count cards';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return 'The 7s add up: $player now has to draw $count cards.';
   }
 
   @override

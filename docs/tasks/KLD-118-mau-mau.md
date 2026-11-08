@@ -35,6 +35,25 @@ without cards wins. Plays with a standard 32-card deck. Hot-seat first, network 
    "Behalten" / "Passen" / "Mau!", the suit picker after a jack, the shell's handover cover (with the top card
    and what happened last). Drawn cards that end the turn are shown to the drawer first ("Weiter"). Start
    options for the house rules before "Wer spielt?". Menu tile with only "Ein Gerät" (`hotSeatOnlyGames`).
+2a. ✅ **UX step after testing build 2026110806** (maintainer: "Behalten"/"Ziehen" looked so soft they seemed
+   disabled; a 7 chain "felt like it happened in one move"; wanted a first-time intro):
+   - Buttons: what to do now is filled in the game colour with white text ("Karte ziehen" when no card fits,
+     "Passen" when nothing else is left, "Mau!" when it is due); the alternative to laying a card is outlined
+     ("Karte ziehen" while a card fits, "Behalten" after drawing a fitting card). Impossible actions stay hidden.
+     "Mau!" appears only when due (filled, megaphone), once pressed it turns outlined with a tick (tap again to
+     take it back). Tapping the draw pile draws as before; while that is possible the pile glows (stronger when
+     drawing is the only move). "Weiter" after drawing is the same filled button.
+   - 7 chain: the discard pile fans out the stacked 7s, each with a "+2"; the badge says "2 + 2 + 2 = 6 Karten
+     ziehen"; the last-action line (and the handover cover, which shows the fanned 7s too) says "Die 7er zählen
+     zusammen: Ben muss jetzt 6 Karten ziehen." After drawing, "Du hast 6 Karten gezogen. Neu in deiner Hand:"
+     with the hand below, the new cards lifted, framed and sliding in (also for a drawn card that does not fit).
+   - "So geht's" tour (once per device, `SeenTips.maumauIntro`): 3 steps pointing at the real hand ("Tippe auf
+     eine passende Karte …") and the draw pile ("Passt keine? …"), then "Wer zuerst keine Karten mehr hat,
+     gewinnt." (+ "Mau!" sentence with the house rule); "Weiter" / "Los geht's!", "Überspringen". Shown the
+     first time a player sees their own hand on their turn (never over the handover cover), again from the ?
+     next to "Deine Karten". Built as a reusable coach-mark widget (`lib/ui/shell/coach_marks.dart`, targets by
+     `GlobalKey`) for other games later. Tests: `test/ui/games/maumau_coach_test.dart`; screenshots `21-*`
+     (375×667, 393×852, tablet), `22-*` (dark, ar), `23-tour-*`, `24-chain-*`. No rule change.
 3. **Network** (later): remove `maumau` from `hotSeatOnlyGames`, house rules on "Raum starten" (and the room
    summary), guest screen from `MauMauView` (the board already reads only `handOf(viewer)`, counts and the top
    card; a guest's draw has no preview, it shows the drawn cards from the accepted event), live-UI network game.

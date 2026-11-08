@@ -2744,7 +2744,7 @@ class AppLocalizationsAr extends AppLocalizations {
       one: 'ورقة واحدة',
       zero: 'لا أوراق',
     );
-    return 'تسحب $_temp0:';
+    return 'سحبت $_temp0. الجديدة في يدك:';
   }
 
   @override
@@ -2867,6 +2867,43 @@ class AppLocalizationsAr extends AppLocalizations {
       zero: 'لا أوراق',
     );
     return 'على $player سحب $_temp0.';
+  }
+
+  @override
+  String get coachNext => 'التالي';
+
+  @override
+  String get coachDone => 'لنبدأ!';
+
+  @override
+  String get coachSkip => 'تخطي';
+
+  @override
+  String get maumauHelp => 'طريقة اللعب';
+
+  @override
+  String get maumauCoachPlay =>
+      'اضغط على ورقة مطابقة لتضعها. الأوراق المطابقة أعلى ولها إطار.';
+
+  @override
+  String get maumauCoachDraw =>
+      'لا توجد ورقة مطابقة؟ اضغط على كومة السحب لتسحب ورقة.';
+
+  @override
+  String get maumauCoachWin => 'يفوز من يتخلص من كل أوراقه أولًا.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'يفوز من يتخلص من كل أوراقه أولًا. قبل الورقة قبل الأخيرة اضغط «Mau!».';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return 'اسحب $sum = $count أوراق';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return 'السبعات تتراكم: على $player الآن سحب $count أوراق.';
   }
 
   @override

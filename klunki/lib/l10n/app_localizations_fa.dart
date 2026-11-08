@@ -2695,7 +2695,7 @@ class AppLocalizationsFa extends AppLocalizations {
       other: '$count کارت',
       one: 'یک کارت',
     );
-    return '$_temp0 برمی‌داری:';
+    return '$_temp0 برداشتی. کارت‌های تازه در دستت:';
   }
 
   @override
@@ -2781,6 +2781,44 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return '$player باید $count کارت بردارد.';
+  }
+
+  @override
+  String get coachNext => 'بعدی';
+
+  @override
+  String get coachDone => 'شروع کنیم!';
+
+  @override
+  String get coachSkip => 'رد شدن';
+
+  @override
+  String get maumauHelp => 'طرز بازی';
+
+  @override
+  String get maumauCoachPlay =>
+      'روی یک کارت جور بزن تا بازی‌اش کنی. کارت‌های جور بالاترند و قاب دارند.';
+
+  @override
+  String get maumauCoachDraw =>
+      'هیچ‌کدام جور نیست؟ روی دستهٔ برداشتن بزن و یک کارت بردار.';
+
+  @override
+  String get maumauCoachWin =>
+      'هر کس زودتر همهٔ کارت‌هایش تمام شود، برنده است.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'هر کس زودتر همهٔ کارت‌هایش تمام شود، برنده است. پیش از کارت یکی‌مانده‌به‌آخر «Mau!» را بزن.';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return '$sum = $count کارت بردار';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return '7‌ها روی هم جمع می‌شوند: $player حالا باید $count کارت بردارد.';
   }
 
   @override

@@ -2780,7 +2780,7 @@ class AppLocalizationsDe extends AppLocalizations {
       other: '$count Karten',
       one: '1 Karte',
     );
-    return 'Du ziehst $_temp0:';
+    return 'Du hast $_temp0 gezogen. Neu in deiner Hand:';
   }
 
   @override
@@ -2867,6 +2867,43 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return '$player muss $count Karten ziehen.';
+  }
+
+  @override
+  String get coachNext => 'Weiter';
+
+  @override
+  String get coachDone => 'Los geht’s!';
+
+  @override
+  String get coachSkip => 'Überspringen';
+
+  @override
+  String get maumauHelp => 'So geht’s';
+
+  @override
+  String get maumauCoachPlay =>
+      'Tippe auf eine passende Karte, um sie zu legen. Passende Karten stehen höher und haben einen Rahmen.';
+
+  @override
+  String get maumauCoachDraw =>
+      'Passt keine? Dann tippe auf den Stapel und ziehe eine Karte.';
+
+  @override
+  String get maumauCoachWin => 'Wer zuerst keine Karten mehr hat, gewinnt.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'Wer zuerst keine Karten mehr hat, gewinnt. Vor der vorletzten Karte „Mau!“ drücken.';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return '$sum = $count Karten ziehen';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return 'Die 7er zählen zusammen: $player muss jetzt $count Karten ziehen.';
   }
 
   @override

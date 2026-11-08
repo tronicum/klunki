@@ -2791,7 +2791,7 @@ class AppLocalizationsFr extends AppLocalizations {
       many: '$count de cartes',
       one: '$count carte',
     );
-    return 'Tu pioches $_temp0 :';
+    return 'Tu as pioché $_temp0. Nouveau dans ta main :';
   }
 
   @override
@@ -2879,6 +2879,43 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return 'À $player de piocher $count cartes.';
+  }
+
+  @override
+  String get coachNext => 'Suivant';
+
+  @override
+  String get coachDone => 'C’est parti !';
+
+  @override
+  String get coachSkip => 'Ignorer';
+
+  @override
+  String get maumauHelp => 'Comment jouer';
+
+  @override
+  String get maumauCoachPlay =>
+      'Touche une carte qui va pour la poser. Les cartes qui vont sont plus hautes et encadrées.';
+
+  @override
+  String get maumauCoachDraw =>
+      'Aucune ne va ? Touche la pioche pour piocher une carte.';
+
+  @override
+  String get maumauCoachWin => 'Qui n’a plus de cartes en premier gagne.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'Qui n’a plus de cartes en premier gagne. Avant l’avant-dernière carte, appuie sur « Mau ! ».';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return 'Piocher $sum = $count cartes';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return 'Les 7 s’additionnent : à $player de piocher $count cartes.';
   }
 
   @override

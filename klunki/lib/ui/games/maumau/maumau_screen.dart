@@ -6,7 +6,9 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
+import '../../../profile/seen_tips.dart';
 import '../../../transport/game_transport.dart';
+import '../../shell/coach_marks.dart';
 import '../../shell/game_screen.dart';
 import 'maumau_cards.dart';
 
@@ -104,7 +106,12 @@ String _describeLast(BuildContext context, AcceptedMove m) {
       if (p['mau'] == true) parts.add(l10n.maumauExtraMau(who));
       if (p['forgotMau'] == true) parts.add(l10n.maumauExtraForgotMau(who));
       if (m.event.winner != null) break;
-      if (p['penalty'] case final int n) parts.add(l10n.maumauExtraPenalty(next, n));
+      if (p['penalty'] case final int n) {
+        // A 7 on a 7: say that the cards add up (KLD-118).
+        parts.add(
+          n > MauMauGame.sevenPenalty ? l10n.maumauExtraPenaltyStacked(next, n) : l10n.maumauExtraPenalty(next, n),
+        );
+      }
       if (p['again'] == true) {
         parts.add(card?.rank == MauMauRank.ace ? l10n.maumauExtraAce(who) : l10n.maumauExtraAgain(next));
       }
@@ -116,6 +123,106 @@ String _describeLast(BuildContext context, AcceptedMove m) {
   }
   if (p['reshuffled'] == true) parts.add(l10n.maumauExtraReshuffled);
   return parts.join(' ');
+}
+
+/// The 7s of the open draw chain, oldest first (the last one is the top
+/// card); empty while nobody has to draw.
+List<MauMauCard> _sevenChain(GameController c, MauMauGame g) {
+  if (g.penalty <= 0) return const [];
+  final n = g.penalty ~/ MauMauGame.sevenPenalty;
+  final out = <MauMauCard>[];
+  for (final m in c.moves.reversed) {
+    if (out.length >= n) break;
+    if (Game.resignerOf(m.move) != null) continue;
+    final card = m.move['action'] == 'play' ? MauMauCard.byId('${m.move['card']}') : null;
+    if (card == null || card.rank != MauMauRank.seven) break;
+    out.add(card);
+  }
+  return out.reversed.toList();
+}
+
+/// The discard pile: the top card on a hint of the cards below; while 7s
+/// are stacked, the whole chain fanned out, each 7 with its "+2", so the
+/// cards to draw visibly add up (KLD-118).
+///
+/// Keys: `maumau-discard`, `maumau-top` (the top card), `maumau-chain-<i>`
+/// (the "+2" of the i-th 7, from 1).
+class _DiscardPile extends StatelessWidget {
+  final MauMauGame game;
+  final List<MauMauCard> chain;
+  final double width;
+  const _DiscardPile({required this.game, required this.chain, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    final h = width / maumauCardAspect;
+    final fan = chain.length >= 2 ? chain : const <MauMauCard>[];
+    final step = width * 0.3;
+    final chipFont = (width * 0.15).clamp(10.0, 15.0);
+    Widget chip(int i) => Container(
+      key: Key('maumau-chain-${i + 1}'),
+      padding: EdgeInsets.symmetric(horizontal: chipFont * 0.3, vertical: 1),
+      decoration: BoxDecoration(
+        color: maumauRed,
+        borderRadius: BorderRadius.circular(chipFont),
+        border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Text(
+        '+${MauMauGame.sevenPenalty}',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: chipFont, height: 1.1),
+      ),
+    );
+    final pile = SizedBox(
+      key: const Key('maumau-discard'),
+      width: width + 8 + (fan.isEmpty ? 0 : (fan.length - 1) * step),
+      height: h + 4 + (fan.isEmpty ? 0 : chipFont),
+      child: Directionality(
+        // The fan grows to the right in every language, like the hand.
+        textDirection: TextDirection.ltr,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (fan.isEmpty) ...[
+              if (game.discardCount > 1)
+                Positioned(
+                  left: 6,
+                  top: 3,
+                  child: Transform.rotate(
+                    angle: 0.08,
+                    child: Container(
+                      width: width,
+                      height: h,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2EEE6),
+                        borderRadius: BorderRadius.circular(width * 0.1),
+                        border: Border.all(color: const Color(0xFFBDB6A8)),
+                      ),
+                    ),
+                  ),
+                ),
+              MauMauCardFace(key: const Key('maumau-top'), card: game.topCard, width: width),
+            ] else ...[
+              for (final (i, card) in fan.indexed)
+                Positioned(
+                  left: i * step,
+                  top: chipFont,
+                  child: Transform.rotate(
+                    angle: (i - fan.length + 1) * 0.05,
+                    child: MauMauCardFace(
+                      key: i == fan.length - 1 ? const Key('maumau-top') : null,
+                      card: i == fan.length - 1 ? game.topCard : card,
+                      width: width,
+                    ),
+                  ),
+                ),
+              for (var i = 0; i < fan.length; i++) Positioned(left: i * step, top: 0, child: chip(i)),
+            ],
+          ],
+        ),
+      ),
+    );
+    return FittedBox(fit: BoxFit.scaleDown, child: pile);
+  }
 }
 
 /// Asks which suit a jack wishes; null when dismissed.
@@ -181,7 +288,7 @@ class _HandoverDetail extends StatelessWidget {
       key: const Key('maumau-cover-detail'),
       mainAxisSize: MainAxisSize.min,
       children: [
-        MauMauCardFace(card: g.topCard, width: 64),
+        _DiscardPile(game: g, chain: _sevenChain(controller, g), width: 64),
         const SizedBox(height: 12),
         ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 360),
@@ -196,13 +303,14 @@ class _HandoverDetail extends StatelessWidget {
   }
 }
 
-/// Cards drawn in a preview that ends the turn: shown to the drawer until
-/// "Weiter" submits [move].
+/// Cards drawn in a preview that ends the turn: shown to the drawer, framed
+/// in the [hand] they arrive in, until "Weiter" submits [move].
 class _Drawn {
   final List<MauMauCard> cards;
+  final List<MauMauCard> hand;
   final bool penalty;
   final Map<String, dynamic> move;
-  const _Drawn(this.cards, this.penalty, this.move);
+  const _Drawn(this.cards, this.hand, this.penalty, this.move);
 }
 
 class _MauMauBoard extends StatefulWidget {
@@ -219,6 +327,11 @@ class _MauMauBoardState extends State<_MauMauBoard> {
 
   /// "Mau!" pressed for the next card.
   bool _mau = false;
+
+  /// Targets of the "how to play" tour.
+  final _handKey = GlobalKey(debugLabel: 'maumau-hand');
+  final _stockKey = GlobalKey(debugLabel: 'maumau-stock');
+  bool _coachPending = false;
   late Object _transport;
   late int _seen;
 
@@ -315,7 +428,8 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     if (!copy.isOver && copy.currentPlayer != me) {
       // The turn ends: show the drawn cards to the drawer first.
       final cards = [for (final id in p['drew'] as List) MauMauCard.byId('$id')!];
-      setState(() => _drawn = _Drawn(cards, p['penalty'] != null, move));
+      final hand = (copy as MauMauGame).handOf(me);
+      setState(() => _drawn = _Drawn(cards, hand, p['penalty'] != null, move));
       return;
     }
     setState(() => _submit(move));
@@ -333,6 +447,54 @@ class _MauMauBoardState extends State<_MauMauBoard> {
       _drawn = null;
       _submit(d.move);
     });
+  }
+
+  /// The first time a player sees their own hand on their turn: a short
+  /// "how to play" tour (once per device, [SeenTips.maumauIntro]). Never over
+  /// the handover cover or a dialog; it points at the viewer's own hand only.
+  /// Checked after two frames, once the layout has settled.
+  void _maybeCoach(MauMauGame g, Player viewer) {
+    if (_coachPending || SeenTips.shared.has(SeenTips.maumauIntro)) return;
+    bool ready() =>
+        mounted &&
+        !c.needsHandover &&
+        _canAct &&
+        !c.game.isOver &&
+        c.game.currentPlayer == viewer &&
+        ModalRoute.of(context)?.isCurrent != false;
+    if (!ready()) return;
+    _coachPending = true;
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      if (!ready()) {
+        _coachPending = false;
+        return;
+      }
+      binding.addPostFrameCallback((_) {
+        _coachPending = false;
+        if (ready() && SeenTips.shared.markFirst(SeenTips.maumauIntro)) _showCoach();
+      });
+      binding.scheduleFrame();
+    });
+  }
+
+  /// The tour: lay a fitting card (the hand), else draw (the pile), who wins.
+  Future<void> _showCoach() {
+    final l10n = AppLocalizations.of(context);
+    final g = _gameOf(c);
+    return showCoachMarks(
+      context,
+      keyPrefix: 'maumau-coach',
+      accent: KlunkiPalette.of(context).accent('maumau'),
+      steps: [
+        CoachStep(target: _handKey, icon: Icons.touch_app_outlined, text: l10n.maumauCoachPlay),
+        CoachStep(target: _stockKey, icon: Icons.add_card, text: l10n.maumauCoachDraw),
+        CoachStep(
+          icon: Icons.emoji_events_outlined,
+          text: g != null && g.rules.mauCall ? l10n.maumauCoachWinMau : l10n.maumauCoachWin,
+        ),
+      ],
+    );
   }
 
   String? _hint(AppLocalizations l10n, MauMauGame g, Player viewer) {
@@ -360,6 +522,7 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     }
     final viewer = _viewer(g);
     shell.setHint(_hint(l10n, g, viewer));
+    _maybeCoach(g, viewer);
     final last = _lastMove(c);
     return LayoutBuilder(
       builder: (context, box) {
@@ -379,9 +542,11 @@ class _MauMauBoardState extends State<_MauMauBoard> {
                   const SizedBox(height: 12),
                   _table(context, g, tableCard),
                   const SizedBox(height: 12),
-                  if (_drawn case final d?)
-                    _drawnView(context, d)
-                  else if (!g.isOver) ...[
+                  if (_drawn case final d?) ...[
+                    _drawnView(context, d),
+                    const SizedBox(height: 8),
+                    _hand(context, g, viewer, arrived: d),
+                  ] else if (!g.isOver) ...[
                     _actions(context, g),
                     const SizedBox(height: 8),
                     _hand(context, g, viewer),
@@ -455,16 +620,36 @@ class _MauMauBoardState extends State<_MauMauBoard> {
         child: child,
       ),
     );
+    // Tapping the pile draws too; while that is possible it glows (more
+    // when drawing is the only thing to do).
+    final accent = KlunkiPalette.of(context).accent('maumau');
+    final onlyDraw = canDraw && g.playableCards.isEmpty;
     final stock = Semantics(
       button: true,
+      enabled: canDraw,
       label: l10n.maumauStockLabel(g.stockCount),
       child: GestureDetector(
         key: const Key('maumau-stock'),
         onTap: canDraw ? () => _draw(g) : null,
         child: Column(
+          key: _stockKey,
           children: [
             g.stockCount > 0
-                ? MauMauCardBack(width: cardWidth)
+                ? DecoratedBox(
+                    key: Key(canDraw ? 'maumau-stock-active' : 'maumau-stock-idle'),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(cardWidth * 0.1),
+                      boxShadow: [
+                        if (canDraw)
+                          BoxShadow(
+                            color: accent.onSurface(theme.brightness).withValues(alpha: onlyDraw ? 0.75 : 0.4),
+                            blurRadius: onlyDraw ? 14 : 8,
+                            spreadRadius: onlyDraw ? 3 : 1,
+                          ),
+                      ],
+                    ),
+                    child: MauMauCardBack(width: cardWidth),
+                  )
                 : Container(
                     width: cardWidth,
                     height: cardWidth / maumauCardAspect,
@@ -480,34 +665,10 @@ class _MauMauBoardState extends State<_MauMauBoard> {
       ),
     );
     final wish = g.wish;
+    final chain = _sevenChain(c, g);
     final discard = Column(
       children: [
-        SizedBox(
-          width: cardWidth + 8,
-          height: cardWidth / maumauCardAspect + 4,
-          child: Stack(
-            children: [
-              if (g.discardCount > 1)
-                Positioned(
-                  left: 6,
-                  top: 3,
-                  child: Transform.rotate(
-                    angle: 0.08,
-                    child: Container(
-                      width: cardWidth,
-                      height: cardWidth / maumauCardAspect,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2EEE6),
-                        borderRadius: BorderRadius.circular(cardWidth * 0.1),
-                        border: Border.all(color: const Color(0xFFBDB6A8)),
-                      ),
-                    ),
-                  ),
-                ),
-              MauMauCardFace(key: const Key('maumau-top'), card: g.topCard, width: cardWidth),
-            ],
-          ),
-        ),
+        _DiscardPile(game: g, chain: chain, width: cardWidth),
         const SizedBox(height: 6),
         if (wish != null)
           badge(
@@ -527,7 +688,19 @@ class _MauMauBoardState extends State<_MauMauBoard> {
             KlunkiPalette.of(context).accent('maumau').color,
           )
         else if (g.penalty > 0)
-          badge('maumau-penalty', Text(l10n.maumauDrawPenalty(g.penalty), textAlign: TextAlign.center), maumauRed)
+          badge(
+            'maumau-penalty',
+            Text(
+              chain.length >= 2
+                  ? l10n.maumauChainBadge(
+                      List.filled(chain.length, '${MauMauGame.sevenPenalty}').join(' + '),
+                      g.penalty,
+                    )
+                  : l10n.maumauDrawPenalty(g.penalty),
+              textAlign: TextAlign.center,
+            ),
+            maumauRed,
+          )
         else
           Text(l10n.maumauDiscard, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),
       ],
@@ -536,67 +709,142 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: Align(alignment: AlignmentDirectional.topEnd, child: stock)),
+        Expanded(
+          child: Align(alignment: AlignmentDirectional.topEnd, child: stock),
+        ),
         SizedBox(width: cardWidth * 0.4),
-        Expanded(child: Align(alignment: AlignmentDirectional.topStart, child: discard)),
+        Expanded(
+          child: Align(alignment: AlignmentDirectional.topStart, child: discard),
+        ),
       ],
     );
   }
 
+  /// The buttons (KLD-118 follow-up): what to do now is filled in the game's
+  /// colour ("Karte ziehen" when no card fits, "Passen" when nothing else is
+  /// left, "Mau!" when it is due); the alternative to laying a card is
+  /// outlined ("Karte ziehen" while a card fits, "Behalten" after drawing a
+  /// fitting card). Actions that are not possible are not shown.
   Widget _actions(BuildContext context, MauMauGame g) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final accent = KlunkiPalette.of(context).accent('maumau');
+    final onSurface = accent.onSurface(theme.brightness);
     final act = _canAct;
+    final label = theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold);
+    const size = Size(0, 52);
+    const padding = EdgeInsets.symmetric(horizontal: 20);
+    final filled = FilledButton.styleFrom(
+      backgroundColor: accent.color,
+      foregroundColor: accent.onColor,
+      minimumSize: size,
+      padding: padding,
+      textStyle: label,
+    );
+    final outlined = OutlinedButton.styleFrom(
+      foregroundColor: onSurface,
+      side: BorderSide(color: onSurface, width: 2),
+      minimumSize: size,
+      padding: padding,
+      textStyle: label,
+    );
+    Widget button(String key, IconData icon, String text, VoidCallback onPressed, {required bool main}) => main
+        ? FilledButton.icon(
+            key: Key(key),
+            style: filled,
+            onPressed: act ? onPressed : null,
+            icon: Icon(icon),
+            label: Text(text),
+          )
+        : OutlinedButton.icon(
+            key: Key(key),
+            style: outlined,
+            onPressed: act ? onPressed : null,
+            icon: Icon(icon),
+            label: Text(text),
+          );
+    final canLay = g.playableCards.isNotEmpty;
     return Wrap(
       alignment: WrapAlignment.center,
-      spacing: 8,
-      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      runSpacing: 10,
       children: [
+        if (g.mauDue && canLay) _mauButton(context, filled, outlined, act),
         if (g.canDraw)
-          FilledButton.tonalIcon(
-            key: const Key('maumau-draw'),
-            onPressed: act ? () => _draw(g) : null,
-            icon: const Icon(Icons.add_card),
-            label: Text(g.penalty > 0 ? l10n.maumauDrawPenalty(g.penalty) : l10n.maumauDraw),
+          button(
+            'maumau-draw',
+            Icons.add_card,
+            g.penalty > 0 ? l10n.maumauDrawPenalty(g.penalty) : l10n.maumauDraw,
+            () => _draw(g),
+            main: !canLay,
           ),
         if (g.hasDrawn)
-          FilledButton.tonalIcon(
-            key: const Key('maumau-keep'),
-            onPressed: act ? _pass : null,
-            icon: const Icon(Icons.back_hand_outlined),
-            label: Text(l10n.maumauKeep),
-          )
+          button('maumau-keep', Icons.back_hand_outlined, l10n.maumauKeep, _pass, main: false)
         else if (g.canPass)
-          FilledButton.tonalIcon(
-            key: const Key('maumau-pass'),
-            onPressed: act ? _pass : null,
-            icon: const Icon(Icons.skip_next),
-            label: Text(l10n.maumauPass),
-          ),
-        if (g.mauDue && g.playableCards.isNotEmpty)
-          FilterChip(
-            key: const Key('maumau-mau'),
-            label: Text(l10n.maumauMauButton),
-            selected: _mau,
-            onSelected: act ? (v) => setState(() => _mau = v) : null,
-          ),
+          button('maumau-pass', Icons.skip_next, l10n.maumauPass, _pass, main: true),
       ],
+    );
+  }
+
+  /// "Mau!" (house rule, only while it is due): filled before it is
+  /// pressed, then outlined with a tick (tap again to take it back).
+  Widget _mauButton(BuildContext context, ButtonStyle filled, ButtonStyle outlined, bool act) {
+    final l10n = AppLocalizations.of(context);
+    final accent = KlunkiPalette.of(context).accent('maumau');
+    void toggle() => setState(() => _mau = !_mau);
+    return Semantics(
+      toggled: _mau,
+      child: _mau
+          ? OutlinedButton.icon(
+              key: const Key('maumau-mau'),
+              style: outlined.copyWith(
+                backgroundColor: WidgetStatePropertyAll(accent.container.withValues(alpha: 0.7)),
+              ),
+              onPressed: act ? toggle : null,
+              icon: const Icon(Icons.check_circle),
+              label: Text(l10n.maumauMauButton),
+            )
+          : FilledButton.icon(
+              key: const Key('maumau-mau'),
+              style: filled,
+              onPressed: act ? toggle : null,
+              icon: const Icon(Icons.campaign),
+              label: Text(l10n.maumauMauButton),
+            ),
     );
   }
 
   /// The own hand in one or two overlapping rows; cards that may be laid
-  /// lifted and framed, the others greyed.
-  Widget _hand(BuildContext context, MauMauGame g, Player viewer) {
+  /// lifted and framed, the others greyed. With [arrived] (cards just drawn
+  /// that end the turn): the hand after the draw, the new cards lifted,
+  /// framed and sliding in, nothing to tap.
+  Widget _hand(BuildContext context, MauMauGame g, Player viewer, {_Drawn? arrived}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final hand = MauMauCard.sorted(g.handOf(viewer));
-    final mine = g.currentPlayer == viewer;
+    final hand = MauMauCard.sorted(arrived?.hand ?? g.handOf(viewer));
+    final fresh = {...?arrived?.cards};
+    final mine = g.currentPlayer == viewer && arrived == null;
     final accent = KlunkiPalette.of(context).accent('maumau').color;
     final drawn = g.drawnCard;
     return Column(
+      key: _handKey,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.maumauYourCards(hand.length), style: theme.textTheme.titleSmall),
-        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(child: Text(l10n.maumauYourCards(hand.length), style: theme.textTheme.titleSmall)),
+            if (arrived == null)
+              IconButton(
+                key: const Key('maumau-help'),
+                tooltip: l10n.maumauHelp,
+                visualDensity: VisualDensity.compact,
+                onPressed: _showCoach,
+                icon: const Icon(Icons.help_outline),
+              ),
+          ],
+        ),
+        const SizedBox(height: 2),
         LayoutBuilder(
           builder: (context, box) {
             final maxW = box.maxWidth;
@@ -606,17 +854,34 @@ class _MauMauBoardState extends State<_MauMauBoard> {
             final rows = hand.length * 34.0 + cardW > maxW * 1.0 && hand.length > 8 ? 2 : 1;
             final perRow = (hand.length / rows).ceil();
             final step = perRow <= 1 ? cardW : math.min(cardW + 6, (maxW - cardW) / (perRow - 1));
+            bool up(MauMauCard card) => fresh.contains(card) || (mine && g.canPlay(card) && _canAct);
             Widget card(MauMauCard card) {
               final ok = mine && g.canPlay(card) && _canAct;
-              return GestureDetector(
+              final face = GestureDetector(
                 key: Key('maumau-hand-${card.id}'),
                 onTap: ok ? () => _play(g, card) : null,
                 child: MauMauCardFace(
                   card: card,
                   width: cardW,
-                  highlight: ok ? (card == drawn ? theme.colorScheme.primary : accent) : null,
+                  highlight: fresh.contains(card)
+                      ? accent
+                      : ok
+                      ? (card == drawn ? theme.colorScheme.primary : accent)
+                      : null,
                   dimmed: mine && !ok,
                 ),
+              );
+              if (!fresh.contains(card)) return face;
+              // A new card slides in from the draw pile's side.
+              return TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 450),
+                curve: Curves.easeOutCubic,
+                builder: (context, t, child) => Opacity(
+                  opacity: t,
+                  child: Transform.translate(offset: Offset(0, -60 * (1 - t)), child: child),
+                ),
+                child: face,
               );
             }
 
@@ -636,11 +901,7 @@ class _MauMauBoardState extends State<_MauMauBoard> {
                           child: Stack(
                             children: [
                               for (final (i, c) in row.indexed)
-                                Positioned(
-                                  left: (maxW - rowW) / 2 + i * step,
-                                  top: mine && g.canPlay(c) && _canAct ? 0 : lift,
-                                  child: card(c),
-                                ),
+                                Positioned(left: (maxW - rowW) / 2 + i * step, top: up(c) ? 0 : lift, child: card(c)),
                             ],
                           ),
                         ),
@@ -655,6 +916,8 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     );
   }
 
+  /// What was drawn (the cards themselves show framed in the hand below)
+  /// and "Weiter".
   Widget _drawnView(BuildContext context, _Drawn d) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
@@ -675,14 +938,19 @@ class _MauMauBoardState extends State<_MauMauBoard> {
             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [for (final card in d.cards) MauMauCardFace(card: card, width: 72)],
+          FilledButton.icon(
+            key: const Key('maumau-continue'),
+            style: FilledButton.styleFrom(
+              backgroundColor: accent.color,
+              foregroundColor: accent.onColor,
+              minimumSize: const Size(0, 52),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            onPressed: _continue,
+            icon: const Icon(Icons.arrow_forward),
+            label: Text(l10n.maumauContinue),
           ),
-          const SizedBox(height: 12),
-          FilledButton(key: const Key('maumau-continue'), onPressed: _continue, child: Text(l10n.maumauContinue)),
         ],
       ),
     );

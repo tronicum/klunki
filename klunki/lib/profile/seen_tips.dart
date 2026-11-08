@@ -16,6 +16,10 @@ class SeenTips {
   /// (KLD-094 step 8).
   static const String wordtilesBench = 'wordtilesBench';
 
+  /// The Mau-Mau "how to play" tour the first time a hand is shown
+  /// (KLD-118).
+  static const String maumauIntro = 'maumauIntro';
+
   static SeenTips? _shared;
 
   /// The app's instance (loads the stored list in the background).

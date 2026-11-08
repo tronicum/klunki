@@ -2787,7 +2787,7 @@ class AppLocalizationsEs extends AppLocalizations {
       many: '$count de cartas',
       one: '$count carta',
     );
-    return 'Robas $_temp0:';
+    return 'Has robado $_temp0. Nuevas en tu mano:';
   }
 
   @override
@@ -2875,6 +2875,43 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return '$player tiene que robar $count cartas.';
+  }
+
+  @override
+  String get coachNext => 'Siguiente';
+
+  @override
+  String get coachDone => '¡A jugar!';
+
+  @override
+  String get coachSkip => 'Saltar';
+
+  @override
+  String get maumauHelp => 'Cómo se juega';
+
+  @override
+  String get maumauCoachPlay =>
+      'Toca una carta que encaje para echarla. Las que encajan están más arriba y tienen marco.';
+
+  @override
+  String get maumauCoachDraw =>
+      '¿No encaja ninguna? Toca el mazo para robar una carta.';
+
+  @override
+  String get maumauCoachWin => 'Gana quien se quede antes sin cartas.';
+
+  @override
+  String get maumauCoachWinMau =>
+      'Gana quien se quede antes sin cartas. Antes de la penúltima carta, pulsa «¡Mau!».';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return 'Robar $sum = $count cartas';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return 'Los 7 se suman: $player tiene que robar ahora $count cartas.';
   }
 
   @override

@@ -19,6 +19,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/maumau/maumau_options.dart';
 import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -71,8 +72,8 @@ Future<void> _shot(WidgetTester tester, String name) async {
 }
 
 Future<void> _pumpScreen(WidgetTester tester, Widget child,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light}) async {
-  tester.view.physicalSize = _phone * 2;
+    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light, Size size = _phone}) async {
+  tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final theme = brightness == Brightness.dark ? KlunkiTheme.dark : KlunkiTheme.light;
@@ -104,6 +105,7 @@ Future<void> _pumpScreen(WidgetTester tester, Widget child,
 Future<GameController> _pumpGame(WidgetTester tester,
     {Locale locale = const Locale('de'),
     Brightness brightness = Brightness.light,
+    Size size = _phone,
     MauMauRules rules = const MauMauRules(),
     List<String> a = const ['h7', 'cJ', 'h10', 'sK', 'd9', 'hQ'],
     List<String> b = const ['d7', 's8', 'c9', 'dA', 'h8'],
@@ -112,7 +114,7 @@ Future<GameController> _pumpGame(WidgetTester tester,
   final c = GameController.hotSeat(GameConfig('maumau', seed: 1, mauMau: rules));
   addTearDown(c.dispose);
   (c.game as MauMauGame).debugSetup(a: a, b: b, top: top, stock: stock);
-  await _pumpScreen(tester, buildGameScreen(c), locale: locale, brightness: brightness);
+  await _pumpScreen(tester, buildGameScreen(c), locale: locale, brightness: brightness, size: size);
   await tester.pumpAndSettle();
   return c;
 }
@@ -131,10 +133,16 @@ bool _drawFits(MauMauGame g) {
   return copy.currentPlayer == Player.a;
 }
 
-Future<GameController> _pumpSeeded(WidgetTester tester, int seed) async {
+Future<GameController> _pumpSeeded(
+  WidgetTester tester,
+  int seed, {
+  Locale locale = const Locale('de'),
+  Brightness brightness = Brightness.light,
+  Size size = _phone,
+}) async {
   final c = GameController.hotSeat(GameConfig('maumau', seed: seed));
   addTearDown(c.dispose);
-  await _pumpScreen(tester, buildGameScreen(c));
+  await _pumpScreen(tester, buildGameScreen(c), locale: locale, brightness: brightness, size: size);
   await tester.pumpAndSettle();
   return c;
 }
@@ -149,6 +157,8 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
 Future<void> _handover(WidgetTester tester) => _tap(tester, find.byKey(const Key('handover-continue')));
 
 void main() {
+  // The "how to play" tour (KLD-118) has its own test (maumau_coach_test).
+  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
   final skip = _out == null;
   setUpAll(() async {
     if (_out != null) await _loadFonts();
@@ -298,5 +308,95 @@ void main() {
         await _shot(tester, '15-hand-$tag');
       });
     }
+    // KLD-118 follow-up: the buttons on the phones the maintainer uses and
+    // a tablet: start of the turn, a drawn card that fits, "Mau!" due.
+    for (final (tag, size) in [
+      ('375x667', const Size(375, 667)),
+      ('393x852', const Size(393, 852)),
+      ('tablet', const Size(820, 1180)),
+    ]) {
+      testWidgets('buttons $tag', skip: skip, (tester) async {
+        await _pumpGame(tester, size: size);
+        await _shot(tester, '21-$tag-start');
+        await _pumpGame(tester, size: size, a: const ['h7', 'sK'], top: 'hK', stock: const ['dK']);
+        await _shot(tester, '21-$tag-mau-due');
+        await _pumpSeeded(tester, _seedWhere(_drawFits), size: size);
+        await _tap(tester, find.byKey(const Key('maumau-draw')));
+        await _shot(tester, '21-$tag-drawn-fits');
+      });
+    }
+
+    for (final (tag, locale, brightness) in [
+      ('de-dark', const Locale('de'), Brightness.dark),
+      ('ar', const Locale('ar'), Brightness.light),
+    ]) {
+      testWidgets('buttons $tag', skip: skip, (tester) async {
+        await _pumpGame(
+          tester,
+          locale: locale,
+          brightness: brightness,
+          a: const ['h7', 'sK'],
+          top: 'hK',
+          stock: const ['dK'],
+        );
+        await _shot(tester, '22-$tag-mau-due');
+        await _pumpSeeded(tester, _seedWhere(_drawFits), locale: locale, brightness: brightness);
+        await _tap(tester, find.byKey(const Key('maumau-draw')));
+        await _shot(tester, '22-$tag-drawn-fits');
+        await _pumpSeeded(tester, _seedWhere((g) => g.playableCards.isEmpty), locale: locale, brightness: brightness);
+        await _shot(tester, '22-$tag-only-draw');
+      });
+    }
+
+    // The "how to play" tour the first time (phone, dark, Arabic).
+    for (final (tag, locale, brightness) in [
+      ('de', const Locale('de'), Brightness.light),
+      ('de-dark', const Locale('de'), Brightness.dark),
+      ('ar', const Locale('ar'), Brightness.light),
+    ]) {
+      testWidgets('tour $tag', skip: skip, (tester) async {
+        SeenTips.debugReset();
+        await _pumpGame(tester, locale: locale, brightness: brightness);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('maumau-coach')), findsOneWidget);
+        await _shot(tester, '23-tour-$tag-1');
+        await _tap(tester, find.byKey(const Key('maumau-coach-next')));
+        await _shot(tester, '23-tour-$tag-2');
+        await _tap(tester, find.byKey(const Key('maumau-coach-next')));
+        await _shot(tester, '23-tour-$tag-3');
+        await _tap(tester, find.byKey(const Key('maumau-coach-done')));
+        expect(find.byKey(const Key('maumau-coach')), findsNothing);
+      });
+    }
+
+    // A 7 chain builds up: 2, 4, 6 cards to draw, then the 6 cards arrive.
+    testWidgets('7 chain', skip: skip, (tester) async {
+      bool sevens(MauMauGame g, Player p, int n) => g.handOf(p).where((c) => c.rank == MauMauRank.seven).length >= n;
+      final seed = _seedWhere(
+        (g) =>
+            sevens(g, Player.a, 2) && sevens(g, Player.b, 1) && g.playableCards.any((c) => c.rank == MauMauRank.seven),
+      );
+      final c = await _pumpSeeded(tester, seed);
+      MauMauGame g() => c.game as MauMauGame;
+      MauMauCard seven() => g().playableCards.firstWhere((c) => c.rank == MauMauRank.seven);
+      await _tap(tester, find.byKey(Key('maumau-hand-${seven().id}')));
+      await _shot(tester, '24-chain-2-cover');
+      await _handover(tester);
+      expect(g().penalty, 2);
+      await _shot(tester, '24-chain-2');
+      await _tap(tester, find.byKey(Key('maumau-hand-${seven().id}')));
+      await _shot(tester, '24-chain-4-cover');
+      await _handover(tester);
+      expect(g().penalty, 4);
+      await _shot(tester, '24-chain-4');
+      await _tap(tester, find.byKey(Key('maumau-hand-${seven().id}')));
+      await _handover(tester);
+      expect(g().penalty, 6);
+      expect(find.byKey(const Key('maumau-chain-3')), findsOneWidget);
+      await _shot(tester, '24-chain-6');
+      await _tap(tester, find.byKey(const Key('maumau-draw')));
+      expect(find.byKey(const Key('maumau-feedback')), findsOneWidget);
+      await _shot(tester, '24-chain-6-drawn');
+    });
   });
 }

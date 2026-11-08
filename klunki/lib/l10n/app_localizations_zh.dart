@@ -2610,7 +2610,7 @@ class AppLocalizationsZh extends AppLocalizations {
       locale: localeName,
       other: '$count 张牌',
     );
-    return '你摸 $_temp0：';
+    return '你摸了 $_temp0。新牌在你手里：';
   }
 
   @override
@@ -2693,6 +2693,40 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String maumauExtraPenalty(String player, int count) {
     return '$player 要摸 $count 张牌。';
+  }
+
+  @override
+  String get coachNext => '下一步';
+
+  @override
+  String get coachDone => '开始吧！';
+
+  @override
+  String get coachSkip => '跳过';
+
+  @override
+  String get maumauHelp => '怎么玩';
+
+  @override
+  String get maumauCoachPlay => '点一张能接上的牌就能出牌。能出的牌更高，并有边框。';
+
+  @override
+  String get maumauCoachDraw => '没有能出的牌？点摸牌堆摸一张。';
+
+  @override
+  String get maumauCoachWin => '谁先出完所有的牌，谁就赢。';
+
+  @override
+  String get maumauCoachWinMau => '谁先出完所有的牌，谁就赢。出倒数第二张牌前，先按“Mau！”。';
+
+  @override
+  String maumauChainBadge(String sum, int count) {
+    return '摸 $sum = $count 张牌';
+  }
+
+  @override
+  String maumauExtraPenaltyStacked(String player, int count) {
+    return '7 叠加了：$player 现在要摸 $count 张牌。';
   }
 
   @override

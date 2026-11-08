@@ -5,6 +5,7 @@
 // on the tiles any more.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' show appGameSpecs;
@@ -59,6 +60,7 @@ Future<void> _withOthers(WidgetTester tester, Finder link, String title, Finder 
 }
 
 void main() {
+  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
   testWidgets('network games (chess too) get both links, hot-seat-only games only "Ein Gerät"', (tester) async {
     await _pumpMenu(tester);
     for (final spec in appGameSpecs) {

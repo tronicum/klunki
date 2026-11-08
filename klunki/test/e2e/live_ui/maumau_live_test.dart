@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -76,6 +77,7 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
   var taps = 0;
   var covers = 0;
   var aces = 0;
+  var chains = 0;
   while (!c.game.isOver) {
     expect(++taps, lessThan(1500), reason: 'the game should end');
     final g = c.game as MauMauGame;
@@ -95,6 +97,14 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
     final opp = me == Player.a ? Player.b : Player.a;
     final n = g.handCount(opp);
     expect(find.text('${opp == Player.a ? 'Anna' : 'Ben'}: ${n == 1 ? '1 Karte' : '$n Karten'}'), findsOneWidget);
+    // A stacked 7 chain shows every 7 with its "+2" and the total.
+    if (g.penalty > MauMauGame.sevenPenalty) {
+      final sevens = g.penalty ~/ MauMauGame.sevenPenalty;
+      expect(find.byKey(Key('maumau-chain-$sevens')), findsOneWidget);
+      expect(find.byKey(Key('maumau-chain-${sevens + 1}')), findsNothing);
+      expect(find.textContaining('= ${g.penalty} Karten ziehen'), findsOneWidget);
+      chains++;
+    }
     final playable = g.playableCards;
     // Lay a card most of the time, as people do; sometimes draw anyway.
     if (playable.isNotEmpty && (g.hasDrawn || rng.nextInt(5) > 0)) {
@@ -137,6 +147,7 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
   expect(find.byKey(const Key('result-dialog')), findsOneWidget);
   expect(covers, greaterThan(0));
   if (aces > 0) debugPrint('${config.mauMau.toJson()}: $aces ace(s) laid again');
+  if (chains > 0) debugPrint('${config.mauMau.toJson()}: $chains turn(s) with stacked 7s');
   // The engine's log replays to the same game.
   final r = replay(config, c.moves.map((m) => m.move))! as MauMauGame;
   expect(r.result.winner, winner);
@@ -146,6 +157,8 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
 }
 
 void main() {
+  // The "how to play" tour (KLD-118) has its own test (maumau_coach_test).
+  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
   for (final (name, rules, seed) in [
     ('default rules (ace and "Mau!" on)', const MauMauRules(), 3),
     ('default rules, another deal', const MauMauRules(), 11),

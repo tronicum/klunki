@@ -4033,9 +4033,9 @@
   "@maumauDrewNoFit": {
     "description": "Mau-Mau (KLD-118): shown to the drawer over the drawn card when it does not fit (the turn ends)."
   },
-  "maumauDrewPenalty": "Du ziehst {count, plural, =1{1 Karte} other{{count} Karten}}:",
+  "maumauDrewPenalty": "Du hast {count, plural, =1{1 Karte} other{{count} Karten}} gezogen. Neu in deiner Hand:",
   "@maumauDrewPenalty": {
-    "description": "Mau-Mau (KLD-118): shown over the cards drawn because of a 7.",
+    "description": "Mau-Mau (KLD-118): shown after drawing the cards of a 7 (chain); the hand below shows the new cards framed.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -4175,6 +4175,62 @@
   "maumauExtraPenalty": "{player} muss {count} Karten ziehen.",
   "@maumauExtraPenalty": {
     "description": "Mau-Mau (KLD-118): after a 7; player = the one who has to draw. French: \"À {player} de …\" (no \"que\" before the name).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coachNext": "Weiter",
+  "@coachNext": {
+    "description": "Coach marks (KLD-118, reusable \"how to play\" tour): button to the next step."
+  },
+  "coachDone": "Los geht’s!",
+  "@coachDone": {
+    "description": "Coach marks: button on the last step that closes the tour and starts playing."
+  },
+  "coachSkip": "Überspringen",
+  "@coachSkip": {
+    "description": "Coach marks: button that closes the tour early."
+  },
+  "maumauHelp": "So geht’s",
+  "@maumauHelp": {
+    "description": "Mau-Mau (KLD-118): tooltip of the ? button next to the own hand that shows the \"how to play\" tour again."
+  },
+  "maumauCoachPlay": "Tippe auf eine passende Karte, um sie zu legen. Passende Karten stehen höher und haben einen Rahmen.",
+  "@maumauCoachPlay": {
+    "description": "Mau-Mau tour step 1, pointing at the own hand."
+  },
+  "maumauCoachDraw": "Passt keine? Dann tippe auf den Stapel und ziehe eine Karte.",
+  "@maumauCoachDraw": {
+    "description": "Mau-Mau tour step 2, pointing at the draw pile (tapping it draws)."
+  },
+  "maumauCoachWin": "Wer zuerst keine Karten mehr hat, gewinnt.",
+  "@maumauCoachWin": {
+    "description": "Mau-Mau tour step 3 (no \"Mau!\" house rule)."
+  },
+  "maumauCoachWinMau": "Wer zuerst keine Karten mehr hat, gewinnt. Vor der vorletzten Karte „Mau!“ drücken.",
+  "@maumauCoachWinMau": {
+    "description": "Mau-Mau tour step 3 with the \"Mau!\" house rule on."
+  },
+  "maumauChainBadge": "{sum} = {count} Karten ziehen",
+  "@maumauChainBadge": {
+    "description": "Mau-Mau: badge under the discard pile while several 7s are stacked; sum = \"2 + 2 + 2\" (2 per 7), count = the total to draw (4, 6 or 8).",
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maumauExtraPenaltyStacked": "Die 7er zählen zusammen: {player} muss jetzt {count} Karten ziehen.",
+  "@maumauExtraPenaltyStacked": {
+    "description": "Mau-Mau: after a 7 laid on a 7 (the draw penalty adds up); player = the one who has to draw, count = the new total (4, 6, 8). French: \"à {player} de …\".",
     "placeholders": {
       "player": {
         "type": "String"
