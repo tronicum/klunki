@@ -6,6 +6,7 @@ import '../../app/theme.dart';
 import '../../profile/seen_tips.dart';
 import '../game_titles.dart';
 import '../game_visuals.dart';
+import '../player_count_chip.dart';
 import 'rules_model.dart';
 import 'rules_registry.dart';
 
@@ -152,21 +153,28 @@ class RulesScreen extends StatelessWidget {
               child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // The menu illustration of the game, on its accent.
-                ExcludeSemantics(
-                  child: Container(
-                    height: 96,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
+                // The menu illustration of the game, on its accent, with how
+                // many play in the corner (KLD-124), as on the menu tile.
+                Stack(
+                  fit: StackFit.passthrough,
+                  children: [
+                    ExcludeSemantics(
+                      child: Container(
+                        height: 96,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(10),
+                        child: CustomPaint(painter: visualsOf(gameId).illustration(palette)),
                       ),
                     ),
-                    padding: const EdgeInsets.all(10),
-                    child: CustomPaint(painter: visualsOf(gameId).illustration(palette)),
-                  ),
+                    PositionedDirectional(top: 8, end: 8, child: PlayerCountChip.forId(gameId)),
+                  ],
                 ),
                 section('rules-goal', Icons.emoji_events_outlined, l10n.rulesGoal, [
                   for (final i in rules.goal) item(i),

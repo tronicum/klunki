@@ -790,6 +790,8 @@
   "confirmMoveOff": "Confirmar jugada: desactivado.",
   "rulesButton": "Reglas",
   "rulesTitle": "Reglas: {game}",
+  "playerCount": "{count, plural, =1{1 jugador} other{{count} jugadores}}",
+  "playerCountRange": "De {min} a {max} jugadores",
   "rulesGoal": "Objetivo",
   "rulesTurn": "Cómo es un turno",
   "rulesSpecial": "Reglas",

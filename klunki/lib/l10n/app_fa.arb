@@ -790,6 +790,8 @@
   "confirmMoveOff": "تأیید حرکت: خاموش است.",
   "rulesButton": "قانون‌ها",
   "rulesTitle": "قانون‌های بازی: {game}",
+  "playerCount": "{count} بازیکن",
+  "playerCountRange": "{min} تا {max} بازیکن",
   "rulesGoal": "هدف",
   "rulesTurn": "یک نوبت چطور پیش می‌رود",
   "rulesSpecial": "قانون‌ها",

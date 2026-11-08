@@ -3048,6 +3048,16 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String playerCount(int count) {
+    return '$count بازیکن';
+  }
+
+  @override
+  String playerCountRange(int min, int max) {
+    return '$min تا $max بازیکن';
+  }
+
+  @override
   String get rulesGoal => 'هدف';
 
   @override

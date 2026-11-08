@@ -2950,6 +2950,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String playerCount(int count) {
+    return '$count名玩家';
+  }
+
+  @override
+  String playerCountRange(int min, int max) {
+    return '$min到$max名玩家';
+  }
+
+  @override
   String get rulesGoal => '目标';
 
   @override

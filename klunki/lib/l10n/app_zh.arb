@@ -790,6 +790,8 @@
   "confirmMoveOff": "确认走棋：关",
   "rulesButton": "规则",
   "rulesTitle": "游戏规则：{game}",
+  "playerCount": "{count}名玩家",
+  "playerCountRange": "{min}到{max}名玩家",
   "rulesGoal": "目标",
   "rulesTurn": "轮到你时怎么做",
   "rulesSpecial": "规则",

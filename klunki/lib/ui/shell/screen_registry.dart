@@ -66,6 +66,14 @@ const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen', 'dicesheet'};
 /// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.
 const Set<String> seatGames = {'dicesheet'};
 
+/// How many players the app offers for [spec] (KLD-124, the menu tile's and
+/// rules page's people chip): the engine's [GameSpec.minPlayers] to
+/// [GameSpec.maxPlayers] for [seatGames]; the others start with exactly
+/// [GameSpec.minPlayers] in the app, even where the engine has more seats
+/// (Wortgewandt's 4 seats are not offered yet).
+({int min, int max}) offeredPlayers(GameSpec spec) =>
+    (min: spec.minPlayers, max: seatGames.contains(spec.id) ? spec.maxPlayers : spec.minPlayers);
+
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
 List<GameSpec> get networkGameSpecs => [

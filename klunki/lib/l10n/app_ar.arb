@@ -790,6 +790,8 @@
   "confirmMoveOff": "تأكيد الحركة: متوقف.",
   "rulesButton": "القواعد",
   "rulesTitle": "قواعد اللعبة: {game}",
+  "playerCount": "{count, plural, zero{لا لاعبين} one{لاعب واحد} two{لاعبان} few{{count} لاعبين} many{{count} لاعبًا} other{{count} لاعب}}",
+  "playerCountRange": "من {min} إلى {max} لاعبين",
   "rulesGoal": "الهدف",
   "rulesTurn": "كيف يسير الدور",
   "rulesSpecial": "القواعد",

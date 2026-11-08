@@ -790,6 +790,8 @@
   "confirmMoveOff": "Confirmer le coup : désactivé.",
   "rulesButton": "Règles",
   "rulesTitle": "Règles : {game}",
+  "playerCount": "{count, plural, =1{1 joueur} other{{count} joueurs}}",
+  "playerCountRange": "De {min} à {max} joueurs",
   "rulesGoal": "But du jeu",
   "rulesTurn": "Comment se joue un tour",
   "rulesSpecial": "Règles",
