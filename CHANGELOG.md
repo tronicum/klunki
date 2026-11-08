@@ -8,6 +8,12 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Mau-Mau** (new, KLD-118): the classic card game for two on one device. Lay a card of the same suit or
+  rank, or draw; whoever is out of cards first wins. 7 = the other player draws 2 (another 7 passes on 2 more),
+  8 = the other player misses a turn, jack = wish a suit, ace = lay another card (ace after ace too), and
+  "Mau!" before the second-to-last card (forget it and draw a penalty card). Before the game you choose the
+  house rules (each of these can be switched off; "Bube auf Bube" can be switched on). Own card faces, the
+  cards stay hidden between turns.
 - **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).

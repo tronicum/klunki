@@ -14,6 +14,8 @@ import '../games/quartett_trumpf_screen.dart';
 import '../games/schiffe_screen.dart';
 import '../games/wordtiles_screen.dart';
 import '../games/wordtiles/wordtiles_options.dart';
+import '../games/maumau/maumau_options.dart';
+import '../games/maumau/maumau_screen.dart';
 import '../../profile/player_name_controller.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../../profile/quartett_deck_settings.dart';
@@ -34,6 +36,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'gostrategy': (c) => GoStrategyScreen(controller: c),
   'chess': (c) => ChessScreen(controller: c),
   'wordtiles': (c) => WordTilesScreen(controller: c),
+  'maumau': (c) => MauMauScreen(controller: c),
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
@@ -45,8 +48,9 @@ const Set<String> previewGames = {};
 /// Games the app plays in hot-seat only for now: hidden from the host
 /// pickers of "Über WLAN spielen" and the relay host. A guest joining a host
 /// that plays one still gets its screen. Empty since chess (KLD-059 step 3)
-/// and Wortgewandt (KLD-094 step 6) play over the network.
-const Set<String> hotSeatOnlyGames = {};
+/// and Wortgewandt (KLD-094 step 6) play over the network. Mau-Mau
+/// (KLD-118) is hot-seat only until its network step.
+const Set<String> hotSeatOnlyGames = {'maumau'};
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
@@ -89,11 +93,21 @@ class GameNotInAppScreen extends StatelessWidget {
 /// Quartett, KLD-069) and pushes its screen. The controller lives as long as
 /// the route and is disposed when it is popped.
 Future<void> openGame(BuildContext context, String gameId,
-    {int? seed, String? deck, String? tiles, bool dictionary = false, bool jokerSwap = false}) {
+    {int? seed,
+    String? deck,
+    String? tiles,
+    bool dictionary = false,
+    bool jokerSwap = false,
+    MauMauRules mauMau = const MauMauRules()}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
         config: GameConfig(gameId,
-            seed: seed ?? newGameSeed(), deck: deck, tiles: tiles, dictionary: dictionary, jokerSwap: jokerSwap)),
+            seed: seed ?? newGameSeed(),
+            deck: deck,
+            tiles: tiles,
+            dictionary: dictionary,
+            jokerSwap: jokerSwap,
+            mauMau: mauMau)),
   ));
 }
 
@@ -115,13 +129,23 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     words = await showWordTilesOptionsDialog(context);
     if (words == null || !context.mounted) return;
   }
+  MauMauRules? mauMau;
+  if (gameId == 'maumau') {
+    // Mau-Mau: the house rules first (KLD-118).
+    mauMau = await showMauMauOptionsDialog(context);
+    if (mauMau == null || !context.mounted) return;
+  }
   final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
   if (!go || !context.mounted) return;
   if (words != null && words.dictionary) {
     if (!await loadWordListWithProgress(context, words.tiles) || !context.mounted) return;
   }
   return openGame(context, gameId,
-      deck: deck, tiles: words?.tiles, dictionary: words?.dictionary ?? false, jokerSwap: words?.joker ?? false);
+      deck: deck,
+      tiles: words?.tiles,
+      dictionary: words?.dictionary ?? false,
+      jokerSwap: words?.joker ?? false,
+      mauMau: mauMau ?? const MauMauRules());
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

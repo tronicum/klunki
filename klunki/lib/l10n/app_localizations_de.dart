@@ -2602,4 +2602,310 @@ class AppLocalizationsDe extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'abgelehnt: $words';
   }
+
+  @override
+  String get menuGameMauMau => 'Mau-Mau';
+
+  @override
+  String get menuDescMauMau =>
+      'Passende Karten ablegen, bis keine mehr übrig ist';
+
+  @override
+  String get engineReasonMaumauEmptyHand => 'Alle Karten abgelegt';
+
+  @override
+  String get maumauSuitClubs => 'Kreuz';
+
+  @override
+  String get maumauSuitSpades => 'Pik';
+
+  @override
+  String get maumauSuitHearts => 'Herz';
+
+  @override
+  String get maumauSuitDiamonds => 'Karo';
+
+  @override
+  String get maumauRankJack => 'Bube';
+
+  @override
+  String get maumauRankQueen => 'Dame';
+
+  @override
+  String get maumauRankKing => 'König';
+
+  @override
+  String get maumauRankAce => 'Ass';
+
+  @override
+  String get maumauRankLetterJack => 'B';
+
+  @override
+  String get maumauRankLetterQueen => 'D';
+
+  @override
+  String get maumauRankLetterKing => 'K';
+
+  @override
+  String get maumauRankLetterAce => 'A';
+
+  @override
+  String maumauCardName(String suit, String rank) {
+    return '$suit $rank';
+  }
+
+  @override
+  String get maumauOptionsIntro => 'Welche Regeln sollen gelten?';
+
+  @override
+  String get maumauOptionsNext => 'Weiter';
+
+  @override
+  String get maumauOptionSeven => '7: zwei Karten ziehen';
+
+  @override
+  String get maumauOptionSevenExplain =>
+      'Nach einer 7 muss der andere 2 Karten ziehen.';
+
+  @override
+  String get maumauOptionStack => '7 auf 7';
+
+  @override
+  String get maumauOptionStackExplain =>
+      'Wer selbst eine 7 hat, legt sie drauf. Dann muss der andere 4 Karten ziehen.';
+
+  @override
+  String get maumauOptionEight => '8: aussetzen';
+
+  @override
+  String get maumauOptionEightExplain =>
+      'Nach einer 8 muss der andere einmal aussetzen.';
+
+  @override
+  String get maumauOptionJackInfo =>
+      'Bube: passt fast immer. Wer ihn legt, wünscht sich eine Farbe.';
+
+  @override
+  String get maumauOptionJackOnJack => 'Bube auf Bube';
+
+  @override
+  String get maumauOptionJackOnJackExplain =>
+      'Ein Bube darf auch auf einem Buben liegen.';
+
+  @override
+  String get maumauOptionAce => 'Ass: noch mal';
+
+  @override
+  String get maumauOptionAceExplain =>
+      'Wer ein Ass legt, ist gleich noch mal dran.';
+
+  @override
+  String get maumauOptionMau => '„Mau!“ sagen';
+
+  @override
+  String get maumauOptionMauExplain =>
+      'Bei der vorletzten Karte erst „Mau!“ drücken. Wer es vergisst, zieht eine Strafkarte.';
+
+  @override
+  String maumauOpponentCards(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten',
+      one: '1 Karte',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maumauYourCards(int count) {
+    return 'Deine Karten ($count)';
+  }
+
+  @override
+  String maumauStock(int count) {
+    return 'Stapel: $count';
+  }
+
+  @override
+  String maumauStockLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten',
+      one: '1 Karte',
+    );
+    return 'Stapel zum Ziehen, $_temp0';
+  }
+
+  @override
+  String get maumauDiscard => 'Ablage';
+
+  @override
+  String maumauWish(String suit) {
+    return 'Wunsch: $suit';
+  }
+
+  @override
+  String get maumauDraw => 'Karte ziehen';
+
+  @override
+  String maumauDrawPenalty(int count) {
+    return '$count Karten ziehen';
+  }
+
+  @override
+  String get maumauKeep => 'Behalten';
+
+  @override
+  String get maumauPass => 'Passen';
+
+  @override
+  String get maumauMauButton => 'Mau!';
+
+  @override
+  String get maumauContinue => 'Weiter';
+
+  @override
+  String get maumauPickSuitTitle => 'Welche Farbe wünschst du dir?';
+
+  @override
+  String get maumauDrewNoFit => 'Gezogen – die Karte passt leider nicht.';
+
+  @override
+  String maumauDrewPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten',
+      one: '1 Karte',
+    );
+    return 'Du ziehst $_temp0:';
+  }
+
+  @override
+  String get maumauHintPlay => 'Lege eine passende Karte oder ziehe eine.';
+
+  @override
+  String maumauHintWish(String suit) {
+    return 'Gewünscht ist $suit. Lege so eine Karte oder ziehe eine.';
+  }
+
+  @override
+  String maumauHintPenalty(int count) {
+    return 'Du musst $count Karten ziehen.';
+  }
+
+  @override
+  String maumauHintPenaltyStack(int count) {
+    return 'Lege eine 7 oder ziehe $count Karten.';
+  }
+
+  @override
+  String get maumauHintDrawn =>
+      'Die gezogene Karte passt. Lege sie oder behalte sie.';
+
+  @override
+  String get maumauHintPass => 'Nichts mehr zum Ziehen. Du musst passen.';
+
+  @override
+  String get maumauHintMau =>
+      'Vorletzte Karte: erst „Mau!“ drücken, dann legen.';
+
+  @override
+  String maumauLastPlayed(String player, String card) {
+    return '$player hat $card gelegt.';
+  }
+
+  @override
+  String maumauLastPlayedWish(String player, String card, String suit) {
+    return '$player hat $card gelegt und wünscht sich $suit.';
+  }
+
+  @override
+  String maumauLastDrew(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten',
+      one: 'eine Karte',
+    );
+    return '$player hat $_temp0 gezogen.';
+  }
+
+  @override
+  String maumauLastDrewPenalty(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Strafkarten',
+      one: 'eine Strafkarte',
+    );
+    return '$player hat $_temp0 gezogen.';
+  }
+
+  @override
+  String maumauLastKept(String player) {
+    return '$player hat eine Karte gezogen und behalten.';
+  }
+
+  @override
+  String maumauLastPassed(String player) {
+    return '$player hat gepasst.';
+  }
+
+  @override
+  String maumauExtraMau(String player) {
+    return '„Mau!“, sagt $player.';
+  }
+
+  @override
+  String maumauExtraForgotMau(String player) {
+    return '$player hat „Mau!“ vergessen und zieht eine Strafkarte.';
+  }
+
+  @override
+  String maumauExtraPenalty(String player, int count) {
+    return '$player muss $count Karten ziehen.';
+  }
+
+  @override
+  String maumauExtraAgain(String player) {
+    return '$player muss aussetzen.';
+  }
+
+  @override
+  String maumauExtraAce(String player) {
+    return '$player ist gleich noch mal dran.';
+  }
+
+  @override
+  String get maumauExtraReshuffled => 'Die Ablage wurde neu gemischt.';
+
+  @override
+  String maumauMovePlay(String card) {
+    return 'legt $card';
+  }
+
+  @override
+  String maumauMovePlayWish(String card, String suit) {
+    return 'legt $card, wünscht sich $suit';
+  }
+
+  @override
+  String maumauMoveDraw(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Karten',
+      one: 'eine Karte',
+    );
+    return 'zieht $_temp0';
+  }
+
+  @override
+  String get maumauMovePass => 'passt';
+
+  @override
+  String get maumauMoveKeep => 'behält die gezogene Karte';
 }

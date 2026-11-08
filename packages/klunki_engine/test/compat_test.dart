@@ -22,6 +22,7 @@ void main() {
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     'chess': (3, 1, '5f2d81a850dc003d33424219c180126a'),
     'wordtiles': (4, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
+    'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
   };
 
   test('golden fingerprint per game and deck', () {

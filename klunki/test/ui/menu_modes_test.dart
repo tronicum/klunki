@@ -82,7 +82,8 @@ void main() {
     expect(_local('wordtiles'), findsOneWidget);
     expect(_network('wordtiles'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('wordtiles')));
-    expect(hotSeatOnlyGames, isEmpty);
+    // KLD-118: Mau-Mau is hot-seat only until its network step.
+    expect(hotSeatOnlyGames, {'maumau'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {
@@ -237,6 +238,11 @@ void main() {
       if (spec.id == 'wordtiles') {
         // Wortgewandt: its start options first (KLD-094).
         await tester.tap(find.byKey(const Key('wordtiles-options-next')));
+        await tester.pumpAndSettle();
+      }
+      if (spec.id == 'maumau') {
+        // Mau-Mau: its house rules first (KLD-118).
+        await tester.tap(find.byKey(const Key('maumau-options-next')));
         await tester.pumpAndSettle();
       }
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget, reason: spec.id);

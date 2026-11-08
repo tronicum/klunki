@@ -2549,4 +2549,368 @@ class AppLocalizationsAr extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'رفض: $words';
   }
+
+  @override
+  String get menuGameMauMau => 'Mau-Mau';
+
+  @override
+  String get menuDescMauMau => 'ضع أوراقًا مطابقة حتى تنفد أوراقك';
+
+  @override
+  String get engineReasonMaumauEmptyHand => 'نفدت كل الأوراق';
+
+  @override
+  String get maumauSuitClubs => 'سباتي';
+
+  @override
+  String get maumauSuitSpades => 'بستوني';
+
+  @override
+  String get maumauSuitHearts => 'قلوب';
+
+  @override
+  String get maumauSuitDiamonds => 'ديناري';
+
+  @override
+  String get maumauRankJack => 'ولد';
+
+  @override
+  String get maumauRankQueen => 'بنت';
+
+  @override
+  String get maumauRankKing => 'شايب';
+
+  @override
+  String get maumauRankAce => 'آس';
+
+  @override
+  String get maumauRankLetterJack => 'J';
+
+  @override
+  String get maumauRankLetterQueen => 'Q';
+
+  @override
+  String get maumauRankLetterKing => 'K';
+
+  @override
+  String get maumauRankLetterAce => 'A';
+
+  @override
+  String maumauCardName(String suit, String rank) {
+    return '$rank $suit';
+  }
+
+  @override
+  String get maumauOptionsIntro => 'ما القواعد المطلوبة؟';
+
+  @override
+  String get maumauOptionsNext => 'التالي';
+
+  @override
+  String get maumauOptionSeven => '7: سحب ورقتين';
+
+  @override
+  String get maumauOptionSevenExplain => 'بعد الـ7 على الطرف الآخر سحب ورقتين.';
+
+  @override
+  String get maumauOptionStack => '7 فوق 7';
+
+  @override
+  String get maumauOptionStackExplain =>
+      'من لديه 7 يضعها فوقها، وعندها على الطرف الآخر سحب 4 أوراق.';
+
+  @override
+  String get maumauOptionEight => '8: تخطي الدور';
+
+  @override
+  String get maumauOptionEightExplain => 'بعد الـ8 يُتخطّى دور الطرف الآخر.';
+
+  @override
+  String get maumauOptionJackInfo =>
+      'الولد: يناسب كل ورقة تقريبًا، ومن يضعه يطلب شكلًا.';
+
+  @override
+  String get maumauOptionJackOnJack => 'ولد فوق ولد';
+
+  @override
+  String get maumauOptionJackOnJackExplain => 'يجوز وضع الولد فوق ولد آخر.';
+
+  @override
+  String get maumauOptionAce => 'آس: دور إضافي';
+
+  @override
+  String get maumauOptionAceExplain => 'من يضع الآس يلعب مرة أخرى فورًا.';
+
+  @override
+  String get maumauOptionMau => 'قول «Mau!»';
+
+  @override
+  String get maumauOptionMauExplain =>
+      'مع الورقة قبل الأخيرة اضغط «Mau!» أولًا. من ينسَ يسحب ورقة عقوبة.';
+
+  @override
+  String maumauOpponentCards(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتان',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maumauYourCards(int count) {
+    return 'أوراقك ($count)';
+  }
+
+  @override
+  String maumauStock(int count) {
+    return 'الكومة: $count';
+  }
+
+  @override
+  String maumauStockLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتان',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'كومة السحب، $_temp0';
+  }
+
+  @override
+  String get maumauDiscard => 'الأوراق المرمية';
+
+  @override
+  String maumauWish(String suit) {
+    return 'المطلوب: $suit';
+  }
+
+  @override
+  String get maumauDraw => 'اسحب ورقة';
+
+  @override
+  String maumauDrawPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتين',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'اسحب $_temp0';
+  }
+
+  @override
+  String get maumauKeep => 'احتفظ بها';
+
+  @override
+  String get maumauPass => 'مرّر';
+
+  @override
+  String get maumauMauButton => 'Mau!';
+
+  @override
+  String get maumauContinue => 'متابعة';
+
+  @override
+  String get maumauPickSuitTitle => 'أي شكل تطلب؟';
+
+  @override
+  String get maumauDrewNoFit => 'الورقة المسحوبة لا تناسب.';
+
+  @override
+  String maumauDrewPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتين',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'تسحب $_temp0:';
+  }
+
+  @override
+  String get maumauHintPlay => 'ضع ورقة مطابقة أو اسحب ورقة.';
+
+  @override
+  String maumauHintWish(String suit) {
+    return 'المطلوب: $suit. ضع ورقة منه أو اسحب ورقة.';
+  }
+
+  @override
+  String maumauHintPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتين',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'عليك سحب $_temp0.';
+  }
+
+  @override
+  String maumauHintPenaltyStack(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتين',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'ضع 7 أو اسحب $_temp0.';
+  }
+
+  @override
+  String get maumauHintDrawn => 'الورقة المسحوبة مناسبة. ضعها أو احتفظ بها.';
+
+  @override
+  String get maumauHintPass => 'لا شيء للسحب. عليك التمرير.';
+
+  @override
+  String get maumauHintMau => 'الورقة قبل الأخيرة: اضغط «Mau!» أولًا ثم ضعها.';
+
+  @override
+  String maumauLastPlayed(String player, String card) {
+    return 'ورقة $player: $card.';
+  }
+
+  @override
+  String maumauLastPlayedWish(String player, String card, String suit) {
+    return 'ورقة $player: $card، والمطلوب: $suit.';
+  }
+
+  @override
+  String maumauLastDrew(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتان',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'سحب $player: $_temp0.';
+  }
+
+  @override
+  String maumauLastDrewPenalty(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتان',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'عقوبة على $player: $_temp0.';
+  }
+
+  @override
+  String maumauLastKept(String player) {
+    return 'سحب $player: ورقة واحدة، مع الاحتفاظ بها.';
+  }
+
+  @override
+  String maumauLastPassed(String player) {
+    return 'تمرير من $player.';
+  }
+
+  @override
+  String maumauExtraMau(String player) {
+    return '«Mau!» من $player.';
+  }
+
+  @override
+  String maumauExtraForgotMau(String player) {
+    return 'نسيان «Mau!» من $player: ورقة عقوبة.';
+  }
+
+  @override
+  String maumauExtraPenalty(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتين',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'على $player سحب $_temp0.';
+  }
+
+  @override
+  String maumauExtraAgain(String player) {
+    return 'تخطي دور $player.';
+  }
+
+  @override
+  String maumauExtraAce(String player) {
+    return 'دور إضافي: $player.';
+  }
+
+  @override
+  String get maumauExtraReshuffled =>
+      'خُلطت الأوراق المرمية في كومة سحب جديدة.';
+
+  @override
+  String maumauMovePlay(String card) {
+    return 'ورقة: $card';
+  }
+
+  @override
+  String maumauMovePlayWish(String card, String suit) {
+    return 'ورقة: $card، المطلوب: $suit';
+  }
+
+  @override
+  String maumauMoveDraw(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ورقة',
+      many: '$count ورقة',
+      few: '$count أوراق',
+      two: 'ورقتان',
+      one: 'ورقة واحدة',
+      zero: 'لا أوراق',
+    );
+    return 'سحب $_temp0';
+  }
+
+  @override
+  String get maumauMovePass => 'تمرير';
+
+  @override
+  String get maumauMoveKeep => 'الاحتفاظ بالورقة المسحوبة';
 }

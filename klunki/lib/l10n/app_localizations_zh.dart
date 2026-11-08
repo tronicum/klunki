@@ -2443,4 +2443,294 @@ class AppLocalizationsZh extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return '拒绝：$words';
   }
+
+  @override
+  String get menuGameMauMau => 'Mau-Mau';
+
+  @override
+  String get menuDescMauMau => '出能接上的牌，先出完的人赢';
+
+  @override
+  String get engineReasonMaumauEmptyHand => '所有牌都出完了';
+
+  @override
+  String get maumauSuitClubs => '梅花';
+
+  @override
+  String get maumauSuitSpades => '黑桃';
+
+  @override
+  String get maumauSuitHearts => '红心';
+
+  @override
+  String get maumauSuitDiamonds => '方块';
+
+  @override
+  String get maumauRankJack => 'J';
+
+  @override
+  String get maumauRankQueen => 'Q';
+
+  @override
+  String get maumauRankKing => 'K';
+
+  @override
+  String get maumauRankAce => 'A';
+
+  @override
+  String get maumauRankLetterJack => 'J';
+
+  @override
+  String get maumauRankLetterQueen => 'Q';
+
+  @override
+  String get maumauRankLetterKing => 'K';
+
+  @override
+  String get maumauRankLetterAce => 'A';
+
+  @override
+  String maumauCardName(String suit, String rank) {
+    return '$suit$rank';
+  }
+
+  @override
+  String get maumauOptionsIntro => '要用哪些规则？';
+
+  @override
+  String get maumauOptionsNext => '下一步';
+
+  @override
+  String get maumauOptionSeven => '7：摸两张';
+
+  @override
+  String get maumauOptionSevenExplain => '出 7 后，对方要摸 2 张牌。';
+
+  @override
+  String get maumauOptionStack => '7 叠 7';
+
+  @override
+  String get maumauOptionStackExplain => '有 7 的人可以叠上去，这样对方要摸 4 张牌。';
+
+  @override
+  String get maumauOptionEight => '8：停一轮';
+
+  @override
+  String get maumauOptionEightExplain => '出 8 后，对方停一轮。';
+
+  @override
+  String get maumauOptionJackInfo => 'J：几乎总能出。出 J 的人可以指定一种花色。';
+
+  @override
+  String get maumauOptionJackOnJack => 'J 上出 J';
+
+  @override
+  String get maumauOptionJackOnJackExplain => 'J 也可以出在 J 上面。';
+
+  @override
+  String get maumauOptionAce => 'A：再出一次';
+
+  @override
+  String get maumauOptionAceExplain => '出 A 的人马上再出一次。';
+
+  @override
+  String get maumauOptionMau => '喊“Mau！”';
+
+  @override
+  String get maumauOptionMauExplain => '出倒数第二张牌时先按“Mau！”。忘了就要摸一张罚牌。';
+
+  @override
+  String maumauOpponentCards(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张牌',
+    );
+    return '$player：$_temp0';
+  }
+
+  @override
+  String maumauYourCards(int count) {
+    return '你的牌（$count）';
+  }
+
+  @override
+  String maumauStock(int count) {
+    return '牌堆：$count';
+  }
+
+  @override
+  String maumauStockLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张牌',
+    );
+    return '摸牌堆，$_temp0';
+  }
+
+  @override
+  String get maumauDiscard => '弃牌';
+
+  @override
+  String maumauWish(String suit) {
+    return '指定：$suit';
+  }
+
+  @override
+  String get maumauDraw => '摸一张牌';
+
+  @override
+  String maumauDrawPenalty(int count) {
+    return '摸 $count 张牌';
+  }
+
+  @override
+  String get maumauKeep => '留着';
+
+  @override
+  String get maumauPass => '跳过';
+
+  @override
+  String get maumauMauButton => 'Mau！';
+
+  @override
+  String get maumauContinue => '继续';
+
+  @override
+  String get maumauPickSuitTitle => '你想要哪种花色？';
+
+  @override
+  String get maumauDrewNoFit => '你摸到这张牌，不能出。';
+
+  @override
+  String maumauDrewPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张牌',
+    );
+    return '你摸 $_temp0：';
+  }
+
+  @override
+  String get maumauHintPlay => '出一张能接上的牌，或者摸一张。';
+
+  @override
+  String maumauHintWish(String suit) {
+    return '指定的花色是$suit。出这种花色的牌，或者摸一张。';
+  }
+
+  @override
+  String maumauHintPenalty(int count) {
+    return '你要摸 $count 张牌。';
+  }
+
+  @override
+  String maumauHintPenaltyStack(int count) {
+    return '出一张 7，或者摸 $count 张牌。';
+  }
+
+  @override
+  String get maumauHintDrawn => '摸到的牌能出。出掉或者留着。';
+
+  @override
+  String get maumauHintPass => '没有牌可摸了。你只能跳过。';
+
+  @override
+  String get maumauHintMau => '倒数第二张牌：先按“Mau！”，再出牌。';
+
+  @override
+  String maumauLastPlayed(String player, String card) {
+    return '$player 出了$card。';
+  }
+
+  @override
+  String maumauLastPlayedWish(String player, String card, String suit) {
+    return '$player 出了$card，指定$suit。';
+  }
+
+  @override
+  String maumauLastDrew(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张牌',
+    );
+    return '$player 摸了 $_temp0。';
+  }
+
+  @override
+  String maumauLastDrewPenalty(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张罚牌',
+    );
+    return '$player 摸了 $_temp0。';
+  }
+
+  @override
+  String maumauLastKept(String player) {
+    return '$player 摸了一张牌并留着。';
+  }
+
+  @override
+  String maumauLastPassed(String player) {
+    return '$player 跳过了。';
+  }
+
+  @override
+  String maumauExtraMau(String player) {
+    return '$player 喊“Mau！”。';
+  }
+
+  @override
+  String maumauExtraForgotMau(String player) {
+    return '$player 忘了喊“Mau！”，摸一张罚牌。';
+  }
+
+  @override
+  String maumauExtraPenalty(String player, int count) {
+    return '$player 要摸 $count 张牌。';
+  }
+
+  @override
+  String maumauExtraAgain(String player) {
+    return '$player 停一轮。';
+  }
+
+  @override
+  String maumauExtraAce(String player) {
+    return '$player 再出一次。';
+  }
+
+  @override
+  String get maumauExtraReshuffled => '弃牌已洗成新的牌堆。';
+
+  @override
+  String maumauMovePlay(String card) {
+    return '出了$card';
+  }
+
+  @override
+  String maumauMovePlayWish(String card, String suit) {
+    return '出了$card，指定$suit';
+  }
+
+  @override
+  String maumauMoveDraw(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张牌',
+    );
+    return '摸了 $_temp0';
+  }
+
+  @override
+  String get maumauMovePass => '跳过';
+
+  @override
+  String get maumauMoveKeep => '留下摸到的牌';
 }

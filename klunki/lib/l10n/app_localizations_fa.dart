@@ -2519,4 +2519,308 @@ class AppLocalizationsFa extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'رد شد: $words';
   }
+
+  @override
+  String get menuGameMauMau => 'Mau-Mau';
+
+  @override
+  String get menuDescMauMau => 'کارت‌های جور بازی کن تا دستت خالی شود';
+
+  @override
+  String get engineReasonMaumauEmptyHand => 'همهٔ کارت‌ها بازی شد';
+
+  @override
+  String get maumauSuitClubs => 'خاج';
+
+  @override
+  String get maumauSuitSpades => 'پیک';
+
+  @override
+  String get maumauSuitHearts => 'دل';
+
+  @override
+  String get maumauSuitDiamonds => 'خشت';
+
+  @override
+  String get maumauRankJack => 'سرباز';
+
+  @override
+  String get maumauRankQueen => 'بی‌بی';
+
+  @override
+  String get maumauRankKing => 'شاه';
+
+  @override
+  String get maumauRankAce => 'آس';
+
+  @override
+  String get maumauRankLetterJack => 'J';
+
+  @override
+  String get maumauRankLetterQueen => 'Q';
+
+  @override
+  String get maumauRankLetterKing => 'K';
+
+  @override
+  String get maumauRankLetterAce => 'A';
+
+  @override
+  String maumauCardName(String suit, String rank) {
+    return '$rank $suit';
+  }
+
+  @override
+  String get maumauOptionsIntro => 'با کدام قانون‌ها بازی کنیم؟';
+
+  @override
+  String get maumauOptionsNext => 'بعدی';
+
+  @override
+  String get maumauOptionSeven => '7: دو کارت برداشتن';
+
+  @override
+  String get maumauOptionSevenExplain =>
+      'بعد از 7، طرف مقابل 2 کارت برمی‌دارد.';
+
+  @override
+  String get maumauOptionStack => '7 روی 7';
+
+  @override
+  String get maumauOptionStackExplain =>
+      'هر کس 7 دارد، آن را رویش می‌گذارد. آن‌وقت طرف مقابل 4 کارت برمی‌دارد.';
+
+  @override
+  String get maumauOptionEight => '8: یک نوبت رد';
+
+  @override
+  String get maumauOptionEightExplain => 'بعد از 8، نوبت طرف مقابل رد می‌شود.';
+
+  @override
+  String get maumauOptionJackInfo =>
+      'سرباز: تقریباً همیشه جور است. هر کس آن را بازی کند، یک خال می‌خواهد.';
+
+  @override
+  String get maumauOptionJackOnJack => 'سرباز روی سرباز';
+
+  @override
+  String get maumauOptionJackOnJackExplain =>
+      'سرباز را می‌شود روی سرباز هم گذاشت.';
+
+  @override
+  String get maumauOptionAce => 'آس: دوباره';
+
+  @override
+  String get maumauOptionAceExplain =>
+      'هر کس آس بازی کند، فوراً دوباره نوبت دارد.';
+
+  @override
+  String get maumauOptionMau => 'گفتن «Mau!»';
+
+  @override
+  String get maumauOptionMauExplain =>
+      'با کارت یکی‌مانده‌به‌آخر اول «Mau!» را بزن. اگر یادت برود، یک کارت جریمه برمی‌داری.';
+
+  @override
+  String maumauOpponentCards(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت',
+      one: 'یک کارت',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maumauYourCards(int count) {
+    return 'کارت‌های تو ($count)';
+  }
+
+  @override
+  String maumauStock(int count) {
+    return 'دسته: $count';
+  }
+
+  @override
+  String maumauStockLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت',
+      one: 'یک کارت',
+    );
+    return 'دستهٔ برداشتن، $_temp0';
+  }
+
+  @override
+  String get maumauDiscard => 'کارت‌های بازی‌شده';
+
+  @override
+  String maumauWish(String suit) {
+    return 'خواسته: $suit';
+  }
+
+  @override
+  String get maumauDraw => 'یک کارت بردار';
+
+  @override
+  String maumauDrawPenalty(int count) {
+    return '$count کارت بردار';
+  }
+
+  @override
+  String get maumauKeep => 'نگه دار';
+
+  @override
+  String get maumauPass => 'رد کن';
+
+  @override
+  String get maumauMauButton => 'Mau!';
+
+  @override
+  String get maumauContinue => 'ادامه';
+
+  @override
+  String get maumauPickSuitTitle => 'کدام خال را می‌خواهی؟';
+
+  @override
+  String get maumauDrewNoFit => 'این کارت را برداشتی. جور نیست.';
+
+  @override
+  String maumauDrewPenalty(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت',
+      one: 'یک کارت',
+    );
+    return '$_temp0 برمی‌داری:';
+  }
+
+  @override
+  String get maumauHintPlay => 'یک کارت جور بازی کن یا یک کارت بردار.';
+
+  @override
+  String maumauHintWish(String suit) {
+    return 'خال خواسته‌شده: $suit. از همین خال بازی کن یا کارت بردار.';
+  }
+
+  @override
+  String maumauHintPenalty(int count) {
+    return 'باید $count کارت برداری.';
+  }
+
+  @override
+  String maumauHintPenaltyStack(int count) {
+    return 'یک 7 بازی کن یا $count کارت بردار.';
+  }
+
+  @override
+  String get maumauHintDrawn => 'کارت برداشته جور است. بازی‌اش کن یا نگهش دار.';
+
+  @override
+  String get maumauHintPass => 'چیزی برای برداشتن نمانده. باید رد کنی.';
+
+  @override
+  String get maumauHintMau =>
+      'کارت یکی‌مانده‌به‌آخر: اول «Mau!» را بزن، بعد بازی کن.';
+
+  @override
+  String maumauLastPlayed(String player, String card) {
+    return '$player $card را بازی کرد.';
+  }
+
+  @override
+  String maumauLastPlayedWish(String player, String card, String suit) {
+    return '$player $card را بازی کرد و $suit می‌خواهد.';
+  }
+
+  @override
+  String maumauLastDrew(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت',
+      one: 'یک کارت',
+    );
+    return '$player $_temp0 برداشت.';
+  }
+
+  @override
+  String maumauLastDrewPenalty(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت جریمه',
+      one: 'یک کارت جریمه',
+    );
+    return '$player $_temp0 برداشت.';
+  }
+
+  @override
+  String maumauLastKept(String player) {
+    return '$player یک کارت برداشت و نگهش داشت.';
+  }
+
+  @override
+  String maumauLastPassed(String player) {
+    return '$player رد کرد.';
+  }
+
+  @override
+  String maumauExtraMau(String player) {
+    return '$player می‌گوید «Mau!».';
+  }
+
+  @override
+  String maumauExtraForgotMau(String player) {
+    return '$player «Mau!» را فراموش کرد و یک کارت جریمه برمی‌دارد.';
+  }
+
+  @override
+  String maumauExtraPenalty(String player, int count) {
+    return '$player باید $count کارت بردارد.';
+  }
+
+  @override
+  String maumauExtraAgain(String player) {
+    return 'نوبت $player رد می‌شود.';
+  }
+
+  @override
+  String maumauExtraAce(String player) {
+    return '$player دوباره نوبت دارد.';
+  }
+
+  @override
+  String get maumauExtraReshuffled =>
+      'کارت‌های بازی‌شده بُر خوردند و دستهٔ تازه شدند.';
+
+  @override
+  String maumauMovePlay(String card) {
+    return '$card را بازی کرد';
+  }
+
+  @override
+  String maumauMovePlayWish(String card, String suit) {
+    return '$card را بازی کرد، $suit می‌خواهد';
+  }
+
+  @override
+  String maumauMoveDraw(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت',
+      one: 'یک کارت',
+    );
+    return '$_temp0 برداشت';
+  }
+
+  @override
+  String get maumauMovePass => 'رد کرد';
+
+  @override
+  String get maumauMoveKeep => 'کارت برداشته را نگه داشت';
 }

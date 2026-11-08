@@ -2,6 +2,7 @@ import 'chess.dart';
 import 'connect4.dart';
 import 'game.dart';
 import 'gostrategy.dart';
+import 'mau_mau.dart';
 import 'muehle.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
@@ -44,6 +45,10 @@ import 'word_tiles.dart';
 /// device only (the network session is 2-player and refuses such a config).
 /// Player names are not part of the config (they are presentation, like in
 /// the 2-player games).
+///
+/// [mauMau] (KLD-118, Mau-Mau only): the house rules ([MauMauRules]), JSON
+/// `maumau` with only the switches that differ from the defaults, written
+/// only when not the defaults.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -54,6 +59,7 @@ class GameConfig {
   final bool jokerSwap;
   final Player chessWhite;
   final int players;
+  final MauMauRules mauMau;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -62,7 +68,8 @@ class GameConfig {
       this.dictionary = false,
       this.jokerSwap = false,
       this.chessWhite = Player.a,
-      this.players = 2});
+      this.players = 2,
+      this.mauMau = const MauMauRules()});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -78,6 +85,7 @@ class GameConfig {
         if (jokerSwap) 'joker': true,
         if (chessWhite == Player.b) 'white': 'b',
         if (players != 2) 'players': players,
+        if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -88,7 +96,8 @@ class GameConfig {
       dictionary: json['dict'] == true,
       jokerSwap: json['joker'] == true,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
-      players: json['players'] as int? ?? 2);
+      players: json['players'] as int? ?? 2,
+      mauMau: MauMauRules.fromJson(json['maumau']));
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -98,7 +107,8 @@ class GameConfig {
       dictionary: dictionary,
       jokerSwap: jokerSwap,
       chessWhite: chessWhite,
-      players: players ?? this.players);
+      players: players ?? this.players,
+      mauMau: mauMau);
 
   @override
   bool operator ==(Object other) =>
@@ -111,16 +121,18 @@ class GameConfig {
       other.dictionary == dictionary &&
       other.jokerSwap == jokerSwap &&
       other.chessWhite == chessWhite &&
-      other.players == players;
+      other.players == players &&
+      other.mauMau == mauMau;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
-      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'})';
+      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
+      '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -218,6 +230,10 @@ final List<GameSpec> gameSpecs = [
   // `joker`; `swaps` on `place` / `requestAllow`, the view's `jokerSwap`).
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
       hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 4, maxPlayers: 4),
+  // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2); house rules
+  // in GameConfig.mauMau (JSON `maumau`).
+  GameSpec('maumau', 'Mau-Mau', (c, _) => MauMauGame(seed: c.seed, rules: c.mauMau),
+      hiddenInformation: true, redaction: const MauMauRedaction()),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

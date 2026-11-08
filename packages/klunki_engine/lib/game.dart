@@ -75,7 +75,9 @@ enum GameEndReason {
   wordtilesPlayedOut('wordtiles.playedOut'),
   /// Word tiles: `turns` consecutive scoreless turns; every rack value was
   /// subtracted. params: `turns`, `a`, `b` (final scores).
-  wordtilesScoreless('wordtiles.scorelessTurns');
+  wordtilesScoreless('wordtiles.scorelessTurns'),
+  /// Mau-Mau (KLD-118): the winner laid the last card.
+  maumauEmptyHand('maumau.emptyHand');
 
   final String code;
   const GameEndReason(this.code);

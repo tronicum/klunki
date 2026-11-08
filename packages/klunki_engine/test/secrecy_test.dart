@@ -13,7 +13,7 @@ void main() {
       expect(s.redaction != null, s.hiddenInformation, reason: s.id);
     }
     expect(hidden.map((s) => s.id), containsAll(['schiffe', 'gostrategy', 'quartett-trumpf', 'quartett-sets']));
-    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets', 'wordtiles']);
+    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets', 'wordtiles', 'maumau']);
   });
 
   for (final spec in hidden) {
@@ -183,6 +183,17 @@ void _sameForViewer(Game game, Game view, Player viewer) {
       expect(v.challengeable?.words, g.challengeable?.words);
       expect([for (final t in v.turns) t.toJson()], [for (final t in g.turns) t.toJson()]);
       expect(v.result.params, g.result.params);
+    case (MauMauGame g, MauMauGame v):
+      expect(v.handOf(viewer), g.handOf(viewer));
+      expect(v.handOf(opp), isEmpty);
+      expect(v.handCount(opp), g.handCount(opp));
+      expect(v.topCard, g.topCard);
+      expect(v.stockCount, g.stockCount);
+      expect(v.discardCount, g.discardCount);
+      expect(v.wish, g.wish);
+      expect(v.penalty, g.penalty);
+      expect(v.hasDrawn, g.hasDrawn);
+      expect(v.drawnCard, g.currentPlayer == viewer ? g.drawnCard : null);
     default:
       fail('unexpected ${game.runtimeType} / ${view.runtimeType}');
   }
