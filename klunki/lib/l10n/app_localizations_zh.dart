@@ -3103,6 +3103,9 @@ class AppLocalizationsZh extends AppLocalizations {
       '一个棋子在同样的两格之间来回走，最多连续 3 次。\n一个棋子走过之后，对方就知道：它不是炸弹，也不是军旗。\n连续 200 步没有交战：平局。谁都不能走时，也是平局。';
 
   @override
+  String get rulesGoZoom => '用两指可以缩放和移动棋盘。放大镜会放大你选中的棋子；再点一下就显示整个棋盘。';
+
+  @override
   String get rulesChessGoal => '将死对方的王：王被攻击，而且逃不掉。';
 
   @override

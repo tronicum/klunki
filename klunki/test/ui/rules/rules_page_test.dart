@@ -201,6 +201,7 @@ void main() {
         expect(find.descendant(of: _key('rules-go-${p.name}'), matching: find.text(deL10n.rulesGoCount(p.count))),
             findsOneWidget);
       }
+      expect(_key('rules-go-zoom'), findsOneWidget);
     });
   });
 

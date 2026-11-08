@@ -3303,6 +3303,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Eine Figur darf höchstens 3-mal hintereinander zwischen denselben zwei Feldern hin und her ziehen.\nHat eine Figur gezogen, weiß der andere: Sie ist keine Bombe und keine Fahne.\n200 Züge hintereinander ohne Kampf: unentschieden. Ebenso, wenn keiner mehr ziehen kann.';
 
   @override
+  String get rulesGoZoom =>
+      'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Die Lupe zoomt auf deine gewählte Figur; noch einmal antippen zeigt das ganze Brett.';
+
+  @override
   String get rulesChessGoal =>
       'Setz den König des anderen schachmatt: Er wird angegriffen und kann nicht mehr entkommen.';
 

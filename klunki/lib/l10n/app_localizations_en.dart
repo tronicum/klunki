@@ -3288,6 +3288,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'A piece may move back and forth between the same two squares at most 3 times in a row.\nOnce a piece has moved, the other player knows: it is not a bomb and not the flag.\n200 moves in a row without a fight: a draw. Also when nobody can move.';
 
   @override
+  String get rulesGoZoom =>
+      'Zoom the board with two fingers and move it around. The magnifier zooms in on your selected piece; tap it again to see the whole board.';
+
+  @override
   String get rulesChessGoal =>
       'Checkmate the other player’s king: it is attacked and cannot escape.';
 

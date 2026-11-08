@@ -4782,6 +4782,10 @@
   "@rulesGoSpecial": {
     "description": "KLD-123: GoStrategy rules, special rules (list, \\n)."
   },
+  "rulesGoZoom": "Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Die Lupe zoomt auf deine gewählte Figur; noch einmal antippen zeigt das ganze Brett.",
+  "@rulesGoZoom": {
+    "description": "KLD-058/KLD-123: GoStrategy rules, zooming the board (two fingers; the zoom button with the magnifier icon, Vergrößern / Ganzes Brett). Matches wordtilesHelpZoom."
+  },
   "rulesChessGoal": "Setz den König des anderen schachmatt: Er wird angegriffen und kann nicht mehr entkommen.",
   "@rulesChessGoal": {
     "description": "KLD-123: chess rules, goal."

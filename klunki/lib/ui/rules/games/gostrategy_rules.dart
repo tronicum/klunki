@@ -17,6 +17,11 @@ GameRules goStrategyRules(BuildContext context, AppLocalizations l10n, GameConfi
         RuleItem.heading(l10n.rulesGoPieces),
         const RuleItem.widget(_PieceTable(), key: Key('rules-go-table')),
         ...ruleLines(l10n.rulesGoSpecial),
+        RuleItem(
+          l10n.rulesGoZoom,
+          key: const Key('rules-go-zoom'),
+          lead: Icon(Icons.pinch_outlined, size: 26, color: Theme.of(context).colorScheme.primary),
+        ),
       ],
     );
 

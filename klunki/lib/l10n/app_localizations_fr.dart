@@ -3317,6 +3317,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Une pièce peut faire l’aller-retour entre les deux mêmes cases au plus 3 fois d’affilée.\nQuand une pièce a bougé, l’autre le sait : ce n’est ni une bombe ni le drapeau.\n200 coups d’affilée sans combat : match nul. De même si plus personne ne peut bouger.';
 
   @override
+  String get rulesGoZoom =>
+      'Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. La loupe zoome sur la pièce choisie ; touche-la encore pour revoir tout le plateau.';
+
+  @override
   String get rulesChessGoal =>
       'Fais échec et mat au roi de l’autre : il est attaqué et ne peut plus s’échapper.';
 

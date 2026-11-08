@@ -3312,6 +3312,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Una pieza puede ir y volver entre las mismas dos casillas como mucho 3 veces seguidas.\nCuando una pieza se ha movido, el rival lo sabe: no es una bomba ni la bandera.\n200 jugadas seguidas sin combate: empate. También si nadie puede mover.';
 
   @override
+  String get rulesGoZoom =>
+      'Con dos dedos haces zoom en el tablero y lo mueves. La lupa amplía la pieza elegida; tócala otra vez para ver todo el tablero.';
+
+  @override
   String get rulesChessGoal =>
       'Dale jaque mate al rey del rival: está atacado y ya no puede escapar.';
 

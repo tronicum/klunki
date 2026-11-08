@@ -5117,6 +5117,12 @@ abstract class AppLocalizations {
   /// **'Eine Figur darf höchstens 3-mal hintereinander zwischen denselben zwei Feldern hin und her ziehen.\nHat eine Figur gezogen, weiß der andere: Sie ist keine Bombe und keine Fahne.\n200 Züge hintereinander ohne Kampf: unentschieden. Ebenso, wenn keiner mehr ziehen kann.'**
   String get rulesGoSpecial;
 
+  /// KLD-058/KLD-123: GoStrategy rules, zooming the board (two fingers; the zoom button with the magnifier icon, Vergrößern / Ganzes Brett). Matches wordtilesHelpZoom.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit zwei Fingern zoomst du das Brett und schiebst es hin und her. Die Lupe zoomt auf deine gewählte Figur; noch einmal antippen zeigt das ganze Brett.'**
+  String get rulesGoZoom;
+
   /// KLD-123: chess rules, goal.
   ///
   /// In de, this message translates to:

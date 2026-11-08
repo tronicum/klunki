@@ -835,6 +835,7 @@
   "rulesGoBomb": "Ne bouge jamais. Qui l’attaque sort du jeu, la bombe reste. Seul le démineur la désamorce.",
   "rulesGoFlag": "Ne bouge jamais. Qui l’attaque gagne la partie.",
   "rulesGoSpecial": "Une pièce peut faire l’aller-retour entre les deux mêmes cases au plus 3 fois d’affilée.\nQuand une pièce a bougé, l’autre le sait : ce n’est ni une bombe ni le drapeau.\n200 coups d’affilée sans combat : match nul. De même si plus personne ne peut bouger.",
+  "rulesGoZoom": "Avec deux doigts, tu zoomes sur le plateau et tu le déplaces. La loupe zoome sur la pièce choisie ; touche-la encore pour revoir tout le plateau.",
   "rulesChessGoal": "Fais échec et mat au roi de l’autre : il est attaqué et ne peut plus s’échapper.",
   "rulesChessTurn": "Les Blancs commencent, puis vous jouez à tour de rôle.\nTouche une de tes pièces, puis une case. Si une pièce de l’autre s’y trouve, tu la prends.\nSeul le cavalier peut sauter par-dessus d’autres pièces.",
   "rulesChessPieces": "Comment bougent les pièces",
