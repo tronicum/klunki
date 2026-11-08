@@ -251,6 +251,10 @@ void main() {
         final c = await _pump(tester, size, config: dict, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
         // Open the bench where it starts collapsed (small phones).
         if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isEmpty) {
+          // Landscape: the bench line is under the actions, scrolled out of
+          // the side panel (KLD-094 step 8); a tap off screen hits nothing.
+          await tester.ensureVisible(find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pumpAndSettle();
           await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
         }
         await _shot(tester, 'bench-$name-0-empty');
@@ -406,6 +410,10 @@ void main() {
         final c = await _pump(tester, size, config: dict, racks: const [anna, ['T', 'E', 'R', 'N', 'O', 'D', 'I']]);
         await _shot(tester, 'polish-$name-1-start');
         if (find.byKey(const Key('wordtiles-bench-0-0')).evaluate().isEmpty) {
+          // Landscape: the bench line is under the actions, scrolled out of
+          // the side panel (KLD-094 step 8); a tap off screen hits nothing.
+          await tester.ensureVisible(find.byKey(const Key('wordtiles-bench-toggle')));
+          await tester.pumpAndSettle();
           await _tap(tester, find.byKey(const Key('wordtiles-bench-toggle')));
           await tester.pumpAndSettle();
         }
@@ -485,8 +493,13 @@ void main() {
         await _pumpScreen(tester, locale: locale, child: buildGameScreen(c));
         await _submit(tester, c, [(7, 4, 'H', null), (7, 5, 'A', null), (7, 6, 'U', null), (7, 7, 'S', null)]);
         // Ben's I makes HAUSI: not in the list, both allow it; Ben is out.
-        final r = await c.submit(WordTilesGame.placeMove([const PlacedTile(7, 8, 'I')], allow: const ['HAUSI']));
-        expect(r.isAccepted, isTrue);
+        // Since rules 3 (KLD-094 step 6) as request and answer, not as a
+        // `place` move carrying `allow`.
+        final r = await c.submit(
+            WordTilesGame.requestAllowMove(Player.b, [const PlacedTile(7, 8, 'I')], const ['HAUSI']));
+        expect(r.isAccepted, isTrue, reason: '$r');
+        final a = await c.submit(WordTilesGame.acceptAllowMove(Player.a));
+        expect(a.isAccepted, isTrue, reason: '$a');
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('result-dialog')), findsOneWidget);
         expect(find.byKey(const Key('wordtiles-result-allowed')), findsOneWidget);
