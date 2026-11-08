@@ -2498,7 +2498,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'Regla de casa: si tienes la letra que representa un comodín del tablero, puedes ponerla en su lugar y llevarte el comodín. Después colocas fichas en el mismo turno.';
+      'Variante de regla: si tienes la letra que representa un comodín del tablero, puedes ponerla en su lugar y llevarte el comodín. Después colocas fichas en el mismo turno.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3150,23 +3150,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get rulesTurn => 'Cómo es un turno';
 
   @override
-  String get rulesSpecial => 'Reglas especiales';
+  String get rulesSpecial => 'Reglas';
 
   @override
-  String get rulesHouse => 'Reglas de casa';
+  String get rulesHouse => 'Variantes de reglas';
 
   @override
-  String get rulesHouseInGame => 'Reglas de casa en esta partida';
-
-  @override
-  String get rulesHouseNoneForGame => 'Este juego no tiene reglas de casa.';
-
-  @override
-  String get rulesHouseNoneOn => 'Ahora no hay ninguna regla de casa activada.';
+  String get rulesHouseInGame => 'Variantes de reglas en esta partida';
 
   @override
   String get rulesHouseMenuNote =>
-      'Esto es lo que se propone. Antes de la partida podéis cambiar las reglas de casa.';
+      'Esto es lo que se propone. Antes de la partida podéis cambiar las variantes de reglas.';
 
   @override
   String get rulesNewHere => '¿Primera vez? Así se juega';
@@ -3432,7 +3426,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'Cambiar el comodín (regla de casa): si tienes la letra que representa un comodín del tablero, arrástrala sobre el comodín. El comodín pasa a tus fichas y colocas fichas en el mismo turno (el comodín puede ser una de ellas). Sin colocar, el cambio no cuenta. La palabra de antes y sus puntos se quedan.';
+      'Cambiar el comodín (variante de regla): si tienes la letra que representa un comodín del tablero, arrástrala sobre el comodín. El comodín pasa a tus fichas y colocas fichas en el mismo turno (el comodín puede ser una de ellas). Sin colocar, el cambio no cuenta. La palabra de antes y sus puntos se quedan.';
 
   @override
   String get wordtilesHelpJokerOn => 'Activada en esta partida.';
@@ -3607,7 +3601,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dicesheetTotal => 'Total';
 
   @override
-  String get dicesheetOptionExtraFives => 'Cinco iguales extra (regla de casa)';
+  String get dicesheetOptionExtraFives =>
+      'Cinco iguales extra (variante de regla)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

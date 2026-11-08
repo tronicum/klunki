@@ -3950,7 +3950,7 @@ abstract class AppLocalizations {
   /// Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default).
   ///
   /// In de, this message translates to:
-  /// **'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.'**
+  /// **'Regelvariante: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.'**
   String get wordtilesOptionJokerExplain;
 
   /// Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.
@@ -4859,40 +4859,28 @@ abstract class AppLocalizations {
   /// **'So läuft ein Zug'**
   String get rulesTurn;
 
-  /// KLD-123: rules page section: special rules.
+  /// KLD-123: rules page section: the rules of the game (maintainer: plain "Regeln", not "Besondere Regeln").
   ///
   /// In de, this message translates to:
-  /// **'Besondere Regeln'**
+  /// **'Regeln'**
   String get rulesSpecial;
 
-  /// KLD-123: rules page section (opened from the menu): the suggested house rules.
+  /// KLD-123: rules page section (opened from the menu): the rule variants on by default ("Regelvarianten", not "Hausregeln"). Shown only when one is on.
   ///
   /// In de, this message translates to:
-  /// **'Hausregeln'**
+  /// **'Regelvarianten'**
   String get rulesHouse;
 
-  /// KLD-123: rules page section (opened in a game): the house rules switched on in this game.
+  /// KLD-123: rules page section (opened in a game): the rule variants switched on in this game. Shown only when one is on.
   ///
   /// In de, this message translates to:
-  /// **'Hausregeln in diesem Spiel'**
+  /// **'Regelvarianten in diesem Spiel'**
   String get rulesHouseInGame;
 
-  /// KLD-123: rules page, house rules section of a game without house rules.
+  /// KLD-123: rules page opened from the menu, under the rule variants of a game where they are chosen before the start.
   ///
   /// In de, this message translates to:
-  /// **'Für dieses Spiel gibt es keine Hausregeln.'**
-  String get rulesHouseNoneForGame;
-
-  /// KLD-123: rules page, house rules section when all house rules are off.
-  ///
-  /// In de, this message translates to:
-  /// **'Gerade ist keine Hausregel an.'**
-  String get rulesHouseNoneOn;
-
-  /// KLD-123: rules page opened from the menu, under the house rules of a game where they are chosen before the start.
-  ///
-  /// In de, this message translates to:
-  /// **'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.'**
+  /// **'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Regelvarianten ändern.'**
   String get rulesHouseMenuNote;
 
   /// KLD-123: tappable line under the status line for new players of a game; opens the rules page.
@@ -5318,7 +5306,7 @@ abstract class AppLocalizations {
   /// Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9).
   ///
   /// In de, this message translates to:
-  /// **'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.'**
+  /// **'Joker tauschen (Regelvariante): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.'**
   String get wordtilesHelpJoker;
 
   /// Word tiles rules sheet: under wordtilesHelpJoker, the house rule is on in this game.
@@ -5600,7 +5588,7 @@ abstract class AppLocalizations {
   /// KLD-119: house rule switch in the start options.
   ///
   /// In de, this message translates to:
-  /// **'Extra-Fünfer (Hausregel)'**
+  /// **'Extra-Fünfer (Regelvariante)'**
   String get dicesheetOptionExtraFives;
 
   /// KLD-119: explanation under the house rule switch.

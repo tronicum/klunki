@@ -3651,7 +3651,7 @@
   "@wordtilesOptionJoker": {
     "description": "Word tiles start options: switch for the house rule 'Joker tauschen' (KLD-094 step 9): a player holding the letter a laid blank stands for may put it there and take the blank."
   },
-  "wordtilesOptionJokerExplain": "Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.",
+  "wordtilesOptionJokerExplain": "Regelvariante: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.",
   "@wordtilesOptionJokerExplain": {
     "description": "Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default)."
   },
@@ -4589,29 +4589,21 @@
   "@rulesTurn": {
     "description": "KLD-123: rules page section: what a player does on a turn."
   },
-  "rulesSpecial": "Besondere Regeln",
+  "rulesSpecial": "Regeln",
   "@rulesSpecial": {
-    "description": "KLD-123: rules page section: special rules."
+    "description": "KLD-123: rules page section: the rules of the game (maintainer: plain \"Regeln\", not \"Besondere Regeln\")."
   },
-  "rulesHouse": "Hausregeln",
+  "rulesHouse": "Regelvarianten",
   "@rulesHouse": {
-    "description": "KLD-123: rules page section (opened from the menu): the suggested house rules."
+    "description": "KLD-123: rules page section (opened from the menu): the rule variants on by default (\"Regelvarianten\", not \"Hausregeln\"). Shown only when one is on."
   },
-  "rulesHouseInGame": "Hausregeln in diesem Spiel",
+  "rulesHouseInGame": "Regelvarianten in diesem Spiel",
   "@rulesHouseInGame": {
-    "description": "KLD-123: rules page section (opened in a game): the house rules switched on in this game."
+    "description": "KLD-123: rules page section (opened in a game): the rule variants switched on in this game. Shown only when one is on."
   },
-  "rulesHouseNoneForGame": "Für dieses Spiel gibt es keine Hausregeln.",
-  "@rulesHouseNoneForGame": {
-    "description": "KLD-123: rules page, house rules section of a game without house rules."
-  },
-  "rulesHouseNoneOn": "Gerade ist keine Hausregel an.",
-  "@rulesHouseNoneOn": {
-    "description": "KLD-123: rules page, house rules section when all house rules are off."
-  },
-  "rulesHouseMenuNote": "So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.",
+  "rulesHouseMenuNote": "So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Regelvarianten ändern.",
   "@rulesHouseMenuNote": {
-    "description": "KLD-123: rules page opened from the menu, under the house rules of a game where they are chosen before the start."
+    "description": "KLD-123: rules page opened from the menu, under the rule variants of a game where they are chosen before the start."
   },
   "rulesNewHere": "Neu hier? So geht’s",
   "@rulesNewHere": {
@@ -4919,7 +4911,7 @@
   "@wordtilesHelp": {
     "description": "Word tiles: title / tooltip of the short rules sheet."
   },
-  "wordtilesHelpJoker": "Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.",
+  "wordtilesHelpJoker": "Joker tauschen (Regelvariante): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.",
   "@wordtilesHelpJoker": {
     "description": "Word tiles rules sheet: the house rule 'Joker tauschen' (KLD-094 step 9)."
   },
@@ -5194,7 +5186,7 @@
   "@dicesheetTotal": {
     "description": "KLD-119: the totals row of the sheet."
   },
-  "dicesheetOptionExtraFives": "Extra-Fünfer (Hausregel)",
+  "dicesheetOptionExtraFives": "Extra-Fünfer (Regelvariante)",
   "@dicesheetOptionExtraFives": {
     "description": "KLD-119: house rule switch in the start options."
   },

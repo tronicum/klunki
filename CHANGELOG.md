@@ -56,7 +56,8 @@ short German summary ("Kurz") for the store notes and the testers.
   on one device, where each player chooses in "Wer spielt?".
 
 - **Rules for every game** (KLD-123): a "Spielregeln" page per game, the same parts everywhere (Ziel, So läuft
-  ein Zug, Besondere Regeln, and the house rules that are on in this game), with small pictures: the chess
+  ein Zug, Regeln, and "Regelvarianten": the rule variants that are on in this game, left out when none is on;
+  the start options say "Regelvariante" instead of "Hausregel" too), with small pictures: the chess
   pieces and how they move, a GoStrategy table of all pieces (rank, how many, who beats whom), the Mau-Mau
   special cards, the Mäxchen value order with dice. Open it with "Regeln" (book icon) at the top right of every
   game, or from the "Regeln" link on each game in the menu. New players see "Neu hier? So geht's" under the

@@ -2494,7 +2494,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'Hausregel: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.';
+      'Regelvariante: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3140,24 +3140,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get rulesTurn => 'So läuft ein Zug';
 
   @override
-  String get rulesSpecial => 'Besondere Regeln';
+  String get rulesSpecial => 'Regeln';
 
   @override
-  String get rulesHouse => 'Hausregeln';
+  String get rulesHouse => 'Regelvarianten';
 
   @override
-  String get rulesHouseInGame => 'Hausregeln in diesem Spiel';
-
-  @override
-  String get rulesHouseNoneForGame =>
-      'Für dieses Spiel gibt es keine Hausregeln.';
-
-  @override
-  String get rulesHouseNoneOn => 'Gerade ist keine Hausregel an.';
+  String get rulesHouseInGame => 'Regelvarianten in diesem Spiel';
 
   @override
   String get rulesHouseMenuNote =>
-      'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Hausregeln ändern.';
+      'So ist es vorgeschlagen. Vor dem Spiel könnt ihr die Regelvarianten ändern.';
 
   @override
   String get rulesNewHere => 'Neu hier? So geht’s';
@@ -3424,7 +3417,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'Joker tauschen (Hausregel): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.';
+      'Joker tauschen (Regelvariante): Hast du den Buchstaben, für den ein Joker auf dem Brett steht, ziehe ihn auf den Joker. Der Joker kommt zu deinen Steinen, und du legst im selben Zug noch Steine (der Joker darf gleich mit). Ohne Legen gilt der Tausch nicht. Das schon gelegte Wort und seine Punkte bleiben.';
 
   @override
   String get wordtilesHelpJokerOn => 'In diesem Spiel an.';
@@ -3598,7 +3591,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dicesheetTotal => 'Gesamt';
 
   @override
-  String get dicesheetOptionExtraFives => 'Extra-Fünfer (Hausregel)';
+  String get dicesheetOptionExtraFives => 'Extra-Fünfer (Regelvariante)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

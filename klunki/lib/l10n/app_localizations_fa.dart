@@ -2429,7 +2429,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'قانون خانگی: اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، می‌توانی آن را همان‌جا بگذاری و کاشی خالی را برداری. بعد در همان نوبت کاشی هم می‌گذاری.';
+      'قانون جایگزین: اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، می‌توانی آن را همان‌جا بگذاری و کاشی خالی را برداری. بعد در همان نوبت کاشی هم می‌گذاری.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3054,23 +3054,17 @@ class AppLocalizationsFa extends AppLocalizations {
   String get rulesTurn => 'یک نوبت چطور پیش می‌رود';
 
   @override
-  String get rulesSpecial => 'قانون‌های ویژه';
+  String get rulesSpecial => 'قانون‌ها';
 
   @override
-  String get rulesHouse => 'قانون‌های خانگی';
+  String get rulesHouse => 'قانون‌های جایگزین';
 
   @override
-  String get rulesHouseInGame => 'قانون‌های خانگی در این بازی';
-
-  @override
-  String get rulesHouseNoneForGame => 'این بازی قانون خانگی ندارد.';
-
-  @override
-  String get rulesHouseNoneOn => 'الان هیچ قانون خانگی‌ای روشن نیست.';
+  String get rulesHouseInGame => 'قانون‌های جایگزین در این بازی';
 
   @override
   String get rulesHouseMenuNote =>
-      'این‌ها پیشنهاد ما هستند. پیش از بازی می‌توانید قانون‌های خانگی را تغییر دهید.';
+      'این‌ها پیشنهاد ما هستند. پیش از بازی می‌توانید قانون‌های جایگزین را تغییر دهید.';
 
   @override
   String get rulesNewHere => 'تازه آمده‌ای؟ روش بازی';
@@ -3338,7 +3332,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'عوض کردن کاشی خالی (قانون خانگی): اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، آن را روی کاشی خالی بکش. کاشی خالی به کاشی‌های تو می‌آید و در همان نوبت کاشی هم می‌گذاری (کاشی خالی هم می‌تواند جزو آن‌ها باشد). بدون گذاشتن کاشی، تعویض حساب نمی‌شود. واژهٔ قبلی و امتیازش می‌ماند.';
+      'عوض کردن کاشی خالی (قانون جایگزین): اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، آن را روی کاشی خالی بکش. کاشی خالی به کاشی‌های تو می‌آید و در همان نوبت کاشی هم می‌گذاری (کاشی خالی هم می‌تواند جزو آن‌ها باشد). بدون گذاشتن کاشی، تعویض حساب نمی‌شود. واژهٔ قبلی و امتیازش می‌ماند.';
 
   @override
   String get wordtilesHelpJokerOn => 'در این بازی روشن است.';
@@ -3506,7 +3500,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dicesheetTotal => 'جمع';
 
   @override
-  String get dicesheetOptionExtraFives => 'پنج‌تایی اضافه (قانون خانگی)';
+  String get dicesheetOptionExtraFives => 'پنج‌تایی اضافه (قانون جایگزین)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

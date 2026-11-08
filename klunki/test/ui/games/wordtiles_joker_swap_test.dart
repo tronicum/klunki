@@ -204,7 +204,7 @@ void main() {
     await tester.tap(find.byKey(const Key('wordtiles-joker')));
     await tester.pumpAndSettle();
     expect(tester.widget<SwitchListTile>(find.byKey(const Key('wordtiles-joker'))).value, isTrue);
-    expect(_text(tester, const Key('wordtiles-joker-explain')), startsWith('House rule'));
+    expect(_text(tester, const Key('wordtiles-joker-explain')), startsWith('Rule variant'));
     await tester.tap(find.byKey(const Key('wordtiles-options-next')));
     await tester.pumpAndSettle();
     if (find.byKey(const Key('hot-seat-names-ok')).evaluate().isNotEmpty) {

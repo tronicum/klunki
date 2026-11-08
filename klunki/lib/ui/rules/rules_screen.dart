@@ -13,7 +13,7 @@ import 'rules_registry.dart';
 bool hasRules(String gameId) => gameRules.containsKey(gameId);
 
 /// Opens the rules page of [gameId] (KLD-123). [config] is the running
-/// game's config (its house rules are shown); null from the menu (the
+/// game's config (its rule variants are shown); null from the menu (the
 /// defaults). Marks the page as seen for the "Neu hier?" line.
 Future<void> openRules(BuildContext context, String gameId, {GameConfig? config}) {
   SeenTips.shared.markFirst(SeenTips.rulesOpened(gameId));
@@ -23,12 +23,12 @@ Future<void> openRules(BuildContext context, String gameId, {GameConfig? config}
 }
 
 /// "Spielregeln" of one game (KLD-123), the same parts for every game:
-/// Ziel, So läuft ein Zug, Besondere Regeln and the house rules that are on
-/// (in this game, or the suggested ones from the menu).
+/// Ziel, So läuft ein Zug, Regeln and the rule variants ("Regelvarianten",
+/// called house rules in the code) that are on: in this game, or the ones on
+/// by default from the menu. Without one that is on, that section is left out.
 ///
 /// Keys: `rules-page`, `rules-goal`, `rules-turn`, `rules-special`,
-/// `rules-house`, `rules-house-<id>`, `rules-house-none`,
-/// `rules-house-menu-note`.
+/// `rules-house`, `rules-house-<id>`, `rules-house-menu-note`.
 class RulesScreen extends StatelessWidget {
   final String gameId;
 
@@ -177,23 +177,21 @@ class RulesScreen extends StatelessWidget {
                 section('rules-special', Icons.auto_awesome_outlined, l10n.rulesSpecial, [
                   for (final i in rules.special) item(i),
                 ]),
-                section('rules-house', Icons.home_outlined, inGame ? l10n.rulesHouseInGame : l10n.rulesHouse, [
-                  if (rules.houseRules.isEmpty)
-                    Text(l10n.rulesHouseNoneForGame, key: const Key('rules-house-none'), style: theme.textTheme.bodyLarge)
-                  else if (on.isEmpty)
-                    Text(l10n.rulesHouseNoneOn, key: const Key('rules-house-none'), style: theme.textTheme.bodyLarge)
-                  else
+                // Rule variants only when one is on (in this game, or on by
+                // default from the menu); no "none" sentence (maintainer).
+                if (on.isNotEmpty)
+                  section('rules-house', Icons.tune, inGame ? l10n.rulesHouseInGame : l10n.rulesHouse, [
                     for (final h in on) house(h),
-                  if (!inGame && rules.choosable)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        l10n.rulesHouseMenuNote,
-                        key: const Key('rules-house-menu-note'),
-                        style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                    if (!inGame && rules.choosable)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          l10n.rulesHouseMenuNote,
+                          key: const Key('rules-house-menu-note'),
+                          style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                        ),
                       ),
-                    ),
-                ]),
+                  ]),
               ],
               ),
             ),

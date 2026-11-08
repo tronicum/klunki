@@ -2459,7 +2459,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'قاعدة منزلية: إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فضعه مكانها وخذ البلاطة الفارغة. بعد ذلك تضع بلاطات في الدور نفسه.';
+      'قاعدة بديلة: إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فضعه مكانها وخذ البلاطة الفارغة. بعد ذلك تضع بلاطات في الدور نفسه.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3143,23 +3143,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rulesTurn => 'كيف يسير الدور';
 
   @override
-  String get rulesSpecial => 'قواعد خاصة';
+  String get rulesSpecial => 'القواعد';
 
   @override
-  String get rulesHouse => 'القواعد المنزلية';
+  String get rulesHouse => 'القواعد البديلة';
 
   @override
-  String get rulesHouseInGame => 'القواعد المنزلية في هذه اللعبة';
-
-  @override
-  String get rulesHouseNoneForGame => 'لا توجد قواعد منزلية لهذه اللعبة.';
-
-  @override
-  String get rulesHouseNoneOn => 'لا توجد قاعدة منزلية مفعّلة الآن.';
+  String get rulesHouseInGame => 'القواعد البديلة في هذه اللعبة';
 
   @override
   String get rulesHouseMenuNote =>
-      'هذا هو الاقتراح. يمكنكم تغيير القواعد المنزلية قبل اللعب.';
+      'هذا هو الاقتراح. يمكنكم تغيير القواعد البديلة قبل اللعب.';
 
   @override
   String get rulesNewHere => 'جديد هنا؟ هكذا تلعب';
@@ -3422,7 +3416,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'تبديل البلاطة الفارغة (قاعدة منزلية): إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فاسحبه إليها. تنضمّ البلاطة الفارغة إلى بلاطاتك، وتضع بلاطات في الدور نفسه (ويمكن أن تكون البلاطة الفارغة منها). بلا وضع بلاطات لا يُحسب التبديل. تبقى الكلمة القديمة ونقاطها.';
+      'تبديل البلاطة الفارغة (قاعدة بديلة): إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فاسحبه إليها. تنضمّ البلاطة الفارغة إلى بلاطاتك، وتضع بلاطات في الدور نفسه (ويمكن أن تكون البلاطة الفارغة منها). بلا وضع بلاطات لا يُحسب التبديل. تبقى الكلمة القديمة ونقاطها.';
 
   @override
   String get wordtilesHelpJokerOn => 'مفعّلة في هذه اللعبة.';
@@ -3598,7 +3592,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dicesheetTotal => 'المجموع';
 
   @override
-  String get dicesheetOptionExtraFives => 'خمسة إضافية (قاعدة منزلية)';
+  String get dicesheetOptionExtraFives => 'خمسة إضافية (قاعدة بديلة)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

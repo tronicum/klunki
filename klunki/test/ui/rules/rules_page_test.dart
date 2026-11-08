@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/rules/rules_registry.dart';
 import 'package:klunki/ui/rules/rules_screen.dart';
@@ -38,10 +39,17 @@ Future<void> _back(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-void _expectParts() {
-  for (final part in ['rules-page', 'rules-goal', 'rules-turn', 'rules-special', 'rules-house']) {
+/// Checks the parts of the open rules page; returns whether it has the
+/// "Regelvarianten" section, which is there exactly when a variant is on.
+bool _expectParts(WidgetTester tester, GameConfig config) {
+  for (final part in ['rules-page', 'rules-goal', 'rules-turn', 'rules-special']) {
     expect(_key(part), findsOneWidget, reason: part);
   }
+  final context = tester.element(find.byType(RulesScreen));
+  final rules = gameRules[config.gameId]!(context, AppLocalizations.of(context), config);
+  final anyOn = rules.houseRules.any((h) => h.on);
+  expect(_key('rules-house'), anyOn ? findsOneWidget : findsNothing, reason: 'rules-house');
+  return anyOn;
 }
 
 void main() {
@@ -65,8 +73,8 @@ void main() {
         expect(_key('shell-rules'), findsOneWidget);
         expect(find.descendant(of: find.byType(AppBar), matching: _key('shell-rules')), findsOneWidget);
         await _tap(tester, 'shell-rules');
-        _expectParts();
-        expect(find.text(deL10n.rulesHouseInGame), findsOneWidget);
+        final house = _expectParts(tester, GameConfig(id, seed: 3));
+        expect(find.text(deL10n.rulesHouseInGame), house ? findsOneWidget : findsNothing);
         expect(_key('rules-house-menu-note'), findsNothing);
         expect(tester.takeException(), isNull);
         expect(SeenTips.shared.has(SeenTips.rulesOpened(id)), isTrue);
@@ -83,8 +91,8 @@ void main() {
         await tester.pumpWidget(klunkiApp());
         await tester.pumpAndSettle();
         await _tap(tester, 'menu-$id-rules');
-        _expectParts();
-        expect(find.text(deL10n.rulesHouse), findsOneWidget);
+        final house = _expectParts(tester, GameConfig(id));
+        expect(find.text(deL10n.rulesHouse), house ? findsOneWidget : findsNothing);
         expect(tester.takeException(), isNull);
       });
     }
@@ -100,12 +108,14 @@ void main() {
       expect(_key('rules-house-menu-note'), findsOneWidget);
     });
 
-    testWidgets('Wortgewandt: no house rule on by default', (tester) async {
+    testWidgets('Wortgewandt: no rule variant on by default, no Regelvarianten section', (tester) async {
       await tester.pumpWidget(klunkiApp());
       await tester.pumpAndSettle();
       await _tap(tester, 'menu-wordtiles-rules');
-      expect(_key('rules-house-none'), findsOneWidget);
-      expect(find.text(deL10n.rulesHouseNoneOn), findsOneWidget);
+      expect(_key('rules-special'), findsOneWidget);
+      expect(_key('rules-house'), findsNothing);
+      expect(_key('rules-house-menu-note'), findsNothing);
+      expect(find.text(deL10n.rulesHouse), findsNothing);
     });
   });
 
@@ -139,6 +149,7 @@ void main() {
       await _tap(tester, 'shell-rules');
       expect(_key('rules-house-mustPlay'), findsNothing);
       expect(line('Passt keine Karte oder willst du keine legen, ziehst du 1 Karte.'), isTrue);
+      expect(find.text(deL10n.rulesHouseInGame), findsOneWidget, reason: 'other variants are on');
     });
 
     testWidgets('Mäxchen: 5 lives, "Mäxchen doppelt" off', (tester) async {
@@ -172,10 +183,11 @@ void main() {
       expect(_key('rules-house-pickLow'), findsOneWidget);
     });
 
-    testWidgets('chess: no house rules; every piece explained', (tester) async {
+    testWidgets('chess: no rule variants section; every piece explained', (tester) async {
       await _pumpGame(tester, const GameConfig('chess'));
       await _tap(tester, 'shell-rules');
-      expect(find.text(deL10n.rulesHouseNoneForGame), findsOneWidget);
+      expect(find.text(deL10n.rulesSpecial), findsOneWidget);
+      expect(_key('rules-house'), findsNothing);
       for (final t in ChessPieceType.values) {
         expect(_key('rules-chess-${t.name}'), findsOneWidget, reason: t.name);
       }
@@ -198,7 +210,7 @@ void main() {
       expect(_key('shell-rules-intro'), findsOneWidget);
       expect(find.text(deL10n.rulesNewHere), findsOneWidget);
       await _tap(tester, 'shell-rules-intro');
-      _expectParts();
+      _expectParts(tester, const GameConfig('connect4'));
       await _back(tester);
       expect(_key('shell-rules-intro'), findsNothing);
       // The next game: still gone.

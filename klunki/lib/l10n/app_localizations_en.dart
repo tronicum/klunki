@@ -2483,7 +2483,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'House rule: if you hold the letter a blank on the board stands for, you may put it there and take the blank. Then you still lay tiles in the same turn.';
+      'Rule variant: if you hold the letter a blank on the board stands for, you may put it there and take the blank. Then you still lay tiles in the same turn.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3124,23 +3124,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rulesTurn => 'How a turn works';
 
   @override
-  String get rulesSpecial => 'Special rules';
+  String get rulesSpecial => 'Rules';
 
   @override
-  String get rulesHouse => 'House rules';
+  String get rulesHouse => 'Rule variants';
 
   @override
-  String get rulesHouseInGame => 'House rules in this game';
-
-  @override
-  String get rulesHouseNoneForGame => 'This game has no house rules.';
-
-  @override
-  String get rulesHouseNoneOn => 'No house rule is switched on.';
+  String get rulesHouseInGame => 'Rule variants in this game';
 
   @override
   String get rulesHouseMenuNote =>
-      'These are the suggested ones. You can change the house rules before the game.';
+      'These are the suggested ones. You can change the rule variants before the game.';
 
   @override
   String get rulesNewHere => 'New here? How to play';
@@ -3408,7 +3402,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'Swap the blank (house rule): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
+      'Swap the blank (rule variant): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
 
   @override
   String get wordtilesHelpJokerOn => 'On in this game.';
@@ -3582,7 +3576,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dicesheetTotal => 'Total';
 
   @override
-  String get dicesheetOptionExtraFives => 'Extra fives (house rule)';
+  String get dicesheetOptionExtraFives => 'Extra fives (rule variant)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

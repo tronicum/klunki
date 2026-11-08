@@ -2505,7 +2505,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      'Règle maison : si tu as la lettre que remplace un joker sur le plateau, tu peux la poser à sa place et prendre le joker. Ensuite, tu poses encore des lettres dans le même tour.';
+      'Variante de règle : si tu as la lettre que remplace un joker sur le plateau, tu peux la poser à sa place et prendre le joker. Ensuite, tu poses encore des lettres dans le même tour.';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -3153,24 +3153,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get rulesTurn => 'Comment se joue un tour';
 
   @override
-  String get rulesSpecial => 'Règles spéciales';
+  String get rulesSpecial => 'Règles';
 
   @override
-  String get rulesHouse => 'Règles maison';
+  String get rulesHouse => 'Variantes de règles';
 
   @override
-  String get rulesHouseInGame => 'Règles maison dans cette partie';
-
-  @override
-  String get rulesHouseNoneForGame => 'Ce jeu n’a pas de règles maison.';
-
-  @override
-  String get rulesHouseNoneOn =>
-      'Aucune règle maison n’est activée pour l’instant.';
+  String get rulesHouseInGame => 'Variantes de règles dans cette partie';
 
   @override
   String get rulesHouseMenuNote =>
-      'Voici ce qui est proposé. Avant la partie, vous pouvez changer les règles maison.';
+      'Voici ce qui est proposé. Avant la partie, vous pouvez changer les variantes de règles.';
 
   @override
   String get rulesNewHere => 'Première fois ? Voici comment jouer';
@@ -3439,7 +3432,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      'Échanger le joker (règle maison) : si tu as la lettre que remplace un joker sur le plateau, glisse-la sur le joker. Le joker rejoint tes lettres, et tu poses encore des lettres dans le même tour (le joker peut en faire partie). Sans pose, l’échange ne compte pas. L’ancien mot et ses points restent.';
+      'Échanger le joker (variante de règle) : si tu as la lettre que remplace un joker sur le plateau, glisse-la sur le joker. Le joker rejoint tes lettres, et tu poses encore des lettres dans le même tour (le joker peut en faire partie). Sans pose, l’échange ne compte pas. L’ancien mot et ses points restent.';
 
   @override
   String get wordtilesHelpJokerOn => 'Activée dans cette partie.';
@@ -3614,7 +3607,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dicesheetTotal => 'Total';
 
   @override
-  String get dicesheetOptionExtraFives => 'Cinq pareils en plus (règle maison)';
+  String get dicesheetOptionExtraFives =>
+      'Cinq pareils en plus (variante de règle)';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>

@@ -2356,7 +2356,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wordtilesOptionJokerExplain =>
-      '自选玩法：如果你有棋盘上空白牌代表的字母，可以把它放到那里，取走空白牌。然后本轮还要出牌。';
+      '规则变体：如果你有棋盘上空白牌代表的字母，可以把它放到那里，取走空白牌。然后本轮还要出牌。';
 
   @override
   String wordtilesOptionsSummaryJoker(String summary) {
@@ -2956,22 +2956,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get rulesTurn => '轮到你时怎么做';
 
   @override
-  String get rulesSpecial => '特别规则';
+  String get rulesSpecial => '规则';
 
   @override
-  String get rulesHouse => '自选玩法';
+  String get rulesHouse => '规则变体';
 
   @override
-  String get rulesHouseInGame => '本局的自选玩法';
+  String get rulesHouseInGame => '本局的规则变体';
 
   @override
-  String get rulesHouseNoneForGame => '这个游戏没有自选玩法。';
-
-  @override
-  String get rulesHouseNoneOn => '现在没有打开任何自选玩法。';
-
-  @override
-  String get rulesHouseMenuNote => '这是建议的设置。开局前你们可以更改自选玩法。';
+  String get rulesHouseMenuNote => '这是建议的设置。开局前你们可以更改规则变体。';
 
   @override
   String get rulesNewHere => '第一次玩？看看怎么玩';
@@ -3215,7 +3209,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wordtilesHelpJoker =>
-      '换空白牌（自选玩法）：如果你有棋盘上空白牌代表的字母，把它拖到空白牌上。空白牌回到你手里，本轮你还要出牌（可以用这张空白牌）。不出牌就不算换。之前的字和分数不变。';
+      '换空白牌（规则变体）：如果你有棋盘上空白牌代表的字母，把它拖到空白牌上。空白牌回到你手里，本轮你还要出牌（可以用这张空白牌）。不出牌就不算换。之前的字和分数不变。';
 
   @override
   String get wordtilesHelpJokerOn => '本局已打开。';
@@ -3380,7 +3374,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dicesheetTotal => '总分';
 
   @override
-  String get dicesheetOptionExtraFives => '额外五同（自定规则）';
+  String get dicesheetOptionExtraFives => '额外五同（规则变体）';
 
   @override
   String get dicesheetOptionExtraFivesExplain =>
