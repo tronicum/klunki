@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
@@ -130,7 +131,27 @@ enum GoPieceLook {
 
   /// Variant C: like [insignia], stars, bars and chevrons in gold.
   insigniaGold,
+
+  /// Variant B1: [insignia] with a thin black outline around the white shapes.
+  insigniaBlack,
+
+  /// Variant B2: [insignia] with a thin dark grey outline.
+  insigniaGrey,
+
+  /// Variant B3: [insignia] with a soft dark halo instead of an outline.
+  insigniaHalo,
 }
+
+/// Outline colour of [look] (null: none) and whether it is a soft halo.
+(Color?, bool) goInsigniaEdge(GoPieceLook look) => switch (look) {
+  GoPieceLook.insigniaBlack => (const Color(0xFF000000), false),
+  GoPieceLook.insigniaGrey => (const Color(0xFF3C3C3C), false),
+  GoPieceLook.insigniaHalo => (const Color(0xB3000000), true),
+  _ => (null, false),
+};
+
+/// Outline width for a tile or insignia of [size] px: 3 % of it, 0.8–1.5 px.
+double goInsigniaEdgeWidth(double size) => (size * 0.03).clamp(0.8, 1.5);
 
 /// The look the app uses. KLD-058: stays [GoPieceLook.classic] until the
 /// maintainer has chosen from the variant sheet (`kld058-insignia`).
@@ -213,6 +234,7 @@ class GoPieceTile extends StatelessWidget {
       final layout = GoInsigniaLayout(look, rankNumber: rankNumber, eye: known && size >= 26);
       final area = layout.area(kind);
       final boardLook = look == GoPieceLook.shoulderBoard && kind.rank != null;
+      final (edge, halo) = goInsigniaEdge(look);
       face = Stack(
         children: [
           Positioned(
@@ -224,8 +246,11 @@ class GoPieceTile extends StatelessWidget {
               painter: GoInsigniaPainter(
                 piece: kind,
                 ink: ink,
-                accent: look == GoPieceLook.insignia ? null : goInsigniaGold,
+                accent: look == GoPieceLook.insigniaGold || look == GoPieceLook.shoulderBoard ? goInsigniaGold : null,
                 board: boardLook ? Color.lerp(color, Colors.black, 0.45) : null,
+                edge: edge,
+                edgeWidth: goInsigniaEdgeWidth(size),
+                halo: halo,
               ),
             ),
           ),
@@ -364,20 +389,40 @@ class GoInsigniaLayout {
 /// [accent] (null: ink) colours stars, bars, chevrons and small details;
 /// [board] (null: none) puts the insignia on a shoulder board of that
 /// colour. Holes (lenses, eye holes) show what lies beneath, so it works on
-/// any background (rules pages).
+/// any background (rules pages). [edge] (null: none) draws a thin outline of
+/// that colour around the shapes, or a soft glow if [halo].
 class GoInsignia extends StatelessWidget {
   final GoPiece piece;
   final Color color;
   final double size;
   final Color? accent;
   final Color? board;
+  final Color? edge;
+  final bool halo;
 
-  const GoInsignia({super.key, required this.piece, required this.color, required this.size, this.accent, this.board});
+  const GoInsignia({
+    super.key,
+    required this.piece,
+    required this.color,
+    required this.size,
+    this.accent,
+    this.board,
+    this.edge,
+    this.halo = false,
+  });
 
   @override
   Widget build(BuildContext context) => CustomPaint(
     size: Size.square(size),
-    painter: GoInsigniaPainter(piece: piece, ink: color, accent: accent, board: board),
+    painter: GoInsigniaPainter(
+      piece: piece,
+      ink: color,
+      accent: accent,
+      board: board,
+      edge: edge,
+      edgeWidth: goInsigniaEdgeWidth(size),
+      halo: halo,
+    ),
   );
 }
 
@@ -389,14 +434,30 @@ class GoInsignia extends StatelessWidget {
 /// the canvas height (or its width / 1.3 when that is less, so the widest
 /// picture, the cap, still fits). With [board] the canvas holds a shoulder
 /// board (width 5/8 of its height, always the same outline) and the
-/// insignia sits on it below the button.
+/// insignia sits on it below the button. Free-standing (no board), the
+/// single star and the bar are larger, like a picture.
+///
+/// [edge]: a thin outline of that colour, [edgeWidth] px wide, around the
+/// whole insignia (holes included), so white shapes keep a border on any
+/// background; with [halo] a soft glow instead.
 class GoInsigniaPainter extends CustomPainter {
   final GoPiece piece;
   final Color ink;
   final Color? accent;
   final Color? board;
+  final Color? edge;
+  final double edgeWidth;
+  final bool halo;
 
-  const GoInsigniaPainter({required this.piece, required this.ink, this.accent, this.board});
+  const GoInsigniaPainter({
+    required this.piece,
+    required this.ink,
+    this.accent,
+    this.board,
+    this.edge,
+    this.edgeWidth = 1,
+    this.halo = false,
+  });
 
   static final Paint _clear = Paint()..blendMode = BlendMode.clear;
 
@@ -409,6 +470,30 @@ class GoInsigniaPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
+    final e = edge;
+    if (e != null) {
+      // The insignia once more below itself, grown by the edge width (or
+      // blurred) and tinted: an outline that also rings the holes.
+      final r = edgeWidth;
+      final filter = halo
+          ? ui.ImageFilter.compose(
+              outer: ui.ImageFilter.blur(sigmaX: r * 1.3, sigmaY: r * 1.3, tileMode: TileMode.decal),
+              inner: ui.ImageFilter.dilate(radiusX: r * 0.6, radiusY: r * 0.6),
+            )
+          : ui.ImageFilter.dilate(radiusX: r, radiusY: r);
+      canvas.saveLayer(
+        (Offset.zero & size).inflate(r * 5),
+        Paint()
+          ..imageFilter = filter
+          ..colorFilter = ColorFilter.mode(e, BlendMode.srcIn),
+      );
+      _paintInsignia(canvas, size);
+      canvas.restore();
+    }
+    _paintInsignia(canvas, size);
+  }
+
+  void _paintInsignia(Canvas canvas, Size size) {
     var area = Offset.zero & size;
     final boardColor = board;
     if (boardColor != null) {
@@ -466,10 +551,17 @@ class GoInsigniaPainter extends CustomPainter {
         _stars(canvas, area, u, const [(0, 0), (-0.5, 1), (0.5, 1)], gold);
       case GoPiece.major:
         _stars(canvas, area, u, const [(-0.5, 0), (0.5, 0)], gold);
+      case GoPiece.captain when boardColor == null:
+        // Alone, the star fills the area like a picture.
+        final star = _star(0, 0, _starR);
+        _accent(canvas, star, _place(canvas, area, star.getBounds(), u / star.getBounds().height), gold);
       case GoPiece.captain:
         _stars(canvas, area, u, const [(0, 0)], gold);
       case GoPiece.lieutenant:
-        final bar = Path()..addRRect(RRect.fromLTRBR(0, 0, 1, _stroke, const Radius.circular(0.03)));
+        // Alone, the bar is longer and thicker than a chevron stroke.
+        final big = boardColor == null;
+        final bar = Path()
+          ..addRRect(RRect.fromLTRBR(0, 0, big ? 1.2 : 1, big ? 0.3 : _stroke, const Radius.circular(0.04)));
         _accent(canvas, bar, _place(canvas, area, bar.getBounds(), u), gold);
       case GoPiece.sergeant:
         _chevrons(canvas, area, u, gold);
@@ -760,7 +852,10 @@ class GoInsigniaPainter extends CustomPainter {
       oldDelegate.piece != piece ||
       oldDelegate.ink != ink ||
       oldDelegate.accent != accent ||
-      oldDelegate.board != board;
+      oldDelegate.board != board ||
+      oldDelegate.edge != edge ||
+      oldDelegate.edgeWidth != edgeWidth ||
+      oldDelegate.halo != halo;
 }
 
 /// A round bomb with a fuse and a spark.

@@ -52,7 +52,7 @@ Future<void> _shot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/$name-v2.png');
+    final f = File('$_out/$name-v3.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
@@ -92,7 +92,14 @@ const _lookNames = {
   GoPieceLook.shoulderBoard: 'A: Schulterklappe',
   GoPieceLook.insignia: 'B: frei, Tintenfarbe',
   GoPieceLook.insigniaGold: 'C: frei, Sterne/Balken gold',
+  GoPieceLook.insigniaBlack: 'B1: B mit dünnem schwarzem Rand',
+  GoPieceLook.insigniaGrey: 'B2: B mit dünnem dunkelgrauem Rand',
+  GoPieceLook.insigniaHalo: 'B3: B mit weichem dunklem Schein',
 };
+
+/// The looks on the sheets this round (KLD-058 v3: the maintainer chose B,
+/// now B with and without an edge).
+const _looks = [GoPieceLook.insignia, GoPieceLook.insigniaBlack, GoPieceLook.insigniaGrey, GoPieceLook.insigniaHalo];
 
 /// One row: all twelve pieces, a hidden enemy back and a seen own piece.
 Widget _row(GoPieceLook look, Player owner, double size, bool number) => Wrap(
@@ -164,7 +171,7 @@ Widget _overview(Brightness b) => Builder(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final look in GoPieceLook.values) ...[
+            for (final look in _looks) ...[
               Text(_lookNames[look]!, style: theme.textTheme.labelLarge),
               const SizedBox(height: 4),
               Container(
@@ -199,7 +206,7 @@ void main() {
   group('kld058-insignia', () {
     for (final b in Brightness.values) {
       final tag = b == Brightness.dark ? 'dark' : 'light';
-      for (final look in GoPieceLook.values) {
+      for (final look in _looks) {
         testWidgets('sheet ${look.name} $tag', skip: skip, (tester) async {
           tester.view.physicalSize = const Size(1180, 1340) * 2;
           tester.view.devicePixelRatio = 2;
@@ -219,9 +226,14 @@ void main() {
 
     // A mid-game board with variants B and A (some fights, so a few own
     // pieces are seen), on a large and a small phone.
-    for (final (variant, look) in [('B', GoPieceLook.insignia), ('A', GoPieceLook.shoulderBoard)]) {
-      for (final (name, size) in [('phone-large', Size(430, 932)), ('phone-small', Size(375, 667))]) {
-        for (final b in Brightness.values) {
+    for (final (variant, look) in [
+      ('B', GoPieceLook.insignia),
+      ('B1', GoPieceLook.insigniaBlack),
+      ('B2', GoPieceLook.insigniaGrey),
+      ('B3', GoPieceLook.insigniaHalo),
+    ]) {
+      for (final (name, size) in [('phone-small', Size(375, 667))]) {
+        for (final b in [Brightness.light]) {
           final tag = b == Brightness.dark ? 'dark' : 'light';
           testWidgets('board $variant $name $tag', skip: skip, (tester) async {
             tester.view.physicalSize = size * 2;

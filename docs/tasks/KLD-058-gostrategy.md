@@ -227,3 +227,8 @@ corners of their own (B/C: a top strip, number left, eye right; A: number top le
 the board), so nothing overlaps and every insignia has the same centre. Equal weight: pictures share one
 height, stars one size for 1/2/3 (nested triangle), bar and chevrons one stroke. A: every board the same
 size and outline, 80 % of the tile height. Shots now end in `-v2`, boards for B and A.
+
+v3 (maintainer chose B; "no border between the white and the background colour"): B with an edge for
+comparison, B1 thin black outline, B2 thin dark grey, B3 soft dark halo (`goInsigniaEdge`, width 3 % of the
+tile, 0.8–1.5 px, drawn as a dilated or blurred copy below the insignia, bomb and flag included). Free-standing,
+the single star and the bar fill their area like a picture. Shots end in `-v3`.

@@ -46,7 +46,7 @@ void main() {
       );
       await tester.pump();
       expect(tester.takeException(), isNull);
-      expect(_insignias(), findsNWidgets(3 * 2 * 4 * 2 * GoPiece.values.length));
+      expect(_insignias(), findsNWidgets((GoPieceLook.values.length - 1) * 2 * 4 * 2 * GoPiece.values.length));
     });
   }
 
