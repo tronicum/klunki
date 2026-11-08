@@ -2620,7 +2620,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get maexchenOptionDoubleExplain =>
-      'Wer ein echtes Mäxchen anzweifelt, verliert 2 Leben.';
+      'Alles mit Mäxchen zählt doppelt: Wer ein echtes Mäxchen anzweifelt oder mit einem falschen Mäxchen erwischt wird, verliert 2 Leben.';
 
   @override
   String get maexchenOptionsNext => 'Weiter';
@@ -2709,6 +2709,11 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String maexchenVerdictTrueTwo(String player) {
     return 'Echtes Mäxchen! $player verliert 2 Leben.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'Falsches Mäxchen! $player verliert 2 Leben.';
   }
 
   @override

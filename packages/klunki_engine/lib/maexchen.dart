@@ -101,7 +101,11 @@ class MaexchenRoundEnd {
 ///   than announced the announcer loses a life, otherwise the doubter does.
 /// * An announced Mäxchen cannot be beaten: the next player doubts or gives
 ///   up (`giveUp`: loses one life, the dice stay hidden). With
-///   [maexchenDouble] (on by default) a doubted true Mäxchen costs 2 lives.
+///   [maexchenDouble] (on by default) everything about an announced
+///   Mäxchen counts double: a doubted real one costs the doubter 2 lives, a
+///   caught fake one costs the bluffer 2 lives.
+/// * A doubt or a give-up ends the round for good: hot-seat "Zug zurück"
+///   never goes back across it ([endsRound], `GameSpec.undoBarrier`).
 /// * After a doubt or a give-up a new round starts with the player who lost
 ///   the life (the next one in turn if that player is out).
 /// * Every player starts with [startLives] lives; a player with none left is
@@ -154,7 +158,9 @@ class MaexchenGame extends Game {
 
   final int startLives;
 
-  /// House rule: a doubted Mäxchen that is real costs the doubter 2 lives.
+  /// House rule "Mäxchen doppelt" (maintainer decision 2026-11-06): an
+  /// announced Mäxchen counts double both ways: doubted and real, the
+  /// doubter loses 2 lives; doubted and fake, the bluffer loses 2.
   final bool maexchenDouble;
 
   final int playerCount;
@@ -247,6 +253,11 @@ class MaexchenGame extends Game {
   static const Map<String, dynamic> giveUpMove = {'action': 'giveUp'};
   static Map<String, dynamic> announceMove(int value) => {'action': 'announce', 'value': value};
 
+  /// Whether [move] ends a round (`doubt` shows the dice, `giveUp` costs a
+  /// life): hot-seat undo never takes such a move back (maintainer decision
+  /// 2026-11-06), see `GameSpec.undoBarrier`.
+  static bool endsRound(Map<String, dynamic> move) => move['action'] == 'doubt' || move['action'] == 'giveUp';
+
   /// The legal moves of the player to move; announcements low to high.
   /// Empty once the game is over.
   List<Map<String, dynamic>> get legalMoves {
@@ -308,7 +319,7 @@ class MaexchenGame extends Game {
     final real = valueOf(dice[0], dice[1]);
     final bluff = rankOf(real) < rankOf(announced);
     final loser = bluff ? announcer : doubter;
-    final lost = !bluff && announced == maexchen && maexchenDouble ? 2 : 1;
+    final lost = announced == maexchen && maexchenDouble ? 2 : 1;
     _log(doubtMove);
     final end = MaexchenRoundEnd(
         round: _round,

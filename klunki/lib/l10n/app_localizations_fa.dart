@@ -2537,7 +2537,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get maexchenOptionDoubleExplain =>
-      'شک به یک میای واقعی 2 جان می‌گیرد.';
+      'هر چیزی دربارهٔ میا دوبل حساب می‌شود: شک به یک میای واقعی یا لو رفتن یک میای تقلبی 2 جان می‌گیرد.';
 
   @override
   String get maexchenOptionsNext => 'بعدی';
@@ -2626,6 +2626,11 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String maexchenVerdictTrueTwo(String player) {
     return 'میای واقعی! $player 2 جان از دست می‌دهد.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'میای تقلبی! $player 2 جان از دست می‌دهد.';
   }
 
   @override

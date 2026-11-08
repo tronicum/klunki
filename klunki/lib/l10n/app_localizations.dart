@@ -4103,16 +4103,16 @@ abstract class AppLocalizations {
   /// **'Leben zu Beginn'**
   String get maexchenOptionLives;
 
-  /// Mäxchen start option (house rule, on by default): doubting a real Mäxchen costs 2 lives. Mäxchen = the highest roll, 2 and 1.
+  /// Mäxchen start option (house rule, on by default): everything about Mäxchen counts double (a doubted real Mäxchen costs the doubter 2 lives, a caught fake Mäxchen costs the bluffer 2). Mäxchen = the highest roll, 2 and 1.
   ///
   /// In de, this message translates to:
   /// **'Mäxchen doppelt'**
   String get maexchenOptionDouble;
 
-  /// Explains the house rule "Mäxchen doppelt" under its switch.
+  /// Explains the house rule "Mäxchen doppelt" under its switch: both cases cost 2 lives.
   ///
   /// In de, this message translates to:
-  /// **'Wer ein echtes Mäxchen anzweifelt, verliert 2 Leben.'**
+  /// **'Alles mit Mäxchen zählt doppelt: Wer ein echtes Mäxchen anzweifelt oder mit einem falschen Mäxchen erwischt wird, verliert 2 Leben.'**
   String get maexchenOptionDoubleExplain;
 
   /// Button that closes the Mäxchen start options and goes on to the player names.
@@ -4246,6 +4246,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Echtes Mäxchen! {player} verliert 2 Leben.'**
   String maexchenVerdictTrueTwo(String player);
+
+  /// Mäxchen reveal: a fake Mäxchen was caught (house rule "Mäxchen doppelt" on); the player who announced it loses 2 lives.
+  ///
+  /// In de, this message translates to:
+  /// **'Falsches Mäxchen! {player} verliert 2 Leben.'**
+  String maexchenVerdictBluffTwo(String player);
 
   /// Mäxchen: the player gave up a life after an announced Mäxchen; the dice stay hidden.
   ///

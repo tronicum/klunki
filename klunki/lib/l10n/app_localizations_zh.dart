@@ -2445,112 +2445,118 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get menuGameMaexchen => '点数大王';
+  String get menuGameMaexchen => '吹牛骰子';
 
   @override
-  String get menuDescMaexchen => '出点数，叫大数：信还是不信？';
+  String get menuDescMaexchen => '摇骰子、吹牛、抓住对方吹牛';
 
   @override
-  String get engineReasonMaexchenNoLives => '机会用完了';
+  String get engineReasonMaexchenNoLives => '没有命了';
 
   @override
-  String get maexchenOptionLives => '开始时的机会';
+  String get maexchenOptionLives => '开始时的命数';
 
   @override
-  String get maexchenOptionDouble => '大王算两次';
+  String get maexchenOptionDouble => '王牌加倍';
 
   @override
-  String get maexchenOptionDoubleExplain => '不信大王，而大王是对的，就少两次机会。';
+  String get maexchenOptionDoubleExplain =>
+      '王牌的输赢都加倍：怀疑真的王牌，或者假王牌被识破，都要输掉 2 条命。';
 
   @override
   String get maexchenOptionsNext => '下一步';
 
   @override
-  String get maexchenRoll => '出点数';
+  String get maexchenRoll => '摇骰子';
 
   @override
-  String get maexchenPeek => '看点数';
+  String get maexchenPeek => '偷看';
 
   @override
-  String get maexchenCover => '合上';
+  String get maexchenCover => '盖上';
 
   @override
-  String get maexchenPickTitle => '你叫多少？';
+  String get maexchenPickTitle => '你要报多少？';
 
   @override
   String maexchenAnnounce(String value) {
-    return '叫 $value';
+    return '报 $value';
   }
 
   @override
-  String get maexchenOrder => '从小到大：31、32 … 65，然后对子 11 … 66，最大是大王 (21)。';
+  String get maexchenOrder => '从小到大：31、32 … 65，然后对子 11 … 66，最大的是王牌 (21)。';
 
   @override
   String get maexchenBelieve => '相信';
 
   @override
-  String get maexchenDoubt => '不信';
+  String get maexchenDoubt => '怀疑';
 
   @override
-  String get maexchenGiveUp => '放弃一次机会';
+  String get maexchenGiveUp => '认输一条命';
 
   @override
   String maexchenAnnounced(String player, String value) {
-    return '$player 叫 $value';
+    return '$player 报 $value';
   }
 
   @override
-  String get maexchenNewRound => '新一局：叫什么都可以';
+  String get maexchenNewRound => '新一轮：报什么都可以';
 
   @override
-  String get maexchenHintRoll => '点出点数，然后私下看筒下面。';
+  String get maexchenHintRoll => '点“摇骰子”，然后偷偷看杯子下面。';
 
   @override
   String maexchenHintBelieved(String value) {
-    return '你相信了 $value。出点数，再叫比 $value 大的。';
+    return '你相信了 $value。摇骰子，再报比 $value 大的数。';
   }
 
   @override
-  String get maexchenHintAnnounceFirst => '私下看一看，然后叫一个数。叫的数可以和点数不同！';
+  String get maexchenHintAnnounceFirst => '偷偷看一眼，然后报一个数。可以吹牛！';
 
   @override
   String maexchenHintAnnounceHigher(String value) {
-    return '叫比 $value 大的数。叫的数可以和点数不同！';
+    return '报一个比 $value 大的数。可以吹牛！';
   }
 
   @override
   String maexchenHintRespond(String player, String value) {
-    return '$player 叫了 $value。你相信吗？';
+    return '$player 报了 $value。你相信吗？';
   }
 
   @override
   String maexchenHintRespondMaexchen(String player) {
-    return '$player 叫了大王！没有更大的了：不信，还是放弃一次机会？';
+    return '$player 报了王牌！没有更大的了：怀疑，还是认输一条命？';
   }
 
   @override
   String maexchenUnderCup(String value) {
-    return '筒下面：$value';
+    return '杯子下面：$value';
   }
 
   @override
   String maexchenVerdictBluff(String player) {
-    return '叫的不对！$player 少一次机会。';
+    return '吹牛被抓！$player 输掉一条命。';
   }
 
   @override
   String maexchenVerdictTrue(String player) {
-    return '叫的是对的！$player 少一次机会。';
+    return '是真的！$player 输掉一条命。';
   }
 
   @override
   String maexchenVerdictTrueTwo(String player) {
-    return '是大王！$player 少两次机会。';
+    return '真的王牌！$player 输掉 2 条命。';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return '假王牌！$player 输掉 2 条命。';
   }
 
   @override
   String maexchenVerdictGaveUp(String player) {
-    return '$player 放弃一次机会。筒不打开。';
+    return '$player 认输一条命。杯子不打开。';
   }
 
   @override
@@ -2558,39 +2564,39 @@ class AppLocalizationsZh extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count 次机会',
+      other: '$count 条命',
     );
     return '$player：$_temp0';
   }
 
   @override
   String maexchenRoundLabel(int round) {
-    return '第 $round 局';
+    return '第 $round 轮';
   }
 
   @override
-  String get maexchenMoveRoll => '出点数';
+  String get maexchenMoveRoll => '摇骰子';
 
   @override
   String maexchenMoveAnnounce(String value) {
-    return '叫 $value';
+    return '报 $value';
   }
 
   @override
   String get maexchenMoveBelieve => '相信';
 
   @override
-  String get maexchenMoveDoubt => '不信';
+  String get maexchenMoveDoubt => '怀疑';
 
   @override
-  String get maexchenMoveGiveUp => '放弃一次机会';
+  String get maexchenMoveGiveUp => '认输一条命';
 
   @override
-  String get maexchenMaexchenName => '大王';
+  String get maexchenMaexchenName => '王牌';
 
   @override
-  String get maexchenMaexchenCall => '大王！';
+  String get maexchenMaexchenCall => '王牌！';
 
   @override
-  String get maexchenAnnouncedLabel => '已叫';
+  String get maexchenAnnouncedLabel => '已报';
 }

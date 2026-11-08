@@ -2631,7 +2631,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get maexchenOptionDoubleExplain =>
-      'Douter d’un vrai Mia coûte 2 vies.';
+      'Tout ce qui touche au Mia compte double : douter d’un vrai Mia ou être pris avec un faux coûte 2 vies.';
 
   @override
   String get maexchenOptionsNext => 'Suivant';
@@ -2720,6 +2720,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String maexchenVerdictTrueTwo(String player) {
     return 'Un vrai Mia ! $player perd 2 vies.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'Un faux Mia ! $player perd 2 vies.';
   }
 
   @override

@@ -163,6 +163,11 @@ class GameSpec {
   /// Whether [GameConfig.deck] picks a Quartett deck for this game (KLD-069).
   final bool usesDeck;
 
+  /// Moves that hot-seat "Zug zurück" never takes back (null = none), e.g.
+  /// Mäxchen's doubt, which lifted the cup for everyone (KLD-121): undo
+  /// stops once such a move is the last one. Not part of the fingerprint.
+  final bool Function(Map<String, dynamic> move)? undoBarrier;
+
   /// Version of this game's rules (KLD-085). Bump it on every change that
   /// makes an old and a new build disagree about a game (a move accepted by
   /// one and refused by the other, a different deal from the same seed, a
@@ -182,7 +187,8 @@ class GameSpec {
       this.redaction,
       this.usesDeck = false,
       this.rulesVersion = 1,
-      this.maxPlayers = 2});
+      this.maxPlayers = 2,
+      this.undoBarrier});
 
   /// The fewest seats; 2 for every game.
   int get minPlayers => 2;
@@ -244,7 +250,7 @@ final List<GameSpec> gameSpecs = [
   // config (`lives`, `maexDouble`).
   GameSpec('maexchen', 'Mäxchen',
       (c, _) => MaexchenGame(seed: c.seed, startLives: c.lives, maexchenDouble: c.maexchenDouble),
-      hiddenInformation: true, redaction: const MaexchenRedaction()),
+      hiddenInformation: true, redaction: const MaexchenRedaction(), undoBarrier: MaexchenGame.endsRound),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

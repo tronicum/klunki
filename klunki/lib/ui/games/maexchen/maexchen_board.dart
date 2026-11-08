@@ -466,7 +466,7 @@ class MaexchenRoundSummary extends StatelessWidget {
   String verdict(BuildContext context, AppLocalizations l10n) {
     final loser = playerName(context, Player.values[end.loser]);
     if (end.gaveUp) return l10n.maexchenVerdictGaveUp(loser);
-    if (end.bluff) return l10n.maexchenVerdictBluff(loser);
+    if (end.bluff) return end.lost >= 2 ? l10n.maexchenVerdictBluffTwo(loser) : l10n.maexchenVerdictBluff(loser);
     return end.lost >= 2 ? l10n.maexchenVerdictTrueTwo(loser) : l10n.maexchenVerdictTrue(loser);
   }
 

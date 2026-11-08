@@ -2566,7 +2566,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maexchenOptionDouble => 'ميا مضاعفة';
 
   @override
-  String get maexchenOptionDoubleExplain => 'الشكّ في ميا حقيقية يكلّف روحين.';
+  String get maexchenOptionDoubleExplain =>
+      'كل ما يخص ميا يُحسب مضاعفًا: الشكّ في ميا حقيقية أو كشف ميا مزيفة يكلّف روحين.';
 
   @override
   String get maexchenOptionsNext => 'التالي';
@@ -2654,6 +2655,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String maexchenVerdictTrueTwo(String player) {
     return 'ميا حقيقية! روحان أقل لدى $player.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'ميا مزيفة! روحان أقل لدى $player.';
   }
 
   @override

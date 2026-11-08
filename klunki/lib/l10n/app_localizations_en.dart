@@ -2609,7 +2609,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maexchenOptionDoubleExplain =>
-      'Doubting a real Mia costs 2 lives.';
+      'Everything about Mia counts double: doubting a real Mia or getting caught with a fake one costs 2 lives.';
 
   @override
   String get maexchenOptionsNext => 'Next';
@@ -2697,6 +2697,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String maexchenVerdictTrueTwo(String player) {
     return 'A real Mia! $player loses 2 lives.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'A fake Mia! $player loses 2 lives.';
   }
 
   @override

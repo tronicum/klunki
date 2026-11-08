@@ -4,8 +4,8 @@
 - **Title:** Mäxchen (also called Meiern; en "Mia"), id `maexchen`: two dice under a cup, announce, bluff, believe or
   doubt; lives; hot-seat in the app, engine ready for the network and for more seats later
 - **Milestone:** long-term games
-- **Status:** step 1 DONE (engine, redaction, CLI, hot-seat UI, 7 locales, screenshots); next: maintainer feedback on
-  the rules proposals below, then network in the app and 3+ players (KLD-088)
+- **Status:** step 1 DONE (engine, redaction, CLI, hot-seat UI, 7 locales, screenshots); rules decided 2026-11-06
+  (see Decisions); next: the zh font subset rebuild after the merge, then network in the app and 3+ players (KLD-088)
 - **Depends on:** KLD-064 (redaction), KLD-085 (fingerprint), KLD-088 (seats, later), KLD-103 (player names)
 - **Touched paths:**
   - `packages/klunki_engine/lib/maexchen.dart`, `maexchen_view.dart` (new), `lib/debug/maexchen_text.dart` (new),
@@ -17,13 +17,14 @@
     game_visuals,engine_l10n}.dart`, `klunki/lib/app/theme.dart`, `klunki/lib/l10n/**`
   - `klunki/test/ui/games/maexchen_screen_test.dart`, `klunki/test/screenshots/maexchen_shots_test.dart` (new),
     `klunki/test/ui/menu_modes_test.dart`, `klunki/test/ui/shell/game_screen_test.dart`, `klunki/test/l10n/translations_test.dart`
+  - `klunki/lib/transport/hot_seat_transport.dart` (undo barrier)
   - `docs/tasks/BOARD.md`, `CHANGELOG.md`
 
 ## Goal
 A family bluffing game with two dice: roll secretly under a cup, announce a value (true or not), the next player
 believes it (and must top it) or doubts it. Best with 3+ players; ships for 2 players on one device now.
 
-## Rules as built (proposals; the maintainer can change them)
+## Rules as built
 - Two dice, read with the higher die first (5 and 3 = 53). Order low → high: 31, 32, 41, 42, 43, 51 … 54,
   61 … 65, then doubles ("Pasch") 11, 22 … 66, then 21 = **Mäxchen**, the highest.
 - A turn: `roll` (only the roller sees the dice: lifts the cup with "Nachschauen"), then `announce {value}`. The
@@ -34,9 +35,13 @@ believes it (and must top it) or doubts it. Best with 3+ players; ships for 2 pl
   loses a life ("Stimmt!").
 - An announced Mäxchen cannot be beaten: no `believe`; the next player doubts or gives up (`giveUp`, "Leben
   abgeben": one life, the dice stay hidden). `giveUp` exists only after a Mäxchen.
-- **Toggle "Mäxchen doppelt"** (on by default, config `maexDouble`): a doubted Mäxchen that is real costs the
-  doubter 2 lives. Only when Mäxchen was *announced*; a real 21 announced as something lower costs 1. A bluffed
-  Mäxchen that is caught costs the announcer 1.
+- **Toggle "Mäxchen doppelt"** (on by default, config `maexDouble`): everything about an announced Mäxchen counts
+  double. A doubted Mäxchen that is real costs the doubter 2 lives; a bluffed Mäxchen that is caught costs the
+  announcer 2 lives ("Falsches Mäxchen!"). Only when Mäxchen was *announced*; a real 21 announced as something
+  lower costs 1. Off: every doubt costs 1.
+- **No undo across a doubt or a give-up:** hot-seat "Zug zurück" never takes back `doubt` or `giveUp` (the dice
+  were shown, or a life was given). Engine hook `GameSpec.undoBarrier` (`MaexchenGame.endsRound`), enforced in
+  `HotSeatTransport.canUndo`; the moves of the next round can be taken back down to the barrier.
 - After a doubt or a give-up a new round starts with the player who lost the life (next in turn if out).
 - **Lives:** 3 by default, 5 as start option (config `lives`, engine accepts 1–9). No lives left → out; with 2
   players the other wins (`maexchen.noLives`, params `a`/`b` = lives left). Lives never go below 0.
@@ -61,15 +66,22 @@ the value order as help text, "<Wert> ansagen"; "Glauben" / "Anzweifeln" (or "Le
 After a doubt the cup lifts after a short pause and the verdict appears; the handover cover shows the
 announcement (or the verdict) to the next player. The result dialog shows the last round.
 
+## Decisions (maintainer, 2026-11-06)
+- No undo after a doubt: once "Anzweifeln" or "Leben abgeben" is played, "Zug zurück" does not go back across it.
+- The announced value shown as two dice in the banner stays as it is.
+- A caught bluffed Mäxchen costs the bluffer 2 lives, under the "Mäxchen doppelt" toggle ("everything about
+  Mäxchen counts double"); the option's explanation says so in all 7 locales. Unreleased, so rules version stays 1
+  (the compat golden is unchanged: the rule lives in the config, the hash covers the value order).
+- "Leben abgeben" stays only after a Mäxchen.
+- Chinese uses natural wording (吹牛骰子, 骰子, 杯子, 怀疑, 命, 王牌 for Mäxchen). The bundled Noto Sans SC subset
+  lacks 19 of these characters (住 倍 假 偷 吹 怀 抓 报 摇 条 杯 牛 疑 盖 真 眼 破 识 骰): the two zh glyph tests are
+  red on this branch until `python3 -I tool/update_web_fonts.py subset` runs once after the Mau-Mau and Mäxchen
+  merges (approved by the maintainer).
+
 ## Open questions for the maintainer
-- English/French/Spanish title "Mia" (the international name of the game), zh "点数大王" (limited by the bundled
-  Chinese font subset: natural wording like 吹牛骰子 needs `tool/update_web_fonts.py subset`, which needs internet).
-- "Mäxchen doppelt" also for a caught *bluffed* Mäxchen (announcer loses 2)? Common variants differ.
-- Should `giveUp` ("Leben abgeben") be allowed for any announcement, not only Mäxchen?
+- English/French/Spanish title "Mia" (the international name of the game).
 - Variants not built: "Mäxchen-Pasch"/special 31 rules, "drunter bleiben" (keep the dice without rolling), passing
   the cup without looking as an explicit option, a round-loser penalty other than a life.
-- Hot-seat "Zug zurück" after a doubt lets the doubter see the dice and take the doubt back; keep it, or disable
-  undo for `doubt`?
 - Network in the app and 3–4 players (with KLD-088), where the game is much better.
 
 ## Acceptance criteria
@@ -79,3 +91,5 @@ announcement (or the verdict) to the next player. The result dialog shows the la
 - [x] Registered (rules 1), compat golden, CLI text adapter.
 - [x] Hot-seat screen, options (lives 3/5, "Mäxchen doppelt"), menu tile with "Ein Gerät" only, 7 locales.
 - [x] A whole game played through the real UI in a widget test; screenshots (`--plain-name kld121`).
+- [x] Decisions 2026-11-06: no undo across doubt/giveUp (engine + app tests), fake Mäxchen caught = 2 lives with the
+  toggle, option text in 7 locales, natural zh texts (font subset rebuild pending after merge).

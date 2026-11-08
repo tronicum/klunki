@@ -146,6 +146,60 @@ void main() {
     expect(game.livesOf(Player.a), 1);
   });
 
+  testWidgets('a fake Mäxchen caught costs the bluffer 2 hearts', (tester) async {
+    final c = await _pump(tester, rolls: [[6, 6]]);
+    await _rollAndAnnounce(tester, 21);
+    await _handOver(tester);
+    await _tap(tester, 'maexchen-doubt');
+    expect(find.text('Falsches Mäxchen! Anna verliert 2 Leben.'), findsWidgets);
+    await _handOver(tester);
+    expect(_tableDice(tester), [6, 6]);
+    expect((c.game as MaexchenGame).livesOf(Player.a), 1);
+    expect(tester.widget<Icon>(_key('maexchen-heart-a-1')).icon, Icons.favorite_border);
+  });
+
+  group('"Zug zurück" never goes back across a doubt or a given-up life (decision 2026-11-06)', () {
+    const undo = Key('shell-undo');
+    VoidCallback? undoPressed(WidgetTester tester) =>
+        tester.widget<TextButton>(find.byKey(undo).first).onPressed;
+
+    testWidgets('after an announcement undo works, after the doubt it is off', (tester) async {
+      final c = await _pump(tester, rolls: [[4, 1], [4, 1]]);
+      await _rollAndAnnounce(tester, 52);
+      // On the handover cover: the announcement can still be taken back.
+      expect(c.canUndo, isTrue);
+      expect(undoPressed(tester), isNotNull);
+      await _handOver(tester);
+      await _tap(tester, 'maexchen-doubt');
+      // The dice are revealed: no way back, on the cover nor on the board.
+      expect(c.canUndo, isFalse);
+      expect(_key('handover-cover'), findsOneWidget);
+      expect(undoPressed(tester), isNull);
+      await _handOver(tester);
+      expect(undoPressed(tester), isNull);
+      // The next round's roll can be taken back again, but only down to it.
+      await _tap(tester, 'maexchen-roll');
+      expect(c.canUndo, isTrue);
+      c.undo();
+      await tester.pumpAndSettle();
+      expect(c.canUndo, isFalse);
+      // (Undo replays from the seed, so the scripted dice are gone here; the
+      // doubt itself stays in the log.)
+      expect(c.moves.last.move['action'], 'doubt', reason: 'the doubt stays');
+      expect(c.moves, hasLength(3));
+    });
+
+    testWidgets('giving up a life cannot be taken back', (tester) async {
+      final c = await _pump(tester, rolls: [[2, 1]]);
+      await _rollAndAnnounce(tester, 21);
+      await _handOver(tester);
+      await _tap(tester, 'maexchen-giveup');
+      expect(c.canUndo, isFalse);
+      expect(undoPressed(tester), isNull);
+      expect((c.game as MaexchenGame).livesOf(Player.b), 2);
+    });
+  });
+
   testWidgets('a whole game through the UI ends with the result dialog', (tester) async {
     final c = await _pump(tester, config: const GameConfig('maexchen', seed: 11));
     final game = c.game as MaexchenGame;

@@ -205,6 +205,18 @@ void main() {
       await _shot(tester, '11-game-end');
     });
 
+    testWidgets('a fake Mäxchen caught (decision 2026-11-06)', skip: skip, (tester) async {
+      await _game(tester, [[6, 6]]);
+      await _tap(tester, 'maexchen-roll');
+      await _tap(tester, 'maexchen-value-21');
+      await _tap(tester, 'maexchen-announce');
+      await _tap(tester, 'handover-continue');
+      await _tap(tester, 'maexchen-doubt');
+      await _shot(tester, '14-fake-maexchen-handover');
+      await _tap(tester, 'handover-continue');
+      await _shot(tester, '15-fake-maexchen-reveal');
+    });
+
     for (final (tag, locale, brightness) in [
       ('en', const Locale('en'), Brightness.light),
       ('ar', const Locale('ar'), Brightness.light),

@@ -202,12 +202,36 @@ void main() {
       expect(g.lastRound!.lost, 1);
     });
 
-    test('a bluffed Mäxchen caught costs the announcer 1 life', () {
+    test('a fake Mäxchen caught costs the bluffer 2 lives (house rule on, decision 2026-11-06)', () {
       final g = scripted([[6, 6]]);
       play(g, [roll, announce(21), doubt]);
       expect(g.lastRound!.bluff, isTrue);
+      expect(g.lastRound!.lost, 2);
+      expect(g.livesOf(Player.a), 1);
+      expect(g.livesOf(Player.b), 3);
+    });
+
+    test('house rule off: a fake Mäxchen caught costs 1 life', () {
+      final g = scripted([[6, 6]], double: false);
+      play(g, [roll, announce(21), doubt]);
       expect(g.lastRound!.lost, 1);
       expect(g.livesOf(Player.a), 2);
+    });
+
+    test('other bluffs caught cost 1 life with the house rule on', () {
+      final g = scripted([[3, 1]]);
+      play(g, [roll, announce(66), doubt]);
+      expect(g.lastRound!.lost, 1);
+    });
+
+    test('doubt and give-up are undo barriers, the other moves are not', () {
+      final barrier = specById('maexchen')!.undoBarrier!;
+      expect(barrier(doubt), isTrue);
+      expect(barrier(giveUp), isTrue);
+      for (final m in [roll, believe, announce(54), Game.resignMove(Player.a)]) {
+        expect(barrier(m), isFalse, reason: '$m');
+      }
+      expect(specById('connect4')!.undoBarrier, isNull);
     });
 
     test('after 66 only Mäxchen is left to announce', () {
