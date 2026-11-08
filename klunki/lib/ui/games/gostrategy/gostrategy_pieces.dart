@@ -318,6 +318,10 @@ class GoInsigniaPainter extends CustomPainter {
   /// Star radius, star spacing, stroke of the chevrons, in units of `u`.
   static const _starR = 0.32, _starStep = 0.68, _stroke = 0.18;
 
+  /// The single star (Hauptmann) to a star of the two- and three-star
+  /// groups.
+  static const _singleStar = 1.35;
+
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty) return;
@@ -384,8 +388,9 @@ class GoInsigniaPainter extends CustomPainter {
       case GoPiece.major:
         _stars(canvas, area, u, const [(-0.5, 0), (0.5, 0)]);
       case GoPiece.captain:
-        // Alone, the star fills the area like a picture.
-        _picture(canvas, area, u, _star(0, 0, _starR));
+        // Alone, the star is a little bigger than one of a group (about
+        // midway between that and filling the area; maintainer, v6).
+        _fill(canvas, _star(0, 0, _starR), area, _singleStar * _starScale(area, u));
       case GoPiece.lieutenant:
         // Alone, the bar is longer and thicker than a chevron stroke.
         final bar = Path()..addRRect(RRect.fromLTRBR(0, 0, 1.2, 0.3, const Radius.circular(0.04)));
@@ -452,8 +457,11 @@ class GoInsigniaPainter extends CustomPainter {
     for (final (col, row) in cells) {
       path.addPath(_star(col * _starStep, row * 0.42, _starR), Offset.zero);
     }
-    _fill(canvas, path, area, math.min(u, math.min(area.width / 1.29, area.height / 1.0)));
+    _fill(canvas, path, area, _starScale(area, u));
   }
+
+  /// Pixels per unit of the star groups (see [_stars]).
+  static double _starScale(Rect area, double u) => math.min(u, math.min(area.width / 1.29, area.height / 1.0));
 
   /// Three chevrons pointing up, stroke [_stroke], one unit wide.
   void _chevrons(Canvas canvas, Rect area, double u) {
