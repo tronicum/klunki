@@ -3134,6 +3134,22 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String playerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Spieler',
+      one: '1 Spieler',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playerCountRange(int min, int max) {
+    return '$min bis $max Spieler';
+  }
+
+  @override
   String get rulesGoal => 'Ziel';
 
   @override

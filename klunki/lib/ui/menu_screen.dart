@@ -15,6 +15,7 @@ import 'package:klunki/ui/language_picker.dart';
 import 'package:klunki/ui/ltr.dart';
 import 'package:klunki/ui/pairing/network_unavailable.dart';
 import 'package:klunki/ui/pairing/pairing_entry.dart';
+import 'package:klunki/ui/player_count_chip.dart';
 import 'package:klunki/ui/player_name_dialog.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps, WebJoinScreen;
 import 'package:klunki/ui/rules/rules_screen.dart';
@@ -458,7 +459,15 @@ class _GameTile extends StatelessWidget {
                       border: Border(bottom: BorderSide(color: accent.color, width: 3)),
                     ),
                     padding: const EdgeInsets.all(8),
-                    child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
+                    // KLD-124: how many play, in the box's top corner.
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
+                        ),
+                        PositionedDirectional(top: -2, end: -2, child: PlayerCountChip(spec: spec)),
+                      ],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),

@@ -87,6 +87,8 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ### App
 - The app icon fills its square on the home screen: a larger pocket and a bolder "Klunki" on the patch.
+- Every game tile in the menu and every rules page shows how many can play, as on a board-game box: a
+  small people icon with "2", or "2–4" for Ausgewürfelt (KLD-124).
 
 ## [1.1.0] – first external test (TestFlight, Play internal testing, web beta)
 

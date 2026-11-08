@@ -4581,6 +4581,27 @@
       }
     }
   },
+  "playerCount": "{count, plural, =1{1 Spieler} other{{count} Spieler}}",
+  "@playerCount": {
+    "description": "KLD-124: screen-reader label of the people chip (icon + \"2\") on a game's menu tile and rules page: how many players the game is for.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playerCountRange": "{min} bis {max} Spieler",
+  "@playerCountRange": {
+    "description": "KLD-124: screen-reader label of the people chip (icon + \"2–4\") of a game for a range of players, e.g. \"2 bis 4 Spieler\".",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "rulesGoal": "Ziel",
   "@rulesGoal": {
     "description": "KLD-123: rules page section: how to win."

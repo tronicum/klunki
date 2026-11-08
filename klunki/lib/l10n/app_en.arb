@@ -789,6 +789,8 @@
   "confirmMoveOff": "Confirm move is off.",
   "rulesButton": "Rules",
   "rulesTitle": "Rules: {game}",
+  "playerCount": "{count, plural, =1{1 player} other{{count} players}}",
+  "playerCountRange": "{min} to {max} players",
   "rulesGoal": "Goal",
   "rulesTurn": "How a turn works",
   "rulesSpecial": "Rules",

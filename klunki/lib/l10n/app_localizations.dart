@@ -4847,6 +4847,18 @@ abstract class AppLocalizations {
   /// **'Spielregeln: {game}'**
   String rulesTitle(String game);
 
+  /// KLD-124: screen-reader label of the people chip (icon + "2") on a game's menu tile and rules page: how many players the game is for.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Spieler} other{{count} Spieler}}'**
+  String playerCount(int count);
+
+  /// KLD-124: screen-reader label of the people chip (icon + "2–4") of a game for a range of players, e.g. "2 bis 4 Spieler".
+  ///
+  /// In de, this message translates to:
+  /// **'{min} bis {max} Spieler'**
+  String playerCountRange(int min, int max);
+
   /// KLD-123: rules page section: how to win.
   ///
   /// In de, this message translates to:
