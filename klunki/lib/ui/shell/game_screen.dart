@@ -1290,7 +1290,8 @@ class ShellMenu extends StatelessWidget {
             value: e.onSelected,
             child: Row(
               children: [
-                Icon(e.icon),
+                // Not the app bar's icon colour (white on the accent).
+                Icon(e.icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(width: 12),
                 Flexible(child: Text(e.label)),
               ],

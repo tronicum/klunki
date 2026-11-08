@@ -22,9 +22,11 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
+import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/shake_settings.dart';
 import 'package:klunki/ui/games/dicesheet/dicesheet_options.dart';
 import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
+import 'package:klunki/ui/rules/rules_screen.dart';
 import 'package:klunki/ui/seat_players_dialog.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/debug.dart' show DiceSheetText;
@@ -313,6 +315,65 @@ void main() {
       await _withBonus(tester, c);
       await _tap(tester, 'dicesheet-roll');
       await _shot(tester, '15-2-players');
+    });
+    // The rules page (KLD-123), "⋮" menu, "Wer fängt an?" (follow-ups).
+    testWidgets('rules page, whole', skip: skip, (tester) async {
+      await _pumpApp(tester, const RulesScreen(gameId: 'dicesheet', config: GameConfig('dicesheet', extraFives: true)),
+          size: const Size(390, 2600));
+      await _shot(tester, '20-rules-page-whole');
+    });
+
+    testWidgets('rules page, phone', skip: skip, (tester) async {
+      await _pumpApp(tester, const RulesScreen(gameId: 'dicesheet'));
+      await _shot(tester, '21-rules-page-top');
+      await tester.drag(find.byKey(const Key('rules-page')), const Offset(0, -700));
+      await tester.pumpAndSettle();
+      await _shot(tester, '22-rules-page-boxes');
+    });
+
+    testWidgets('game: "Regeln", "Neu hier?", who starts, the "⋮" menu', skip: skip, (tester) async {
+      SeenTips.debugReset();
+      await _game(tester);
+      await _shot(tester, '23-game-rules-button');
+      await _tap(tester, 'shell-menu');
+      await _shot(tester, '24-game-menu-open');
+    });
+
+    testWidgets('start options: "Wer fängt an?", order with arrows, random start', skip: skip, (tester) async {
+      await _pumpApp(tester, const Scaffold(body: SizedBox.expand()));
+      showDiceSheetOptionsDialog(tester.element(find.byType(Scaffold)));
+      await tester.pumpAndSettle();
+      await _tap(tester, 'dicesheet-start-order');
+      await _shot(tester, '25-options-start-order');
+      Navigator.of(tester.element(find.byKey(const Key('dicesheet-options')))).pop();
+      await tester.pumpAndSettle();
+      showSeatPlayersDialog(tester.element(find.byType(Scaffold)), reorder: true);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'seat-players-4');
+      await _tap(tester, 'seat-up-2');
+      await _shot(tester, '26-who-plays-order');
+    });
+
+    testWidgets('random start announced', skip: skip, (tester) async {
+      var seed = 0;
+      while ((createGame(GameConfig('dicesheet', seed: seed, players: 4, randomStart: true)) as DiceSheetGame)
+              .startSeat !=
+          2) {
+        seed++;
+      }
+      final c = GameController.hotSeat(GameConfig('dicesheet', seed: seed, players: 4, randomStart: true));
+      addTearDown(c.dispose);
+      await _pumpApp(tester, buildGameScreen(c));
+      await _shot(tester, '27-random-start');
+    });
+
+    testWidgets('a two-player game (GameScreen) with the "⋮" menu', skip: skip, (tester) async {
+      final c = GameController.hotSeat(const GameConfig('connect4'));
+      addTearDown(c.dispose);
+      await _pumpApp(tester, buildGameScreen(c));
+      await _shot(tester, '28-gamescreen-connect4');
+      await _tap(tester, 'shell-menu');
+      await _shot(tester, '29-gamescreen-menu-open');
     });
   });
 }

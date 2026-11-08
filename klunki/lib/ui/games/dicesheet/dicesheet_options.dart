@@ -60,23 +60,25 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
           const SizedBox(height: 16),
           Text(l10n.dicesheetStartTitle, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),
-          SegmentedButton<DiceSheetStart>(
-            segments: [
-              for (final (s, label, icon) in [
-                (DiceSheetStart.first, l10n.dicesheetStartFirst, Icons.looks_one_outlined),
-                (DiceSheetStart.order, l10n.dicesheetStartOrder, Icons.swap_vert),
-                (DiceSheetStart.random, l10n.dicesheetStartRandom, Icons.casino_outlined),
-              ])
-                ButtonSegment(
-                  value: s,
-                  icon: Icon(icon),
-                  label: Text(label, key: Key('dicesheet-start-${s.name}'), textAlign: TextAlign.center),
-                ),
-            ],
-            selected: {_start},
-            showSelectedIcon: false,
-            onSelectionChanged: (s) => setState(() => _start = s.single),
-          ),
+          // Three choices in a column: the labels are too long for a
+          // segmented button on a phone.
+          for (final (s, label, icon) in [
+            (DiceSheetStart.first, l10n.dicesheetStartFirst, Icons.looks_one_outlined),
+            (DiceSheetStart.order, l10n.dicesheetStartOrder, Icons.swap_vert),
+            (DiceSheetStart.random, l10n.dicesheetStartRandom, Icons.casino_outlined),
+          ])
+            ListTile(
+              key: Key('dicesheet-start-${s.name}'),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              visualDensity: VisualDensity.compact,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              selected: _start == s,
+              selectedTileColor: theme.colorScheme.secondaryContainer,
+              leading: Icon(icon),
+              title: Text(label),
+              trailing: _start == s ? const Icon(Icons.check_circle) : const Icon(Icons.circle_outlined),
+              onTap: () => setState(() => _start = s),
+            ),
           const SizedBox(height: 6),
           Text(
             switch (_start) {
