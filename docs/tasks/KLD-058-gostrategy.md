@@ -232,3 +232,9 @@ v3 (maintainer chose B; "no border between the white and the background colour")
 comparison, B1 thin black outline, B2 thin dark grey, B3 soft dark halo (`goInsigniaEdge`, width 3 % of the
 tile, 0.8–1.5 px, drawn as a dilated or blurred copy below the insignia, bomb and flag included). Free-standing,
 the single star and the bar fill their area like a picture. Shots end in `-v3`.
+
+v4 (feedback: insignia too low): looks `badgeBlack` / `badgeGrey` centre the insignia in the whole tile (area
+0.2–0.8, equal margins) and show the number (top left) and the "seen" eye (top right) as small rounded badges
+in the army colour with a thin border in the edge colour, 0.34 of the tile high, reaching 0.06 over the tile
+edge. On the board the overflow stays inside the cell's padding (0.07 of the cell), so neighbours do not clip
+it. The batons are drawn at 0.9 of the picture height so their ends keep clear of the badge. Shots end in `-v4`.

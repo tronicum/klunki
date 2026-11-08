@@ -52,7 +52,7 @@ Future<void> _shot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/$name-v3.png');
+    final f = File('$_out/$name-v4.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
@@ -95,11 +95,13 @@ const _lookNames = {
   GoPieceLook.insigniaBlack: 'B1: B mit dünnem schwarzem Rand',
   GoPieceLook.insigniaGrey: 'B2: B mit dünnem dunkelgrauem Rand',
   GoPieceLook.insigniaHalo: 'B3: B mit weichem dunklem Schein',
+  GoPieceLook.badgeBlack: 'v4 B1: mittig, Zahl und Auge als Plakette, schwarzer Rand',
+  GoPieceLook.badgeGrey: 'v4 B2: mittig, Zahl und Auge als Plakette, dunkelgrauer Rand',
 };
 
 /// The looks on the sheets this round (KLD-058 v3: the maintainer chose B,
 /// now B with and without an edge).
-const _looks = [GoPieceLook.insignia, GoPieceLook.insigniaBlack, GoPieceLook.insigniaGrey, GoPieceLook.insigniaHalo];
+const _looks = [GoPieceLook.insigniaGrey, GoPieceLook.badgeBlack, GoPieceLook.badgeGrey];
 
 /// One row: all twelve pieces, a hidden enemy back and a seen own piece.
 Widget _row(GoPieceLook look, Player owner, double size, bool number) => Wrap(
@@ -227,12 +229,11 @@ void main() {
     // A mid-game board with variants B and A (some fights, so a few own
     // pieces are seen), on a large and a small phone.
     for (final (variant, look) in [
-      ('B', GoPieceLook.insignia),
-      ('B1', GoPieceLook.insigniaBlack),
-      ('B2', GoPieceLook.insigniaGrey),
-      ('B3', GoPieceLook.insigniaHalo),
+      ('v3-B2', GoPieceLook.insigniaGrey),
+      ('v4-B1', GoPieceLook.badgeBlack),
+      ('v4-B2', GoPieceLook.badgeGrey),
     ]) {
-      for (final (name, size) in [('phone-small', Size(375, 667))]) {
+      for (final (name, size) in [('phone-small', Size(375, 667)), ('phone-large', Size(430, 932))]) {
         for (final b in [Brightness.light]) {
           final tag = b == Brightness.dark ? 'dark' : 'light';
           testWidgets('board $variant $name $tag', skip: skip, (tester) async {

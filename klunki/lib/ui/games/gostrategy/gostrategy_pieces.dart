@@ -140,6 +140,13 @@ enum GoPieceLook {
 
   /// Variant B3: [insignia] with a soft dark halo instead of an outline.
   insigniaHalo,
+
+  /// v4: [insigniaBlack] centred in the whole tile; number and "seen" eye
+  /// as small bordered badges on the top corners.
+  badgeBlack,
+
+  /// v4: like [badgeBlack] with the dark grey edge of [insigniaGrey].
+  badgeGrey,
 }
 
 /// Outline colour of [look] (null: none) and whether it is a soft halo.
@@ -147,6 +154,8 @@ enum GoPieceLook {
   GoPieceLook.insigniaBlack => (const Color(0xFF000000), false),
   GoPieceLook.insigniaGrey => (const Color(0xFF3C3C3C), false),
   GoPieceLook.insigniaHalo => (const Color(0xB3000000), true),
+  GoPieceLook.badgeBlack => (const Color(0xFF000000), false),
+  GoPieceLook.badgeGrey => (const Color(0xFF3C3C3C), false),
   _ => (null, false),
 };
 
@@ -251,10 +260,11 @@ class GoPieceTile extends StatelessWidget {
                 edge: edge,
                 edgeWidth: goInsigniaEdgeWidth(size),
                 halo: halo,
+                maxAspect: layout.badges ? 1 : 1.3,
               ),
             ),
           ),
-          if (number)
+          if (number && !layout.badges)
             Positioned(
               left: size * 0.07,
               top: size * 0.03,
@@ -298,7 +308,26 @@ class GoPieceTile extends StatelessWidget {
         ],
       );
     }
-    final eye = GoInsigniaLayout(look, rankNumber: rankNumber, eye: true).eyeRect;
+    final layout = GoInsigniaLayout(look, rankNumber: rankNumber, eye: true);
+    final eye = layout.eyeRect;
+    final (edge, _) = goInsigniaEdge(look);
+    final rank = kind?.rank;
+    // v4 badges: a small rounded box in the army colour with a thin border
+    // in the edge colour, a little over the tile's top corner.
+    final badgeSize = size * GoInsigniaLayout.badgeSize;
+    final badgeOut = size * GoInsigniaLayout.badgeOverflow;
+    Widget badge(Widget child) => Container(
+      height: badgeSize,
+      constraints: BoxConstraints(minWidth: badgeSize),
+      padding: EdgeInsets.symmetric(horizontal: badgeSize * 0.14),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Color.lerp(color, Colors.black, 0.12),
+        borderRadius: BorderRadius.circular(badgeSize / 2),
+        border: Border.all(color: edge ?? Colors.black, width: goInsigniaEdgeWidth(size)),
+      ),
+      child: child,
+    );
     return Container(
       width: size,
       height: size,
@@ -319,8 +348,28 @@ class GoPieceTile extends StatelessWidget {
         ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Positioned.fill(child: face),
+          if (layout.badges && kind != null && rank != null && rankNumber)
+            Positioned(
+              left: -badgeOut,
+              top: -badgeOut,
+              child: badge(
+                Text(
+                  '$rank',
+                  textDirection: TextDirection.ltr,
+                  style: TextStyle(color: ink, fontSize: badgeSize * 0.72, fontWeight: FontWeight.w800, height: 1),
+                ),
+              ),
+            ),
+          if (layout.badges && known && kind != null && size >= 26)
+            Positioned(
+              key: goKnownMarkerKey,
+              right: -badgeOut,
+              top: -badgeOut,
+              child: badge(Icon(Icons.visibility, size: badgeSize * 0.68, color: ink)),
+            ),
           if (moved && kind == null)
             Positioned(
               key: goMovedMarkerKey,
@@ -332,7 +381,7 @@ class GoPieceTile extends StatelessWidget {
                 decoration: BoxDecoration(shape: BoxShape.circle, color: ink.withValues(alpha: 0.9)),
               ),
             ),
-          if (known && kind != null && size >= 26)
+          if (!layout.badges && known && kind != null && size >= 26)
             Positioned(
               key: goKnownMarkerKey,
               left: eye.left * size,
@@ -355,8 +404,15 @@ class GoInsigniaLayout {
   final bool rankNumber, eye;
   const GoInsigniaLayout(this.look, {required this.rankNumber, required this.eye});
 
-  /// Space kept free for the number and the eye.
-  bool get reserve => rankNumber || eye;
+  /// Space kept free for the number and the eye (not with badges).
+  bool get reserve => !badges && (rankNumber || eye);
+
+  /// v4: number and eye as badges over the top corners; the insignia is
+  /// centred in the whole tile.
+  bool get badges => look == GoPieceLook.badgeBlack || look == GoPieceLook.badgeGrey;
+
+  /// Badge height and how far it reaches over the tile edge (tile units).
+  static const badgeSize = 0.34, badgeOverflow = 0.06;
 
   /// Variant A: every shoulder board has this size and place.
   Rect get board => reserve ? const Rect.fromLTWH(0.38, 0.11, 0.5, 0.8) : const Rect.fromLTWH(0.25, 0.1, 0.5, 0.8);
@@ -368,6 +424,8 @@ class GoInsigniaLayout {
       // Bomb and flag have no board: the same column, a little shorter.
       return piece.rank != null ? b : Rect.fromLTRB(b.left - 0.03, b.top + 0.12, b.right + 0.03, b.bottom - 0.02);
     }
+    // v4: centred, equal margins, clear of the badges' inner corners.
+    if (badges) return const Rect.fromLTRB(0.2, 0.2, 0.8, 0.8);
     // B and C: a strip at the top for the number (left) and the eye (right).
     return reserve ? const Rect.fromLTRB(0.08, 0.28, 0.92, 0.9) : const Rect.fromLTRB(0.13, 0.13, 0.87, 0.87);
   }
@@ -449,6 +507,10 @@ class GoInsigniaPainter extends CustomPainter {
   final double edgeWidth;
   final bool halo;
 
+  /// Widest picture / its height that still gets the full height `u`;
+  /// wider pictures (the cap) shrink to fit the width.
+  final double maxAspect;
+
   const GoInsigniaPainter({
     required this.piece,
     required this.ink,
@@ -457,12 +519,10 @@ class GoInsigniaPainter extends CustomPainter {
     this.edge,
     this.edgeWidth = 1,
     this.halo = false,
+    this.maxAspect = 1.3,
   });
 
   static final Paint _clear = Paint()..blendMode = BlendMode.clear;
-
-  /// Widest picture / its height (the cap).
-  static const _maxAspect = 1.3;
 
   /// Star radius, star spacing, stroke of bar and chevrons, in units of `u`.
   static const _starR = 0.32, _starStep = 0.68, _stroke = 0.18;
@@ -507,7 +567,7 @@ class GoInsigniaPainter extends CustomPainter {
         b.bottom - b.height * 0.07,
       );
     }
-    final u = boardColor != null ? math.min(area.height, area.width) : math.min(area.height, area.width / _maxAspect);
+    final u = boardColor != null ? math.min(area.height, area.width) : math.min(area.height, area.width / maxAspect);
     if (u <= 0) return;
     switch (piece) {
       case GoPiece.bomb:
@@ -704,7 +764,9 @@ class GoInsigniaPainter extends CustomPainter {
       );
     final a = _turned(stick, -math.pi / 4, c), b = _turned(stick, math.pi / 4, c);
     final bounds = a.getBounds().expandToInclude(b.getBounds());
-    _place(canvas, area, bounds, u / bounds.height);
+    // The X fills its box to the corners: a little smaller, so the ends
+    // keep clear of corner badges and it weighs like the other pictures.
+    _place(canvas, area, bounds, 0.9 * u / bounds.height);
     void ends(double angle) {
       canvas.save();
       canvas.translate(c.dx, c.dy);
@@ -855,7 +917,8 @@ class GoInsigniaPainter extends CustomPainter {
       oldDelegate.board != board ||
       oldDelegate.edge != edge ||
       oldDelegate.edgeWidth != edgeWidth ||
-      oldDelegate.halo != halo;
+      oldDelegate.halo != halo ||
+      oldDelegate.maxAspect != maxAspect;
 }
 
 /// A round bomb with a fuse and a spark.
