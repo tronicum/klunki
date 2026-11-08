@@ -2443,4 +2443,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return '拒绝：$words';
   }
+
+  @override
+  String get confirmMoveSetting => '确认走棋';
+
+  @override
+  String get confirmMoveHelper => '点“走棋”后，这一步才算数。';
+
+  @override
+  String get confirmMoveCommit => '走棋';
+
+  @override
+  String get confirmMoveBack => '重选';
+
+  @override
+  String get confirmMoveHint => '这一步对吗？点“走棋”或“重选”。';
+
+  @override
+  String get confirmMoveOn => '确认走棋：开';
+
+  @override
+  String get confirmMoveOff => '确认走棋：关';
 }

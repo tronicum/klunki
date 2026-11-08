@@ -660,5 +660,12 @@
   "wordtilesAllowDeclined": "{player} declined “{words}”.",
   "wordtilesMoveAllowRequest": "asks to allow {words} ({score, plural, one{{score} point} other{{score} points}})",
   "wordtilesMoveAllowAccept": "agreed: {words} counts ({score, plural, one{{score} point} other{{score} points}})",
-  "wordtilesMoveAllowDecline": "declined: {words}"
+  "wordtilesMoveAllowDecline": "declined: {words}",
+  "confirmMoveSetting": "Confirm move",
+  "confirmMoveHelper": "A move only counts after a tap on “Move”.",
+  "confirmMoveCommit": "Move",
+  "confirmMoveBack": "Back",
+  "confirmMoveHint": "Is this the right move? Tap “Move” or “Back”.",
+  "confirmMoveOn": "Confirm move is on.",
+  "confirmMoveOff": "Confirm move is off."
 }

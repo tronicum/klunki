@@ -2613,4 +2613,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'refusé : $words';
   }
+
+  @override
+  String get confirmMoveSetting => 'Confirmer le coup';
+
+  @override
+  String get confirmMoveHelper => 'Un coup ne compte qu’après « Jouer ».';
+
+  @override
+  String get confirmMoveCommit => 'Jouer';
+
+  @override
+  String get confirmMoveBack => 'Retour';
+
+  @override
+  String get confirmMoveHint =>
+      'C’est le bon coup ? Touche « Jouer » ou « Retour ».';
+
+  @override
+  String get confirmMoveOn => 'Confirmer le coup : activé.';
+
+  @override
+  String get confirmMoveOff => 'Confirmer le coup : désactivé.';
 }

@@ -661,5 +661,12 @@
   "wordtilesAllowDeclined": "{player} refuse « {words} ».",
   "wordtilesMoveAllowRequest": "demande d’accepter {words} ({score, plural, one{{score} point} other{{score} points}})",
   "wordtilesMoveAllowAccept": "d’accord : {words} compte ({score, plural, one{{score} point} other{{score} points}})",
-  "wordtilesMoveAllowDecline": "refusé : {words}"
+  "wordtilesMoveAllowDecline": "refusé : {words}",
+  "confirmMoveSetting": "Confirmer le coup",
+  "confirmMoveHelper": "Un coup ne compte qu’après « Jouer ».",
+  "confirmMoveCommit": "Jouer",
+  "confirmMoveBack": "Retour",
+  "confirmMoveHint": "C’est le bon coup ? Touche « Jouer » ou « Retour ».",
+  "confirmMoveOn": "Confirmer le coup : activé.",
+  "confirmMoveOff": "Confirmer le coup : désactivé."
 }

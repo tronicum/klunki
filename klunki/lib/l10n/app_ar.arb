@@ -661,5 +661,12 @@
   "wordtilesAllowDeclined": "«{words}» مرفوضة من {player}.",
   "wordtilesMoveAllowRequest": "طلب قبول {words} ({score} نقطة)",
   "wordtilesMoveAllowAccept": "موافقة: احتساب {words} ({score} نقطة)",
-  "wordtilesMoveAllowDecline": "رفض: {words}"
+  "wordtilesMoveAllowDecline": "رفض: {words}",
+  "confirmMoveSetting": "تأكيد الحركة",
+  "confirmMoveHelper": "لا تُحتسب الحركة إلا بعد لمس «تحريك».",
+  "confirmMoveCommit": "تحريك",
+  "confirmMoveBack": "رجوع",
+  "confirmMoveHint": "هل هذه الحركة صحيحة؟ المس «تحريك» أو «رجوع».",
+  "confirmMoveOn": "تأكيد الحركة: مفعّل.",
+  "confirmMoveOff": "تأكيد الحركة: متوقف."
 }

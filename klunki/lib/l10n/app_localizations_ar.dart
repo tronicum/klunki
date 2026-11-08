@@ -2549,4 +2549,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String wordtilesMoveAllowDecline(String words) {
     return 'رفض: $words';
   }
+
+  @override
+  String get confirmMoveSetting => 'تأكيد الحركة';
+
+  @override
+  String get confirmMoveHelper => 'لا تُحتسب الحركة إلا بعد لمس «تحريك».';
+
+  @override
+  String get confirmMoveCommit => 'تحريك';
+
+  @override
+  String get confirmMoveBack => 'رجوع';
+
+  @override
+  String get confirmMoveHint => 'هل هذه الحركة صحيحة؟ المس «تحريك» أو «رجوع».';
+
+  @override
+  String get confirmMoveOn => 'تأكيد الحركة: مفعّل.';
+
+  @override
+  String get confirmMoveOff => 'تأكيد الحركة: متوقف.';
 }

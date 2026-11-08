@@ -8,6 +8,7 @@ import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
 import '../../ltr.dart';
+import '../../shell/confirm_move.dart';
 import '../../shell/game_screen.dart';
 import 'chess_pieces.dart';
 
@@ -34,6 +35,15 @@ import 'chess_pieces.dart';
 ///   player has accepted or declined it in a dialog; it closes by itself when the offer goes away underneath it
 ///   (e.g. a resign). The hint line tells the offerer that the other side
 ///   decides, and both sides when an offer was declined.
+///
+/// * "Zug bestätigen" (KLD-122): when it is on for the mover
+///   ([confirmMoveFor]: the device's choice over the network, the seat's in
+///   hot-seat), a chosen move (tap, drag, or promotion after the piece is
+///   picked) is only shown: the piece on its target, a faint copy on the
+///   square it left, a captured piece small and faint in the corner of its
+///   square, and "✗ Zurück" / "✓ Ziehen" under the board ([ConfirmMoveBar]).
+///   Nothing is submitted before "Ziehen"; "Zurück" restores the board. A
+///   draw offer, a resign or an undo drops the pending move.
 ///
 /// Keys for tests: squares `chess-sq-<e4>` ([ChessSquareView]), `chess-flip`,
 /// `chess-auto-flip`, `chess-check`, `chess-moves`, `chess-move-<i>`,
@@ -68,6 +78,9 @@ class _ChessBoardState extends State<ChessBoard> {
   /// The open "offer a draw?" confirmation, closed when the game ends.
   ModalRoute<Object?>? _confirmRoute;
 
+  /// The move waiting for "Ziehen" (KLD-122), or null.
+  _Pending? _pending;
+
   GameController get controller => widget.controller;
   ChessGame get game => controller.game as ChessGame;
 
@@ -89,6 +102,7 @@ class _ChessBoardState extends State<ChessBoard> {
       _transport = controller.transport;
       _seen = controller.moves.length;
       _selected = null;
+      _pending = null;
     }
   }
 
@@ -105,7 +119,9 @@ class _ChessBoardState extends State<ChessBoard> {
         _transport = controller.transport;
         _seen = controller.moves.length;
         _selected = null;
+        _pending = null; // a resign, a draw offer, an undo, a restart
       }
+      if (game.isOver) _pending = null;
     });
     _syncDrawOffer();
     if (game.isOver) {
@@ -240,6 +256,7 @@ class _ChessBoardState extends State<ChessBoard> {
     );
     _confirmRoute = null;
     if (ok != true || !mounted || !game.canOfferDraw(me)) return;
+    setState(() => _pending = null);
     controller.submit(ChessGame.offerDrawMove(me));
   }
 
@@ -273,9 +290,10 @@ class _ChessBoardState extends State<ChessBoard> {
     return chessYouPlay(l10n, game.colorOf(local.single));
   }
 
-  /// Pieces move on the own turn, not while the promotion picker is up or a
-  /// draw offer waits for its answer (the offerer is the player to move).
-  bool get _canMove => controller.canAct && !_promoting && game.drawOfferBy == null;
+  /// Pieces move on the own turn, not while the promotion picker is up, a
+  /// draw offer waits for its answer (the offerer is the player to move) or
+  /// a move waits for "Ziehen".
+  bool get _canMove => controller.canAct && !_promoting && game.drawOfferBy == null && _pending == null;
 
   List<Map<String, dynamic>> _movesFrom(String? sq) => sq == null || !_canMove ? const [] : game.legalMovesFrom(sq);
 
@@ -297,8 +315,7 @@ class _ChessBoardState extends State<ChessBoard> {
     final moves = [for (final m in _movesFrom(from)) if (m['to'] == to) m];
     if (moves.isEmpty) return false;
     if (moves.length == 1) {
-      setState(() => _selected = null);
-      controller.submit(moves.single);
+      _play(moves.single);
     } else {
       _promote(from, to);
     }
@@ -321,8 +338,41 @@ class _ChessBoardState extends State<ChessBoard> {
       _selected = null;
     });
     if (letter == null || game.sideToMove != color || controller.game.isOver) return;
-    controller.submit({'action': 'move', 'from': from, 'to': to, 'promotion': letter});
+    _play({'action': 'move', 'from': from, 'to': to, 'promotion': letter});
   }
+
+  /// Submits [move], or with "Zug bestätigen" on for the mover (KLD-122)
+  /// keeps it as pending: shown on a private copy of the game, not sent.
+  void _play(Map<String, dynamic> move) {
+    if (confirmMoveFor(context, controller, game.currentPlayer)) {
+      final preview = controller.previewCopy();
+      final event = preview?.applyMove(move);
+      if (preview is ChessGame && event != null) {
+        setState(() {
+          _selected = null;
+          _pending = _Pending(move, preview, event.payload is Map ? event.payload as Map : const {}, _seen);
+        });
+        return;
+      }
+    }
+    setState(() => _selected = null);
+    controller.submit(move);
+  }
+
+  /// "✓ Ziehen": now the pending move counts. If it was not delivered (e.g.
+  /// the connection dropped) it is pending again.
+  Future<void> _commit() async {
+    final p = _pending;
+    if (p == null || !controller.canAct || controller.moves.length != p.seen) return;
+    setState(() => _pending = null);
+    final r = await controller.submit(p.move);
+    if (!r.isAccepted && mounted && _pending == null && controller.canAct && controller.moves.length == p.seen) {
+      setState(() => _pending = p);
+    }
+  }
+
+  /// "✗ Zurück": the board as before, choose again.
+  void _back() => setState(() => _pending = null);
 
   void _dragStarted(String sq) {
     if (!_canMove) return;
@@ -337,7 +387,9 @@ class _ChessBoardState extends State<ChessBoard> {
     final g = game;
     GameScreen.of(context).setHint(g.isOver
         ? null
-        : _drawHint(l10n) ??
+        : _pending != null
+            ? l10n.confirmMoveHint
+            : _drawHint(l10n) ??
             (_selected == null ? _colorHint(l10n) : null) ??
             (!controller.canAct
                 ? null
@@ -397,6 +449,21 @@ class _ChessBoardState extends State<ChessBoard> {
           ],
         );
     final moves = _MoveList(san: g.sanHistory, wrap: true);
+    // KLD-122: "✗ Zurück" / "✓ Ziehen" above the move list while a move
+    // waits; in a very short pane the bar takes all of it (and shrinks).
+    Widget movePane() => _pending == null
+        ? _MovePane(child: moves)
+        : LayoutBuilder(
+            builder: (context, box) => Column(
+              children: [
+                SizedBox(
+                  height: min(48.0, box.maxHeight),
+                  child: Center(child: ConfirmMoveBar(onCommit: _commit, onBack: _back)),
+                ),
+                Expanded(child: _MovePane(child: moves)),
+              ],
+            ),
+          );
 
     return LayoutBuilder(builder: (context, box) {
       final wide = box.maxWidth >= 720 && box.maxWidth > box.maxHeight;
@@ -418,7 +485,7 @@ class _ChessBoardState extends State<ChessBoard> {
                     const SizedBox(height: 8),
                     controlRow(300),
                     const SizedBox(height: 8),
-                    Expanded(child: _MovePane(child: moves)),
+                    Expanded(child: movePane()),
                     const SizedBox(height: 8),
                     _Captured(controller: controller, player: bottom),
                   ],
@@ -448,7 +515,7 @@ class _ChessBoardState extends State<ChessBoard> {
             Expanded(
               child: SizedBox(
                 width: extent,
-                child: _MovePane(child: moves),
+                child: movePane(),
               ),
             ),
           ],
@@ -460,12 +527,16 @@ class _ChessBoardState extends State<ChessBoard> {
   Widget _frame(BuildContext context, double extent, Player bottom) {
     final g = game;
     final l10n = AppLocalizations.of(context);
-    final board = g.board;
+    final pending = _pending;
+    // A pending move (KLD-122) shows the position after it.
+    final shown = pending?.preview ?? g;
+    final board = shown.board;
     final selected = _selected;
     final legal = _movesFrom(selected);
     final targets = {for (final m in legal) m['to'] as String};
-    final last = _lastMove(controller.moves);
-    final checkSquare = g.isInCheck ? _kingSquare(board, g.sideToMove) : null;
+    final last = pending == null ? _lastMove(controller.moves) : null;
+    final checkSquare = shown.isInCheck ? _kingSquare(board, shown.sideToMove) : null;
+    final moved = pending == null ? null : g.pieceAt(pending.from);
     final canMove = _canMove;
 
     Widget square(String name, double size) {
@@ -490,6 +561,9 @@ class _ChessBoardState extends State<ChessBoard> {
         check: checkSquare == name,
         semanticLabel: label,
         onTap: canMove ? () => _tap(name) : null,
+        pendingFrom: pending != null && pending.from == name ? moved : null,
+        pendingTo: pending != null && pending.to == name,
+        pendingCapture: pending != null && pending.captureSquare == name ? pending.captured : null,
       );
       final movable = canMove && piece != null && piece.color == g.sideToMove;
       Widget child = view;
@@ -544,6 +618,27 @@ class _ChessBoardState extends State<ChessBoard> {
       if (m['action'] == 'move') return (m['from'] as String, m['to'] as String);
     }
     return null;
+  }
+}
+
+/// A move waiting for "Ziehen" (KLD-122): the move, the game after it (a
+/// private copy) and its event payload; [seen] = the log length it was
+/// chosen at.
+class _Pending {
+  final Map<String, dynamic> move;
+  final ChessGame preview;
+  final Map<dynamic, dynamic> payload;
+  final int seen;
+  const _Pending(this.move, this.preview, this.payload, this.seen);
+
+  String get from => move['from'] as String;
+  String get to => move['to'] as String;
+  String? get captureSquare => payload['captureSquare'] as String?;
+
+  /// The captured piece (the opponent's colour), or null.
+  ChessPiece? get captured {
+    final t = chessPieceTypeOf(payload['capture']);
+    return t == null ? null : ChessPiece(preview.sideToMove, t);
   }
 }
 
@@ -667,6 +762,13 @@ class ChessSquareView extends StatelessWidget {
   final String semanticLabel;
   final VoidCallback? onTap;
 
+  /// A pending move (KLD-122): [pendingFrom] is the piece that left this
+  /// square (shown faintly), [pendingTo] marks its target, [pendingCapture]
+  /// the piece it takes here (small and faint in a corner).
+  final ChessPiece? pendingFrom;
+  final bool pendingTo;
+  final ChessPiece? pendingCapture;
+
   const ChessSquareView({
     super.key,
     required this.square,
@@ -679,6 +781,9 @@ class ChessSquareView extends StatelessWidget {
     required this.check,
     required this.semanticLabel,
     this.onTap,
+    this.pendingFrom,
+    this.pendingTo = false,
+    this.pendingCapture,
   });
 
   bool get light => ((square.codeUnitAt(0) - 0x61) + (square.codeUnitAt(1) - 0x31)).isOdd;
@@ -711,7 +816,30 @@ class ChessSquareView extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (pendingFrom != null)
+                  Center(
+                    key: const Key('chess-pending-from'),
+                    child: Opacity(opacity: 0.3, child: ChessPieceIcon(piece: pendingFrom!, size: size * 0.9)),
+                  ),
+                if (pendingCapture != null)
+                  PositionedDirectional(
+                    key: const Key('chess-pending-capture'),
+                    top: size * 0.02,
+                    end: size * 0.02,
+                    width: size * 0.42,
+                    height: size * 0.42,
+                    child: Opacity(opacity: 0.55, child: ChessPieceIcon(piece: pendingCapture!, size: size * 0.42)),
+                  ),
                 if (pc != null) Center(child: ChessPieceIcon(piece: pc, size: size * 0.9)),
+                if (pendingTo)
+                  IgnorePointer(
+                    child: Container(
+                      key: const Key('chess-pending-to'),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: p.select, width: max(3, size * 0.1)),
+                      ),
+                    ),
+                  ),
                 if (selected)
                   IgnorePointer(
                     child: Container(

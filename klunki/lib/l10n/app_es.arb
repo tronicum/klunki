@@ -661,5 +661,12 @@
   "wordtilesAllowDeclined": "{player} rechaza «{words}».",
   "wordtilesMoveAllowRequest": "pide permitir {words} ({score, plural, one{{score} punto} other{{score} puntos}})",
   "wordtilesMoveAllowAccept": "de acuerdo: {words} cuenta ({score, plural, one{{score} punto} other{{score} puntos}})",
-  "wordtilesMoveAllowDecline": "rechazado: {words}"
+  "wordtilesMoveAllowDecline": "rechazado: {words}",
+  "confirmMoveSetting": "Confirmar jugada",
+  "confirmMoveHelper": "Una jugada solo cuenta después de tocar «Mover».",
+  "confirmMoveCommit": "Mover",
+  "confirmMoveBack": "Atrás",
+  "confirmMoveHint": "¿Es la jugada correcta? Toca «Mover» o «Atrás».",
+  "confirmMoveOn": "Confirmar jugada: activado.",
+  "confirmMoveOff": "Confirmar jugada: desactivado."
 }

@@ -4078,6 +4078,48 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'abgelehnt: {words}'**
   String wordtilesMoveAllowDecline(String words);
+
+  /// KLD-122: the setting "confirm move": a move only counts after the player taps confirmMoveCommit. Switch label in "Wer spielt?" (per player), on "Raum starten" (this device, network) and the tooltip of the in-game toggle.
+  ///
+  /// In de, this message translates to:
+  /// **'Zug bestätigen'**
+  String get confirmMoveSetting;
+
+  /// KLD-122: explanation under the confirm-move switch; names the button confirmMoveCommit in quotes (keep it equal to that translation).
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Zug zählt erst nach einem Tipp auf „Ziehen“.'**
+  String get confirmMoveHelper;
+
+  /// KLD-122: button under the board that makes a pending (shown, not yet sent) move count. Short verb, matches the quote in confirmMoveHelper and confirmMoveHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehen'**
+  String get confirmMoveCommit;
+
+  /// KLD-122: button next to confirmMoveCommit: takes the pending move back so the player can choose again. Short.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück'**
+  String get confirmMoveBack;
+
+  /// KLD-122: hint line while a move waits for confirmation; quotes confirmMoveCommit and confirmMoveBack.
+  ///
+  /// In de, this message translates to:
+  /// **'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.'**
+  String get confirmMoveHint;
+
+  /// KLD-122: snack bar after turning the confirm-move toggle on during a network game.
+  ///
+  /// In de, this message translates to:
+  /// **'Zug bestätigen ist an.'**
+  String get confirmMoveOn;
+
+  /// KLD-122: snack bar after turning the confirm-move toggle off during a network game.
+  ///
+  /// In de, this message translates to:
+  /// **'Zug bestätigen ist aus.'**
+  String get confirmMoveOff;
 }
 
 class _AppLocalizationsDelegate

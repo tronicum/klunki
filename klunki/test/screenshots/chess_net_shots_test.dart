@@ -22,6 +22,7 @@ import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
+import 'package:klunki/ui/shell/confirm_move.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -143,7 +144,14 @@ Future<void> _start(WidgetTester tester,
     }
   });
   Widget device(Key key, NetworkTransport t, Locale locale) => Expanded(
-        child: RepaintBoundary(key: key, child: _app(NetworkGameSession(transport: t), locale: locale)),
+        // KLD-122 off: these shots show the board before "Zug bestätigen".
+        child: RepaintBoundary(
+          key: key,
+          child: ConfirmMoveScope(
+            settings: ConfirmMoveSettings.memory(network: false),
+            child: _app(NetworkGameSession(transport: t), locale: locale),
+          ),
+        ),
       );
   await tester.pumpWidget(Directionality(
     textDirection: TextDirection.ltr,
