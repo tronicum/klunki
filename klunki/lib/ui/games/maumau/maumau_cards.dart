@@ -131,8 +131,9 @@ class _SuitPainter extends CustomPainter {
   bool shouldRepaint(_SuitPainter old) => old.suit != suit || old.color != color;
 }
 
-/// A face-up card [width] wide. [highlight] draws a coloured frame (a card
-/// that may be laid), [dimmed] greys it a little (a card that does not fit).
+/// A face-up card [width] wide. [highlight] draws a slim coloured line and a
+/// raised shadow (a card that may be laid), [dimmed] greys it a little (a
+/// card that does not fit).
 /// The semantics label names the card ("Herz 7").
 class MauMauCardFace extends StatelessWidget {
   final MauMauCard card;
@@ -194,9 +195,13 @@ class MauMauCardFace extends StatelessWidget {
             borderRadius: BorderRadius.circular(w * 0.1),
             border: Border.all(
               color: highlight ?? const Color(0xFFBDB6A8),
-              width: highlight == null ? 1 : math.max(2.5, w * 0.05),
+              // A slim accent line (KLD-118: the thick frame was too loud);
+              // the raised shadow and the lift in the hand do the rest.
+              width: highlight == null ? 1 : (w * 0.022).clamp(1.5, 2.0),
             ),
-            boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 3, offset: Offset(0.5, 1.5))],
+            boxShadow: highlight == null
+                ? const [BoxShadow(color: Color(0x40000000), blurRadius: 3, offset: Offset(0.5, 1.5))]
+                : const [BoxShadow(color: Color(0x33000000), blurRadius: 6, offset: Offset(0, 3))],
           ),
           child: Opacity(
             opacity: dimmed ? 0.55 : 1,
