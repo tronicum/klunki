@@ -210,31 +210,23 @@ can cover the final "Fahne erobert!" reveal; saved/favourite setups.
   `game_screen_test` (menu), `coverage_test` (all locales, two sizes), `translations_test`, `rtl_test`,
   `screenshots_test`.
 
-## Rank insignia (2026-11-08, step 1: variant sheet)
+## Rank insignia (2026-11-08) ✅
 
-Maintainer decision: every piece gets a drawn rank insignia (CustomPainter, generic, no assets), the rank
-number small in a corner. Marschall crossed batons, General peaked cap (oak leaves only at large sizes),
-Oberst/Major/Hauptmann 3/2/1 stars, Leutnant one bar, Feldwebel chevrons, Mineur pickaxe, Späher binoculars,
-Spion hat over a domino mask; bomb and flag unchanged. `GoInsignia(piece, color, size)` in
-`gostrategy_pieces.dart` is public (rules pages reuse it). Looks: `GoPieceLook` (A shoulder board, B free in
-the ink colour, C free with gold stars/bars/chevrons); the app switch `goPieceLook` stays `classic` until the
-maintainer chooses. Variant sheet and a board with B:
-`KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart` (group
-`kld058-insignia`); paint test `test/ui/games/gostrategy_insignia_test.dart`.
+Maintainer decision: every piece shows a drawn rank insignia (CustomPainter in `gostrategy_pieces.dart`,
+generic, no assets or fonts) instead of the big number: Marschall crossed batons, General peaked cap (oak
+leaves only at large sizes), Oberst/Major/Hauptmann 3/2/1 stars, Leutnant a bar, Feldwebel three chevrons,
+Mineur a pickaxe, Aufklärer binoculars, Spion a hat over a domino mask; bomb and flag as before.
 
-v2 (maintainer feedback: B favourite, A possible): `GoInsigniaLayout` gives the number and the "seen" eye
-corners of their own (B/C: a top strip, number left, eye right; A: number top left, eye bottom left beside
-the board), so nothing overlaps and every insignia has the same centre. Equal weight: pictures share one
-height, stars one size for 1/2/3 (nested triangle), bar and chevrons one stroke. A: every board the same
-size and outline, 80 % of the tile height. Shots now end in `-v2`, boards for B and A.
+Final look (chosen over five rounds of variant sheets: shoulder boards, gold stars, black/grey/halo edges,
+reserved corners, overflowing badges): white shapes with a thin dark grey edge (`goInsigniaEdge`, 3 % of the
+tile, 0.8–1.5 px, a dilated copy below the insignia, so it also rings the holes), centred exactly in the
+tile with equal margins as if there were no badges. Pictures share one height; the 2- and 3-star groups one
+star size; the single star and the bar fill their area like a picture. The rank number sits in a small
+rounded badge (darker army colour, grey edge) inside the top left corner, drawn over the insignia; the "seen"
+eye in the same badge top right. The 22–24 px tiles of the setup legend and the armies panel have no badges
+(`badges: false`). Real board tiles: about 26 px on a 375 pt phone, 34 px on a 430 pt phone.
 
-v3 (maintainer chose B; "no border between the white and the background colour"): B with an edge for
-comparison, B1 thin black outline, B2 thin dark grey, B3 soft dark halo (`goInsigniaEdge`, width 3 % of the
-tile, 0.8–1.5 px, drawn as a dilated or blurred copy below the insignia, bomb and flag included). Free-standing,
-the single star and the bar fill their area like a picture. Shots end in `-v3`.
-
-v4 (feedback: insignia too low): looks `badgeBlack` / `badgeGrey` centre the insignia in the whole tile (area
-0.2–0.8, equal margins) and show the number (top left) and the "seen" eye (top right) as small rounded badges
-in the army colour with a thin border in the edge colour, 0.34 of the tile high, reaching 0.06 over the tile
-edge. On the board the overflow stays inside the cell's padding (0.07 of the cell), so neighbours do not clip
-it. The batons are drawn at 0.9 of the picture height so their ends keep clear of the badge. Shots end in `-v4`.
+`GoInsignia(piece:, color:, size:, edge:)` is public for the rules pages. Tests: paint test
+`test/ui/games/gostrategy_insignia_test.dart`; screenshots (overview, sheet at 26–74 px, both phones' boards,
+setup, fight reveal): `KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart`
+(group `kld058-insignia`).

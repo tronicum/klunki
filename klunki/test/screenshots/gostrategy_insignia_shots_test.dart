@@ -1,8 +1,9 @@
-// KLD-058 insignia step 1: the variant sheet of the GoStrategy rank insignia
-// (A shoulder board, B free on the tile, C like B with gold stars and bars,
-// plus today's classic look for comparison) at the real tile sizes, with and
-// without the corner number, both armies, light and dark; and a mid-game
-// board with variant B. Skipped unless KLUNKI_SHOTS=<dir> is set:
+// KLD-058: the GoStrategy rank insignia. An overview at the large-phone tile
+// size, a sheet at all tile sizes used in the app (board on a small and a
+// large phone, the compact and full fight card, a 2× zoom), light and dark,
+// a mid-game board on both phones, the setup editor and a fight reveal.
+// Skipped unless KLUNKI_SHOTS=<dir> is set; KLUNKI_SHOTS_SUFFIX is added to
+// every file name (e.g. "-v5"):
 //
 //   KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart
 import 'dart:io';
@@ -23,6 +24,7 @@ import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 final String? _out = Platform.environment['KLUNKI_SHOTS'];
+final String _suffix = Platform.environment['KLUNKI_SHOTS_SUFFIX'] ?? '';
 const _boundary = Key('shot-boundary');
 
 Future<void> _loadFonts() async {
@@ -44,19 +46,25 @@ Future<void> _loadFonts() async {
   if (icons.existsSync()) await family('MaterialIcons', [icons.path]);
 }
 
-Future<void> _shot(WidgetTester tester, String name) async {
+Future<void> _shot(WidgetTester tester, String name, {Duration settle = const Duration(milliseconds: 600)}) async {
   debugDisableShadows = false;
-  await tester.pump(const Duration(milliseconds: 600));
+  await tester.pump(settle);
   await tester.pump();
   final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/$name-v4.png');
+    final f = File('$_out/$name$_suffix.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
   debugDisableShadows = true;
+}
+
+void _view(WidgetTester tester, Size size) {
+  tester.view.physicalSize = size * 2;
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
 }
 
 Widget _app(Widget home, Brightness b) => RepaintBoundary(
@@ -72,121 +80,71 @@ Widget _app(Widget home, Brightness b) => RepaintBoundary(
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: AppLocalizations.supportedLocales,
-    home: home,
+    home: PlayerLabelsScope(
+      labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
+      child: home,
+    ),
   ),
 );
 
-/// Tile sizes: board on a small phone (375 pt: 37.5 × 0.86 × 0.86 ≈ 31) and
-/// a large phone (430 pt ≈ 37), the compact and the full fight card (40, 64)
-/// and a 2× zoom of the large-phone tile.
+/// Tile sizes: the board on a small phone (375 pt: about 26) and a large
+/// phone (430 pt: about 34), 31 and 37 for comparison, the compact and the
+/// full fight card (40, 64) and a 2× zoom.
 const _sizes = [
-  (31.0, 'Brett kleines Handy'),
-  (37.0, 'Brett großes Handy'),
+  (26.0, 'Brett kleines Handy (375 pt)'),
+  (31.0, ''),
+  (34.0, 'Brett großes Handy (430 pt)'),
+  (37.0, ''),
   (40.0, 'Kampfkarte kompakt'),
   (64.0, 'Kampfkarte'),
   (74.0, '2× Zoom'),
 ];
 
-const _lookNames = {
-  GoPieceLook.classic: 'Heute (klassisch)',
-  GoPieceLook.shoulderBoard: 'A: Schulterklappe',
-  GoPieceLook.insignia: 'B: frei, Tintenfarbe',
-  GoPieceLook.insigniaGold: 'C: frei, Sterne/Balken gold',
-  GoPieceLook.insigniaBlack: 'B1: B mit dünnem schwarzem Rand',
-  GoPieceLook.insigniaGrey: 'B2: B mit dünnem dunkelgrauem Rand',
-  GoPieceLook.insigniaHalo: 'B3: B mit weichem dunklem Schein',
-  GoPieceLook.badgeBlack: 'v4 B1: mittig, Zahl und Auge als Plakette, schwarzer Rand',
-  GoPieceLook.badgeGrey: 'v4 B2: mittig, Zahl und Auge als Plakette, dunkelgrauer Rand',
-};
-
-/// The looks on the sheets this round (KLD-058 v3: the maintainer chose B,
-/// now B with and without an edge).
-const _looks = [GoPieceLook.insigniaGrey, GoPieceLook.badgeBlack, GoPieceLook.badgeGrey];
-
 /// One row: all twelve pieces, a hidden enemy back and a seen own piece.
-Widget _row(GoPieceLook look, Player owner, double size, bool number) => Wrap(
+Widget _row(Player owner, double size) => Wrap(
   spacing: 6,
   runSpacing: 6,
   children: [
-    for (final p in GoPiece.values) GoPieceTile(owner: owner, piece: p, size: size, look: look, rankNumber: number),
+    for (final p in GoPiece.values) GoPieceTile(owner: owner, piece: p, size: size),
     SizedBox(width: size * 0.3),
-    GoPieceTile(owner: owner == Player.a ? Player.b : Player.a, piece: null, size: size, moved: true, look: look),
-    GoPieceTile(owner: owner, piece: GoPiece.captain, size: size, known: true, look: look, rankNumber: number),
+    GoPieceTile(owner: owner == Player.a ? Player.b : Player.a, piece: null, size: size, moved: true),
+    GoPieceTile(owner: owner, piece: GoPiece.captain, size: size, known: true),
   ],
 );
 
-Widget _sheet(GoPieceLook look, Brightness b) => Builder(
+Widget _rows(BuildContext context, double size) => Container(
+  color: KlunkiPalette.of(context).gostrategy.land,
+  padding: const EdgeInsets.all(4),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (final owner in Player.values)
+        Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: _row(owner, size)),
+    ],
+  ),
+);
+
+Widget _sheet({required bool all}) => Builder(
   builder: (context) {
     final theme = Theme.of(context);
-    final land = KlunkiPalette.of(context).gostrategy.land;
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${_lookNames[look]} · ${b == Brightness.dark ? 'dunkel' : 'hell'}',
-              style: theme.textTheme.titleMedium,
-            ),
-            const SizedBox(height: 4),
             Text(
               'Marschall, General, Oberst, Major, Hauptmann, Leutnant, Feldwebel, Mineur, Späher, Spion, Bombe, Fahne · verdeckt · gesehen',
               style: theme.textTheme.bodySmall,
             ),
-            for (final (size, label) in _sizes) ...[
+            for (final (size, label) in all ? _sizes : [(37.0, 'Brett großes Handy')]) ...[
               const SizedBox(height: 8),
-              Text('${size.round()} px · $label', style: theme.textTheme.labelMedium),
-              const SizedBox(height: 4),
-              // Board land under the tiles, as in the game.
-              Container(
-                color: land,
-                padding: const EdgeInsets.all(4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (final number in look == GoPieceLook.classic ? [true] : [true, false])
-                      for (final owner in Player.values)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: _row(look, owner, size, number),
-                        ),
-                  ],
-                ),
+              Text(
+                label.isEmpty ? '${size.round()} px' : '${size.round()} px · $label',
+                style: theme.textTheme.labelMedium,
               ),
-            ],
-          ],
-        ),
-      ),
-    );
-  },
-);
-
-/// All looks side by side at the large-phone board size, both armies.
-Widget _overview(Brightness b) => Builder(
-  builder: (context) {
-    final theme = Theme.of(context);
-    final land = KlunkiPalette.of(context).gostrategy.land;
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final look in _looks) ...[
-              Text(_lookNames[look]!, style: theme.textTheme.labelLarge),
               const SizedBox(height: 4),
-              Container(
-                color: land,
-                padding: const EdgeInsets.all(4),
-                child: Column(
-                  children: [
-                    for (final owner in Player.values)
-                      Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: _row(look, owner, 37, true)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
+              _rows(context, size),
             ],
           ],
         ),
@@ -199,6 +157,29 @@ void _handover(GameController c) {
   if (c.needsHandover) c.acknowledgeHandover();
 }
 
+/// A hot-seat game after both setups and [moves] moves (every third one an
+/// attack when there is one, so pieces get seen).
+GameController _midGame(int moves) {
+  final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
+  addTearDown(c.dispose);
+  c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
+  _handover(c);
+  c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
+  _handover(c);
+  final g = c.game as GoStrategyGame;
+  for (var i = 0; i < moves && !g.isOver; i++) {
+    final legal = g.legalMoves;
+    if (legal.isEmpty) break;
+    final attacks = [
+      for (final m in legal)
+        if (m['action'] == 'move' && g.board[m['to'] as int].owner != null) m,
+    ];
+    c.submit(i % 3 == 0 && attacks.isNotEmpty ? attacks[i % attacks.length] : legal[(i * 7 + 3) % legal.length]);
+    _handover(c);
+  }
+  return c;
+}
+
 void main() {
   final skip = _out == null;
   setUpAll(() async {
@@ -208,77 +189,58 @@ void main() {
   group('kld058-insignia', () {
     for (final b in Brightness.values) {
       final tag = b == Brightness.dark ? 'dark' : 'light';
-      for (final look in _looks) {
-        testWidgets('sheet ${look.name} $tag', skip: skip, (tester) async {
-          tester.view.physicalSize = const Size(1180, 1340) * 2;
-          tester.view.devicePixelRatio = 2;
-          addTearDown(tester.view.reset);
-          await tester.pumpWidget(_app(_sheet(look, b), b));
-          await _shot(tester, 'kld058-insignia-sheet-${look.name}-$tag');
-        });
-      }
       testWidgets('overview $tag', skip: skip, (tester) async {
-        tester.view.physicalSize = const Size(760, 520) * 2;
-        tester.view.devicePixelRatio = 2;
-        addTearDown(tester.view.reset);
-        await tester.pumpWidget(_app(_overview(b), b));
+        _view(tester, const Size(760, 170));
+        await tester.pumpWidget(_app(_sheet(all: false), b));
         await _shot(tester, 'kld058-insignia-overview-$tag');
+      });
+      testWidgets('sheet $tag', skip: skip, (tester) async {
+        _view(tester, const Size(1180, 1000));
+        await tester.pumpWidget(_app(_sheet(all: true), b));
+        await _shot(tester, 'kld058-insignia-sheet-$tag');
       });
     }
 
-    // A mid-game board with variants B and A (some fights, so a few own
-    // pieces are seen), on a large and a small phone.
-    for (final (variant, look) in [
-      ('v3-B2', GoPieceLook.insigniaGrey),
-      ('v4-B1', GoPieceLook.badgeBlack),
-      ('v4-B2', GoPieceLook.badgeGrey),
-    ]) {
-      for (final (name, size) in [('phone-small', Size(375, 667)), ('phone-large', Size(430, 932))]) {
-        for (final b in [Brightness.light]) {
-          final tag = b == Brightness.dark ? 'dark' : 'light';
-          testWidgets('board $variant $name $tag', skip: skip, (tester) async {
-            tester.view.physicalSize = size * 2;
-            tester.view.devicePixelRatio = 2;
-            addTearDown(tester.view.reset);
-            final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
-            addTearDown(c.dispose);
-            c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
-            _handover(c);
-            c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
-            _handover(c);
-            final g = c.game as GoStrategyGame;
-            for (var i = 0; i < 40 && !g.isOver; i++) {
-              final moves = g.legalMoves;
-              if (moves.isEmpty) break;
-              // Every third move an attack when there is one, so pieces get seen.
-              final attacks = [
-                for (final m in moves)
-                  if (m['action'] == 'move' && g.board[m['to'] as int].owner != null) m,
-              ];
-              c.submit(
-                i % 3 == 0 && attacks.isNotEmpty ? attacks[i % attacks.length] : moves[(i * 7 + 3) % moves.length],
-              );
-              _handover(c);
-            }
-            await tester.pumpWidget(
-              _app(
-                GoPieceLookScope(
-                  look: look,
-                  child: PlayerLabelsScope(
-                    labels: const PlayerLabels(names: {Player.a: 'Anna', Player.b: 'Ben'}),
-                    child: buildGameScreen(c),
-                  ),
-                ),
-                b,
-              ),
-            );
-            await tester.pump();
-            _handover(c);
-            await tester.pump(const Duration(seconds: 3)); // let a fight reveal pass
-            await _shot(tester, 'kld058-insignia-board-$variant-$name-$tag');
-          });
-        }
-      }
+    for (final (name, size) in [('phone-small', Size(375, 667)), ('phone-large', Size(430, 932))]) {
+      testWidgets('board $name', skip: skip, (tester) async {
+        _view(tester, size);
+        final c = _midGame(40);
+        await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 3)); // let a fight reveal pass
+        await _shot(tester, 'kld058-insignia-board-$name');
+      });
     }
+
+    testWidgets('setup editor', skip: skip, (tester) async {
+      _view(tester, const Size(430, 932));
+      final c = GameController.hotSeat(const GameConfig('gostrategy', seed: 7));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+      await _shot(tester, 'kld058-insignia-setup');
+    });
+
+    testWidgets('fight reveal', skip: skip, (tester) async {
+      _view(tester, const Size(430, 932));
+      final c = _midGame(6);
+      final g = c.game as GoStrategyGame;
+      // Quiet moves until the player to move can attack.
+      Map<String, dynamic>? attack;
+      for (var i = 0; i < 400 && attack == null && !g.isOver; i++) {
+        _handover(c);
+        final legal = g.legalMoves;
+        attack = legal.where((m) => m['action'] == 'move' && g.board[m['to'] as int].owner != null).firstOrNull;
+        if (attack == null) c.submit(legal[(i * 7 + 3) % legal.length]);
+      }
+      _handover(c);
+      await tester.pumpWidget(_app(buildGameScreen(c), Brightness.light));
+      await tester.pump();
+      c.submit(attack!);
+      await tester.pump();
+      _handover(c);
+      await tester.pump();
+      await tester.pump(); // the reveal starts on this frame
+      await _shot(tester, 'kld058-insignia-fight', settle: const Duration(milliseconds: 900));
+    });
   });
 }
