@@ -209,3 +209,24 @@ can cover the final "Fahne erobert!" reveal; saved/favourite setups.
   on loopback: setups, tap move, rotation, private views, fight reveal on both, no cover); GoStrategy added to
   `game_screen_test` (menu), `coverage_test` (all locales, two sizes), `translations_test`, `rtl_test`,
   `screenshots_test`.
+
+## Rank insignia (2026-11-08) ✅
+
+Maintainer decision: every piece shows a drawn rank insignia (CustomPainter in `gostrategy_pieces.dart`,
+generic, no assets or fonts) instead of the big number: Marschall crossed batons, General peaked cap (oak
+leaves only at large sizes), Oberst/Major/Hauptmann 3/2/1 stars, Leutnant a bar, Feldwebel three chevrons,
+Mineur a pickaxe, Aufklärer binoculars, Spion a hat over a domino mask; bomb and flag as before.
+
+Final look (chosen over five rounds of variant sheets: shoulder boards, gold stars, black/grey/halo edges,
+reserved corners, overflowing badges): white shapes with a thin dark grey edge (`goInsigniaEdge`, 3 % of the
+tile, 0.8–1.5 px, a dilated copy below the insignia, so it also rings the holes), centred exactly in the
+tile with equal margins as if there were no badges. Pictures share one height; the 2- and 3-star groups one
+star size; the single star and the bar fill their area like a picture. The rank number sits in a small
+rounded badge (darker army colour, grey edge) inside the top left corner, drawn over the insignia; the "seen"
+eye in the same badge top right. The 22–24 px tiles of the setup legend and the armies panel have no badges
+(`badges: false`). Real board tiles: about 26 px on a 375 pt phone, 34 px on a 430 pt phone.
+
+`GoInsignia(piece:, color:, size:, edge:)` is public for the rules pages. Tests: paint test
+`test/ui/games/gostrategy_insignia_test.dart`; screenshots (overview, sheet at 26–74 px, both phones' boards,
+setup, fight reveal): `KLUNKI_SHOTS=/tmp/insignia flutter test test/screenshots/gostrategy_insignia_shots_test.dart`
+(group `kld058-insignia`).

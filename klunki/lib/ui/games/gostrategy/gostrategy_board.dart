@@ -375,7 +375,7 @@ class _Setup extends StatelessWidget {
                 key: Key('go-legend-${p.id}'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GoPieceTile(owner: me, piece: p, size: 24),
+                  GoPieceTile(owner: me, piece: p, size: 24, badges: false),
                   const SizedBox(width: 4),
                   Text('${goPieceName(l10n, p)} ×${p.count}', style: theme.textTheme.bodySmall),
                 ],
@@ -848,7 +848,7 @@ class _ArmyPanel extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        GoPieceTile(owner: p, piece: k, size: 22),
+                        GoPieceTile(owner: p, piece: k, size: 22, badges: false),
                         const SizedBox(width: 2),
                         Text(
                           '×${rem[k]}',
