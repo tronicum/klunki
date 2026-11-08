@@ -22,6 +22,7 @@ library;
 
 import 'dart:convert';
 
+import 'maexchen.dart';
 import 'quartett.dart';
 import 'registry.dart';
 import 'sha256.dart';
@@ -79,13 +80,15 @@ GameFingerprint? fingerprintOf(GameConfig config) {
 
 /// [GameFingerprint.content] for game [gameId] played with [deck] (null for
 /// a game without a deck). The word tile game adds its tile sets and premium
-/// layout ([WordTilesGame.gameplayData], KLD-094).
+/// layout ([WordTilesGame.gameplayData], KLD-094), Mäxchen its order of
+/// values ([MaexchenGame.ranking], KLD-121).
 String contentHash(String gameId, QuartettDeck? deck) {
   final data = jsonEncode([
     'game',
     gameId,
     if (deck != null) deckGameplayData(deck),
     if (gameId == 'wordtiles') WordTilesGame.gameplayData(),
+    if (gameId == 'maexchen') MaexchenGame.ranking,
   ]);
   return sha256Hex('klunki-content-v1\n$data').substring(0, 32);
 }

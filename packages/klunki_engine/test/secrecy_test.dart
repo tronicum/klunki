@@ -13,7 +13,7 @@ void main() {
       expect(s.redaction != null, s.hiddenInformation, reason: s.id);
     }
     expect(hidden.map((s) => s.id), containsAll(['schiffe', 'gostrategy', 'quartett-trumpf', 'quartett-sets']));
-    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets', 'wordtiles', 'maumau']);
+    expect([for (final s in hidden) if (s.redaction!.secretSeed) s.id], ['quartett-trumpf', 'quartett-sets', 'wordtiles', 'maumau', 'maexchen']);
   });
 
   for (final spec in hidden) {
@@ -194,6 +194,17 @@ void _sameForViewer(Game game, Game view, Player viewer) {
       expect(v.penalty, g.penalty);
       expect(v.hasDrawn, g.hasDrawn);
       expect(v.drawnCard, g.currentPlayer == viewer ? g.drawnCard : null);
+    case (MaexchenGame g, MaexchenGame v):
+      // KLD-121: the dice under the cup only for the one who rolled them.
+      expect(v.phase, g.phase);
+      expect(v.lives, g.lives);
+      expect(v.round, g.round);
+      expect(v.announced, g.announced);
+      expect(v.announcer, g.announcer);
+      expect(v.roller, g.roller);
+      expect(v.dice, g.roller == viewer ? g.dice : isNull);
+      expect(v.lastRound?.toJson(), g.lastRound?.toJson());
+      expect(v.result.params, g.result.params);
     default:
       fail('unexpected ${game.runtimeType} / ${view.runtimeType}');
   }

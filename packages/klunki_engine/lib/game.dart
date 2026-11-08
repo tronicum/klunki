@@ -77,7 +77,11 @@ enum GameEndReason {
   /// subtracted. params: `turns`, `a`, `b` (final scores).
   wordtilesScoreless('wordtiles.scorelessTurns'),
   /// Mau-Mau (KLD-118): the winner laid the last card.
-  maumauEmptyHand('maumau.emptyHand');
+  maumauEmptyHand('maumau.emptyHand'),
+
+  /// Mäxchen (KLD-121): the loser has no lives left. params: `a`, `b`
+  /// (lives left).
+  maexchenNoLives('maexchen.noLives');
 
   final String code;
   const GameEndReason(this.code);

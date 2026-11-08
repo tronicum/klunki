@@ -2733,4 +2733,160 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get maumauMoveKeep => '留下摸到的牌';
+
+  @override
+  String get menuGameMaexchen => '吹牛骰子';
+
+  @override
+  String get menuDescMaexchen => '摇骰子、吹牛、抓住对方吹牛';
+
+  @override
+  String get engineReasonMaexchenNoLives => '没有命了';
+
+  @override
+  String get maexchenOptionLives => '开始时的命数';
+
+  @override
+  String get maexchenOptionDouble => '王牌加倍';
+
+  @override
+  String get maexchenOptionDoubleExplain =>
+      '王牌的输赢都加倍：怀疑真的王牌，或者假王牌被识破，都要输掉 2 条命。';
+
+  @override
+  String get maexchenOptionsNext => '下一步';
+
+  @override
+  String get maexchenRoll => '摇骰子';
+
+  @override
+  String get maexchenPeek => '偷看';
+
+  @override
+  String get maexchenCover => '盖上';
+
+  @override
+  String get maexchenPickTitle => '你要报多少？';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return '报 $value';
+  }
+
+  @override
+  String get maexchenOrder => '从小到大：31、32 … 65，然后对子 11 … 66，最大的是王牌 (21)。';
+
+  @override
+  String get maexchenBelieve => '相信';
+
+  @override
+  String get maexchenDoubt => '怀疑';
+
+  @override
+  String get maexchenGiveUp => '认输一条命';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return '$player 报 $value';
+  }
+
+  @override
+  String get maexchenNewRound => '新一轮：报什么都可以';
+
+  @override
+  String get maexchenHintRoll => '点“摇骰子”，然后偷偷看杯子下面。';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return '你相信了 $value。摇骰子，再报比 $value 大的数。';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst => '偷偷看一眼，然后报一个数。可以吹牛！';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return '报一个比 $value 大的数。可以吹牛！';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return '$player 报了 $value。你相信吗？';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return '$player 报了王牌！没有更大的了：怀疑，还是认输一条命？';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return '杯子下面：$value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return '吹牛被抓！$player 输掉一条命。';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return '是真的！$player 输掉一条命。';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return '真的王牌！$player 输掉 2 条命。';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return '假王牌！$player 输掉 2 条命。';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return '$player 认输一条命。杯子不打开。';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条命',
+    );
+    return '$player：$_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return '第 $round 轮';
+  }
+
+  @override
+  String get maexchenMoveRoll => '摇骰子';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return '报 $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => '相信';
+
+  @override
+  String get maexchenMoveDoubt => '怀疑';
+
+  @override
+  String get maexchenMoveGiveUp => '认输一条命';
+
+  @override
+  String get maexchenMaexchenName => '王牌';
+
+  @override
+  String get maexchenMaexchenCall => '王牌！';
+
+  @override
+  String get maexchenAnnouncedLabel => '已报';
 }

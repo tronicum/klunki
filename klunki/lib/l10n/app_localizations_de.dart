@@ -2908,4 +2908,164 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get maumauMoveKeep => 'behält die gezogene Karte';
+
+  @override
+  String get menuGameMaexchen => 'Mäxchen';
+
+  @override
+  String get menuDescMaexchen => 'Würfeln, flunkern, durchschauen';
+
+  @override
+  String get engineReasonMaexchenNoLives => 'Keine Leben mehr übrig';
+
+  @override
+  String get maexchenOptionLives => 'Leben zu Beginn';
+
+  @override
+  String get maexchenOptionDouble => 'Mäxchen doppelt';
+
+  @override
+  String get maexchenOptionDoubleExplain =>
+      'Alles mit Mäxchen zählt doppelt: Wer ein echtes Mäxchen anzweifelt oder mit einem falschen Mäxchen erwischt wird, verliert 2 Leben.';
+
+  @override
+  String get maexchenOptionsNext => 'Weiter';
+
+  @override
+  String get maexchenRoll => 'Würfeln';
+
+  @override
+  String get maexchenPeek => 'Nachschauen';
+
+  @override
+  String get maexchenCover => 'Becher zu';
+
+  @override
+  String get maexchenPickTitle => 'Was sagst du an?';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return '$value ansagen';
+  }
+
+  @override
+  String get maexchenOrder =>
+      'Von klein nach groß: 31, 32 … 65, dann Pasch 11 … 66, dann Mäxchen (21).';
+
+  @override
+  String get maexchenBelieve => 'Glauben';
+
+  @override
+  String get maexchenDoubt => 'Anzweifeln';
+
+  @override
+  String get maexchenGiveUp => 'Leben abgeben';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return '$player sagt $value';
+  }
+
+  @override
+  String get maexchenNewRound => 'Neue Runde: jede Zahl ist erlaubt';
+
+  @override
+  String get maexchenHintRoll =>
+      'Tippe auf Würfeln, dann schau heimlich unter den Becher.';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return 'Du glaubst $value. Würfle und sag mehr als $value an.';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst =>
+      'Schau heimlich nach und sag eine Zahl an. Flunkern ist erlaubt!';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return 'Sag mehr als $value an. Flunkern ist erlaubt!';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return '$player sagt $value. Glaubst du das?';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return '$player sagt Mäxchen! Höher geht es nicht: anzweifeln oder ein Leben abgeben?';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return 'Unter dem Becher: $value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return 'Geflunkert! $player verliert ein Leben.';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return 'Stimmt! $player verliert ein Leben.';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return 'Echtes Mäxchen! $player verliert 2 Leben.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'Falsches Mäxchen! $player verliert 2 Leben.';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return '$player gibt ein Leben ab. Der Becher bleibt zu.';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Leben',
+      one: '1 Leben',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return 'Runde $round';
+  }
+
+  @override
+  String get maexchenMoveRoll => 'würfelt';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return 'sagt $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => 'glaubt es';
+
+  @override
+  String get maexchenMoveDoubt => 'zweifelt an';
+
+  @override
+  String get maexchenMoveGiveUp => 'gibt ein Leben ab';
+
+  @override
+  String get maexchenMaexchenName => 'Mäxchen';
+
+  @override
+  String get maexchenMaexchenCall => 'Mäxchen!';
+
+  @override
+  String get maexchenAnnouncedLabel => 'Angesagt';
 }

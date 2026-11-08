@@ -14,6 +14,11 @@ short German summary ("Kurz") for the store notes and the testers.
   "Mau!" before the second-to-last card (forget it and draw a penalty card). Before the game you choose the
   house rules (each of these can be switched off; "Bube auf Bube" can be switched on). Own card faces, the
   cards stay hidden between turns.
+- **New game: Mäxchen** (KLD-121, en "Mia"), the dice bluffing game, on one device: roll two dice
+  secretly under a cup, announce a value (fibbing allowed), the next player believes it and must top it, or
+  doubts it and the cup is lifted. Mäxchen (2 and 1) beats everything. 3 or 5 lives, house rule "Mäxchen
+  doppelt" (on by default: doubting a real Mäxchen or being caught with a fake one costs 2 lives). "Zug
+  zurück" never takes back a doubt or a given-up life (the dice were shown).
 - **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).

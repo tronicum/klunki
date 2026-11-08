@@ -79,6 +79,8 @@ String? verifyRedactedGame({
   String? tiles,
   bool dictionary = false,
   bool jokerSwap = false,
+  int lives = 3,
+  bool maexchenDouble = true,
   required Player me,
   required int seed,
   required String startViewHash,
@@ -119,7 +121,9 @@ String? verifyRedactedGame({
         pickLowCards: pickLowCards,
         tiles: tiles,
         dictionary: dictionary,
-        jokerSwap: jokerSwap));
+        jokerSwap: jokerSwap,
+        lives: lives,
+        maexchenDouble: maexchenDouble));
   } catch (e) {
     return 'cannot create the game: $e';
   }

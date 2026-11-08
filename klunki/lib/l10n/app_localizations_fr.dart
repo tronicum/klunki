@@ -2922,4 +2922,164 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get maumauMoveKeep => 'garde la carte piochée';
+
+  @override
+  String get menuGameMaexchen => 'Mia';
+
+  @override
+  String get menuDescMaexchen => 'Lancer les dés, bluffer, démasquer';
+
+  @override
+  String get engineReasonMaexchenNoLives => 'Plus aucune vie';
+
+  @override
+  String get maexchenOptionLives => 'Vies au départ';
+
+  @override
+  String get maexchenOptionDouble => 'Mia double';
+
+  @override
+  String get maexchenOptionDoubleExplain =>
+      'Tout ce qui touche au Mia compte double : douter d’un vrai Mia ou être pris avec un faux coûte 2 vies.';
+
+  @override
+  String get maexchenOptionsNext => 'Suivant';
+
+  @override
+  String get maexchenRoll => 'Lancer';
+
+  @override
+  String get maexchenPeek => 'Regarder';
+
+  @override
+  String get maexchenCover => 'Couvrir';
+
+  @override
+  String get maexchenPickTitle => 'Qu’annonces-tu ?';
+
+  @override
+  String maexchenAnnounce(String value) {
+    return 'Annoncer $value';
+  }
+
+  @override
+  String get maexchenOrder =>
+      'Du plus petit au plus grand : 31, 32 … 65, puis les doubles 11 … 66, puis Mia (21).';
+
+  @override
+  String get maexchenBelieve => 'Croire';
+
+  @override
+  String get maexchenDoubt => 'Douter';
+
+  @override
+  String get maexchenGiveUp => 'Céder une vie';
+
+  @override
+  String maexchenAnnounced(String player, String value) {
+    return '$player annonce $value';
+  }
+
+  @override
+  String get maexchenNewRound => 'Nouvelle manche : toute valeur est permise';
+
+  @override
+  String get maexchenHintRoll =>
+      'Touche Lancer, puis regarde sous le gobelet en cachette.';
+
+  @override
+  String maexchenHintBelieved(String value) {
+    return 'Tu crois au $value. Lance et annonce plus que $value.';
+  }
+
+  @override
+  String get maexchenHintAnnounceFirst =>
+      'Regarde en cachette et annonce une valeur. Bluffer est permis !';
+
+  @override
+  String maexchenHintAnnounceHigher(String value) {
+    return 'Annonce plus que $value. Bluffer est permis !';
+  }
+
+  @override
+  String maexchenHintRespond(String player, String value) {
+    return '$player annonce $value. Tu y crois ?';
+  }
+
+  @override
+  String maexchenHintRespondMaexchen(String player) {
+    return '$player annonce Mia ! Rien ne bat ça : douter ou céder une vie ?';
+  }
+
+  @override
+  String maexchenUnderCup(String value) {
+    return 'Sous le gobelet : $value';
+  }
+
+  @override
+  String maexchenVerdictBluff(String player) {
+    return 'Bluff ! $player perd une vie.';
+  }
+
+  @override
+  String maexchenVerdictTrue(String player) {
+    return 'C’était vrai ! $player perd une vie.';
+  }
+
+  @override
+  String maexchenVerdictTrueTwo(String player) {
+    return 'Un vrai Mia ! $player perd 2 vies.';
+  }
+
+  @override
+  String maexchenVerdictBluffTwo(String player) {
+    return 'Un faux Mia ! $player perd 2 vies.';
+  }
+
+  @override
+  String maexchenVerdictGaveUp(String player) {
+    return '$player cède une vie. Le gobelet reste fermé.';
+  }
+
+  @override
+  String maexchenLivesOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vies',
+      one: '1 vie',
+    );
+    return '$player : $_temp0';
+  }
+
+  @override
+  String maexchenRoundLabel(int round) {
+    return 'Manche $round';
+  }
+
+  @override
+  String get maexchenMoveRoll => 'lance les dés';
+
+  @override
+  String maexchenMoveAnnounce(String value) {
+    return 'annonce $value';
+  }
+
+  @override
+  String get maexchenMoveBelieve => 'y croit';
+
+  @override
+  String get maexchenMoveDoubt => 'doute';
+
+  @override
+  String get maexchenMoveGiveUp => 'cède une vie';
+
+  @override
+  String get maexchenMaexchenName => 'Mia';
+
+  @override
+  String get maexchenMaexchenCall => 'Mia !';
+
+  @override
+  String get maexchenAnnouncedLabel => 'Annoncé';
 }

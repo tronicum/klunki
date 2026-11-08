@@ -3,6 +3,7 @@ import 'connect4.dart';
 import 'game.dart';
 import 'gostrategy.dart';
 import 'mau_mau.dart';
+import 'maexchen.dart';
 import 'muehle.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
@@ -49,6 +50,11 @@ import 'word_tiles.dart';
 /// [mauMau] (KLD-118, Mau-Mau only): the house rules ([MauMauRules]), JSON
 /// `maumau` with only the switches that differ from the defaults, written
 /// only when not the defaults.
+///
+/// Mäxchen (KLD-121): [lives] (JSON `lives`, written only when not 3) is
+/// the number of lives each player starts with; [maexchenDouble] (JSON
+/// `maexDouble`, written only when off; on by default) is the house rule "a
+/// doubted Mäxchen that is real costs 2 lives". Other games ignore both.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -60,6 +66,8 @@ class GameConfig {
   final Player chessWhite;
   final int players;
   final MauMauRules mauMau;
+  final int lives;
+  final bool maexchenDouble;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -69,7 +77,9 @@ class GameConfig {
       this.jokerSwap = false,
       this.chessWhite = Player.a,
       this.players = 2,
-      this.mauMau = const MauMauRules()});
+      this.mauMau = const MauMauRules(),
+      this.lives = 3,
+      this.maexchenDouble = true});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -86,6 +96,8 @@ class GameConfig {
         if (chessWhite == Player.b) 'white': 'b',
         if (players != 2) 'players': players,
         if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
+        if (lives != 3) 'lives': lives,
+        if (!maexchenDouble) 'maexDouble': false,
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -97,7 +109,9 @@ class GameConfig {
       jokerSwap: json['joker'] == true,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
       players: json['players'] as int? ?? 2,
-      mauMau: MauMauRules.fromJson(json['maumau']));
+      mauMau: MauMauRules.fromJson(json['maumau']),
+      lives: json['lives'] as int? ?? 3,
+      maexchenDouble: json['maexDouble'] != false);
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -108,7 +122,9 @@ class GameConfig {
       jokerSwap: jokerSwap,
       chessWhite: chessWhite,
       players: players ?? this.players,
-      mauMau: mauMau);
+      mauMau: mauMau,
+      lives: lives,
+      maexchenDouble: maexchenDouble);
 
   @override
   bool operator ==(Object other) =>
@@ -122,17 +138,21 @@ class GameConfig {
       other.jokerSwap == jokerSwap &&
       other.chessWhite == chessWhite &&
       other.players == players &&
-      other.mauMau == mauMau;
+      other.mauMau == mauMau &&
+      other.lives == lives &&
+      other.maexchenDouble == maexchenDouble;
 
   @override
-  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau);
+  int get hashCode => Object.hash(
+      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau, lives, maexchenDouble);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
-      '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'})';
+      '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
+      '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -155,6 +175,11 @@ class GameSpec {
   /// Whether [GameConfig.deck] picks a Quartett deck for this game (KLD-069).
   final bool usesDeck;
 
+  /// Moves that hot-seat "Zug zurück" never takes back (null = none), e.g.
+  /// Mäxchen's doubt, which lifted the cup for everyone (KLD-121): undo
+  /// stops once such a move is the last one. Not part of the fingerprint.
+  final bool Function(Map<String, dynamic> move)? undoBarrier;
+
   /// Version of this game's rules (KLD-085). Bump it on every change that
   /// makes an old and a new build disagree about a game (a move accepted by
   /// one and refused by the other, a different deal from the same seed, a
@@ -174,7 +199,8 @@ class GameSpec {
       this.redaction,
       this.usesDeck = false,
       this.rulesVersion = 1,
-      this.maxPlayers = 2});
+      this.maxPlayers = 2,
+      this.undoBarrier});
 
   /// The fewest seats; 2 for every game.
   int get minPlayers => 2;
@@ -234,6 +260,13 @@ final List<GameSpec> gameSpecs = [
   // in GameConfig.mauMau (JSON `maumau`).
   GameSpec('maumau', 'Mau-Mau', (c, _) => MauMauGame(seed: c.seed, rules: c.mauMau),
       hiddenInformation: true, redaction: const MauMauRedaction()),
+  // KLD-121: the dice bluffing game, hot-seat in the app (network play
+  // works in the engine and the CLI, the app does not offer it yet:
+  // `hotSeatOnlyGames`). Lives and the "Mäxchen doppelt" house rule in the
+  // config (`lives`, `maexDouble`).
+  GameSpec('maexchen', 'Mäxchen',
+      (c, _) => MaexchenGame(seed: c.seed, startLives: c.lives, maexchenDouble: c.maexchenDouble),
+      hiddenInformation: true, redaction: const MaexchenRedaction(), undoBarrier: MaexchenGame.endsRound),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
@@ -277,6 +310,7 @@ String? configProblem(GameConfig config, {bool wordList = true}) {
     if (TileSet.byId(tiles) == null) return 'unknown tile set "$tiles"';
     if (wordList && config.dictionary && !WordLists.has(tiles)) return 'no word list for "$tiles"';
   }
+  if (config.gameId == 'maexchen' && (config.lives < 1 || config.lives > 9)) return 'lives must be 1–9, not ${config.lives}';
   return null;
 }
 

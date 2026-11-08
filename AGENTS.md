@@ -27,6 +27,7 @@ proposals WortSalat and KlunkerKombi are kept for future games.
 | `chess` | Schach | network: yes (KLD-059 step 3); the host chooses Weiß / Schwarz / Zufällig (step 4a, `GameConfig.chessWhite`, config key `white`); rules version 3; no clocks yet |
 | `wordtiles` | Wortgewandt | word tile game; hidden racks; rules version 4 (KLD-094 step 6: "Trotzdem zulassen" needs the other player; word list hashes in the fingerprint; step 9: house rule "Joker tauschen", `GameConfig.jokerSwap`, config key `joker`, off by default); network (step 6); released in the app (step 7); word lists load on demand (not precached in the PWA), licences in `docs/legal/third-party-data.md` |
 | `maumau` | Mau-Mau | KLD-118; hidden hands; house rules in `GameConfig.mauMau` (config key `maumau`); hot-seat only until step 3 (network); rules version 1 |
+| `maexchen` | Mäxchen | KLD-121; dice bluffing game (en Mia); hidden dice; lives and house rule "Mäxchen doppelt" in `GameConfig.lives` / `maexchenDouble` (config keys `lives`, `maexDouble`); hot-seat only in the app for now (the engine redacts for network); rules version 1 |
 
 **Generic names only.** Never use publisher or brand names for games, in code, ARB strings, docs, store
 texts or commit messages (say "Four in a Row", "Sink the Fleet", "word tile game"). Real vehicle names on

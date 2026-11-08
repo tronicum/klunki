@@ -64,8 +64,13 @@ class HotSeatTransport implements GameTransport {
     return SubmitResult.accepted(accepted);
   }
 
-  /// Whether [undo] can take back a move.
-  bool get canUndo => !_disposed && _moves.isNotEmpty;
+  /// Whether [undo] can take back a move: not past a move the game marks
+  /// as final (`GameSpec.undoBarrier`, e.g. Mäxchen's doubt, KLD-121).
+  bool get canUndo {
+    if (_disposed || _moves.isEmpty) return false;
+    final barrier = specById(config.gameId)?.undoBarrier;
+    return barrier == null || !barrier(_moves.last.move);
+  }
 
   /// Takes back the last accepted move by replaying the log minus one on a
   /// fresh engine. Returns false if there is nothing to undo. Emits nothing

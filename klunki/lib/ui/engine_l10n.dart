@@ -44,6 +44,7 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.wordtilesPlayedOut => l10n.engineReasonWordtilesPlayedOut(p('a'), p('b')),
     GameEndReason.wordtilesScoreless => l10n.engineReasonWordtilesScoreless(p('turns'), p('a'), p('b')),
     GameEndReason.maumauEmptyHand => l10n.engineReasonMaumauEmptyHand,
+    GameEndReason.maexchenNoLives => l10n.engineReasonMaexchenNoLives,
   };
 }
 

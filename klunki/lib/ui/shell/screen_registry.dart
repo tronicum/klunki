@@ -7,6 +7,8 @@ import '../game_titles.dart';
 import '../games/chess_screen.dart';
 import '../games/connect4_screen.dart';
 import '../games/gostrategy_screen.dart';
+import '../games/maexchen/maexchen_options.dart';
+import '../games/maexchen/maexchen_screen.dart';
 import '../games/muehle_screen.dart';
 import '../games/quartett_deck_picker.dart';
 import '../games/quartett_sets_screen.dart';
@@ -37,6 +39,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'chess': (c) => ChessScreen(controller: c),
   'wordtiles': (c) => WordTilesScreen(controller: c),
   'maumau': (c) => MauMauScreen(controller: c),
+  'maexchen': (c) => MaexchenScreen(controller: c),
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
@@ -49,8 +52,10 @@ const Set<String> previewGames = {};
 /// pickers of "Über WLAN spielen" and the relay host. A guest joining a host
 /// that plays one still gets its screen. Empty since chess (KLD-059 step 3)
 /// and Wortgewandt (KLD-094 step 6) play over the network. Mau-Mau
-/// (KLD-118) is hot-seat only until its network step.
-const Set<String> hotSeatOnlyGames = {'maumau'};
+/// (KLD-118) is hot-seat only until its network step. Mäxchen (KLD-121) is
+/// one device only for now: the engine has its redaction, the app's network
+/// screens do not offer it yet.
+const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen'};
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
@@ -98,7 +103,9 @@ Future<void> openGame(BuildContext context, String gameId,
     String? tiles,
     bool dictionary = false,
     bool jokerSwap = false,
-    MauMauRules mauMau = const MauMauRules()}) {
+    MauMauRules mauMau = const MauMauRules(),
+    int lives = 3,
+    bool maexchenDouble = true}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
         config: GameConfig(gameId,
@@ -107,7 +114,9 @@ Future<void> openGame(BuildContext context, String gameId,
             tiles: tiles,
             dictionary: dictionary,
             jokerSwap: jokerSwap,
-            mauMau: mauMau)),
+            mauMau: mauMau,
+            lives: lives,
+            maexchenDouble: maexchenDouble)),
   ));
 }
 
@@ -135,6 +144,12 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     mauMau = await showMauMauOptionsDialog(context);
     if (mauMau == null || !context.mounted) return;
   }
+  // Mäxchen (KLD-121): lives and the house rule "Mäxchen doppelt".
+  MaexchenOptions? dice;
+  if (gameId == 'maexchen') {
+    dice = await showMaexchenOptionsDialog(context);
+    if (dice == null || !context.mounted) return;
+  }
   final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
   if (!go || !context.mounted) return;
   if (words != null && words.dictionary) {
@@ -145,7 +160,9 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       tiles: words?.tiles,
       dictionary: words?.dictionary ?? false,
       jokerSwap: words?.joker ?? false,
-      mauMau: mauMau ?? const MauMauRules());
+      mauMau: mauMau ?? const MauMauRules(),
+      lives: dice?.lives ?? 3,
+      maexchenDouble: dice?.double ?? true);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

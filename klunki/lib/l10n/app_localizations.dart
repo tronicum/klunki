@@ -4498,6 +4498,246 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'behält die gezogene Karte'**
   String get maumauMoveKeep;
+
+  /// Game title: the dice bluffing game (KLD-121), traditional German name Mäxchen (also Meiern). Other languages: the name this game has there (en Mia), no brand names.
+  ///
+  /// In de, this message translates to:
+  /// **'Mäxchen'**
+  String get menuGameMaexchen;
+
+  /// Menu tile one-liner for Mäxchen (KLD-121).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln, flunkern, durchschauen'**
+  String get menuDescMaexchen;
+
+  /// Result reason (Mäxchen, KLD-121): the losing player has no lives left.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Leben mehr übrig'**
+  String get engineReasonMaexchenNoLives;
+
+  /// Mäxchen start option: how many lives each player has at the start (3 or 5).
+  ///
+  /// In de, this message translates to:
+  /// **'Leben zu Beginn'**
+  String get maexchenOptionLives;
+
+  /// Mäxchen start option (house rule, on by default): everything about Mäxchen counts double (a doubted real Mäxchen costs the doubter 2 lives, a caught fake Mäxchen costs the bluffer 2). Mäxchen = the highest roll, 2 and 1.
+  ///
+  /// In de, this message translates to:
+  /// **'Mäxchen doppelt'**
+  String get maexchenOptionDouble;
+
+  /// Explains the house rule "Mäxchen doppelt" under its switch: both cases cost 2 lives.
+  ///
+  /// In de, this message translates to:
+  /// **'Alles mit Mäxchen zählt doppelt: Wer ein echtes Mäxchen anzweifelt oder mit einem falschen Mäxchen erwischt wird, verliert 2 Leben.'**
+  String get maexchenOptionDoubleExplain;
+
+  /// Button that closes the Mäxchen start options and goes on to the player names.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get maexchenOptionsNext;
+
+  /// Mäxchen button: shake the cup (roll the two dice under it).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln'**
+  String get maexchenRoll;
+
+  /// Mäxchen button: lift the cup to look at the own dice secretly.
+  ///
+  /// In de, this message translates to:
+  /// **'Nachschauen'**
+  String get maexchenPeek;
+
+  /// Mäxchen button: put the cup back over the dice.
+  ///
+  /// In de, this message translates to:
+  /// **'Becher zu'**
+  String get maexchenCover;
+
+  /// Mäxchen: heading over the values the player may announce.
+  ///
+  /// In de, this message translates to:
+  /// **'Was sagst du an?'**
+  String get maexchenPickTitle;
+
+  /// Mäxchen button: announce the chosen value. value = e.g. "54" or the name of the highest value.
+  ///
+  /// In de, this message translates to:
+  /// **'{value} ansagen'**
+  String maexchenAnnounce(String value);
+
+  /// Mäxchen: the order of the values, low to high, under the announcement picker. "Pasch" = doubles.
+  ///
+  /// In de, this message translates to:
+  /// **'Von klein nach groß: 31, 32 … 65, dann Pasch 11 … 66, dann Mäxchen (21).'**
+  String get maexchenOrder;
+
+  /// Mäxchen button: believe the announcement (then roll and announce higher).
+  ///
+  /// In de, this message translates to:
+  /// **'Glauben'**
+  String get maexchenBelieve;
+
+  /// Mäxchen button: doubt the announcement; the cup is lifted.
+  ///
+  /// In de, this message translates to:
+  /// **'Anzweifeln'**
+  String get maexchenDoubt;
+
+  /// Mäxchen button after an announced Mäxchen: lose one life without lifting the cup. Not "Aufgeben" (that is resigning the game).
+  ///
+  /// In de, this message translates to:
+  /// **'Leben abgeben'**
+  String get maexchenGiveUp;
+
+  /// Mäxchen: what the player announced, e.g. "Anna sagt 54". value = number or the name of the highest value.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} sagt {value}'**
+  String maexchenAnnounced(String player, String value);
+
+  /// Mäxchen: banner at the start of a round, no announcement yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Runde: jede Zahl ist erlaubt'**
+  String get maexchenNewRound;
+
+  /// Mäxchen hint for the player who rolls.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf Würfeln, dann schau heimlich unter den Becher.'**
+  String get maexchenHintRoll;
+
+  /// Mäxchen hint after believing an announcement: roll and announce more. value = the announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'Du glaubst {value}. Würfle und sag mehr als {value} an.'**
+  String maexchenHintBelieved(String value);
+
+  /// Mäxchen hint for the roller at the start of a round.
+  ///
+  /// In de, this message translates to:
+  /// **'Schau heimlich nach und sag eine Zahl an. Flunkern ist erlaubt!'**
+  String get maexchenHintAnnounceFirst;
+
+  /// Mäxchen hint for the roller: announce more than the last value. value = the last announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'Sag mehr als {value} an. Flunkern ist erlaubt!'**
+  String maexchenHintAnnounceHigher(String value);
+
+  /// Mäxchen hint for the player who answers an announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} sagt {value}. Glaubst du das?'**
+  String maexchenHintRespond(String player, String value);
+
+  /// Mäxchen hint when the other player announced the highest value (Mäxchen): it cannot be beaten.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} sagt Mäxchen! Höher geht es nicht: anzweifeln oder ein Leben abgeben?'**
+  String maexchenHintRespondMaexchen(String player);
+
+  /// Mäxchen: the real value under the lifted cup. value = number or the name of the highest value.
+  ///
+  /// In de, this message translates to:
+  /// **'Unter dem Becher: {value}'**
+  String maexchenUnderCup(String value);
+
+  /// Mäxchen reveal: the announcement was a lie; the player who announced it loses a life.
+  ///
+  /// In de, this message translates to:
+  /// **'Geflunkert! {player} verliert ein Leben.'**
+  String maexchenVerdictBluff(String player);
+
+  /// Mäxchen reveal: the announcement was true; the doubting player loses a life.
+  ///
+  /// In de, this message translates to:
+  /// **'Stimmt! {player} verliert ein Leben.'**
+  String maexchenVerdictTrue(String player);
+
+  /// Mäxchen reveal: a real Mäxchen was doubted (house rule on); the doubting player loses 2 lives.
+  ///
+  /// In de, this message translates to:
+  /// **'Echtes Mäxchen! {player} verliert 2 Leben.'**
+  String maexchenVerdictTrueTwo(String player);
+
+  /// Mäxchen reveal: a fake Mäxchen was caught (house rule "Mäxchen doppelt" on); the player who announced it loses 2 lives.
+  ///
+  /// In de, this message translates to:
+  /// **'Falsches Mäxchen! {player} verliert 2 Leben.'**
+  String maexchenVerdictBluffTwo(String player);
+
+  /// Mäxchen: the player gave up a life after an announced Mäxchen; the dice stay hidden.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} gibt ein Leben ab. Der Becher bleibt zu.'**
+  String maexchenVerdictGaveUp(String player);
+
+  /// Mäxchen: accessibility label of a player's hearts. count = lives left.
+  ///
+  /// In de, this message translates to:
+  /// **'{player}: {count, plural, =1{1 Leben} other{{count} Leben}}'**
+  String maexchenLivesOf(String player, int count);
+
+  /// Mäxchen: the round number.
+  ///
+  /// In de, this message translates to:
+  /// **'Runde {round}'**
+  String maexchenRoundLabel(int round);
+
+  /// Mäxchen move history: the player rolled.
+  ///
+  /// In de, this message translates to:
+  /// **'würfelt'**
+  String get maexchenMoveRoll;
+
+  /// Mäxchen move history: the player announced a value.
+  ///
+  /// In de, this message translates to:
+  /// **'sagt {value}'**
+  String maexchenMoveAnnounce(String value);
+
+  /// Mäxchen move history: the player believed the announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'glaubt es'**
+  String get maexchenMoveBelieve;
+
+  /// Mäxchen move history: the player doubted the announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'zweifelt an'**
+  String get maexchenMoveDoubt;
+
+  /// Mäxchen move history: the player gave up a life after an announced Mäxchen.
+  ///
+  /// In de, this message translates to:
+  /// **'gibt ein Leben ab'**
+  String get maexchenMoveGiveUp;
+
+  /// Mäxchen: the name of the highest value (2 and 1), shown in the picker and inside sentences.
+  ///
+  /// In de, this message translates to:
+  /// **'Mäxchen'**
+  String get maexchenMaexchenName;
+
+  /// Mäxchen: the big button label for announcing the highest value, called out loud.
+  ///
+  /// In de, this message translates to:
+  /// **'Mäxchen!'**
+  String get maexchenMaexchenCall;
+
+  /// Mäxchen: small caption over the current announcement.
+  ///
+  /// In de, this message translates to:
+  /// **'Angesagt'**
+  String get maexchenAnnouncedLabel;
 }
 
 class _AppLocalizationsDelegate
