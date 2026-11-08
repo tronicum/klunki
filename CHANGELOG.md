@@ -13,6 +13,9 @@ short German summary ("Kurz") for the store notes and the testers.
   chevrons (Feldwebel), pickaxe (Mineur), binoculars (Aufklärer), hat and mask (Spion); bomb and flag as before.
   White with a thin dark edge, centred on the tile; the rank number sits in a small badge in the top left
   corner, the "seen" eye in one top right.
+- **GoStrategy** (KLD-058): the board zooms like Wortgewandt's: two fingers zoom and move it (also while
+  setting up), the magnifier button zooms in on the selected piece and back out, the mouse wheel zooms in the
+  browser. Tapping and moving work at any zoom, the coordinates follow, each player keeps their own view.
 - **Mau-Mau** (new, KLD-118): the classic card game for two on one device. Lay a card of the same suit or
   rank, or draw; whoever is out of cards first wins. 7 = the other player draws 2 (another 7 passes on 2 more),
   8 = the other player misses a turn, jack = wish a suit, ace = lay another card (ace after ace too), and

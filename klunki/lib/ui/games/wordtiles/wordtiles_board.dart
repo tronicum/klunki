@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:klunki/l10n/app_localizations.dart';
@@ -9,6 +8,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart';
+import '../../board_zoom.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
 import '../../../profile/seen_tips.dart';
@@ -236,9 +236,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   static List<List<int?>> _emptyBench() =>
       List.generate(WordTilesBoard.benchRows, (_) => List<int?>.filled(WordTilesBoard.benchSlots, null));
 
-  final TransformationController _zoom = TransformationController();
+  late final BoardZoom _zoom = BoardZoom(vsync: this);
 
-  /// The board's visible area (for [_LaidTileRecognizer]: only fingers
+  /// The board's visible area (for [BoardPieceDragRecognizer]: only fingers
   /// there can pinch it).
   final GlobalKey _boardClip = GlobalKey();
 
@@ -247,9 +247,6 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (box == null || !box.hasSize) return false;
     return (Offset.zero & box.size).contains(box.globalToLocal(global));
   }
-  late final AnimationController _zoomAnim =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 260))..addListener(_onZoomTick);
-  Matrix4Tween? _zoomTween;
   double _boardSize = 0;
 
   GameController get controller => widget.controller;
@@ -314,7 +311,6 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   @override
   void dispose() {
     controller.removeListener(_onChange);
-    _zoomAnim.dispose();
     _zoom.dispose();
     super.dispose();
   }
@@ -483,8 +479,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     _busy = false;
     _order = List.generate(_rack.length, (i) => i);
     _loadBench();
-    _zoomAnim.stop();
-    _zoom.value = Matrix4.identity();
+    _zoom.reset();
   }
 
   // ------------------------------------------------------------ bench
@@ -987,33 +982,19 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   // ------------------------------------------------------------ zoom
 
-  bool get _zoomed => _zoom.value.getMaxScaleOnAxis() > 1.01;
+  bool get _zoomed => _zoom.zoomed;
 
-  void _onZoomTick() {
-    final t = _zoomTween;
-    if (t != null) _zoom.value = t.evaluate(CurvedAnimation(parent: _zoomAnim, curve: Curves.easeOut));
+  void _settled() {
+    if (mounted) setState(() {});
   }
 
-  void _animateTo(Matrix4 target) {
-    if (reduceMotion(context)) {
-      _zoom.value = target;
-      setState(() {});
-      return;
-    }
-    _zoomTween = Matrix4Tween(begin: _zoom.value.clone(), end: target);
-    _zoomAnim.forward(from: 0).whenComplete(() {
-      if (mounted) setState(() {});
-    });
-  }
+  void _animateTo(Matrix4 target) => _zoom.animateTo(target, instant: reduceMotion(context), done: _settled);
 
   /// Zooms to [scale] with board point [focus] (unzoomed board pixels) as
   /// near the centre as the board edges allow.
   void _zoomTo(Offset focus, double scale) {
-    final s = _boardSize;
-    if (s <= 0) return;
-    final dx = (s / 2 - focus.dx * scale).clamp(s - s * scale, 0.0);
-    final dy = (s / 2 - focus.dy * scale).clamp(s - s * scale, 0.0);
-    _animateTo(Matrix4.translationValues(dx, dy, 0)..multiply(Matrix4.diagonal3Values(scale, scale, 1)));
+    if (_boardSize <= 0) return;
+    _animateTo(BoardZoom.focusOn(focus, scale, _boardSize));
   }
 
   double get _cell => _boardSize / _n;
@@ -1824,7 +1805,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// first, which a mouse never did: in the PWA a click-and-drag did nothing).
   /// One finger that starts on the tile moves it, also on a zoomed board; a
   /// drag that starts anywhere else scrolls the board. A second finger on the
-  /// board before the tile lifts makes it a pinch ([_LaidTileRecognizer]).
+  /// board before the tile lifts makes it a pinch ([BoardPieceDragRecognizer]).
   ///
   /// The lifted tile is at least finger size and as big as on screen; it
   /// keeps the spot under the finger (the default anchor took the unzoomed
@@ -1839,7 +1820,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return local * (size / tile);
     }
 
-    return _LaidTileDraggable<_Drag>(
+    return BoardPieceDraggable<_Drag>(
       onBoard: _onBoard,
       data: _Drag(pending.rackIndex, sq),
       maxSimultaneousDrags: _canLay ? 1 : 0,
@@ -2425,136 +2406,4 @@ class _RenderBoardWithHandle extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
-}
-
-/// The draggable of a tile laid this turn ([_LaidTileRecognizer]).
-class _LaidTileDraggable<T extends Object> extends Draggable<T> {
-  const _LaidTileDraggable({
-    required this.onBoard,
-    required super.child,
-    required super.feedback,
-    super.data,
-    super.childWhenDragging,
-    super.dragAnchorStrategy,
-    super.maxSimultaneousDrags,
-  });
-
-  /// Whether a global position is on the board ([_LaidTileRecognizer]).
-  final bool Function(Offset global) onBoard;
-
-  @override
-  MultiDragGestureRecognizer createRecognizer(GestureMultiDragStartCallback onStart) =>
-      _LaidTileRecognizer(onBoard)..onStart = onStart;
-}
-
-/// Drags a laid tile at once (KLD-094 step 8h): it wins over the board's pan
-/// because it decides after the touch slop (18 px), the pan only after twice
-/// that. But a pinch must still zoom when one finger starts on the tile: a
-/// tile that has not lifted yet lets go as soon as another finger touches
-/// down, and a finger that comes down while another one is down anywhere is
-/// left to the board.
-///
-/// Only fingers and pens that come down on the board count (browser
-/// playtest of step 8h: "if i touch another letter the first one can only be
-/// removed by click not by drag"): a finger resting on the rack, the bench or
-/// the screen's edge cannot pinch the board, and counted it left every drag
-/// to the board while taps still worked. A mouse does not count either: it
-/// cannot pinch, and a browser may never pass on its release (a right click
-/// that opens the browser's menu), which blocked finger drags the same way.
-class _LaidTileRecognizer extends MultiDragGestureRecognizer {
-  _LaidTileRecognizer(this._onBoard) : super(debugOwner: null) {
-    GestureBinding.instance.pointerRouter.addGlobalRoute(_watch);
-  }
-
-  final bool Function(Offset global) _onBoard;
-
-  /// The fingers and pens down on the board (from the time this recognizer
-  /// was made).
-  final Set<int> _down = {};
-  final Map<int, _LaidTileDragState> _pending = {};
-
-  static bool _finger(PointerEvent event) => event.kind != PointerDeviceKind.mouse;
-
-  void _watch(PointerEvent event) {
-    if (event is PointerDownEvent) {
-      if (!_finger(event) || !_onBoard(event.position)) return;
-      _down.add(event.pointer);
-      for (final state in [..._pending.values]) {
-        if (state.finger && state.pointer != event.pointer) state.letGo();
-      }
-    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
-      _down.remove(event.pointer);
-    }
-  }
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    // [_watch] sees this pointer's down only after the hit test targets.
-    if (_finger(event) && _down.any((p) => p != event.pointer)) return;
-    super.addAllowedPointer(event);
-  }
-
-  @override
-  MultiDragPointerState createNewPointerState(PointerDownEvent event) =>
-      _pending[event.pointer] = _LaidTileDragState(this, event);
-
-  @override
-  void dispose() {
-    GestureBinding.instance.pointerRouter.removeGlobalRoute(_watch);
-    super.dispose();
-  }
-
-  @override
-  String get debugDescription => 'laid tile drag';
-}
-
-class _LaidTileDragState extends MultiDragPointerState {
-  _LaidTileDragState(this._owner, PointerDownEvent event)
-    : pointer = event.pointer,
-      finger = _LaidTileRecognizer._finger(event),
-      super(event.position, event.kind, _owner.gestureSettings);
-
-  final _LaidTileRecognizer _owner;
-  final int pointer;
-  final bool finger;
-  bool _decided = false;
-
-  /// Another finger touched down before the tile lifted: leave it to the
-  /// board (a pinch).
-  void letGo() {
-    _decide();
-    resolve(GestureDisposition.rejected);
-  }
-
-  void _decide() {
-    _decided = true;
-    if (identical(_owner._pending[pointer], this)) _owner._pending.remove(pointer);
-  }
-
-  @override
-  void checkForResolutionAfterMove() {
-    if (_decided) return;
-    if (pendingDelta!.distance > computeHitSlop(kind, gestureSettings)) {
-      _decide();
-      resolve(GestureDisposition.accepted);
-    }
-  }
-
-  @override
-  void accepted(GestureMultiDragStartCallback starter) {
-    _decide();
-    starter(initialPosition);
-  }
-
-  @override
-  void rejected() {
-    _decide();
-    super.rejected();
-  }
-
-  @override
-  void dispose() {
-    _decide();
-    super.dispose();
-  }
 }
