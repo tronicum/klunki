@@ -50,7 +50,10 @@ short German summary ("Kurz") for the store notes and the testers.
   pieces and how they move, a GoStrategy table of all pieces (rank, how many, who beats whom), the Mau-Mau
   special cards, the Mäxchen value order with dice. Open it with "Regeln" (book icon) at the top right of every
   game, or from the "Regeln" link on each game in the menu. New players see "Neu hier? So geht's" under the
-  status line in their first games. Wortgewandt's "So geht's" is part of its rules page now.
+  status line in their first games. Wortgewandt's "So geht's" is part of its rules page now, and Ausgewürfelt's
+  page shows every box of the sheet with an example throw.
+- **Tidier title bar in every game**: "Spielernamen" and "Neues Spiel" moved into a "⋮" menu (with icon and
+  word), so the game's name fits next to "Aufgeben", the move list and "Regeln" on a phone.
 - **Mäxchen in the browser on an iPhone**: before Safari asks for motion access, a short card says what it is
   for ("Würfeln durch Schütteln?"); "Nein, nur tippen" turns shaking off. The privacy page now says what the
   motion sensor is used for (only shaking to roll, on the device, nothing stored or sent).

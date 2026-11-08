@@ -41,8 +41,13 @@ void main() {
     expect(find.text('Anna to move'), findsOneWidget);
     expect(find.text('Tap a column'), findsOneWidget);
     expect(find.byTooltip('Undo move'), findsOneWidget);
-    expect(find.byTooltip('New game'), findsOneWidget);
     expect(find.byTooltip('Moves'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('shell-menu')));
+    await tester.pumpAndSettle();
+    expect(find.text('New game'), findsOneWidget);
+    expect(find.text('Player names'), findsOneWidget);
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('c4-column-3')));
     await tester.pumpAndSettle();

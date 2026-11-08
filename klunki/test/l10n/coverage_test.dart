@@ -35,6 +35,7 @@ import 'package:klunki_net/relay_server.dart';
 import '../ui/pairing/pairing_test_utils.dart';
 import '../ui/shell/shell_test_utils.dart';
 import 'l10n_test_utils.dart';
+import '../support/shell_menu.dart';
 
 const gameIds = ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess'];
 const sizes = [Size(390, 844), Size(360, 640)];
@@ -248,8 +249,7 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
   audit.check(tester, '$id start');
   if (id == 'connect4') {
     // Hot-seat player names (KLD-056): dialog, then names in the status line.
-    await tester.tap(find.byKey(const Key('shell-names')));
-    await tester.pumpAndSettle();
+    await tapShellMenuItem(tester, 'shell-names');
     audit.check(tester, '$id names dialog');
     await tester.enterText(find.byKey(const Key('hot-seat-name-X')), 'Lena');
     await tester.enterText(find.byKey(const Key('hot-seat-name-O')), 'Max');
@@ -270,9 +270,8 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
     if (!sawHistory && step == 6) {
       sawHistory = true;
       // Restart confirmation, then cancel.
-      if (find.byKey(const Key('shell-restart')).evaluate().isNotEmpty) {
-        await tester.tap(find.byKey(const Key('shell-restart')));
-        await tester.pumpAndSettle();
+      if (find.byKey(const Key('shell-menu')).evaluate().isNotEmpty) {
+        await tapShellMenuItem(tester, 'shell-restart');
         audit.check(tester, '$id restart dialog');
         if (find.byType(AlertDialog).evaluate().isNotEmpty) {
           await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextButton)).first);

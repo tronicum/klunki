@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
+import '../../support/shell_menu.dart';
 
 void main() {
   // The one-time Bänkchen explanation is seen: where the bench starts open
@@ -234,14 +235,12 @@ void main() {
       final c = await pumpGame(tester, 'connect4');
       await playMove(tester);
 
-      await tester.tap(find.byKey(const Key('shell-restart')));
-      await tester.pumpAndSettle();
+      await tapShellMenuItem(tester, 'shell-restart');
       await tester.tap(find.text('Abbrechen'));
       await tester.pumpAndSettle();
       expect(c.moves, hasLength(1));
 
-      await tester.tap(find.byKey(const Key('shell-restart')));
-      await tester.pumpAndSettle();
+      await tapShellMenuItem(tester, 'shell-restart');
       await tester.tap(find.text('Neu starten'));
       await tester.pumpAndSettle();
       expect(c.moves, isEmpty);

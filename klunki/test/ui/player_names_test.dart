@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../l10n/l10n_test_utils.dart';
 import 'pairing/pairing_test_utils.dart';
 import 'shell/shell_test_utils.dart';
+import '../support/shell_menu.dart';
 
 const _fsi = '\u2068';
 const _pdi = '\u2069';
@@ -379,8 +380,7 @@ void main() {
       await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
       await tester.pumpAndSettle();
       expect(_status(tester), 'Lena ist am Zug');
-      await tester.tap(find.byKey(const Key('shell-names')));
-      await tester.pumpAndSettle();
+      await tapShellMenuItem(tester, 'shell-names');
       expect(find.text('Spielernamen'), findsOneWidget);
       await tester.enterText(find.byKey(const Key('hot-seat-name-X')), '');
       await tester.enterText(find.byKey(const Key('hot-seat-name-O')), '  ');

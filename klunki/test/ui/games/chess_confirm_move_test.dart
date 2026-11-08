@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/l10n_test_utils.dart';
 import '../shell/shell_test_utils.dart';
+import '../../support/shell_menu.dart';
 
 Finder _sq(String s) => find.byKey(Key('chess-sq-$s'));
 ChessSquareView _view(WidgetTester tester, String s) => tester.widget<ChessSquareView>(_sq(s));
@@ -155,8 +156,7 @@ void main() {
     // Ben's choice changes in "Spielernamen" during the game.
     await _dragMove(tester, 'b8', 'c6');
     expect(_game(c).sanHistory.last, 'Nc6');
-    await tester.tap(find.byKey(const Key('shell-names')));
-    await tester.pumpAndSettle();
+    await tapShellMenuItem(tester, 'shell-names');
     expect(tester.widget<SwitchListTile>(find.byKey(const Key('hot-seat-confirm-X'))).value, isTrue);
     await tester.tap(find.byKey(const Key('hot-seat-confirm-X')));
     await tester.pumpAndSettle();

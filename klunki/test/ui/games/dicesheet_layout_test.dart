@@ -7,6 +7,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
@@ -96,6 +97,10 @@ void main() {
     for (final d in _devices) {
       testWidgets('${d.name}, $players players: dice, "Würfeln", names and totals always on screen', (tester) async {
         await _start(tester, d, players);
+        // KLD-123: the title is whole next to the app-bar actions ("Spielernamen"
+        // and "Neues Spiel" sit in the "⋮" menu).
+        final title = find.descendant(of: find.byType(AppBar), matching: find.text('Ausgewürfelt'));
+        expect(tester.renderObject<RenderParagraph>(title).didExceedMaxLines, isFalse, reason: 'title cut');
         final dice = [for (var i = 0; i < 5; i++) 'dicesheet-die-$i'];
         final sheet = [
           for (var s = 0; s < players; s++) ...['dicesheet-head-$s', 'dicesheet-total-$s'],

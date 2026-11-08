@@ -104,9 +104,10 @@ class ShellStatus {
 
 /// The shared frame every game screen plugs into:
 ///
-/// * app bar with the game title, player names (hot-seat), restart, resign
-///   ("Aufgeben", KLD-065: with a confirmation; in hot-seat the dialog asks
-///   which player gives up) and move history,
+/// * app bar with the game title, resign ("Aufgeben", KLD-065: with a
+///   confirmation; in hot-seat the dialog asks which player gives up), move
+///   history, "Regeln" and in hot-seat the "⋮" menu ([ShellMenu]) with the
+///   player names and "Neues Spiel",
 /// * leaving a running game asks first ("Spiel verlassen?", KLD-099): back
 ///   button, system/predictive back; over the network always, in hot-seat
 ///   once the game is under way. A confirm dialog closes itself when the
@@ -625,27 +626,12 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
           appBar: AppBar(
             backgroundColor: accent.color,
             foregroundColor: accent.onColor,
-            // KLD-123: a little more room for the title next to the five
-            // actions of a hot-seat game ("Regeln" is the fifth).
+            // KLD-123: a little more room for the title next to the
+            // actions; "Spielernamen" and "Neues Spiel" sit in the "⋮" menu.
             titleSpacing: 4,
             title: ShellTitle(
                 widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
-              // Hot-seat names (KLD-056), when the app provides the store.
-              if (_canRestart && PlayerNameScope.maybeOf(context) != null)
-                IconButton(
-                  key: const Key('shell-names'),
-                  tooltip: l10n.hotSeatNamesTitle,
-                  icon: const Icon(Icons.people_outline),
-                  onPressed: () => showHotSeatNamesDialog(context, gameId: controller.spec.id),
-                ),
-              if (_canRestart)
-                IconButton(
-                  key: const Key('shell-restart'),
-                  tooltip: l10n.shellNewGame,
-                  icon: const Icon(Icons.refresh),
-                  onPressed: _restart,
-                ),
               // KLD-122: this device's "Zug bestätigen" in a network game
               // (hot-seat sets it per player in "Spielernamen").
               if (!_canRestart && confirmMoveGames.contains(controller.spec.id) && !game.isOver)
@@ -663,12 +649,30 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 icon: const Icon(Icons.history),
                 onPressed: _showHistory,
               ),
-              // KLD-123: last, so it is in the same place in every game.
+              // KLD-123: last but the menu, in the same place in every game.
               if (hasRules(controller.spec.id))
                 KeyedSubtree(
                   key: _rulesKey,
                   child: RulesButton(key: const Key('shell-rules'), onPressed: _openRules),
                 ),
+              // Hot-seat names (KLD-056, when the app provides the store)
+              // and "Neues Spiel", in the "⋮" menu so the title fits.
+              if (_canRestart)
+                ShellMenu(entries: [
+                  if (PlayerNameScope.maybeOf(context) != null)
+                    ShellMenuEntry(
+                      key: const Key('shell-names'),
+                      icon: Icons.people_outline,
+                      label: l10n.hotSeatNamesTitle,
+                      onSelected: () => showHotSeatNamesDialog(context, gameId: controller.spec.id),
+                    ),
+                  ShellMenuEntry(
+                    key: const Key('shell-restart'),
+                    icon: Icons.refresh,
+                    label: l10n.shellNewGame,
+                    onSelected: _restart,
+                  ),
+                ]),
             ],
           ),
           body: KlunkiBackground(
@@ -1249,5 +1253,50 @@ class ShellTitle extends StatelessWidget {
       final size = (style.fontSize ?? 20) * (scale < minScale ? minScale : scale);
       return Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: size * 0.98));
     });
+  }
+}
+
+/// One entry of the shell's "⋮" menu ([ShellMenu]).
+@immutable
+class ShellMenuEntry {
+  final Key key;
+  final IconData icon;
+  final String label;
+  final VoidCallback onSelected;
+  const ShellMenuEntry({required this.key, required this.icon, required this.label, required this.onSelected});
+}
+
+/// The "⋮" menu at the end of a game's app bar (key `shell-menu`): the
+/// actions needed now and then ("Spielernamen", "Neues Spiel"), each with
+/// icon and label and its own key, so the game title fits on a phone next
+/// to resign, history and "Regeln". Shared by [GameScreen] and the seat
+/// shell. Nothing when [entries] is empty.
+class ShellMenu extends StatelessWidget {
+  final List<ShellMenuEntry> entries;
+  const ShellMenu({super.key, required this.entries});
+
+  @override
+  Widget build(BuildContext context) {
+    if (entries.isEmpty) return const SizedBox.shrink();
+    return PopupMenuButton<VoidCallback>(
+      key: const Key('shell-menu'),
+      icon: const Icon(Icons.more_vert),
+      tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+      onSelected: (f) => f(),
+      itemBuilder: (_) => [
+        for (final e in entries)
+          PopupMenuItem<VoidCallback>(
+            key: e.key,
+            value: e.onSelected,
+            child: Row(
+              children: [
+                Icon(e.icon),
+                const SizedBox(width: 12),
+                Flexible(child: Text(e.label)),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }

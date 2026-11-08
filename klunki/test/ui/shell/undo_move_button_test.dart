@@ -38,9 +38,9 @@ void main() {
       expect(find.descendant(of: find.byType(HandoverCover), matching: find.byKey(undo)),
           seatGames.contains(id) ? findsNothing : findsOneWidget);
       expect(find.text('Zug zurück'), findsOneWidget);
-      // The app bar keeps the whole-game controls (the names action needs
-      // the app's name store, not here).
-      for (final k in ['shell-restart', 'shell-resign', 'shell-history']) {
+      // The app bar keeps the whole-game controls; "Neues Spiel" (and the
+      // names) in its "⋮" menu.
+      for (final k in ['shell-menu', 'shell-resign', 'shell-history', 'shell-rules']) {
         expect(
           find.descendant(of: find.byType(AppBar), matching: find.byKey(Key(k))),
           findsOneWidget,

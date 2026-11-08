@@ -23,11 +23,12 @@ export 'seat_labels.dart';
 /// game uses this one for every player count, the word tile game can move
 /// over for 3–4 players later.
 ///
-/// * app bar: title, "Spielernamen" ([showSeatPlayersDialog] with the
-///   game's player count), restart, resign ("Wer gibt auf?" over the seats
-///   still in; with 3–4 seats the others play on), move history, the
-///   game's [actions], and last "Regeln" ([RulesButton], KLD-123) as in
-///   [GameScreen]; the title shrinks before it is cut ([ShellTitle]);
+/// * app bar: title, the game's [actions], resign ("Wer gibt auf?" over
+///   the seats still in; with 3–4 seats the others play on), move history,
+///   "Regeln" ([RulesButton], KLD-123) and the "⋮" menu ([ShellMenu]) with
+///   "Spielernamen" ([showSeatPlayersDialog] with the game's player count)
+///   and "Neues Spiel", as in [GameScreen]; the title shrinks before it is
+///   cut ([ShellTitle]);
 /// * "Neu hier? So geht's" next to the status for a new player of the game
 ///   ([RulesIntroLine], counted as in [GameScreen]);
 /// * leaving a game under way asks first ("Spiel verlassen?", as KLD-099);
@@ -522,20 +523,6 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 widget.title ?? localizedGameTitle(l10n, controller.spec.id, fallback: controller.spec.title)),
             actions: [
               ...widget.actions,
-              if (_canRestart)
-                IconButton(
-                  key: const Key('shell-names'),
-                  tooltip: l10n.hotSeatNamesTitle,
-                  icon: const Icon(Icons.people_outline),
-                  onPressed: () => showSeatPlayersDialog(context, players: seatCountOf(game)),
-                ),
-              if (_canRestart)
-                IconButton(
-                  key: const Key('shell-restart'),
-                  tooltip: l10n.shellNewGame,
-                  icon: const Icon(Icons.refresh),
-                  onPressed: _restart,
-                ),
               if (_resignable.isNotEmpty)
                 IconButton(
                   key: const Key('shell-resign'),
@@ -555,6 +542,22 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                   key: _rulesKey,
                   child: RulesButton(key: const Key('shell-rules'), onPressed: _openRules),
                 ),
+              // As in GameScreen: names and "Neues Spiel" in the "⋮" menu.
+              if (_canRestart)
+                ShellMenu(entries: [
+                  ShellMenuEntry(
+                    key: const Key('shell-names'),
+                    icon: Icons.people_outline,
+                    label: l10n.hotSeatNamesTitle,
+                    onSelected: () => showSeatPlayersDialog(context, players: seatCountOf(game)),
+                  ),
+                  ShellMenuEntry(
+                    key: const Key('shell-restart'),
+                    icon: Icons.refresh,
+                    label: l10n.shellNewGame,
+                    onSelected: _restart,
+                  ),
+                ]),
             ],
           ),
           body: KlunkiBackground(
