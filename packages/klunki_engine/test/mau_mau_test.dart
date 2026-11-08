@@ -12,8 +12,12 @@ void main() {
   const draw = {'action': 'draw'};
   const pass = {'action': 'pass'};
 
+  /// The core rules without the ace and "Mau" switches (both on by
+  /// default), so a test about one card is not mixed up with them.
+  const basic = MauMauRules(aceAgain: false, mauCall: false);
+
   MauMauGame setup(List<String> a, List<String> b, String top,
-          {List<String> stock = const [], MauMauRules rules = const MauMauRules()}) =>
+          {List<String> stock = const [], MauMauRules rules = basic}) =>
       MauMauGame(rules: rules)..debugSetup(a: a, b: b, top: top, stock: stock);
 
   List<String> ids(Iterable<MauMauCard> cards) => [for (final c in cards) c.id];
@@ -187,15 +191,16 @@ void main() {
     });
 
     test('without stacking a 7 cannot be answered with a 7', () {
-      final g =
-          setup(['h7', 'c8'], ['s7', 'd9'], 'h9', stock: ['dK', 'dQ'], rules: const MauMauRules(stackSevens: false));
+      final g = setup(['h7', 'c8'], ['s7', 'd9'], 'h9',
+          stock: ['dK', 'dQ'], rules: const MauMauRules(aceAgain: false, mauCall: false, stackSevens: false));
       g.applyMove(play('h7'));
       expect(g.legalMoves, [draw]);
       refused(g, play('s7'));
     });
 
     test('switched off, a 7 is a plain card', () {
-      final g = setup(['h7', 'c8'], ['s9', 'd9'], 'h9', stock: ['dK'], rules: const MauMauRules(sevenDraws: false));
+      final g = setup(['h7', 'c8'], ['s9', 'd9'], 'h9',
+          stock: ['dK'], rules: const MauMauRules(aceAgain: false, mauCall: false, sevenDraws: false));
       expect(g.applyMove(play('h7'))!.payload, {'card': 'h7'});
       expect(g.penalty, 0);
       expect(g.currentPlayer, Player.b);
@@ -215,7 +220,8 @@ void main() {
     });
 
     test('switched off, an 8 is a plain card', () {
-      final g = setup(['h8', 'c8'], ['s9'], 'h9', rules: const MauMauRules(eightSkips: false));
+      final g = setup(['h8', 'c8'], ['s9'], 'h9',
+          rules: const MauMauRules(aceAgain: false, mauCall: false, eightSkips: false));
       g.applyMove(play('h8'));
       expect(g.currentPlayer, Player.b);
     });
@@ -252,7 +258,8 @@ void main() {
       expect(ids(g.playableCards), ['d9']);
       refused(g, play('sJ', suit: 'h'));
 
-      final h = setup(['cJ', 'c8'], ['sJ', 'd9'], 'hK', stock: ['dQ'], rules: const MauMauRules(jackOnJack: true));
+      final h = setup(['cJ', 'c8'], ['sJ', 'd9'], 'hK',
+          stock: ['dQ'], rules: const MauMauRules(aceAgain: false, mauCall: false, jackOnJack: true));
       h.applyMove(play('cJ', suit: 'd'));
       expect(h.applyMove(play('sJ', suit: 'h')), isNotNull);
       expect(h.wish, MauMauSuit.hearts);
@@ -271,22 +278,109 @@ void main() {
     });
   });
 
-  group('ace (house rule)', () {
-    test('off by default: a plain card', () {
-      final g = setup(['hA', 'c8'], ['s9'], 'h9');
-      g.applyMove(play('hA'));
+  group('ace (on by default)', () {
+    test('the same player lays again, on the ace', () {
+      final g = setup(['hA', 'h8', 'c9'], ['s9'], 'h9', rules: const MauMauRules(mauCall: false));
+      expect(g.applyMove(play('hA'))!.payload, {'card': 'hA', 'again': true});
+      expect(g.currentPlayer, Player.a);
+      expect(ids(g.playableCards), ['h8'], reason: 'the next card must fit the ace');
+    });
+
+    test('chains: ace after ace after ace, then a plain card ends the turn', () {
+      final g = setup(['hA', 'sA', 'cA', 'c9', 'd9'], ['s9'], 'h9', rules: const MauMauRules(mauCall: false));
+      for (final a in ['hA', 'sA', 'cA']) {
+        expect(g.applyMove(play(a))!.payload, {'card': a, 'again': true});
+        expect(g.currentPlayer, Player.a);
+      }
+      expect(g.applyMove(play('c9'))!.payload, {'card': 'c9'});
       expect(g.currentPlayer, Player.b);
     });
 
-    test('on: the same player lays again', () {
-      final g = setup(['hA', 'c8'], ['s9'], 'h9', rules: const MauMauRules(aceAgain: true));
-      expect(g.applyMove(play('hA'))!.payload, {'card': 'hA', 'again': true});
+    test(
+        'no fitting card after an ace: draw as usual (a fitting drawn card may be laid, one that does not fit ends the turn)',
+        () {
+      final g = setup(['hA', 'c9', 'd9'], ['s9'], 'h9', stock: ['h10', 'cK'], rules: const MauMauRules(mauCall: false));
+      g.applyMove(play('hA'));
+      expect(g.playableCards, isEmpty);
+      expect(g.canPass, isFalse, reason: 'cards are left to draw');
+      expect(g.applyMove(draw)!.payload, {
+        'drew': ['h10'],
+        'count': 1,
+        'fits': true
+      });
+      expect(g.applyMove(play('h10'))!.payload, {'card': 'h10'});
+      expect(g.currentPlayer, Player.b);
+      final h = setup(['hA', 'c9', 'd9'], ['s9'], 'h9', stock: ['cK'], rules: const MauMauRules(mauCall: false));
+      h.applyMove(play('hA'));
+      expect(h.applyMove(draw)!.payload, {
+        'drew': ['cK'],
+        'count': 1,
+        'fits': false
+      });
+      expect(h.currentPlayer, Player.b);
+    });
+
+    test('ace + jack: the jack wishes and ends the turn', () {
+      final g = setup(['hA', 'cJ', 'd9'], ['s9', 'h8'], 'h9', rules: const MauMauRules(mauCall: false));
+      g.applyMove(play('hA'));
+      expect(g.applyMove(play('cJ', suit: 's'))!.payload, {'card': 'cJ', 'wish': 's'});
+      expect(g.currentPlayer, Player.b);
+      expect(ids(g.playableCards), ['s9']);
+    });
+
+    test('ace + 7: the other player has to draw 2', () {
+      final g =
+          setup(['hA', 'h7', 'd9'], ['s9', 'c8'], 'h9', stock: ['dK', 'dQ'], rules: const MauMauRules(mauCall: false));
+      g.applyMove(play('hA'));
+      expect(g.applyMove(play('h7'))!.payload, {'card': 'h7', 'penalty': 2});
+      expect(g.currentPlayer, Player.b);
+      expect(g.penalty, 2);
+      g.applyMove(draw);
+      expect(g.handCount(Player.b), 4);
       expect(g.currentPlayer, Player.a);
+    });
+
+    test('ace + 8: again and again, the same player goes on', () {
+      final g = setup(['hA', 'h8', 'c8', 'd9'], ['s9'], 'h9', rules: const MauMauRules(mauCall: false));
+      g.applyMove(play('hA'));
+      expect(g.applyMove(play('h8'))!.payload, {'card': 'h8', 'again': true});
+      expect(g.currentPlayer, Player.a);
+      expect(ids(g.playableCards), ['c8']);
+    });
+
+    test('a 7 penalty is not answered with an ace', () {
+      final g =
+          setup(['h7', 'c9'], ['hA', 'sA', 'd9'], 'h9', stock: ['dK', 'dQ'], rules: const MauMauRules(mauCall: false));
+      g.applyMove(play('h7'));
+      expect(ids(g.playableCards), isEmpty);
+      refused(g, play('hA'));
+    });
+
+    test('an ace as the last card wins', () {
+      final g = setup(['hA'], ['s9'], 'h9', rules: const MauMauRules());
+      expect(g.applyMove(play('hA'))!.payload, {'card': 'hA'});
+      expect(g.result.winner, Player.a);
+      expect(g.result.code, GameEndReason.maumauEmptyHand);
+    });
+
+    test('with "Mau": an ace as the second-to-last card, then the last card', () {
+      final g = setup(['hA', 'h8'], ['s9'], 'h9', rules: const MauMauRules());
+      expect(g.mauDue, isTrue);
+      expect(g.applyMove(play('hA', mau: true))!.payload, {'card': 'hA', 'mau': true, 'again': true});
+      expect(g.currentPlayer, Player.a);
+      expect(g.applyMove(play('h8')), isNotNull);
+      expect(g.result.winner, Player.a);
+    });
+
+    test('switched off: a plain card', () {
+      final g = setup(['hA', 'c8'], ['s9'], 'h9', rules: const MauMauRules(aceAgain: false, mauCall: false));
+      g.applyMove(play('hA'));
+      expect(g.currentPlayer, Player.b);
     });
   });
 
-  group('"Mau" (house rule)', () {
-    const rules = MauMauRules(mauCall: true);
+  group('"Mau" (on by default)', () {
+    const rules = MauMauRules(aceAgain: false);
 
     test('the second-to-last card needs "Mau"; legal moves say it', () {
       final g = setup(['h7', 'h8'], ['s9', 'd9'], 'h9', stock: ['dK', 'dQ'], rules: rules);
@@ -313,7 +407,8 @@ void main() {
       expect(g.currentPlayer, Player.b);
     });
 
-    test('off: "Mau" is not part of a move', () {
+    test('on by default; off: "Mau" is not part of a move', () {
+      expect(setup(['h7', 'c8'], ['s9'], 'h9', rules: const MauMauRules()).mauDue, isTrue);
       final g = setup(['h7', 'c8'], ['s9'], 'h9', stock: ['dK']);
       expect(g.mauDue, isFalse);
       refused(g, play('h7', mau: true));
@@ -325,7 +420,8 @@ void main() {
   group('draw pile', () {
     test('runs out: the discard pile without its top card is shuffled into a new one', () {
       final g = setup(['h7', 'h8', 'hK', 'c9'], ['s9', 'hQ', 'h10'], 'h9',
-          stock: ['dK'], rules: const MauMauRules(eightSkips: false, sevenDraws: false));
+          stock: ['dK'],
+          rules: const MauMauRules(aceAgain: false, mauCall: false, eightSkips: false, sevenDraws: false));
       g.applyMove(play('h8')); // A
       g.applyMove(play('hQ')); // B
       g.applyMove(play('hK')); // A
@@ -354,7 +450,8 @@ void main() {
     });
 
     test('a 7 penalty with nothing to draw takes what there is', () {
-      final g = setup(['h7', 'c8'], ['s9'], 'h9', stock: ['dK'], rules: const MauMauRules(stackSevens: false));
+      final g = setup(['h7', 'c8'], ['s9'], 'h9',
+          stock: ['dK'], rules: const MauMauRules(aceAgain: false, mauCall: false, stackSevens: false));
       g.applyMove(play('h7'));
       final e = g.applyMove(draw)!;
       expect((e.payload as Map)['count'], 2, reason: 'dK plus h9 from the reshuffled discard pile');
@@ -381,7 +478,7 @@ void main() {
     test('random games end, replay to the same state, and agree with the view', () {
       for (var seed = 0; seed < 40; seed++) {
         final rules = MauMauRules(
-            stackSevens: seed.isEven, jackOnJack: seed % 3 == 0, aceAgain: seed % 4 == 0, mauCall: seed % 5 == 0);
+            stackSevens: seed.isEven, jackOnJack: seed % 3 == 0, aceAgain: seed % 4 != 0, mauCall: seed % 5 != 0);
         final config = GameConfig('maumau', seed: seed, mauMau: rules);
         final g = createGame(config) as MauMauGame;
         final rng = Random(seed);
@@ -409,12 +506,14 @@ void main() {
 
     test('config JSON: defaults leave no trace, house rules round-trip', () {
       expect(const GameConfig('maumau', seed: 3).toJson(), {'game': 'maumau', 'seed': 3});
-      const c = GameConfig('maumau', seed: 3, mauMau: MauMauRules(stackSevens: false, mauCall: true));
+      const c = GameConfig('maumau', seed: 3, mauMau: MauMauRules(stackSevens: false, mauCall: false));
       expect(c.toJson(), {
         'game': 'maumau',
         'seed': 3,
-        'maumau': {'stack7': false, 'mau': true}
+        'maumau': {'stack7': false, 'mau': false}
       });
+      expect(const MauMauRules(aceAgain: false).toJson(), {'ace': false});
+      expect(const MauMauRules().aceAgain && const MauMauRules().mauCall, isTrue, reason: 'decided 2026-11-06');
       expect(GameConfig.fromJson(c.toJson()), c);
       expect(c.copyWith(seed: 4).mauMau, c.mauMau);
       expect((createGame(c) as MauMauGame).rules, c.mauMau);

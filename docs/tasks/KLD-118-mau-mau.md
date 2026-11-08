@@ -39,23 +39,23 @@ without cards wins. Plays with a standard 32-card deck. Hot-seat first, network 
    summary), guest screen from `MauMauView` (the board already reads only `handOf(viewer)`, counts and the top
    card; a guest's draw has no preview, it shows the drawn cards from the accepted event), live-UI network game.
 
-## Rules (proposal: the maintainer can change every default)
+## Rules (defaults decided by the maintainer on 2026-11-06; every switch stays in the start options)
 
 | Rule | Choice | Switch (`MauMauRules`, JSON key in `maumau`) |
 |---|---|---|
 | Deck | 32 cards, 7 8 9 10 J Q K A in clubs, spades, hearts, diamonds (French suits, "Kreuz Pik Herz Karo") | – |
-| Hand | **5 cards each** (the usual German default; some play 6 or 7) | – (`MauMauGame.handSize`) |
+| Hand | **5 cards each** (classic; decided 2026-11-06) | – (`MauMauGame.handSize`) |
 | Start | next card face up starts the discard pile, A starts; **the start card has no effect** (start 7: nobody draws, start 8: nobody skips, start jack: its own suit counts, no wish) | – |
 | Turn | lay a card of the same suit or rank, or draw one; a drawn card that fits may be laid at once ("Behalten" keeps it), one that does not fit ends the turn; drawing is allowed even with a fitting card | – |
 | Draw pile empty | the discard pile without its top card is shuffled into a new draw pile; with nothing left to draw at all, a player who cannot lay passes | – |
 | Win | first player without cards, also when the last card is a 7, 8 or jack | – |
-| 7 | the next player draws 2 and **the turn ends** (no laying afterwards) | `sevenDraws` (on, `seven: false`) |
+| 7 | the next player draws 2 and **the turn ends** (no laying afterwards; kept 2026-11-06) | `sevenDraws` (on, `seven: false`) |
 | 7 on 7 | instead of drawing, lay another 7: the next player draws 2 more (4, 6, …) | `stackSevens` (on, `stack7: false`) |
 | 8 | the next player misses a turn (two players: the same player again) | `eightSkips` (on, `eight: false`) |
 | Jack (Bube) | lies on anything except a jack, wishes a suit (also its own); the next card must have that suit; the wish stays until it is met | always on |
 | Jack on jack | a jack may also lie on a jack | `jackOnJack` (**off**, `jackOnJack: true`) |
-| Ace | the same player lays again (like the 8) | `aceAgain` (**off**, `ace: true`) |
-| "Mau" | press "Mau!" before laying the second-to-last card; forgetting it costs one penalty card (drawn at once by the engine, no opponent has to notice) | `mauCall` (**off** for kids, `mau: true`) |
+| Ace | the same player lays another card on the ace (no handover); this **chains** (ace after ace after ace); with no fitting card they **draw as usual** (one card; if it fits it may be laid at once or kept, if not the turn ends). Ace then 7: the other player draws 2; ace then 8: again; ace then jack: wish, turn over; an ace does not answer a pending 7; an ace as the last card wins | `aceAgain` (**on**, `ace: false`) |
+| "Mau" | press "Mau!" before laying the second-to-last card; forgetting it costs one penalty card (drawn at once by the engine, no opponent has to notice) | `mauCall` (**on**, `mau: false`) |
 
 The "Mau-Mau" call on the last card is not modelled (the game ends anyway).
 
@@ -77,13 +77,21 @@ The "Mau-Mau" call on the last card is not modelled (the game ends anyway).
 - [x] Hot-seat UI in 7 locales; whole games played through the real UI (`maumau_live_test.dart`: default rules,
   all house rules, no special cards).
 - [x] Screenshots `--plain-name kld118`.
-- [ ] Maintainer: rule defaults, card look, layout (step-by-step UX).
+- [x] Maintainer: rule defaults (2026-11-06: 5 cards, ace again and "Mau!" on, 7 ends the turn).
+- [x] Landing page: `GAMES` in `site/build_site.py`, screenshot `site/assets/shot-maumau.jpg` in the gallery.
+- [ ] Maintainer: card look, layout (step-by-step UX).
 - [ ] Step 3: network.
 
+## Decisions (maintainer, 2026-11-06)
+- 5 cards each (classic).
+- "Mau!" call on by default; a forgotten call costs one penalty card automatically (no "Mau vergessen!" button).
+- Ace on by default: lay another card, chaining; with no fitting card draw as usual (chosen because it is how the
+  8 already works and needs no extra rule: the player is simply on turn again with the ace on top).
+- 7: the turn ends after drawing the 2.
+- Mau-Mau is on the landing page.
+- Rules version stays 1 (unreleased); the compat fingerprint does not depend on the default config, so the
+  golden is unchanged.
+
 ## Open questions (for the maintainer)
-- 7: does the turn end after drawing the 2 (current choice) or may that player lay a card afterwards?
-- Should "Mau!" be on by default for older children, and should forgetting it be noticed by the other player
-  instead of automatically (needs a "Mau vergessen!" button for the opponent)?
-- 5 or 6 cards each? Ace rule wanted at all?
 - Rank letters on the cards follow the language (de B/D/K/A, en J/Q/K/A, fr V/D/R/A, others J/Q/K/A).
 - Name: Mau-Mau is a traditional generic name, used as the title in every language.

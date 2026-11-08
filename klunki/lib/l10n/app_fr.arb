@@ -725,6 +725,7 @@
   "maumauExtraForgotMau": "{player} a oublié « Mau ! » et pioche une carte de pénalité.",
   "maumauExtraPenalty": "À {player} de piocher {count} cartes.",
   "maumauExtraAgain": "{player} passe son tour.",
+  "maumauExtraAce": "{player} rejoue tout de suite.",
   "maumauExtraReshuffled": "La défausse a été mélangée en une nouvelle pioche.",
   "maumauMovePlay": "pose {card}",
   "maumauMovePlayWish": "pose {card}, demande {suit}",

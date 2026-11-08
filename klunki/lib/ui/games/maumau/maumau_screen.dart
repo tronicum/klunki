@@ -105,7 +105,9 @@ String _describeLast(BuildContext context, AcceptedMove m) {
       if (p['forgotMau'] == true) parts.add(l10n.maumauExtraForgotMau(who));
       if (m.event.winner != null) break;
       if (p['penalty'] case final int n) parts.add(l10n.maumauExtraPenalty(next, n));
-      if (p['again'] == true) parts.add(l10n.maumauExtraAgain(next));
+      if (p['again'] == true) {
+        parts.add(card?.rank == MauMauRank.ace ? l10n.maumauExtraAce(who) : l10n.maumauExtraAgain(next));
+      }
     case 'draw':
       final n = p['count'] as int? ?? 1;
       parts.add(p['penalty'] != null ? l10n.maumauLastDrewPenalty(who, n) : l10n.maumauLastDrew(who, n));

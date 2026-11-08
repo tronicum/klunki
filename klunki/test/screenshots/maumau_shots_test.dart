@@ -255,12 +255,30 @@ void main() {
       await _shot(tester, '10-game-end');
     });
 
-    testWidgets('"Mau!" house rule', skip: skip, (tester) async {
-      await _pumpGame(tester,
-          rules: const MauMauRules(mauCall: true), a: const ['h7', 'sK'], top: 'hK', stock: const ['dK']);
+    testWidgets('"Mau!" (on by default)', skip: skip, (tester) async {
+      await _pumpGame(tester, a: const ['h7', 'sK'], top: 'hK', stock: const ['dK']);
       await _shot(tester, '13-mau-hint');
       await _tap(tester, find.byKey(const Key('maumau-mau')));
       await _shot(tester, '14-mau-pressed');
+    });
+
+    // Decided 2026-11-06: an ace lets the same player lay again, and it
+    // chains (ace after ace); no handover cover in between.
+    testWidgets('ace chain', skip: skip, (tester) async {
+      final c = await _pumpGame(tester, a: const ['hA', 'sA', 's9', 'c8', 'dQ'],
+          b: const ['d7', 'c9', 'h10', 'dK', 'cK'],
+          top: 'h9',
+          stock: const ['c7', 'sQ', 's10', 'c10', 'd8', 'hQ']);
+      await _tap(tester, find.byKey(const Key('maumau-hand-hA')));
+      expect(find.byKey(const Key('handover-cover')), findsNothing);
+      expect(c.game.currentPlayer, Player.a);
+      await _shot(tester, '16-ace-again');
+      await _tap(tester, find.byKey(const Key('maumau-hand-sA')));
+      expect(c.game.currentPlayer, Player.a);
+      await _shot(tester, '17-ace-chain');
+      await _tap(tester, find.byKey(const Key('maumau-hand-s9')));
+      expect(find.byKey(const Key('handover-cover')), findsOneWidget);
+      await _shot(tester, '18-ace-chain-cover');
     });
 
     for (final (tag, locale, brightness) in [

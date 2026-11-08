@@ -725,6 +725,7 @@
   "maumauExtraForgotMau": "{player} «Mau!» را فراموش کرد و یک کارت جریمه برمی‌دارد.",
   "maumauExtraPenalty": "{player} باید {count} کارت بردارد.",
   "maumauExtraAgain": "نوبت {player} رد می‌شود.",
+  "maumauExtraAce": "{player} دوباره نوبت دارد.",
   "maumauExtraReshuffled": "کارت‌های بازی‌شده بُر خوردند و دستهٔ تازه شدند.",
   "maumauMovePlay": "{card} را بازی کرد",
   "maumauMovePlayWish": "{card} را بازی کرد، {suit} می‌خواهد",

@@ -31,8 +31,10 @@ part 'mau_mau_view.dart';
 /// * jack (Bube): lies on any card except another jack
 ///   ([MauMauRules.jackOnJack] allows that too); the player wishes a suit,
 ///   which the next card must have (or be a jack).
-/// * ace (off by default, [MauMauRules.aceAgain]): play again, like the 8.
-/// * "Mau" ([MauMauRules.mauCall], off by default): who lays the
+/// * ace ([MauMauRules.aceAgain], on by default): the same player lays
+///   again, on the ace; this chains (ace after ace); with no fitting card
+///   they draw as usual (a drawn card that fits may be laid at once).
+/// * "Mau" ([MauMauRules.mauCall], on by default): who lays the
 ///   second-to-last card says "Mau" (`mau: true` on the move); forgetting
 ///   it costs one penalty card.
 ///
@@ -482,11 +484,11 @@ class MauMauRules {
   /// A jack may also lie on a jack (off: "no jack on a jack").
   final bool jackOnJack;
 
-  /// An ace lets the same player lay again (off).
+  /// An ace lets the same player lay again (on; chains ace after ace).
   final bool aceAgain;
 
-  /// Say "Mau" on the second-to-last card or draw a penalty card (off: too
-  /// fiddly for small children).
+  /// Say "Mau" on the second-to-last card or draw a penalty card (on;
+  /// maintainer decision 2026-11-06).
   final bool mauCall;
 
   const MauMauRules({
@@ -494,8 +496,8 @@ class MauMauRules {
     this.stackSevens = true,
     this.eightSkips = true,
     this.jackOnJack = false,
-    this.aceAgain = false,
-    this.mauCall = false,
+    this.aceAgain = true,
+    this.mauCall = true,
   });
 
   bool get isDefault => this == const MauMauRules();
@@ -507,8 +509,8 @@ class MauMauRules {
         if (!stackSevens) 'stack7': false,
         if (!eightSkips) 'eight': false,
         if (jackOnJack) 'jackOnJack': true,
-        if (aceAgain) 'ace': true,
-        if (mauCall) 'mau': true,
+        if (!aceAgain) 'ace': false,
+        if (!mauCall) 'mau': false,
       };
 
   factory MauMauRules.fromJson(Object? json) {
@@ -518,8 +520,8 @@ class MauMauRules {
       stackSevens: json['stack7'] != false,
       eightSkips: json['eight'] != false,
       jackOnJack: json['jackOnJack'] == true,
-      aceAgain: json['ace'] == true,
-      mauCall: json['mau'] == true,
+      aceAgain: json['ace'] != false,
+      mauCall: json['mau'] != false,
     );
   }
 

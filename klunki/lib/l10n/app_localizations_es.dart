@@ -2883,6 +2883,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player vuelve a jugar enseguida.';
+  }
+
+  @override
   String get maumauExtraReshuffled =>
       'Los descartes se han barajado como nuevo mazo.';
 

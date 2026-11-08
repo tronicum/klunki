@@ -75,6 +75,7 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
   final c = await _pump(tester, config);
   var taps = 0;
   var covers = 0;
+  var aces = 0;
   while (!c.game.isOver) {
     expect(++taps, lessThan(1500), reason: 'the game should end');
     final g = c.game as MauMauGame;
@@ -113,6 +114,11 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
         expect(c.game.history.last['suit'], suit.code);
       }
       expect(c.game.history.last['card'], card.id, reason: 'the tapped card was laid');
+      if (card.rank == MauMauRank.ace && config.mauMau.aceAgain && !c.game.isOver) {
+        aces++;
+        expect(c.game.currentPlayer, me, reason: 'an ace: the same player again');
+        expect(_has(const Key('handover-cover')), isFalse, reason: 'no cover after an ace');
+      }
       continue;
     }
     if (g.canDraw) {
@@ -130,6 +136,7 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
   expect(g.result.code, GameEndReason.maumauEmptyHand);
   expect(find.byKey(const Key('result-dialog')), findsOneWidget);
   expect(covers, greaterThan(0));
+  if (aces > 0) debugPrint('${config.mauMau.toJson()}: $aces ace(s) laid again');
   // The engine's log replays to the same game.
   final r = replay(config, c.moves.map((m) => m.move))! as MauMauGame;
   expect(r.result.winner, winner);
@@ -140,10 +147,11 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
 
 void main() {
   for (final (name, rules, seed) in [
-    ('default rules', const MauMauRules(), 3),
+    ('default rules (ace and "Mau!" on)', const MauMauRules(), 3),
     ('default rules, another deal', const MauMauRules(), 11),
-    ('all house rules on', const MauMauRules(jackOnJack: true, aceAgain: true, mauCall: true), 5),
-    ('no special cards', const MauMauRules(sevenDraws: false, eightSkips: false), 8),
+    ('all house rules on', const MauMauRules(jackOnJack: true), 5),
+    ('no ace, no "Mau!"', const MauMauRules(aceAgain: false, mauCall: false), 4),
+    ('no special cards', const MauMauRules(sevenDraws: false, eightSkips: false, aceAgain: false), 8),
   ]) {
     testWidgets('a whole game through the UI: $name', (tester) async {
       final taps = await _playGame(tester, GameConfig('maumau', seed: seed, mauMau: rules), Random(seed));

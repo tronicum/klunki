@@ -2875,6 +2875,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player ist gleich noch mal dran.';
+  }
+
+  @override
   String get maumauExtraReshuffled => 'Die Ablage wurde neu gemischt.';
 
   @override

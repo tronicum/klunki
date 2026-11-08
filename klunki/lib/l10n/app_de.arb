@@ -4186,7 +4186,16 @@
   },
   "maumauExtraAgain": "{player} muss aussetzen.",
   "@maumauExtraAgain": {
-    "description": "Mau-Mau (KLD-118): after an 8 (or an ace with the house rule); player = the one who misses the turn.",
+    "description": "Mau-Mau (KLD-118): after an 8; player = the one who misses the turn.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "maumauExtraAce": "{player} ist gleich noch mal dran.",
+  "@maumauExtraAce": {
+    "description": "Mau-Mau (KLD-118): after an ace (on by default): the same player lays again; player = the one who laid the ace.",
     "placeholders": {
       "player": {
         "type": "String"

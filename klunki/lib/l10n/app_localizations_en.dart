@@ -2861,6 +2861,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player goes again.';
+  }
+
+  @override
   String get maumauExtraReshuffled =>
       'The discard pile was shuffled into a new draw pile.';
 

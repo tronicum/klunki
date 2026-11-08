@@ -2875,6 +2875,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return 'دور إضافي: $player.';
+  }
+
+  @override
   String get maumauExtraReshuffled =>
       'خُلطت الأوراق المرمية في كومة سحب جديدة.';
 

@@ -4451,11 +4451,17 @@ abstract class AppLocalizations {
   /// **'{player} muss {count} Karten ziehen.'**
   String maumauExtraPenalty(String player, int count);
 
-  /// Mau-Mau (KLD-118): after an 8 (or an ace with the house rule); player = the one who misses the turn.
+  /// Mau-Mau (KLD-118): after an 8; player = the one who misses the turn.
   ///
   /// In de, this message translates to:
   /// **'{player} muss aussetzen.'**
   String maumauExtraAgain(String player);
+
+  /// Mau-Mau (KLD-118): after an ace (on by default): the same player lays again; player = the one who laid the ace.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} ist gleich noch mal dran.'**
+  String maumauExtraAce(String player);
 
   /// Mau-Mau (KLD-118): the draw pile ran out; the discard pile became the new draw pile.
   ///

@@ -724,6 +724,7 @@
   "maumauExtraForgotMau": "{player} forgot “Mau!” and draws a penalty card.",
   "maumauExtraPenalty": "{player} has to draw {count} cards.",
   "maumauExtraAgain": "{player} misses a turn.",
+  "maumauExtraAce": "{player} goes again.",
   "maumauExtraReshuffled": "The discard pile was shuffled into a new draw pile.",
   "maumauMovePlay": "plays the {card}",
   "maumauMovePlayWish": "plays the {card}, wishes for {suit}",

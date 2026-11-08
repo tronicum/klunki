@@ -2789,6 +2789,11 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player دوباره نوبت دارد.';
+  }
+
+  @override
   String get maumauExtraReshuffled =>
       'کارت‌های بازی‌شده بُر خوردند و دستهٔ تازه شدند.';
 

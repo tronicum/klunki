@@ -2887,6 +2887,11 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player rejoue tout de suite.';
+  }
+
+  @override
   String get maumauExtraReshuffled =>
       'La défausse a été mélangée en une nouvelle pioche.';
 

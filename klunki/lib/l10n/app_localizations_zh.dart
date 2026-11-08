@@ -2701,6 +2701,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String maumauExtraAce(String player) {
+    return '$player 再出一次。';
+  }
+
+  @override
   String get maumauExtraReshuffled => '弃牌已洗成新的牌堆。';
 
   @override

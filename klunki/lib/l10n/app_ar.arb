@@ -725,6 +725,7 @@
   "maumauExtraForgotMau": "نسيان «Mau!» من {player}: ورقة عقوبة.",
   "maumauExtraPenalty": "على {player} سحب {count, plural, zero{لا أوراق} one{ورقة واحدة} two{ورقتين} few{{count} أوراق} many{{count} ورقة} other{{count} ورقة}}.",
   "maumauExtraAgain": "تخطي دور {player}.",
+  "maumauExtraAce": "دور إضافي: {player}.",
   "maumauExtraReshuffled": "خُلطت الأوراق المرمية في كومة سحب جديدة.",
   "maumauMovePlay": "ورقة: {card}",
   "maumauMovePlayWish": "ورقة: {card}، المطلوب: {suit}",

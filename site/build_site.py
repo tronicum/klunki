@@ -57,6 +57,7 @@ GAMES = (
     ('gostrategy', 'GoStrategy'),
     ('chess', 'Chess'),
     ('wordtiles', 'WordTiles'),
+    ('maumau', 'MauMau'),
 )
 
 # Texts the build puts into the landing page (not worth ARB keys: the site

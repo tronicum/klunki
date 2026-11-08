@@ -725,6 +725,7 @@
   "maumauExtraForgotMau": "{player} ha olvidado «¡Mau!» y roba una carta de castigo.",
   "maumauExtraPenalty": "{player} tiene que robar {count} cartas.",
   "maumauExtraAgain": "{player} pierde el turno.",
+  "maumauExtraAce": "{player} vuelve a jugar enseguida.",
   "maumauExtraReshuffled": "Los descartes se han barajado como nuevo mazo.",
   "maumauMovePlay": "echa {card}",
   "maumauMovePlayWish": "echa {card}, pide {suit}",

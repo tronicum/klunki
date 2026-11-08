@@ -725,6 +725,7 @@
   "maumauExtraForgotMau": "{player} 忘了喊“Mau！”，摸一张罚牌。",
   "maumauExtraPenalty": "{player} 要摸 {count} 张牌。",
   "maumauExtraAgain": "{player} 停一轮。",
+  "maumauExtraAce": "{player} 再出一次。",
   "maumauExtraReshuffled": "弃牌已洗成新的牌堆。",
   "maumauMovePlay": "出了{card}",
   "maumauMovePlayWish": "出了{card}，指定{suit}",
