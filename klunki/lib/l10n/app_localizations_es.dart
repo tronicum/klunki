@@ -3739,4 +3739,8 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get maumauHintNoFit => 'Ninguna carta encaja. Roba una del mazo.';
+
+  @override
+  String get rulesMaumauTurnMustPlay =>
+      'Hay 32 cartas. Cada jugador recibe 5 y una queda boca arriba en el centro. Empieza el Jugador 1.\nEcha encima una carta del mismo palo o del mismo valor, por ejemplo corazones sobre corazones o 9 sobre 9.\nSi no encaja ninguna carta, robas 1 carta. Si encaja, puedes echarla o quedártela. Si no encaja, le toca al rival.\nCuando el mazo se acaba, las cartas echadas se barajan y forman un mazo nuevo.';
 }

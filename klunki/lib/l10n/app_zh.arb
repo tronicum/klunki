@@ -949,5 +949,6 @@
   "maumauOptionMustPlay": "能出就出",
   "maumauOptionMustPlayExplain": "只有没有能出的牌时才可以摸牌。出 7 之后，你总是可以摸那些牌。",
   "maumauHintMustPlay": "你有能出的牌，出牌吧。",
-  "maumauHintNoFit": "没有能出的牌。从牌堆摸一张。"
+  "maumauHintNoFit": "没有能出的牌。从牌堆摸一张。",
+  "rulesMaumauTurnMustPlay": "一共有 32 张牌。每人拿 5 张，中间翻开一张。玩家 1 先出。\n出一张花色相同或点数相同的牌放上去，比如红心接红心，9 接 9。\n没有能接上的牌，就摸 1 张牌。能接上，你可以出掉或者留着。接不上，就轮到对方。\n牌堆空了，弃牌会洗成新的牌堆。"
 }

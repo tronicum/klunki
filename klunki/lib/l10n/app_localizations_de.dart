@@ -3730,4 +3730,8 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get maumauHintNoFit => 'Keine Karte passt. Zieh eine vom Stapel.';
+
+  @override
+  String get rulesMaumauTurnMustPlay =>
+      'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.';
 }

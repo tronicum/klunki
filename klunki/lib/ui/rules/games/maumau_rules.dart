@@ -13,7 +13,8 @@ GameRules mauMauRules(BuildContext context, AppLocalizations l10n, GameConfig co
       ExcludeSemantics(child: MauMauCardFace(card: MauMauCard(suit, rank), width: 34));
   return GameRules(
     goal: ruleLines(l10n.rulesMaumauGoal),
-    turn: ruleLines(l10n.rulesMaumauTurn),
+    // "Legen, wenn möglich" on: drawing only when no card fits.
+    turn: ruleLines(r.mustPlay ? l10n.rulesMaumauTurnMustPlay : l10n.rulesMaumauTurn),
     special: [
       RuleItem(l10n.rulesMaumauJack, lead: card(MauMauRank.jack, MauMauSuit.clubs)),
       ...ruleLines(l10n.rulesMaumauSpecial),

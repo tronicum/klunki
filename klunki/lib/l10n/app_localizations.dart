@@ -5806,6 +5806,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Keine Karte passt. Zieh eine vom Stapel.'**
   String get maumauHintNoFit;
+
+  /// KLD-118: Mau-Mau rules, a turn (lines separated by \n) while the house rule "Legen, wenn möglich" is on: as rulesMaumauTurn, but drawing only when no card fits.
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt 32 Karten. Jeder bekommt 5, eine liegt offen in der Mitte. Spieler 1 fängt an.\nLeg eine Karte mit gleicher Farbe oder gleichem Wert darauf, zum Beispiel Herz auf Herz oder 9 auf 9.\nPasst keine Karte, ziehst du 1 Karte. Passt sie, darfst du sie legen oder behalten. Passt sie nicht, ist der andere dran.\nIst der Stapel leer, werden die abgelegten Karten gemischt und zum neuen Stapel.'**
+  String get rulesMaumauTurnMustPlay;
 }
 
 class _AppLocalizationsDelegate

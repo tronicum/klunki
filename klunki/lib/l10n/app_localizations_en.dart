@@ -3712,4 +3712,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maumauHintNoFit => 'No card fits. Draw one from the pile.';
+
+  @override
+  String get rulesMaumauTurnMustPlay =>
+      'There are 32 cards. Each player gets 5, one lies face up in the middle. Player 1 starts.\nPut a card of the same suit or the same value on it, for example hearts on hearts or 9 on 9.\nIf no card fits, you draw 1 card. If it fits, you may play it or keep it. If not, it is the other player’s turn.\nWhen the pile is empty, the played cards are shuffled into a new pile.';
 }

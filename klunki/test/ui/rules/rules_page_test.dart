@@ -124,6 +124,23 @@ void main() {
       }
     });
 
+    testWidgets('Mau-Mau: the turn follows "Legen, wenn möglich"', (tester) async {
+      bool line(String start) => find.textContaining(start).evaluate().isNotEmpty;
+      await _pumpGame(tester, const GameConfig('maumau', seed: 3));
+      await _tap(tester, 'shell-rules');
+      expect(_key('rules-house-mustPlay'), findsOneWidget);
+      expect(line('Passt keine Karte, ziehst du 1 Karte.'), isTrue);
+      expect(line('oder willst du keine legen'), isFalse);
+    });
+
+    testWidgets('Mau-Mau: "Legen, wenn möglich" off, drawing anyway is in the turn', (tester) async {
+      bool line(String start) => find.textContaining(start).evaluate().isNotEmpty;
+      await _pumpGame(tester, const GameConfig('maumau', seed: 3, mauMau: MauMauRules(mustPlay: false)));
+      await _tap(tester, 'shell-rules');
+      expect(_key('rules-house-mustPlay'), findsNothing);
+      expect(line('Passt keine Karte oder willst du keine legen, ziehst du 1 Karte.'), isTrue);
+    });
+
     testWidgets('Mäxchen: 5 lives, "Mäxchen doppelt" off', (tester) async {
       await _pumpGame(tester, const GameConfig('maexchen', seed: 3, lives: 5, maexchenDouble: false));
       await _tap(tester, 'shell-rules');

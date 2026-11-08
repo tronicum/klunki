@@ -3746,4 +3746,8 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get maumauHintNoFit => 'Aucune carte ne va. Pioche une carte.';
+
+  @override
+  String get rulesMaumauTurnMustPlay =>
+      'Il y a 32 cartes. Chacun en reçoit 5, une est posée face visible au milieu. Joueur 1 commence.\nPose dessus une carte de même couleur ou de même valeur, par exemple cœur sur cœur ou 9 sur 9.\nSi aucune carte ne va, tu pioches 1 carte. Si elle va, tu peux la poser ou la garder. Sinon, c’est à l’autre.\nQuand la pioche est vide, les cartes posées sont mélangées et forment une nouvelle pioche.';
 }
