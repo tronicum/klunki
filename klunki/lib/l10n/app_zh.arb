@@ -771,5 +771,12 @@
   "maexchenMoveGiveUp": "认输一条命",
   "maexchenMaexchenName": "王牌",
   "maexchenMaexchenCall": "王牌！",
-  "maexchenAnnouncedLabel": "已报"
+  "maexchenAnnouncedLabel": "已报",
+  "confirmMoveSetting": "确认走棋",
+  "confirmMoveHelper": "点“走棋”后，这一步才算数。",
+  "confirmMoveCommit": "走棋",
+  "confirmMoveBack": "重选",
+  "confirmMoveHint": "这一步对吗？点“走棋”或“重选”。",
+  "confirmMoveOn": "确认走棋：开",
+  "confirmMoveOff": "确认走棋：关"
 }

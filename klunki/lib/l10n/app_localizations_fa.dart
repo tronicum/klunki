@@ -2982,4 +2982,26 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get maexchenAnnouncedLabel => 'اعلام‌شده';
+
+  @override
+  String get confirmMoveSetting => 'تأیید حرکت';
+
+  @override
+  String get confirmMoveHelper => 'حرکت فقط بعد از زدن «حرکت بده» حساب می‌شود.';
+
+  @override
+  String get confirmMoveCommit => 'حرکت بده';
+
+  @override
+  String get confirmMoveBack => 'برگشت';
+
+  @override
+  String get confirmMoveHint =>
+      'این حرکت درست است؟ روی «حرکت بده» یا «برگشت» بزن.';
+
+  @override
+  String get confirmMoveOn => 'تأیید حرکت: روشن است.';
+
+  @override
+  String get confirmMoveOff => 'تأیید حرکت: خاموش است.';
 }

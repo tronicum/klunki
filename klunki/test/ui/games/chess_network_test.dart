@@ -6,6 +6,9 @@
 // by taps; the draw offer goes from one device to the other.
 // Step 4a: the host may play Black (GameConfig.chessWhite): then the guest
 // is White, moves first and sees its board un-turned, the host's is turned.
+// KLD-122: "Zug bestätigen" is on by default on both devices: every tapped
+// move waits for "Ziehen" and only then reaches the host ([_move] checks);
+// one test sets it per device and plays "Zurück", drag and the in-game toggle.
 @Timeout(Duration(seconds: 90))
 library;
 
@@ -18,6 +21,7 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/games/chess/chess_board.dart';
 import 'package:klunki/ui/games/chess/chess_pieces.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
+import 'package:klunki/ui/shell/confirm_move.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -69,7 +73,7 @@ Future<void> _settle(WidgetTester tester) async {
 
 /// Starts host and guest and pumps both sessions side by side.
 Future<(NetworkTransport, NetworkTransport)> _start(WidgetTester tester,
-    [GameConfig config = const GameConfig('chess')]) async {
+    [GameConfig config = const GameConfig('chess'), ConfirmMoveSettings? hostConfirm, ConfirmMoveSettings? guestConfirm]) async {
   tester.view.physicalSize = const Size(1400, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -89,24 +93,47 @@ Future<(NetworkTransport, NetworkTransport)> _start(WidgetTester tester,
       await tester.pump();
     }
   });
-  Widget device(Key key, NetworkTransport t) => Expanded(
-        child: KeyedSubtree(key: key, child: localizedApp(NetworkGameSession(transport: t))),
+  // Each device its own "Zug bestätigen" (KLD-122), the default: on.
+  Widget device(Key key, NetworkTransport t, ConfirmMoveSettings? confirm) => Expanded(
+        child: KeyedSubtree(
+          key: key,
+          child: ConfirmMoveScope(
+            settings: confirm ?? ConfirmMoveSettings.memory(),
+            child: localizedApp(NetworkGameSession(transport: t)),
+          ),
+        ),
       );
   await tester.pumpWidget(Directionality(
     textDirection: TextDirection.ltr,
-    child: Row(children: [device(_hostKey, host), device(_guestKey, guest)]),
+    child: Row(children: [device(_hostKey, host, hostConfirm), device(_guestKey, guest, guestConfirm)]),
   ));
   await _until(tester, () => _on(_guestKey, find.byType(ChessBoard)).evaluate().isNotEmpty, 'guest board');
   await _until(tester, () => _on(_hostKey, find.byType(ChessBoard)).evaluate().isNotEmpty, 'host board');
   return (host, guest);
 }
 
-/// [device] moves [from]→[to] by two taps; waits until both devices have it.
+/// With "Zug bestätigen" (KLD-122) the move just chosen on [device] waits:
+/// nothing has reached the host after a few real-time rounds; then "Ziehen".
+Future<void> _commitIfPending(WidgetTester tester, Key device) async {
+  final bar = _on(device, find.byKey(const Key('confirm-move-bar')));
+  if (bar.evaluate().isEmpty) return;
+  final n = _controller(tester, _hostKey).moves.length;
+  for (var i = 0; i < 3; i++) {
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+    await tester.pump();
+  }
+  expect(_controller(tester, _hostKey).moves, hasLength(n), reason: 'a pending move stays on $device');
+  await _tap(tester, _on(device, find.byKey(const Key('confirm-move-commit'))));
+}
+
+/// [device] moves [from]→[to] by two taps (and "Ziehen" when it asks);
+/// waits until both devices have it.
 Future<void> _move(WidgetTester tester, Key device, String from, String to) async {
   final n = _controller(tester, _hostKey).moves.length;
   await _tap(tester, _sq(device, from));
   expect(tester.widget<ChessSquareView>(_sq(device, from)).selected, isTrue, reason: '$from selected on $device');
   await _tap(tester, _sq(device, to));
+  await _commitIfPending(tester, device);
   await _until(
       tester,
       () => _controller(tester, _hostKey).moves.length == n + 1 && _controller(tester, _guestKey).moves.length == n + 1,
@@ -231,6 +258,13 @@ void main() {
     await _settle(tester);
     expect(_on(_guestKey, find.byKey(const Key('chess-promotion'))), findsOneWidget);
     await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-promote-q'))));
+    await _settle(tester);
+    // KLD-122: the chosen queen waits on b1 for "Ziehen".
+    expect(tester.widget<ChessSquareView>(_sq(_guestKey, 'b1')).piece,
+        const ChessPiece(ChessColor.black, ChessPieceType.queen));
+    expect(tester.widget<ChessSquareView>(_sq(_guestKey, 'b1')).pendingCapture,
+        const ChessPiece(ChessColor.white, ChessPieceType.knight));
+    await _commitIfPending(tester, _guestKey);
     await _until(tester, () => hc.moves.length == 10, 'the promotion reaches the host');
     expect(hc.moves.last.move, {'action': 'move', 'from': 'a2', 'to': 'b1', 'promotion': 'q'});
     expect(tester.widget<ChessSquareView>(_sq(_hostKey, 'b1')).piece,
@@ -317,5 +351,114 @@ void main() {
     }
     expect([for (final m in _controller(tester, _hostKey).moves) (m.player, m.move['action'])],
         [(Player.b, 'offerDraw'), (Player.a, 'acceptDraw')]);
+  });
+
+  testWidgets('KLD-122: the guest\'s move waits for "Ziehen", "Zurück" restores; host turns it on in the game',
+      (tester) async {
+    final hostConfirm = ConfirmMoveSettings.memory(network: false);
+    final guestConfirm = ConfirmMoveSettings.memory();
+    await _start(tester, const GameConfig('chess'), hostConfirm, guestConfirm);
+    final hc = _controller(tester, _hostKey), gc = _controller(tester, _guestKey);
+    // The toggle sits in each device's app bar, showing its own setting.
+    bool toggle(Key d) => tester.widget<IconButton>(_on(d, find.byKey(const Key('shell-confirm-move')))).isSelected!;
+    expect(toggle(_hostKey), isFalse);
+    expect(toggle(_guestKey), isTrue);
+
+    // Host: off, the move goes at once.
+    await _tap(tester, _sq(_hostKey, 'e2'));
+    await _tap(tester, _sq(_hostKey, 'e4'));
+    expect(_on(_hostKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
+    await _until(tester, () => gc.moves.length == 1, 'e4 on the guest');
+
+    // Guest: on. The pawn stands on e5, nothing is sent.
+    await _tap(tester, _sq(_guestKey, 'e7'));
+    await _tap(tester, _sq(_guestKey, 'e5'));
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsOneWidget);
+    ChessSquareView view(Key d, String s) => tester.widget<ChessSquareView>(_sq(d, s));
+    expect(view(_guestKey, 'e5').piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+    expect(view(_guestKey, 'e5').pendingTo, isTrue);
+    expect(view(_guestKey, 'e7').piece, isNull);
+    expect(view(_guestKey, 'e7').pendingFrom, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+    expect(_text(tester, _guestKey, const Key('shell-hint')), 'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.');
+    // Other pieces cannot be picked up meanwhile.
+    await _tap(tester, _sq(_guestKey, 'g8'));
+    expect(view(_guestKey, 'g8').selected, isFalse);
+    for (var i = 0; i < 20; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      await tester.pump();
+    }
+    expect(hc.moves, hasLength(1), reason: 'the host has not seen the pending move');
+    expect(gc.moves, hasLength(1));
+    expect(view(_hostKey, 'e7').piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+
+    // "Zurück": the board as before.
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('confirm-move-back'))));
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
+    expect(view(_guestKey, 'e7').piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+    expect(view(_guestKey, 'e5').piece, isNull);
+    expect(view(_guestKey, 'e7').pendingFrom, isNull);
+
+    // Drag d7→d5 instead, then "Ziehen".
+    await tester.drag(_sq(_guestKey, 'd7'), tester.getCenter(_sq(_guestKey, 'd5')) - tester.getCenter(_sq(_guestKey, 'd7')));
+    await tester.pump();
+    await tester.pump();
+    expect(view(_guestKey, 'd5').pendingTo, isTrue);
+    expect(hc.moves, hasLength(1));
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('confirm-move-commit'))));
+    await _until(tester, () => hc.moves.length == 2, 'd5 reaches the host');
+    expect(hc.moves.last.move, {'action': 'move', 'from': 'd7', 'to': 'd5'});
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
+
+    // The host turns it on during the game: its capture now waits.
+    await _tap(tester, _on(_hostKey, find.byKey(const Key('shell-confirm-move'))));
+    expect(hostConfirm.network, isTrue);
+    expect(guestConfirm.network, isTrue, reason: 'each device its own');
+    await _settle(tester);
+    expect(_on(_hostKey, find.text('Zug bestätigen ist an.')), findsOneWidget);
+    // The snack bar goes away by itself.
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+    expect(_on(_hostKey, find.text('Zug bestätigen ist an.')), findsNothing);
+    await _tap(tester, _sq(_hostKey, 'e4'));
+    await _tap(tester, _sq(_hostKey, 'd5'));
+    expect(view(_hostKey, 'd5').piece, const ChessPiece(ChessColor.white, ChessPieceType.pawn));
+    expect(view(_hostKey, 'd5').pendingCapture, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+    expect(hc.moves, hasLength(2));
+    await _commitIfPending(tester, _hostKey);
+    await _until(tester, () => gc.moves.length == 3, 'exd5 on the guest');
+    expect((gc.game as ChessGame).sanHistory, ['e4', 'd5', 'exd5']);
+    expect((gc.game as ChessGame).fen, (hc.game as ChessGame).fen);
+  });
+
+  testWidgets('KLD-122: a draw offer or a resign drops the pending move', (tester) async {
+    await _start(tester);
+    final hc = _controller(tester, _hostKey), gc = _controller(tester, _guestKey);
+    await _move(tester, _hostKey, 'e2', 'e4');
+    await _tap(tester, _sq(_guestKey, 'e7'));
+    await _tap(tester, _sq(_guestKey, 'e5'));
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsOneWidget);
+    // The guest offers a draw instead: the pending move is gone.
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-offer-draw'))));
+    await _settle(tester);
+    await _tap(tester, _on(_guestKey, find.byKey(const Key('chess-offer-confirm'))));
+    await _until(tester, () => hc.moves.length == 2, 'the offer reaches the host');
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
+    expect(tester.widget<ChessSquareView>(_sq(_guestKey, 'e7')).piece,
+        const ChessPiece(ChessColor.black, ChessPieceType.pawn));
+    expect(hc.moves.last.move['action'], 'offerDraw');
+    await _settle(tester);
+    await _tap(tester, _on(_hostKey, find.byKey(const Key('chess-draw-decline'))));
+    await _until(tester, () => gc.moves.length == 3, 'the decline reaches the guest');
+    await _settle(tester);
+
+    // Pending again; then the host resigns: the game ends, nothing is left.
+    await _tap(tester, _sq(_guestKey, 'e7'));
+    await _tap(tester, _sq(_guestKey, 'e5'));
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsOneWidget);
+    await hc.resign(Player.a);
+    await _until(tester, () => gc.game.isOver, 'the guest sees the resign');
+    expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
+    expect([for (final m in hc.moves) m.move['action']], ['move', 'offerDraw', 'declineDraw', 'resign']);
   });
 }

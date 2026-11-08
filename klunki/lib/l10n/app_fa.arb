@@ -771,5 +771,12 @@
   "maexchenMoveGiveUp": "یک جان می‌دهد",
   "maexchenMaexchenName": "میا",
   "maexchenMaexchenCall": "میا!",
-  "maexchenAnnouncedLabel": "اعلام‌شده"
+  "maexchenAnnouncedLabel": "اعلام‌شده",
+  "confirmMoveSetting": "تأیید حرکت",
+  "confirmMoveHelper": "حرکت فقط بعد از زدن «حرکت بده» حساب می‌شود.",
+  "confirmMoveCommit": "حرکت بده",
+  "confirmMoveBack": "برگشت",
+  "confirmMoveHint": "این حرکت درست است؟ روی «حرکت بده» یا «برگشت» بزن.",
+  "confirmMoveOn": "تأیید حرکت: روشن است.",
+  "confirmMoveOff": "تأیید حرکت: خاموش است."
 }

@@ -6,6 +6,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' show Player, specById;
 
 import '../profile/player_name_controller.dart';
+import 'shell/confirm_move.dart';
 import 'shell/game_screen.dart' show PlayerToken;
 import 'shell/player_labels.dart';
 
@@ -154,6 +155,10 @@ class PlayerNameButton extends StatelessWidget {
 /// follows the app language. [gameId] shows the player tokens (colour and
 /// symbol) next to the fields and names the chess sides.
 ///
+/// For a game that offers "Zug bestätigen" (KLD-122, [confirmMoveGames]) each
+/// name has its own switch underneath (hot-seat default: off), saved to
+/// [ConfirmMoveScope.of] with the names.
+///
 /// [start]: the dialog that opens a game on this device ("Wer spielt?",
 /// "Spielen"); completes with false when it was cancelled (no game then).
 /// Otherwise the in-game "Spielernamen" dialog (OK / Cancel). Without a
@@ -163,31 +168,44 @@ Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool 
   if (scope == null) return true;
   final l10n = AppLocalizations.of(context);
   final names = scope.hotSeat.value;
-  final result = await showDialog<(String, String)>(
+  final confirm = gameId != null && confirmMoveGames.contains(gameId) ? ConfirmMoveScope.of(context) : null;
+  final result = await showDialog<_HotSeatChoice>(
     context: context,
     builder: (_) => _HotSeatNamesDialog(
       a: names.x ?? defaultPlayerName(l10n, Player.a),
       b: names.o ?? defaultPlayerName(l10n, Player.b),
+      confirm: confirm == null ? null : (confirm.hotSeat(Player.a), confirm.hotSeat(Player.b)),
       gameId: gameId,
       start: start,
     ),
   );
   if (result == null) return false;
+  if (confirm != null && result.confirm != null) {
+    await confirm.setHotSeat(Player.a, result.confirm!.$1);
+    await confirm.setHotSeat(Player.b, result.confirm!.$2);
+  }
   // The default name is not stored: it follows the app language.
   String? typed(String raw, Player p) {
     final s = sanitizePlayerName(raw);
     return s == defaultPlayerName(l10n, p) ? null : s;
   }
 
-  await scope.hotSeat.setNames(typed(result.$1, Player.a), typed(result.$2, Player.b));
+  await scope.hotSeat.setNames(typed(result.a, Player.a), typed(result.b, Player.b));
   return true;
 }
 
+/// What "Wer spielt?" returns: both names and, for a game with "Zug
+/// bestätigen", both players' choice.
+typedef _HotSeatChoice = ({String a, String b, (bool, bool)? confirm});
+
 class _HotSeatNamesDialog extends StatefulWidget {
-  const _HotSeatNamesDialog({required this.a, required this.b, this.gameId, this.start = false});
+  const _HotSeatNamesDialog({required this.a, required this.b, this.confirm, this.gameId, this.start = false});
 
   final String a;
   final String b;
+
+  /// "Zug bestätigen" for player A and B; null = the game does not offer it.
+  final (bool, bool)? confirm;
   final String? gameId;
   final bool start;
 
@@ -198,6 +216,8 @@ class _HotSeatNamesDialog extends StatefulWidget {
 class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
   late final TextEditingController _a = TextEditingController(text: widget.a);
   late final TextEditingController _b = TextEditingController(text: widget.b);
+  late bool _confirmA = widget.confirm?.$1 ?? false;
+  late bool _confirmB = widget.confirm?.$2 ?? false;
 
   @override
   void dispose() {
@@ -206,7 +226,8 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
     super.dispose();
   }
 
-  void _ok() => Navigator.of(context).pop((_a.text, _b.text));
+  void _ok() => Navigator.of(context)
+      .pop((a: _a.text, b: _b.text, confirm: widget.confirm == null ? null : (_confirmA, _confirmB)));
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +261,16 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
       );
     }
 
+    // "Zug bestätigen" for one player (KLD-122), under the name field.
+    Widget confirm(Player p, bool value, ValueChanged<bool> onChanged) => SwitchListTile(
+          key: Key('hot-seat-confirm-${PlayerLabels.markOf(p)}'),
+          dense: true,
+          contentPadding: const EdgeInsetsDirectional.only(start: 12),
+          value: value,
+          onChanged: onChanged,
+          title: Text(l10n.confirmMoveSetting),
+        );
+
     return AlertDialog(
       key: Key(widget.start ? 'hot-seat-start-dialog' : 'hot-seat-names-dialog'),
       title: Text(widget.start ? l10n.hotSeatStartTitle : l10n.hotSeatNamesTitle),
@@ -248,10 +279,18 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           field(Player.a, _a, TextInputAction.next),
+          if (widget.confirm != null) confirm(Player.a, _confirmA, (v) => setState(() => _confirmA = v)),
           const SizedBox(height: 8),
           field(Player.b, _b, TextInputAction.done),
+          if (widget.confirm != null) confirm(Player.b, _confirmB, (v) => setState(() => _confirmB = v)),
           const SizedBox(height: 12),
           Text(l10n.hotSeatNamesHelper, style: Theme.of(context).textTheme.bodySmall),
+          // KLD-122: what the switches do, once.
+          if (widget.confirm != null) ...[
+            const SizedBox(height: 4),
+            Text(l10n.confirmMoveHelper,
+                key: const Key('hot-seat-confirm-helper'), style: Theme.of(context).textTheme.bodySmall),
+          ],
           // KLD-105: hidden-information games are played by passing the
           // device (the handover cover keeps the secrets); said once here
           // instead of on the menu tiles.

@@ -771,5 +771,12 @@
   "maexchenMoveGiveUp": "التخلّي عن روح",
   "maexchenMaexchenName": "ميا",
   "maexchenMaexchenCall": "ميا!",
-  "maexchenAnnouncedLabel": "المُعلَن"
+  "maexchenAnnouncedLabel": "المُعلَن",
+  "confirmMoveSetting": "تأكيد الحركة",
+  "confirmMoveHelper": "لا تُحتسب الحركة إلا بعد لمس «تحريك».",
+  "confirmMoveCommit": "تحريك",
+  "confirmMoveBack": "رجوع",
+  "confirmMoveHint": "هل هذه الحركة صحيحة؟ المس «تحريك» أو «رجوع».",
+  "confirmMoveOn": "تأكيد الحركة: مفعّل.",
+  "confirmMoveOff": "تأكيد الحركة: متوقف."
 }

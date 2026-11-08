@@ -771,5 +771,12 @@
   "maexchenMoveGiveUp": "cede una vida",
   "maexchenMaexchenName": "Mia",
   "maexchenMaexchenCall": "¡Mia!",
-  "maexchenAnnouncedLabel": "Anunciado"
+  "maexchenAnnouncedLabel": "Anunciado",
+  "confirmMoveSetting": "Confirmar jugada",
+  "confirmMoveHelper": "Una jugada solo cuenta después de tocar «Mover».",
+  "confirmMoveCommit": "Mover",
+  "confirmMoveBack": "Atrás",
+  "confirmMoveHint": "¿Es la jugada correcta? Toca «Mover» o «Atrás».",
+  "confirmMoveOn": "Confirmar jugada: activado.",
+  "confirmMoveOff": "Confirmar jugada: desactivado."
 }

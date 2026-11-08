@@ -6,7 +6,9 @@
 // answer dialog. Each device must show every board move once, in order,
 // and match its engine; the host must have applied exactly the tapped
 // moves (draw offers included), by the device that tapped them. Step 4a: one
-// network game with the host on Black (the guest opens).
+// network game with the host on Black (the guest opens). KLD-122: "Zug
+// bestätigen" is on over the network (the default), and in hot-seat for
+// Black only: those moves are confirmed ("Ziehen"), some taken back first.
 //
 //   cd klunki && flutter test test/e2e/live_ui/chess_live_test.dart
 //   KLUNKI_LIVE_UI_VERBOSE=1 flutter test test/e2e/live_ui/chess_live_test.dart   # move logs
@@ -22,6 +24,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/ui/engine_l10n.dart';
+import 'package:klunki/ui/shell/confirm_move.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -41,7 +44,10 @@ void _expectResult(WidgetTester tester, UiDevice device, Game game) {
 
 void main() {
   // Only taps a finger could make: a tap on something covered fails.
-  setUp(() => WidgetController.hitTestWarningShouldBeFatal = true);
+  setUp(() {
+    WidgetController.hitTestWarningShouldBeFatal = true;
+    ConfirmMoveSettings.debugReset(); // the defaults: on over the network, off in hot-seat
+  });
   tearDown(() => WidgetController.hitTestWarningShouldBeFatal = false);
 
   final adapter = ChessAdapter();
@@ -107,16 +113,23 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final hotSeat = ChessAdapter(offerRate: 0.02, acceptRate: 0);
+    await ConfirmMoveSettings.shared().setHotSeat(Player.b, true);
     final log = await playHotSeat(tester, hotSeat, const GameConfig('chess', seed: 6), rng: Random(6));
     log.printIfVerbose();
     final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
     expect(c.game.isOver, isTrue);
     _expectResult(tester, UiDevice('hot-seat'), c.game);
+    // KLD-122: Black confirmed its moves, White did not.
+    final black = c.moves.where((m) => m.move['action'] == 'move' && m.player == Player.b).length;
+    expect(hotSeat.tapped['confirm'] ?? 0, allOf(black, greaterThan(5)), reason: '${hotSeat.tapped}');
   });
 
   test('the network games were played on the board and checked against the engine', () {
     expect(ends, hasLength(seeds.length));
     expect(adapter.tapped['move'] ?? 0, greaterThan(20), reason: '${adapter.tapped}');
+    // KLD-122: every board move over the network was confirmed, some after "Zurück".
+    expect(adapter.tapped['confirm'], adapter.tapped['move'], reason: '${adapter.tapped}');
+    expect(adapter.tapped['back'] ?? 0, greaterThan(0), reason: '${adapter.tapped}');
     expect(adapter.boardChecks, greaterThan(10));
   });
 }

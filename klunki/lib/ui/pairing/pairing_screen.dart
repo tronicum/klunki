@@ -20,6 +20,7 @@ import '../../transport/network_transport.dart';
 import '../game_titles.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
+import '../shell/confirm_move.dart' show ConfirmMoveSwitch, confirmMoveGames;
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
 import '../games/chess/chess_color_picker.dart';
@@ -521,6 +522,11 @@ class _HostPanelState extends State<_HostPanel> {
             enabled: !_starting,
             onChanged: (c) => setState(() => _chessColor = c),
           ),
+        ],
+        // KLD-122: this device's "Zug bestätigen" for the game.
+        if (confirmMoveGames.contains(_gameId)) ...[
+          const SizedBox(height: 4),
+          ConfirmMoveSwitch(enabled: !_starting),
         ],
         const SizedBox(height: 16),
         FilledButton.icon(

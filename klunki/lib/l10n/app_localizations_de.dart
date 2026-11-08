@@ -3068,4 +3068,27 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get maexchenAnnouncedLabel => 'Angesagt';
+
+  @override
+  String get confirmMoveSetting => 'Zug bestätigen';
+
+  @override
+  String get confirmMoveHelper =>
+      'Ein Zug zählt erst nach einem Tipp auf „Ziehen“.';
+
+  @override
+  String get confirmMoveCommit => 'Ziehen';
+
+  @override
+  String get confirmMoveBack => 'Zurück';
+
+  @override
+  String get confirmMoveHint =>
+      'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.';
+
+  @override
+  String get confirmMoveOn => 'Zug bestätigen ist an.';
+
+  @override
+  String get confirmMoveOff => 'Zug bestätigen ist aus.';
 }

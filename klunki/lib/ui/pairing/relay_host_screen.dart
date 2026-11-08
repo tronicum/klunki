@@ -17,6 +17,7 @@ import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../games/wordtiles/wordtiles_options.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
+import '../shell/confirm_move.dart' show ConfirmMoveSwitch, confirmMoveGames;
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
 import 'network_game_session.dart';
@@ -342,6 +343,11 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           enabled: !_starting,
           onChanged: (c) => setState(() => _chessColor = c),
         ),
+      ],
+      // KLD-122: this device's "Zug bestätigen" for the game.
+      if (confirmMoveGames.contains(_gameId)) ...[
+        const SizedBox(height: 4),
+        ConfirmMoveSwitch(enabled: !_starting),
       ],
       const SizedBox(height: 16),
       FilledButton.icon(

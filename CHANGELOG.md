@@ -24,6 +24,9 @@ short German summary ("Kurz") for the store notes and the testers.
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).
 - **Wortgewandt**: a tile laid this turn drags right away, with a finger or the mouse (no more resting on it
   first); on a zoomed board a drag that starts elsewhere still scrolls.
+- **Schach**: "Zug bestätigen" (KLD-122): a chosen move is only shown until "✓ Ziehen"; "✗ Zurück" chooses
+  again. On by default for games with others (switch on "Raum starten", toggle in the game), off by default
+  on one device, where each player chooses in "Wer spielt?".
 
 ### Playing together
 - **A locked phone no longer ends a game with others** (KLD-120). After unlocking, the game goes on by

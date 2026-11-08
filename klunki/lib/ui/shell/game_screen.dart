@@ -15,6 +15,7 @@ import '../game_titles.dart';
 import '../game_visuals.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
+import 'confirm_move.dart';
 import 'handover_cover.dart';
 import 'player_labels.dart';
 
@@ -108,6 +109,8 @@ class ShellStatus {
 ///   Zug (X)" / "Warte auf Ben…") plus a
 ///   hint line the board can set
 ///   through [GameScreen.of] → [GameShell.setHint],
+/// * network games that offer "Zug bestätigen" (KLD-122): its toggle for
+///   this device ([ConfirmMoveToggle]) in the app bar,
 /// * "Zug zurück" ([UndoMoveButton], hot-seat only, KLD-117) in the game
 ///   area: in a small row under the board, unless the board places the
 ///   button in its own control row ([boardPlacesUndo]),
@@ -606,6 +609,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                   icon: const Icon(Icons.refresh),
                   onPressed: _restart,
                 ),
+              // KLD-122: this device's "Zug bestätigen" in a network game
+              // (hot-seat sets it per player in "Spielernamen").
+              if (!_canRestart && confirmMoveGames.contains(controller.spec.id) && !game.isOver)
+                const ConfirmMoveToggle(),
               if (controller.canResign.isNotEmpty)
                 IconButton(
                   key: const Key('shell-resign'),

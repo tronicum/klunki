@@ -12,6 +12,8 @@
 // "Anbieten") and waits for the answer, else taps a piece and its target (a mate in one if there is
 // one, often the best capture, else any legal move) and picks the piece in
 // the promotion picker. Now and then it flips the board (a side action).
+// KLD-122: with "Zug bestätigen" on (the network default) the chosen move
+// waits: it taps "Ziehen", sometimes "Zurück" first and then the move again.
 //
 // The game-ending board move is never on screen long (the result dialog
 // opens over it), so [engineTurns] leaves it out; the test checks the
@@ -36,7 +38,13 @@ class ChessAdapter extends LiveUiAdapter {
   /// Offers declined before any is accepted.
   final int minDeclines;
 
-  ChessAdapter({this.offerRate = 0.03, this.acceptRate = 0.2, this.minDeclines = 0});
+  /// Chance to take a pending move back ("Zurück") before confirming it.
+  final double backRate;
+
+  /// Its own dice: the game's random choices stay those of the seed.
+  final Random _backRng = Random(122);
+
+  ChessAdapter({this.offerRate = 0.03, this.acceptRate = 0.2, this.minDeclines = 0, this.backRate = 0.15});
 
   @override
   String get gameId => 'chess';
@@ -177,15 +185,29 @@ class ChessAdapter extends LiveUiAdapter {
       return ChessGame.offerDrawMove(me);
     }
     final move = _choose(g, rng);
-    await d.tapKey(tester, Key('chess-sq-${move['from']}'));
-    await d.tapKey(tester, Key('chess-sq-${move['to']}'));
-    final promo = move['promotion'];
-    if (promo != null) {
-      _count('promotion');
-      await _dialogIn(tester);
-      expect(d.hasKey(const Key('chess-promotion')), isTrue, reason: '${d.name}: promotion picker');
-      await d.tapKey(tester, Key('chess-promote-$promo'));
-      await _dialogIn(tester);
+    Future<void> choose() async {
+      await d.tapKey(tester, Key('chess-sq-${move['from']}'));
+      await d.tapKey(tester, Key('chess-sq-${move['to']}'));
+      final promo = move['promotion'];
+      if (promo != null) {
+        _count('promotion');
+        await _dialogIn(tester);
+        expect(d.hasKey(const Key('chess-promotion')), isTrue, reason: '${d.name}: promotion picker');
+        await d.tapKey(tester, Key('chess-promote-$promo'));
+        await _dialogIn(tester);
+      }
+    }
+
+    await choose();
+    if (d.hasKey(const Key('confirm-move-bar'))) {
+      if (_backRng.nextDouble() < backRate) {
+        _count('back');
+        await d.tapKey(tester, const Key('confirm-move-back'));
+        expect(d.hasKey(const Key('confirm-move-bar')), isFalse, reason: '${d.name}: back');
+        await choose();
+      }
+      _count('confirm');
+      await d.tapKey(tester, const Key('confirm-move-commit'));
     }
     _count('move');
     return move;

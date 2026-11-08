@@ -3054,4 +3054,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get maexchenAnnouncedLabel => 'Announced';
+
+  @override
+  String get confirmMoveSetting => 'Confirm move';
+
+  @override
+  String get confirmMoveHelper => 'A move only counts after a tap on “Move”.';
+
+  @override
+  String get confirmMoveCommit => 'Move';
+
+  @override
+  String get confirmMoveBack => 'Back';
+
+  @override
+  String get confirmMoveHint => 'Is this the right move? Tap “Move” or “Back”.';
+
+  @override
+  String get confirmMoveOn => 'Confirm move is on.';
+
+  @override
+  String get confirmMoveOff => 'Confirm move is off.';
 }

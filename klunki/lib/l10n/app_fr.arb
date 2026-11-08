@@ -771,5 +771,12 @@
   "maexchenMoveGiveUp": "cède une vie",
   "maexchenMaexchenName": "Mia",
   "maexchenMaexchenCall": "Mia !",
-  "maexchenAnnouncedLabel": "Annoncé"
+  "maexchenAnnouncedLabel": "Annoncé",
+  "confirmMoveSetting": "Confirmer le coup",
+  "confirmMoveHelper": "Un coup ne compte qu’après « Jouer ».",
+  "confirmMoveCommit": "Jouer",
+  "confirmMoveBack": "Retour",
+  "confirmMoveHint": "C’est le bon coup ? Touche « Jouer » ou « Retour ».",
+  "confirmMoveOn": "Confirmer le coup : activé.",
+  "confirmMoveOff": "Confirmer le coup : désactivé."
 }
