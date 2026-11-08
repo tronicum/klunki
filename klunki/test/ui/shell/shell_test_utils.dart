@@ -4,6 +4,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../l10n/l10n_test_utils.dart';
 
@@ -21,8 +22,12 @@ Future<GameController> pumpGame(WidgetTester tester, String id, {int seed = 1, L
 
 /// The controller of the (single) [GameScreen] in the widget tree. Works for
 /// games opened from the menu too, where the test never sees the controller.
-GameController controllerOf(WidgetTester tester) =>
-    tester.widget<GameScreen>(find.byType(GameScreen)).controller;
+/// The seat shell of a game for 2–4 players (KLD-119) too.
+GameController controllerOf(WidgetTester tester) {
+  final seats = find.byType(SeatGameScreen);
+  if (seats.evaluate().isNotEmpty) return tester.widget<SeatGameScreen>(seats).controller;
+  return tester.widget<GameScreen>(find.byType(GameScreen)).controller;
+}
 
 /// Submits legal move [index] of the current position through the controller
 /// (board-agnostic: no knowledge of any screen's widgets) and pumps.

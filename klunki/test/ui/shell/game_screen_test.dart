@@ -5,6 +5,7 @@ import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
+import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,10 +73,15 @@ void main() {
           await tester.tap(find.byKey(const Key('maexchen-options-next')));
           await tester.pumpAndSettle();
         }
+        if (spec.id == 'dicesheet') {
+          // Ausgewürfelt asks for its house rule first (KLD-119).
+          await tester.tap(find.byKey(const Key('dicesheet-options-next')));
+          await tester.pumpAndSettle();
+        }
         // "Wer spielt?" (KLD-103), prefilled with the default names.
         await tester.tap(find.text('Spielen'));
         await tester.pumpAndSettle();
-        expect(find.byType(GameScreen), findsOneWidget);
+        expect(_shell, findsOneWidget);
         expect(
             find.descendant(
                 of: find.byType(AppBar),
@@ -87,7 +93,7 @@ void main() {
 
         await tester.tap(find.byType(BackButton)); // pageBack() looks for the English "Back" tooltip
         await tester.pumpAndSettle();
-        expect(find.byType(GameScreen), findsNothing);
+        expect(_shell, findsNothing);
         expect(find.byType(MenuScreen), findsOneWidget);
       }
     });
@@ -288,3 +294,7 @@ class _BareScreen extends StatelessWidget {
   Widget build(BuildContext context) =>
       GameScreen(controller: controller, boardBuilder: (_, _) => const SizedBox.shrink());
 }
+
+/// The game frame: [GameScreen], or the seat shell of a game for 2–4
+/// players (KLD-119).
+final Finder _shell = find.byWidgetPredicate((w) => w is GameScreen || w is SeatGameScreen);

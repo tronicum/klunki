@@ -3104,4 +3104,198 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Zug bestätigen ist aus.';
+
+  @override
+  String get menuGameDiceSheet => 'Ausgewürfelt';
+
+  @override
+  String get menuDescDiceSheet => 'Fünf Würfel, ein Blatt, bis zu vier';
+
+  @override
+  String get engineReasonDicesheetAllFilled => 'Alle Felder sind ausgefüllt';
+
+  @override
+  String get playerDefaultNameC => 'Cleo';
+
+  @override
+  String get playerDefaultNameD => 'Dani';
+
+  @override
+  String get seatPlayerCount => 'Wie viele spielen mit?';
+
+  @override
+  String get seatResignWho => 'Wer gibt auf? Die anderen spielen weiter.';
+
+  @override
+  String get seatOut => 'aufgegeben';
+
+  @override
+  String seatPoints(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points Punkte',
+      one: '$points Punkt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seatSharedFirst => 'Gleichstand auf Platz 1!';
+
+  @override
+  String get seatReasonOthersResigned => 'Alle anderen haben aufgegeben';
+
+  @override
+  String get dicesheetHelpTitle => 'So geht’s';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'Du würfelst mit fünf Würfeln, bis zu dreimal. Tippe die Würfel an, die liegen bleiben sollen, und würfle mit den anderen weiter. Dann trägst du in genau ein leeres Feld ein, was die Würfel dort bringen. Passt nichts, streichst du ein Feld mit 0.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'Oben (Einser bis Sechser) zählt die Summe der Würfel mit dieser Zahl. Kommst du oben auf 63 oder mehr, gibt es 35 Punkte Bonus.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'Unten: Dreierpasch und Viererpasch (3 oder 4 gleiche) zählen alle Augen. Full House (3 gleiche und 2 gleiche) 25, Kleine Straße (4 in einer Reihe) 30, Große Straße (5 in einer Reihe) 40, Fünferpasch (5 gleiche) 50, Chance zählt alle Augen.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'Nach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'Extra-Fünfer: Würfelst du noch einen Fünferpasch, wenn dort schon 50 stehen, gibt es 100 Punkte extra. Er ist dann ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.';
+
+  @override
+  String get dicesheetBoxOnes => 'Einser';
+
+  @override
+  String get dicesheetBoxTwos => 'Zweier';
+
+  @override
+  String get dicesheetBoxThrees => 'Dreier';
+
+  @override
+  String get dicesheetBoxFours => 'Vierer';
+
+  @override
+  String get dicesheetBoxFives => 'Fünfer';
+
+  @override
+  String get dicesheetBoxSixes => 'Sechser';
+
+  @override
+  String get dicesheetBoxThreeKind => 'Dreierpasch';
+
+  @override
+  String get dicesheetBoxFourKind => 'Viererpasch';
+
+  @override
+  String get dicesheetBoxFullHouse => 'Full House';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'Kleine Straße';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'Große Straße';
+
+  @override
+  String get dicesheetBoxFiveKind => 'Fünferpasch';
+
+  @override
+  String get dicesheetBoxChance => 'Chance';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'würfelt $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'würfelt $dice (behält $count)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box: $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box: $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player: $points bei $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'Tippe auf Würfeln.';
+
+  @override
+  String get dicesheetHintKeep =>
+      'Tippe Würfel an, die liegen bleiben sollen, und würfle nochmal. Oder wähle ein Feld im Blatt.';
+
+  @override
+  String get dicesheetHintPick => 'Wähle ein Feld im Blatt.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'Fünferpasch als Joker: Trag ihn in eines der erlaubten Felder ein.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'Würfeln (noch $count)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'Feld im Blatt wählen';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'Würfel $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'Würfel $value, behalten';
+  }
+
+  @override
+  String get dicesheetKept => 'behalten';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'Runde $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return '$box: $points eintragen';
+  }
+
+  @override
+  String get dicesheetBonus => 'Bonus';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus ab $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'Extra-Fünfer';
+
+  @override
+  String get dicesheetTotal => 'Gesamt';
+
+  @override
+  String get dicesheetOptionExtraFives => 'Extra-Fünfer (Hausregel)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'Noch ein Fünferpasch, wenn dort schon 50 stehen: 100 Punkte extra. Er ist dann ein Joker und kommt zuerst ins obere Feld seiner Zahl.';
 }

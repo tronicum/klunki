@@ -3114,4 +3114,199 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get confirmMoveOff => 'Confirmar jugada: desactivado.';
+
+  @override
+  String get menuGameDiceSheet => 'A los dados';
+
+  @override
+  String get menuDescDiceSheet => 'Cinco dados, una hoja, hasta cuatro';
+
+  @override
+  String get engineReasonDicesheetAllFilled =>
+      'Todas las casillas están llenas';
+
+  @override
+  String get playerDefaultNameC => 'Carla';
+
+  @override
+  String get playerDefaultNameD => 'Diego';
+
+  @override
+  String get seatPlayerCount => '¿Cuántos juegan?';
+
+  @override
+  String get seatResignWho => '¿Quién se rinde? Los demás siguen jugando.';
+
+  @override
+  String get seatOut => 'se rindió';
+
+  @override
+  String seatPoints(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points puntos',
+      one: '$points punto',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seatSharedFirst => '¡Empate en el primer puesto!';
+
+  @override
+  String get seatReasonOthersResigned => 'Todos los demás se rindieron';
+
+  @override
+  String get dicesheetHelpTitle => 'Cómo se juega';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'Tira cinco dados, hasta tres veces. Toca los dados que quieres guardar y vuelve a tirar los demás. Luego anota lo que valen los dados en una sola casilla vacía. Si nada encaja, tacha una casilla con 0.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'Arriba (Unos a Seises): la suma de los dados con ese número. Con 63 o más arriba ganas 35 puntos extra.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'Abajo: Trío y Póker (3 o 4 iguales) suman todos los dados. Full (3 iguales y 2 iguales) 25, Escalera corta (4 seguidos) 30, Escalera larga (5 seguidos) 40, Cinco iguales 50, Suerte suma todos los dados.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'Tras 13 rondas todas las casillas están llenas. Gana quien tenga más puntos.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'Cinco iguales extra: otro Cinco iguales cuando esa casilla ya tiene 50 da 100 puntos más. Entonces es un comodín: primero en la casilla de arriba de su número; si está llena, en una casilla libre de abajo con todos los puntos; si no, con 0 en una casilla de arriba.';
+
+  @override
+  String get dicesheetBoxOnes => 'Unos';
+
+  @override
+  String get dicesheetBoxTwos => 'Doses';
+
+  @override
+  String get dicesheetBoxThrees => 'Treses';
+
+  @override
+  String get dicesheetBoxFours => 'Cuatros';
+
+  @override
+  String get dicesheetBoxFives => 'Cincos';
+
+  @override
+  String get dicesheetBoxSixes => 'Seises';
+
+  @override
+  String get dicesheetBoxThreeKind => 'Trío';
+
+  @override
+  String get dicesheetBoxFourKind => 'Póker';
+
+  @override
+  String get dicesheetBoxFullHouse => 'Full';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'Escalera corta';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'Escalera larga';
+
+  @override
+  String get dicesheetBoxFiveKind => 'Cinco iguales';
+
+  @override
+  String get dicesheetBoxChance => 'Suerte';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'tira $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'tira $dice (guarda $count)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box: $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box: $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player: $points en $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'Toca Tirar.';
+
+  @override
+  String get dicesheetHintKeep =>
+      'Toca los dados que quieres guardar y vuelve a tirar. O elige una casilla en la hoja.';
+
+  @override
+  String get dicesheetHintPick => 'Elige una casilla en la hoja.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'Cinco iguales como comodín: anótalo en una de las casillas permitidas.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'Tirar (quedan $count)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'Elige una casilla';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'Dado $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'Dado $value, guardado';
+  }
+
+  @override
+  String get dicesheetKept => 'guardado';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'Ronda $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return 'Anotar $points en $box';
+  }
+
+  @override
+  String get dicesheetBonus => 'Premio';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus desde $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'Cinco iguales extra';
+
+  @override
+  String get dicesheetTotal => 'Total';
+
+  @override
+  String get dicesheetOptionExtraFives => 'Cinco iguales extra (regla de casa)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'Otro Cinco iguales cuando esa casilla ya tiene 50: 100 puntos más. Entonces es un comodín y va primero a la casilla de arriba de su número.';
 }

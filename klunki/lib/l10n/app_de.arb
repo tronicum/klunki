@@ -4531,5 +4531,300 @@
   "confirmMoveOff": "Zug bestätigen ist aus.",
   "@confirmMoveOff": {
     "description": "KLD-122: snack bar after turning the confirm-move toggle off during a network game."
+  },
+  "menuGameDiceSheet": "Ausgewürfelt",
+  "@menuGameDiceSheet": {
+    "description": "KLD-119: title of the five-dice score-sheet game (maintainer: \"Ausgewürfelt\"). Never the brand name of the commercial game."
+  },
+  "menuDescDiceSheet": "Fünf Würfel, ein Blatt, bis zu vier",
+  "@menuDescDiceSheet": {
+    "description": "KLD-119: one-line menu description of the five-dice game."
+  },
+  "engineReasonDicesheetAllFilled": "Alle Felder sind ausgefüllt",
+  "@engineReasonDicesheetAllFilled": {
+    "description": "KLD-119: why the five-dice game ended: every box of every sheet is filled."
+  },
+  "playerDefaultNameC": "Cleo",
+  "@playerDefaultNameC": {
+    "description": "KLD-119: default name of player 3 in games for 3–4 players on one device; see playerDefaultNameA. Must differ from A, B and D."
+  },
+  "playerDefaultNameD": "Dani",
+  "@playerDefaultNameD": {
+    "description": "KLD-119: default name of player 4; see playerDefaultNameC."
+  },
+  "seatPlayerCount": "Wie viele spielen mit?",
+  "@seatPlayerCount": {
+    "description": "KLD-119: \"Wer spielt?\" of a game for 2–4 players: label above the player count choice (2 · 3 · 4)."
+  },
+  "seatResignWho": "Wer gibt auf? Die anderen spielen weiter.",
+  "@seatResignWho": {
+    "description": "KLD-119: resign dialog of a game with 3–4 players: who gives up; the others play on."
+  },
+  "seatOut": "aufgegeben",
+  "@seatOut": {
+    "description": "KLD-119: in the final ranking, instead of the points of a player who gave up."
+  },
+  "seatPoints": "{points, plural, one{{points} Punkt} other{{points} Punkte}}",
+  "@seatPoints": {
+    "description": "KLD-119: points of a player in the final ranking.",
+    "placeholders": {
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "seatSharedFirst": "Gleichstand auf Platz 1!",
+  "@seatSharedFirst": {
+    "description": "KLD-119: result headline and status when two or more players share the first place."
+  },
+  "seatReasonOthersResigned": "Alle anderen haben aufgegeben",
+  "@seatReasonOthersResigned": {
+    "description": "KLD-119: result reason when everyone but one player gave up."
+  },
+  "dicesheetHelpTitle": "So geht’s",
+  "@dicesheetHelpTitle": {
+    "description": "KLD-119: title of the rules dialog (and the tooltip of its app-bar button)."
+  },
+  "dicesheetHelpTurn": "Du würfelst mit fünf Würfeln, bis zu dreimal. Tippe die Würfel an, die liegen bleiben sollen, und würfle mit den anderen weiter. Dann trägst du in genau ein leeres Feld ein, was die Würfel dort bringen. Passt nichts, streichst du ein Feld mit 0.",
+  "@dicesheetHelpTurn": {
+    "description": "KLD-119: rules, the turn. Box names as in dicesheetBox*."
+  },
+  "dicesheetHelpUpper": "Oben (Einser bis Sechser) zählt die Summe der Würfel mit dieser Zahl. Kommst du oben auf 63 oder mehr, gibt es 35 Punkte Bonus.",
+  "@dicesheetHelpUpper": {
+    "description": "KLD-119: rules, the upper section and its bonus."
+  },
+  "dicesheetHelpLower": "Unten: Dreierpasch und Viererpasch (3 oder 4 gleiche) zählen alle Augen. Full House (3 gleiche und 2 gleiche) 25, Kleine Straße (4 in einer Reihe) 30, Große Straße (5 in einer Reihe) 40, Fünferpasch (5 gleiche) 50, Chance zählt alle Augen.",
+  "@dicesheetHelpLower": {
+    "description": "KLD-119: rules, the lower section. Box names as in dicesheetBox*."
+  },
+  "dicesheetHelpEnd": "Nach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt.",
+  "@dicesheetHelpEnd": {
+    "description": "KLD-119: rules, the end."
+  },
+  "dicesheetHelpExtraFives": "Extra-Fünfer: Würfelst du noch einen Fünferpasch, wenn dort schon 50 stehen, gibt es 100 Punkte extra. Er ist dann ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.",
+  "@dicesheetHelpExtraFives": {
+    "description": "KLD-119: rules of the house rule \"Extra-Fünfer\" (dicesheetOptionExtraFives), shown when it is on."
+  },
+  "dicesheetBoxOnes": "Einser",
+  "@dicesheetBoxOnes": {
+    "description": "KLD-119: score sheet box \"Ones\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxTwos": "Zweier",
+  "@dicesheetBoxTwos": {
+    "description": "KLD-119: score sheet box \"Twos\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxThrees": "Dreier",
+  "@dicesheetBoxThrees": {
+    "description": "KLD-119: score sheet box \"Threes\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxFours": "Vierer",
+  "@dicesheetBoxFours": {
+    "description": "KLD-119: score sheet box \"Fours\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxFives": "Fünfer",
+  "@dicesheetBoxFives": {
+    "description": "KLD-119: score sheet box \"Fives\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxSixes": "Sechser",
+  "@dicesheetBoxSixes": {
+    "description": "KLD-119: score sheet box \"Sixes\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxThreeKind": "Dreierpasch",
+  "@dicesheetBoxThreeKind": {
+    "description": "KLD-119: score sheet box \"Three of a Kind\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxFourKind": "Viererpasch",
+  "@dicesheetBoxFourKind": {
+    "description": "KLD-119: score sheet box \"Four of a Kind\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxFullHouse": "Full House",
+  "@dicesheetBoxFullHouse": {
+    "description": "KLD-119: score sheet box \"Full House\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxSmallStraight": "Kleine Straße",
+  "@dicesheetBoxSmallStraight": {
+    "description": "KLD-119: score sheet box \"Small Straight\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxLargeStraight": "Große Straße",
+  "@dicesheetBoxLargeStraight": {
+    "description": "KLD-119: score sheet box \"Large Straight\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxFiveKind": "Fünferpasch",
+  "@dicesheetBoxFiveKind": {
+    "description": "KLD-119: score sheet box \"Five of a Kind\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetBoxChance": "Chance",
+  "@dicesheetBoxChance": {
+    "description": "KLD-119: score sheet box \"Chance\" (row label; keep it short, the column is narrow with 4 players)."
+  },
+  "dicesheetMoveRoll": "würfelt {dice}",
+  "@dicesheetMoveRoll": {
+    "description": "KLD-119: move history: a roll; {dice} are the five values, e.g. \"3 3 5 1 6\". No gendered verb.",
+    "placeholders": {
+      "dice": {
+        "type": "String"
+      }
+    }
+  },
+  "dicesheetMoveRollKeep": "würfelt {dice} (behält {count})",
+  "@dicesheetMoveRollKeep": {
+    "description": "KLD-119: move history: a roll keeping {count} dice.",
+    "placeholders": {
+      "dice": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetMoveScore": "{box}: {points}",
+  "@dicesheetMoveScore": {
+    "description": "KLD-119: move history: a box filled with {points}.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetMoveScoreBonus": "{box}: {points} (+{bonus})",
+  "@dicesheetMoveScoreBonus": {
+    "description": "KLD-119: move history: a box filled, plus the extra-fives bonus.",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      },
+      "bonus": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetLastScore": "{player}: {points} bei {box}.",
+  "@dicesheetLastScore": {
+    "description": "KLD-119: hint line after a player filled a box (the next player has not rolled yet). Phrase without gender agreement for the name.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetHintRoll": "Tippe auf Würfeln.",
+  "@dicesheetHintRoll": {
+    "description": "KLD-119: hint before the first roll of a turn; names the roll button (dicesheetRollButton starts with this word)."
+  },
+  "dicesheetHintKeep": "Tippe Würfel an, die liegen bleiben sollen, und würfle nochmal. Oder wähle ein Feld im Blatt.",
+  "@dicesheetHintKeep": {
+    "description": "KLD-119: hint after the first or second roll."
+  },
+  "dicesheetHintPick": "Wähle ein Feld im Blatt.",
+  "@dicesheetHintPick": {
+    "description": "KLD-119: hint after the third roll."
+  },
+  "dicesheetHintJoker": "Fünferpasch als Joker: Trag ihn in eines der erlaubten Felder ein.",
+  "@dicesheetHintJoker": {
+    "description": "KLD-119: hint when a five of a kind is a joker (house rule Extra-Fünfer): only some boxes are allowed."
+  },
+  "dicesheetRollButton": "Würfeln (noch {count})",
+  "@dicesheetRollButton": {
+    "description": "KLD-119: the big roll button with the rolls left this turn (3, 2 or 1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetPickBox": "Feld im Blatt wählen",
+  "@dicesheetPickBox": {
+    "description": "KLD-119: the roll button after the third roll (disabled): now a box must be chosen."
+  },
+  "dicesheetDie": "Würfel {value}",
+  "@dicesheetDie": {
+    "description": "KLD-119: screen reader label of a die.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetDieKept": "Würfel {value}, behalten",
+  "@dicesheetDieKept": {
+    "description": "KLD-119: screen reader label of a kept die.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetKept": "behalten",
+  "@dicesheetKept": {
+    "description": "KLD-119: small label under a die that stays on the table for the next roll."
+  },
+  "dicesheetRound": "Runde {round}/{total}",
+  "@dicesheetRound": {
+    "description": "KLD-119: the round in the score sheet header, e.g. \"Runde 3/13\".",
+    "placeholders": {
+      "round": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetScoreAction": "{box}: {points} eintragen",
+  "@dicesheetScoreAction": {
+    "description": "KLD-119: screen reader label of a suggested score in the sheet (tap writes it).",
+    "placeholders": {
+      "box": {
+        "type": "String"
+      },
+      "points": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetBonus": "Bonus",
+  "@dicesheetBonus": {
+    "description": "KLD-119: the bonus row under the upper section."
+  },
+  "dicesheetBonusRule": "{bonus} ab {at}",
+  "@dicesheetBonusRule": {
+    "description": "KLD-119: small line under dicesheetBonus: the bonus points (passed as \"+35\", isolated left-to-right) and from which upper sum, e.g. \"+35 ab 63\".",
+    "placeholders": {
+      "bonus": {
+        "type": "String"
+      },
+      "at": {
+        "type": "int"
+      }
+    }
+  },
+  "dicesheetExtraFives": "Extra-Fünfer",
+  "@dicesheetExtraFives": {
+    "description": "KLD-119: the sheet row with the extra-fives bonus (house rule on)."
+  },
+  "dicesheetTotal": "Gesamt",
+  "@dicesheetTotal": {
+    "description": "KLD-119: the totals row of the sheet."
+  },
+  "dicesheetOptionExtraFives": "Extra-Fünfer (Hausregel)",
+  "@dicesheetOptionExtraFives": {
+    "description": "KLD-119: house rule switch in the start options."
+  },
+  "dicesheetOptionExtraFivesExplain": "Noch ein Fünferpasch, wenn dort schon 50 stehen: 100 Punkte extra. Er ist dann ein Joker und kommt zuerst ins obere Feld seiner Zahl.",
+  "@dicesheetOptionExtraFivesExplain": {
+    "description": "KLD-119: explanation under the house rule switch."
   }
 }

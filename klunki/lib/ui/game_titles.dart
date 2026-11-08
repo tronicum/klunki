@@ -14,5 +14,6 @@ String localizedGameTitle(AppLocalizations l10n, String id, {required String fal
   'wordtiles' => l10n.menuGameWordTiles,
   'maumau' => l10n.menuGameMauMau,
   'maexchen' => l10n.menuGameMaexchen,
+  'dicesheet' => l10n.menuGameDiceSheet,
   _ => fallback,
 };

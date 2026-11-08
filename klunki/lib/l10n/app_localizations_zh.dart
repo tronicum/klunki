@@ -2922,4 +2922,189 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get confirmMoveOff => '确认走棋：关';
+
+  @override
+  String get menuGameDiceSheet => '掷骰计分';
+
+  @override
+  String get menuDescDiceSheet => '五颗骰子一张表，最多四人';
+
+  @override
+  String get engineReasonDicesheetAllFilled => '所有格子都填满了';
+
+  @override
+  String get playerDefaultNameC => '小刚';
+
+  @override
+  String get playerDefaultNameD => '小丽';
+
+  @override
+  String get seatPlayerCount => '几个人玩？';
+
+  @override
+  String get seatResignWho => '谁放弃？其他人继续玩。';
+
+  @override
+  String get seatOut => '已放弃';
+
+  @override
+  String seatPoints(int points) {
+    return '$points 分';
+  }
+
+  @override
+  String get seatSharedFirst => '并列第一！';
+
+  @override
+  String get seatReasonOthersResigned => '其他人都放弃了';
+
+  @override
+  String get dicesheetHelpTitle => '玩法';
+
+  @override
+  String get dicesheetHelpTurn =>
+      '掷五颗骰子，最多三次。点一下想留下的骰子，再掷其余的。然后在一个空格里写下这些骰子的得分。如果都不合适，就在一格里写 0。';
+
+  @override
+  String get dicesheetHelpUpper =>
+      '上半部分（一点到六点）：显示该点数的骰子之和。上半部分达到 63 分或以上，奖励 35 分。';
+
+  @override
+  String get dicesheetHelpLower =>
+      '下半部分：三条和四条（3 或 4 个相同）计所有骰子之和。葫芦（3 个相同加 2 个相同）25 分，小顺（4 个连续）30 分，大顺（5 个连续）40 分，五同（5 个相同）50 分，机会计所有骰子之和。';
+
+  @override
+  String get dicesheetHelpEnd => '13 轮后所有格子都填满。得分最多的人获胜。';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      '额外五同：五同格已有 50 分时再掷出五同，额外加 100 分。它变成百搭：先填该点数的上半格；若已填，可按满分填任一空的下半格；否则在一个上半格里写 0。';
+
+  @override
+  String get dicesheetBoxOnes => '一点';
+
+  @override
+  String get dicesheetBoxTwos => '二点';
+
+  @override
+  String get dicesheetBoxThrees => '三点';
+
+  @override
+  String get dicesheetBoxFours => '四点';
+
+  @override
+  String get dicesheetBoxFives => '五点';
+
+  @override
+  String get dicesheetBoxSixes => '六点';
+
+  @override
+  String get dicesheetBoxThreeKind => '三条';
+
+  @override
+  String get dicesheetBoxFourKind => '四条';
+
+  @override
+  String get dicesheetBoxFullHouse => '葫芦';
+
+  @override
+  String get dicesheetBoxSmallStraight => '小顺';
+
+  @override
+  String get dicesheetBoxLargeStraight => '大顺';
+
+  @override
+  String get dicesheetBoxFiveKind => '五同';
+
+  @override
+  String get dicesheetBoxChance => '机会';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return '掷出 $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return '掷出 $dice（留 $count 颗）';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box：$points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box：$points（+$bonus）';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player：$box 记 $points 分。';
+  }
+
+  @override
+  String get dicesheetHintRoll => '点“掷骰子”。';
+
+  @override
+  String get dicesheetHintKeep => '点一下要留下的骰子再掷一次。或者在表上选一格。';
+
+  @override
+  String get dicesheetHintPick => '在表上选一格。';
+
+  @override
+  String get dicesheetHintJoker => '五同作为百搭：填进一个允许的格子。';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return '掷骰子（还剩 $count 次）';
+  }
+
+  @override
+  String get dicesheetPickBox => '在表上选一格';
+
+  @override
+  String dicesheetDie(int value) {
+    return '骰子 $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return '骰子 $value，已留下';
+  }
+
+  @override
+  String get dicesheetKept => '留下';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return '第 $round/$total 轮';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return '在 $box 记 $points 分';
+  }
+
+  @override
+  String get dicesheetBonus => '奖励';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '满 $at 得 $bonus';
+  }
+
+  @override
+  String get dicesheetExtraFives => '额外五同';
+
+  @override
+  String get dicesheetTotal => '总分';
+
+  @override
+  String get dicesheetOptionExtraFives => '额外五同（自定规则）';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      '五同格已有 50 分时再掷出五同：额外加 100 分。它变成百搭，先填该点数的上半格。';
 }

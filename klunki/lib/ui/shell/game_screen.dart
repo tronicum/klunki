@@ -777,6 +777,19 @@ class _UndoButton extends StatelessWidget {
   }
 }
 
+/// Makes [shell] the [GameScreen.of] of everything below, for a frame other
+/// than [GameScreen] (the seat shell for 3–4 players, KLD-119), so boards
+/// and [UndoMoveButton] work the same inside it.
+class GameShellScope extends StatelessWidget {
+  final GameShell shell;
+  final String? hint;
+  final Widget child;
+  const GameShellScope({super.key, required this.shell, required this.hint, required this.child});
+
+  @override
+  Widget build(BuildContext context) => _GameShellScope(shell: shell, hint: hint, child: child);
+}
+
 class _GameShellScope extends InheritedWidget {
   final GameShell shell;
   final String? hint;

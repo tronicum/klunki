@@ -4,8 +4,8 @@ import 'package:klunki_engine/klunki_engine.dart';
 
 import 'game_transport.dart';
 
-/// Hot-seat transport: one device, both players local, the phone is handed
-/// back and forth. Owns the engine instance; the engine's `applyMove` is the
+/// Hot-seat transport: one device, both players local (every seat in a
+/// game for 3–4 players, KLD-119), the phone is handed back and forth. Owns the engine instance; the engine's `applyMove` is the
 /// single source of truth for legality.
 ///
 /// [accepted] is a synchronous broadcast stream: listeners have seen a move
@@ -43,9 +43,20 @@ class HotSeatTransport implements GameTransport {
   SubmitResult submitSync(Map<String, dynamic> move) {
     if (_disposed) return const SubmitResult.rejected(RejectReason.disconnected);
     if (_game.isOver) return const SubmitResult.rejected(RejectReason.gameOver);
-    // The player to move, or the resigner for a resign (KLD-065).
-    final player = _game.playerOf(move);
-    if (!localPlayers.contains(player)) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    // The player to move, or the resigner for a resign (KLD-065); by seat
+    // in a game with more than two seats (KLD-119), where `playerOf` would
+    // throw for seats 2 and 3. Every seat is local here.
+    final game = _game;
+    final int seat;
+    final Player player;
+    if (game is SeatGame && (game as SeatGame).playerCount > 2) {
+      seat = (game as SeatGame).seatOfMove(move);
+      player = seat == 1 ? Player.b : Player.a;
+    } else {
+      player = game.playerOf(move);
+      seat = player.index;
+      if (!localPlayers.contains(player)) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    }
 
     final copy = Map<String, dynamic>.unmodifiable(move);
     GameEvent? event;
@@ -58,7 +69,7 @@ class HotSeatTransport implements GameTransport {
     }
     if (event == null) return const SubmitResult.rejected(RejectReason.illegal);
 
-    final accepted = AcceptedMove(index: _moves.length, player: player, move: copy, event: event);
+    final accepted = AcceptedMove(index: _moves.length, player: player, seat: seat, move: copy, event: event);
     _moves.add(accepted);
     _accepted.add(accepted);
     return SubmitResult.accepted(accepted);

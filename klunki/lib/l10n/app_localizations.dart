@@ -4804,6 +4804,318 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zug bestätigen ist aus.'**
   String get confirmMoveOff;
+
+  /// KLD-119: title of the five-dice score-sheet game (maintainer: "Ausgewürfelt"). Never the brand name of the commercial game.
+  ///
+  /// In de, this message translates to:
+  /// **'Ausgewürfelt'**
+  String get menuGameDiceSheet;
+
+  /// KLD-119: one-line menu description of the five-dice game.
+  ///
+  /// In de, this message translates to:
+  /// **'Fünf Würfel, ein Blatt, bis zu vier'**
+  String get menuDescDiceSheet;
+
+  /// KLD-119: why the five-dice game ended: every box of every sheet is filled.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Felder sind ausgefüllt'**
+  String get engineReasonDicesheetAllFilled;
+
+  /// KLD-119: default name of player 3 in games for 3–4 players on one device; see playerDefaultNameA. Must differ from A, B and D.
+  ///
+  /// In de, this message translates to:
+  /// **'Cleo'**
+  String get playerDefaultNameC;
+
+  /// KLD-119: default name of player 4; see playerDefaultNameC.
+  ///
+  /// In de, this message translates to:
+  /// **'Dani'**
+  String get playerDefaultNameD;
+
+  /// KLD-119: "Wer spielt?" of a game for 2–4 players: label above the player count choice (2 · 3 · 4).
+  ///
+  /// In de, this message translates to:
+  /// **'Wie viele spielen mit?'**
+  String get seatPlayerCount;
+
+  /// KLD-119: resign dialog of a game with 3–4 players: who gives up; the others play on.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer gibt auf? Die anderen spielen weiter.'**
+  String get seatResignWho;
+
+  /// KLD-119: in the final ranking, instead of the points of a player who gave up.
+  ///
+  /// In de, this message translates to:
+  /// **'aufgegeben'**
+  String get seatOut;
+
+  /// KLD-119: points of a player in the final ranking.
+  ///
+  /// In de, this message translates to:
+  /// **'{points, plural, one{{points} Punkt} other{{points} Punkte}}'**
+  String seatPoints(int points);
+
+  /// KLD-119: result headline and status when two or more players share the first place.
+  ///
+  /// In de, this message translates to:
+  /// **'Gleichstand auf Platz 1!'**
+  String get seatSharedFirst;
+
+  /// KLD-119: result reason when everyone but one player gave up.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle anderen haben aufgegeben'**
+  String get seatReasonOthersResigned;
+
+  /// KLD-119: title of the rules dialog (and the tooltip of its app-bar button).
+  ///
+  /// In de, this message translates to:
+  /// **'So geht’s'**
+  String get dicesheetHelpTitle;
+
+  /// KLD-119: rules, the turn. Box names as in dicesheetBox*.
+  ///
+  /// In de, this message translates to:
+  /// **'Du würfelst mit fünf Würfeln, bis zu dreimal. Tippe die Würfel an, die liegen bleiben sollen, und würfle mit den anderen weiter. Dann trägst du in genau ein leeres Feld ein, was die Würfel dort bringen. Passt nichts, streichst du ein Feld mit 0.'**
+  String get dicesheetHelpTurn;
+
+  /// KLD-119: rules, the upper section and its bonus.
+  ///
+  /// In de, this message translates to:
+  /// **'Oben (Einser bis Sechser) zählt die Summe der Würfel mit dieser Zahl. Kommst du oben auf 63 oder mehr, gibt es 35 Punkte Bonus.'**
+  String get dicesheetHelpUpper;
+
+  /// KLD-119: rules, the lower section. Box names as in dicesheetBox*.
+  ///
+  /// In de, this message translates to:
+  /// **'Unten: Dreierpasch und Viererpasch (3 oder 4 gleiche) zählen alle Augen. Full House (3 gleiche und 2 gleiche) 25, Kleine Straße (4 in einer Reihe) 30, Große Straße (5 in einer Reihe) 40, Fünferpasch (5 gleiche) 50, Chance zählt alle Augen.'**
+  String get dicesheetHelpLower;
+
+  /// KLD-119: rules, the end.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach 13 Runden ist jedes Feld voll. Wer die meisten Punkte hat, gewinnt.'**
+  String get dicesheetHelpEnd;
+
+  /// KLD-119: rules of the house rule "Extra-Fünfer" (dicesheetOptionExtraFives), shown when it is on.
+  ///
+  /// In de, this message translates to:
+  /// **'Extra-Fünfer: Würfelst du noch einen Fünferpasch, wenn dort schon 50 stehen, gibt es 100 Punkte extra. Er ist dann ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.'**
+  String get dicesheetHelpExtraFives;
+
+  /// KLD-119: score sheet box "Ones" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Einser'**
+  String get dicesheetBoxOnes;
+
+  /// KLD-119: score sheet box "Twos" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Zweier'**
+  String get dicesheetBoxTwos;
+
+  /// KLD-119: score sheet box "Threes" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Dreier'**
+  String get dicesheetBoxThrees;
+
+  /// KLD-119: score sheet box "Fours" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Vierer'**
+  String get dicesheetBoxFours;
+
+  /// KLD-119: score sheet box "Fives" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Fünfer'**
+  String get dicesheetBoxFives;
+
+  /// KLD-119: score sheet box "Sixes" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Sechser'**
+  String get dicesheetBoxSixes;
+
+  /// KLD-119: score sheet box "Three of a Kind" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Dreierpasch'**
+  String get dicesheetBoxThreeKind;
+
+  /// KLD-119: score sheet box "Four of a Kind" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Viererpasch'**
+  String get dicesheetBoxFourKind;
+
+  /// KLD-119: score sheet box "Full House" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Full House'**
+  String get dicesheetBoxFullHouse;
+
+  /// KLD-119: score sheet box "Small Straight" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Kleine Straße'**
+  String get dicesheetBoxSmallStraight;
+
+  /// KLD-119: score sheet box "Large Straight" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Große Straße'**
+  String get dicesheetBoxLargeStraight;
+
+  /// KLD-119: score sheet box "Five of a Kind" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Fünferpasch'**
+  String get dicesheetBoxFiveKind;
+
+  /// KLD-119: score sheet box "Chance" (row label; keep it short, the column is narrow with 4 players).
+  ///
+  /// In de, this message translates to:
+  /// **'Chance'**
+  String get dicesheetBoxChance;
+
+  /// KLD-119: move history: a roll; {dice} are the five values, e.g. "3 3 5 1 6". No gendered verb.
+  ///
+  /// In de, this message translates to:
+  /// **'würfelt {dice}'**
+  String dicesheetMoveRoll(String dice);
+
+  /// KLD-119: move history: a roll keeping {count} dice.
+  ///
+  /// In de, this message translates to:
+  /// **'würfelt {dice} (behält {count})'**
+  String dicesheetMoveRollKeep(String dice, int count);
+
+  /// KLD-119: move history: a box filled with {points}.
+  ///
+  /// In de, this message translates to:
+  /// **'{box}: {points}'**
+  String dicesheetMoveScore(String box, int points);
+
+  /// KLD-119: move history: a box filled, plus the extra-fives bonus.
+  ///
+  /// In de, this message translates to:
+  /// **'{box}: {points} (+{bonus})'**
+  String dicesheetMoveScoreBonus(String box, int points, int bonus);
+
+  /// KLD-119: hint line after a player filled a box (the next player has not rolled yet). Phrase without gender agreement for the name.
+  ///
+  /// In de, this message translates to:
+  /// **'{player}: {points} bei {box}.'**
+  String dicesheetLastScore(String player, String box, int points);
+
+  /// KLD-119: hint before the first roll of a turn; names the roll button (dicesheetRollButton starts with this word).
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf Würfeln.'**
+  String get dicesheetHintRoll;
+
+  /// KLD-119: hint after the first or second roll.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe Würfel an, die liegen bleiben sollen, und würfle nochmal. Oder wähle ein Feld im Blatt.'**
+  String get dicesheetHintKeep;
+
+  /// KLD-119: hint after the third roll.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle ein Feld im Blatt.'**
+  String get dicesheetHintPick;
+
+  /// KLD-119: hint when a five of a kind is a joker (house rule Extra-Fünfer): only some boxes are allowed.
+  ///
+  /// In de, this message translates to:
+  /// **'Fünferpasch als Joker: Trag ihn in eines der erlaubten Felder ein.'**
+  String get dicesheetHintJoker;
+
+  /// KLD-119: the big roll button with the rolls left this turn (3, 2 or 1).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln (noch {count})'**
+  String dicesheetRollButton(int count);
+
+  /// KLD-119: the roll button after the third roll (disabled): now a box must be chosen.
+  ///
+  /// In de, this message translates to:
+  /// **'Feld im Blatt wählen'**
+  String get dicesheetPickBox;
+
+  /// KLD-119: screen reader label of a die.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfel {value}'**
+  String dicesheetDie(int value);
+
+  /// KLD-119: screen reader label of a kept die.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfel {value}, behalten'**
+  String dicesheetDieKept(int value);
+
+  /// KLD-119: small label under a die that stays on the table for the next roll.
+  ///
+  /// In de, this message translates to:
+  /// **'behalten'**
+  String get dicesheetKept;
+
+  /// KLD-119: the round in the score sheet header, e.g. "Runde 3/13".
+  ///
+  /// In de, this message translates to:
+  /// **'Runde {round}/{total}'**
+  String dicesheetRound(int round, int total);
+
+  /// KLD-119: screen reader label of a suggested score in the sheet (tap writes it).
+  ///
+  /// In de, this message translates to:
+  /// **'{box}: {points} eintragen'**
+  String dicesheetScoreAction(String box, int points);
+
+  /// KLD-119: the bonus row under the upper section.
+  ///
+  /// In de, this message translates to:
+  /// **'Bonus'**
+  String get dicesheetBonus;
+
+  /// KLD-119: small line under dicesheetBonus: the bonus points (passed as "+35", isolated left-to-right) and from which upper sum, e.g. "+35 ab 63".
+  ///
+  /// In de, this message translates to:
+  /// **'{bonus} ab {at}'**
+  String dicesheetBonusRule(String bonus, int at);
+
+  /// KLD-119: the sheet row with the extra-fives bonus (house rule on).
+  ///
+  /// In de, this message translates to:
+  /// **'Extra-Fünfer'**
+  String get dicesheetExtraFives;
+
+  /// KLD-119: the totals row of the sheet.
+  ///
+  /// In de, this message translates to:
+  /// **'Gesamt'**
+  String get dicesheetTotal;
+
+  /// KLD-119: house rule switch in the start options.
+  ///
+  /// In de, this message translates to:
+  /// **'Extra-Fünfer (Hausregel)'**
+  String get dicesheetOptionExtraFives;
+
+  /// KLD-119: explanation under the house rule switch.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch ein Fünferpasch, wenn dort schon 50 stehen: 100 Punkte extra. Er ist dann ein Joker und kommt zuerst ins obere Feld seiner Zahl.'**
+  String get dicesheetOptionExtraFivesExplain;
 }
 
 class _AppLocalizationsDelegate

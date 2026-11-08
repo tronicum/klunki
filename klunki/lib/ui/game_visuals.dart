@@ -6,6 +6,7 @@ import '../app/theme.dart';
 import 'game_illustrations.dart';
 import 'games/chess/chess_pieces.dart';
 import 'games/connect4/connect4_board.dart' show Connect4Piece;
+import 'games/dicesheet/dicesheet_illustration.dart';
 import 'games/maumau/maumau_cards.dart' show MauMauIllustration;
 import 'games/maexchen/maexchen_dice.dart' show MaexchenIllustration;
 import 'games/wordtiles/wordtiles_tiles.dart';
@@ -99,6 +100,10 @@ final Map<String, GameVisuals> gameVisuals = {
   'maexchen': GameVisuals(
     illustration: MaexchenIllustration.new,
     description: (l) => l.menuDescMaexchen,
+  ),
+  'dicesheet': GameVisuals(
+    illustration: DiceSheetIllustration.new,
+    description: (l) => l.menuDescDiceSheet,
   ),
 };
 
