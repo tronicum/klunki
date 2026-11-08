@@ -154,8 +154,13 @@ class GoPieceTile extends StatelessWidget {
   /// The insignia's area in tile units: centred, equal margins on all sides.
   static const insigniaArea = Rect.fromLTRB(0.14, 0.14, 0.86, 0.86);
 
-  /// Badge height and its inset from the tile's top corners, in tile units.
-  static const badgeSize = 0.3, badgeInset = 0.05;
+  /// Badge height and its inset from the tile's top corners, in tile units:
+  /// big enough to read the number on a phone board, tucked into the corner
+  /// just inside the tile's edge (maintainer, KLD-058 v6).
+  static const badgeSize = 0.4, badgeInset = 0.035;
+
+  /// The tile's corner radius, in tile units.
+  static const cornerRadius = 0.2;
 
   @override
   Widget build(BuildContext context) {
@@ -164,23 +169,34 @@ class GoPieceTile extends StatelessWidget {
     final ink = p.onPiece;
     final kind = piece;
     final rank = kind?.rank;
-    final radius = BorderRadius.circular(size * 0.2);
+    final radius = BorderRadius.circular(size * cornerRadius);
     final edgeWidth = goInsigniaEdgeWidth(size);
     final b = size * badgeSize, inset = size * badgeInset;
-    // A small rounded box in a darker army colour with the thin grey edge,
-    // fully inside the tile, over the insignia.
-    Widget badge(Widget child) => Container(
+    // A rounded box in a darker army colour with the thin grey edge, fully
+    // inside the tile, over the insignia. Its outer corner is concentric with
+    // the tile's rounded corner, so it sits in the corner without looking
+    // clipped; the other corners are round.
+    final round = Radius.circular(b / 2), outer = Radius.circular(size * cornerRadius - inset);
+    Widget badge(Widget child, {required bool left}) => Container(
       height: b,
       constraints: BoxConstraints(minWidth: b),
-      padding: EdgeInsets.symmetric(horizontal: b * 0.14),
+      padding: EdgeInsets.symmetric(horizontal: b * 0.1),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Color.lerp(color, Colors.black, 0.3),
-        borderRadius: BorderRadius.circular(b / 2),
+        borderRadius: BorderRadius.only(
+          topLeft: left ? outer : round,
+          topRight: left ? round : outer,
+          bottomLeft: round,
+          bottomRight: round,
+        ),
         border: Border.all(color: goInsigniaEdge, width: edgeWidth),
       ),
       child: child,
     );
+    // The number as heavy as the font goes: the bold face (the app ships no
+    // heavier one) with a thin stroke of the same colour on top.
+    final digits = TextStyle(fontSize: b * 0.72, fontWeight: FontWeight.w900, height: 1);
     return Container(
       width: size,
       height: size,
@@ -246,10 +262,23 @@ class GoPieceTile extends StatelessWidget {
               left: inset,
               top: inset,
               child: badge(
-                Text(
-                  '$rank',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(color: ink, fontSize: b * 0.72, fontWeight: FontWeight.w800, height: 1),
+                left: true,
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Text('$rank', textDirection: TextDirection.ltr, style: digits.copyWith(color: ink)),
+                    Text(
+                      '$rank',
+                      textDirection: TextDirection.ltr,
+                      style: digits.copyWith(
+                        foreground: Paint()
+                          ..style = PaintingStyle.stroke
+                          ..strokeWidth = b * 0.05
+                          ..strokeJoin = StrokeJoin.round
+                          ..color = ink,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -258,7 +287,7 @@ class GoPieceTile extends StatelessWidget {
               key: goKnownMarkerKey,
               right: inset,
               top: inset,
-              child: badge(Icon(Icons.visibility, size: b * 0.68, color: ink)),
+              child: badge(left: false, Icon(Icons.visibility, size: b * 0.72, color: ink)),
             ),
         ],
       ),
