@@ -3717,4 +3717,17 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.';
+
+  @override
+  String get maumauOptionMustPlay => 'Legen, wenn möglich';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'Ziehen darfst du nur, wenn keine Karte passt. Die Karten nach einer 7 darfst du immer ziehen.';
+
+  @override
+  String get maumauHintMustPlay => 'Du hast eine passende Karte – leg sie.';
+
+  @override
+  String get maumauHintNoFit => 'Keine Karte passt. Zieh eine vom Stapel.';
 }

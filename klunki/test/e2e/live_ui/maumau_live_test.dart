@@ -106,8 +106,17 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
       chains++;
     }
     final playable = g.playableCards;
-    // Lay a card most of the time, as people do; sometimes draw anyway.
-    if (playable.isNotEmpty && (g.hasDrawn || rng.nextInt(5) > 0)) {
+    // "Legen, wenn möglich" (on by default): no draw button and no glowing
+    // pile while a card fits; the hint says to lay it.
+    if (g.mustPlayNow) {
+      expect(find.byKey(const Key('maumau-draw')), findsNothing);
+      expect(find.byKey(const Key('maumau-stock-active')), findsNothing);
+      // ("Mau!" due has its own hint.)
+      if (!g.mauDue) expect(find.text('Du hast eine passende Karte – leg sie.'), findsOneWidget);
+    }
+    // Lay a card most of the time, as people do; sometimes draw anyway
+    // (only where the rules let you).
+    if (playable.isNotEmpty && (g.hasDrawn || g.mustPlayNow || rng.nextInt(5) > 0)) {
       final card = playable[rng.nextInt(playable.length)];
       if (g.mauDue && rng.nextInt(4) > 0) {
         await _tap(tester, find.byKey(const Key('maumau-mau')));
@@ -164,6 +173,7 @@ void main() {
     ('default rules, another deal', const MauMauRules(), 11),
     ('all house rules on', const MauMauRules(jackOnJack: true), 5),
     ('no ace, no "Mau!"', const MauMauRules(aceAgain: false, mauCall: false), 4),
+    ('drawing allowed with a card that fits', const MauMauRules(mustPlay: false), 6),
     ('no special cards', const MauMauRules(sevenDraws: false, eightSkips: false, aceAgain: false), 8),
   ]) {
     testWidgets('a whole game through the UI: $name', (tester) async {

@@ -945,5 +945,9 @@
   "seatRandomStartHint": "由游戏抽签决定谁先开始。",
   "seatStarts": "开始：{player} 先来。",
   "seatStartsRandom": "抽签结果：{player} 先来！",
-  "rulesDicesheetStart": "游戏前选择谁先开始：名单最上面的人、你们自定的顺序，或者随机。"
+  "rulesDicesheetStart": "游戏前选择谁先开始：名单最上面的人、你们自定的顺序，或者随机。",
+  "maumauOptionMustPlay": "能出就出",
+  "maumauOptionMustPlayExplain": "只有没有能出的牌时才可以摸牌。出 7 之后，你总是可以摸那些牌。",
+  "maumauHintMustPlay": "你有能出的牌，出牌吧。",
+  "maumauHintNoFit": "没有能出的牌。从牌堆摸一张。"
 }

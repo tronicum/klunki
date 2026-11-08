@@ -61,6 +61,13 @@ GameRules mauMauRules(BuildContext context, AppLocalizations l10n, GameConfig co
         on: r.mauCall,
         lead: const Icon(Icons.campaign_outlined, size: 28),
       ),
+      HouseRule(
+        id: 'mustPlay',
+        title: l10n.maumauOptionMustPlay,
+        text: l10n.maumauOptionMustPlayExplain,
+        on: r.mustPlay,
+        lead: const Icon(Icons.style_outlined, size: 28),
+      ),
     ],
     choosable: true,
   );

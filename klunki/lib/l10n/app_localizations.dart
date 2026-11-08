@@ -5782,6 +5782,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.'**
   String get rulesDicesheetStart;
+
+  /// Mau-Mau house rule (maintainer decision 2026-11-08, on by default): lay a card when you can; drawing only when no card fits.
+  ///
+  /// In de, this message translates to:
+  /// **'Legen, wenn möglich'**
+  String get maumauOptionMustPlay;
+
+  /// Explanation of maumauOptionMustPlay (options dialog and rules page).
+  ///
+  /// In de, this message translates to:
+  /// **'Ziehen darfst du nur, wenn keine Karte passt. Die Karten nach einer 7 darfst du immer ziehen.'**
+  String get maumauOptionMustPlayExplain;
+
+  /// Mau-Mau hint line with "Legen, wenn möglich": a card of the hand fits, so drawing is not allowed.
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast eine passende Karte – leg sie.'**
+  String get maumauHintMustPlay;
+
+  /// Mau-Mau hint line with "Legen, wenn möglich": no card fits, draw one from the pile.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Karte passt. Zieh eine vom Stapel.'**
+  String get maumauHintNoFit;
 }
 
 class _AppLocalizationsDelegate

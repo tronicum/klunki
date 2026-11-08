@@ -945,5 +945,9 @@
   "seatRandomStartHint": "Le jeu tire au sort qui commence.",
   "seatStarts": "C’est parti : {player} commence.",
   "seatStartsRandom": "Tirage au sort : {player} commence !",
-  "rulesDicesheetStart": "Avant la partie, vous choisissez qui commence : le nom en haut de la liste, votre propre ordre ou le hasard."
+  "rulesDicesheetStart": "Avant la partie, vous choisissez qui commence : le nom en haut de la liste, votre propre ordre ou le hasard.",
+  "maumauOptionMustPlay": "Poser si possible",
+  "maumauOptionMustPlayExplain": "Tu ne peux piocher que si aucune carte ne va. Après un 7, tu peux toujours prendre les cartes.",
+  "maumauHintMustPlay": "Tu as une carte qui va – pose-la.",
+  "maumauHintNoFit": "Aucune carte ne va. Pioche une carte."
 }

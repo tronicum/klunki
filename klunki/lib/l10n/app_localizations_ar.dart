@@ -3715,4 +3715,17 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'قبل اللعب تختارون من يبدأ: الاسم الأول في القائمة، أو ترتيبكم الخاص، أو القرعة.';
+
+  @override
+  String get maumauOptionMustPlay => 'العب ورقة إن أمكن';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'لا يمكنك السحب إلا إذا لم تناسب أي ورقة. بعد الـ7 يمكنك دائمًا سحب الأوراق.';
+
+  @override
+  String get maumauHintMustPlay => 'لديك ورقة مناسبة – العبها.';
+
+  @override
+  String get maumauHintNoFit => 'لا تناسب أي ورقة. اسحب ورقة من الكومة.';
 }

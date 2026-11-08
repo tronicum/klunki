@@ -3627,4 +3627,17 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'پیش از بازی انتخاب می‌کنید چه کسی شروع کند: نام بالای فهرست، ترتیب خودتان یا قرعه.';
+
+  @override
+  String get maumauOptionMustPlay => 'اگر می‌شود، کارت بگذار';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'فقط وقتی می‌توانی کارت برداری که هیچ کارتی جور نباشد. بعد از ۷ همیشه می‌توانی کارت‌ها را برداری.';
+
+  @override
+  String get maumauHintMustPlay => 'کارت جوری داری – آن را بگذار.';
+
+  @override
+  String get maumauHintNoFit => 'هیچ کارتی جور نیست. یک کارت از دسته بردار.';
 }

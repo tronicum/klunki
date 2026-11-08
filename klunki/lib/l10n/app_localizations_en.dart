@@ -3699,4 +3699,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'Before the game you choose who starts: the name at the top of the list, your own order, or chance.';
+
+  @override
+  String get maumauOptionMustPlay => 'Lay a card if you can';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'You may only draw when no card fits. After a 7 you may always take the cards.';
+
+  @override
+  String get maumauHintMustPlay => 'You have a card that fits – lay it.';
+
+  @override
+  String get maumauHintNoFit => 'No card fits. Draw one from the pile.';
 }

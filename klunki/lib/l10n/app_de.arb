@@ -5360,5 +5360,21 @@
   "rulesDicesheetStart": "Wer anfängt, wählt ihr vor dem Spiel: wer oben in der Liste steht, eure eigene Reihenfolge oder der Zufall.",
   "@rulesDicesheetStart": {
     "description": "KLD-119 follow-up: five-dice rules, who starts (a line of the turn section)."
+  },
+  "maumauOptionMustPlay": "Legen, wenn möglich",
+  "@maumauOptionMustPlay": {
+    "description": "Mau-Mau house rule (maintainer decision 2026-11-08, on by default): lay a card when you can; drawing only when no card fits."
+  },
+  "maumauOptionMustPlayExplain": "Ziehen darfst du nur, wenn keine Karte passt. Die Karten nach einer 7 darfst du immer ziehen.",
+  "@maumauOptionMustPlayExplain": {
+    "description": "Explanation of maumauOptionMustPlay (options dialog and rules page)."
+  },
+  "maumauHintMustPlay": "Du hast eine passende Karte – leg sie.",
+  "@maumauHintMustPlay": {
+    "description": "Mau-Mau hint line with \"Legen, wenn möglich\": a card of the hand fits, so drawing is not allowed."
+  },
+  "maumauHintNoFit": "Keine Karte passt. Zieh eine vom Stapel.",
+  "@maumauHintNoFit": {
+    "description": "Mau-Mau hint line with \"Legen, wenn möglich\": no card fits, draw one from the pile."
   }
 }

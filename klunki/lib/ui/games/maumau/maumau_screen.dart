@@ -508,6 +508,9 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     if (g.hasDrawn) return l10n.maumauHintDrawn;
     if (g.canPass) return l10n.maumauHintPass;
     if (g.mauDue && !_mau && g.playableCards.isNotEmpty) return l10n.maumauHintMau;
+    // "Legen, wenn möglich" (on by default): no drawing while a card fits.
+    if (g.mustPlayNow) return l10n.maumauHintMustPlay;
+    if (g.rules.mustPlay && g.canDraw && g.playableCards.isEmpty) return l10n.maumauHintNoFit;
     if (g.wish case final w?) return l10n.maumauHintWish(maumauSuitName(l10n, w));
     return l10n.maumauHintPlay;
   }

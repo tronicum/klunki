@@ -945,5 +945,9 @@
   "seatRandomStartHint": "El juego sortea quién empieza.",
   "seatStarts": "¡Vamos! Empieza {player}.",
   "seatStartsRandom": "Sorteo: ¡empieza {player}!",
-  "rulesDicesheetStart": "Antes de jugar elegís quién empieza: el nombre de arriba de la lista, vuestro propio orden o el azar."
+  "rulesDicesheetStart": "Antes de jugar elegís quién empieza: el nombre de arriba de la lista, vuestro propio orden o el azar.",
+  "maumauOptionMustPlay": "Echar carta si se puede",
+  "maumauOptionMustPlayExplain": "Solo puedes robar si ninguna carta encaja. Después de un 7 siempre puedes robar las cartas.",
+  "maumauHintMustPlay": "Tienes una carta que encaja: échala.",
+  "maumauHintNoFit": "Ninguna carta encaja. Roba una del mazo."
 }

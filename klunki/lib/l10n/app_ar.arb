@@ -945,5 +945,9 @@
   "seatRandomStartHint": "تختار اللعبة بالقرعة من يبدأ.",
   "seatStarts": "هيا: البداية مع {player}.",
   "seatStartsRandom": "القرعة: البداية مع {player}!",
-  "rulesDicesheetStart": "قبل اللعب تختارون من يبدأ: الاسم الأول في القائمة، أو ترتيبكم الخاص، أو القرعة."
+  "rulesDicesheetStart": "قبل اللعب تختارون من يبدأ: الاسم الأول في القائمة، أو ترتيبكم الخاص، أو القرعة.",
+  "maumauOptionMustPlay": "العب ورقة إن أمكن",
+  "maumauOptionMustPlayExplain": "لا يمكنك السحب إلا إذا لم تناسب أي ورقة. بعد الـ7 يمكنك دائمًا سحب الأوراق.",
+  "maumauHintMustPlay": "لديك ورقة مناسبة – العبها.",
+  "maumauHintNoFit": "لا تناسب أي ورقة. اسحب ورقة من الكومة."
 }

@@ -126,8 +126,10 @@ int _seedWhere(bool Function(MauMauGame g) test) {
   }
 }
 
-/// Whether the first card A would draw fits.
+/// Whether A may draw at the start (with "Legen, wenn möglich" only when
+/// no card fits) and the first card A would draw fits.
 bool _drawFits(MauMauGame g) {
+  if (!g.canDraw) return false;
   final copy = createGame(GameConfig('maumau', seed: g.seed)) as MauMauGame;
   copy.applyMove({'action': 'draw'});
   return copy.currentPlayer == Player.a;
@@ -243,7 +245,7 @@ void main() {
     });
 
     testWidgets('drawn card does not fit', skip: skip, (tester) async {
-      final seed = _seedWhere((g) => !_drawFits(g));
+      final seed = _seedWhere((g) => g.canDraw && !_drawFits(g));
       await _pumpSeeded(tester, seed);
       await _tap(tester, find.byKey(const Key('maumau-draw')));
       expect(find.byKey(const Key('maumau-feedback')), findsOneWidget);

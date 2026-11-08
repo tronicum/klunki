@@ -19,11 +19,12 @@ Future<GameController> _pump(
   List<String> b = const ['d7', 's8', 'c9', 'dA', 'h8'],
   String top = 'hK',
   List<String> stock = const ['c7', 'sQ', 'dK', 's10', 'c10', 'cA'],
+  MauMauRules rules = const MauMauRules(),
 }) async {
   tester.view.physicalSize = const Size(375, 667) * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final c = GameController.hotSeat(GameConfig('maumau', seed: 1));
+  final c = GameController.hotSeat(GameConfig('maumau', seed: 1, mauMau: rules));
   addTearDown(c.dispose);
   (c.game as MauMauGame).debugSetup(a: a, b: b, top: top, stock: stock);
   await tester.pumpWidget(
@@ -130,10 +131,18 @@ void main() {
   group('buttons', () {
     setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
 
-    testWidgets('a card fits: drawing is the outlined alternative', (tester) async {
-      await _pump(tester);
+    testWidgets('a card fits ("Legen, wenn möglich" off): drawing is the outlined alternative', (tester) async {
+      await _pump(tester, rules: const MauMauRules(mustPlay: false));
       expect(_outlined(tester, 'maumau-draw'), isTrue);
       expect(_key('maumau-stock-active'), findsOneWidget);
+    });
+
+    testWidgets('a card fits ("Legen, wenn möglich", default): no drawing, the hint says to lay it', (tester) async {
+      await _pump(tester);
+      expect(_key('maumau-draw'), findsNothing);
+      expect(_key('maumau-stock-active'), findsNothing);
+      expect(_key('maumau-stock-idle'), findsOneWidget);
+      expect(find.text('Du hast eine passende Karte – leg sie.'), findsOneWidget);
     });
 
     testWidgets('nothing fits at all: draw filled, the pile glows', (tester) async {
@@ -145,7 +154,8 @@ void main() {
     });
 
     testWidgets('"Mau!" due: filled, pressed: outlined with a tick', (tester) async {
-      await _pump(tester, a: const ['h7', 'sK'], top: 'hK', stock: const ['dK']);
+      await _pump(tester,
+          a: const ['h7', 'sK'], top: 'hK', stock: const ['dK'], rules: const MauMauRules(mustPlay: false));
       expect(_filled(tester, 'maumau-mau'), isTrue);
       expect(_outlined(tester, 'maumau-draw'), isTrue);
       await _tap(tester, 'maumau-mau');

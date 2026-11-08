@@ -944,5 +944,9 @@
   "seatRandomStartHint": "The game draws who starts.",
   "seatStarts": "Let’s go: {player} starts.",
   "seatStartsRandom": "Drawn: {player} starts!",
-  "rulesDicesheetStart": "Before the game you choose who starts: the name at the top of the list, your own order, or chance."
+  "rulesDicesheetStart": "Before the game you choose who starts: the name at the top of the list, your own order, or chance.",
+  "maumauOptionMustPlay": "Lay a card if you can",
+  "maumauOptionMustPlayExplain": "You may only draw when no card fits. After a 7 you may always take the cards.",
+  "maumauHintMustPlay": "You have a card that fits – lay it.",
+  "maumauHintNoFit": "No card fits. Draw one from the pile."
 }

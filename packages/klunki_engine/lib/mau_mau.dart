@@ -34,6 +34,10 @@ part 'mau_mau_view.dart';
 /// * ace ([MauMauRules.aceAgain], on by default): the same player lays
 ///   again, on the ace; this chains (ace after ace); with no fitting card
 ///   they draw as usual (a drawn card that fits may be laid at once).
+/// * "Legen, wenn möglich" ([MauMauRules.mustPlay], on by default): `draw`
+///   only when no card of the hand may be laid. A 7 chain is the exception:
+///   answering with a 7 stays a choice, the cards can always be taken. A
+///   drawn card that fits may still be kept (`pass`).
 /// * "Mau" ([MauMauRules.mauCall], on by default): who lays the
 ///   second-to-last card says "Mau" (`mau: true` on the move); forgetting
 ///   it costs one penalty card.
@@ -173,8 +177,17 @@ class MauMauGame extends Game {
           if (canPlay(c)) c
       ];
 
-  /// `draw` is possible now.
-  bool get canDraw => !isOver && !_hasDrawn && (_penalty > 0 || drawable > 0);
+  /// `draw` is possible now: with [MauMauRules.mustPlay] only when no card
+  /// of the hand may be laid (taking a 7 chain's cards always is).
+  bool get canDraw =>
+      !isOver &&
+      !_hasDrawn &&
+      (_penalty > 0 || (drawable > 0 && (!rules.mustPlay || playableCards.isEmpty)));
+
+  /// [MauMauRules.mustPlay] keeps the [currentPlayer] from drawing: a card
+  /// of the hand fits (for the hint "leg sie").
+  bool get mustPlayNow =>
+      !isOver && rules.mustPlay && !_hasDrawn && _penalty == 0 && drawable > 0 && playableCards.isNotEmpty;
 
   /// `pass` is possible now.
   bool get canPass => !isOver && (_hasDrawn || (_penalty == 0 && drawable == 0 && playableCards.isEmpty));
@@ -491,6 +504,10 @@ class MauMauRules {
   /// maintainer decision 2026-11-06).
   final bool mauCall;
 
+  /// "Legen, wenn möglich": draw only when no card fits (on; maintainer
+  /// decision 2026-11-08). Taking a 7 chain's cards is always allowed.
+  final bool mustPlay;
+
   const MauMauRules({
     this.sevenDraws = true,
     this.stackSevens = true,
@@ -498,6 +515,7 @@ class MauMauRules {
     this.jackOnJack = false,
     this.aceAgain = true,
     this.mauCall = true,
+    this.mustPlay = true,
   });
 
   bool get isDefault => this == const MauMauRules();
@@ -511,6 +529,7 @@ class MauMauRules {
         if (jackOnJack) 'jackOnJack': true,
         if (!aceAgain) 'ace': false,
         if (!mauCall) 'mau': false,
+        if (!mustPlay) 'mustPlay': false,
       };
 
   factory MauMauRules.fromJson(Object? json) {
@@ -522,11 +541,18 @@ class MauMauRules {
       jackOnJack: json['jackOnJack'] == true,
       aceAgain: json['ace'] != false,
       mauCall: json['mau'] != false,
+      mustPlay: json['mustPlay'] != false,
     );
   }
 
   MauMauRules copyWith(
-          {bool? sevenDraws, bool? stackSevens, bool? eightSkips, bool? jackOnJack, bool? aceAgain, bool? mauCall}) =>
+          {bool? sevenDraws,
+          bool? stackSevens,
+          bool? eightSkips,
+          bool? jackOnJack,
+          bool? aceAgain,
+          bool? mauCall,
+          bool? mustPlay}) =>
       MauMauRules(
         sevenDraws: sevenDraws ?? this.sevenDraws,
         stackSevens: stackSevens ?? this.stackSevens,
@@ -534,6 +560,7 @@ class MauMauRules {
         jackOnJack: jackOnJack ?? this.jackOnJack,
         aceAgain: aceAgain ?? this.aceAgain,
         mauCall: mauCall ?? this.mauCall,
+        mustPlay: mustPlay ?? this.mustPlay,
       );
 
   @override
@@ -544,10 +571,11 @@ class MauMauRules {
       other.eightSkips == eightSkips &&
       other.jackOnJack == jackOnJack &&
       other.aceAgain == aceAgain &&
-      other.mauCall == mauCall;
+      other.mauCall == mauCall &&
+      other.mustPlay == mustPlay;
 
   @override
-  int get hashCode => Object.hash(sevenDraws, stackSevens, eightSkips, jackOnJack, aceAgain, mauCall);
+  int get hashCode => Object.hash(sevenDraws, stackSevens, eightSkips, jackOnJack, aceAgain, mauCall, mustPlay);
 
   @override
   String toString() => 'MauMauRules(${toJson()})';

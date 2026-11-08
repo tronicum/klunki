@@ -3491,4 +3491,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesDicesheetStart => '游戏前选择谁先开始：名单最上面的人、你们自定的顺序，或者随机。';
+
+  @override
+  String get maumauOptionMustPlay => '能出就出';
+
+  @override
+  String get maumauOptionMustPlayExplain => '只有没有能出的牌时才可以摸牌。出 7 之后，你总是可以摸那些牌。';
+
+  @override
+  String get maumauHintMustPlay => '你有能出的牌，出牌吧。';
+
+  @override
+  String get maumauHintNoFit => '没有能出的牌。从牌堆摸一张。';
 }

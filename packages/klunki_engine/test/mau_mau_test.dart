@@ -12,9 +12,10 @@ void main() {
   const draw = {'action': 'draw'};
   const pass = {'action': 'pass'};
 
-  /// The core rules without the ace and "Mau" switches (both on by
-  /// default), so a test about one card is not mixed up with them.
-  const basic = MauMauRules(aceAgain: false, mauCall: false);
+  /// The core rules without the ace, "Mau" and "Legen, wenn möglich"
+  /// switches (all on by default), so a test about one card is not mixed up
+  /// with them.
+  const basic = MauMauRules(aceAgain: false, mauCall: false, mustPlay: false);
 
   MauMauGame setup(List<String> a, List<String> b, String top,
           {List<String> stock = const [], MauMauRules rules = basic}) =>
@@ -63,6 +64,53 @@ void main() {
       expect(ids(MauMauGame(seed: 7).handOf(Player.a)), ids(MauMauGame(seed: 7).handOf(Player.a)));
       expect(MauMauGame(seed: 7).topCard, MauMauGame(seed: 7).topCard);
       expect(ids(MauMauGame(seed: 7).handOf(Player.a)), isNot(ids(MauMauGame(seed: 8).handOf(Player.a))));
+    });
+  });
+
+  group('"Legen, wenn möglich" (mustPlay, on by default)', () {
+    const must = MauMauRules(aceAgain: false, mauCall: false);
+
+    test('on by default, in the config only when off', () {
+      expect(const MauMauRules().mustPlay, isTrue);
+      expect(const MauMauRules().toJson(), isEmpty);
+      const off = MauMauRules(mustPlay: false);
+      expect(off.toJson(), {'mustPlay': false});
+      expect(MauMauRules.fromJson(off.toJson()), off);
+      expect(MauMauRules.fromJson(const <String, dynamic>{}).mustPlay, isTrue);
+    });
+
+    test('no drawing while a card of the hand fits', () {
+      final g = setup(['h7', 'c8'], ['s8'], 'h9', stock: ['dK'], rules: must);
+      expect(g.mustPlayNow, isTrue);
+      expect(g.canDraw, isFalse);
+      expect(g.legalMoves, [play('h7')]);
+      refused(g, draw);
+      refused(g, pass);
+    });
+
+    test('drawing when nothing fits; a drawn card that fits may still be kept', () {
+      final g = setup(['c7', 'c8'], ['s8'], 'h9', stock: ['h10', 'dK'], rules: must);
+      expect(g.mustPlayNow, isFalse);
+      expect(g.legalMoves, [draw]);
+      g.applyMove(draw);
+      expect(g.legalMoves, [play('h10'), pass]);
+      expect(g.applyMove(pass), isNotNull);
+    });
+
+    test('a 7 chain: the cards can be taken although a 7 could answer', () {
+      final g = setup(['h7', 'c8'], ['s7', 'd9'], 'h9', stock: ['dK', 'sK', 'cK', 'hK'], rules: must);
+      g.applyMove(play('h7'));
+      expect(g.penalty, MauMauGame.sevenPenalty);
+      expect(g.mustPlayNow, isFalse);
+      expect(g.legalMoves, containsAll([play('s7'), draw]));
+      expect(g.applyMove(draw), isNotNull);
+    });
+
+    test('the view of the player to move knows it too', () {
+      final g = setup(['h7', 'c8'], ['s8'], 'h9', stock: ['dK'], rules: must);
+      final v = MauMauView.fromJson(jsonDecode(jsonEncode(g.viewJson(Player.a))) as Map<String, dynamic>);
+      expect(v.canDraw, isFalse);
+      expect(v.legalMoves, [play('h7')]);
     });
   });
 
@@ -421,7 +469,7 @@ void main() {
     test('runs out: the discard pile without its top card is shuffled into a new one', () {
       final g = setup(['h7', 'h8', 'hK', 'c9'], ['s9', 'hQ', 'h10'], 'h9',
           stock: ['dK'],
-          rules: const MauMauRules(aceAgain: false, mauCall: false, eightSkips: false, sevenDraws: false));
+          rules: const MauMauRules(aceAgain: false, mauCall: false, eightSkips: false, sevenDraws: false, mustPlay: false));
       g.applyMove(play('h8')); // A
       g.applyMove(play('hQ')); // B
       g.applyMove(play('hK')); // A

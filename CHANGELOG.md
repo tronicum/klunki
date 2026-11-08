@@ -26,6 +26,10 @@ short German summary ("Kurz") for the store notes and the testers.
   when it is due, the draw pile glows and can be tapped. Stacked 7s show on the pile ("2 + 2 + 2 = 6 Karten
   ziehen"), and drawn cards arrive highlighted in the hand. A short "So geht's" tour the first time; its
   last step shows where all the rules are ("Regeln").
+- **Mau-Mau: new house rule "Legen, wenn möglich"** (on by default): you may only draw when no card in your hand
+  fits; the draw button is gone and the pile does not glow while one does, and the hint says "Du hast eine
+  passende Karte – leg sie." After a 7 you may still take the cards instead of answering with a 7, and a drawn
+  card that fits may still be kept. Can be switched off in the start options.
 - **New game: Mäxchen** (KLD-121, en "Mia"), the dice bluffing game, on one device: roll two dice
   secretly under a cup, announce a value (fibbing allowed), the next player believes it and must top it, or
   doubts it and the cup is lifted. Mäxchen (2 and 1) beats everything. 3 or 5 lives, house rule "Mäxchen

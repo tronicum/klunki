@@ -9,7 +9,7 @@ import '../../game_titles.dart';
 /// skips; no jack on a jack, no ace rule, no "Mau" call).
 ///
 /// Keys: `maumau-options`, `maumau-rule-<name>` (switches: `seven`,
-/// `stack`, `eight`, `jackOnJack`, `ace`, `mau`), `maumau-jack-info`,
+/// `stack`, `eight`, `jackOnJack`, `ace`, `mau`, `mustPlay`), `maumau-jack-info`,
 /// `maumau-options-next`, `maumau-options-cancel`.
 Future<MauMauRules?> showMauMauOptionsDialog(BuildContext context, {MauMauRules initial = const MauMauRules()}) =>
     showDialog<MauMauRules>(
@@ -124,6 +124,13 @@ class MauMauOptionsPicker extends StatelessWidget {
           l10n.maumauOptionMauExplain,
           value.mauCall,
           (v) => onChanged(value.copyWith(mauCall: v)),
+        ),
+        rule(
+          'mustPlay',
+          l10n.maumauOptionMustPlay,
+          l10n.maumauOptionMustPlayExplain,
+          value.mustPlay,
+          (v) => onChanged(value.copyWith(mustPlay: v)),
         ),
       ],
     );

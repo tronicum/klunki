@@ -3733,4 +3733,17 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'Avant la partie, vous choisissez qui commence : le nom en haut de la liste, votre propre ordre ou le hasard.';
+
+  @override
+  String get maumauOptionMustPlay => 'Poser si possible';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'Tu ne peux piocher que si aucune carte ne va. Après un 7, tu peux toujours prendre les cartes.';
+
+  @override
+  String get maumauHintMustPlay => 'Tu as une carte qui va – pose-la.';
+
+  @override
+  String get maumauHintNoFit => 'Aucune carte ne va. Pioche une carte.';
 }

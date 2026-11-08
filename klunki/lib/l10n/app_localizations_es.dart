@@ -3726,4 +3726,17 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesDicesheetStart =>
       'Antes de jugar elegís quién empieza: el nombre de arriba de la lista, vuestro propio orden o el azar.';
+
+  @override
+  String get maumauOptionMustPlay => 'Echar carta si se puede';
+
+  @override
+  String get maumauOptionMustPlayExplain =>
+      'Solo puedes robar si ninguna carta encaja. Después de un 7 siempre puedes robar las cartas.';
+
+  @override
+  String get maumauHintMustPlay => 'Tienes una carta que encaja: échala.';
+
+  @override
+  String get maumauHintNoFit => 'Ninguna carta encaja. Roba una del mazo.';
 }
