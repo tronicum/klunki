@@ -3433,4 +3433,213 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get shakeConsentNo => 'Non, juste toucher';
+
+  @override
+  String get wordtilesHelp => 'Comment jouer';
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Échanger le joker (règle maison) : si tu as la lettre que remplace un joker sur le plateau, glisse-la sur le joker. Le joker rejoint tes lettres, et tu poses encore des lettres dans le même tour (le joker peut en faire partie). Sans pose, l’échange ne compte pas. L’ancien mot et ses points restent.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'Activée dans cette partie.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Désactivée dans cette partie. Vous pouvez l’activer avant une partie.';
+
+  @override
+  String get menuGameDiceSheet => 'Coup de dés';
+
+  @override
+  String get menuDescDiceSheet => 'Cinq dés, une feuille, jusqu’à quatre';
+
+  @override
+  String get engineReasonDicesheetAllFilled => 'Toutes les cases sont remplies';
+
+  @override
+  String get playerDefaultNameC => 'Chloé';
+
+  @override
+  String get playerDefaultNameD => 'Damien';
+
+  @override
+  String get seatPlayerCount => 'Combien de joueurs ?';
+
+  @override
+  String get seatResignWho => 'Qui abandonne ? Les autres continuent.';
+
+  @override
+  String get seatOut => 'abandon';
+
+  @override
+  String seatPoints(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points points',
+      one: '$points point',
+      zero: '0 point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seatSharedFirst => 'Égalité pour la première place !';
+
+  @override
+  String get seatReasonOthersResigned => 'Tous les autres ont abandonné';
+
+  @override
+  String get dicesheetHelpTitle => 'Comment jouer';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'Lance cinq dés, jusqu’à trois fois. Touche les dés à garder et relance les autres. Puis inscris ce que valent les dés dans une seule case vide. Si rien ne va, barre une case avec 0.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'En haut (As à Six) : la somme des dés qui montrent ce chiffre. Avec 63 ou plus en haut, tu gagnes une prime de 35 points.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'En bas : Brelan et Carré (3 ou 4 pareils) comptent tous les dés. Full (3 pareils et 2 pareils) 25, Petite suite (4 qui se suivent) 30, Grande suite (5 qui se suivent) 40, Cinq pareils 50, Chance compte tous les dés.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'Après 13 tours, toutes les cases sont remplies. Le plus de points gagne.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'Cinq pareils en plus : un nouveau Cinq pareils quand la case contient déjà 50 rapporte 100 points en plus. C’est alors un joker : d’abord dans la case du haut de son chiffre ; si elle est pleine, dans une case libre du bas avec tous les points ; sinon avec 0 dans une case du haut.';
+
+  @override
+  String get dicesheetBoxOnes => 'As';
+
+  @override
+  String get dicesheetBoxTwos => 'Deux';
+
+  @override
+  String get dicesheetBoxThrees => 'Trois';
+
+  @override
+  String get dicesheetBoxFours => 'Quatre';
+
+  @override
+  String get dicesheetBoxFives => 'Cinq';
+
+  @override
+  String get dicesheetBoxSixes => 'Six';
+
+  @override
+  String get dicesheetBoxThreeKind => 'Brelan';
+
+  @override
+  String get dicesheetBoxFourKind => 'Carré';
+
+  @override
+  String get dicesheetBoxFullHouse => 'Full';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'Petite suite';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'Grande suite';
+
+  @override
+  String get dicesheetBoxFiveKind => 'Cinq pareils';
+
+  @override
+  String get dicesheetBoxChance => 'Chance';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'lance $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'lance $dice (garde $count)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box : $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box : $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player : $points en $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'Touche Lancer.';
+
+  @override
+  String get dicesheetHintKeep =>
+      'Touche les dés à garder et relance. Ou choisis une case sur la feuille.';
+
+  @override
+  String get dicesheetHintPick => 'Choisis une case sur la feuille.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'Cinq pareils en joker : inscris-le dans une des cases permises.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'Lancer (encore $count)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'Choisis une case';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'Dé $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'Dé $value, gardé';
+  }
+
+  @override
+  String get dicesheetKept => 'gardé';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'Tour $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return 'Inscrire $points en $box';
+  }
+
+  @override
+  String get dicesheetBonus => 'Prime';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus dès $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'Cinq pareils en plus';
+
+  @override
+  String get dicesheetTotal => 'Total';
+
+  @override
+  String get dicesheetOptionExtraFives => 'Cinq pareils en plus (règle maison)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'Un nouveau Cinq pareils quand la case contient déjà 50 : 100 points en plus. C’est alors un joker, d’abord dans la case du haut de son chiffre.';
 }

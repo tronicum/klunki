@@ -9,6 +9,7 @@ import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
+import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -77,7 +78,8 @@ Future<void> _pushGame(WidgetTester tester, GameController c, {PlayerLabels labe
   )));
   await tester.tap(find.text('open'));
   await tester.pumpAndSettle();
-  expect(find.byType(GameScreen), findsOneWidget);
+  // The seat shell for 2–4 players (KLD-119) asks the same way.
+  expect(find.byWidgetPredicate((w) => w is GameScreen || w is SeatGameScreen), findsOneWidget);
 }
 
 Future<(GameController, _DeviceTransport)> _network(WidgetTester tester, {String gameId = 'connect4'}) async {

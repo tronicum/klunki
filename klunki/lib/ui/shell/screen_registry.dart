@@ -6,6 +6,8 @@ import '../../l10n/app_localizations.dart';
 import '../game_titles.dart';
 import '../games/chess_screen.dart';
 import '../games/connect4_screen.dart';
+import '../games/dicesheet/dicesheet_options.dart';
+import '../games/dicesheet/dicesheet_screen.dart';
 import '../games/gostrategy_screen.dart';
 import '../games/maexchen/maexchen_options.dart';
 import '../games/maexchen/maexchen_screen.dart';
@@ -20,6 +22,7 @@ import '../games/maumau/maumau_options.dart';
 import '../games/maumau/maumau_screen.dart';
 import '../../profile/player_name_controller.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
+import '../seat_players_dialog.dart';
 import '../../profile/quartett_deck_settings.dart';
 import 'game_screen.dart';
 
@@ -40,6 +43,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'wordtiles': (c) => WordTilesScreen(controller: c),
   'maumau': (c) => MauMauScreen(controller: c),
   'maexchen': (c) => MaexchenScreen(controller: c),
+  'dicesheet': (c) => DiceSheetScreen(controller: c),
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
@@ -54,8 +58,13 @@ const Set<String> previewGames = {};
 /// and Wortgewandt (KLD-094 step 6) play over the network. Mau-Mau
 /// (KLD-118) is hot-seat only until its network step. Mäxchen (KLD-121) is
 /// one device only for now: the engine has its redaction, the app's network
-/// screens do not offer it yet.
-const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen'};
+/// screens do not offer it yet. Ausgewürfelt (KLD-119) is for 2–4 players
+/// at one table; the network session is 2-player.
+const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen', 'dicesheet'};
+
+/// Games played in the seat shell for 2–4 players on one device (KLD-119,
+/// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.
+const Set<String> seatGames = {'dicesheet'};
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
@@ -105,7 +114,9 @@ Future<void> openGame(BuildContext context, String gameId,
     bool jokerSwap = false,
     MauMauRules mauMau = const MauMauRules(),
     int lives = 3,
-    bool maexchenDouble = true}) {
+    bool maexchenDouble = true,
+    int players = 2,
+    bool extraFives = false}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
         config: GameConfig(gameId,
@@ -116,7 +127,9 @@ Future<void> openGame(BuildContext context, String gameId,
             jokerSwap: jokerSwap,
             mauMau: mauMau,
             lives: lives,
-            maexchenDouble: maexchenDouble)),
+            maexchenDouble: maexchenDouble,
+            players: players,
+            extraFives: extraFives)),
   ));
 }
 
@@ -150,8 +163,21 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     dice = await showMaexchenOptionsDialog(context);
     if (dice == null || !context.mounted) return;
   }
-  final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
-  if (!go || !context.mounted) return;
+  // Ausgewürfelt (KLD-119): the house rule, then how many play and who.
+  DiceSheetOptions? sheet;
+  var players = 2;
+  if (gameId == 'dicesheet') {
+    sheet = await showDiceSheetOptionsDialog(context);
+    if (sheet == null || !context.mounted) return;
+  }
+  if (seatGames.contains(gameId)) {
+    final n = await showSeatPlayersDialog(context);
+    if (n == null || !context.mounted) return;
+    players = n;
+  } else {
+    final go = await showHotSeatNamesDialog(context, gameId: gameId, start: true);
+    if (!go || !context.mounted) return;
+  }
   if (words != null && words.dictionary) {
     if (!await loadWordListWithProgress(context, words.tiles) || !context.mounted) return;
   }
@@ -162,7 +188,9 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       jokerSwap: words?.joker ?? false,
       mauMau: mauMau ?? const MauMauRules(),
       lives: dice?.lives ?? 3,
-      maexchenDouble: dice?.double ?? true);
+      maexchenDouble: dice?.double ?? true,
+      players: players,
+      extraFives: sheet?.extraFives ?? false);
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

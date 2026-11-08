@@ -87,7 +87,9 @@ void main() {
     // KLD-118: Mau-Mau and KLD-121: Mäxchen are one device only for now.
     expect(_local('maexchen'), findsOneWidget);
     expect(_network('maexchen'), findsNothing);
-    expect(hotSeatOnlyGames, {'maumau', 'maexchen'});
+    // KLD-119: Ausgewürfelt is for 2–4 players at one table.
+    expect(_network('dicesheet'), findsNothing);
+    expect(hotSeatOnlyGames, {'maumau', 'maexchen', 'dicesheet'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {
@@ -252,6 +254,11 @@ void main() {
       if (spec.id == 'maexchen') {
         // Mäxchen: lives and "Mäxchen doppelt" first (KLD-121).
         await tester.tap(find.byKey(const Key('maexchen-options-next')));
+        await tester.pumpAndSettle();
+      }
+      if (spec.id == 'dicesheet') {
+        // Ausgewürfelt: the house rule first (KLD-119).
+        await tester.tap(find.byKey(const Key('dicesheet-options-next')));
         await tester.pumpAndSettle();
       }
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget, reason: spec.id);

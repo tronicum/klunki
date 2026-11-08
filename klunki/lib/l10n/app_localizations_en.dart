@@ -3402,4 +3402,212 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shakeConsentNo => 'No, just tap';
+
+  @override
+  String get wordtilesHelp => 'How to play';
+
+  @override
+  String get wordtilesHelpJoker =>
+      'Swap the blank (house rule): if you hold the letter a blank on the board stands for, drag it onto the blank. The blank joins your tiles, and you still lay tiles in the same turn (the blank may be one of them). Without laying, the swap does not count. The old word and its points stay.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'On in this game.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'Off in this game. You can turn it on before a game.';
+
+  @override
+  String get menuGameDiceSheet => 'Rolled Out';
+
+  @override
+  String get menuDescDiceSheet => 'Five dice, one sheet, up to four players';
+
+  @override
+  String get engineReasonDicesheetAllFilled => 'Every box is filled';
+
+  @override
+  String get playerDefaultNameC => 'Cleo';
+
+  @override
+  String get playerDefaultNameD => 'Dan';
+
+  @override
+  String get seatPlayerCount => 'How many are playing?';
+
+  @override
+  String get seatResignWho => 'Who gives up? The others play on.';
+
+  @override
+  String get seatOut => 'gave up';
+
+  @override
+  String seatPoints(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points points',
+      one: '$points point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seatSharedFirst => 'A tie for first place!';
+
+  @override
+  String get seatReasonOthersResigned => 'Everyone else gave up';
+
+  @override
+  String get dicesheetHelpTitle => 'How to play';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'Roll five dice, up to three times. Tap the dice you want to keep and roll the others again. Then write what the dice score into exactly one empty box. If nothing fits, cross out a box with 0.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'Top part (Ones to Sixes): the sum of the dice showing that number. 63 or more in the top part earns a 35-point bonus.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'Bottom part: Three and Four of a Kind (3 or 4 the same) count all the dice. Full House (3 the same and 2 the same) 25, Small Straight (4 in a row) 30, Large Straight (5 in a row) 40, Five of a Kind (5 the same) 50, Chance counts all the dice.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'After 13 rounds every box is filled. The most points wins.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'Extra fives: another Five of a Kind when that box already holds 50 earns 100 extra points. It is a joker then: into the top box of its number first; if that is full, into a free bottom box at full points; otherwise into a top box with 0.';
+
+  @override
+  String get dicesheetBoxOnes => 'Ones';
+
+  @override
+  String get dicesheetBoxTwos => 'Twos';
+
+  @override
+  String get dicesheetBoxThrees => 'Threes';
+
+  @override
+  String get dicesheetBoxFours => 'Fours';
+
+  @override
+  String get dicesheetBoxFives => 'Fives';
+
+  @override
+  String get dicesheetBoxSixes => 'Sixes';
+
+  @override
+  String get dicesheetBoxThreeKind => 'Three of a Kind';
+
+  @override
+  String get dicesheetBoxFourKind => 'Four of a Kind';
+
+  @override
+  String get dicesheetBoxFullHouse => 'Full House';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'Small Straight';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'Large Straight';
+
+  @override
+  String get dicesheetBoxFiveKind => 'Five of a Kind';
+
+  @override
+  String get dicesheetBoxChance => 'Chance';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'rolls $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'rolls $dice (keeps $count)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box: $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box: $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player: $points for $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'Tap Roll.';
+
+  @override
+  String get dicesheetHintKeep =>
+      'Tap the dice you want to keep and roll again. Or pick a box on the sheet.';
+
+  @override
+  String get dicesheetHintPick => 'Pick a box on the sheet.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'Five of a Kind as a joker: write it into one of the allowed boxes.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'Roll ($count left)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'Pick a box on the sheet';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'Die $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'Die $value, kept';
+  }
+
+  @override
+  String get dicesheetKept => 'kept';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'Round $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return 'Write $points into $box';
+  }
+
+  @override
+  String get dicesheetBonus => 'Bonus';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus from $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'Extra fives';
+
+  @override
+  String get dicesheetTotal => 'Total';
+
+  @override
+  String get dicesheetOptionExtraFives => 'Extra fives (house rule)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'Another Five of a Kind when that box already holds 50: 100 extra points. It is a joker then and goes into the top box of its number first.';
 }

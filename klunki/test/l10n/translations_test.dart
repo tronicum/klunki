@@ -55,6 +55,9 @@ const sameAsEnglish = {
   'Mau!',
   // KLD-121: the dice bluffing game's name in French and Spanish too.
   'Mia',
+  // KLD-119: score sheet words spelled the same in French / Spanish.
+  'Chance',
+  'Total',
 };
 
 Map<String, dynamic> _arb(String locale) =>
@@ -113,7 +116,7 @@ void main() {
         expect(find.text(l10n.menuGameSchiffe), findsOneWidget);
       });
 
-      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess', 'wordtiles', 'maexchen']) {
+      for (final id in ['connect4', 'muehle', 'quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy', 'chess', 'wordtiles', 'maexchen', 'dicesheet']) {
         testWidgets('$code: $id renders and plays to the result dialog without overflow', (tester) async {
           await phone(tester);
           await pumpGame(tester, id, locale: locale);

@@ -3416,4 +3416,214 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get shakeConsentNo => 'لا، اللمس فقط';
+
+  @override
+  String get wordtilesHelp => 'طريقة اللعب';
+
+  @override
+  String get wordtilesHelpJoker =>
+      'تبديل البلاطة الفارغة (قاعدة منزلية): إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فاسحبه إليها. تنضمّ البلاطة الفارغة إلى بلاطاتك، وتضع بلاطات في الدور نفسه (ويمكن أن تكون البلاطة الفارغة منها). بلا وضع بلاطات لا يُحسب التبديل. تبقى الكلمة القديمة ونقاطها.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'مفعّلة في هذه اللعبة.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'غير مفعّلة في هذه اللعبة. يمكنكم تفعيلها قبل اللعبة.';
+
+  @override
+  String get menuGameDiceSheet => 'رمية النرد';
+
+  @override
+  String get menuDescDiceSheet => 'خمسة نرود وورقة واحدة، حتى أربعة لاعبين';
+
+  @override
+  String get engineReasonDicesheetAllFilled => 'امتلأت كل الخانات';
+
+  @override
+  String get playerDefaultNameC => 'سلمى';
+
+  @override
+  String get playerDefaultNameD => 'كريم';
+
+  @override
+  String get seatPlayerCount => 'كم عدد اللاعبين؟';
+
+  @override
+  String get seatResignWho => 'من يستسلم؟ يواصل الآخرون اللعب.';
+
+  @override
+  String get seatOut => 'استسلام';
+
+  @override
+  String seatPoints(int points) {
+    String _temp0 = intl.Intl.pluralLogic(
+      points,
+      locale: localeName,
+      other: '$points نقطة',
+      few: '$points نقاط',
+      two: 'نقطتان',
+      one: 'نقطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get seatSharedFirst => 'تعادل على المركز الأول!';
+
+  @override
+  String get seatReasonOthersResigned => 'استسلم جميع الآخرين';
+
+  @override
+  String get dicesheetHelpTitle => 'طريقة اللعب';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'ارمِ خمسة نرود حتى ثلاث مرات. المس النرود التي تريد إبقاءها وارمِ الباقي مرة أخرى. ثم اكتب ما تساويه النرود في خانة فارغة واحدة فقط. إن لم يناسب شيء، اشطب خانة بصفر.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'القسم العلوي (الآحاد حتى الستات): مجموع النرود التي تظهر ذلك الرقم. إذا بلغ القسم العلوي 63 أو أكثر تحصل على مكافأة 35 نقطة.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'القسم السفلي: ثلاثة متشابهة وأربعة متشابهة تحسب كل النرود. البيت الكامل (3 متشابهة و2 متشابهة) 25، السلسلة الصغيرة (4 متتالية) 30، السلسلة الكبيرة (5 متتالية) 40، خمسة متشابهة 50، والفرصة تحسب كل النرود.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'بعد 13 جولة تمتلئ كل الخانات. يفوز صاحب أكبر عدد من النقاط.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'خمسة إضافية: إذا رميت خمسة متشابهة أخرى وفي خانتها 50 بالفعل، تحصل على 100 نقطة إضافية. وتصبح عندها ورقة رابحة: أولاً في الخانة العلوية لرقمها؛ وإن كانت ممتلئة ففي خانة سفلية فارغة بكامل النقاط؛ وإلا فبصفر في خانة علوية.';
+
+  @override
+  String get dicesheetBoxOnes => 'الآحاد';
+
+  @override
+  String get dicesheetBoxTwos => 'الاثنينات';
+
+  @override
+  String get dicesheetBoxThrees => 'الثلاثات';
+
+  @override
+  String get dicesheetBoxFours => 'الأربعات';
+
+  @override
+  String get dicesheetBoxFives => 'الخمسات';
+
+  @override
+  String get dicesheetBoxSixes => 'الستات';
+
+  @override
+  String get dicesheetBoxThreeKind => 'ثلاثة متشابهة';
+
+  @override
+  String get dicesheetBoxFourKind => 'أربعة متشابهة';
+
+  @override
+  String get dicesheetBoxFullHouse => 'البيت الكامل';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'سلسلة صغيرة';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'سلسلة كبيرة';
+
+  @override
+  String get dicesheetBoxFiveKind => 'خمسة متشابهة';
+
+  @override
+  String get dicesheetBoxChance => 'الفرصة';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'رمية: $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'رمية: $dice (مع إبقاء $count)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box: $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box: $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player: $points في $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'المس «ارمِ».';
+
+  @override
+  String get dicesheetHintKeep =>
+      'المس النرود التي تريد إبقاءها وارمِ مرة أخرى. أو اختر خانة في الورقة.';
+
+  @override
+  String get dicesheetHintPick => 'اختر خانة في الورقة.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'خمسة متشابهة كورقة رابحة: اكتبها في إحدى الخانات المسموحة.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'ارمِ (باقٍ $count)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'اختر خانة في الورقة';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'نرد $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'نرد $value، محفوظ';
+  }
+
+  @override
+  String get dicesheetKept => 'محفوظ';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'الجولة $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return 'اكتب $points في $box';
+  }
+
+  @override
+  String get dicesheetBonus => 'مكافأة';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus من $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'خمسة إضافية';
+
+  @override
+  String get dicesheetTotal => 'المجموع';
+
+  @override
+  String get dicesheetOptionExtraFives => 'خمسة إضافية (قاعدة منزلية)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'خمسة متشابهة أخرى وفي خانتها 50 بالفعل: 100 نقطة إضافية. وتصبح ورقة رابحة تذهب أولاً إلى الخانة العلوية لرقمها.';
 }

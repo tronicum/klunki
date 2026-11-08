@@ -1,5 +1,6 @@
 import 'chess.dart';
 import 'connect4.dart';
+import 'dice_sheet.dart';
 import 'game.dart';
 import 'gostrategy.dart';
 import 'mau_mau.dart';
@@ -55,6 +56,10 @@ import 'word_tiles.dart';
 /// the number of lives each player starts with; [maexchenDouble] (JSON
 /// `maexDouble`, written only when off; on by default) is the house rule "a
 /// doubted Mäxchen that is real costs 2 lives". Other games ignore both.
+///
+/// Ausgewürfelt (KLD-119): [extraFives] (JSON `extraFives`, written only
+/// when on; off by default) is the house rule "Extra-Fünfer"
+/// ([DiceSheetGame.extraFives]). Other games ignore it.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -68,6 +73,7 @@ class GameConfig {
   final MauMauRules mauMau;
   final int lives;
   final bool maexchenDouble;
+  final bool extraFives;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -79,7 +85,8 @@ class GameConfig {
       this.players = 2,
       this.mauMau = const MauMauRules(),
       this.lives = 3,
-      this.maexchenDouble = true});
+      this.maexchenDouble = true,
+      this.extraFives = false});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -98,6 +105,7 @@ class GameConfig {
         if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
         if (lives != 3) 'lives': lives,
         if (!maexchenDouble) 'maexDouble': false,
+        if (extraFives) 'extraFives': true,
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -111,7 +119,8 @@ class GameConfig {
       players: json['players'] as int? ?? 2,
       mauMau: MauMauRules.fromJson(json['maumau']),
       lives: json['lives'] as int? ?? 3,
-      maexchenDouble: json['maexDouble'] != false);
+      maexchenDouble: json['maexDouble'] != false,
+      extraFives: json['extraFives'] == true);
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -124,7 +133,8 @@ class GameConfig {
       players: players ?? this.players,
       mauMau: mauMau,
       lives: lives,
-      maexchenDouble: maexchenDouble);
+      maexchenDouble: maexchenDouble,
+      extraFives: extraFives);
 
   @override
   bool operator ==(Object other) =>
@@ -140,11 +150,13 @@ class GameConfig {
       other.players == players &&
       other.mauMau == mauMau &&
       other.lives == lives &&
-      other.maexchenDouble == maexchenDouble;
+      other.maexchenDouble == maexchenDouble &&
+      other.extraFives == extraFives;
 
   @override
   int get hashCode => Object.hash(
-      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau, lives, maexchenDouble);
+      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau, lives, maexchenDouble,
+      extraFives);
 
   @override
   String toString() =>
@@ -152,7 +164,8 @@ class GameConfig {
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
-      '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'})';
+      '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
+      '${extraFives ? ', extraFives' : ''})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -187,8 +200,8 @@ class GameSpec {
   /// ([fingerprintOf]); the higher one is the newer build.
   final int rulesVersion;
 
-  /// The most seats this game supports (KLD-088); 2 for every game but the
-  /// word tile game. A game with more creates a [SeatGame] for
+  /// The most seats this game supports (KLD-088); 2 for most games, 4 for
+  /// the word tile game and Ausgewürfelt. A game with more creates a [SeatGame] for
   /// [GameConfig.players] above 2. Not part of the fingerprint: a
   /// 2-player game is the same on both sides.
   final int maxPlayers;
@@ -267,6 +280,13 @@ final List<GameSpec> gameSpecs = [
   GameSpec('maexchen', 'Mäxchen',
       (c, _) => MaexchenGame(seed: c.seed, startLives: c.lives, maexchenDouble: c.maexchenDouble),
       hiddenInformation: true, redaction: const MaexchenRedaction(), undoBarrier: MaexchenGame.endsRound),
+  // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
+  // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network
+  // session is 2-player). House rule "Extra-Fünfer" in the config
+  // (`extraFives`). A roll is final for hot-seat "Zug zurück".
+  GameSpec('dicesheet', 'Ausgewürfelt',
+      (c, _) => DiceSheetGame(seed: c.seed, playerCount: c.players, extraFives: c.extraFives),
+      maxPlayers: 4, undoBarrier: DiceSheetGame.isRoll),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

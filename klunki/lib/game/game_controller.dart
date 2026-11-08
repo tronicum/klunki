@@ -44,7 +44,41 @@ class GameController extends ChangeNotifier {
 
   /// The player to move is local and the game is not over. Ignores
   /// [needsHandover]; the cover screen blocks input while that is set.
-  bool get canAct => !game.isOver && _transport.localPlayers.contains(game.currentPlayer);
+  /// A game with more than two seats is played on one device only (every
+  /// seat is local, KLD-119).
+  bool get canAct {
+    if (game.isOver) return false;
+    if (seatGame != null) return seatGame!.actorSeat != null;
+    return _transport.localPlayers.contains(game.currentPlayer);
+  }
+
+  /// The game as a [SeatGame] when it has more than two seats (KLD-088,
+  /// KLD-119), else null: such a game is driven by seat ([SeatGame.actorSeat],
+  /// [resignSeat]) because `currentPlayer` throws for seats 2 and 3. A
+  /// two-seat game runs through [Game] as always.
+  SeatGame? get seatGame {
+    final g = game;
+    return g is SeatGame && (g as SeatGame).playerCount > 2 ? g as SeatGame : null;
+  }
+
+  /// The seats that may resign now in a [seatGame]: every seat still in
+  /// while the game runs (all of them sit at this device).
+  List<int> get canResignSeats {
+    final g = seatGame;
+    if (g == null || game.isOver) return const [];
+    return [for (var s = 0; s < g.playerCount; s++) if (!g.isSeatOut(s)) s];
+  }
+
+  /// Seat [seat] of a [seatGame] leaves; the others play on (a normal move,
+  /// so hot-seat undo takes it back).
+  Future<SubmitResult> resignSeat(int seat) => submit({'action': 'resign', 'seat': seat});
+
+  /// Who is to move as a number: the seat of a [seatGame], else the player's
+  /// index; null once over.
+  int? get _turn {
+    if (game.isOver) return null;
+    return seatGame?.actorSeat ?? game.currentPlayer.index;
+  }
 
   /// Undo is available (hot-seat only, with at least one move).
   bool get canUndo {
@@ -84,12 +118,12 @@ class GameController extends ChangeNotifier {
   bool undo() {
     final t = _transport;
     if (t is! HotSeatTransport) return false;
-    final before = game.currentPlayer;
+    final before = _turn;
     if (!t.undo()) return false;
     final log = t.moves;
     _lastEvent = log.isEmpty ? null : log.last.event;
-    _toMove = game.isOver ? null : game.currentPlayer;
-    if (_sharedDeviceSecrets && game.currentPlayer != before) _needsHandover = true;
+    _toMove = _turn;
+    if (_sharedDeviceSecrets && _turn != before) _needsHandover = true;
     notifyListeners();
     return true;
   }
@@ -108,7 +142,7 @@ class GameController extends ChangeNotifier {
   }
 
   void _attach() {
-    _toMove = game.isOver ? null : game.currentPlayer;
+    _toMove = _turn;
     _sub = _transport.accepted.listen(_onAccepted);
   }
 
@@ -121,10 +155,10 @@ class GameController extends ChangeNotifier {
     if (_disposed) return;
     _lastEvent = m.event;
     final before = _toMove;
-    _toMove = game.isOver ? null : game.currentPlayer;
+    _toMove = _turn;
     if (game.isOver) {
       _needsHandover = false; // e.g. a resign while the cover was up
-    } else if (_sharedDeviceSecrets && game.currentPlayer != before) {
+    } else if (_sharedDeviceSecrets && _toMove != before) {
       // The turn passed to the other player. Usually by the mover's own
       // move; with KLD-094 step 6 also by the other player's answer
       // ("Trotzdem zulassen" agreed, then the turn passes), while a move
@@ -134,8 +168,8 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The player to move after the last accepted move (null once over).
-  Player? _toMove;
+  /// Who was to move after the last accepted move ([_turn]; null once over).
+  int? _toMove;
 
   @override
   void dispose() {

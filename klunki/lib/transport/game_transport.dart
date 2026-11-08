@@ -50,8 +50,14 @@ class AcceptedMove {
   /// Position in the move log (0-based).
   final int index;
 
-  /// The player who made the move.
+  /// The player who made the move. In a game with more than two seats
+  /// (KLD-088/KLD-119) this is only meaningful for seats 0 and 1 (A and B);
+  /// a move of seat 2 or 3 carries [Player.a] here: read [seat].
   final Player player;
+
+  /// The seat that made the move (`0 … playerCount-1`); [player]'s index
+  /// unless given (every two-player transport).
+  final int seat;
 
   /// The move as submitted (unmodifiable).
   final Map<String, dynamic> move;
@@ -62,12 +68,13 @@ class AcceptedMove {
   const AcceptedMove({
     required this.index,
     required this.player,
+    int? seat,
     required this.move,
     required this.event,
-  });
+  }) : seat = seat ?? (player == Player.a ? 0 : 1);
 
   @override
-  String toString() => 'AcceptedMove(#$index ${player.name} $move)';
+  String toString() => 'AcceptedMove(#$index ${seat < 2 ? player.name : 'seat $seat'} $move)';
 }
 
 /// Why a submitted move was not applied.

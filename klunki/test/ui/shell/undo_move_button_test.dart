@@ -27,14 +27,16 @@ void main() {
   const ownRow = {'chess': Key('chess-flip'), 'wordtiles': Key('wordtiles-bench-toggle')};
   // Games whose board places the button in its own control panel, above
   // the action buttons (Mäxchen, KLD-121 follow-up).
-  const ownPanel = {'maexchen': Key('maexchen-controls')};
+  const ownPanel = {'maexchen': Key('maexchen-controls'), 'dicesheet': Key('dicesheet-controls')};
 
   for (final id in gameScreens.keys) {
     testWidgets('$id: "Zug zurück" in the game area, not in the app bar', (tester) async {
       final c = await pumpGame(tester, id);
       expect(find.byKey(undo), findsOneWidget);
       expect(find.descendant(of: find.byType(AppBar), matching: find.byKey(undo)), findsNothing);
-      expect(find.descendant(of: find.byType(HandoverCover), matching: find.byKey(undo)), findsOneWidget);
+      // The seat shell (KLD-119) has no handover cover: no secrets.
+      expect(find.descendant(of: find.byType(HandoverCover), matching: find.byKey(undo)),
+          seatGames.contains(id) ? findsNothing : findsOneWidget);
       expect(find.text('Zug zurück'), findsOneWidget);
       // The app bar keeps the whole-game controls (the names action needs
       // the app's name store, not here).
@@ -67,12 +69,21 @@ void main() {
         await tester.pump();
       }
       expect(c.moves, hasLength(1));
+      var left = 0;
+      if (id == 'dicesheet') {
+        // KLD-119: a roll is final (the dice were seen); filling a box can
+        // be taken back.
+        expect(button(tester).onPressed, isNull);
+        await c.submit(DiceSheetGame.scoreMove((c.game as DiceSheetGame).allowedBoxes.first));
+        await tester.pump();
+        left = 1;
+      }
       expect(button(tester).onPressed, isNotNull);
       await tester.ensureVisible(find.byKey(undo)); // the word game's side panel scrolls
       await tester.pump();
       await tester.tap(find.byKey(undo));
       await tester.pump();
-      expect(c.moves, isEmpty);
+      expect(c.moves, hasLength(left));
     });
   }
 

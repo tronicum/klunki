@@ -3332,4 +3332,206 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get shakeConsentNo => 'نه، فقط لمس';
+
+  @override
+  String get wordtilesHelp => 'روش بازی';
+
+  @override
+  String get wordtilesHelpJoker =>
+      'عوض کردن کاشی خالی (قانون خانگی): اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، آن را روی کاشی خالی بکش. کاشی خالی به کاشی‌های تو می‌آید و در همان نوبت کاشی هم می‌گذاری (کاشی خالی هم می‌تواند جزو آن‌ها باشد). بدون گذاشتن کاشی، تعویض حساب نمی‌شود. واژهٔ قبلی و امتیازش می‌ماند.';
+
+  @override
+  String get wordtilesHelpJokerOn => 'در این بازی روشن است.';
+
+  @override
+  String get wordtilesHelpJokerOff =>
+      'در این بازی خاموش است. می‌توانید پیش از بازی روشنش کنید.';
+
+  @override
+  String get menuGameDiceSheet => 'تاس‌بازی';
+
+  @override
+  String get menuDescDiceSheet => 'پنج تاس، یک برگه، تا چهار نفر';
+
+  @override
+  String get engineReasonDicesheetAllFilled => 'همه‌ی خانه‌ها پر شده‌اند';
+
+  @override
+  String get playerDefaultNameC => 'سارا';
+
+  @override
+  String get playerDefaultNameD => 'کاوه';
+
+  @override
+  String get seatPlayerCount => 'چند نفر بازی می‌کنند؟';
+
+  @override
+  String get seatResignWho => 'چه کسی کنار می‌کشد؟ بقیه ادامه می‌دهند.';
+
+  @override
+  String get seatOut => 'کنار کشید';
+
+  @override
+  String seatPoints(int points) {
+    return '$points امتیاز';
+  }
+
+  @override
+  String get seatSharedFirst => 'تساوی در جای اول!';
+
+  @override
+  String get seatReasonOthersResigned => 'همه‌ی بقیه کنار کشیدند';
+
+  @override
+  String get dicesheetHelpTitle => 'چطور بازی کنیم';
+
+  @override
+  String get dicesheetHelpTurn =>
+      'پنج تاس را تا سه بار بینداز. روی تاس‌هایی که می‌خواهی نگه داری بزن و بقیه را دوباره بینداز. بعد امتیاز تاس‌ها را فقط در یک خانه‌ی خالی بنویس. اگر هیچ‌کدام جور نیست، یک خانه را با ۰ خط بزن.';
+
+  @override
+  String get dicesheetHelpUpper =>
+      'بخش بالا (یک‌ها تا شش‌ها): جمع تاس‌هایی که آن عدد را نشان می‌دهند. اگر بخش بالا به ۶۳ یا بیشتر برسد، ۳۵ امتیاز جایزه می‌گیری.';
+
+  @override
+  String get dicesheetHelpLower =>
+      'بخش پایین: سه‌تایی و چهارتایی (۳ یا ۴ تاس یکسان) جمع همه‌ی تاس‌ها را می‌گیرند. فول (۳ یکسان و ۲ یکسان) ۲۵، ردیف کوچک (۴ پشت سر هم) ۳۰، ردیف بزرگ (۵ پشت سر هم) ۴۰، پنج‌تایی (۵ یکسان) ۵۰، و شانس جمع همه‌ی تاس‌ها.';
+
+  @override
+  String get dicesheetHelpEnd =>
+      'بعد از ۱۳ دور همه‌ی خانه‌ها پر می‌شوند. هر کس بیشترین امتیاز را داشته باشد برنده است.';
+
+  @override
+  String get dicesheetHelpExtraFives =>
+      'پنج‌تایی اضافه: اگر وقتی در خانه‌ی پنج‌تایی ۵۰ نوشته شده دوباره پنج‌تایی بیاوری، ۱۰۰ امتیاز اضافه می‌گیری. آن وقت جوکر است: اول در خانه‌ی بالای همان عدد؛ اگر پر است، در یک خانه‌ی خالی پایین با امتیاز کامل؛ وگرنه با ۰ در یک خانه‌ی بالا.';
+
+  @override
+  String get dicesheetBoxOnes => 'یک‌ها';
+
+  @override
+  String get dicesheetBoxTwos => 'دوها';
+
+  @override
+  String get dicesheetBoxThrees => 'سه‌ها';
+
+  @override
+  String get dicesheetBoxFours => 'چهارها';
+
+  @override
+  String get dicesheetBoxFives => 'پنج‌ها';
+
+  @override
+  String get dicesheetBoxSixes => 'شش‌ها';
+
+  @override
+  String get dicesheetBoxThreeKind => 'سه‌تایی';
+
+  @override
+  String get dicesheetBoxFourKind => 'چهارتایی';
+
+  @override
+  String get dicesheetBoxFullHouse => 'فول';
+
+  @override
+  String get dicesheetBoxSmallStraight => 'ردیف کوچک';
+
+  @override
+  String get dicesheetBoxLargeStraight => 'ردیف بزرگ';
+
+  @override
+  String get dicesheetBoxFiveKind => 'پنج‌تایی';
+
+  @override
+  String get dicesheetBoxChance => 'شانس';
+
+  @override
+  String dicesheetMoveRoll(String dice) {
+    return 'تاس: $dice';
+  }
+
+  @override
+  String dicesheetMoveRollKeep(String dice, int count) {
+    return 'تاس: $dice ($count نگه داشته)';
+  }
+
+  @override
+  String dicesheetMoveScore(String box, int points) {
+    return '$box: $points';
+  }
+
+  @override
+  String dicesheetMoveScoreBonus(String box, int points, int bonus) {
+    return '$box: $points (+$bonus)';
+  }
+
+  @override
+  String dicesheetLastScore(String player, String box, int points) {
+    return '$player: $points در $box.';
+  }
+
+  @override
+  String get dicesheetHintRoll => 'روی «بینداز» بزن.';
+
+  @override
+  String get dicesheetHintKeep =>
+      'روی تاس‌هایی که می‌خواهی نگه داری بزن و دوباره بینداز. یا یک خانه در برگه انتخاب کن.';
+
+  @override
+  String get dicesheetHintPick => 'یک خانه در برگه انتخاب کن.';
+
+  @override
+  String get dicesheetHintJoker =>
+      'پنج‌تایی به‌عنوان جوکر: آن را در یکی از خانه‌های مجاز بنویس.';
+
+  @override
+  String dicesheetRollButton(int count) {
+    return 'بینداز ($count بار دیگر)';
+  }
+
+  @override
+  String get dicesheetPickBox => 'یک خانه انتخاب کن';
+
+  @override
+  String dicesheetDie(int value) {
+    return 'تاس $value';
+  }
+
+  @override
+  String dicesheetDieKept(int value) {
+    return 'تاس $value، نگه داشته';
+  }
+
+  @override
+  String get dicesheetKept => 'نگه‌دار';
+
+  @override
+  String dicesheetRound(int round, int total) {
+    return 'دور $round/$total';
+  }
+
+  @override
+  String dicesheetScoreAction(String box, int points) {
+    return '$points را در $box بنویس';
+  }
+
+  @override
+  String get dicesheetBonus => 'جایزه';
+
+  @override
+  String dicesheetBonusRule(String bonus, int at) {
+    return '$bonus از $at';
+  }
+
+  @override
+  String get dicesheetExtraFives => 'پنج‌تایی اضافه';
+
+  @override
+  String get dicesheetTotal => 'جمع';
+
+  @override
+  String get dicesheetOptionExtraFives => 'پنج‌تایی اضافه (قانون خانگی)';
+
+  @override
+  String get dicesheetOptionExtraFivesExplain =>
+      'پنج‌تایی دیگر وقتی در خانه‌اش ۵۰ نوشته شده: ۱۰۰ امتیاز اضافه. آن وقت جوکر است و اول به خانه‌ی بالای همان عدد می‌رود.';
 }

@@ -13,4 +13,5 @@ export 'debug/chess_text.dart';
 export 'debug/word_tiles_text.dart';
 export 'debug/mau_mau_text.dart';
 export 'debug/maexchen_text.dart';
+export 'debug/dice_sheet_text.dart';
 export 'debug/property_text.dart';
