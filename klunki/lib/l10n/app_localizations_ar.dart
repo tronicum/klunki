@@ -3904,4 +3904,421 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dicesheetCoachReplay => 'جولة سريعة';
+
+  @override
+  String get menuGameProperty => 'ملك البناء';
+
+  @override
+  String get menuDescProperty => 'شراء الشوارع وجمع الإيجار والبناء';
+
+  @override
+  String get engineReasonPropertyLastSolvent =>
+      'جميع الآخرين مفلسون أو خارج اللعبة';
+
+  @override
+  String engineReasonPropertyRoundLimit(int rounds) {
+    return 'بعد $rounds جولة تفوز الثروة الأكبر';
+  }
+
+  @override
+  String propertyMoney(int amount) {
+    return '$amount قطعة نقدية';
+  }
+
+  @override
+  String get propertyOptionsBoard => 'اللوحة';
+
+  @override
+  String get propertyThemeBerlin => 'برلين';
+
+  @override
+  String get propertyThemeFantasie => 'مدينة الخيال';
+
+  @override
+  String get propertyThemeGermanNote =>
+      'أسماء الشوارع والبطاقات بالألمانية حاليًا.';
+
+  @override
+  String get propertyOptionsLength => 'مدة اللعب';
+
+  @override
+  String get propertyOptionsUntilEnd => 'حتى يبقى لاعب واحد';
+
+  @override
+  String propertyOptionsRounds(int rounds) {
+    return '$rounds جولة';
+  }
+
+  @override
+  String get propertyOptionsRoundsExplain =>
+      'مع حد للجولات، يفوز في النهاية صاحب الثروة الأكبر.';
+
+  @override
+  String get propertyOptionsHouseRules => 'قواعد منزلية';
+
+  @override
+  String propertyFreeTitle(String square) {
+    return 'على «$square»';
+  }
+
+  @override
+  String get propertyFreeNone => 'لا شيء يحدث';
+
+  @override
+  String get propertyFreePot => 'صندوق الضرائب والغرامات';
+
+  @override
+  String propertyFreePotSeed(String amount) {
+    return 'صندوق يبدأ بـ $amount';
+  }
+
+  @override
+  String propertyFreeBonus(String amount) {
+    return '$amount ثابتة';
+  }
+
+  @override
+  String get propertyFreeExplain =>
+      'الصندوق: الضرائب وغرامات البطاقات تذهب إلى الوسط، ومن يقف على المربع يأخذ كل شيء.';
+
+  @override
+  String propertyFreeBonusExplain(String square, String amount) {
+    return 'الوقوف على «$square» يعطي $amount.';
+  }
+
+  @override
+  String get propertyRuleDoubleStart => 'راتب مضاعف عند الوقوف على البداية';
+
+  @override
+  String propertyRuleDoubleStartExplain(String amount) {
+    return 'الوقوف تمامًا على البداية يعطي $amount.';
+  }
+
+  @override
+  String get propertyRuleNoRentInPause => 'لا إيجار أثناء الاستراحة';
+
+  @override
+  String get propertyRuleNoRentInPauseExplain =>
+      'من يجلس في الاستراحة لا يحصل على إيجار.';
+
+  @override
+  String get propertyRuleBankruptAuction => 'مزاد عند الإفلاس';
+
+  @override
+  String get propertyRuleBankruptAuctionExplain =>
+      'عندما يفلس لاعب أمام البنك، تُباع شوارعه بالمزاد بدل إعادتها.';
+
+  @override
+  String get propertyRoll => 'رمي النرد';
+
+  @override
+  String propertyBuy(String amount) {
+    return 'شراء مقابل $amount';
+  }
+
+  @override
+  String get propertyDecline => 'عدم الشراء – مزاد';
+
+  @override
+  String get propertyTooPoor => 'المال غير كافٍ للشراء';
+
+  @override
+  String propertyFreeToBuy(String square) {
+    return '$square لا يملكه أحد بعد.';
+  }
+
+  @override
+  String propertyAuctionTitle(String square) {
+    return 'مزاد: $square';
+  }
+
+  @override
+  String propertyAuctionHigh(String amount, String player) {
+    return 'أعلى عرض: $amount من $player';
+  }
+
+  @override
+  String get propertyAuctionNone => 'لا عروض بعد';
+
+  @override
+  String propertyAuctionTurn(String player) {
+    return 'دور المزايدة: $player';
+  }
+
+  @override
+  String propertyBid(String amount) {
+    return 'عرض $amount';
+  }
+
+  @override
+  String get propertyPass => 'الانسحاب';
+
+  @override
+  String get propertyEndTurn => 'إنهاء الدور';
+
+  @override
+  String propertyPayBail(String amount) {
+    return 'دفع $amount والخروج';
+  }
+
+  @override
+  String get propertyUseCard => 'استخدام البطاقة المجانية';
+
+  @override
+  String propertyInPause(String player, String square) {
+    return 'استراحة $player في «$square»: زوج متطابق أو دفع أو بطاقة مجانية.';
+  }
+
+  @override
+  String get propertyManage => 'شوارعي';
+
+  @override
+  String propertyManageOf(String player) {
+    return 'شوارع: $player';
+  }
+
+  @override
+  String propertyDebt(String player, String amount, String cash) {
+    return 'دين $player: $amount، والمتوفر $cash فقط. بيع مبانٍ أو رهن شوارع.';
+  }
+
+  @override
+  String get propertyBankrupt => 'إعلان الإفلاس';
+
+  @override
+  String propertyBuild(String amount) {
+    return 'بناء ($amount)';
+  }
+
+  @override
+  String propertySell(String amount) {
+    return 'بيع (+$amount)';
+  }
+
+  @override
+  String propertyMortgage(String amount) {
+    return 'رهن (+$amount)';
+  }
+
+  @override
+  String propertyUnmortgage(String amount) {
+    return 'فك الرهن ($amount)';
+  }
+
+  @override
+  String get propertyManageEmpty => 'لا شوارع بعد.';
+
+  @override
+  String get propertyMortgaged => 'مرهون';
+
+  @override
+  String propertyOwnerLine(String player) {
+    return 'المالك: $player';
+  }
+
+  @override
+  String get propertyOwnerNone => 'لا يزال ملك البنك';
+
+  @override
+  String propertyPrice(String amount) {
+    return 'السعر: $amount';
+  }
+
+  @override
+  String propertyRent(String amount) {
+    return 'الإيجار: $amount';
+  }
+
+  @override
+  String get propertyRentGroup => 'المجموعة كاملة: إيجار مضاعف';
+
+  @override
+  String propertyHouseCost(String amount) {
+    return 'كل مبنى يكلف $amount';
+  }
+
+  @override
+  String get propertyStationRents => 'الإيجار حسب عدد المحطات';
+
+  @override
+  String get propertyUtilityRent => 'الإيجار: مجموع النرد × 4، مع الاثنين × 10';
+
+  @override
+  String propertyTax(String amount) {
+    return 'ادفع: $amount';
+  }
+
+  @override
+  String propertyCardSquare(String deck) {
+    return 'سحب بطاقة: $deck';
+  }
+
+  @override
+  String propertyStartSquare(String amount) {
+    return 'المرور يعطي $amount.';
+  }
+
+  @override
+  String get propertyPauseSquare =>
+      'استراحة: الخروج بزوج متطابق أو بالمال أو ببطاقة. مجرد زيارة؟ لا شيء يحدث.';
+
+  @override
+  String get propertyGoToPauseSquare => 'إلى الاستراحة!';
+
+  @override
+  String get propertyOut => 'خارج اللعبة';
+
+  @override
+  String propertyStreets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count شارع',
+      many: '$count شارعًا',
+      few: '$count شوارع',
+      two: 'شارعان',
+      one: 'شارع واحد',
+      zero: 'لا شوارع',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyCoachRoll => 'ارمِ النرد وحرّك قطعتك على اللوحة.';
+
+  @override
+  String get propertyCoachBoard =>
+      'إذا وقفت على شارع حر يمكنك شراؤه، ومن يقف على شارعك يدفع لك الإيجار. المس مربعًا لمعرفة المزيد.';
+
+  @override
+  String get propertyCoachPlayers => 'هنا ترى مال الجميع. من ينفد ماله يُفلس.';
+
+  @override
+  String get propertyCoachManage =>
+      'إذا امتلكت لونًا كاملًا تبني هنا، فيرتفع الإيجار كثيرًا.';
+
+  @override
+  String get propertyCoachReplay => 'جولة سريعة';
+
+  @override
+  String propertyEvRolled(String player, int a, int b) {
+    return 'رمية $player: $a + $b';
+  }
+
+  @override
+  String propertyEvSalary(String player, String amount) {
+    return 'راتب $player: $amount';
+  }
+
+  @override
+  String propertyEvCard(String text) {
+    return 'بطاقة: «$text»';
+  }
+
+  @override
+  String propertyEvCollected(String player, String amount) {
+    return 'لـ$player: $amount';
+  }
+
+  @override
+  String propertyEvPot(String player, String amount) {
+    return 'الصندوق لـ$player: $amount';
+  }
+
+  @override
+  String propertyEvPaidBank(String player, String amount) {
+    return 'دفعة $player للبنك: $amount';
+  }
+
+  @override
+  String propertyEvPaidPot(String player, String amount) {
+    return 'دفعة $player للصندوق: $amount';
+  }
+
+  @override
+  String propertyEvPaid(String player, String amount, String other) {
+    return 'دفعة من $player إلى $other: $amount';
+  }
+
+  @override
+  String propertyEvBought(String player, String square, String amount) {
+    return 'شراء $player: $square مقابل $amount';
+  }
+
+  @override
+  String propertyEvBid(String player, String amount) {
+    return 'عرض $player: $amount';
+  }
+
+  @override
+  String propertyEvPassed(String player) {
+    return 'انسحاب $player من المزاد';
+  }
+
+  @override
+  String propertyEvUnsold(String square) {
+    return 'لا عروض: $square يبقى للبنك';
+  }
+
+  @override
+  String propertyEvBuilt(String player, String building, String square) {
+    return 'بناء $player: $building في $square';
+  }
+
+  @override
+  String propertyEvSold(String player, String square, String amount) {
+    return 'بيع $player في $square: +$amount';
+  }
+
+  @override
+  String propertyEvMortgaged(String player, String square, String amount) {
+    return 'رهن $player: $square +$amount';
+  }
+
+  @override
+  String propertyEvUnmortgaged(String player, String square, String amount) {
+    return 'فك رهن $player: $square −$amount';
+  }
+
+  @override
+  String propertyEvToPause(String player, String square) {
+    return 'ذهاب $player إلى «$square»';
+  }
+
+  @override
+  String get propertyEvThreeDoubles => 'ثلاثة أزواج متتالية!';
+
+  @override
+  String propertyEvLeftPause(String player) {
+    return 'خروج $player من الاستراحة';
+  }
+
+  @override
+  String propertyEvStayInPause(String player, int tries) {
+    return 'لا زوج: بقاء $player في الاستراحة ($tries/3)';
+  }
+
+  @override
+  String propertyEvBankrupt(String player) {
+    return 'إفلاس $player';
+  }
+
+  @override
+  String propertyEvResigned(String player) {
+    return 'انسحاب $player';
+  }
+
+  @override
+  String get rulesPropertyGoal =>
+      'اشترِ الشوارع واجمع الإيجار وابنِ عليها.\nيفوز آخر من يبقى في اللعبة. مع حد للجولات تفوز الثروة الأكبر في النهاية.';
+
+  @override
+  String rulesPropertyTurn(String salary) {
+    return 'ارمِ نردين وتقدّم بعدد المربعات.\nإذا وقفت على شارع حر يمكنك شراؤه، وإلا يُباع بالمزاد لصاحب أعلى عرض.\nإذا كان الشارع لغيرك تدفع الإيجار.\nمع زوج متطابق ترمي مرة أخرى.\nالمرور بالبداية يعطي $salary.';
+  }
+
+  @override
+  String rulesPropertySpecial(String bail) {
+    return 'إذا امتلكت مجموعة لونية كاملة يتضاعف الإيجار ويمكنك البناء بالتساوي: أولًا 4 مبانٍ صغيرة ثم مبنى كبير واحد لكل شارع.\nالبطاقات تعطي مالًا أو تأخذه أو تنقلك على اللوحة.\nثلاثة أزواج متتالية ترسلك إلى الاستراحة. تخرج بزوج متطابق أو بدفع $bail أو ببطاقة مجانية.\nينقصك المال؟ بِع المباني بنصف السعر أو ارهن الشوارع. لا تُفلس إلا إذا لم يكفِ ذلك.\nالرهن يعطي نصف السعر، وفكّه يكلف 10 % أكثر. الشارع المرهون لا يجلب إيجارًا.';
+  }
 }

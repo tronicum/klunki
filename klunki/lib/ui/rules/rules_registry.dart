@@ -5,6 +5,7 @@ import 'games/gostrategy_rules.dart';
 import 'games/maexchen_rules.dart';
 import 'games/maumau_rules.dart';
 import 'games/muehle_rules.dart';
+import 'games/property_rules.dart';
 import 'games/quartett_rules.dart';
 import 'games/schiffe_rules.dart';
 import 'games/wordtiles_rules.dart';
@@ -28,4 +29,5 @@ final Map<String, RulesBuilder> gameRules = {
   'maumau': mauMauRules,
   'maexchen': maexchenRules,
   'dicesheet': diceSheetRules,
+  'property': propertyRules,
 };

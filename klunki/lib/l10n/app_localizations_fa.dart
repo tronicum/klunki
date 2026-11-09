@@ -3803,4 +3803,418 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dicesheetCoachReplay => 'آشنایی سریع';
+
+  @override
+  String get menuGameProperty => 'سلطان ساخت‌وساز';
+
+  @override
+  String get menuDescProperty => 'خرید خیابان، گرفتن اجاره، ساختن';
+
+  @override
+  String get engineReasonPropertyLastSolvent =>
+      'بقیه ورشکست شده‌اند یا بیرون رفته‌اند';
+
+  @override
+  String engineReasonPropertyRoundLimit(int rounds) {
+    return 'بعد از $rounds دور، بیشترین دارایی برنده است';
+  }
+
+  @override
+  String propertyMoney(int amount) {
+    return '$amount سکه';
+  }
+
+  @override
+  String get propertyOptionsBoard => 'صفحه بازی';
+
+  @override
+  String get propertyThemeBerlin => 'برلین';
+
+  @override
+  String get propertyThemeFantasie => 'شهر خیالی';
+
+  @override
+  String get propertyThemeGermanNote =>
+      'نام خیابان‌ها و کارت‌ها فعلاً آلمانی است.';
+
+  @override
+  String get propertyOptionsLength => 'مدت بازی';
+
+  @override
+  String get propertyOptionsUntilEnd => 'تا وقتی فقط یک نفر بماند';
+
+  @override
+  String propertyOptionsRounds(int rounds) {
+    return '$rounds دور';
+  }
+
+  @override
+  String get propertyOptionsRoundsExplain =>
+      'با محدودیت دور، در پایان کسی که بیشترین دارایی را دارد برنده است.';
+
+  @override
+  String get propertyOptionsHouseRules => 'قانون‌های خودمانی';
+
+  @override
+  String propertyFreeTitle(String square) {
+    return 'روی «$square»';
+  }
+
+  @override
+  String get propertyFreeNone => 'هیچ اتفاقی نمی‌افتد';
+
+  @override
+  String get propertyFreePot => 'قلک مالیات‌ها و جریمه‌ها';
+
+  @override
+  String propertyFreePotSeed(String amount) {
+    return 'قلک، شروع با $amount';
+  }
+
+  @override
+  String propertyFreeBonus(String amount) {
+    return '$amount ثابت';
+  }
+
+  @override
+  String get propertyFreeExplain =>
+      'قلک: مالیات‌ها و جریمه‌های کارت وسط می‌رود؛ هر کس روی آن خانه بیاید همه را برمی‌دارد.';
+
+  @override
+  String propertyFreeBonusExplain(String square, String amount) {
+    return 'ایستادن روی «$square» $amount می‌دهد.';
+  }
+
+  @override
+  String get propertyRuleDoubleStart => 'حقوق دوبرابر روی شروع';
+
+  @override
+  String propertyRuleDoubleStartExplain(String amount) {
+    return 'دقیقاً روی شروع ایستادن $amount می‌دهد.';
+  }
+
+  @override
+  String get propertyRuleNoRentInPause => 'در استراحت اجاره نیست';
+
+  @override
+  String get propertyRuleNoRentInPauseExplain =>
+      'کسی که در استراحت است اجاره نمی‌گیرد.';
+
+  @override
+  String get propertyRuleBankruptAuction => 'حراج هنگام ورشکستگی';
+
+  @override
+  String get propertyRuleBankruptAuctionExplain =>
+      'اگر کسی در برابر بانک ورشکست شود، خیابان‌هایش حراج می‌شوند.';
+
+  @override
+  String get propertyRoll => 'تاس بینداز';
+
+  @override
+  String propertyBuy(String amount) {
+    return 'خرید با $amount';
+  }
+
+  @override
+  String get propertyDecline => 'نخر – حراج';
+
+  @override
+  String get propertyTooPoor => 'پول برای خرید کافی نیست';
+
+  @override
+  String propertyFreeToBuy(String square) {
+    return '$square هنوز مال کسی نیست.';
+  }
+
+  @override
+  String propertyAuctionTitle(String square) {
+    return 'حراج: $square';
+  }
+
+  @override
+  String propertyAuctionHigh(String amount, String player) {
+    return 'بالاترین پیشنهاد: $amount از $player';
+  }
+
+  @override
+  String get propertyAuctionNone => 'هنوز پیشنهادی نیست';
+
+  @override
+  String propertyAuctionTurn(String player) {
+    return 'نوبت پیشنهاد: $player';
+  }
+
+  @override
+  String propertyBid(String amount) {
+    return 'پیشنهاد $amount';
+  }
+
+  @override
+  String get propertyPass => 'کنار کشیدن';
+
+  @override
+  String get propertyEndTurn => 'پایان نوبت';
+
+  @override
+  String propertyPayBail(String amount) {
+    return '$amount بده و بیرون بیا';
+  }
+
+  @override
+  String get propertyUseCard => 'استفاده از کارت آزادی';
+
+  @override
+  String propertyInPause(String player, String square) {
+    return '$player در «$square» است: جفت بینداز، پول بده یا کارت آزادی.';
+  }
+
+  @override
+  String get propertyManage => 'خیابان‌های من';
+
+  @override
+  String propertyManageOf(String player) {
+    return 'خیابان‌ها: $player';
+  }
+
+  @override
+  String propertyDebt(String player, String amount, String cash) {
+    return '$player باید $amount بدهد ولی فقط $cash دارد. ساختمان بفروش یا خیابان گرو بگذار.';
+  }
+
+  @override
+  String get propertyBankrupt => 'اعلام ورشکستگی';
+
+  @override
+  String propertyBuild(String amount) {
+    return 'ساختن ($amount)';
+  }
+
+  @override
+  String propertySell(String amount) {
+    return 'فروش (+$amount)';
+  }
+
+  @override
+  String propertyMortgage(String amount) {
+    return 'گرو گذاشتن (+$amount)';
+  }
+
+  @override
+  String propertyUnmortgage(String amount) {
+    return 'آزاد کردن ($amount)';
+  }
+
+  @override
+  String get propertyManageEmpty => 'هنوز خیابانی نیست.';
+
+  @override
+  String get propertyMortgaged => 'گرو';
+
+  @override
+  String propertyOwnerLine(String player) {
+    return 'مال $player';
+  }
+
+  @override
+  String get propertyOwnerNone => 'هنوز مال بانک است';
+
+  @override
+  String propertyPrice(String amount) {
+    return 'قیمت: $amount';
+  }
+
+  @override
+  String propertyRent(String amount) {
+    return 'اجاره: $amount';
+  }
+
+  @override
+  String get propertyRentGroup => 'کل گروه رنگی: اجاره دوبرابر';
+
+  @override
+  String propertyHouseCost(String amount) {
+    return 'هر ساختمان $amount';
+  }
+
+  @override
+  String get propertyStationRents => 'اجاره بر اساس تعداد ایستگاه‌ها';
+
+  @override
+  String get propertyUtilityRent => 'اجاره: جمع تاس × 4، با هر دو × 10';
+
+  @override
+  String propertyTax(String amount) {
+    return 'پرداخت: $amount';
+  }
+
+  @override
+  String propertyCardSquare(String deck) {
+    return 'یک کارت بکش: $deck';
+  }
+
+  @override
+  String propertyStartSquare(String amount) {
+    return 'عبور $amount می‌دهد.';
+  }
+
+  @override
+  String get propertyPauseSquare =>
+      'استراحت: با جفت، پول یا کارت بیرون بیا. فقط بازدید؟ اتفاقی نمی‌افتد.';
+
+  @override
+  String get propertyGoToPauseSquare => 'برو به استراحت!';
+
+  @override
+  String get propertyOut => 'بیرون';
+
+  @override
+  String propertyStreets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خیابان',
+      zero: 'بدون خیابان',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyCoachRoll => 'تاس بینداز و مهره‌ات را روی صفحه جلو ببر.';
+
+  @override
+  String get propertyCoachBoard =>
+      'روی خیابان خالی بایستی، می‌توانی آن را بخری. هر کس روی خیابان تو بایستد به تو اجاره می‌دهد. برای جزئیات روی خانه بزن.';
+
+  @override
+  String get propertyCoachPlayers =>
+      'اینجا پول همه را می‌بینی. هر کس پولش تمام شود ورشکست است.';
+
+  @override
+  String get propertyCoachManage =>
+      'اگر یک رنگ کامل مال تو باشد، اینجا می‌سازی و اجاره خیلی بالا می‌رود.';
+
+  @override
+  String get propertyCoachReplay => 'معرفی کوتاه';
+
+  @override
+  String propertyEvRolled(String player, int a, int b) {
+    return 'تاس $player: $a + $b';
+  }
+
+  @override
+  String propertyEvSalary(String player, String amount) {
+    return 'حقوق $player: $amount';
+  }
+
+  @override
+  String propertyEvCard(String text) {
+    return 'کارت: «$text»';
+  }
+
+  @override
+  String propertyEvCollected(String player, String amount) {
+    return '$player $amount می‌گیرد';
+  }
+
+  @override
+  String propertyEvPot(String player, String amount) {
+    return 'قلک برای $player: $amount';
+  }
+
+  @override
+  String propertyEvPaidBank(String player, String amount) {
+    return '$player $amount به بانک می‌دهد';
+  }
+
+  @override
+  String propertyEvPaidPot(String player, String amount) {
+    return '$player $amount در قلک می‌گذارد';
+  }
+
+  @override
+  String propertyEvPaid(String player, String amount, String other) {
+    return '$player $amount به $other می‌دهد';
+  }
+
+  @override
+  String propertyEvBought(String player, String square, String amount) {
+    return '$player $square را با $amount می‌خرد';
+  }
+
+  @override
+  String propertyEvBid(String player, String amount) {
+    return 'پیشنهاد $player: $amount';
+  }
+
+  @override
+  String propertyEvPassed(String player) {
+    return '$player کنار می‌کشد';
+  }
+
+  @override
+  String propertyEvUnsold(String square) {
+    return 'بی‌پیشنهاد: $square پیش بانک می‌ماند';
+  }
+
+  @override
+  String propertyEvBuilt(String player, String building, String square) {
+    return '$player روی $square $building می‌سازد';
+  }
+
+  @override
+  String propertyEvSold(String player, String square, String amount) {
+    return '$player در $square می‌فروشد: +$amount';
+  }
+
+  @override
+  String propertyEvMortgaged(String player, String square, String amount) {
+    return '$player $square را گرو می‌گذارد: +$amount';
+  }
+
+  @override
+  String propertyEvUnmortgaged(String player, String square, String amount) {
+    return '$player $square را آزاد می‌کند: −$amount';
+  }
+
+  @override
+  String propertyEvToPause(String player, String square) {
+    return '$player باید به «$square» برود';
+  }
+
+  @override
+  String get propertyEvThreeDoubles => 'سه جفت پشت سر هم!';
+
+  @override
+  String propertyEvLeftPause(String player) {
+    return '$player دوباره آزاد است';
+  }
+
+  @override
+  String propertyEvStayInPause(String player, int tries) {
+    return 'جفت نیامد: $player در استراحت می‌ماند ($tries/3)';
+  }
+
+  @override
+  String propertyEvBankrupt(String player) {
+    return '$player ورشکست شد';
+  }
+
+  @override
+  String propertyEvResigned(String player) {
+    return '$player بازی را رها می‌کند';
+  }
+
+  @override
+  String get rulesPropertyGoal =>
+      'خیابان بخر، اجاره بگیر و رویشان بساز.\nآخرین کسی که در بازی می‌ماند برنده است. با محدودیت دور، در پایان بیشترین دارایی برنده است.';
+
+  @override
+  String rulesPropertyTurn(String salary) {
+    return 'دو تاس بینداز و به همان تعداد خانه جلو برو.\nروی خیابان خالی می‌توانی آن را بخری؛ اگر نخری حراج می‌شود و بالاترین پیشنهاد آن را می‌برد.\nاگر خیابان مال کس دیگری باشد، اجاره می‌دهی.\nبا جفت دوباره تاس می‌اندازی.\nعبور از شروع $salary می‌دهد.';
+  }
+
+  @override
+  String rulesPropertySpecial(String bail) {
+    return 'اگر یک گروه رنگی کامل مال تو باشد، اجاره دوبرابر است و می‌توانی بسازی: یکنواخت، اول 4 ساختمان کوچک، بعد 1 ساختمان بزرگ برای هر خیابان.\nکارت‌ها پول می‌دهند، پول می‌گیرند یا تو را روی صفحه جابه‌جا می‌کنند.\nسه جفت پشت سر هم تو را به استراحت می‌فرستد. با جفت، با $bail یا با کارت آزادی بیرون می‌آیی.\nپول کم داری؟ ساختمان‌ها را نصف قیمت بفروش یا خیابان‌ها را گرو بگذار. فقط وقتی این هم کافی نباشد ورشکست می‌شوی.\nگرو گذاشتن نصف قیمت را می‌دهد؛ آزاد کردن 10 % بیشتر هزینه دارد. خیابان گرو اجاره نمی‌آورد.';
+  }
 }

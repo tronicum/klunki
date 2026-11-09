@@ -57,6 +57,11 @@ class SeatGameScreen extends StatefulWidget {
   /// "Kurz erklärt" tour).
   final List<ShellMenuEntry> menuEntries;
 
+  /// What the ranking shows behind a seat's name instead of the points
+  /// (null = the default: "aufgegeben" or `score<seat>` points). Baulöwe
+  /// (KLD-060) shows the money a seat ended with.
+  final String? Function(AppLocalizations l10n, SeatResult result, int seat)? resultScore;
+
   const SeatGameScreen({
     super.key,
     required this.controller,
@@ -65,6 +70,7 @@ class SeatGameScreen extends StatefulWidget {
     this.title,
     this.actions = const [],
     this.menuEntries = const [],
+    this.resultScore,
   });
 
   @override
@@ -431,7 +437,16 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
                 ),
                 const SizedBox(width: 12),
-                if (game is SeatGame && (game as SeatGame).isSeatOut(s))
+                if (widget.resultScore?.call(l10n, r, s) case final custom?)
+                  Flexible(
+                    child: Text(custom,
+                        key: Key('result-score-$s'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                        style: theme.textTheme.titleMedium),
+                  )
+                else if (game is SeatGame && (game as SeatGame).isSeatOut(s))
                   Text(l10n.seatOut, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant))
                 else if (r.params['score$s'] != null)
                   Text(l10n.seatPoints(r.params['score$s']!), style: theme.textTheme.titleMedium),

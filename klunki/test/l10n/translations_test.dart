@@ -58,6 +58,8 @@ const sameAsEnglish = {
   // KLD-119: score sheet words spelled the same in French / Spanish.
   'Chance',
   'Total',
+  // KLD-060: the city board's name (French spells it the same).
+  'Berlin',
 };
 
 Map<String, dynamic> _arb(String locale) =>
@@ -95,6 +97,7 @@ void main() {
       SeenTips.debugReset();
       SeenTips.shared.markFirst(SeenTips.wordtilesBench);
       SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
+      SeenTips.shared.markFirst(SeenTips.propertyIntro);
     });
 
     Future<void> phone(WidgetTester tester) async {

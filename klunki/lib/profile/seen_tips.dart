@@ -24,6 +24,10 @@ class SeenTips {
   /// (KLD-119).
   static const String dicesheetIntro = 'dicesheetIntro';
 
+  /// The Baulöwe "how to play" tour before the first roll of a game
+  /// (KLD-060).
+  static const String propertyIntro = 'propertyIntro';
+
   /// The web on iOS: the card that explains the browser's motion prompt
   /// before shaking to roll is allowed (KLD-123), answered once.
   static const String shakeConsent = 'shakeConsent';

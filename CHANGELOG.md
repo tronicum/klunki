@@ -8,6 +8,14 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll
+  around the board, buy streets or bid for them, collect rent, build houses once you own a whole group, draw
+  cards, sit in the pause, mortgage when money is short; whoever cannot pay any more is out. By default the
+  game runs until one player is left; 20, 30 or 40 rounds are an option (then the richest wins). Two boards:
+  Berlin (real streets, district groups) and Fantasiestadt. House rules: money on the free square (pot, pot
+  with 500, fixed 200), double salary on Start, no rent while in the pause, auction of a bankrupt player's
+  streets. A short tour in the first game; "Zug zurücknehmen" back to the last roll. Trading streets between
+  players comes later.
 - **New game: Ausgewürfelt** (KLD-119), the five-dice score-sheet game for **2 to 4 players on one device**, the
   first Klunki game for more than two: roll five dice up to three times (tap dice to keep them, or shake the
   phone), then write the result into one box of your column: ones to sixes (35 bonus from 63), three and four

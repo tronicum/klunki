@@ -5626,5 +5626,739 @@
   "dicesheetCoachReplay": "Kurz erklärt",
   "@dicesheetCoachReplay": {
     "description": "KLD-119: entry in the game's menu that shows the intro tour again."
+  },
+  "menuGameProperty": "Baulöwe",
+  "@menuGameProperty": {
+    "description": "KLD-060: title of the property-trading dice game (maintainer: \"Baulöwe\", en working title \"Housing Corp\"). Never the brand name of the commercial game."
+  },
+  "menuDescProperty": "Straßen kaufen, Miete kassieren, bauen",
+  "@menuDescProperty": {
+    "description": "KLD-060: one-line menu description of Baulöwe."
+  },
+  "engineReasonPropertyLastSolvent": "Alle anderen sind pleite oder ausgestiegen",
+  "@engineReasonPropertyLastSolvent": {
+    "description": "KLD-060: why Baulöwe ended: everybody else went bankrupt or gave up."
+  },
+  "engineReasonPropertyRoundLimit": "Nach {rounds} Runden gewinnt das größte Vermögen",
+  "@engineReasonPropertyRoundLimit": {
+    "description": "KLD-060: why Baulöwe ended: the chosen round limit was reached; the biggest fortune wins.",
+    "placeholders": {
+      "rounds": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyMoney": "{amount} Taler",
+  "@propertyMoney": {
+    "description": "KLD-060: an amount of play money in Baulöwe (the board says \"Taler\").",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyOptionsBoard": "Spielbrett",
+  "@propertyOptionsBoard": {
+    "description": "KLD-060 start options: heading above the board choice (Berlin / Fantasiestadt)."
+  },
+  "propertyThemeBerlin": "Berlin",
+  "@propertyThemeBerlin": {
+    "description": "KLD-060: name of the built-in Berlin board."
+  },
+  "propertyThemeFantasie": "Fantasiestadt",
+  "@propertyThemeFantasie": {
+    "description": "KLD-060: name of the built-in board with made-up street names."
+  },
+  "propertyThemeGermanNote": "Berlin: echte Straßen. Fantasiestadt: ausgedachte Namen.",
+  "@propertyThemeGermanNote": {
+    "description": "KLD-060 start options: under the board choice in languages other than German: the street names and cards of the boards are German for now. In de: a short note that the names are made up (Fantasiestadt) or real (Berlin)."
+  },
+  "propertyOptionsLength": "Spieldauer",
+  "@propertyOptionsLength": {
+    "description": "KLD-060 start options: heading above the game length choice."
+  },
+  "propertyOptionsUntilEnd": "Bis nur noch einer übrig ist",
+  "@propertyOptionsUntilEnd": {
+    "description": "KLD-060 start options: no round limit, play until one player is left (the default)."
+  },
+  "propertyOptionsRounds": "{rounds} Runden",
+  "@propertyOptionsRounds": {
+    "description": "KLD-060 start options: a round limit (20 / 30 / 40).",
+    "placeholders": {
+      "rounds": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyOptionsRoundsExplain": "Mit Rundenlimit gewinnt am Ende, wer am meisten besitzt.",
+  "@propertyOptionsRoundsExplain": {
+    "description": "KLD-060 start options: what a round limit means."
+  },
+  "propertyOptionsHouseRules": "Hausregeln",
+  "@propertyOptionsHouseRules": {
+    "description": "KLD-060 start options: heading above the house rules (all off by default)."
+  },
+  "propertyFreeTitle": "Auf „{square}“",
+  "@propertyFreeTitle": {
+    "description": "KLD-060 start options: heading of the free-square house rule; {square} is the square's name on the board (Berlin: \"Späti-Pause\").",
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyFreeNone": "Nichts passiert",
+  "@propertyFreeNone": {
+    "description": "KLD-060: free-square house rule: nothing happens there (default)."
+  },
+  "propertyFreePot": "Topf mit Steuern und Strafen",
+  "@propertyFreePot": {
+    "description": "KLD-060: free-square house rule: taxes and card fines go into a pot that the next player landing there takes."
+  },
+  "propertyFreePotSeed": "Topf, startet mit {amount}",
+  "@propertyFreePotSeed": {
+    "description": "KLD-060: free-square house rule: like the pot, but it starts with {amount} from the bank.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyFreeBonus": "Feste {amount} auf die Hand",
+  "@propertyFreeBonus": {
+    "description": "KLD-060: free-square house rule: landing there pays a fixed {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyFreeExplain": "Topf: Steuern und Kartenstrafen gehen in die Mitte. Wer auf dem Feld landet, bekommt alles.",
+  "@propertyFreeExplain": {
+    "description": "KLD-060: explains the pot house rule."
+  },
+  "propertyFreeBonusExplain": "Wer auf „{square}“ landet, bekommt {amount}.",
+  "@propertyFreeBonusExplain": {
+    "description": "KLD-060 rules page: the fixed-bonus house rule; {square} is the square's name, {amount} the bonus with the currency.",
+    "placeholders": {
+      "square": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyRuleDoubleStart": "Doppeltes Startgeld auf Start",
+  "@propertyRuleDoubleStart": {
+    "description": "KLD-060 house rule toggle (off by default): landing exactly on Start pays twice the salary."
+  },
+  "propertyRuleDoubleStartExplain": "Wer genau auf Start landet, bekommt {amount}.",
+  "@propertyRuleDoubleStartExplain": {
+    "description": "KLD-060: explains \"Doppeltes Startgeld\"; {amount} is the doubled salary with the currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyRuleNoRentInPause": "Keine Miete in der Pause",
+  "@propertyRuleNoRentInPause": {
+    "description": "KLD-060 house rule toggle (off by default): no rent for the properties of a player who sits in the pause."
+  },
+  "propertyRuleNoRentInPauseExplain": "Wer in der Pause sitzt, bekommt keine Miete.",
+  "@propertyRuleNoRentInPauseExplain": {
+    "description": "KLD-060: explains \"Keine Miete in der Pause\"."
+  },
+  "propertyRuleBankruptAuction": "Versteigerung bei Pleite",
+  "@propertyRuleBankruptAuction": {
+    "description": "KLD-060 house rule toggle (off by default): the streets of a player bankrupt to the bank are auctioned."
+  },
+  "propertyRuleBankruptAuctionExplain": "Geht jemand an die Bank pleite, werden die Straßen versteigert statt zurückgegeben.",
+  "@propertyRuleBankruptAuctionExplain": {
+    "description": "KLD-060: explains \"Versteigerung bei Pleite\"."
+  },
+  "propertyRoll": "Würfeln",
+  "@propertyRoll": {
+    "description": "KLD-060: button: roll the two dice."
+  },
+  "propertyBuy": "Kaufen für {amount}",
+  "@propertyBuy": {
+    "description": "KLD-060: button: buy the street you stand on; {amount} is the price with the currency.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyDecline": "Nicht kaufen – versteigern",
+  "@propertyDecline": {
+    "description": "KLD-060: button: do not buy; the street is then auctioned."
+  },
+  "propertyTooPoor": "Zu wenig Geld zum Kaufen",
+  "@propertyTooPoor": {
+    "description": "KLD-060: under the buy button when the player has less cash than the price."
+  },
+  "propertyFreeToBuy": "{square} gehört noch niemandem.",
+  "@propertyFreeToBuy": {
+    "description": "KLD-060: the street the player landed on has no owner yet; {square} is its name.",
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyAuctionTitle": "Versteigerung: {square}",
+  "@propertyAuctionTitle": {
+    "description": "KLD-060: an auction is running for {square}.",
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyAuctionHigh": "Höchstgebot: {amount} von {player}",
+  "@propertyAuctionHigh": {
+    "description": "KLD-060: the highest bid so far ({amount} with currency) and who made it.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyAuctionNone": "Noch kein Gebot",
+  "@propertyAuctionNone": {
+    "description": "KLD-060: an auction without a bid yet."
+  },
+  "propertyAuctionTurn": "{player} ist mit Bieten dran.",
+  "@propertyAuctionTurn": {
+    "description": "KLD-060: whose turn it is to bid (or drop out).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyBid": "Biete {amount}",
+  "@propertyBid": {
+    "description": "KLD-060: button: bid {amount} (with currency) in the auction.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyPass": "Aussteigen",
+  "@propertyPass": {
+    "description": "KLD-060: button: drop out of the auction for good."
+  },
+  "propertyEndTurn": "Zug beenden",
+  "@propertyEndTurn": {
+    "description": "KLD-060: button: end the turn (the next player rolls)."
+  },
+  "propertyPayBail": "{amount} zahlen und raus",
+  "@propertyPayBail": {
+    "description": "KLD-060: button in the pause: pay {amount} (with currency) and roll normally.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyUseCard": "Freikarte nutzen",
+  "@propertyUseCard": {
+    "description": "KLD-060: button in the pause: use a free card to leave."
+  },
+  "propertyInPause": "{player} sitzt in „{square}“: Pasch würfeln, zahlen oder Freikarte.",
+  "@propertyInPause": {
+    "description": "KLD-060: the player to move sits in the pause square ({square} is its name) and how to get out.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyManage": "Meine Straßen",
+  "@propertyManage": {
+    "description": "KLD-060: button that opens the player's streets (build, sell, mortgage)."
+  },
+  "propertyManageOf": "Straßen: {player}",
+  "@propertyManageOf": {
+    "description": "KLD-060: title of the streets sheet of {player}.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyDebt": "{player} muss {amount} zahlen, hat aber nur {cash}. Gebäude verkaufen oder Straßen beleihen.",
+  "@propertyDebt": {
+    "description": "KLD-060: a player owes more than the cash ({amount}, {cash} with currency).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "cash": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyBankrupt": "Pleite erklären",
+  "@propertyBankrupt": {
+    "description": "KLD-060: button: declare bankruptcy (only offered when selling and mortgaging cannot pay the debt)."
+  },
+  "propertyBuild": "Bauen ({amount})",
+  "@propertyBuild": {
+    "description": "KLD-060: button on a street: build one building for {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertySell": "Verkaufen (+{amount})",
+  "@propertySell": {
+    "description": "KLD-060: button on a street: sell one building for {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyMortgage": "Beleihen (+{amount})",
+  "@propertyMortgage": {
+    "description": "KLD-060: button on a street: mortgage it and get {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyUnmortgage": "Auslösen ({amount})",
+  "@propertyUnmortgage": {
+    "description": "KLD-060: button on a mortgaged street: lift the mortgage for {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyManageEmpty": "Noch keine Straßen.",
+  "@propertyManageEmpty": {
+    "description": "KLD-060: the streets sheet of a player without streets."
+  },
+  "propertyMortgaged": "beliehen",
+  "@propertyMortgaged": {
+    "description": "KLD-060: marks a mortgaged street (it brings no rent)."
+  },
+  "propertyOwnerLine": "Gehört {player}",
+  "@propertyOwnerLine": {
+    "description": "KLD-060 square details: who owns it.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyOwnerNone": "Gehört noch der Bank",
+  "@propertyOwnerNone": {
+    "description": "KLD-060 square details: nobody owns it yet."
+  },
+  "propertyPrice": "Preis: {amount}",
+  "@propertyPrice": {
+    "description": "KLD-060 square details: the price ({amount} with currency).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyRent": "Miete: {amount}",
+  "@propertyRent": {
+    "description": "KLD-060 square details: the base rent ({amount} with currency).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyRentGroup": "Ganze Farbgruppe: doppelte Miete",
+  "@propertyRentGroup": {
+    "description": "KLD-060 square details: owning the whole colour group doubles the rent of unbuilt streets."
+  },
+  "propertyHouseCost": "Jedes Gebäude kostet {amount}",
+  "@propertyHouseCost": {
+    "description": "KLD-060 square details: what each building costs on this street.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyStationRents": "Miete nach Zahl der Bahnhöfe",
+  "@propertyStationRents": {
+    "description": "KLD-060 square details of a station: the rent depends on how many stations the owner has (a row of amounts follows)."
+  },
+  "propertyUtilityRent": "Miete: Augensumme × 4, mit beiden × 10",
+  "@propertyUtilityRent": {
+    "description": "KLD-060 square details of a utility: rent = dice total × 4, or × 10 with both."
+  },
+  "propertyTax": "Zahlen: {amount}",
+  "@propertyTax": {
+    "description": "KLD-060 square details of a tax square: the amount to pay.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyCardSquare": "Eine Karte ziehen: {deck}",
+  "@propertyCardSquare": {
+    "description": "KLD-060 square details of a card square ({deck} is the deck name on the board).",
+    "placeholders": {
+      "deck": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyStartSquare": "Wer vorbeikommt, bekommt {amount}.",
+  "@propertyStartSquare": {
+    "description": "KLD-060 square details of Start: passing it pays {amount}.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyPauseSquare": "Pause: raus mit Pasch, Geld oder Freikarte. Nur zu Besuch? Dann passiert nichts.",
+  "@propertyPauseSquare": {
+    "description": "KLD-060 square details of the pause square."
+  },
+  "propertyGoToPauseSquare": "Ab in die Pause!",
+  "@propertyGoToPauseSquare": {
+    "description": "KLD-060 square details of the \"go to the pause\" square."
+  },
+  "propertyOut": "ausgeschieden",
+  "@propertyOut": {
+    "description": "KLD-060: marks a player who is bankrupt or gave up (players list, ranking)."
+  },
+  "propertyStreets": "{count, plural, =0{keine Straße} one{1 Straße} other{{count} Straßen}}",
+  "@propertyStreets": {
+    "description": "KLD-060 players list: how many streets (properties) a player owns.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyCoachRoll": "Würfle und zieh mit deiner Spielfigur über das Brett.",
+  "@propertyCoachRoll": {
+    "description": "KLD-060 intro tour, step 1 (the roll button)."
+  },
+  "propertyCoachBoard": "Landest du auf einer freien Straße, kannst du sie kaufen. Wer auf deiner Straße landet, zahlt dir Miete. Tipp auf ein Feld für mehr.",
+  "@propertyCoachBoard": {
+    "description": "KLD-060 intro tour, step 2 (the board)."
+  },
+  "propertyCoachPlayers": "Hier siehst du, wie viel Geld alle haben. Wer kein Geld mehr hat, ist pleite.",
+  "@propertyCoachPlayers": {
+    "description": "KLD-060 intro tour, step 3 (the players with their money)."
+  },
+  "propertyCoachManage": "Gehört dir eine ganze Farbe, baust du hier – dann steigt die Miete kräftig.",
+  "@propertyCoachManage": {
+    "description": "KLD-060 intro tour, step 4 (\"Meine Straßen\")."
+  },
+  "propertyCoachReplay": "Kurz erklärt",
+  "@propertyCoachReplay": {
+    "description": "KLD-060: entry in the game's menu that shows the intro tour again."
+  },
+  "propertyEvRolled": "{player} würfelt {a} + {b}",
+  "@propertyEvRolled": {
+    "description": "KLD-060 narration: a roll of two dice.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyEvSalary": "{player} bekommt {amount} Startgeld",
+  "@propertyEvSalary": {
+    "description": "KLD-060 narration: passing or landing on Start pays the salary ({amount} with currency).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvCard": "Karte: „{text}“",
+  "@propertyEvCard": {
+    "description": "KLD-060 narration: the text of the card just drawn (German board data).",
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvCollected": "{player} bekommt {amount}",
+  "@propertyEvCollected": {
+    "description": "KLD-060 narration: a player receives money (card, bonus).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvPot": "{player} holt den Topf: {amount}",
+  "@propertyEvPot": {
+    "description": "KLD-060 narration: a player takes the pot on the free square.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvPaidBank": "{player} zahlt {amount} an die Bank",
+  "@propertyEvPaidBank": {
+    "description": "KLD-060 narration: a player pays the bank (tax, card, bail).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvPaidPot": "{player} zahlt {amount} in den Topf",
+  "@propertyEvPaidPot": {
+    "description": "KLD-060 narration: a player pays into the pot (pot house rule).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvPaid": "{player} zahlt {amount} an {other}",
+  "@propertyEvPaid": {
+    "description": "KLD-060 narration: a player pays another (rent, card).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvBought": "{player} kauft {square} für {amount}",
+  "@propertyEvBought": {
+    "description": "KLD-060 narration: a player buys a street (or wins it in an auction).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvBid": "{player} bietet {amount}",
+  "@propertyEvBid": {
+    "description": "KLD-060 narration: a bid in an auction.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvPassed": "{player} steigt aus",
+  "@propertyEvPassed": {
+    "description": "KLD-060 narration: a player drops out of an auction.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvUnsold": "Keiner bietet: {square} bleibt bei der Bank",
+  "@propertyEvUnsold": {
+    "description": "KLD-060 narration: nobody bid, the street stays with the bank.",
+    "placeholders": {
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvBuilt": "{player} baut {building} auf {square}",
+  "@propertyEvBuilt": {
+    "description": "KLD-060 narration: a player builds; {building} is the building name of the group (board data, e.g. \"Späti\").",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "building": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvSold": "{player} verkauft auf {square}: +{amount}",
+  "@propertyEvSold": {
+    "description": "KLD-060 narration: a player sells a building for half its cost.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvMortgaged": "{player} beleiht {square}: +{amount}",
+  "@propertyEvMortgaged": {
+    "description": "KLD-060 narration: a player mortgages a street.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvUnmortgaged": "{player} löst {square} aus: −{amount}",
+  "@propertyEvUnmortgaged": {
+    "description": "KLD-060 narration: a player lifts a mortgage.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvToPause": "{player} muss in „{square}“",
+  "@propertyEvToPause": {
+    "description": "KLD-060 narration: a player is sent to the pause square ({square} is its name).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "square": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvThreeDoubles": "Dreimal Pasch!",
+  "@propertyEvThreeDoubles": {
+    "description": "KLD-060 narration: the third doubles in one turn."
+  },
+  "propertyEvLeftPause": "{player} ist wieder frei",
+  "@propertyEvLeftPause": {
+    "description": "KLD-060 narration: a player leaves the pause.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvStayInPause": "Kein Pasch: {player} bleibt in der Pause ({tries}/3)",
+  "@propertyEvStayInPause": {
+    "description": "KLD-060 narration: no doubles in the pause; {tries} of 3 tries used.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "tries": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyEvBankrupt": "{player} ist pleite",
+  "@propertyEvBankrupt": {
+    "description": "KLD-060 narration: a player goes bankrupt and is out.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvResigned": "{player} gibt auf",
+  "@propertyEvResigned": {
+    "description": "KLD-060 narration: a player gives up; the others play on.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesPropertyGoal": "Kauf Straßen, kassiere Miete und bau darauf.\nWer als Letzter noch im Spiel ist, gewinnt. Mit Rundenlimit gewinnt am Ende das größte Vermögen.",
+  "@rulesPropertyGoal": {
+    "description": "KLD-060 rules page, \"Ziel\" (lines separated by \\n)."
+  },
+  "rulesPropertyTurn": "Würfle mit zwei Würfeln und zieh so viele Felder vor.\nLandest du auf einer freien Straße, kannst du sie kaufen. Willst du nicht, wird sie versteigert: Wer am meisten bietet, bekommt sie.\nGehört die Straße jemand anderem, zahlst du Miete.\nBei einem Pasch würfelst du noch einmal.\nWer über Start zieht, bekommt {salary}.",
+  "@rulesPropertyTurn": {
+    "description": "KLD-060 rules page, \"So läuft ein Zug\" (lines separated by \\n); {salary} is the Start salary with currency.",
+    "placeholders": {
+      "salary": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesPropertySpecial": "Gehört dir eine ganze Farbgruppe, ist die Miete doppelt, und du darfst bauen: gleichmäßig, erst 4 kleine, dann 1 großes Gebäude pro Straße.\nKarten bringen Geld, kosten Geld oder schicken dich über das Brett.\nDreimal Pasch hintereinander schickt dich in die Pause. Raus kommst du mit einem Pasch, mit {bail} oder mit einer Freikarte.\nFehlt dir Geld, verkaufst du Gebäude zum halben Preis oder beleihst Straßen. Pleite bist du erst, wenn auch das nicht reicht.\nBeleihen bringt den halben Preis; auslösen kostet 10 % mehr. Eine beliehene Straße bringt keine Miete.",
+  "@rulesPropertySpecial": {
+    "description": "KLD-060 rules page, \"Regeln\" (lines separated by \\n); {bail} is the bail with currency.",
+    "placeholders": {
+      "bail": {
+        "type": "String"
+      }
+    }
   }
 }

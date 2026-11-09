@@ -62,7 +62,8 @@ Future<void> _withOthers(WidgetTester tester, Finder link, String title, Finder 
 void main() {
   setUp(() => SeenTips.shared
     ..markFirst(SeenTips.maumauIntro)
-    ..markFirst(SeenTips.dicesheetIntro));
+    ..markFirst(SeenTips.dicesheetIntro)
+    ..markFirst(SeenTips.propertyIntro));
   testWidgets('network games (chess too) get both links, hot-seat-only games only "Ein Gerät"', (tester) async {
     await _pumpMenu(tester);
     for (final spec in appGameSpecs) {
@@ -91,7 +92,8 @@ void main() {
     expect(_network('maexchen'), findsNothing);
     // KLD-119: Ausgewürfelt is for 2–4 players at one table.
     expect(_network('dicesheet'), findsNothing);
-    expect(hotSeatOnlyGames, {'maumau', 'maexchen', 'dicesheet'});
+    expect(_network('property'), findsNothing);
+    expect(hotSeatOnlyGames, {'maumau', 'maexchen', 'dicesheet', 'property'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {
@@ -261,6 +263,11 @@ void main() {
       if (spec.id == 'dicesheet') {
         // Ausgewürfelt: the house rule first (KLD-119).
         await tester.tap(find.byKey(const Key('dicesheet-options-next')));
+        await tester.pumpAndSettle();
+      }
+      if (spec.id == 'property') {
+        // Baulöwe: board, length and house rules first (KLD-060).
+        await tester.tap(find.byKey(const Key('property-options-next')));
         await tester.pumpAndSettle();
       }
       expect(find.byKey(const Key('hot-seat-start-dialog')), findsOneWidget, reason: spec.id);

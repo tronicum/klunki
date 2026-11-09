@@ -12,6 +12,8 @@ import '../games/gostrategy_screen.dart';
 import '../games/maexchen/maexchen_options.dart';
 import '../games/maexchen/maexchen_screen.dart';
 import '../games/muehle_screen.dart';
+import '../games/property/property_options.dart';
+import '../games/property/property_screen.dart';
 import '../games/quartett_deck_picker.dart';
 import '../games/quartett_sets_screen.dart';
 import '../games/quartett_trumpf_screen.dart';
@@ -44,6 +46,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'maumau': (c) => MauMauScreen(controller: c),
   'maexchen': (c) => MaexchenScreen(controller: c),
   'dicesheet': (c) => DiceSheetScreen(controller: c),
+  'property': (c) => PropertyScreen(controller: c),
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
@@ -59,20 +62,31 @@ const Set<String> previewGames = {};
 /// (KLD-118) is hot-seat only until its network step. Mäxchen (KLD-121) is
 /// one device only for now: the engine has its redaction, the app's network
 /// screens do not offer it yet. Ausgewürfelt (KLD-119) is for 2–4 players
-/// at one table; the network session is 2-player.
-const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen', 'dicesheet'};
+/// at one table; the network session is 2-player. Baulöwe (KLD-060) is
+/// one device only until its n-player network step (`GameSpec.networkPlay`).
+const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen', 'dicesheet', 'property'};
 
 /// Games played in the seat shell for 2–4 players on one device (KLD-119,
 /// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.
-const Set<String> seatGames = {'dicesheet'};
+/// Baulöwe (KLD-060) too: 2–4 on one device (the engine has 6 seats).
+const Set<String> seatGames = {'dicesheet', 'property'};
+
+/// The most seats the one-device seat shell offers (names, colours and
+/// "Wer spielt?" are made for 4, KLD-119).
+const int seatShellMaxPlayers = 4;
 
 /// How many players the app offers for [spec] (KLD-124, the menu tile's and
 /// rules page's people chip): the engine's [GameSpec.minPlayers] to
-/// [GameSpec.maxPlayers] for [seatGames]; the others start with exactly
-/// [GameSpec.minPlayers] in the app, even where the engine has more seats
-/// (Wortgewandt's 4 seats are not offered yet).
-({int min, int max}) offeredPlayers(GameSpec spec) =>
-    (min: spec.minPlayers, max: seatGames.contains(spec.id) ? spec.maxPlayers : spec.minPlayers);
+/// [GameSpec.maxPlayers] for [seatGames] (at most [seatShellMaxPlayers]);
+/// the others start with exactly [GameSpec.minPlayers] in the app, even
+/// where the engine has more seats (Wortgewandt's 4 seats are not offered
+/// yet, Baulöwe's 5–6 need the network).
+({int min, int max}) offeredPlayers(GameSpec spec) => (
+      min: spec.minPlayers,
+      max: seatGames.contains(spec.id)
+          ? (spec.maxPlayers < seatShellMaxPlayers ? spec.maxPlayers : seatShellMaxPlayers)
+          : spec.minPlayers
+    );
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
@@ -126,7 +140,8 @@ Future<void> openGame(BuildContext context, String gameId,
     bool maexchenDouble = true,
     int players = 2,
     bool extraFives = false,
-    bool randomStart = false}) {
+    bool randomStart = false,
+    PropertyOptions property = const PropertyOptions()}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
         config: GameConfig(gameId,
@@ -141,7 +156,8 @@ Future<void> openGame(BuildContext context, String gameId,
             maexchenDouble: maexchenDouble,
             players: players,
             extraFives: extraFives,
-            randomStart: randomStart)),
+            randomStart: randomStart,
+            property: property)),
   ));
 }
 
@@ -182,6 +198,12 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     sheet = await showDiceSheetOptionsDialog(context);
     if (sheet == null || !context.mounted) return;
   }
+  // Baulöwe (KLD-060): board, game length and house rules.
+  PropertyOptions? property;
+  if (gameId == 'property') {
+    property = await showPropertyOptionsDialog(context);
+    if (property == null || !context.mounted) return;
+  }
   if (seatGames.contains(gameId)) {
     final n = await showSeatPlayersDialog(context,
         reorder: sheet?.start == DiceSheetStart.order, randomStart: sheet?.start == DiceSheetStart.random);
@@ -205,7 +227,8 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       maexchenDouble: dice?.double ?? true,
       players: players,
       extraFives: sheet?.extraFives ?? false,
-      randomStart: sheet?.start == DiceSheetStart.random);
+      randomStart: sheet?.start == DiceSheetStart.random,
+      property: property ?? const PropertyOptions());
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.

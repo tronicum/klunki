@@ -111,7 +111,8 @@ void main() {
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   setUp(() => SeenTips.shared
     ..markFirst(SeenTips.maumauIntro)
-    ..markFirst(SeenTips.dicesheetIntro));
+    ..markFirst(SeenTips.dicesheetIntro)
+    ..markFirst(SeenTips.propertyIntro));
   group('network', () {
     testWidgets('resign: dialog, cancel keeps the game running', (tester) async {
       final (c, t) = await _network(tester);

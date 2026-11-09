@@ -3910,4 +3910,420 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dicesheetCoachReplay => 'Recorrido rápido';
+
+  @override
+  String get menuGameProperty => 'El Gran Constructor';
+
+  @override
+  String get menuDescProperty => 'Compra calles, cobra alquiler, construye';
+
+  @override
+  String get engineReasonPropertyLastSolvent =>
+      'Todos los demás están en bancarrota o fuera';
+
+  @override
+  String engineReasonPropertyRoundLimit(int rounds) {
+    return 'Tras $rounds rondas gana la mayor fortuna';
+  }
+
+  @override
+  String propertyMoney(int amount) {
+    return '$amount monedas';
+  }
+
+  @override
+  String get propertyOptionsBoard => 'Tablero';
+
+  @override
+  String get propertyThemeBerlin => 'Berlín';
+
+  @override
+  String get propertyThemeFantasie => 'Ciudad Fantasía';
+
+  @override
+  String get propertyThemeGermanNote =>
+      'Por ahora, las calles y las cartas están en alemán.';
+
+  @override
+  String get propertyOptionsLength => 'Duración';
+
+  @override
+  String get propertyOptionsUntilEnd => 'Hasta que solo quede uno';
+
+  @override
+  String propertyOptionsRounds(int rounds) {
+    return '$rounds rondas';
+  }
+
+  @override
+  String get propertyOptionsRoundsExplain =>
+      'Con límite de rondas, gana al final quien más tenga.';
+
+  @override
+  String get propertyOptionsHouseRules => 'Reglas de la casa';
+
+  @override
+  String propertyFreeTitle(String square) {
+    return 'En «$square»';
+  }
+
+  @override
+  String get propertyFreeNone => 'No pasa nada';
+
+  @override
+  String get propertyFreePot => 'Bote con impuestos y multas';
+
+  @override
+  String propertyFreePotSeed(String amount) {
+    return 'Bote, empieza con $amount';
+  }
+
+  @override
+  String propertyFreeBonus(String amount) {
+    return '$amount fijos';
+  }
+
+  @override
+  String get propertyFreeExplain =>
+      'Bote: impuestos y multas van al centro. Quien cae en la casilla se lo lleva todo.';
+
+  @override
+  String propertyFreeBonusExplain(String square, String amount) {
+    return 'Caer en «$square» da $amount.';
+  }
+
+  @override
+  String get propertyRuleDoubleStart => 'Doble sueldo en la Salida';
+
+  @override
+  String propertyRuleDoubleStartExplain(String amount) {
+    return 'Caer justo en la Salida da $amount.';
+  }
+
+  @override
+  String get propertyRuleNoRentInPause => 'Sin alquiler durante la pausa';
+
+  @override
+  String get propertyRuleNoRentInPauseExplain =>
+      'Quien está en la pausa no cobra alquiler.';
+
+  @override
+  String get propertyRuleBankruptAuction => 'Subasta en bancarrota';
+
+  @override
+  String get propertyRuleBankruptAuctionExplain =>
+      'Si alguien quiebra ante el banco, sus calles se subastan.';
+
+  @override
+  String get propertyRoll => 'Tirar';
+
+  @override
+  String propertyBuy(String amount) {
+    return 'Comprar por $amount';
+  }
+
+  @override
+  String get propertyDecline => 'No comprar – subasta';
+
+  @override
+  String get propertyTooPoor => 'No hay dinero suficiente para comprar';
+
+  @override
+  String propertyFreeToBuy(String square) {
+    return '$square aún no es de nadie.';
+  }
+
+  @override
+  String propertyAuctionTitle(String square) {
+    return 'Subasta: $square';
+  }
+
+  @override
+  String propertyAuctionHigh(String amount, String player) {
+    return 'Puja más alta: $amount de $player';
+  }
+
+  @override
+  String get propertyAuctionNone => 'Aún sin pujas';
+
+  @override
+  String propertyAuctionTurn(String player) {
+    return 'Le toca pujar a $player.';
+  }
+
+  @override
+  String propertyBid(String amount) {
+    return 'Pujar $amount';
+  }
+
+  @override
+  String get propertyPass => 'Retirarse';
+
+  @override
+  String get propertyEndTurn => 'Terminar turno';
+
+  @override
+  String propertyPayBail(String amount) {
+    return 'Pagar $amount y salir';
+  }
+
+  @override
+  String get propertyUseCard => 'Usar carta libre';
+
+  @override
+  String propertyInPause(String player, String square) {
+    return '$player está en «$square»: saca dobles, paga o usa una carta.';
+  }
+
+  @override
+  String get propertyManage => 'Mis calles';
+
+  @override
+  String propertyManageOf(String player) {
+    return 'Calles: $player';
+  }
+
+  @override
+  String propertyDebt(String player, String amount, String cash) {
+    return '$player debe $amount pero solo tiene $cash. Vende edificios o hipoteca calles.';
+  }
+
+  @override
+  String get propertyBankrupt => 'Declararse en bancarrota';
+
+  @override
+  String propertyBuild(String amount) {
+    return 'Construir ($amount)';
+  }
+
+  @override
+  String propertySell(String amount) {
+    return 'Vender (+$amount)';
+  }
+
+  @override
+  String propertyMortgage(String amount) {
+    return 'Hipotecar (+$amount)';
+  }
+
+  @override
+  String propertyUnmortgage(String amount) {
+    return 'Levantar hipoteca ($amount)';
+  }
+
+  @override
+  String get propertyManageEmpty => 'Aún no hay calles.';
+
+  @override
+  String get propertyMortgaged => 'hipotecada';
+
+  @override
+  String propertyOwnerLine(String player) {
+    return 'Es de $player';
+  }
+
+  @override
+  String get propertyOwnerNone => 'Aún es del banco';
+
+  @override
+  String propertyPrice(String amount) {
+    return 'Precio: $amount';
+  }
+
+  @override
+  String propertyRent(String amount) {
+    return 'Alquiler: $amount';
+  }
+
+  @override
+  String get propertyRentGroup => 'Grupo completo: alquiler doble';
+
+  @override
+  String propertyHouseCost(String amount) {
+    return 'Cada edificio cuesta $amount';
+  }
+
+  @override
+  String get propertyStationRents => 'Alquiler según el número de estaciones';
+
+  @override
+  String get propertyUtilityRent =>
+      'Alquiler: suma de dados × 4, con ambos × 10';
+
+  @override
+  String propertyTax(String amount) {
+    return 'Pagar: $amount';
+  }
+
+  @override
+  String propertyCardSquare(String deck) {
+    return 'Robar una carta: $deck';
+  }
+
+  @override
+  String propertyStartSquare(String amount) {
+    return 'Pasar por aquí da $amount.';
+  }
+
+  @override
+  String get propertyPauseSquare =>
+      'Pausa: se sale con dobles, dinero o carta. ¿Solo de visita? No pasa nada.';
+
+  @override
+  String get propertyGoToPauseSquare => '¡A la pausa!';
+
+  @override
+  String get propertyOut => 'fuera';
+
+  @override
+  String propertyStreets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count calles',
+      one: '1 calle',
+      zero: 'ninguna calle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyCoachRoll => 'Tira y mueve tu ficha por el tablero.';
+
+  @override
+  String get propertyCoachBoard =>
+      'Si caes en una calle libre, puedes comprarla. Quien caiga en tu calle te paga alquiler. Toca una casilla para ver más.';
+
+  @override
+  String get propertyCoachPlayers =>
+      'Aquí ves el dinero de todos. Quien se queda sin dinero, quiebra.';
+
+  @override
+  String get propertyCoachManage =>
+      'Si tienes todo un color, aquí construyes y el alquiler sube mucho.';
+
+  @override
+  String get propertyCoachReplay => 'Guía rápida';
+
+  @override
+  String propertyEvRolled(String player, int a, int b) {
+    return '$player saca $a + $b';
+  }
+
+  @override
+  String propertyEvSalary(String player, String amount) {
+    return '$player cobra $amount de sueldo';
+  }
+
+  @override
+  String propertyEvCard(String text) {
+    return 'Carta: «$text»';
+  }
+
+  @override
+  String propertyEvCollected(String player, String amount) {
+    return '$player recibe $amount';
+  }
+
+  @override
+  String propertyEvPot(String player, String amount) {
+    return '$player se lleva el bote: $amount';
+  }
+
+  @override
+  String propertyEvPaidBank(String player, String amount) {
+    return '$player paga $amount al banco';
+  }
+
+  @override
+  String propertyEvPaidPot(String player, String amount) {
+    return '$player pone $amount en el bote';
+  }
+
+  @override
+  String propertyEvPaid(String player, String amount, String other) {
+    return '$player paga $amount a $other';
+  }
+
+  @override
+  String propertyEvBought(String player, String square, String amount) {
+    return '$player compra $square por $amount';
+  }
+
+  @override
+  String propertyEvBid(String player, String amount) {
+    return '$player puja $amount';
+  }
+
+  @override
+  String propertyEvPassed(String player) {
+    return '$player se retira';
+  }
+
+  @override
+  String propertyEvUnsold(String square) {
+    return 'Sin pujas: $square sigue en el banco';
+  }
+
+  @override
+  String propertyEvBuilt(String player, String building, String square) {
+    return '$player construye $building en $square';
+  }
+
+  @override
+  String propertyEvSold(String player, String square, String amount) {
+    return '$player vende en $square: +$amount';
+  }
+
+  @override
+  String propertyEvMortgaged(String player, String square, String amount) {
+    return '$player hipoteca $square: +$amount';
+  }
+
+  @override
+  String propertyEvUnmortgaged(String player, String square, String amount) {
+    return '$player levanta la hipoteca de $square: −$amount';
+  }
+
+  @override
+  String propertyEvToPause(String player, String square) {
+    return '$player va a «$square»';
+  }
+
+  @override
+  String get propertyEvThreeDoubles => '¡Tres dobles seguidos!';
+
+  @override
+  String propertyEvLeftPause(String player) {
+    return '$player vuelve a estar libre';
+  }
+
+  @override
+  String propertyEvStayInPause(String player, int tries) {
+    return 'Sin dobles: $player sigue en la pausa ($tries/3)';
+  }
+
+  @override
+  String propertyEvBankrupt(String player) {
+    return '$player está en bancarrota';
+  }
+
+  @override
+  String propertyEvResigned(String player) {
+    return '$player se rinde';
+  }
+
+  @override
+  String get rulesPropertyGoal =>
+      'Compra calles, cobra alquiler y construye en ellas.\nGana quien quede último en el juego. Con límite de rondas, gana al final la mayor fortuna.';
+
+  @override
+  String rulesPropertyTurn(String salary) {
+    return 'Tira dos dados y avanza esas casillas.\nSi caes en una calle libre, puedes comprarla. Si no, se subasta: se la lleva la puja más alta.\nSi la calle es de otra persona, pagas alquiler.\nCon dobles vuelves a tirar.\nPasar por la Salida da $salary.';
+  }
+
+  @override
+  String rulesPropertySpecial(String bail) {
+    return 'Con todo un grupo de color, el alquiler es doble y puedes construir: por igual, primero 4 pequeños y luego 1 grande por calle.\nLas cartas dan dinero, cuestan dinero o te mueven por el tablero.\nTres dobles seguidos te mandan a la pausa. Sales con dobles, con $bail o con una carta libre.\n¿Te falta dinero? Vende edificios a mitad de precio o hipoteca calles. Solo quiebras si ni así alcanza.\nHipotecar da la mitad del precio; levantar la hipoteca cuesta un 10 % más. Una calle hipotecada no da alquiler.';
+  }
 }

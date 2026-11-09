@@ -4,7 +4,8 @@
 - **Title:** **Baulöwe**, a property-trading dice board game (id `property`; title chosen by the maintainer,
   2026-11-02; English working title **"Housing Corp"**, maintainer decision 2026-11-02)
 - **Milestone:** long-term games
-- **Status:** IN_PROGRESS: step 1 ✅ (engine); next: step 2 (n-player registry/protocol, with KLD-088)
+- **Status:** IN_PROGRESS: step 1 ✅ (engine); step 2a ✅ (registry entry, hot-seat only); step 3a ✅ (hot-seat
+  UI, 2–4 players); next: 3b (trade screen), then network (step 2b, with KLD-088)
 - **Depends on:** n-player lobby and protocol (KLD-088, no card file yet) for network play
 - **Touched paths (step 1):**
   - `packages/klunki_engine/lib/property.dart` (engine), `property_theme.dart` (theme format, validation),
@@ -12,13 +13,19 @@
   - `packages/klunki_engine/lib/debug/property_text.dart`, `lib/debug.dart`, `lib/klunki_engine.dart` (exports),
     `bin/klunki.dart` (`property` command)
   - `packages/klunki_engine/test/property_test.dart`
+- **Touched paths (steps 2a, 3a):** `registry.dart` (`GameConfig.property`, `GameSpec.usesTheme`,
+  `GameSpec.networkPlay`), `compat.dart` (fingerprint per theme), `game.dart` (two `GameEndReason`s);
+  `klunki_net` host/guest (refuse `networkPlay: false`); app `lib/ui/games/property/` (screen, board, options,
+  illustration), `lib/ui/rules/games/property_rules.dart`, the registries, l10n (all 7 locales), tests
+  (`test/ui/games/property_screen_test.dart`, `test/e2e/live_ui/property_live_test.dart`,
+  `test/screenshots/property_shots_test.dart`)
 
 Keep it generic: never write the brand name of the original game anywhere; own card texts, own selection of
 streets. Kid-friendly tone: competition yes, nastiness no; no real people, real companies, real property
 scandals or current controversies in texts.
 
 ## Goal
-2–6 players, **each on their own device (network only, no hot-seat)**, move around a board of properties with
+2–6 players (hot-seat first, maintainer decision 2026-11-09; network later), move around a board of properties with
 two dice, buy streets, collect rent, build, draw event cards and go bankrupt; the last solvent player wins, or
 the richest after an optional round limit.
 
@@ -32,6 +39,37 @@ the richest after an optional round limit.
    screen; theme texts localised (see "Texts and localisation").
 4. Polish: computer opponent from `PropertyBot`, pause/resume (KLD-079), timeouts for auction answers.
 5. Later: edition editor (below).
+
+## Decisions (steps 2a and 3a: registry entry and hot-seat UI)
+- **A normal `GameSpec`**, no separate seat-game registry: `PropertyGame extends Game implements SeatGame` like
+  Ausgewürfelt (KLD-119). Seats 0/1 map to `Player.a/b` for the shared parts (common resign, `playerOf`);
+  seats 2+ only through `SeatGame` (`actor`, `seatOfMove`, `seatResult`). `GameSpec('property', 'Baulöwe',
+  maxPlayers: 6, rulesVersion: 1, undoBarrier: PropertyGame.isRoll)`.
+- **Config** `GameConfig.property` (`PropertyOptions`): keys `theme`, `rounds`, `free`, `freeAmount`,
+  `doubleStart`, `noRentInPause`, `bankruptAuction`, each written only when not the default; `configProblem`
+  refuses an unknown theme or free rule.
+- **Fingerprint** per theme: `property/berlin`, `property/fantasie` (revision = theme revision, the theme's
+  content hash in the hash).
+- **Network refused for now**: `GameSpec.networkPlay: false`; host and guest refuse such a game (protocol
+  unchanged). The menu tile has only "Ein Gerät" (`hotSeatOnlyGames`).
+- **2–4 players in the app** (`seatShellMaxPlayers = 4`, the "Wer spielt?" dialog and seat names of the shell);
+  the engine keeps 2–6.
+- **Undo**: "Zug zurücknehmen" (`undoAllowed.property`) back to the last roll: a roll reveals dice (and cards),
+  so it is the barrier.
+- **Screen** (`SeatGameScreen`): player chips (money, streets), the 11×11 board (Start bottom right,
+  clockwise; group colour band, owner colour, buildings, lock when mortgaged, tokens), in the middle the board
+  title, the dice, the square just reached and the pot; one action panel below ("Würfeln", "Kaufen" / "Nicht
+  kaufen", bids +10/+50/+100 and "Aussteigen", "Kaution zahlen", "Freikarte nutzen", "Zug beenden", debt with
+  "Pleite erklären"), "Meine Straßen" (build, sell, mortgage, redeem per street) and "Zug zurücknehmen". A tap
+  on a square shows its card (price, rents, owner). The status line tells the last moves in words. Result:
+  ranking with each player's wealth (or "ausgeschieden").
+- **Start options** ("Baulöwe" dialog before "Wer spielt?"): board (Berlin / Fantasiestadt), game length (until
+  one is left, default; 20 / 30 / 40 rounds), the free-square rule and the three house-rule switches, undo.
+- **Rules page**: Ziel, So läuft ein Zug, Regeln, Regelvarianten (board, round limit, free square, the three
+  switches).
+- **First game**: a short tour (coach marks, `SeenTips.propertyIntro`), again via "⋮" → "Kurz erklärt".
+- **Theme texts** (street names, card texts, building names) stay German data in every locale for now
+  (like the Quartett card names); the board title is translated.
 
 ## Decisions (step 1)
 
@@ -208,6 +246,25 @@ Not extracted yet (no over-engineering): candidates once KLD-061 starts are the 
 order, the debt queue with automatic payment, bankruptcy with asset transfer and the open-bid auction. They are
 separate private helpers in `property.dart` so they can be moved into a shared "board-economy" file then.
 
+## Acceptance criteria (steps 2a, 3a)
+- [x] Registered as `GameSpec` `property`; config keys round-trip; fingerprint goldens per theme; net refuses it.
+- [x] Menu tile with its own picture and "2–4"; start options; "Wer spielt?" 2–4; hot-seat game on one device.
+- [x] All moves except trades through the UI; tour; rules page; "⋮" menu; undo to the last roll.
+- [x] l10n in all 7 locales (Chinese web font subset rebuilt).
+- [x] Widget tests (`property_screen_test.dart`) and live UI: whole games through the real UI with the bot
+      deciding and every tap checked against the engine (2 players / 25 rounds with house rules, 4 players /
+      12 rounds Fantasiestadt; `KLUNKI_LIVE_UI_FULL=1`: 3 players / 80 rounds).
+- [x] Screenshots: `KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart`.
+
+## Next steps
+- **3b trade screen**: offer (money, streets, free card) to another player, the other answers on the same
+  device (handover). Without trades, games without a round limit rarely end (bots seldom get a whole group).
+- **Theme texts translated** (see "Texts and localisation").
+- **5–6 players** in the app (the shell stops at 4).
+- **Network (step 2b, with KLD-088)**: redaction (secret seed and deck order), seats in the lobby, timeouts for
+  auction bids and trade answers.
+- Polish (step 4).
+
 ## Acceptance criteria (step 1)
 - [x] Pure-Dart engine, no Flutter, deterministic from seed + moves; replay matches.
 - [x] 2–6 seats; moves as JSON maps; illegal → null without state change; `legalMoves` for UI/AI.
@@ -236,3 +293,6 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 - ~~Start money, currency~~: decided: 1500 Taler start, 200 salary.
 - ~~Trades by other players~~: decided: only the player whose turn it is offers trades.
 - Network: timeouts for auction bids and trade answers (step 2).
+- Titles in fr/es/zh/ar/fa (Le Grand Bâtisseur, El Gran Constructor, 建筑大王, ملك البناء, سلطان ساخت‌وساز) and the
+  accent colour (ochre) are proposals.
+- The game is long without trades; should "30 Runden" be the default in the app until the trade screen exists?

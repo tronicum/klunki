@@ -3656,4 +3656,407 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get dicesheetCoachReplay => '快速导览';
+
+  @override
+  String get menuGameProperty => '建筑大王';
+
+  @override
+  String get menuDescProperty => '买街道、收租金、盖房子';
+
+  @override
+  String get engineReasonPropertyLastSolvent => '其他人都破产或退出了';
+
+  @override
+  String engineReasonPropertyRoundLimit(int rounds) {
+    return '$rounds 轮后，财富最多者获胜';
+  }
+
+  @override
+  String propertyMoney(int amount) {
+    return '$amount 金币';
+  }
+
+  @override
+  String get propertyOptionsBoard => '棋盘';
+
+  @override
+  String get propertyThemeBerlin => '柏林';
+
+  @override
+  String get propertyThemeFantasie => '幻想城';
+
+  @override
+  String get propertyThemeGermanNote => '街道名称和卡片暂时是德语。';
+
+  @override
+  String get propertyOptionsLength => '游戏时长';
+
+  @override
+  String get propertyOptionsUntilEnd => '直到只剩一人';
+
+  @override
+  String propertyOptionsRounds(int rounds) {
+    return '$rounds 轮';
+  }
+
+  @override
+  String get propertyOptionsRoundsExplain => '设定轮数时，最后拥有最多的人获胜。';
+
+  @override
+  String get propertyOptionsHouseRules => '家庭规则';
+
+  @override
+  String propertyFreeTitle(String square) {
+    return '停在“$square”';
+  }
+
+  @override
+  String get propertyFreeNone => '什么也不发生';
+
+  @override
+  String get propertyFreePot => '税款和罚款进奖池';
+
+  @override
+  String propertyFreePotSeed(String amount) {
+    return '奖池，初始 $amount';
+  }
+
+  @override
+  String propertyFreeBonus(String amount) {
+    return '固定得 $amount';
+  }
+
+  @override
+  String get propertyFreeExplain => '奖池：税款和卡牌罚款放到中间，停在该格的人全部拿走。';
+
+  @override
+  String propertyFreeBonusExplain(String square, String amount) {
+    return '停在“$square”得 $amount。';
+  }
+
+  @override
+  String get propertyRuleDoubleStart => '停在起点得双倍工资';
+
+  @override
+  String propertyRuleDoubleStartExplain(String amount) {
+    return '正好停在起点得 $amount。';
+  }
+
+  @override
+  String get propertyRuleNoRentInPause => '暂停期间不收租';
+
+  @override
+  String get propertyRuleNoRentInPauseExplain => '处于暂停中的玩家收不到租金。';
+
+  @override
+  String get propertyRuleBankruptAuction => '破产时拍卖';
+
+  @override
+  String get propertyRuleBankruptAuctionExplain => '有人欠银行破产时，其街道会被拍卖，而不是还给银行。';
+
+  @override
+  String get propertyRoll => '掷骰子';
+
+  @override
+  String propertyBuy(String amount) {
+    return '以 $amount 购买';
+  }
+
+  @override
+  String get propertyDecline => '不买 – 拍卖';
+
+  @override
+  String get propertyTooPoor => '钱不够买';
+
+  @override
+  String propertyFreeToBuy(String square) {
+    return '$square 还没有主人。';
+  }
+
+  @override
+  String propertyAuctionTitle(String square) {
+    return '拍卖：$square';
+  }
+
+  @override
+  String propertyAuctionHigh(String amount, String player) {
+    return '最高出价：$player 出 $amount';
+  }
+
+  @override
+  String get propertyAuctionNone => '还没有出价';
+
+  @override
+  String propertyAuctionTurn(String player) {
+    return '轮到 $player 出价。';
+  }
+
+  @override
+  String propertyBid(String amount) {
+    return '出价 $amount';
+  }
+
+  @override
+  String get propertyPass => '退出竞拍';
+
+  @override
+  String get propertyEndTurn => '结束回合';
+
+  @override
+  String propertyPayBail(String amount) {
+    return '付 $amount 出来';
+  }
+
+  @override
+  String get propertyUseCard => '使用免费卡';
+
+  @override
+  String propertyInPause(String player, String square) {
+    return '$player 在“$square”里：掷出对子、付钱或用免费卡。';
+  }
+
+  @override
+  String get propertyManage => '我的街道';
+
+  @override
+  String propertyManageOf(String player) {
+    return '街道：$player';
+  }
+
+  @override
+  String propertyDebt(String player, String amount, String cash) {
+    return '$player 要付 $amount，但只有 $cash。卖掉建筑或抵押街道。';
+  }
+
+  @override
+  String get propertyBankrupt => '宣布破产';
+
+  @override
+  String propertyBuild(String amount) {
+    return '建造（$amount）';
+  }
+
+  @override
+  String propertySell(String amount) {
+    return '出售（+$amount）';
+  }
+
+  @override
+  String propertyMortgage(String amount) {
+    return '抵押（+$amount）';
+  }
+
+  @override
+  String propertyUnmortgage(String amount) {
+    return '赎回（$amount）';
+  }
+
+  @override
+  String get propertyManageEmpty => '还没有街道。';
+
+  @override
+  String get propertyMortgaged => '已抵押';
+
+  @override
+  String propertyOwnerLine(String player) {
+    return '属于 $player';
+  }
+
+  @override
+  String get propertyOwnerNone => '仍属于银行';
+
+  @override
+  String propertyPrice(String amount) {
+    return '价格：$amount';
+  }
+
+  @override
+  String propertyRent(String amount) {
+    return '租金：$amount';
+  }
+
+  @override
+  String get propertyRentGroup => '整组同色：租金翻倍';
+
+  @override
+  String propertyHouseCost(String amount) {
+    return '每栋建筑 $amount';
+  }
+
+  @override
+  String get propertyStationRents => '租金取决于拥有的车站数';
+
+  @override
+  String get propertyUtilityRent => '租金：骰子点数 × 4，两个都有则 × 10';
+
+  @override
+  String propertyTax(String amount) {
+    return '支付：$amount';
+  }
+
+  @override
+  String propertyCardSquare(String deck) {
+    return '抽一张卡：$deck';
+  }
+
+  @override
+  String propertyStartSquare(String amount) {
+    return '经过得 $amount。';
+  }
+
+  @override
+  String get propertyPauseSquare => '暂停：掷对子、付钱或用卡出来。只是路过？什么都不发生。';
+
+  @override
+  String get propertyGoToPauseSquare => '去暂停！';
+
+  @override
+  String get propertyOut => '出局';
+
+  @override
+  String propertyStreets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条街',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyCoachRoll => '掷骰子，让你的棋子在棋盘上前进。';
+
+  @override
+  String get propertyCoachBoard => '停在无主的街道上就可以买下。别人停在你的街道上要付你租金。点一下格子查看详情。';
+
+  @override
+  String get propertyCoachPlayers => '这里显示每个人有多少钱。钱用光就破产。';
+
+  @override
+  String get propertyCoachManage => '拥有一整组同色街道就可以在这里建造，租金会大涨。';
+
+  @override
+  String get propertyCoachReplay => '快速导览';
+
+  @override
+  String propertyEvRolled(String player, int a, int b) {
+    return '$player 掷出 $a + $b';
+  }
+
+  @override
+  String propertyEvSalary(String player, String amount) {
+    return '$player 领取 $amount 工资';
+  }
+
+  @override
+  String propertyEvCard(String text) {
+    return '卡片：“$text”';
+  }
+
+  @override
+  String propertyEvCollected(String player, String amount) {
+    return '$player 得到 $amount';
+  }
+
+  @override
+  String propertyEvPot(String player, String amount) {
+    return '$player 拿走奖池：$amount';
+  }
+
+  @override
+  String propertyEvPaidBank(String player, String amount) {
+    return '$player 向银行支付 $amount';
+  }
+
+  @override
+  String propertyEvPaidPot(String player, String amount) {
+    return '$player 向奖池放入 $amount';
+  }
+
+  @override
+  String propertyEvPaid(String player, String amount, String other) {
+    return '$player 付给 $other $amount';
+  }
+
+  @override
+  String propertyEvBought(String player, String square, String amount) {
+    return '$player 以 $amount 买下 $square';
+  }
+
+  @override
+  String propertyEvBid(String player, String amount) {
+    return '$player 出价 $amount';
+  }
+
+  @override
+  String propertyEvPassed(String player) {
+    return '$player 退出竞拍';
+  }
+
+  @override
+  String propertyEvUnsold(String square) {
+    return '无人出价：$square 仍归银行';
+  }
+
+  @override
+  String propertyEvBuilt(String player, String building, String square) {
+    return '$player 在 $square 建了 $building';
+  }
+
+  @override
+  String propertyEvSold(String player, String square, String amount) {
+    return '$player 在 $square 出售：+$amount';
+  }
+
+  @override
+  String propertyEvMortgaged(String player, String square, String amount) {
+    return '$player 抵押 $square：+$amount';
+  }
+
+  @override
+  String propertyEvUnmortgaged(String player, String square, String amount) {
+    return '$player 赎回 $square：−$amount';
+  }
+
+  @override
+  String propertyEvToPause(String player, String square) {
+    return '$player 进入“$square”';
+  }
+
+  @override
+  String get propertyEvThreeDoubles => '连续三次对子！';
+
+  @override
+  String propertyEvLeftPause(String player) {
+    return '$player 重获自由';
+  }
+
+  @override
+  String propertyEvStayInPause(String player, int tries) {
+    return '没有对子：$player 继续暂停（$tries/3）';
+  }
+
+  @override
+  String propertyEvBankrupt(String player) {
+    return '$player 破产了';
+  }
+
+  @override
+  String propertyEvResigned(String player) {
+    return '$player 放弃了';
+  }
+
+  @override
+  String get rulesPropertyGoal =>
+      '买街道、收租金、在上面盖房子。\n最后留在游戏中的人获胜。设定轮数时，最后财富最多的人获胜。';
+
+  @override
+  String rulesPropertyTurn(String salary) {
+    return '掷两个骰子，前进相应的格数。\n停在无主的街道上可以买下；不买就拍卖，出价最高者得。\n街道属于别人时，你要付租金。\n掷出对子再掷一次。\n经过起点得 $salary。';
+  }
+
+  @override
+  String rulesPropertySpecial(String bail) {
+    return '拥有整组同色街道时租金翻倍，并且可以建造：平均建造，每条街先 4 座小建筑，再 1 座大建筑。\n卡片会给钱、扣钱或让你在棋盘上移动。\n连续三次对子会让你进入暂停。掷出对子、付 $bail 或用免费卡可以出来。\n钱不够？半价卖掉建筑或抵押街道。只有这样还不够时才算破产。\n抵押得到一半价格；赎回要多付 10%。被抵押的街道不收租金。';
+  }
 }

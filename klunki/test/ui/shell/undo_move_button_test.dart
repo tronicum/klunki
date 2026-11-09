@@ -25,6 +25,7 @@ void main() {
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
     SeenTips.shared.markFirst(SeenTips.maumauIntro);
     SeenTips.shared.markFirst(SeenTips.dicesheetIntro);
+    SeenTips.shared.markFirst(SeenTips.propertyIntro);
   });
 
   const undo = Key('shell-undo');
@@ -41,7 +42,11 @@ void main() {
   const ownRow = {'chess': Key('chess-flip'), 'wordtiles': Key('wordtiles-bench-toggle')};
   // Games whose board places the button in its own control panel, above
   // the action buttons (Mäxchen, KLD-121 follow-up).
-  const ownPanel = {'maexchen': Key('maexchen-controls'), 'dicesheet': Key('dicesheet-controls')};
+  const ownPanel = {
+    'maexchen': Key('maexchen-controls'),
+    'dicesheet': Key('dicesheet-controls'),
+    'property': Key('property-controls'),
+  };
 
   for (final id in gameScreens.keys) {
     testWidgets('$id: "Zug zurücknehmen" in the game area, not in the app bar', (tester) async {
@@ -86,6 +91,15 @@ void main() {
       }
       expect(c.moves, hasLength(1));
       var left = 0;
+      if (id == 'property') {
+        // KLD-060: a roll is final (dice and cards were seen); what comes
+        // after it (buying here) can be taken back.
+        expect(button(tester).onPressed, isNull);
+        final g = c.game as PropertyGame;
+        await c.submit(g.legalMoves.firstWhere((m) => m['action'] != 'roll'));
+        await tester.pump();
+        left = 1;
+      }
       if (id == 'dicesheet') {
         // KLD-119: a roll is final (the dice were seen); filling a box can
         // be taken back.

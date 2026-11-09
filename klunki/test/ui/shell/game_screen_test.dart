@@ -24,7 +24,8 @@ void main() {
   setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
   setUp(() => SeenTips.shared
     ..markFirst(SeenTips.maumauIntro)
-    ..markFirst(SeenTips.dicesheetIntro));
+    ..markFirst(SeenTips.dicesheetIntro)
+    ..markFirst(SeenTips.propertyIntro));
   test('every game in appGameSpecs has a screen; the others are hidden from the app', () {
     expect(gameScreens.keys.toSet(), {for (final s in appGameSpecs) s.id, ...previewGames});
     expect(appGameSpecs.map((s) => s.id), contains('gostrategy'), reason: 'KLD-058b');
@@ -80,6 +81,11 @@ void main() {
         if (spec.id == 'dicesheet') {
           // Ausgewürfelt asks for its house rule first (KLD-119).
           await tester.tap(find.byKey(const Key('dicesheet-options-next')));
+          await tester.pumpAndSettle();
+        }
+        if (spec.id == 'property') {
+          // Baulöwe asks for board, length and house rules first (KLD-060).
+          await tester.tap(find.byKey(const Key('property-options-next')));
           await tester.pumpAndSettle();
         }
         // "Wer spielt?" (KLD-103), prefilled with the default names.

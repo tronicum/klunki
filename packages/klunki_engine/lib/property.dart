@@ -575,6 +575,11 @@ class PropertyGame extends Game implements SeatGame {
     return s < 2 ? Player.values[s] : (throw StateError('seat $s has no Player (more than 2 seats, KLD-088)'));
   }
 
+  /// [seatOfMove] as a [Player] (two seats; a seat 2+ reads as
+  /// [Player.a], see `AcceptedMove.seat`).
+  @override
+  Player playerOf(Map<String, dynamic> move) => seatOfMove(move) == 1 ? Player.b : Player.a;
+
   /// The two-player outcome. With 3–6 seats a winner in seat 2+ (or a tie
   /// at the round limit) cannot be named as a [Player]: [GameResult.draw] is
   /// then true only to say that the game is over; use [seatResult].
@@ -1409,6 +1414,14 @@ class PropertyGame extends Game implements SeatGame {
     _owner[square] = seat;
     _houses[square] = houses;
     _mortgaged[square] = mortgaged;
+  }
+
+  /// Tests, demos and screenshots only: the next dice come from [dice]
+  /// (values 1–6) before the seeded ones, like the constructor's `dice`.
+  /// Not part of the config: a replay rolls from the seed.
+  void debugScriptDice(List<int> dice) {
+    if (dice.any((d) => d < 1 || d > 6)) throw ArgumentError.value(dice, 'dice', 'values must be 1–6');
+    _scriptedDice.addAll(dice);
   }
 
   /// Test and demo setup: sets [seat]'s cash (the bank balances it, so the

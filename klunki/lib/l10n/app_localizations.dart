@@ -6040,6 +6040,588 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Kurz erklärt'**
   String get dicesheetCoachReplay;
+
+  /// KLD-060: title of the property-trading dice game (maintainer: "Baulöwe", en working title "Housing Corp"). Never the brand name of the commercial game.
+  ///
+  /// In de, this message translates to:
+  /// **'Baulöwe'**
+  String get menuGameProperty;
+
+  /// KLD-060: one-line menu description of Baulöwe.
+  ///
+  /// In de, this message translates to:
+  /// **'Straßen kaufen, Miete kassieren, bauen'**
+  String get menuDescProperty;
+
+  /// KLD-060: why Baulöwe ended: everybody else went bankrupt or gave up.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle anderen sind pleite oder ausgestiegen'**
+  String get engineReasonPropertyLastSolvent;
+
+  /// KLD-060: why Baulöwe ended: the chosen round limit was reached; the biggest fortune wins.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach {rounds} Runden gewinnt das größte Vermögen'**
+  String engineReasonPropertyRoundLimit(int rounds);
+
+  /// KLD-060: an amount of play money in Baulöwe (the board says "Taler").
+  ///
+  /// In de, this message translates to:
+  /// **'{amount} Taler'**
+  String propertyMoney(int amount);
+
+  /// KLD-060 start options: heading above the board choice (Berlin / Fantasiestadt).
+  ///
+  /// In de, this message translates to:
+  /// **'Spielbrett'**
+  String get propertyOptionsBoard;
+
+  /// KLD-060: name of the built-in Berlin board.
+  ///
+  /// In de, this message translates to:
+  /// **'Berlin'**
+  String get propertyThemeBerlin;
+
+  /// KLD-060: name of the built-in board with made-up street names.
+  ///
+  /// In de, this message translates to:
+  /// **'Fantasiestadt'**
+  String get propertyThemeFantasie;
+
+  /// KLD-060 start options: under the board choice in languages other than German: the street names and cards of the boards are German for now. In de: a short note that the names are made up (Fantasiestadt) or real (Berlin).
+  ///
+  /// In de, this message translates to:
+  /// **'Berlin: echte Straßen. Fantasiestadt: ausgedachte Namen.'**
+  String get propertyThemeGermanNote;
+
+  /// KLD-060 start options: heading above the game length choice.
+  ///
+  /// In de, this message translates to:
+  /// **'Spieldauer'**
+  String get propertyOptionsLength;
+
+  /// KLD-060 start options: no round limit, play until one player is left (the default).
+  ///
+  /// In de, this message translates to:
+  /// **'Bis nur noch einer übrig ist'**
+  String get propertyOptionsUntilEnd;
+
+  /// KLD-060 start options: a round limit (20 / 30 / 40).
+  ///
+  /// In de, this message translates to:
+  /// **'{rounds} Runden'**
+  String propertyOptionsRounds(int rounds);
+
+  /// KLD-060 start options: what a round limit means.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit Rundenlimit gewinnt am Ende, wer am meisten besitzt.'**
+  String get propertyOptionsRoundsExplain;
+
+  /// KLD-060 start options: heading above the house rules (all off by default).
+  ///
+  /// In de, this message translates to:
+  /// **'Hausregeln'**
+  String get propertyOptionsHouseRules;
+
+  /// KLD-060 start options: heading of the free-square house rule; {square} is the square's name on the board (Berlin: "Späti-Pause").
+  ///
+  /// In de, this message translates to:
+  /// **'Auf „{square}“'**
+  String propertyFreeTitle(String square);
+
+  /// KLD-060: free-square house rule: nothing happens there (default).
+  ///
+  /// In de, this message translates to:
+  /// **'Nichts passiert'**
+  String get propertyFreeNone;
+
+  /// KLD-060: free-square house rule: taxes and card fines go into a pot that the next player landing there takes.
+  ///
+  /// In de, this message translates to:
+  /// **'Topf mit Steuern und Strafen'**
+  String get propertyFreePot;
+
+  /// KLD-060: free-square house rule: like the pot, but it starts with {amount} from the bank.
+  ///
+  /// In de, this message translates to:
+  /// **'Topf, startet mit {amount}'**
+  String propertyFreePotSeed(String amount);
+
+  /// KLD-060: free-square house rule: landing there pays a fixed {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Feste {amount} auf die Hand'**
+  String propertyFreeBonus(String amount);
+
+  /// KLD-060: explains the pot house rule.
+  ///
+  /// In de, this message translates to:
+  /// **'Topf: Steuern und Kartenstrafen gehen in die Mitte. Wer auf dem Feld landet, bekommt alles.'**
+  String get propertyFreeExplain;
+
+  /// KLD-060 rules page: the fixed-bonus house rule; {square} is the square's name, {amount} the bonus with the currency.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer auf „{square}“ landet, bekommt {amount}.'**
+  String propertyFreeBonusExplain(String square, String amount);
+
+  /// KLD-060 house rule toggle (off by default): landing exactly on Start pays twice the salary.
+  ///
+  /// In de, this message translates to:
+  /// **'Doppeltes Startgeld auf Start'**
+  String get propertyRuleDoubleStart;
+
+  /// KLD-060: explains "Doppeltes Startgeld"; {amount} is the doubled salary with the currency.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer genau auf Start landet, bekommt {amount}.'**
+  String propertyRuleDoubleStartExplain(String amount);
+
+  /// KLD-060 house rule toggle (off by default): no rent for the properties of a player who sits in the pause.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Miete in der Pause'**
+  String get propertyRuleNoRentInPause;
+
+  /// KLD-060: explains "Keine Miete in der Pause".
+  ///
+  /// In de, this message translates to:
+  /// **'Wer in der Pause sitzt, bekommt keine Miete.'**
+  String get propertyRuleNoRentInPauseExplain;
+
+  /// KLD-060 house rule toggle (off by default): the streets of a player bankrupt to the bank are auctioned.
+  ///
+  /// In de, this message translates to:
+  /// **'Versteigerung bei Pleite'**
+  String get propertyRuleBankruptAuction;
+
+  /// KLD-060: explains "Versteigerung bei Pleite".
+  ///
+  /// In de, this message translates to:
+  /// **'Geht jemand an die Bank pleite, werden die Straßen versteigert statt zurückgegeben.'**
+  String get propertyRuleBankruptAuctionExplain;
+
+  /// KLD-060: button: roll the two dice.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln'**
+  String get propertyRoll;
+
+  /// KLD-060: button: buy the street you stand on; {amount} is the price with the currency.
+  ///
+  /// In de, this message translates to:
+  /// **'Kaufen für {amount}'**
+  String propertyBuy(String amount);
+
+  /// KLD-060: button: do not buy; the street is then auctioned.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht kaufen – versteigern'**
+  String get propertyDecline;
+
+  /// KLD-060: under the buy button when the player has less cash than the price.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu wenig Geld zum Kaufen'**
+  String get propertyTooPoor;
+
+  /// KLD-060: the street the player landed on has no owner yet; {square} is its name.
+  ///
+  /// In de, this message translates to:
+  /// **'{square} gehört noch niemandem.'**
+  String propertyFreeToBuy(String square);
+
+  /// KLD-060: an auction is running for {square}.
+  ///
+  /// In de, this message translates to:
+  /// **'Versteigerung: {square}'**
+  String propertyAuctionTitle(String square);
+
+  /// KLD-060: the highest bid so far ({amount} with currency) and who made it.
+  ///
+  /// In de, this message translates to:
+  /// **'Höchstgebot: {amount} von {player}'**
+  String propertyAuctionHigh(String amount, String player);
+
+  /// KLD-060: an auction without a bid yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch kein Gebot'**
+  String get propertyAuctionNone;
+
+  /// KLD-060: whose turn it is to bid (or drop out).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} ist mit Bieten dran.'**
+  String propertyAuctionTurn(String player);
+
+  /// KLD-060: button: bid {amount} (with currency) in the auction.
+  ///
+  /// In de, this message translates to:
+  /// **'Biete {amount}'**
+  String propertyBid(String amount);
+
+  /// KLD-060: button: drop out of the auction for good.
+  ///
+  /// In de, this message translates to:
+  /// **'Aussteigen'**
+  String get propertyPass;
+
+  /// KLD-060: button: end the turn (the next player rolls).
+  ///
+  /// In de, this message translates to:
+  /// **'Zug beenden'**
+  String get propertyEndTurn;
+
+  /// KLD-060: button in the pause: pay {amount} (with currency) and roll normally.
+  ///
+  /// In de, this message translates to:
+  /// **'{amount} zahlen und raus'**
+  String propertyPayBail(String amount);
+
+  /// KLD-060: button in the pause: use a free card to leave.
+  ///
+  /// In de, this message translates to:
+  /// **'Freikarte nutzen'**
+  String get propertyUseCard;
+
+  /// KLD-060: the player to move sits in the pause square ({square} is its name) and how to get out.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} sitzt in „{square}“: Pasch würfeln, zahlen oder Freikarte.'**
+  String propertyInPause(String player, String square);
+
+  /// KLD-060: button that opens the player's streets (build, sell, mortgage).
+  ///
+  /// In de, this message translates to:
+  /// **'Meine Straßen'**
+  String get propertyManage;
+
+  /// KLD-060: title of the streets sheet of {player}.
+  ///
+  /// In de, this message translates to:
+  /// **'Straßen: {player}'**
+  String propertyManageOf(String player);
+
+  /// KLD-060: a player owes more than the cash ({amount}, {cash} with currency).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} muss {amount} zahlen, hat aber nur {cash}. Gebäude verkaufen oder Straßen beleihen.'**
+  String propertyDebt(String player, String amount, String cash);
+
+  /// KLD-060: button: declare bankruptcy (only offered when selling and mortgaging cannot pay the debt).
+  ///
+  /// In de, this message translates to:
+  /// **'Pleite erklären'**
+  String get propertyBankrupt;
+
+  /// KLD-060: button on a street: build one building for {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Bauen ({amount})'**
+  String propertyBuild(String amount);
+
+  /// KLD-060: button on a street: sell one building for {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Verkaufen (+{amount})'**
+  String propertySell(String amount);
+
+  /// KLD-060: button on a street: mortgage it and get {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Beleihen (+{amount})'**
+  String propertyMortgage(String amount);
+
+  /// KLD-060: button on a mortgaged street: lift the mortgage for {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Auslösen ({amount})'**
+  String propertyUnmortgage(String amount);
+
+  /// KLD-060: the streets sheet of a player without streets.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Straßen.'**
+  String get propertyManageEmpty;
+
+  /// KLD-060: marks a mortgaged street (it brings no rent).
+  ///
+  /// In de, this message translates to:
+  /// **'beliehen'**
+  String get propertyMortgaged;
+
+  /// KLD-060 square details: who owns it.
+  ///
+  /// In de, this message translates to:
+  /// **'Gehört {player}'**
+  String propertyOwnerLine(String player);
+
+  /// KLD-060 square details: nobody owns it yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Gehört noch der Bank'**
+  String get propertyOwnerNone;
+
+  /// KLD-060 square details: the price ({amount} with currency).
+  ///
+  /// In de, this message translates to:
+  /// **'Preis: {amount}'**
+  String propertyPrice(String amount);
+
+  /// KLD-060 square details: the base rent ({amount} with currency).
+  ///
+  /// In de, this message translates to:
+  /// **'Miete: {amount}'**
+  String propertyRent(String amount);
+
+  /// KLD-060 square details: owning the whole colour group doubles the rent of unbuilt streets.
+  ///
+  /// In de, this message translates to:
+  /// **'Ganze Farbgruppe: doppelte Miete'**
+  String get propertyRentGroup;
+
+  /// KLD-060 square details: what each building costs on this street.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Gebäude kostet {amount}'**
+  String propertyHouseCost(String amount);
+
+  /// KLD-060 square details of a station: the rent depends on how many stations the owner has (a row of amounts follows).
+  ///
+  /// In de, this message translates to:
+  /// **'Miete nach Zahl der Bahnhöfe'**
+  String get propertyStationRents;
+
+  /// KLD-060 square details of a utility: rent = dice total × 4, or × 10 with both.
+  ///
+  /// In de, this message translates to:
+  /// **'Miete: Augensumme × 4, mit beiden × 10'**
+  String get propertyUtilityRent;
+
+  /// KLD-060 square details of a tax square: the amount to pay.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahlen: {amount}'**
+  String propertyTax(String amount);
+
+  /// KLD-060 square details of a card square ({deck} is the deck name on the board).
+  ///
+  /// In de, this message translates to:
+  /// **'Eine Karte ziehen: {deck}'**
+  String propertyCardSquare(String deck);
+
+  /// KLD-060 square details of Start: passing it pays {amount}.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer vorbeikommt, bekommt {amount}.'**
+  String propertyStartSquare(String amount);
+
+  /// KLD-060 square details of the pause square.
+  ///
+  /// In de, this message translates to:
+  /// **'Pause: raus mit Pasch, Geld oder Freikarte. Nur zu Besuch? Dann passiert nichts.'**
+  String get propertyPauseSquare;
+
+  /// KLD-060 square details of the "go to the pause" square.
+  ///
+  /// In de, this message translates to:
+  /// **'Ab in die Pause!'**
+  String get propertyGoToPauseSquare;
+
+  /// KLD-060: marks a player who is bankrupt or gave up (players list, ranking).
+  ///
+  /// In de, this message translates to:
+  /// **'ausgeschieden'**
+  String get propertyOut;
+
+  /// KLD-060 players list: how many streets (properties) a player owns.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{keine Straße} one{1 Straße} other{{count} Straßen}}'**
+  String propertyStreets(int count);
+
+  /// KLD-060 intro tour, step 1 (the roll button).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfle und zieh mit deiner Spielfigur über das Brett.'**
+  String get propertyCoachRoll;
+
+  /// KLD-060 intro tour, step 2 (the board).
+  ///
+  /// In de, this message translates to:
+  /// **'Landest du auf einer freien Straße, kannst du sie kaufen. Wer auf deiner Straße landet, zahlt dir Miete. Tipp auf ein Feld für mehr.'**
+  String get propertyCoachBoard;
+
+  /// KLD-060 intro tour, step 3 (the players with their money).
+  ///
+  /// In de, this message translates to:
+  /// **'Hier siehst du, wie viel Geld alle haben. Wer kein Geld mehr hat, ist pleite.'**
+  String get propertyCoachPlayers;
+
+  /// KLD-060 intro tour, step 4 ("Meine Straßen").
+  ///
+  /// In de, this message translates to:
+  /// **'Gehört dir eine ganze Farbe, baust du hier – dann steigt die Miete kräftig.'**
+  String get propertyCoachManage;
+
+  /// KLD-060: entry in the game's menu that shows the intro tour again.
+  ///
+  /// In de, this message translates to:
+  /// **'Kurz erklärt'**
+  String get propertyCoachReplay;
+
+  /// KLD-060 narration: a roll of two dice.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} würfelt {a} + {b}'**
+  String propertyEvRolled(String player, int a, int b);
+
+  /// KLD-060 narration: passing or landing on Start pays the salary ({amount} with currency).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} bekommt {amount} Startgeld'**
+  String propertyEvSalary(String player, String amount);
+
+  /// KLD-060 narration: the text of the card just drawn (German board data).
+  ///
+  /// In de, this message translates to:
+  /// **'Karte: „{text}“'**
+  String propertyEvCard(String text);
+
+  /// KLD-060 narration: a player receives money (card, bonus).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} bekommt {amount}'**
+  String propertyEvCollected(String player, String amount);
+
+  /// KLD-060 narration: a player takes the pot on the free square.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} holt den Topf: {amount}'**
+  String propertyEvPot(String player, String amount);
+
+  /// KLD-060 narration: a player pays the bank (tax, card, bail).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} zahlt {amount} an die Bank'**
+  String propertyEvPaidBank(String player, String amount);
+
+  /// KLD-060 narration: a player pays into the pot (pot house rule).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} zahlt {amount} in den Topf'**
+  String propertyEvPaidPot(String player, String amount);
+
+  /// KLD-060 narration: a player pays another (rent, card).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} zahlt {amount} an {other}'**
+  String propertyEvPaid(String player, String amount, String other);
+
+  /// KLD-060 narration: a player buys a street (or wins it in an auction).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} kauft {square} für {amount}'**
+  String propertyEvBought(String player, String square, String amount);
+
+  /// KLD-060 narration: a bid in an auction.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} bietet {amount}'**
+  String propertyEvBid(String player, String amount);
+
+  /// KLD-060 narration: a player drops out of an auction.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} steigt aus'**
+  String propertyEvPassed(String player);
+
+  /// KLD-060 narration: nobody bid, the street stays with the bank.
+  ///
+  /// In de, this message translates to:
+  /// **'Keiner bietet: {square} bleibt bei der Bank'**
+  String propertyEvUnsold(String square);
+
+  /// KLD-060 narration: a player builds; {building} is the building name of the group (board data, e.g. "Späti").
+  ///
+  /// In de, this message translates to:
+  /// **'{player} baut {building} auf {square}'**
+  String propertyEvBuilt(String player, String building, String square);
+
+  /// KLD-060 narration: a player sells a building for half its cost.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} verkauft auf {square}: +{amount}'**
+  String propertyEvSold(String player, String square, String amount);
+
+  /// KLD-060 narration: a player mortgages a street.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} beleiht {square}: +{amount}'**
+  String propertyEvMortgaged(String player, String square, String amount);
+
+  /// KLD-060 narration: a player lifts a mortgage.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} löst {square} aus: −{amount}'**
+  String propertyEvUnmortgaged(String player, String square, String amount);
+
+  /// KLD-060 narration: a player is sent to the pause square ({square} is its name).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} muss in „{square}“'**
+  String propertyEvToPause(String player, String square);
+
+  /// KLD-060 narration: the third doubles in one turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Dreimal Pasch!'**
+  String get propertyEvThreeDoubles;
+
+  /// KLD-060 narration: a player leaves the pause.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} ist wieder frei'**
+  String propertyEvLeftPause(String player);
+
+  /// KLD-060 narration: no doubles in the pause; {tries} of 3 tries used.
+  ///
+  /// In de, this message translates to:
+  /// **'Kein Pasch: {player} bleibt in der Pause ({tries}/3)'**
+  String propertyEvStayInPause(String player, int tries);
+
+  /// KLD-060 narration: a player goes bankrupt and is out.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} ist pleite'**
+  String propertyEvBankrupt(String player);
+
+  /// KLD-060 narration: a player gives up; the others play on.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} gibt auf'**
+  String propertyEvResigned(String player);
+
+  /// KLD-060 rules page, "Ziel" (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Kauf Straßen, kassiere Miete und bau darauf.\nWer als Letzter noch im Spiel ist, gewinnt. Mit Rundenlimit gewinnt am Ende das größte Vermögen.'**
+  String get rulesPropertyGoal;
+
+  /// KLD-060 rules page, "So läuft ein Zug" (lines separated by \n); {salary} is the Start salary with currency.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfle mit zwei Würfeln und zieh so viele Felder vor.\nLandest du auf einer freien Straße, kannst du sie kaufen. Willst du nicht, wird sie versteigert: Wer am meisten bietet, bekommt sie.\nGehört die Straße jemand anderem, zahlst du Miete.\nBei einem Pasch würfelst du noch einmal.\nWer über Start zieht, bekommt {salary}.'**
+  String rulesPropertyTurn(String salary);
+
+  /// KLD-060 rules page, "Regeln" (lines separated by \n); {bail} is the bail with currency.
+  ///
+  /// In de, this message translates to:
+  /// **'Gehört dir eine ganze Farbgruppe, ist die Miete doppelt, und du darfst bauen: gleichmäßig, erst 4 kleine, dann 1 großes Gebäude pro Straße.\nKarten bringen Geld, kosten Geld oder schicken dich über das Brett.\nDreimal Pasch hintereinander schickt dich in die Pause. Raus kommst du mit einem Pasch, mit {bail} oder mit einer Freikarte.\nFehlt dir Geld, verkaufst du Gebäude zum halben Preis oder beleihst Straßen. Pleite bist du erst, wenn auch das nicht reicht.\nBeleihen bringt den halben Preis; auslösen kostet 10 % mehr. Eine beliehene Straße bringt keine Miete.'**
+  String rulesPropertySpecial(String bail);
 }
 
 class _AppLocalizationsDelegate
