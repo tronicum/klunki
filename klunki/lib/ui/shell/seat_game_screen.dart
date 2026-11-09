@@ -46,8 +46,9 @@ export 'seat_labels.dart';
 /// every two players, below the turn edge as in [GameScreen] (it names the
 /// seat to move, with its [SeatToken]); [handoverDetail] adds public
 /// information to it (the last turn). Games without secrets have none.
-/// [resultDetail] adds to the result dialog under the ranking, [rankingNote]
-/// a small line under a seat's name in it (e.g. the rack deduction).
+/// [resultDetail] adds to the result dialog under the ranking,
+/// [rankingNote] a small muted note right after a seat's points on the same
+/// line (e.g. the rack deduction "(−2)").
 /// Hot-seat only (the network session is 2-player). Names come from the
 /// nearest [SeatLabelsScope] ([SeatNamesBuilder] adds the app's).
 class SeatGameScreen extends StatefulWidget {
@@ -69,7 +70,8 @@ class SeatGameScreen extends StatefulWidget {
   /// More of the result dialog, under the ranking.
   final WidgetBuilder? resultDetail;
 
-  /// A small line under [seat]'s name in the ranking, or null.
+  /// A small muted note after [seat]'s points in the ranking ("(−2)"), or
+  /// null.
   final String? Function(BuildContext context, int seat)? rankingNote;
 
   const SeatGameScreen({
@@ -443,27 +445,26 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 SeatToken(seat: s, size: 24, out: game is SeatGame && (game as SeatGame).isSeatOut(s)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_name(s),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium
-                              ?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
-                      if (widget.rankingNote?.call(context, s) case final note?)
-                        Text(note,
-                            key: Key('result-rank-note-$s'),
-                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-                    ],
-                  ),
+                  child: Text(_name(s),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 if (game is SeatGame && (game as SeatGame).isSeatOut(s))
                   Text(l10n.seatOut, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant))
-                else if (r.params['score$s'] != null)
+                else if (r.params['score$s'] != null) ...[
                   Text(l10n.seatPoints(r.params['score$s']!), style: theme.textTheme.titleMedium),
+                  // KLD-125 (maintainer): small and muted on the same line;
+                  // a number note, left to right in ar / fa too ("(−2)").
+                  if (widget.rankingNote?.call(context, s) case final note?) ...[
+                    const SizedBox(width: 3),
+                    Text(note,
+                        key: Key('result-rank-note-$s'),
+                        textDirection: TextDirection.ltr,
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  ],
+                ],
               ],
             ),
           ),

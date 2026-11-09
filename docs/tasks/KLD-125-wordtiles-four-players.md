@@ -52,7 +52,7 @@ two players; 2 players play as before (the two-player screen, network included).
 - **Anzweifeln (no word list):** only the next player may challenge (engine rule, unchanged); the rules page
   says so now ("Anzweifeln kann nur, wer als Nächstes dran ist.").
 - **Result:** the seat shell's ranking (place, trophy, token, name, points; shared places; seats that resigned
-  last) with the rack deduction under each name ("Reststeine: −2", digits kept LTR in ar/fa), then the best word
+  last) with the rack deduction small and muted next to the points ("164 Punkte (−2)", digits kept LTR in ar/fa), then the best word
   and the words let stand (`WordTilesResult(scores: false)`); the reason without a score ("Alle Steine gelegt" /
   "8 Züge ohne Punkte", 2 new keys; the 2-player reason with "Endstand a : b" is unchanged). "Nochmal" keeps the
   player count and the options.
@@ -93,3 +93,6 @@ JSON as before (`players` is written only when not 2). 2-player network compatib
 ## Decisions (maintainer, 2026-11-09)
 1. "Trotzdem zulassen" with 3–4: the table agrees together (kept).
 2. Score row with 4 on a phone: tokens and scores only (kept).
+3. Rack deduction in the ranking: no line under the name; small and muted next to the points, "164 Punkte (−2)"
+   ("(+8)" for the player who went out), as the score row; one line on an iPhone SE, left to right in ar/fa
+   (`SeatGameScreen.rankingNote`).

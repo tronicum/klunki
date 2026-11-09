@@ -4,7 +4,6 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
-import '../ltr.dart';
 import '../shell/game_screen.dart';
 import '../shell/seat_game_screen.dart';
 import 'wordtiles/wordtiles_board.dart';
@@ -180,15 +179,15 @@ class WordTilesResult extends StatelessWidget {
   }
 }
 
-/// The rack deduction (or bonus) of [seat] at the game end as a line for
-/// the seat shell's ranking ("Reststeine −5"), or null when there is none.
+/// The rack deduction (or bonus) of [seat] at the game end, for the seat
+/// shell's ranking next to the points ("(−2)", "(+8)" for the player who
+/// went out; as the score row), or null when there is none.
 String? wordTilesRackNote(BuildContext context, GameController controller, int seat) {
   final game = controller.game;
   if (game is! WordTilesGame) return null;
   final pen = game.rackPenalties[seat];
   if (pen == 0) return null;
-  // The signed number stays "−2" in right-to-left languages.
-  return AppLocalizations.of(context).wordtilesResultRack(bidiLtr(context, pen > 0 ? '+$pen' : '\u2212${-pen}'));
+  return pen > 0 ? '(+$pen)' : '(\u2212${-pen})';
 }
 
 /// The last turn as a line ("Anna: HAUS für 14 Punkte"), for the

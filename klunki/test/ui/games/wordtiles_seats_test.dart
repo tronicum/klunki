@@ -167,7 +167,11 @@ void main() {
     expect(find.text('Anna gewinnt!'), findsOneWidget);
     expect(_text(tester, _key('result-reason')), '6 Züge ohne Punkte');
     for (final (s, pen) in [(0, 6), (1, 8), (2, 11)]) {
-      expect(_text(tester, _key('result-rank-note-$s')), 'Reststeine: −$pen');
+      // Small, next to the points, on the same line (maintainer).
+      expect(_text(tester, _key('result-rank-note-$s')), '(−$pen)');
+      expect(tester.getCenter(_key('result-rank-note-$s')).dy,
+          closeTo(tester.getCenter(find.descendant(of: _key('result-rank-$s'), matching: find.textContaining('Punkte'))).dy,
+              2));
     }
     // In ranking order.
     expect(tester.getTopLeft(_key('result-rank-0')).dy, lessThan(tester.getTopLeft(_key('result-rank-1')).dy));
