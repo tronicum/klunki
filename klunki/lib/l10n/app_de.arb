@@ -4,6 +4,10 @@
   "@appTitle": {
     "description": "App name; a brand, not translated."
   },
+  "appSubtitle": "Spielesammlung",
+  "@appSubtitle": {
+    "description": "Shown after the app name where the app shows its title (menu app bar, About): \"Klunki Spielesammlung\". Translate (a collection of games); keep it short, it may go on a second, smaller line under \"Klunki\"."
+  },
   "menuLanguage": "Sprache",
   "@menuLanguage": {
     "description": "Tooltip of the language icon in the menu's app bar."
@@ -4575,6 +4579,10 @@
   "rulesButton": "Regeln",
   "@rulesButton": {
     "description": "KLD-123: label of the rules button (book icon + this word) in every game's app bar and on each menu tile. One short word."
+  },
+  "menuCards": "Karten",
+  "@menuCards": {
+    "description": "Link on the Quartett menu tiles (next to rulesButton) that opens the view-only card gallery of all decks. One short word."
   },
   "rulesTitle": "Spielregeln: {game}",
   "@rulesTitle": {

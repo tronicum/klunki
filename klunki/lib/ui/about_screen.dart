@@ -106,6 +106,12 @@ class AboutScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
+                Text(
+                  l10n.appSubtitle,
+                  key: const Key('about-subtitle'),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
                 const SizedBox(height: 4),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -66,6 +66,9 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Schach**: "Zug bestätigen" (KLD-122): a chosen move is only shown until "✓ Ziehen"; "✗ Anders ziehen" chooses
   again. On by default, on one device too; each player can turn it off in "Wer spielt?", and for games with
   others there is a switch on "Raum starten" and a toggle in the game.
+- **Menu**: the title reads "Klunki Spielesammlung" (on a phone "Spielesammlung" smaller under "Klunki"; also on
+  "Über Klunki"; en "game collection"). "Karten ansehen" is no longer an entry of its own: the Quartett tiles have
+  a small "Karten" link in the corner of their picture that opens the same card gallery.
 - **"Zug zurücknehmen erlauben"** (KLD-117 follow-up): a switch per game in "Wer spielt?" (Ausgewürfelt: in its
   start options), on by default; off hides the undo button for both players of that game.
 - **Wording**: the undo button is now called "Zug zurücknehmen" (was "Zug zurück"), and the cancel button of

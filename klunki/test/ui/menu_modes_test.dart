@@ -282,10 +282,23 @@ void main() {
     final icon = find.descendant(of: find.byKey(const Key('menu-app-icon')), matching: find.byType(Image));
     expect((tester.widget<Image>(icon).image as AssetImage).assetName, 'assets/icon/app_icon.png');
     expect(tester.getSize(icon), const Size.square(30));
+    // "Klunki Spielesammlung" does not fit next to the buttons here (the
+    // wide test font): "Klunki" with "Spielesammlung" smaller below, whole.
     expect(find.descendant(of: find.byType(AppBar), matching: find.text('Klunki')), findsOneWidget);
+    expect(find.byKey(const Key('menu-title-sub')), findsOneWidget);
+    expect(find.text('Spielesammlung'), findsOneWidget);
+    expect(tester.getRect(find.byKey(const Key('menu-title-sub'))).bottom,
+        lessThanOrEqualTo(tester.getRect(find.byType(AppBar)).bottom));
+    expect(tester.takeException(), isNull);
     expect(tester.getSize(find.byType(AppBar)).height, 48);
     expect(find.text('Wähle ein Spiel'), findsOneWidget);
     // Was 136 (test font) with the big headline and the 56 px app bar.
     expect(tester.getTopLeft(find.byKey(Key('menu-${appGameSpecs.first.id}'))).dy, lessThanOrEqualTo(82));
+  });
+
+  testWidgets('a wide screen: "Klunki Spielesammlung" on one line', (tester) async {
+    await _pumpMenu(tester, size: const Size(1200, 900));
+    expect(find.text('Klunki Spielesammlung', findRichText: true), findsOneWidget);
+    expect(find.byKey(const Key('menu-title-sub')), findsNothing);
   });
 }

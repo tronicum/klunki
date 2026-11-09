@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "appTitle": "Klunki",
+  "appSubtitle": "game collection",
   "menuLanguage": "Language",
   "languagePickerTitle": "Choose language",
   "languageSystem": "System",
@@ -789,6 +790,7 @@
   "confirmMoveOn": "Confirm move is on.",
   "confirmMoveOff": "Confirm move is off.",
   "rulesButton": "Rules",
+  "menuCards": "Cards",
   "rulesTitle": "Rules: {game}",
   "playerCount": "{count, plural, =1{1 player} other{{count} players}}",
   "playerCountRange": "{min} to {max} players",

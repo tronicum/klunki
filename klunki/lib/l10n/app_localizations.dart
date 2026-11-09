@@ -114,6 +114,12 @@ abstract class AppLocalizations {
   /// **'Klunki'**
   String get appTitle;
 
+  /// Shown after the app name where the app shows its title (menu app bar, About): "Klunki Spielesammlung". Translate (a collection of games); keep it short, it may go on a second, smaller line under "Klunki".
+  ///
+  /// In de, this message translates to:
+  /// **'Spielesammlung'**
+  String get appSubtitle;
+
   /// Tooltip of the language icon in the menu's app bar.
   ///
   /// In de, this message translates to:
@@ -4846,6 +4852,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Regeln'**
   String get rulesButton;
+
+  /// Link on the Quartett menu tiles (next to rulesButton) that opens the view-only card gallery of all decks. One short word.
+  ///
+  /// In de, this message translates to:
+  /// **'Karten'**
+  String get menuCards;
 
   /// KLD-123: title of a game's rules page. game = game title, e.g. "Mühle".
   ///

@@ -191,12 +191,40 @@ void main() {
   });
 
   group('card gallery', () {
+    testWidgets('only the Quartett tiles have "Karten", next to "Regeln", and no entry of its own', (tester) async {
+      await _phone(tester);
+      await tester.pumpWidget(klunkiApp());
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('menu-quartett-gallery')), findsNothing);
+      for (final spec in appGameSpecs) {
+        expect(find.byKey(Key('menu-${spec.id}-cards')), spec.usesDeck ? findsOneWidget : findsNothing, reason: spec.id);
+      }
+      for (final id in ['quartett-trumpf', 'quartett-sets']) {
+        final cards = find.byKey(Key('menu-$id-cards'));
+        await tester.ensureVisible(cards);
+        await tester.pumpAndSettle();
+        expect(find.descendant(of: cards, matching: find.text('Karten')), findsOneWidget);
+        // In the lower corner of the picture box (end side), whole on the
+        // tile, above the title; "Regeln" stays at the foot.
+        final link = tester.getRect(cards);
+        final tile = tester.getRect(find.byKey(Key('menu-$id-tile')));
+        expect(link.right <= tile.right && link.left >= tile.left && link.top >= tile.top, isTrue,
+            reason: '$id: $link in $tile');
+        expect(link.center.dx, greaterThan(tile.center.dx), reason: 'end side (ltr)');
+        final name = id == 'quartett-trumpf' ? 'Quartett (Trumpf)' : 'Quartett (Sets)';
+        final title = tester.getRect(find.descendant(of: find.byKey(Key('menu-$id-tile')), matching: find.text(name)));
+        expect(link.bottom, lessThanOrEqualTo(title.top + 1), reason: '$id: $link above $title');
+        expect(tester.getRect(find.byKey(Key('menu-$id-rules'))).top, greaterThan(link.bottom));
+      }
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('menu → decks → sets with 4 cards each → full card → swipe and step', (tester) async {
       await _phone(tester);
       await tester.pumpWidget(klunkiApp());
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('menu-quartett-gallery')));
-      await tester.tap(find.byKey(const Key('menu-quartett-gallery')));
+      await tester.ensureVisible(find.byKey(const Key('menu-quartett-trumpf-cards')));
+      await tester.tap(find.byKey(const Key('menu-quartett-trumpf-cards')));
       await tester.pumpAndSettle();
 
       expect(find.text('Quartett-Karten'), findsOneWidget);

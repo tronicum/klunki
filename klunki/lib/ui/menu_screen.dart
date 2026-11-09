@@ -171,8 +171,8 @@ class _MenuScreenState extends State<MenuScreen> {
     void explain() => showNetworkUnavailableSheet(context);
     return Scaffold(
       // KLD-097: one slim row (48 instead of 56): the app icon (c5-zoom-b-fill,
-      // as on the home screen) and the "Klunki" wordmark, so the game tiles
-      // start higher on phones.
+      // as on the home screen) and "Klunki Spielesammlung" ([_MenuTitle]), so
+      // the game tiles start higher on phones.
       appBar: AppBar(
         backgroundColor: palette.backgroundTop,
         toolbarHeight: 48,
@@ -182,9 +182,7 @@ class _MenuScreenState extends State<MenuScreen> {
           children: [
             const KlunkiAppIcon(key: Key('menu-app-icon'), size: 30),
             const SizedBox(width: 8),
-            Flexible(
-              child: Text(l10n.appTitle, style: const TextStyle(fontWeight: FontWeight.w700)),
-            ),
+            const Flexible(child: _MenuTitle()),
             if (isPagesBeta) ...[const SizedBox(width: 8), const _BetaBadge()],
           ],
         ),
@@ -216,20 +214,6 @@ class _MenuScreenState extends State<MenuScreen> {
                           ? (_) => explain()
                           : (id) => _withOthers(id, startFor, join),
                       networkBlocked: blocked,
-                    ),
-                    // View-only Quartett card gallery (KLD-069).
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Align(
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: TextButton.icon(
-                          key: const Key('menu-quartett-gallery'),
-                          icon: const Icon(Icons.style_outlined, size: 18),
-                          label: Text(l10n.quartettGalleryOpen),
-                          onPressed: () => Navigator.of(context)
-                              .push(MaterialPageRoute<void>(builder: (_) => const QuartettGalleryScreen())),
-                        ),
-                      ),
                     ),
                     // KLD-098: "Mit anderen Geräten spielen": start or join a
                     // room (native: on this device or through the relay; web:
@@ -461,11 +445,27 @@ class _GameTile extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     // KLD-124: how many play, in the box's top corner.
                     child: Stack(
+                      clipBehavior: Clip.none,
                       children: [
                         Positioned.fill(
                           child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
                         ),
                         PositionedDirectional(top: -2, end: -2, child: PlayerCountChip(spec: spec)),
+                        // KLD-069: the view-only card gallery of a game with
+                        // decks, in the box's lower corner (the tile's foot
+                        // has no room next to "Regeln" on a phone).
+                        if (spec.usesDeck)
+                          PositionedDirectional(
+                            bottom: -4,
+                            end: -4,
+                            child: _CardsLink(
+                              key: Key('menu-${spec.id}-cards'),
+                              accent: accent,
+                              label: l10n.menuCards,
+                              onPressed: () => Navigator.of(context)
+                                  .push(MaterialPageRoute<void>(builder: (_) => const QuartettGalleryScreen())),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -874,6 +874,81 @@ class _BetaBadge extends StatelessWidget {
         AppLocalizations.of(context).webBetaBadge,
         style: theme.textTheme.labelMedium?.copyWith(color: scheme.onTertiaryContainer, fontWeight: FontWeight.w700),
       ),
+    );
+  }
+}
+
+/// "Klunki Spielesammlung" in the menu's app bar: on one line when it fits,
+/// else "Klunki" with "Spielesammlung" smaller below (never cut). Keys
+/// `menu-title`, `menu-title-sub` (the second line).
+class _MenuTitle extends StatelessWidget {
+  const _MenuTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final base = DefaultTextStyle.of(context).style;
+    final bold = base.copyWith(fontWeight: FontWeight.w700);
+    final light = base.copyWith(fontWeight: FontWeight.w500);
+    return LayoutBuilder(builder: (context, box) {
+      final line = TextSpan(children: [
+        TextSpan(text: l10n.appTitle, style: bold),
+        TextSpan(text: ' ${l10n.appSubtitle}', style: light),
+      ]);
+      final painter = TextPainter(
+        text: line,
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout(maxWidth: box.maxWidth);
+      final fits = !painter.didExceedMaxLines && painter.width <= box.maxWidth;
+      painter.dispose();
+      if (fits) return Text.rich(line, key: const Key('menu-title'), maxLines: 1, softWrap: false);
+      final size = base.fontSize ?? 22;
+      return Column(
+        key: const Key('menu-title'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.appTitle, maxLines: 1, style: bold.copyWith(fontSize: size * 0.82, height: 1.1)),
+          Text(l10n.appSubtitle,
+              key: const Key('menu-title-sub'),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+              style: light.copyWith(fontSize: size * 0.56, height: 1.15)),
+        ],
+      );
+    });
+  }
+}
+
+/// "Karten" in the lower corner of a game tile's picture box: a link in
+/// the tile's accent colour like "Regeln", on a light pill so it reads on
+/// the picture.
+class _CardsLink extends StatelessWidget {
+  final GameAccent accent;
+  final String label;
+  final VoidCallback onPressed;
+  const _CardsLink({super.key, required this.accent, required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return TextButton.icon(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        visualDensity: VisualDensity.compact,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        minimumSize: const Size(0, 30),
+        foregroundColor: accent.onSurface(theme.brightness),
+        backgroundColor: scheme.surface.withValues(alpha: 0.88),
+        shape: StadiumBorder(side: BorderSide(color: scheme.outlineVariant)),
+        padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 10, 0),
+      ),
+      icon: const Icon(Icons.style_outlined, size: 18),
+      label: Text(label),
     );
   }
 }

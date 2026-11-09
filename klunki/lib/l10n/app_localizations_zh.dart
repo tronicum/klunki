@@ -13,6 +13,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => 'Klunki';
 
   @override
+  String get appSubtitle => '游戏合集';
+
+  @override
   String get menuLanguage => '语言';
 
   @override
@@ -2946,6 +2949,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesButton => '规则';
+
+  @override
+  String get menuCards => '卡牌';
 
   @override
   String rulesTitle(String game) {

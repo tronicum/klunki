@@ -13,6 +13,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appTitle => 'Klunki';
 
   @override
+  String get appSubtitle => 'مجموعة ألعاب';
+
+  @override
   String get menuLanguage => 'اللغة';
 
   @override
@@ -3134,6 +3137,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesButton => 'القواعد';
+
+  @override
+  String get menuCards => 'البطاقات';
 
   @override
   String rulesTitle(String game) {
