@@ -36,11 +36,11 @@ void main() {
     SeenTips.shared.markFirst(SeenTips.maumauIntro);
   });
 
-  test('the range comes from the registry: 2 for two-player games, 2–4 for Ausgewürfelt', () {
+  test('the range comes from the registry: 2 for two-player games, 2–4 for Ausgewürfelt and Wortgewandt', () {
     expect(offeredPlayers(specById('connect4')!), (min: 2, max: 2));
     expect(offeredPlayers(specById('dicesheet')!), (min: 2, max: 4));
-    // The engine has 4 seats for Wortgewandt; the app offers 2 so far.
-    expect(offeredPlayers(specById('wordtiles')!), (min: 2, max: 2));
+    // KLD-125: Wortgewandt for 2–4 players on one device.
+    expect(offeredPlayers(specById('wordtiles')!), (min: 2, max: 4));
     for (final spec in appGameSpecs) {
       final r = offeredPlayers(spec);
       expect(r.min, spec.minPlayers, reason: spec.id);
@@ -66,6 +66,7 @@ void main() {
       expect(c.bottom, lessThan(tester.getRect(find.byKey(Key('menu-${spec.id}-local'))).top), reason: spec.id);
     }
     expect(find.descendant(of: _chip('dicesheet'), matching: find.text('2–4')), findsOneWidget);
+    expect(find.descendant(of: _chip('wordtiles'), matching: find.text('2–4')), findsOneWidget);
     expect(find.descendant(of: _chip('connect4'), matching: find.text('2')), findsOneWidget);
     semantics.dispose();
   });

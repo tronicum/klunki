@@ -11,6 +11,7 @@ import '../../../transport/game_transport.dart';
 import '../../board_zoom.dart';
 import '../../ltr.dart';
 import '../../shell/game_screen.dart';
+import '../../shell/seat_labels.dart';
 import '../../../profile/seen_tips.dart';
 import 'wordtiles_bench_coach.dart';
 import 'wordtiles_options.dart' show wordTilesOptionsSummary, wordTilesTileNames;
@@ -261,6 +262,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// One player per device (KLD-094 step 6), not hot-seat.
   bool get _network => controller.transport.localPlayers.length == 1;
 
+  /// The seat after [_seat] still in the game (the other player with two).
+  int get _nextSeat {
+    final active = game.activeSeats;
+    return active[(active.indexOf(_seat) + 1) % active.length];
+  }
+
   /// The rack as the engine has it.
   List<String> get _gameRack => game.rackOf(_seat);
 
@@ -333,12 +340,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   // ------------------------------------------------- "Trotzdem zulassen"
 
-  /// The local player who answers the open request, or null (none open, or
-  /// the other device answers it).
-  Player? get _allowTo {
+  /// The seat on this device that answers the open request, or null (none
+  /// open, or the other device answers it). Hot-seat: every seat (3–4
+  /// players too, KLD-125).
+  int? get _allowTo {
     final seat = game.allowRequestAnswerer;
-    final to = seat == null ? null : WordTilesGame.playerOfSeat(seat);
-    return to != null && controller.transport.localPlayers.contains(to) ? to : null;
+    if (seat == null) return null;
+    if (!_network) return seat;
+    final to = WordTilesGame.playerOfSeat(seat);
+    return to != null && controller.transport.localPlayers.contains(to) ? seat : null;
   }
 
   int get _lastRequestIndex => controller.moves.lastIndexWhere((m) => m.move['action'] == WordTilesGame.requestAllow);
@@ -376,14 +386,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     }
   }
 
-  String _nameOfSeat(int seat) {
-    final p = WordTilesGame.playerOfSeat(seat);
-    return p == null ? '${seat + 1}' : playerName(context, p);
-  }
+  String _nameOfSeat(int seat) => wordTilesSeatName(context, game, seat);
 
   /// "Anna möchte „BAU“ zulassen – einverstanden?" with "Annehmen" /
   /// "Ablehnen".
-  Future<void> _answerAllow(Player to) async {
+  Future<void> _answerAllow(int to) async {
     final request = game.allowRequest;
     if (request == null) return;
     final l10n = AppLocalizations.of(context);
@@ -426,12 +433,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       },
     );
     _allowRoute = null;
-    if (accept == null || !mounted || game.allowRequestAnswerer != WordTilesGame.seatOf(to)) return;
-    final r = await controller.submit(
-        accept ? WordTilesGame.acceptAllowMove(to) : WordTilesGame.declineAllowMove(to));
+    if (accept == null || !mounted || game.allowRequestAnswerer != to) return;
+    final r = await controller.submit(accept ? game.acceptAllowMoveFor(to) : game.declineAllowMoveFor(to));
     // Not delivered (e.g. the connection dropped): ask again while the
     // request is still open.
-    if (!r.isAccepted && mounted && game.allowRequestAnswerer == WordTilesGame.seatOf(to)) {
+    if (!r.isAccepted && mounted && game.allowRequestAnswerer == to) {
       _allowShownFor = null;
       _syncAllow();
     }
@@ -833,13 +839,16 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     // KLD-094 step 6: "Trotzdem zulassen" asks the other player. Over the
     // network their device shows the request; in hot-seat both players
     // agreed right here, so the answer follows at once.
-    final me = WordTilesGame.playerOfSeat(_seat)!;
-    final other = WordTilesGame.playerOfSeat(game.currentSeat == 0 ? 1 : 0)!;
+    // With 3–4 players (KLD-125) the whole table agrees at the device; the
+    // engine logs the answer as the next player's (the next seat still in).
     setState(() => _busy = true);
     _hotSeatAgreeing = !_network;
     try {
-      final r = await controller.submit(WordTilesGame.requestAllowMove(me, placed, unknown, swaps: swaps));
-      if (r.isAccepted && !_network && mounted) await controller.submit(WordTilesGame.acceptAllowMove(other));
+      final r = await controller.submit(game.requestAllowMoveFor(_seat, placed, unknown, swaps: swaps));
+      final answerer = game.allowRequestAnswerer;
+      if (r.isAccepted && !_network && mounted && answerer != null) {
+        await controller.submit(game.acceptAllowMoveFor(answerer));
+      }
       if (!r.isAccepted && mounted) setState(() => _busy = false);
     } finally {
       _hotSeatAgreeing = false;
@@ -853,7 +862,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// turn): only "Zurücknehmen".
   Future<bool> _askUnknown(List<String> words, {bool canAsk = true}) async {
     final l10n = AppLocalizations.of(context);
-    final otherSeat = _seat == 0 ? 1 : 0;
+    // The one who answers: over the network the other player; in hot-seat
+    // only the "declined before" line names one (the next player).
+    final otherSeat = game.allowRequestAnswerer ?? _nextSeat;
     final allow = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -949,10 +960,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   Future<void> _challenge() async {
     if (!_myTurn || !game.canChallenge) return;
     final l10n = AppLocalizations.of(context);
-    final labels = PlayerLabelsScope.of(context);
     final open = game.challengeable!;
-    final placer = WordTilesGame.playerOfSeat(open.seat);
-    final who = placer == null ? '${open.seat + 1}' : labels.label(context, l10n, placer);
+    final who = _nameOfSeat(open.seat);
     final seen = _seen;
     final ok = await showDialog<bool>(
       context: context,
@@ -1246,15 +1255,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   Widget _scoreBar(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
-    final labels = PlayerLabelsScope.of(context);
     final g = game;
     final penalties = g.rackPenalties;
     // KLD-094 step 8g: token, name and score ("① Anna 8"); the name gives
     // way first (ellipsis) when space is short. The shell shows no players
     // legend for this game ([GameScreen.showPlayersLegend]).
-    Widget seat(int s) {
-      final p = WordTilesGame.playerOfSeat(s);
-      final label = p == null ? '${s + 1}' : labels.label(context, l10n, p);
+    Widget seat(int s, {bool name = true}) {
+      final label = _nameOfSeat(s);
       final on = !g.isOver && g.currentSeat == s;
       final pen = penalties[s];
       return Semantics(
@@ -1270,11 +1277,8 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (p != null)
-                PlayerToken(gameId: controller.spec.id, player: p, size: 22)
-              else
-                Text('${s + 1}', style: theme.textTheme.labelLarge),
-              if (p != null) ...[
+              WordTilesSeatToken(game: g, seat: s, size: 22),
+              if (name) ...[
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
@@ -1316,17 +1320,28 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         // penalties on a small phone, large text) the row is scaled down.
         Expanded(
           child: LayoutBuilder(builder: (context, box) {
-            final row = Row(
-              children: [
-                for (var s = 0; s < g.playerCount; s++) ...[if (s > 0) const SizedBox(width: 6), Flexible(child: seat(s))],
-              ],
-            );
+            Row row({bool names = true}) => Row(
+                  children: [
+                    for (var s = 0; s < g.playerCount; s++) ...[
+                      if (s > 0) const SizedBox(width: 6),
+                      // Without names nothing can shrink: natural widths
+                      // (checked to fit), not equal shares.
+                      if (names) Flexible(child: seat(s)) else seat(s, name: false),
+                    ],
+                  ],
+                );
             final needed = _scoreRowMinWidth(context, theme, penalties);
-            if (box.maxWidth >= needed) return row;
+            if (box.maxWidth >= needed) return row();
+            // KLD-125: 3–4 players on a phone: token (colour and number) and
+            // score only; the status pill names the player to move.
+            final bare = _scoreRowMinWidth(context, theme, penalties, names: false);
+            final names = g.playerCount <= 2;
+            final width = names ? needed : bare;
+            if (!names && box.maxWidth >= bare) return row(names: false);
             return FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerStart,
-              child: SizedBox(width: needed, child: row),
+              child: SizedBox(width: width, child: row(names: names)),
             );
           }),
         ),
@@ -1362,7 +1377,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   /// The width the score row needs with each name cut to a few letters:
   /// padding, token, score and penalty of every seat (see [_scoreBar]).
-  double _scoreRowMinWidth(BuildContext context, ThemeData theme, List<int> penalties) {
+  double _scoreRowMinWidth(BuildContext context, ThemeData theme, List<int> penalties, {bool names = true}) {
     final scaler = MediaQuery.textScalerOf(context);
     double width(String text, TextStyle? style) {
       final painter = TextPainter(
@@ -1376,11 +1391,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return w;
     }
 
-    const name = 28.0; // "An…"
+    final name = names ? 4 + 28.0 : 0.0; // "An…"
     var total = 0.0;
     for (var s = 0; s < game.playerCount; s++) {
       final pen = penalties[s];
-      total += (s > 0 ? 6 : 0) + 14 + 22 + 4 + name + 6 + 2;
+      total += (s > 0 ? 6 : 0) + 14 + 22 + name + 6 + 2;
       total += width('${game.scoreOf(s)}', theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800));
       if (pen != 0) total += 4 + width(pen > 0 ? '(+$pen)' : '(−${-pen})', theme.textTheme.labelMedium);
     }
@@ -1425,12 +1440,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// placement, otherwise the last turn as one line.
   Widget _infoLine(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
-    final labels = PlayerLabelsScope.of(context);
     final g = game;
     final open = g.challengeable;
     if (open != null && _myTurn) {
-      final placer = WordTilesGame.playerOfSeat(open.seat);
-      final who = placer == null ? '${open.seat + 1}' : labels.label(context, l10n, placer);
+      final who = _nameOfSeat(open.seat);
       final c = WordTilesColors.of(context);
       return Container(
         key: const Key('wordtiles-open'),
@@ -1500,7 +1513,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       final p = moves.last.event.payload;
       final words = p is Map && p['allow'] is List ? (p['allow'] as List).whereType<String>().toList() : <String>[];
       return Text(
-        l10n.wordtilesAllowDeclined(playerName(context, moves.last.player), wordList(context, words)),
+        l10n.wordtilesAllowDeclined(_nameOfSeat(moves.last.seat), wordList(context, words)),
         key: const Key('wordtiles-allow-declined'),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -1520,8 +1533,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
     final t = turns.last;
-    final p = WordTilesGame.playerOfSeat(t.seat);
-    final who = p == null ? '${t.seat + 1}' : labels.label(context, l10n, p);
+    final who = _nameOfSeat(t.seat);
     return Text(
       l10n.shellHistoryEntry(who, describeWordTilesTurn(context, l10n, t)),
       key: const Key('wordtiles-last-turn'),
@@ -1575,6 +1587,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     return LayoutBuilder(builder: (context, box) {
       final size = box.biggest.shortestSide;
       _boardSize = size;
+      // No room at all (a squeezed layout, e.g. large text on a tiny
+      // phone): nothing to draw rather than a board with negative insides.
+      if (size < 16) return const SizedBox.shrink();
       return Center(
         child: SizedBox.square(
           dimension: size,
@@ -2413,4 +2428,32 @@ class _RenderBoardWithHandle extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+}
+
+/// [seat] inside a sentence: with 3–4 players (KLD-125) from the seat labels
+/// ([SeatLabelsScope]: typed names, else Anna, Ben, Cleo, Dani), with 2 from
+/// the two-player labels ([PlayerLabelsScope], network names included).
+String wordTilesSeatName(BuildContext context, WordTilesGame game, int seat) {
+  final l10n = AppLocalizations.of(context);
+  final p = WordTilesGame.playerOfSeat(seat);
+  if (game.playerCount > 2 || p == null) {
+    return SeatLabelsScope.of(context).label(context, l10n, seat, count: game.playerCount);
+  }
+  return PlayerLabelsScope.of(context).label(context, l10n, p);
+}
+
+/// [seat]'s token: the seat token (colour and number 1–4) with 3–4 players
+/// (KLD-125), the game's player token with 2.
+class WordTilesSeatToken extends StatelessWidget {
+  final WordTilesGame game;
+  final int seat;
+  final double size;
+  const WordTilesSeatToken({super.key, required this.game, required this.seat, this.size = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = WordTilesGame.playerOfSeat(seat);
+    if (game.playerCount > 2 || p == null) return SeatToken(seat: seat, size: size);
+    return PlayerToken(gameId: 'wordtiles', player: p, size: size);
+  }
 }

@@ -4,7 +4,9 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
+import '../ltr.dart';
 import '../shell/game_screen.dart';
+import '../shell/seat_game_screen.dart';
 import 'wordtiles/wordtiles_board.dart';
 
 /// Word tile game screen (KLD-094 step 2, "Wortgewandt"): the
@@ -16,6 +18,11 @@ import 'wordtiles/wordtiles_board.dart';
 /// network (KLD-094 step 6) each device shows its own rack from its view;
 /// "Trotzdem zulassen" asks the other device.
 ///
+/// 3–4 players (KLD-125, hot-seat only) play in the seat shell
+/// ([SeatGameScreen]) with its handover cover between every two players,
+/// the ranking with the rack deduction per seat and this game's summary
+/// under it; 2 players keep [GameScreen] (as over the network).
+///
 /// Contract (keep it): the public class name `WordTilesScreen` and the
 /// constructor `const WordTilesScreen({super.key, required this.controller})`.
 /// The screen is built by `ui/shell/screen_registry.dart`.
@@ -26,6 +33,19 @@ class WordTilesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final game = controller.game;
+    if (game is WordTilesGame && game.playerCount > 2) {
+      return SeatNamesBuilder(
+        child: SeatGameScreen(
+          controller: controller,
+          describeMove: describeWordTilesMove,
+          handoverDetail: (context) => WordTilesLastTurn(controller: controller),
+          resultDetail: (context) => WordTilesResult(controller: controller, scores: false),
+          rankingNote: (context, seat) => wordTilesRackNote(context, controller, seat),
+          boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
+        ),
+      );
+    }
     return GameScreen(
       controller: controller,
       describeMove: describeWordTilesMove,
@@ -45,12 +65,17 @@ class WordTilesScreen extends StatelessWidget {
 /// who went out), the highest-scoring single word, and the words let stand
 /// with "Trotzdem zulassen". "Nochmal spielen" is the shell's button.
 ///
+/// [scores] false (3–4 players, KLD-125): only the best word and the
+/// allowed words; the seat shell's ranking has the scores and the rack
+/// deduction ([wordTilesRackNote]).
+///
 /// Keys: `wordtiles-result`, `wordtiles-result-score-<seat>`,
 /// `wordtiles-result-rack-<seat>`, `wordtiles-result-best`,
 /// `wordtiles-result-allowed`.
 class WordTilesResult extends StatelessWidget {
   final GameController controller;
-  const WordTilesResult({super.key, required this.controller});
+  final bool scores;
+  const WordTilesResult({super.key, required this.controller, this.scores = true});
 
   /// The highest-scoring word laid and kept (a placement withdrawn after a
   /// challenge does not count): (seat, word, score), or null.
@@ -86,12 +111,8 @@ class WordTilesResult extends StatelessWidget {
     final game = controller.game;
     if (game is! WordTilesGame) return const SizedBox();
     final l10n = AppLocalizations.of(context);
-    final labels = PlayerLabelsScope.of(context);
     final theme = Theme.of(context);
-    String who(int seat) {
-      final p = WordTilesGame.playerOfSeat(seat);
-      return p == null ? '${seat + 1}' : labels.label(context, l10n, p);
-    }
+    String who(int seat) => wordTilesSeatName(context, game, seat);
 
     final penalties = game.rackPenalties;
     final top = game.scores.fold<int>(game.scores.first, (a, b) => b > a ? b : a);
@@ -105,14 +126,13 @@ class WordTilesResult extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var s = 0; s < game.playerCount; s++)
+        for (var s = 0; s < game.playerCount && scores; s++)
           Padding(
             key: Key('wordtiles-result-score-$s'),
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
               children: [
-                if (WordTilesGame.playerOfSeat(s) case final p?)
-                  PlayerToken(gameId: controller.spec.id, player: p, size: 24),
+                WordTilesSeatToken(game: game, seat: s, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -140,7 +160,7 @@ class WordTilesResult extends StatelessWidget {
             ),
           ),
         if (best != null) ...[
-          const Divider(height: 20),
+          if (scores) const Divider(height: 20),
           Text(
             l10n.wordtilesResultBestWord(best.$2, who(best.$1), best.$3),
             key: const Key('wordtiles-result-best'),
@@ -160,6 +180,17 @@ class WordTilesResult extends StatelessWidget {
   }
 }
 
+/// The rack deduction (or bonus) of [seat] at the game end as a line for
+/// the seat shell's ranking ("Reststeine −5"), or null when there is none.
+String? wordTilesRackNote(BuildContext context, GameController controller, int seat) {
+  final game = controller.game;
+  if (game is! WordTilesGame) return null;
+  final pen = game.rackPenalties[seat];
+  if (pen == 0) return null;
+  // The signed number stays "−2" in right-to-left languages.
+  return AppLocalizations.of(context).wordtilesResultRack(bidiLtr(context, pen > 0 ? '+$pen' : '\u2212${-pen}'));
+}
+
 /// The last turn as a line ("Anna: HAUS für 14 Punkte"), for the
 /// handover cover. Public information only.
 class WordTilesLastTurn extends StatelessWidget {
@@ -171,10 +202,8 @@ class WordTilesLastTurn extends StatelessWidget {
     final game = controller.game;
     if (game is! WordTilesGame || game.turns.isEmpty) return const SizedBox();
     final l10n = AppLocalizations.of(context);
-    final labels = PlayerLabelsScope.of(context);
     final t = game.turns.last;
-    final p = WordTilesGame.playerOfSeat(t.seat);
-    final who = p == null ? '${t.seat + 1}' : labels.label(context, l10n, p);
+    final who = wordTilesSeatName(context, game, t.seat);
     return Text(
       l10n.shellHistoryEntry(who, describeWordTilesTurn(context, l10n, t)),
       key: const Key('wordtiles-cover-turn'),

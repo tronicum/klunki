@@ -8,6 +8,11 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt for 3 or 4 players** (KLD-125): on one device, "Wer spielt?" now asks how many play (2, 3 or 4).
+  Between every two players the device is covered ("Gib das Gerät an Cleo weiter"), so every rack stays secret;
+  the score row shows all players in their colours, and the end shows the ranking with the leftover tiles of
+  each player. With 3 or 4, "Trotzdem zulassen" is decided together at the table, and only the next player can
+  challenge a word. Playing in a room stays for two.
 - **New game: Ausgewürfelt** (KLD-119), the five-dice score-sheet game for **2 to 4 players on one device**, the
   first Klunki game for more than two: roll five dice up to three times (tap dice to keep them, or shake the
   phone), then write the result into one box of your column: ones to sixes (35 bonus from 63), three and four

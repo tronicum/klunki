@@ -2430,6 +2430,14 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => 'وُضعت كل البلاطات';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns أدوار بلا نقاط';
+  }
+
+  @override
   String get webBetaBadge => 'تجريبي';
 
   @override
@@ -3404,6 +3412,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'بعد الاعتراض يلعب المعترض دوره كالعادة.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'من اثنين إلى أربعة على جهاز واحد، كلٌّ في دوره. في الغرفة يلعب اثنان فقط.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'الاعتراض فقط لمن يأتي دوره بعد ذلك.';
 
   @override
   String get rulesWordtilesScoreless =>

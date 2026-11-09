@@ -12,6 +12,7 @@ import '../rules/rules_screen.dart';
 import '../game_titles.dart';
 import '../seat_players_dialog.dart';
 import 'game_screen.dart';
+import 'handover_cover.dart';
 import 'seat_labels.dart';
 
 export 'seat_labels.dart';
@@ -40,8 +41,13 @@ export 'seat_labels.dart';
 ///   (`score<seat>` of [SeatResult.params]), shared places, seats that left
 ///   last; "Nochmal" / "Menü".
 ///
-/// No handover cover: it is meant for games without secrets (a game with
-/// hidden information needs the seat cover first, KLD-088 step 2).
+/// A game with hidden information (`GameSpec.hiddenInformation`, the word
+/// tile game for 3–4 players, KLD-125) gets the [HandoverCover] between
+/// every two players, below the turn edge as in [GameScreen] (it names the
+/// seat to move, with its [SeatToken]); [handoverDetail] adds public
+/// information to it (the last turn). Games without secrets have none.
+/// [resultDetail] adds to the result dialog under the ranking, [rankingNote]
+/// a small line under a seat's name in it (e.g. the rack deduction).
 /// Hot-seat only (the network session is 2-player). Names come from the
 /// nearest [SeatLabelsScope] ([SeatNamesBuilder] adds the app's).
 class SeatGameScreen extends StatefulWidget {
@@ -57,6 +63,15 @@ class SeatGameScreen extends StatefulWidget {
   /// "Kurz erklärt" tour).
   final List<ShellMenuEntry> menuEntries;
 
+  /// Public information on the handover cover (hidden-information games).
+  final WidgetBuilder? handoverDetail;
+
+  /// More of the result dialog, under the ranking.
+  final WidgetBuilder? resultDetail;
+
+  /// A small line under [seat]'s name in the ranking, or null.
+  final String? Function(BuildContext context, int seat)? rankingNote;
+
   const SeatGameScreen({
     super.key,
     required this.controller,
@@ -65,6 +80,9 @@ class SeatGameScreen extends StatefulWidget {
     this.title,
     this.actions = const [],
     this.menuEntries = const [],
+    this.handoverDetail,
+    this.resultDetail,
+    this.rankingNote,
   });
 
   @override
@@ -425,10 +443,21 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 SeatToken(seat: s, size: 24, out: game is SeatGame && (game as SeatGame).isSeatOut(s)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(_name(s),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_name(s),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium
+                              ?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
+                      if (widget.rankingNote?.call(context, s) case final note?)
+                        Text(note,
+                            key: Key('result-rank-note-$s'),
+                            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
                 ),
                 const SizedBox(width: 12),
                 if (game is SeatGame && (game as SeatGame).isSeatOut(s))
@@ -476,6 +505,10 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
               if (reason.isNotEmpty) Text(reason, key: const Key('result-reason')),
               const SizedBox(height: 12),
               _ranking(ctx, r),
+              if (widget.resultDetail != null) ...[
+                const SizedBox(height: 4),
+                Builder(builder: widget.resultDetail!),
+              ],
             ],
           ),
           actions: [
@@ -504,6 +537,11 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     }
     return l10n.shellToMove(_name(actorSeatOf(_game)!));
   }
+
+  /// [child] behind the [HandoverCover] in a game with hidden information.
+  Widget _cover(Widget child) => controller.spec.hiddenInformation
+      ? HandoverCover(controller: controller, detail: widget.handoverDetail, child: child)
+      : child;
 
   @override
   Widget build(BuildContext context) {
@@ -582,58 +620,69 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                       color: color,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
-                    // KLD-123: "Neu hier?" next to the pill where there is
-                    // room, else on a line of its own.
-                    child: Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: [
-                        _SeatPill(seat: seat, won: over, status: _status(l10n)),
-                        if (_rulesIntro && !over) RulesIntroLine(onTap: _openRules),
-                      ],
-                    ),
-                  ),
-                  // Who starts, until the first move (KLD-119 follow-up):
-                  // with "Zufall" the draw is announced.
-                  if (!over && controller.moves.isEmpty && seat != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
-                      child: Row(
+                  // KLD-125: a game with secrets covers everything below the
+                  // turn edge between two players (as GameScreen).
+                  Expanded(
+                    child: _cover(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(_randomStart ? Icons.casino_outlined : Icons.play_arrow_rounded,
-                              size: 20, color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              _randomStart ? l10n.seatStartsRandom(_name(seat)) : l10n.seatStarts(_name(seat)),
-                              key: const Key('seat-starter'),
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 6, 12, 2),
+                            // KLD-123: "Neu hier?" next to the pill where there is
+                            // room, else on a line of its own.
+                            child: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 8,
+                              runSpacing: 4,
+                              children: [
+                                _SeatPill(seat: seat, won: over, status: _status(l10n)),
+                                if (_rulesIntro && !over) RulesIntroLine(onTap: _openRules),
+                              ],
                             ),
                           ),
+                          // Who starts, until the first move (KLD-119 follow-up):
+                          // with "Zufall" the draw is announced.
+                          if (!over && controller.moves.isEmpty && seat != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
+                              child: Row(
+                                children: [
+                                  Icon(_randomStart ? Icons.casino_outlined : Icons.play_arrow_rounded,
+                                      size: 20, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      _randomStart ? l10n.seatStartsRandom(_name(seat)) : l10n.seatStarts(_name(seat)),
+                                      key: const Key('seat-starter'),
+                                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          if (_hint != null)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
+                              child: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  _hint!,
+                                  key: const Key('shell-hint'),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                                ),
+                              ),
+                            ),
+                          Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
                         ],
                       ),
                     ),
-                  if (_hint != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
-                      child: Semantics(
-                        liveRegion: true,
-                        child: Text(
-                          _hint!,
-                          key: const Key('shell-hint'),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-                    ),
-                  Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
+                  ),
                 ],
               ),
             ),

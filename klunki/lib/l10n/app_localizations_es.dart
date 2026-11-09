@@ -2463,6 +2463,15 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats =>
+      'Todas las fichas colocadas';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns turnos sin puntos';
+  }
+
+  @override
   String get webBetaBadge => 'Beta';
 
   @override
@@ -3409,6 +3418,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'Después, quien impugnó juega su turno normal.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'De dos a cuatro en un dispositivo: jugáis por turnos. En una sala jugáis dos.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'Solo puede impugnar quien juega a continuación.';
 
   @override
   String get rulesWordtilesScoreless =>

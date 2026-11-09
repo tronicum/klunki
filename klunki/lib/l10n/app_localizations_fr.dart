@@ -2470,6 +2470,14 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => 'Toutes les tuiles posées';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns tours sans points';
+  }
+
+  @override
   String get webBetaBadge => 'Bêta';
 
   @override
@@ -3414,6 +3422,14 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'Qui a contesté joue ensuite son tour normalement.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'À deux, trois ou quatre sur un appareil : chacun joue à son tour. Dans une salle, vous jouez à deux.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'Seule la personne qui joue juste après peut contester.';
 
   @override
   String get rulesWordtilesScoreless =>

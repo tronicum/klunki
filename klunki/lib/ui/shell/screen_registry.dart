@@ -63,16 +63,22 @@ const Set<String> previewGames = {};
 const Set<String> hotSeatOnlyGames = {'maumau', 'maexchen', 'dicesheet'};
 
 /// Games played in the seat shell for 2–4 players on one device (KLD-119,
-/// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.
+/// `SeatGameScreen`), whatever the player count.
 const Set<String> seatGames = {'dicesheet'};
+
+/// Games the menu starts with "Wer spielt?" and the player count (2 · 3 ·
+/// 4, KLD-119): the [seatGames], and Wortgewandt (KLD-125), which plays in
+/// the seat shell with 3–4 players on one device and in the two-player
+/// `GameScreen` with 2 (as over the network, which stays 2-player: rooms
+/// never offer more).
+const Set<String> playerCountGames = {...seatGames, 'wordtiles'};
 
 /// How many players the app offers for [spec] (KLD-124, the menu tile's and
 /// rules page's people chip): the engine's [GameSpec.minPlayers] to
-/// [GameSpec.maxPlayers] for [seatGames]; the others start with exactly
-/// [GameSpec.minPlayers] in the app, even where the engine has more seats
-/// (Wortgewandt's 4 seats are not offered yet).
+/// [GameSpec.maxPlayers] for [playerCountGames]; the others start with
+/// exactly [GameSpec.minPlayers] in the app.
 ({int min, int max}) offeredPlayers(GameSpec spec) =>
-    (min: spec.minPlayers, max: seatGames.contains(spec.id) ? spec.maxPlayers : spec.minPlayers);
+    (min: spec.minPlayers, max: playerCountGames.contains(spec.id) ? spec.maxPlayers : spec.minPlayers);
 
 /// The games the app offers to host over the network: [appGameSpecs]
 /// without [hotSeatOnlyGames].
@@ -148,7 +154,8 @@ Future<void> openGame(BuildContext context, String gameId,
 /// The menu's way into a game: Quartett first asks for the deck
 /// (KLD-069, [showQuartettDeckPicker]), Wortgewandt for the tile language
 /// and the word list (KLD-094, [showWordTilesOptionsDialog]); then "Wer
-/// spielt?" (KLD-103) asks for both player names, prefilled with the last
+/// spielt?" (KLD-103) asks for both player names (with the player count for
+/// [playerCountGames], [showSeatPlayersDialog]), prefilled with the last
 /// ones or the default names (only with the app's [PlayerNameScope]).
 /// Cancelling any of them starts nothing. A Wortgewandt game with "Wörterbuch
 /// prüfen" loads its word list before the game opens.
@@ -182,9 +189,14 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     sheet = await showDiceSheetOptionsDialog(context);
     if (sheet == null || !context.mounted) return;
   }
-  if (seatGames.contains(gameId)) {
+  if (playerCountGames.contains(gameId)) {
+    // Ausgewürfelt has "Zug zurücknehmen erlauben" in its options;
+    // Wortgewandt here, as the two-player dialog had it (KLD-125).
     final n = await showSeatPlayersDialog(context,
-        reorder: sheet?.start == DiceSheetStart.order, randomStart: sheet?.start == DiceSheetStart.random);
+        reorder: sheet?.start == DiceSheetStart.order,
+        randomStart: sheet?.start == DiceSheetStart.random,
+        undoFor: seatGames.contains(gameId) ? null : gameId,
+        passDevice: specById(gameId)?.hiddenInformation ?? false);
     if (n == null || !context.mounted) return;
     players = n;
   } else {

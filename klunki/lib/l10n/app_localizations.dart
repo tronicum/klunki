@@ -3905,6 +3905,18 @@ abstract class AppLocalizations {
   /// **'{turns} Züge ohne Punkte, Endstand {a} : {b}'**
   String engineReasonWordtilesScoreless(int turns, int a, int b);
 
+  /// KLD-125: result reason (word tiles, 3–4 players; the ranking below shows the scores): the bag is empty and a player laid their last tile.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle Steine gelegt'**
+  String get engineReasonWordtilesPlayedOutSeats;
+
+  /// KLD-125: result reason (word tiles, 3–4 players; the ranking below shows the scores): too many turns in a row without points (turns = 6 or 8).
+  ///
+  /// In de, this message translates to:
+  /// **'{turns} Züge ohne Punkte'**
+  String engineReasonWordtilesScorelessSeats(int turns);
+
   /// KLD-108: small badge next to "Klunki" in the menu app bar, only in the GitHub Pages web build (KLUNKI_WEB_CHANNEL=pages-beta).
   ///
   /// In de, this message translates to:
@@ -5266,6 +5278,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Wer angezweifelt hat, ist danach normal dran.'**
   String get rulesWordtilesChallengeAfter;
+
+  /// KLD-125: word tile game rules, goal section: 2–4 players on one device in turn; a network room is for two.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu zweit, zu dritt oder zu viert an einem Gerät: Ihr seid reihum dran. In einem Raum spielt ihr zu zweit.'**
+  String get rulesWordtilesPlayers;
+
+  /// KLD-125: word tile game rules, after the challenge rule: with 3–4 players only the next player may challenge the last word.
+  ///
+  /// In de, this message translates to:
+  /// **'Anzweifeln kann nur, wer als Nächstes dran ist.'**
+  String get rulesWordtilesChallengeNext;
 
   /// KLD-123: word tile game rules, the end after scoreless turns.
   ///

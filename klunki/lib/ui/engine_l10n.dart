@@ -41,8 +41,14 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.chessSeventyFiveMoves => l10n.engineReasonChessSeventyFiveMoves(p('moves')),
     GameEndReason.chessThreefoldRepetition => l10n.engineReasonChessThreefoldRepetition(p('times')),
     GameEndReason.chessDrawAgreed => l10n.engineReasonChessDrawAgreed,
-    GameEndReason.wordtilesPlayedOut => l10n.engineReasonWordtilesPlayedOut(p('a'), p('b')),
-    GameEndReason.wordtilesScoreless => l10n.engineReasonWordtilesScoreless(p('turns'), p('a'), p('b')),
+    // KLD-125: 3–4 players (a seat result: `score0…3`, no `a` / `b`) say
+    // why without the score; the ranking under it has every score.
+    GameEndReason.wordtilesPlayedOut => params.containsKey('a')
+        ? l10n.engineReasonWordtilesPlayedOut(p('a'), p('b'))
+        : l10n.engineReasonWordtilesPlayedOutSeats,
+    GameEndReason.wordtilesScoreless => params.containsKey('a')
+        ? l10n.engineReasonWordtilesScoreless(p('turns'), p('a'), p('b'))
+        : l10n.engineReasonWordtilesScorelessSeats(p('turns')),
     GameEndReason.maumauEmptyHand => l10n.engineReasonMaumauEmptyHand,
     GameEndReason.maexchenNoLives => l10n.engineReasonMaexchenNoLives,
     GameEndReason.dicesheetAllFilled => l10n.engineReasonDicesheetAllFilled,

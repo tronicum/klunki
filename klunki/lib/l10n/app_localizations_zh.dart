@@ -2328,6 +2328,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => '所有牌已出完';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '连续 $turns 轮没有得分';
+  }
+
+  @override
   String get webBetaBadge => '试用版';
 
   @override
@@ -3187,6 +3195,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesWordtilesChallengeAfter => '否认的人之后照常出牌。';
+
+  @override
+  String get rulesWordtilesPlayers => '两到四人在一台设备上轮流玩。在房间里两人对战。';
+
+  @override
+  String get rulesWordtilesChallengeNext => '只有下一位玩家可以否认。';
 
   @override
   String get rulesWordtilesScoreless => '如果因为没人再得分而结束，每个人都要减去自己剩余牌的分数。';

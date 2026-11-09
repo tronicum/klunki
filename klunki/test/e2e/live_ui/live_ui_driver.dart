@@ -29,6 +29,7 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -63,7 +64,13 @@ class UiDevice {
   bool has(Finder f) => on(f).evaluate().isNotEmpty;
   bool hasKey(Key k) => has(find.byKey(k));
 
-  GameController controller(WidgetTester tester) => tester.widget<GameScreen>(on(find.byType(GameScreen))).controller;
+  /// The controller of the device's game screen ([GameScreen], or the seat
+  /// shell of a game for 3–4 players, KLD-125).
+  GameController controller(WidgetTester tester) {
+    final seats = on(find.byType(SeatGameScreen));
+    if (seats.evaluate().isNotEmpty) return tester.widget<SeatGameScreen>(seats).controller;
+    return tester.widget<GameScreen>(on(find.byType(GameScreen))).controller;
+  }
 
   bool get networked => me != null;
 
