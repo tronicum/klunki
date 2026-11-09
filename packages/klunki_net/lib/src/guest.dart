@@ -529,6 +529,7 @@ class KlunkiGuest {
         jokerSwap: _config.jokerSwap,
         lives: _config.lives,
         maexchenDouble: _config.maexchenDouble,
+        maexchenUnlimited: _config.maexchenUnlimited,
         me: _me,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,

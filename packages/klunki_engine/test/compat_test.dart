@@ -23,7 +23,8 @@ void main() {
     'chess': (3, 1, '5f2d81a850dc003d33424219c180126a'),
     'wordtiles': (5, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
     'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
-    'maexchen': (1, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
+    // Rules 2 (KLD-121 step 2): 2–4 seats and "Unbegrenzte Leben".
+    'maexchen': (2, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
     'dicesheet': (1, 1, 'efb31c5c6fa32b9e12e025988708b559'),
     // KLD-060: Baulöwe, keyed by board theme (revision = theme revision).
     'property/berlin': (1, 2, 'c58289b803d547d6488c1ba052f7b60b'),

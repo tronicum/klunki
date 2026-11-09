@@ -83,6 +83,11 @@ enum GameEndReason {
   /// (lives left).
   maexchenNoLives('maexchen.noLives'),
 
+  /// Mäxchen, rule variant "Unbegrenzte Leben" (KLD-121 step 2): the
+  /// players ended the game; the fewest lives lost wins. params: `a`, `b`
+  /// (lives lost of seats 0 and 1; the [SeatResult] has `lost0…lost3`).
+  maexchenEnded('maexchen.ended'),
+
   /// Ausgewürfelt (KLD-119): every sheet still in is full; the highest
   /// total wins. params: `a`, `b` (totals of seats 0 and 1; the
   /// [SeatResult] has `score0…score3`).

@@ -59,7 +59,10 @@ import 'word_tiles.dart';
 /// Mäxchen (KLD-121): [lives] (JSON `lives`, written only when not 3) is
 /// the number of lives each player starts with; [maexchenDouble] (JSON
 /// `maexDouble`, written only when off; on by default) is the house rule "a
-/// doubted Mäxchen that is real costs 2 lives". Other games ignore both.
+/// doubted Mäxchen that is real costs 2 lives". [maexchenUnlimited] (JSON
+/// `maexUnlimited`, written only when on; off by default) is the rule
+/// variant "Unbegrenzte Leben" ([MaexchenGame.unlimitedLives]). Other games
+/// ignore them.
 ///
 /// Ausgewürfelt (KLD-119): [extraFives] (JSON `extraFives`, written only
 /// when on; off by default) is the house rule "Extra-Fünfer"
@@ -86,6 +89,7 @@ class GameConfig {
   final MauMauRules mauMau;
   final int lives;
   final bool maexchenDouble;
+  final bool maexchenUnlimited;
   final bool extraFives;
   final bool randomStart;
   final PropertyOptions property;
@@ -102,6 +106,7 @@ class GameConfig {
       this.mauMau = const MauMauRules(),
       this.lives = 3,
       this.maexchenDouble = true,
+      this.maexchenUnlimited = false,
       this.extraFives = false,
       this.randomStart = false,
       this.property = const PropertyOptions()});
@@ -124,6 +129,7 @@ class GameConfig {
         if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
         if (lives != 3) 'lives': lives,
         if (!maexchenDouble) 'maexDouble': false,
+        if (maexchenUnlimited) 'maexUnlimited': true,
         if (extraFives) 'extraFives': true,
         if (randomStart) 'start': 'random',
         ...property.toJson(),
@@ -142,6 +148,7 @@ class GameConfig {
       mauMau: MauMauRules.fromJson(json['maumau']),
       lives: json['lives'] as int? ?? 3,
       maexchenDouble: json['maexDouble'] != false,
+      maexchenUnlimited: json['maexUnlimited'] == true,
       extraFives: json['extraFives'] == true,
       randomStart: json['start'] == 'random',
       property: PropertyOptions.fromJson(json));
@@ -159,6 +166,7 @@ class GameConfig {
       mauMau: mauMau,
       lives: lives,
       maexchenDouble: maexchenDouble,
+      maexchenUnlimited: maexchenUnlimited,
       extraFives: extraFives,
       randomStart: randomStart,
       property: property);
@@ -179,14 +187,14 @@ class GameConfig {
       other.mauMau == mauMau &&
       other.lives == lives &&
       other.maexchenDouble == maexchenDouble &&
+      other.maexchenUnlimited == maexchenUnlimited &&
       other.extraFives == extraFives &&
       other.randomStart == randomStart &&
       other.property == property;
 
   @override
-  int get hashCode => Object.hash(
-      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty, chessWhite, players, mauMau, lives,
-      maexchenDouble, extraFives, randomStart, property);
+  int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty,
+      chessWhite, players, mauMau, lives, maexchenDouble, maexchenUnlimited, extraFives, randomStart, property);
 
   @override
   String toString() =>
@@ -195,6 +203,7 @@ class GameConfig {
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
+      '${maexchenUnlimited ? ', maexUnlimited' : ''}'
       '${extraFives ? ', extraFives' : ''}${randomStart ? ', start: random' : ''}'
       '${property.isDefault ? '' : ', property: ${property.toJson()}'})';
 }
@@ -320,18 +329,35 @@ final List<GameSpec> gameSpecs = [
   // KLD-121: the dice bluffing game, hot-seat in the app (network play
   // works in the engine and the CLI, the app does not offer it yet:
   // `hotSeatOnlyGames`). Lives and the "Mäxchen doppelt" house rule in the
-  // config (`lives`, `maexDouble`).
-  GameSpec('maexchen', 'Mäxchen',
-      (c, _) => MaexchenGame(seed: c.seed, startLives: c.lives, maexchenDouble: c.maexchenDouble),
-      hiddenInformation: true, redaction: const MaexchenRedaction(), undoBarrier: MaexchenGame.endsRound),
+  // config (`lives`, `maexDouble`). Rules 2 (step 2): 2–4 seats on one
+  // device (`players`; two seats unchanged) and the rule variant
+  // "Unbegrenzte Leben" (`maexUnlimited`, the `end` move, the view's
+  // `unlimited` / `lost`): an older build would play such a game with lives.
+  GameSpec(
+      'maexchen',
+      'Mäxchen',
+      (c, _) => MaexchenGame(
+          seed: c.seed,
+          startLives: c.lives,
+          maexchenDouble: c.maexchenDouble,
+          unlimitedLives: c.maexchenUnlimited,
+          playerCount: c.players),
+      hiddenInformation: true,
+      redaction: const MaexchenRedaction(),
+      undoBarrier: MaexchenGame.endsRound,
+      rulesVersion: 2,
+      maxPlayers: MaexchenGame.maxPlayers),
   // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
   // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network
   // session is 2-player). House rule "Extra-Fünfer" in the config
   // (`extraFives`), random start (`start`). A roll is final for hot-seat "Zug zurücknehmen".
-  GameSpec('dicesheet', 'Ausgewürfelt',
-      (c, _) => DiceSheetGame(
-          seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),
-      maxPlayers: 4, undoBarrier: DiceSheetGame.isRoll),
+  GameSpec(
+      'dicesheet',
+      'Ausgewürfelt',
+      (c, _) =>
+          DiceSheetGame(seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),
+      maxPlayers: 4,
+      undoBarrier: DiceSheetGame.isRoll),
   // KLD-060: Baulöwe, the property-trading dice game for 2–6 seats (the app
   // offers 2–4 on one device, step 3). Rules 1: the engine of step 1 with
   // the board theme, round limit and house rules in the config
@@ -346,8 +372,8 @@ final List<GameSpec> gameSpecs = [
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
-  final tileSet = TileSet.byId(c.tiles ?? TileSet.german.id) ??
-      (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
+  final tileSet =
+      TileSet.byId(c.tiles ?? TileSet.german.id) ?? (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
   if (!c.dictionary) {
     return WordTilesGame(
         seed: c.seed, tileSet: tileSet, playerCount: c.players, jokerSwap: c.jokerSwap, rackPenalty: c.rackPenalty);
@@ -366,7 +392,10 @@ WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a
 /// screen.
-List<GameSpec> get appGameSpecs => [for (final s in gameSpecs) if (s.appReady) s];
+List<GameSpec> get appGameSpecs => [
+      for (final s in gameSpecs)
+        if (s.appReady) s
+    ];
 
 GameSpec? specById(String id) => gameSpecs.where((s) => s.id == id).firstOrNull;
 
@@ -392,7 +421,8 @@ String? configProblem(GameConfig config, {bool wordList = true}) {
     final p = config.property.problem;
     if (p != null) return p;
   }
-  if (config.gameId == 'maexchen' && (config.lives < 1 || config.lives > 9)) return 'lives must be 1–9, not ${config.lives}';
+  if (config.gameId == 'maexchen' && (config.lives < 1 || config.lives > 9))
+    return 'lives must be 1–9, not ${config.lives}';
   return null;
 }
 

@@ -9,7 +9,11 @@ class MaexchenView extends MaexchenGame {
   /// The player whose view this is.
   final Player viewer;
 
-  MaexchenView._(this.viewer, {required super.startLives, required super.maexchenDouble, required super.playerCount});
+  MaexchenView._(this.viewer,
+      {required super.startLives,
+      required super.maexchenDouble,
+      required super.unlimitedLives,
+      required super.playerCount});
 
   /// Rebuilds the view from [MaexchenGame.viewJson]; throws
   /// [BadViewException] if [j] is malformed.
@@ -17,10 +21,32 @@ class MaexchenView extends MaexchenGame {
     try {
       final viewer = playerIn(j['viewer']);
       final view = MaexchenView._(viewer,
-          startLives: j['startLives'] as int, maexchenDouble: j['double'] == true, playerCount: j['players'] as int);
+          startLives: j['startLives'] as int,
+          maexchenDouble: j['double'] == true,
+          unlimitedLives: j['unlimited'] == true,
+          playerCount: j['players'] as int);
       final lives = (j['lives'] as List).cast<int>();
       if (lives.length != view.playerCount) throw const BadViewException('bad lives');
       view._lives.setAll(0, lives);
+      final lost = j['lost'];
+      if (lost != null) {
+        final l = (lost as List).cast<int>();
+        if (l.length != view.playerCount) throw const BadViewException('bad lost');
+        view._lost.setAll(0, l);
+      }
+      // Seats out: listed with 3–4 seats; with two the one without lives.
+      final out = j['out'];
+      if (out != null) {
+        for (final s in out as List) {
+          view._out.add(view._checkSeat(s));
+        }
+      } else {
+        for (var s = 0; s < view.playerCount; s++) {
+          if (lives[s] == 0) view._out.add(s);
+        }
+      }
+      view._ended = j['ended'] == true;
+      view._othersResigned = j['othersResigned'] == true;
       view._phase = MaexchenPhase.values.byName(j['phase'] as String);
       view._seat = view._checkSeat(j['seat']);
       view._round = j['round'] as int;

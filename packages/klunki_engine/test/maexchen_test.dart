@@ -274,7 +274,7 @@ void main() {
       expect(g.lives, [5, 5]);
       expect(() => MaexchenGame(startLives: 0), throwsArgumentError);
       expect(() => MaexchenGame(startLives: 10), throwsArgumentError);
-      expect(() => MaexchenGame(playerCount: 3), throwsArgumentError);
+      expect(() => MaexchenGame(playerCount: 5), throwsArgumentError);
     });
 
     test('resign ends the game at any time', () {
@@ -385,7 +385,8 @@ void main() {
       expect(g.startLives, 5);
       expect(g.maexchenDouble, isFalse);
       expect(configProblem(const GameConfig('maexchen', lives: 0)), isNotNull);
-      expect(configProblem(const GameConfig('maexchen', players: 3)), isNotNull);
+      expect(configProblem(const GameConfig('maexchen', players: 4)), isNull);
+      expect(configProblem(const GameConfig('maexchen', players: 5)), isNotNull);
       expect(configProblem(c), isNull);
     });
 
@@ -393,8 +394,9 @@ void main() {
       final spec = specById('maexchen')!;
       expect(spec.hiddenInformation, isTrue);
       expect(spec.redaction!.secretSeed, isTrue);
-      expect(spec.rulesVersion, 1);
-      expect(spec.maxPlayers, 2);
+      // Rules 2 (KLD-121 step 2): 2–4 seats, "Unbegrenzte Leben".
+      expect(spec.rulesVersion, 2);
+      expect(spec.maxPlayers, 4);
     });
   });
 

@@ -42,4 +42,41 @@ void main() {
     await guest.close();
     await host.close();
   });
+
+  test('"Unbegrenzte Leben": the tally reaches the guest, the guest ends the game and verifies it', () async {
+    const config = GameConfig('maexchen', seed: 8, maexchenUnlimited: true);
+    final host = await startHost(config);
+    final guest = await joinHost(host.port);
+    expect(guest.config.maexchenUnlimited, isTrue);
+    final rng = Random(2);
+    for (var steps = 0; steps < 120; steps++) {
+      final h = host.game as MaexchenGame, g = guest.game as MaexchenGame;
+      expect(g.lost, h.lost);
+      expect(g.unlimitedLives, isTrue);
+      if (h.currentPlayer == host.me) {
+        final legal = h.legalMoves;
+        expect(host.submitLocal(legal[rng.nextInt(legal.length)]), isNull);
+        final n = host.moves.length;
+        await until(() => guest.moves.length == n);
+      } else {
+        final legal = g.legalMoves;
+        expect(await guest.submit(legal[rng.nextInt(legal.length)]), isNull);
+      }
+    }
+    expect(host.game.isOver, isFalse, reason: 'nobody drops out');
+    // The player to move ends the game.
+    if ((host.game as MaexchenGame).currentPlayer == host.me) {
+      expect(host.submitLocal(MaexchenGame.endMove), isNull);
+    } else {
+      expect(await guest.submit(MaexchenGame.endMove), isNull);
+    }
+    await until(() => guest.game.isOver);
+    expect(host.game.result.code, GameEndReason.maexchenEnded);
+    await until(() => guest.verification != Verification.pending);
+    expect(guest.verificationError, isNull);
+    expect(guest.verification, Verification.verified);
+    expect(guest.game.result.winner, host.game.result.winner);
+    await guest.close();
+    await host.close();
+  });
 }
