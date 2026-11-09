@@ -245,6 +245,10 @@ void main() {
       final c = await _game(tester);
       await _botMoves(tester, c, 220, until: 0);
       await _shot(tester, '06-mid-game');
+      await _tap(tester, 'shell-history');
+      await _shot(tester, '06b-mid-game-history');
+      await tester.tapAt(const Offset(20, 20));
+      await tester.pumpAndSettle();
       await _tap(tester, 'property-manage');
       await _shot(tester, '07-mid-game-my-streets');
     });

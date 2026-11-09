@@ -5694,9 +5694,9 @@
   "@propertyOptionsRoundsExplain": {
     "description": "KLD-060 start options: what a round limit means."
   },
-  "propertyOptionsHouseRules": "Hausregeln",
-  "@propertyOptionsHouseRules": {
-    "description": "KLD-060 start options: heading above the house rules (all off by default)."
+  "propertyOptionsVariants": "Regelvarianten",
+  "@propertyOptionsVariants": {
+    "description": "KLD-060 start options: heading above the rule variants (all off by default; KLD-123 wording: Regelvarianten, not Hausregeln)."
   },
   "propertyFreeTitle": "Auf „{square}“",
   "@propertyFreeTitle": {

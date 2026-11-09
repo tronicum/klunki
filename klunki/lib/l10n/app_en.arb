@@ -1001,7 +1001,7 @@
   "propertyOptionsUntilEnd": "Until only one is left",
   "propertyOptionsRounds": "{rounds} rounds",
   "propertyOptionsRoundsExplain": "With a round limit, whoever owns the most wins at the end.",
-  "propertyOptionsHouseRules": "House rules",
+  "propertyOptionsVariants": "Rule variants",
   "propertyFreeTitle": "On “{square}”",
   "propertyFreeNone": "Nothing happens",
   "propertyFreePot": "Pot of taxes and fines",

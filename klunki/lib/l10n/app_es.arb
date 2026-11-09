@@ -1002,7 +1002,7 @@
   "propertyOptionsUntilEnd": "Hasta que solo quede uno",
   "propertyOptionsRounds": "{rounds} rondas",
   "propertyOptionsRoundsExplain": "Con límite de rondas, gana al final quien más tenga.",
-  "propertyOptionsHouseRules": "Reglas de la casa",
+  "propertyOptionsVariants": "Variantes de reglas",
   "propertyFreeTitle": "En «{square}»",
   "propertyFreeNone": "No pasa nada",
   "propertyFreePot": "Bote con impuestos y multas",

@@ -162,7 +162,7 @@ void main() {
     UndoSettings.debugReset();
   });
 
-  testWidgets('2 players, 25 rounds, house rules on', (tester) async {
+  testWidgets('2 players, 25 rounds, rule variants on', (tester) async {
     await _playGame(
         tester,
         const GameConfig('property',

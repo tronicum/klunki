@@ -48,6 +48,12 @@ class SeatGameScreen extends StatefulWidget {
   final GameController controller;
   final BoardBuilder boardBuilder;
   final MoveDescriber? describeMove;
+
+  /// False when [describeMove] already gives whole sentences that name the
+  /// players ("Anna würfelt 3 + 4 …"): the history then shows them without
+  /// the "Anna: " in front (the token still marks the mover). A resign keeps
+  /// it.
+  final bool historyNamesMover;
   final String? title;
 
   /// More app-bar actions before the shell's own.
@@ -67,6 +73,7 @@ class SeatGameScreen extends StatefulWidget {
     required this.controller,
     required this.boardBuilder,
     this.describeMove,
+    this.historyNamesMover = true,
     this.title,
     this.actions = const [],
     this.menuEntries = const [],
@@ -390,7 +397,9 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                           SeatToken(seat: m.seat, size: 20),
                         ],
                       ),
-                      title: Text(l10n.shellHistoryEntry(_name(m.seat), _describe(l10n, m))),
+                      title: Text(!widget.historyNamesMover && m.move['action'] != 'resign'
+                          ? _describe(l10n, m)
+                          : l10n.shellHistoryEntry(_name(m.seat), _describe(l10n, m))),
                     );
                   },
                 ),

@@ -1002,7 +1002,7 @@
   "propertyOptionsUntilEnd": "حتى يبقى لاعب واحد",
   "propertyOptionsRounds": "{rounds} جولة",
   "propertyOptionsRoundsExplain": "مع حد للجولات، يفوز في النهاية صاحب الثروة الأكبر.",
-  "propertyOptionsHouseRules": "قواعد منزلية",
+  "propertyOptionsVariants": "القواعد البديلة",
   "propertyFreeTitle": "على «{square}»",
   "propertyFreeNone": "لا شيء يحدث",
   "propertyFreePot": "صندوق الضرائب والغرامات",

@@ -6119,11 +6119,11 @@ abstract class AppLocalizations {
   /// **'Mit Rundenlimit gewinnt am Ende, wer am meisten besitzt.'**
   String get propertyOptionsRoundsExplain;
 
-  /// KLD-060 start options: heading above the house rules (all off by default).
+  /// KLD-060 start options: heading above the rule variants (all off by default; KLD-123 wording: Regelvarianten, not Hausregeln).
   ///
   /// In de, this message translates to:
-  /// **'Hausregeln'**
-  String get propertyOptionsHouseRules;
+  /// **'Regelvarianten'**
+  String get propertyOptionsVariants;
 
   /// KLD-060 start options: heading of the free-square house rule; {square} is the square's name on the board (Berlin: "Späti-Pause").
   ///

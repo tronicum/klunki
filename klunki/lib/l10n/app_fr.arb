@@ -1002,7 +1002,7 @@
   "propertyOptionsUntilEnd": "Jusqu’à ce qu’il n’en reste qu’un",
   "propertyOptionsRounds": "{rounds} tours",
   "propertyOptionsRoundsExplain": "Avec une limite de tours, la plus grande fortune gagne à la fin.",
-  "propertyOptionsHouseRules": "Règles maison",
+  "propertyOptionsVariants": "Variantes de règles",
   "propertyFreeTitle": "Sur « {square} »",
   "propertyFreeNone": "Il ne se passe rien",
   "propertyFreePot": "Cagnotte des taxes et amendes",

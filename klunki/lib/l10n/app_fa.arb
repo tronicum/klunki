@@ -1002,7 +1002,7 @@
   "propertyOptionsUntilEnd": "تا وقتی فقط یک نفر بماند",
   "propertyOptionsRounds": "{rounds} دور",
   "propertyOptionsRoundsExplain": "با محدودیت دور، در پایان کسی که بیشترین دارایی را دارد برنده است.",
-  "propertyOptionsHouseRules": "قانون‌های خودمانی",
+  "propertyOptionsVariants": "قانون‌های جایگزین",
   "propertyFreeTitle": "روی «{square}»",
   "propertyFreeNone": "هیچ اتفاقی نمی‌افتد",
   "propertyFreePot": "قلک مالیات‌ها و جریمه‌ها",

@@ -93,7 +93,8 @@ void main() {
         await tester.pumpWidget(klunkiApp());
         await tester.pumpAndSettle();
         await _tap(tester, 'menu-$id-rules');
-        final house = _expectParts(tester, GameConfig(id));
+        // The app's start defaults (Baulöwe: 30 rounds).
+        final house = _expectParts(tester, rulesMenuConfig(id));
         expect(find.text(deL10n.rulesHouse), house ? findsOneWidget : findsNothing);
         expect(tester.takeException(), isNull);
       });

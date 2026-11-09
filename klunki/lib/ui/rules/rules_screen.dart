@@ -45,7 +45,7 @@ class RulesScreen extends StatelessWidget {
     final palette = KlunkiPalette.of(context);
     final accent = palette.accent(gameId);
     final inGame = config != null;
-    final rules = gameRules[gameId]!(context, l10n, config ?? GameConfig(gameId));
+    final rules = gameRules[gameId]!(context, l10n, config ?? rulesMenuConfig(gameId));
     final title = localizedGameTitle(l10n, gameId, fallback: specById(gameId)?.title ?? gameId);
     final on = [for (final h in rules.houseRules) if (h.on) h];
     final muted = theme.colorScheme.onSurfaceVariant;

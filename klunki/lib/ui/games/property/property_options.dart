@@ -7,8 +7,9 @@ import '../../game_titles.dart';
 import 'property_screen.dart' show PropertyNames;
 
 /// The start options of a Baulöwe game (KLD-060): the board (Berlin or
-/// Fantasiestadt), the game length ("bis nur noch einer übrig ist", the
-/// default, or 20 / 30 / 40 rounds), the house rules (free square:
+/// Fantasiestadt), the game length (30 rounds by default in the app until
+/// players can trade, see [propertyAppDefaults]; 20 / 40 rounds or "bis nur
+/// noch einer übrig ist"), the rule variants (free square:
 /// nothing / pot / pot + 500 / fixed 200; "Doppeltes Startgeld", "Keine
 /// Miete in der Pause", "Versteigerung bei Pleite", all off by default) and
 /// the device setting "Zug zurücknehmen erlauben". Then "Wer spielt?" asks
@@ -27,6 +28,13 @@ Future<PropertyOptions?> showPropertyOptionsDialog(BuildContext context) => show
 /// decision, KLD-060).
 const List<int> propertyRoundChoices = [20, 30, 40];
 
+/// What the app starts with (maintainer decision 2026-11-09): 30 rounds,
+/// because without a trade screen (KLD-060 step 3b) the players rarely get a
+/// whole group, and a game until one is left can go on for hours. The engine
+/// default stays "until one is left" (no round limit). The rules page shows
+/// these from the menu.
+const PropertyOptions propertyAppDefaults = PropertyOptions(rounds: 30);
+
 class _PropertyOptionsDialog extends StatefulWidget {
   const _PropertyOptionsDialog();
 
@@ -36,7 +44,7 @@ class _PropertyOptionsDialog extends StatefulWidget {
 
 class _PropertyOptionsDialogState extends State<_PropertyOptionsDialog> {
   String _theme = PropertyTheme.defaultId;
-  int? _rounds;
+  int? _rounds = propertyAppDefaults.rounds;
   PropertyFreeSquare _free = PropertyFreeSquare.none;
   bool _doubleStart = false;
   bool _noRentInPause = false;
@@ -118,7 +126,7 @@ class _PropertyOptionsDialogState extends State<_PropertyOptionsDialog> {
                 icon: Icons.timelapse),
           const SizedBox(height: 4),
           Text(l10n.propertyOptionsRoundsExplain, style: theme.textTheme.bodySmall),
-          heading(l10n.propertyOptionsHouseRules),
+          heading(l10n.propertyOptionsVariants),
           Text(l10n.propertyFreeTitle(board.squares[20].name), style: theme.textTheme.labelLarge),
           for (final (rule, label) in [
             (PropertyFreeSquare.none, l10n.propertyFreeNone),

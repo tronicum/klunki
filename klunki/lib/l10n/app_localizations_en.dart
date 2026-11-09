@@ -3932,7 +3932,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'With a round limit, whoever owns the most wins at the end.';
 
   @override
-  String get propertyOptionsHouseRules => 'House rules';
+  String get propertyOptionsVariants => 'Rule variants';
 
   @override
   String propertyFreeTitle(String square) {

@@ -3703,7 +3703,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get propertyOptionsRoundsExplain => '设定轮数时，最后拥有最多的人获胜。';
 
   @override
-  String get propertyOptionsHouseRules => '家庭规则';
+  String get propertyOptionsVariants => '规则变体';
 
   @override
   String propertyFreeTitle(String square) {

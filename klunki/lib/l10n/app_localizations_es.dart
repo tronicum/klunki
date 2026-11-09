@@ -3960,7 +3960,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Con límite de rondas, gana al final quien más tenga.';
 
   @override
-  String get propertyOptionsHouseRules => 'Reglas de la casa';
+  String get propertyOptionsVariants => 'Variantes de reglas';
 
   @override
   String propertyFreeTitle(String square) {

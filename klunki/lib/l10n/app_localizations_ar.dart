@@ -3954,7 +3954,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'مع حد للجولات، يفوز في النهاية صاحب الثروة الأكبر.';
 
   @override
-  String get propertyOptionsHouseRules => 'قواعد منزلية';
+  String get propertyOptionsVariants => 'القواعد البديلة';
 
   @override
   String propertyFreeTitle(String square) {

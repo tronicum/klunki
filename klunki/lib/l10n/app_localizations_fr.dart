@@ -3967,7 +3967,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Avec une limite de tours, la plus grande fortune gagne à la fin.';
 
   @override
-  String get propertyOptionsHouseRules => 'Règles maison';
+  String get propertyOptionsVariants => 'Variantes de règles';
 
   @override
   String propertyFreeTitle(String square) {

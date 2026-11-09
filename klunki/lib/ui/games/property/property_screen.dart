@@ -47,6 +47,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
         builder: (context) => SeatGameScreen(
           controller: widget.controller,
           describeMove: (l10n, move) => describePropertyMove(l10n, widget.controller, move, propertySeatNamer(context, widget.controller.config.players)),
+          // The narration names everybody ("Anna würfelt …", "Ben zahlt …").
+          historyNamesMover: false,
           resultScore: (l10n, result, seat) {
             final game = widget.controller.game;
             if (game is PropertyGame && game.isSeatOut(seat)) return l10n.propertyOut;
@@ -98,7 +100,19 @@ String describePropertyMove(
   final event = move.event;
   if (game is! PropertyGame || event is! PropertyEvent) return move.move['action']?.toString() ?? '';
   final lines = propertyNarration(l10n, game, event.events, move.seat, name);
-  return lines.isEmpty ? (move.move['action']?.toString() ?? '') : lines.join(' · ');
+  if (lines.isNotEmpty) return lines.join(' · ');
+  // Nothing to tell (e.g. "Zug beenden"): the mover and the button.
+  final action = move.move['action'];
+  final label = switch (action) {
+    'endTurn' => l10n.propertyEndTurn,
+    'decline' => l10n.propertyDecline,
+    'pass' => l10n.propertyPass,
+    'roll' => l10n.propertyRoll,
+    'useCard' => l10n.propertyUseCard,
+    'bankrupt' => l10n.propertyBankrupt,
+    _ => action?.toString() ?? '',
+  };
+  return l10n.shellHistoryEntry(name(move.seat), label);
 }
 
 /// The engine's [events] of one move by [mover] as short sentences (the

@@ -8,6 +8,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/undo_settings.dart';
+import 'package:klunki/ui/rules/rules_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -69,11 +70,16 @@ void main() {
     await tester.tap(find.text('Baulöwe'));
     await tester.pumpAndSettle();
     expect(_key('property-options'), findsOneWidget);
-    // The defaults: Berlin, until one is left, no house rules.
+    // The defaults: Berlin, 30 rounds (until trading exists), no rule
+    // variants; "Regelvarianten", not "Hausregeln" (KLD-123).
     expect(find.text('Bis nur noch einer übrig ist'), findsOneWidget);
+    expect(
+        tester.widget<ListTile>(_key('property-rounds-30')).selected, isTrue, reason: '30 rounds by default');
+    expect(tester.widget<ListTile>(_key('property-rounds-0')).selected, isFalse);
+    expect(find.text('Regelvarianten'), findsOneWidget);
+    expect(find.text('Hausregeln'), findsNothing);
     expect(find.text('Auf „Späti-Pause“'), findsOneWidget);
     await _tap(tester, 'property-theme-fantasie');
-    await _tap(tester, 'property-rounds-30');
     await _tap(tester, 'property-free-pot');
     expect(find.textContaining('Topf: Steuern'), findsOneWidget);
     await _tap(tester, 'property-double-start');
@@ -133,10 +139,14 @@ void main() {
     expect(g.seats[1].cash, 1500 - rent);
     expect(_cash(tester, 1), '${1500 - rent} Taler · keine Straße');
     expect(find.textContaining('Ben zahlt $rent Taler an Anna'), findsOneWidget);
-    // History: one line per move.
+    // History: one line per move, the sentences name the players once.
     await _tap(tester, 'shell-history');
-    expect(find.textContaining('Anna: Anna würfelt 1 + 2'), findsOneWidget);
-    expect(find.textContaining('Ben: Ben würfelt 1 + 2'), findsOneWidget);
+    expect(find.text('Anna würfelt 1 + 2 → ${street.name}'), findsOneWidget);
+    expect(find.text('Anna kauft ${street.name} für ${street.price} Taler'), findsOneWidget);
+    expect(find.text('Anna: Zug beenden'), findsOneWidget, reason: 'nothing to tell: the button');
+    expect(find.descendant(of: _key('history-sheet'), matching: find.textContaining('Ben würfelt 1 + 2')), findsOneWidget);
+    expect(find.textContaining('Anna: Anna'), findsNothing);
+    expect(find.textContaining('Ben: Ben'), findsNothing);
   });
 
   testWidgets('decline: the street is auctioned, bids by tap, the winner pays', (tester) async {
@@ -251,5 +261,15 @@ void main() {
     await _tap(tester, 'shell-menu');
     await _tap(tester, 'property-tour');
     expect(_key('property-coach'), findsOneWidget);
+  });
+
+  testWidgets('rules page from the menu: the app defaults (30 rounds), "Regelvarianten"', (tester) async {
+    tester.view.physicalSize = const Size(390, 2400) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(localizedApp(const RulesScreen(gameId: 'property')));
+    await tester.pumpAndSettle();
+    expect(find.text('30 Runden'), findsOneWidget);
+    expect(find.textContaining('Hausregel'), findsNothing);
   });
 }

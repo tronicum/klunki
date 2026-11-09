@@ -1002,7 +1002,7 @@
   "propertyOptionsUntilEnd": "直到只剩一人",
   "propertyOptionsRounds": "{rounds} 轮",
   "propertyOptionsRoundsExplain": "设定轮数时，最后拥有最多的人获胜。",
-  "propertyOptionsHouseRules": "家庭规则",
+  "propertyOptionsVariants": "规则变体",
   "propertyFreeTitle": "停在“{square}”",
   "propertyFreeNone": "什么也不发生",
   "propertyFreePot": "税款和罚款进奖池",

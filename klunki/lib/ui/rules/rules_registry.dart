@@ -1,3 +1,6 @@
+import 'package:klunki_engine/klunki_engine.dart' show GameConfig;
+
+import '../games/property/property_options.dart' show propertyAppDefaults;
 import 'games/chess_rules.dart';
 import 'games/connect4_rules.dart';
 import 'games/dicesheet_rules.dart';
@@ -31,3 +34,11 @@ final Map<String, RulesBuilder> gameRules = {
   'dicesheet': diceSheetRules,
   'property': propertyRules,
 };
+
+/// The config the rules page shows when opened from the menu: the
+/// defaults the app starts a game with. `GameConfig(id)` unless the start
+/// options pick something else (Baulöwe: 30 rounds, KLD-060).
+GameConfig rulesMenuConfig(String gameId) => switch (gameId) {
+      'property' => const GameConfig('property', property: propertyAppDefaults),
+      _ => GameConfig(gameId),
+    };

@@ -3853,7 +3853,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'با محدودیت دور، در پایان کسی که بیشترین دارایی را دارد برنده است.';
 
   @override
-  String get propertyOptionsHouseRules => 'قانون‌های خودمانی';
+  String get propertyOptionsVariants => 'قانون‌های جایگزین';
 
   @override
   String propertyFreeTitle(String square) {

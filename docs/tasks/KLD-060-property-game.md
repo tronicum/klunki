@@ -63,8 +63,16 @@ the richest after an optional round limit.
   "Pleite erklären"), "Meine Straßen" (build, sell, mortgage, redeem per street) and "Zug zurücknehmen". A tap
   on a square shows its card (price, rents, owner). The status line tells the last moves in words. Result:
   ranking with each player's wealth (or "ausgeschieden").
-- **Start options** ("Baulöwe" dialog before "Wer spielt?"): board (Berlin / Fantasiestadt), game length (until
-  one is left, default; 20 / 30 / 40 rounds), the free-square rule and the three house-rule switches, undo.
+- **Start options** ("Baulöwe" dialog before "Wer spielt?"): board (Berlin / Fantasiestadt), game length (20 /
+  **30, the app default** / 40 rounds, or until one is left), the free-square rule and the three switches under
+  "Regelvarianten" (KLD-123 wording, never "Hausregeln"), undo.
+- **30 rounds by default in the app** (maintainer decision 2026-11-09) until players can trade (step 3b):
+  without trades whole groups are rare and a game until one is left can go on for hours. The engine default
+  stays "until one is left"; the app's start values are `propertyAppDefaults`, and the rules page opened from
+  the menu shows them (`rulesMenuConfig`).
+- **History** (maintainer decision 2026-11-09): the narration names the players itself ("Anna würfelt 3 + 4 →
+  …"), so the history shows it without the "Anna: " in front (`SeatGameScreen.historyNamesMover: false`); a
+  move with nothing to tell shows the mover and the button ("Anna: Zug beenden").
 - **Rules page**: Ziel, So läuft ein Zug, Regeln, Regelvarianten (board, round limit, free square, the three
   switches).
 - **First game**: a short tour (coach marks, `SeenTips.propertyIntro`), again via "⋮" → "Kurz erklärt".
@@ -252,16 +260,18 @@ separate private helpers in `property.dart` so they can be moved into a shared "
 - [x] All moves except trades through the UI; tour; rules page; "⋮" menu; undo to the last roll.
 - [x] l10n in all 7 locales (Chinese web font subset rebuilt).
 - [x] Widget tests (`property_screen_test.dart`) and live UI: whole games through the real UI with the bot
-      deciding and every tap checked against the engine (2 players / 25 rounds with house rules, 4 players /
+      deciding and every tap checked against the engine (2 players / 25 rounds with rule variants, 4 players /
       12 rounds Fantasiestadt; `KLUNKI_LIVE_UI_FULL=1`: 3 players / 80 rounds).
 - [x] Screenshots: `KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart`.
 
 ## Next steps
-- **3b trade screen**: offer (money, streets, free card) to another player, the other answers on the same
+- **3b trade screen (next, maintainer decision 2026-11-09)**: offer (money, streets, free card) to another player, the other answers on the same
   device (handover). Without trades, games without a round limit rarely end (bots seldom get a whole group).
-- **Theme texts translated** (see "Texts and localisation").
-- **5–6 players** in the app (the shell stops at 4).
-- **Network (step 2b, with KLD-088)**: redaction (secret seed and deck order), seats in the lobby, timeouts for
+- **Theme texts translated** (see "Texts and localisation"); German in every locale for now (maintainer
+  decision 2026-11-09).
+- **5–6 players** in the app (the shell stops at 4): later.
+- **Building shortage** (see the open question): later.
+- **Network (step 2b, with KLD-088), later**: redaction (secret seed and deck order), seats in the lobby, timeouts for
   auction bids and trade answers.
 - Polish (step 4).
 
@@ -289,10 +299,10 @@ Measured with greedy bots and no round limit (40 seeds each): median 72 rounds (
 - ~~Default game length~~: decided: until one player is left; round limit optional (20 / 30 / 40 in the UI).
 - ~~Free-parking pot~~: decided: free-square house rules as config, default nothing.
 - ~~Bankruptcy while selling could still pay~~: decided: refused, sell and mortgage first.
-- Building shortage: worth the design work (see above)?
+- Building shortage: worth the design work (see above)? Later (2026-11-09).
 - ~~Start money, currency~~: decided: 1500 Taler start, 200 salary.
 - ~~Trades by other players~~: decided: only the player whose turn it is offers trades.
 - Network: timeouts for auction bids and trade answers (step 2).
-- Titles in fr/es/zh/ar/fa (Le Grand Bâtisseur, El Gran Constructor, 建筑大王, ملك البناء, سلطان ساخت‌وساز) and the
-  accent colour (ochre) are proposals.
-- The game is long without trades; should "30 Runden" be the default in the app until the trade screen exists?
+- ~~Titles in fr/es/zh/ar/fa and the accent colour~~: decided (2026-11-09): as proposed (Le Grand Bâtisseur, El
+  Gran Constructor, 建筑大王, ملك البناء, سلطان ساخت‌وساز; ochre).
+- ~~Default length in the app before trades~~: decided: 30 rounds (no limit still selectable).

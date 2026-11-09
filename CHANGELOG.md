@@ -10,10 +10,10 @@ short German summary ("Kurz") for the store notes and the testers.
 ### Games
 - **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll
   around the board, buy streets or bid for them, collect rent, build houses once you own a whole group, draw
-  cards, sit in the pause, mortgage when money is short; whoever cannot pay any more is out. By default the
-  game runs until one player is left; 20, 30 or 40 rounds are an option (then the richest wins). Two boards:
-  Berlin (real streets, district groups) and Fantasiestadt. House rules: money on the free square (pot, pot
-  with 500, fixed 200), double salary on Start, no rent while in the pause, auction of a bankrupt player's
+  cards, sit in the pause, mortgage when money is short; whoever cannot pay any more is out. A game lasts 30
+  rounds by default, then the richest wins (20 or 40 rounds, or until only one player is left, can be chosen).
+  Two boards: Berlin (real streets, district groups) and Fantasiestadt. Rule variants ("Regelvarianten"): money
+  on the free square (pot, pot with 500, fixed 200), double salary on Start, no rent while in the pause, auction of a bankrupt player's
   streets. A short tour in the first game; "Zug zurücknehmen" back to the last roll. Trading streets between
   players comes later.
 - **New game: Ausgewürfelt** (KLD-119), the five-dice score-sheet game for **2 to 4 players on one device**, the
