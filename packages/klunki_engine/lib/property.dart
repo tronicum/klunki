@@ -1,14 +1,15 @@
 /// Baulöwe (en working title "Housing Corp"), the property-trading dice game
-/// (KLD-060 step 1, id `property`):
-/// engine only.
+/// (KLD-060, id `property`).
 ///
-/// **Players are seats** `0 … playerCount-1` (2–6), not [Player] a/b: the
-/// game is network-only with every player on their own device, and the
-/// shared [Game] interface, the registry and the protocol only know two
-/// players today. The engine therefore stands alone (it does not extend
-/// [Game] and is not in `gameSpecs` yet); the later registry/protocol step
-/// (n-player lobby, KLD-088) maps seats to network players. See the card
-/// `docs/tasks/KLD-060-property-game.md` for the adapter plan.
+/// **Players are seats** `0 … playerCount-1` (2–6). Like Ausgewürfelt
+/// (KLD-119) the game is a [Game] *and* a [SeatGame] (KLD-088): the
+/// registry, the transports and the app's seat shell drive it by seat
+/// ([actorSeat], [seatOfMove], [seatResult]); [currentPlayer] maps seats 0 /
+/// 1 to [Player.a] / [Player.b] for the two-player plumbing (it throws for a
+/// seat 2+). With two seats the common resign (`'player': 'a' | 'b'`) ends
+/// the game; with any count `{'action': 'resign', 'seat': n}` takes seat `n`
+/// out and the others play on. See the card
+/// `docs/tasks/KLD-060-property-game.md`.
 ///
 /// The board and cards come from a [PropertyTheme] (default: Berlin); the
 /// rules do not depend on it.
@@ -41,7 +42,9 @@ library;
 
 import 'dart:math';
 
+import 'game.dart';
 import 'property_theme.dart';
+import 'seats.dart';
 
 export 'property_theme.dart';
 
@@ -66,6 +69,107 @@ enum PropertyFreeSquare {
   fixedBonus;
 
   static PropertyFreeSquare? byName(Object? name) => values.where((v) => v.name == name).firstOrNull;
+}
+
+/// The start options of a Baulöwe game (KLD-060 step 2), part of
+/// `GameConfig.property`: the board [theme] (null = Berlin), the optional
+/// round limit [rounds] (null = play until one is left) and the house rules
+/// (all off by default). Public config (nothing secret). In the config JSON
+/// they are top-level keys, each written only when not the default:
+/// `theme`, `rounds`, `free` (a [PropertyFreeSquare] name), `freeAmount`,
+/// `doubleStart`, `noRentInPause`, `bankruptAuction`.
+class PropertyOptions {
+  final String? theme;
+  final int? rounds;
+  final PropertyFreeSquare free;
+
+  /// The pot seed or bonus of [free]; null = its default.
+  final int? freeAmount;
+  final bool doubleStart;
+  final bool noRentInPause;
+  final bool bankruptAuction;
+
+  const PropertyOptions({
+    this.theme,
+    this.rounds,
+    this.free = PropertyFreeSquare.none,
+    this.freeAmount,
+    this.doubleStart = false,
+    this.noRentInPause = false,
+    this.bankruptAuction = false,
+  });
+
+  /// The largest round limit (a typo guard; the app offers 20 / 30 / 40).
+  static const int maxRoundLimit = 1000;
+
+  bool get isDefault => this == const PropertyOptions();
+
+  /// The JSON keys that differ from the defaults (`{}` for the defaults).
+  Map<String, dynamic> toJson() => {
+        if (theme != null) 'theme': theme,
+        if (rounds != null) 'rounds': rounds,
+        if (free != PropertyFreeSquare.none) 'free': free.name,
+        if (freeAmount != null) 'freeAmount': freeAmount,
+        if (doubleStart) 'doubleStart': true,
+        if (noRentInPause) 'noRentInPause': true,
+        if (bankruptAuction) 'bankruptAuction': true,
+      };
+
+  /// Reads the keys of [toJson] from a whole config map (other keys are
+  /// ignored). An unknown `free` name reads as [PropertyFreeSquare.none]
+  /// with [freeAmount] -1, which [problem] refuses.
+  factory PropertyOptions.fromJson(Map<String, dynamic> json) {
+    final free = json['free'];
+    final rule = free == null ? PropertyFreeSquare.none : PropertyFreeSquare.byName(free);
+    return PropertyOptions(
+      theme: json['theme'] as String?,
+      rounds: json['rounds'] as int?,
+      free: rule ?? PropertyFreeSquare.none,
+      freeAmount: rule == null ? -1 : json['freeAmount'] as int?,
+      doubleStart: json['doubleStart'] == true,
+      noRentInPause: json['noRentInPause'] == true,
+      bankruptAuction: json['bankruptAuction'] == true,
+    );
+  }
+
+  /// Why these options cannot be played, or null.
+  String? get problem {
+    if (PropertyTheme.byId(theme) == null) return 'unknown theme "$theme"';
+    final r = rounds;
+    if (r != null && (r < 1 || r > maxRoundLimit)) return 'round limit must be 1–$maxRoundLimit, not $r';
+    final a = freeAmount;
+    if (a != null && (a < 0 || a > 5000)) return 'free square amount must be 0–5000, not $a';
+    return null;
+  }
+
+  /// A new game with these options.
+  PropertyGame create({required int playerCount, required int seed}) => PropertyGame(
+      playerCount: playerCount,
+      seed: seed,
+      maxRounds: rounds,
+      theme: PropertyTheme.byId(theme),
+      freeSquare: free,
+      freeSquareAmount: freeAmount,
+      doubleStart: doubleStart,
+      noRentInPause: noRentInPause,
+      bankruptAuction: bankruptAuction);
+
+  @override
+  bool operator ==(Object other) =>
+      other is PropertyOptions &&
+      other.theme == theme &&
+      other.rounds == rounds &&
+      other.free == free &&
+      other.freeAmount == freeAmount &&
+      other.doubleStart == doubleStart &&
+      other.noRentInPause == noRentInPause &&
+      other.bankruptAuction == bankruptAuction;
+
+  @override
+  int get hashCode => Object.hash(theme, rounds, free, freeAmount, doubleStart, noRentInPause, bankruptAuction);
+
+  @override
+  String toString() => 'PropertyOptions(${toJson()})';
 }
 
 /// One player's state. Public information.
@@ -227,14 +331,19 @@ class PropertyResult {
 /// Result of an accepted move: what happened, in order, as JSON-ready maps
 /// (`{'type': 'rolled', 'dice': [3, 4]}`, `{'type': 'paid', …}`, …), for
 /// narration, animation and (later) the redacted network step.
-class PropertyEvent {
+///
+/// A [GameEvent] (KLD-060 step 2): [GameEvent.payload] is `{'events':
+/// events}`, or the common resign's `{'resigned': player}`.
+class PropertyEvent extends GameEvent {
   final List<Map<String, dynamic>> events;
-  const PropertyEvent(this.events);
+  PropertyEvent(this.events, {super.winner, super.draw, Object? payload})
+      : super(payload: payload ?? {'events': events});
 }
 
 /// Baulöwe for 2–6 seats. See the library docs.
-class PropertyGame {
-  /// Rules version (KLD-085) for the fingerprint once registered.
+class PropertyGame extends Game implements SeatGame {
+  /// Rules version (KLD-085), in the fingerprint since the registry entry
+  /// (`gameSpecs`, KLD-060 step 2).
   static const int rulesVersion = 1;
   static const int minPlayers = 2;
   static const int maxPlayers = 6;
@@ -249,6 +358,7 @@ class PropertyGame {
   static const int maxTradeOffersPerTurn = 3;
   static const int pauseSquare = 10;
 
+  @override
   final int playerCount;
   final int seed;
 
@@ -320,6 +430,9 @@ class PropertyGame {
   final List<int> _pendingAuctions = [];
   PropertyTrade? _trade;
   final List<PropertyDebt> _debts = [];
+
+  /// Seats that went bankrupt or resigned, in the order they left.
+  final List<int> _outOrder = [];
   final List<Map<String, dynamic>> _history = [];
   PropertyResult _result = const PropertyResult();
   late List<Map<String, dynamic>> _ev;
@@ -411,8 +524,12 @@ class PropertyGame {
   PropertyAuction? get auction => _auction;
   PropertyTrade? get trade => _trade;
   List<PropertyDebt> get debts => List.unmodifiable(_debts);
-  PropertyResult get result => _result;
-  bool get isOver => _result.isOver;
+  /// The outcome by seat in the engine's own terms (winner seat, tied
+  /// leaders); [result] is the two-player view, [seatResult] the places.
+  PropertyResult get propertyResult => _result;
+
+  @override
+  bool get isOver => resignedBy != null || _result.isOver;
   int get bankBalance => _bank;
 
   /// Money in the middle (pot house rules), else 0. Σcash + [bankBalance] +
@@ -435,7 +552,75 @@ class PropertyGame {
   /// Whether the debtor may declare bankruptcy: only when even selling every
   /// building and mortgaging everything could not pay the first debt.
   bool get canDeclareBankruptcy => phase == PropertyPhase.debt && raisable(_debts.first.debtor) < _debts.first.amount;
+  @override
   List<Map<String, dynamic>> get history => List.unmodifiable(_history);
+
+  /// Seats that went bankrupt or resigned, in the order they left.
+  List<int> get outSeats => List.unmodifiable(_outOrder);
+
+  // ------------------------------------------------------------ SeatGame
+
+  @override
+  int? get actorSeat => actor;
+
+  @override
+  int seatOfMove(Map<String, dynamic> move) => Game.resignerOf(move)?.index ?? seatOf(move) ?? actor ?? _current;
+
+  /// Seat 0 / 1 as [Player.a] / [Player.b]: the [actor] (who must move
+  /// now, also a bidder or debtor off turn), else the current seat. Throws
+  /// for a seat 2+ (use [actorSeat]).
+  @override
+  Player get currentPlayer {
+    final s = actor ?? _current;
+    return s < 2 ? Player.values[s] : (throw StateError('seat $s has no Player (more than 2 seats, KLD-088)'));
+  }
+
+  /// The two-player outcome. With 3–6 seats a winner in seat 2+ (or a tie
+  /// at the round limit) cannot be named as a [Player]: [GameResult.draw] is
+  /// then true only to say that the game is over; use [seatResult].
+  @override
+  GameResult get playResult {
+    if (!_result.isOver) return const GameResult();
+    final w = _result.winner;
+    final winner = w != null && w < 2 ? Player.values[w] : null;
+    return GameResult(
+        winner: winner,
+        draw: winner == null,
+        reason: _result.reason,
+        code: GameEndReason.fromCode(_result.code!),
+        params: {'rounds': _rounds});
+  }
+
+  @override
+  bool isSeatOut(int seat) => _seats[seat].out;
+
+  /// Places per seat: the last one in first (`property.lastSolvent`), or by
+  /// [netWorth] at the round limit (ties share a place,
+  /// `property.roundLimit`, params `rounds`); seats that left rank behind,
+  /// the later they left the better.
+  /// With two seats a common resign gives the resigner place 2
+  /// (`common.resigned`, params `seat`). `worth<seat>` in the params is
+  /// every seat's [netWorth] at the end.
+  @override
+  SeatResult get seatResult {
+    final resigner = resignedBy;
+    final worth = [for (var s = 0; s < playerCount; s++) netWorth(s)];
+    if (resigner != null) {
+      return SeatResult(
+          isOver: true,
+          places: [for (var s = 0; s < playerCount; s++) s == resigner.index ? 2 : 1],
+          code: GameEndReason.commonResigned.code,
+          params: {'seat': resigner.index, for (var s = 0; s < playerCount; s++) 'worth$s': worth[s]},
+          reason: '${playerNameOf(resigner)} resigned');
+    }
+    if (!_result.isOver) return const SeatResult();
+    return SeatResult(
+        isOver: true,
+        places: SeatResult.placesFor(worth, out: _outOrder),
+        code: _result.code,
+        params: {'rounds': _rounds, for (var s = 0; s < playerCount; s++) 'worth$s': worth[s]},
+        reason: _result.reason);
+  }
 
   int? ownerOf(int square) => _owner[square];
   int housesOn(int square) => _houses[square];
@@ -448,7 +633,7 @@ class PropertyGame {
   List<int> ownedBy(int seat) => [for (var i = 0; i < 40; i++) if (_owner[i] == seat) i];
 
   PropertyPhase get phase {
-    if (_result.isOver) return PropertyPhase.over;
+    if (isOver) return PropertyPhase.over;
     if (_debts.isNotEmpty) return PropertyPhase.debt;
     if (_auction != null) return PropertyPhase.auction;
     if (_trade != null) return PropertyPhase.trade;
@@ -627,8 +812,23 @@ class PropertyGame {
   /// `endTurn`, `tradeOffer` (`to`, `give`, `get`: `{money, squares, cards}`),
   /// `tradeAccept`, `tradeDecline`, `bankrupt`, `resign` (`seat`). A move may
   /// carry `seat` (the sender); it must then be the [actor].
+  ///
+  /// The common resign (`'player': 'a' | 'b'`, [Game.resignMove]) is only
+  /// for two seats; it ends the game at once (not in [history]).
+  @override
   PropertyEvent? applyMove(Map<String, dynamic> move) {
-    if (_result.isOver) return null;
+    if (move['action'] == 'resign' && move.containsKey('player')) {
+      if (playerCount != 2 || move.length != 2) return null;
+      final e = super.applyMove(move);
+      return e == null ? null : PropertyEvent(const [], winner: e.winner, payload: e.payload);
+    }
+    if (isOver) return null;
+    return applyPlayMove(move);
+  }
+
+  @override
+  PropertyEvent? applyPlayMove(Map<String, dynamic> move) {
+    if (isOver) return null;
     final action = move['action'];
     _ev = [];
     if (action == 'resign') {
@@ -664,8 +864,14 @@ class PropertyGame {
 
   PropertyEvent _accept(Map<String, dynamic> move) {
     _history.add(Map.of(move));
-    return PropertyEvent(List.unmodifiable(_ev));
+    final r = playResult;
+    return PropertyEvent(List.unmodifiable(_ev), winner: r.winner, draw: r.draw);
   }
+
+  /// Whether [move] is a roll: it reveals dice (and maybe a card) that came
+  /// from the seed, so hot-seat "Zug zurücknehmen" never takes it back
+  /// (`GameSpec.undoBarrier`).
+  static bool isRoll(Map<String, dynamic> move) => move['action'] == 'roll';
 
   int _nextDie() => _scriptedDice.isNotEmpty ? _scriptedDice.removeAt(0) : _rng.nextInt(6) + 1;
 
@@ -1090,6 +1296,7 @@ class PropertyGame {
   /// Debts from and to the seat lapse.
   void _eliminate(int seat, int? creditor, {bool resigned = false}) {
     final s = _seats[seat];
+    _outOrder.add(seat);
     for (final i in ownedBy(seat)) {
       if (_houses[i] > 0) {
         final refund = _houses[i] * (_board[i].houseCost ~/ 2);
@@ -1214,6 +1421,18 @@ class PropertyGame {
 
   // ------------------------------------------------------------------ view
 
+  /// What every seat may see of the accepted [move] with its [event]: the
+  /// move, its events (dice, drawn card ids, payments, …) and the public
+  /// view after it ([toJson]). Prepared for the n-player network step
+  /// (KLD-088 step 4): nothing in it is secret (no seed, no deck order), so
+  /// the host can send the same step to every guest; dice and cards are only
+  /// known once they are rolled or drawn.
+  Map<String, dynamic> publicStep(Map<String, dynamic> move, PropertyEvent event) => {
+        'move': Map.of(move),
+        'events': [for (final e in event.events) Map.of(e)],
+        'view': toJson(),
+      };
+
   /// The public state as JSON: everything every player may see. Leaves out
   /// the seed and the deck order (only the deck sizes).
   Map<String, dynamic> toJson() => {
@@ -1243,6 +1462,7 @@ class PropertyGame {
         if (_auction != null) 'auction': _auction!.toJson(),
         if (_trade != null) 'trade': _trade!.toJson(),
         if (_debts.isNotEmpty) 'debts': [for (final d in _debts) d.toJson()],
+        if (_outOrder.isNotEmpty) 'outOrder': List.of(_outOrder),
         if (_result.isOver) 'result': _result.toJson(),
       };
 }

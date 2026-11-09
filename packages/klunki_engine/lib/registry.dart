@@ -6,6 +6,7 @@ import 'gostrategy.dart';
 import 'mau_mau.dart';
 import 'maexchen.dart';
 import 'muehle.dart';
+import 'property.dart';
 import 'quartett.dart';
 import 'schiffe.dart';
 import 'secrecy.dart';
@@ -65,6 +66,12 @@ import 'word_tiles.dart';
 /// ([DiceSheetGame.extraFives]). [randomStart] (JSON `start: random`,
 /// written only when on) lets the seed pick the starting seat
 /// ([DiceSheetGame.randomStart]). Other games ignore both.
+///
+/// Baulöwe (KLD-060 step 2): [property] holds its board theme, round limit
+/// and house rules ([PropertyOptions]); its keys (`theme`, `rounds`, `free`,
+/// `freeAmount`, `doubleStart`, `noRentInPause`, `bankruptAuction`) sit at
+/// the top level of the JSON, each written only when not the default. Other
+/// games ignore it.
 class GameConfig {
   final String gameId;
   final int seed;
@@ -81,6 +88,7 @@ class GameConfig {
   final bool maexchenDouble;
   final bool extraFives;
   final bool randomStart;
+  final PropertyOptions property;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -95,7 +103,8 @@ class GameConfig {
       this.lives = 3,
       this.maexchenDouble = true,
       this.extraFives = false,
-      this.randomStart = false});
+      this.randomStart = false,
+      this.property = const PropertyOptions()});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -117,6 +126,7 @@ class GameConfig {
         if (!maexchenDouble) 'maexDouble': false,
         if (extraFives) 'extraFives': true,
         if (randomStart) 'start': 'random',
+        ...property.toJson(),
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -133,7 +143,8 @@ class GameConfig {
       lives: json['lives'] as int? ?? 3,
       maexchenDouble: json['maexDouble'] != false,
       extraFives: json['extraFives'] == true,
-      randomStart: json['start'] == 'random');
+      randomStart: json['start'] == 'random',
+      property: PropertyOptions.fromJson(json));
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -149,7 +160,8 @@ class GameConfig {
       lives: lives,
       maexchenDouble: maexchenDouble,
       extraFives: extraFives,
-      randomStart: randomStart);
+      randomStart: randomStart,
+      property: property);
 
   @override
   bool operator ==(Object other) =>
@@ -168,12 +180,13 @@ class GameConfig {
       other.lives == lives &&
       other.maexchenDouble == maexchenDouble &&
       other.extraFives == extraFives &&
-      other.randomStart == randomStart;
+      other.randomStart == randomStart &&
+      other.property == property;
 
   @override
   int get hashCode => Object.hash(
       gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty, chessWhite, players, mauMau, lives,
-      maexchenDouble, extraFives, randomStart);
+      maexchenDouble, extraFives, randomStart, property);
 
   @override
   String toString() =>
@@ -182,7 +195,8 @@ class GameConfig {
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
-      '${extraFives ? ', extraFives' : ''}${randomStart ? ', start: random' : ''})';
+      '${extraFives ? ', extraFives' : ''}${randomStart ? ', start: random' : ''}'
+      '${property.isDefault ? '' : ', property: ${property.toJson()}'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -204,6 +218,15 @@ class GameSpec {
 
   /// Whether [GameConfig.deck] picks a Quartett deck for this game (KLD-069).
   final bool usesDeck;
+
+  /// Whether `GameConfig.property.theme` picks a board theme (Baulöwe,
+  /// KLD-060): part of the compat key, like a Quartett deck.
+  final bool usesTheme;
+
+  /// False for a game the network session must not host yet (Baulöwe: its
+  /// seed decides the dice and the card order and would reach the guest;
+  /// the redacted n-player network is a later step of KLD-060 / KLD-088).
+  final bool networkPlay;
 
   /// Moves that hot-seat "Zug zurücknehmen" never takes back (null = none), e.g.
   /// Mäxchen's doubt, which lifted the cup for everyone (KLD-121): undo
@@ -228,6 +251,8 @@ class GameSpec {
       this.appReady = true,
       this.redaction,
       this.usesDeck = false,
+      this.usesTheme = false,
+      this.networkPlay = true,
       this.rulesVersion = 1,
       this.maxPlayers = 2,
       this.undoBarrier});
@@ -307,6 +332,17 @@ final List<GameSpec> gameSpecs = [
       (c, _) => DiceSheetGame(
           seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),
       maxPlayers: 4, undoBarrier: DiceSheetGame.isRoll),
+  // KLD-060: Baulöwe, the property-trading dice game for 2–6 seats (the app
+  // offers 2–4 on one device, step 3). Rules 1: the engine of step 1 with
+  // the board theme, round limit and house rules in the config
+  // (GameConfig.property). Not over the network yet (`networkPlay`). A
+  // roll is final for hot-seat "Zug zurücknehmen" (dice and cards seen).
+  GameSpec('property', 'Baulöwe', (c, _) => c.property.create(playerCount: c.players, seed: c.seed),
+      maxPlayers: PropertyGame.maxPlayers,
+      rulesVersion: PropertyGame.rulesVersion,
+      usesTheme: true,
+      networkPlay: false,
+      undoBarrier: PropertyGame.isRoll),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
@@ -351,6 +387,10 @@ String? configProblem(GameConfig config, {bool wordList = true}) {
     final tiles = config.tiles ?? TileSet.german.id;
     if (TileSet.byId(tiles) == null) return 'unknown tile set "$tiles"';
     if (wordList && config.dictionary && !WordLists.has(tiles)) return 'no word list for "$tiles"';
+  }
+  if (spec.usesTheme) {
+    final p = config.property.problem;
+    if (p != null) return p;
   }
   if (config.gameId == 'maexchen' && (config.lives < 1 || config.lives > 9)) return 'lives must be 1–9, not ${config.lives}';
   return null;

@@ -25,6 +25,9 @@ void main() {
     'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
     'maexchen': (1, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
     'dicesheet': (1, 1, 'efb31c5c6fa32b9e12e025988708b559'),
+    // KLD-060: Baulöwe, keyed by board theme (revision = theme revision).
+    'property/berlin': (1, 2, 'c58289b803d547d6488c1ba052f7b60b'),
+    'property/fantasie': (1, 1, 'ff566d40ca1e0c34ec459de12ecfa9a8'),
   };
 
   test('golden fingerprint per game and deck', () {

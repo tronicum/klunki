@@ -366,6 +366,7 @@ class KlunkiGuest {
     if (problem != null) return problem;
     if (config.players != 2) return 'the host started a game for ${config.players} players';
     final spec = specById(config.gameId)!;
+    if (!spec.networkPlay) return '"${spec.id}" is not playable over the network yet';
     final redaction = spec.redaction;
     final redacted = m['redacted'] == true;
     if (redacted != (redaction != null)) {

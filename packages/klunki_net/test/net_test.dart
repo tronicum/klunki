@@ -329,8 +329,13 @@ void main() {
     });
   });
 
+  test('a game without network play is refused (Baulöwe, KLD-060)', () async {
+    expect(specById('property')!.networkPlay, isFalse);
+    await expectLater(startHost(const GameConfig('property', seed: 1)), throwsArgumentError);
+  });
+
   group('full random games', () {
-    for (final spec in gameSpecs) {
+    for (final spec in gameSpecs.where((s) => s.networkPlay)) {
       test('${spec.id} ends identically on both sides', () async {
         final config = GameConfig(spec.id, seed: 11);
         final host = await startHost(config);

@@ -8,6 +8,7 @@ import '../gostrategy.dart';
 import '../mau_mau.dart';
 import '../maexchen.dart';
 import '../muehle.dart';
+import '../property.dart';
 import '../quartett.dart';
 import '../schiffe.dart';
 import '../word_tiles.dart';
@@ -19,6 +20,7 @@ import 'gostrategy_text.dart';
 import 'mau_mau_text.dart';
 import 'maexchen_text.dart';
 import 'muehle_text.dart';
+import 'property_text.dart';
 import 'quartett_text.dart';
 import 'schiffe_text.dart';
 import 'text_game.dart';
@@ -41,6 +43,7 @@ class DebugConsole {
     'maumau': MauMauText.new,
     'maexchen': MaexchenText.new,
     'dicesheet': DiceSheetText.new,
+    'property': PropertyTextGame.new,
   };
 
   /// A text adapter around an existing [game] (e.g. `createGame(GameConfig(id, seed: s))`
@@ -58,6 +61,7 @@ class DebugConsole {
         ('maumau', MauMauGame g) => MauMauText.forGame(g),
         ('maexchen', MaexchenGame g) => MaexchenText(game: g),
         ('dicesheet', DiceSheetGame g) => DiceSheetText(game: g),
+        ('property', PropertyGame g) => PropertyTextGame(game: g),
         _ => throw ArgumentError.value(gameId, 'gameId', 'no text adapter for ${game.runtimeType}'),
       };
 

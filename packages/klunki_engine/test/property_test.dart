@@ -528,8 +528,8 @@ void main() {
       expect(g.ownerOf(39), isNull);
       expect(g.isMortgaged(39), isFalse);
       expect(g.isOver, isTrue);
-      expect(g.result.winner, 1);
-      expect(g.result.code, 'property.lastSolvent');
+      expect(g.propertyResult.winner, 1);
+      expect(g.propertyResult.code, 'property.lastSolvent');
       expect(g.phase, PropertyPhase.over);
       expect(g.legalMoves, isEmpty);
       refused(g, mv('roll'));
@@ -563,7 +563,7 @@ void main() {
       expect(g.canDeclareBankruptcy, isTrue);
       expect(g.legalMoves, [mv('bankrupt')]);
       play(g, ['bankrupt']);
-      expect(g.result.winner, 1);
+      expect(g.propertyResult.winner, 1);
     });
   });
 
@@ -801,7 +801,7 @@ void main() {
       play(g, [mv('resign', {'seat': 0})]);
       expect(g.auction, isNull);
       expect(g.isOver, isTrue);
-      expect(g.result.winner, 1);
+      expect(g.propertyResult.winner, 1);
       expect(total(g), 3 * 1500);
     });
 
@@ -811,7 +811,7 @@ void main() {
       expect(g.currentSeat, 1);
       expect(g.phase, PropertyPhase.roll);
       play(g, [mv('resign', {'seat': 1})]);
-      expect(g.result.winner, 2);
+      expect(g.propertyResult.winner, 2);
     });
 
     test('a bidder resigns during an auction', () {
@@ -828,14 +828,14 @@ void main() {
       final g = PropertyGame(maxRounds: 1, dice: [1, 2, 1, 3]);
       play(g, ['roll', 'buy', 'endTurn', 'roll', 'endTurn']);
       expect(g.isOver, isTrue);
-      expect(g.result.code, 'property.roundLimit');
-      expect(g.result.winner, 0);
+      expect(g.propertyResult.code, 'property.roundLimit');
+      expect(g.propertyResult.winner, 0);
       expect(g.netWorth(0), 1500);
       expect(g.netWorth(1), 1300);
       final t = PropertyGame(maxRounds: 1, dice: [4, 6, 4, 6]);
       play(t, ['roll', 'endTurn', 'roll', 'endTurn']);
-      expect(t.result.draw, isTrue);
-      expect(t.result.leaders, [0, 1]);
+      expect(t.propertyResult.draw, isTrue);
+      expect(t.propertyResult.leaders, [0, 1]);
     });
   });
 
@@ -913,7 +913,7 @@ void main() {
             checkInvariants(g);
             expect(++moves, lessThan(100000));
           }
-          if (g.result.code == 'property.lastSolvent') finishedEarly++;
+          if (g.propertyResult.code == 'property.lastSolvent') finishedEarly++;
           expect(g.rounds, lessThanOrEqualTo(60));
           final r = PropertyGame.replay(players, seed, g.history,
               maxRounds: 60,

@@ -24,6 +24,7 @@ import 'dart:convert';
 
 import 'dice_sheet.dart';
 import 'maexchen.dart';
+import 'property.dart';
 import 'quartett.dart';
 import 'registry.dart';
 import 'sha256.dart';
@@ -62,10 +63,15 @@ class GameFingerprint {
 }
 
 /// The key a fingerprint is filed under: the game id, plus `/deck` for a
-/// game that uses a deck (the default deck when [GameConfig.deck] is null).
-/// The seed does not matter.
+/// game that uses a deck (the default deck when [GameConfig.deck] is null),
+/// or `/theme` for a game with board themes (Baulöwe, KLD-060: the default
+/// theme when none is set). The seed, the player count, the round limit and
+/// house rules do not matter.
 String compatKey(GameConfig config) {
   final spec = specById(config.gameId);
+  if (spec != null && spec.usesTheme) {
+    return '${config.gameId}/${config.property.theme ?? PropertyTheme.defaultId}';
+  }
   if (spec == null || !spec.usesDeck) return config.gameId;
   return '${config.gameId}/${config.deck ?? QuartettDeck.defaultId}';
 }
@@ -76,19 +82,26 @@ GameFingerprint? fingerprintOf(GameConfig config) {
   if (configProblem(config, wordList: false) != null) return null;
   final spec = specById(config.gameId)!;
   final deck = spec.usesDeck ? QuartettDeck.byId(config.deck)! : null;
-  return GameFingerprint(rules: spec.rulesVersion, revision: deck?.revision ?? 1, content: contentHash(spec.id, deck));
+  final theme = spec.usesTheme ? PropertyTheme.byId(config.property.theme)! : null;
+  return GameFingerprint(
+      rules: spec.rulesVersion,
+      revision: deck?.revision ?? theme?.revision ?? 1,
+      content: contentHash(spec.id, deck, theme: theme));
 }
 
 /// [GameFingerprint.content] for game [gameId] played with [deck] (null for
 /// a game without a deck). The word tile game adds its tile sets and premium
 /// layout ([WordTilesGame.gameplayData], KLD-094), Mäxchen its order of
 /// values ([MaexchenGame.ranking], KLD-121), Ausgewürfelt its boxes and
-/// scores ([DiceSheetGame.gameplayData], KLD-119).
-String contentHash(String gameId, QuartettDeck? deck) {
+/// scores ([DiceSheetGame.gameplayData], KLD-119), Baulöwe its board
+/// [theme]: id and [PropertyTheme.contentHash] (the whole theme JSON, texts
+/// included, KLD-060).
+String contentHash(String gameId, QuartettDeck? deck, {PropertyTheme? theme}) {
   final data = jsonEncode([
     'game',
     gameId,
     if (deck != null) deckGameplayData(deck),
+    if (theme != null) ['theme', theme.id, theme.contentHash],
     if (gameId == 'wordtiles') WordTilesGame.gameplayData(),
     if (gameId == 'maexchen') MaexchenGame.ranking,
     if (gameId == 'dicesheet') DiceSheetGame.gameplayData(),
@@ -103,9 +116,14 @@ Map<String, GameFingerprint> allFingerprints() => {
         if (spec.usesDeck)
           for (final deck in QuartettDeck.all)
             compatKey(GameConfig(spec.id, deck: deck.id)): fingerprintOf(GameConfig(spec.id, deck: deck.id))!
+        else if (spec.usesTheme)
+          for (final theme in PropertyTheme.builtIn)
+            compatKey(_themed(spec.id, theme.id)): fingerprintOf(_themed(spec.id, theme.id))!
         else
           spec.id: fingerprintOf(GameConfig(spec.id))!,
     };
+
+GameConfig _themed(String id, String theme) => GameConfig(id, property: PropertyOptions(theme: theme));
 
 /// A short code over [allFingerprints] (8 hex characters) for people to
 /// compare by eye, e.g. in the app's version line: equal codes mean every

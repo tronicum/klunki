@@ -86,7 +86,16 @@ enum GameEndReason {
   /// Ausgewürfelt (KLD-119): every sheet still in is full; the highest
   /// total wins. params: `a`, `b` (totals of seats 0 and 1; the
   /// [SeatResult] has `score0…score3`).
-  dicesheetAllFilled('dicesheet.allFilled');
+  dicesheetAllFilled('dicesheet.allFilled'),
+
+  /// Baulöwe (KLD-060): everyone else is bankrupt or left; the last one in
+  /// wins. params: `rounds` (full rounds played; the [SeatResult] has
+  /// `worth0…worth5`).
+  propertyLastSolvent('property.lastSolvent'),
+
+  /// Baulöwe: the optional round limit was reached; the richest wins (equal
+  /// leaders share the place). params: `rounds`.
+  propertyRoundLimit('property.roundLimit');
 
   final String code;
   const GameEndReason(this.code);

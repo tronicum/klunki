@@ -1,7 +1,9 @@
 import 'dart:math';
 
+import '../game.dart';
 import '../property.dart';
 import '../property_bot.dart';
+import 'text_game.dart';
 
 /// Text adapter and small line console for Baulöwe (KLD-060). It does not
 /// extend [TextGame]: that one is built on the two-player `Game` interface,
@@ -62,7 +64,7 @@ class PropertyText {
   }
 
   String status() {
-    final r = game.result;
+    final r = game.propertyResult;
     if (r.isOver) {
       return r.winner != null
           ? '${seatName(r.winner)} wins (${r.reason})'
@@ -220,4 +222,54 @@ class PropertyText {
     if (ev == null) return 'Not allowed now. ${status()}';
     return '${seatName(mover)}: ${narrate(ev)}\n${render()}';
   }
+}
+
+/// Baulöwe in the shared debug console ([DebugConsole.games], KLD-060
+/// step 2): a [TextGame] over [PropertyText] for the registry's game (2
+/// seats unless the config says otherwise). Seats are `P1` …; `auto` plays
+/// the greedy [PropertyBot]. The richer line console stays `klunki
+/// property`.
+class PropertyTextGame extends TextGame {
+  final PropertyText _text;
+  PropertyTextGame({PropertyGame? game}) : _text = PropertyText(game: game ?? PropertyGame());
+
+  @override
+  PropertyGame get game => _text.game;
+
+  @override
+  String get id => 'property';
+  @override
+  String get title => PropertyText.title;
+  @override
+  String get moveHelp => PropertyText.help;
+
+  @override
+  PropertyTextGame restart() => PropertyTextGame(
+      game: PropertyGame(playerCount: game.playerCount, maxRounds: game.maxRounds, theme: game.theme));
+
+  @override
+  String render() => _text.render();
+
+  @override
+  Map<String, dynamic>? parse(String input) {
+    final words = input.trim().toLowerCase().split(RegExp(r'\s+'));
+    if (words.first == 'resign' && (words.length == 1 || int.tryParse(words[1]) == null)) return parseResign(input);
+    return _text.parse(input);
+  }
+
+  @override
+  List<Map<String, dynamic>> get legalMoves => game.legalMoves;
+
+  @override
+  String format(Map<String, dynamic> move) => _text.format(move);
+
+  @override
+  String narrate(Player mover, Map<String, dynamic> move, GameEvent event) =>
+      event is PropertyEvent ? _text.narrate(event) : '';
+
+  @override
+  Map<String, dynamic> autoMove(Random rng) => PropertyBot(rng).choose(game);
+
+  @override
+  String status() => _text.status();
 }
