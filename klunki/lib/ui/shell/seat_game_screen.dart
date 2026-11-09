@@ -467,7 +467,11 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 ),
                 const SizedBox(width: 8),
                 if (widget.resultScore?.call(l10n, r, s) case final custom?)
-                  Flexible(
+                  // Its own width first (the name gives way); Mäxchen's
+                  // "ausgeschieden" / "4 Leben verloren" (KLD-121) were cut
+                  // at half the row.
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 170),
                     child: Text(custom,
                         key: Key('result-score-$s'),
                         maxLines: 1,

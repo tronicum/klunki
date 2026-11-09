@@ -4350,4 +4350,76 @@ class AppLocalizationsFr extends AppLocalizations {
   String rulesPropertySpecial(String bail) {
     return 'Avec tout un groupe de couleur, le loyer double et tu peux construire : de façon égale, d’abord 4 petits, puis 1 grand bâtiment par rue.\nLes cartes rapportent, coûtent ou t’envoient ailleurs sur le plateau.\nTrois doubles de suite t’envoient en pause. On en sort avec un double, avec $bail ou avec une carte.\nPas assez d’argent ? Vends des bâtiments à moitié prix ou hypothèque des rues. La faillite arrive seulement si cela ne suffit pas.\nL’hypothèque rapporte la moitié du prix ; la lever coûte 10 % de plus. Une rue hypothéquée ne rapporte pas de loyer.';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'Vies illimitées';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'Personne n’est éliminé. Chaque vie perdue est comptée. Vous jouez jusqu’à ce que vous arrêtiez la partie : qui a perdu le moins de vies gagne.';
+
+  @override
+  String get maexchenEndGame => 'Terminer la partie';
+
+  @override
+  String get maexchenEndGameTitle => 'Terminer la partie ?';
+
+  @override
+  String get maexchenEndGameBody =>
+      'Qui a perdu le moins de vies gagne. En cas d’égalité, vous partagez la place.';
+
+  @override
+  String get maexchenEndGameConfirm => 'Terminer';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'Vous avez terminé la partie. Qui a perdu le moins de vies gagne.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vies perdues',
+      one: '1 vie perdue',
+    );
+    return '$player : $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vies perdues',
+      one: '1 vie perdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'encore $count vies',
+      one: 'encore 1 vie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'hors jeu';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'À deux, trois ou quatre sur un appareil. Le gobelet fait le tour de la table : on annonce toujours à la personne suivante. Qui n’a plus de vies est hors jeu et on passe son tour.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'Perds le moins de vies possible. Vous jouez jusqu’à ce que vous arrêtiez la partie.';
+
+  @override
+  String get rulesMaexchenEndHow =>
+      '« Terminer la partie » se trouve dans le menu aux trois points.';
 }

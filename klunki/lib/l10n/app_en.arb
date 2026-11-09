@@ -1088,5 +1088,19 @@
   "propertyEvResigned": "{player} gives up",
   "rulesPropertyGoal": "Buy streets, collect rent and build on them.\nThe last one still in the game wins. With a round limit the biggest fortune wins at the end.",
   "rulesPropertyTurn": "Roll two dice and move that many squares.\nLand on a free street and you may buy it. If you don’t, it is auctioned: the highest bid gets it.\nIf someone else owns the street, you pay rent.\nRoll doubles and you roll again.\nPassing Start pays {salary}.",
-  "rulesPropertySpecial": "Own a whole colour group and the rent is doubled, and you may build: evenly, first 4 small, then 1 big building per street.\nCards give money, cost money or send you across the board.\nThree doubles in a row send you to the break. You get out with doubles, with {bail} or with a free card.\nShort of money? Sell buildings for half the price or mortgage streets. You are bankrupt only when even that is not enough.\nA mortgage pays half the price; lifting it costs 10 % more. A mortgaged street brings no rent."
+  "rulesPropertySpecial": "Own a whole colour group and the rent is doubled, and you may build: evenly, first 4 small, then 1 big building per street.\nCards give money, cost money or send you across the board.\nThree doubles in a row send you to the break. You get out with doubles, with {bail} or with a free card.\nShort of money? Sell buildings for half the price or mortgage streets. You are bankrupt only when even that is not enough.\nA mortgage pays half the price; lifting it costs 10 % more. A mortgaged street brings no rent.",
+  "maexchenOptionUnlimited": "Unlimited lives",
+  "maexchenOptionUnlimitedExplain": "Nobody drops out. Every lost life is counted. You play until you end the game: whoever lost the fewest lives wins.",
+  "maexchenEndGame": "End game",
+  "maexchenEndGameTitle": "End the game?",
+  "maexchenEndGameBody": "Whoever lost the fewest lives wins. A tie shares the place.",
+  "maexchenEndGameConfirm": "End",
+  "engineReasonMaexchenEnded": "You ended the game. Whoever lost the fewest lives wins.",
+  "maexchenLostOf": "{player}: {count, plural, =1{lost 1 life} other{lost {count} lives}}",
+  "maexchenResultLost": "{count, plural, =1{lost 1 life} other{lost {count} lives}}",
+  "maexchenResultLives": "{count, plural, =1{1 life left} other{{count} lives left}}",
+  "maexchenResultOut": "out",
+  "rulesMaexchenPlayers": "Two, three or four players on one device. The cup goes round the table: you always announce to the next player. Whoever has no lives left is out and gets skipped.",
+  "rulesMaexchenGoalUnlimited": "Lose as few lives as you can. You play until you end the game.",
+  "rulesMaexchenEndHow": "“End game” is in the menu with the three dots."
 }

@@ -6,19 +6,21 @@ import '../../../platform/shake.dart';
 import '../../../profile/shake_settings.dart';
 import '../../game_titles.dart';
 
-/// The start options of a Mäxchen game (KLD-121): lives per player (3 or 5)
+/// The start options of a Mäxchen game (KLD-121): lives per player (3 or 5),
+/// right under it the rule variant "Unbegrenzte Leben" (off by default,
+/// KLD-121 step 2; while on, the lives cannot be chosen: nobody drops out),
 /// and the house rule "Mäxchen doppelt" (on by default). On a device that
 /// may have a motion sensor the dialog also shows the device setting
 /// "Schütteln zum Würfeln" ([ShakeSettings], stored at once, not part of the
 /// game's config).
-typedef MaexchenOptions = ({int lives, bool double});
+typedef MaexchenOptions = ({int lives, bool double, bool unlimited});
 
-const MaexchenOptions defaultMaexchenOptions = (lives: MaexchenGame.defaultLives, double: true);
+const MaexchenOptions defaultMaexchenOptions = (lives: MaexchenGame.defaultLives, double: true, unlimited: false);
 
-/// Asks for the lives and "Mäxchen doppelt" before a game; null when
-/// cancelled. Keys: `maexchen-options`, `maexchen-lives-<n>`,
-/// `maexchen-double`, `maexchen-shake`, `maexchen-options-next`,
-/// `maexchen-options-cancel`.
+/// Asks for the lives, "Unbegrenzte Leben" and "Mäxchen doppelt" before a
+/// game; null when cancelled. Keys: `maexchen-options`,
+/// `maexchen-lives-<n>`, `maexchen-unlimited`, `maexchen-double`,
+/// `maexchen-shake`, `maexchen-options-next`, `maexchen-options-cancel`.
 Future<MaexchenOptions?> showMaexchenOptionsDialog(BuildContext context) => showDialog<MaexchenOptions>(
       context: context,
       builder: (_) => const _MaexchenOptionsDialog(),
@@ -46,28 +48,52 @@ class _MaexchenOptionsDialogState extends State<_MaexchenOptionsDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l10n.maexchenOptionLives, style: theme.textTheme.titleSmall),
+          Text(
+            l10n.maexchenOptionLives,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: _options.unlimited ? theme.colorScheme.onSurface.withValues(alpha: 0.45) : null,
+            ),
+          ),
           const SizedBox(height: 8),
+          // "Unbegrenzte Leben" on: nobody drops out, the count does not
+          // matter (shown greyed, not chosen).
           SegmentedButton<int>(
+            key: const Key('maexchen-lives'),
             segments: [
               for (final n in MaexchenGame.livesOptions)
                 ButtonSegment(
                   value: n,
-                  icon: const Icon(Icons.favorite, color: Color(0xFFD32F2F)),
+                  icon: Icon(
+                    Icons.favorite,
+                    color: _options.unlimited ? theme.colorScheme.outline : const Color(0xFFD32F2F),
+                  ),
                   label: Text('$n', key: Key('maexchen-lives-$n')),
                 ),
             ],
             selected: {_options.lives},
             showSelectedIcon: false,
-            onSelectionChanged: (s) => setState(() => _options = (lives: s.single, double: _options.double)),
+            onSelectionChanged: _options.unlimited
+                ? null
+                : (s) => setState(() => _options = (lives: s.single, double: _options.double, unlimited: false)),
           ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            key: const Key('maexchen-unlimited'),
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.all_inclusive),
+            title: Text(l10n.maexchenOptionUnlimited),
+            value: _options.unlimited,
+            onChanged: (v) => setState(() => _options = (lives: _options.lives, double: _options.double, unlimited: v)),
+          ),
+          Text(l10n.maexchenOptionUnlimitedExplain, style: theme.textTheme.bodySmall),
           const SizedBox(height: 16),
           SwitchListTile(
             key: const Key('maexchen-double'),
             contentPadding: EdgeInsets.zero,
             title: Text(l10n.maexchenOptionDouble),
             value: _options.double,
-            onChanged: (v) => setState(() => _options = (lives: _options.lives, double: v)),
+            onChanged: (v) =>
+                setState(() => _options = (lives: _options.lives, double: v, unlimited: _options.unlimited)),
           ),
           Text(l10n.maexchenOptionDoubleExplain, style: theme.textTheme.bodySmall),
           if (Motion.maybeAvailable) ...[

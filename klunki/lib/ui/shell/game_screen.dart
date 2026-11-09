@@ -167,6 +167,10 @@ class GameScreen extends StatefulWidget {
   /// row, KLD-094 step 8g).
   final bool showPlayersLegend;
 
+  /// More entries of the hot-seat "⋮" menu before "Spielernamen" (e.g.
+  /// Mäxchen's "Spiel beenden", KLD-121).
+  final List<ShellMenuEntry> menuEntries;
+
   const GameScreen({
     super.key,
     required this.controller,
@@ -177,6 +181,7 @@ class GameScreen extends StatefulWidget {
     this.resultDetail,
     this.boardPlacesUndo = false,
     this.showPlayersLegend = true,
+    this.menuEntries = const [],
   });
 
   /// The [GameShell] of the nearest enclosing [GameScreen].
@@ -660,6 +665,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
               // and "Neues Spiel", in the "⋮" menu so the title fits.
               if (_canRestart)
                 ShellMenu(entries: [
+                  ...widget.menuEntries,
                   if (PlayerNameScope.maybeOf(context) != null)
                     ShellMenuEntry(
                       key: const Key('shell-names'),

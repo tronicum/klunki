@@ -6646,6 +6646,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Gehört dir eine ganze Farbgruppe, ist die Miete doppelt, und du darfst bauen: gleichmäßig, erst 4 kleine, dann 1 großes Gebäude pro Straße.\nKarten bringen Geld, kosten Geld oder schicken dich über das Brett.\nDreimal Pasch hintereinander schickt dich in die Pause. Raus kommst du mit einem Pasch, mit {bail} oder mit einer Freikarte.\nFehlt dir Geld, verkaufst du Gebäude zum halben Preis oder beleihst Straßen. Pleite bist du erst, wenn auch das nicht reicht.\nBeleihen bringt den halben Preis; auslösen kostet 10 % mehr. Eine beliehene Straße bringt keine Miete.'**
   String rulesPropertySpecial(String bail);
+
+  /// Mäxchen start option (rule variant, off by default, KLD-121 step 2): nobody drops out; lost lives are counted and the players end the game themselves.
+  ///
+  /// In de, this message translates to:
+  /// **'Unbegrenzte Leben'**
+  String get maexchenOptionUnlimited;
+
+  /// Explains the rule variant "Unbegrenzte Leben" under its switch (also on the rules page).
+  ///
+  /// In de, this message translates to:
+  /// **'Niemand scheidet aus. Jedes verlorene Leben wird gezählt. Ihr spielt, bis ihr das Spiel beendet: Wer am wenigsten Leben verloren hat, gewinnt.'**
+  String get maexchenOptionUnlimitedExplain;
+
+  /// Mäxchen, rule variant "Unbegrenzte Leben": menu entry that ends the game; the ranking follows.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel beenden'**
+  String get maexchenEndGame;
+
+  /// Mäxchen, "Unbegrenzte Leben": title of the dialog that asks before the game ends.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel beenden?'**
+  String get maexchenEndGameTitle;
+
+  /// Mäxchen, "Unbegrenzte Leben": text of the dialog before the game ends (how the ranking works).
+  ///
+  /// In de, this message translates to:
+  /// **'Wer am wenigsten Leben verloren hat, gewinnt. Bei Gleichstand teilt ihr euch den Platz.'**
+  String get maexchenEndGameBody;
+
+  /// Mäxchen, "Unbegrenzte Leben": button that ends the game in the dialog.
+  ///
+  /// In de, this message translates to:
+  /// **'Beenden'**
+  String get maexchenEndGameConfirm;
+
+  /// Result reason (Mäxchen, rule variant "Unbegrenzte Leben"): the players ended the game; fewest lives lost wins.
+  ///
+  /// In de, this message translates to:
+  /// **'Ihr habt das Spiel beendet. Wer am wenigsten Leben verloren hat, gewinnt.'**
+  String get engineReasonMaexchenEnded;
+
+  /// Mäxchen, "Unbegrenzte Leben": accessibility label of a player's tally. count = lives lost so far.
+  ///
+  /// In de, this message translates to:
+  /// **'{player}: {count, plural, =1{1 Leben verloren} other{{count} Leben verloren}}'**
+  String maexchenLostOf(String player, int count);
+
+  /// Mäxchen, "Unbegrenzte Leben": behind a name in the ranking. count = lives lost.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Leben verloren} other{{count} Leben verloren}}'**
+  String maexchenResultLost(int count);
+
+  /// Mäxchen with 3–4 players: behind the winner's name in the ranking. count = lives left.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{noch 1 Leben} other{noch {count} Leben}}'**
+  String maexchenResultLives(int count);
+
+  /// Mäxchen with 3–4 players: behind the name of a player who lost all lives, in the ranking.
+  ///
+  /// In de, this message translates to:
+  /// **'ausgeschieden'**
+  String get maexchenResultOut;
+
+  /// Rules page (Mäxchen, KLD-121 step 2): 2–4 players at one device, the cup passes round, players without lives are skipped.
+  ///
+  /// In de, this message translates to:
+  /// **'Zu zweit, zu dritt oder zu viert an einem Gerät. Der Becher geht reihum: Angesagt wird immer dem Nächsten am Tisch. Wer keine Leben mehr hat, scheidet aus und wird übersprungen.'**
+  String get rulesMaexchenPlayers;
+
+  /// Rules page (Mäxchen) "Ziel" with the rule variant "Unbegrenzte Leben" on.
+  ///
+  /// In de, this message translates to:
+  /// **'Verlier möglichst wenige Leben. Ihr spielt, bis ihr das Spiel beendet.'**
+  String get rulesMaexchenGoalUnlimited;
+
+  /// Rules page (Mäxchen, "Unbegrenzte Leben"): where "Spiel beenden" is (the app bar menu with three dots).
+  ///
+  /// In de, this message translates to:
+  /// **'„Spiel beenden“ steht im Menü mit den drei Punkten.'**
+  String get rulesMaexchenEndHow;
 }
 
 class _AppLocalizationsDelegate

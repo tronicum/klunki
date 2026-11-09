@@ -79,8 +79,8 @@ const int seatShellMaxPlayers = 4;
 /// 4, KLD-119): the [seatGames], and Wortgewandt (KLD-125), which plays in
 /// the seat shell with 3–4 players on one device and in the two-player
 /// `GameScreen` with 2 (as over the network, which stays 2-player: rooms
-/// never offer more).
-const Set<String> playerCountGames = {...seatGames, 'wordtiles'};
+/// never offer more). Mäxchen (KLD-121 step 2) the same way.
+const Set<String> playerCountGames = {...seatGames, 'wordtiles', 'maexchen'};
 
 /// How many players the app offers for [spec] (KLD-124, the menu tile's and
 /// rules page's people chip): the engine's [GameSpec.minPlayers] to
@@ -144,6 +144,7 @@ Future<void> openGame(BuildContext context, String gameId,
     MauMauRules mauMau = const MauMauRules(),
     int lives = 3,
     bool maexchenDouble = true,
+    bool maexchenUnlimited = false,
     int players = 2,
     bool extraFives = false,
     bool randomStart = false,
@@ -160,6 +161,7 @@ Future<void> openGame(BuildContext context, String gameId,
             mauMau: mauMau,
             lives: lives,
             maexchenDouble: maexchenDouble,
+            maexchenUnlimited: maexchenUnlimited,
             players: players,
             extraFives: extraFives,
             randomStart: randomStart,
@@ -192,7 +194,7 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
     mauMau = await showMauMauOptionsDialog(context);
     if (mauMau == null || !context.mounted) return;
   }
-  // Mäxchen (KLD-121): lives and the house rule "Mäxchen doppelt".
+  // Mäxchen (KLD-121): lives, "Unbegrenzte Leben", "Mäxchen doppelt".
   MaexchenOptions? dice;
   if (gameId == 'maexchen') {
     dice = await showMaexchenOptionsDialog(context);
@@ -237,6 +239,7 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       mauMau: mauMau ?? const MauMauRules(),
       lives: dice?.lives ?? 3,
       maexchenDouble: dice?.double ?? true,
+      maexchenUnlimited: dice?.unlimited ?? false,
       players: players,
       extraFives: sheet?.extraFives ?? false,
       randomStart: sheet?.start == DiceSheetStart.random,

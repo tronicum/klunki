@@ -4337,4 +4337,81 @@ class AppLocalizationsAr extends AppLocalizations {
   String rulesPropertySpecial(String bail) {
     return 'إذا امتلكت مجموعة لونية كاملة يتضاعف الإيجار ويمكنك البناء بالتساوي: أولًا 4 مبانٍ صغيرة ثم مبنى كبير واحد لكل شارع.\nالبطاقات تعطي مالًا أو تأخذه أو تنقلك على اللوحة.\nثلاثة أزواج متتالية ترسلك إلى الاستراحة. تخرج بزوج متطابق أو بدفع $bail أو ببطاقة مجانية.\nينقصك المال؟ بِع المباني بنصف السعر أو ارهن الشوارع. لا تُفلس إلا إذا لم يكفِ ذلك.\nالرهن يعطي نصف السعر، وفكّه يكلف 10 % أكثر. الشارع المرهون لا يجلب إيجارًا.';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'أرواح بلا حدود';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'لا يخرج أحد من اللعبة. تُحسب كل روح مفقودة. تلعبون حتى تُنهوا اللعبة: يفوز من خسر أقل عدد من الأرواح.';
+
+  @override
+  String get maexchenEndGame => 'إنهاء اللعبة';
+
+  @override
+  String get maexchenEndGameTitle => 'إنهاء اللعبة؟';
+
+  @override
+  String get maexchenEndGameBody =>
+      'يفوز من خسر أقل عدد من الأرواح. عند التعادل تتشاركون المركز.';
+
+  @override
+  String get maexchenEndGameConfirm => 'إنهاء';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'أنهيتم اللعبة. يفوز من خسر أقل عدد من الأرواح.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أرواح مفقودة',
+      two: 'روحان مفقودتان',
+      one: 'روح واحدة مفقودة',
+      zero: 'لا أرواح مفقودة',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أرواح مفقودة',
+      two: 'روحان مفقودتان',
+      one: 'روح واحدة مفقودة',
+      zero: 'لا أرواح مفقودة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقيت $count أرواح',
+      two: 'بقيت روحان',
+      one: 'بقيت روح واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'خارج اللعبة';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'من لاعبَين إلى أربعة على جهاز واحد. يدور الكوب حول الطاولة: تُعلن دائمًا لمن يليك. من لم تبقَ له أرواح يخرج ويُتخطّى دوره.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'اخسر أقل عدد ممكن من الأرواح. تلعبون حتى تُنهوا اللعبة.';
+
+  @override
+  String get rulesMaexchenEndHow =>
+      '«إنهاء اللعبة» في القائمة ذات النقاط الثلاث.';
 }

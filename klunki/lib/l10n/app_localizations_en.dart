@@ -4313,4 +4313,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String rulesPropertySpecial(String bail) {
     return 'Own a whole colour group and the rent is doubled, and you may build: evenly, first 4 small, then 1 big building per street.\nCards give money, cost money or send you across the board.\nThree doubles in a row send you to the break. You get out with doubles, with $bail or with a free card.\nShort of money? Sell buildings for half the price or mortgage streets. You are bankrupt only when even that is not enough.\nA mortgage pays half the price; lifting it costs 10 % more. A mortgaged street brings no rent.';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'Unlimited lives';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'Nobody drops out. Every lost life is counted. You play until you end the game: whoever lost the fewest lives wins.';
+
+  @override
+  String get maexchenEndGame => 'End game';
+
+  @override
+  String get maexchenEndGameTitle => 'End the game?';
+
+  @override
+  String get maexchenEndGameBody =>
+      'Whoever lost the fewest lives wins. A tie shares the place.';
+
+  @override
+  String get maexchenEndGameConfirm => 'End';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'You ended the game. Whoever lost the fewest lives wins.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'lost $count lives',
+      one: 'lost 1 life',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'lost $count lives',
+      one: 'lost 1 life',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lives left',
+      one: '1 life left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'out';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'Two, three or four players on one device. The cup goes round the table: you always announce to the next player. Whoever has no lives left is out and gets skipped.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'Lose as few lives as you can. You play until you end the game.';
+
+  @override
+  String get rulesMaexchenEndHow =>
+      '“End game” is in the menu with the three dots.';
 }

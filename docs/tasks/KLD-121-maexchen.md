@@ -6,7 +6,8 @@
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (engine, redaction, CLI, hot-seat UI, 7 locales, screenshots); rules decided 2026-11-06
   (see Decisions); follow-up 2026-11-08 DONE (actions always on screen, shake to roll, zh font subset rebuilt);
-  next: tune the shake threshold on devices, then network in the app and 3+ players (KLD-088)
+  step 2 DONE 2026-11-09 (3–4 players on one device, rule variant "Unbegrenzte Leben", rules 2); next: tune the
+  shake threshold on devices, then network in the app (2 players)
 - **Depends on:** KLD-064 (redaction), KLD-085 (fingerprint), KLD-088 (seats, later), KLD-103 (player names)
 - **Touched paths:**
   - `packages/klunki_engine/lib/maexchen.dart`, `maexchen_view.dart` (new), `lib/debug/maexchen_text.dart` (new),
@@ -20,6 +21,14 @@
     `klunki/test/ui/menu_modes_test.dart`, `klunki/test/ui/shell/game_screen_test.dart`, `klunki/test/l10n/translations_test.dart`
   - `klunki/lib/transport/hot_seat_transport.dart` (undo barrier)
   - `docs/tasks/BOARD.md`, `CHANGELOG.md`
+  - Step 2: `packages/klunki_engine/lib/{maexchen,maexchen_view,game,registry}.dart`, `lib/debug/maexchen_text.dart`,
+    `test/{maexchen_seats (new),maexchen,compat,word_tiles_seats}_test.dart`; `packages/klunki_net/lib/src/{guest.dart,
+    secrecy/secrecy.dart}`, `test/maexchen_net_test.dart`; `klunki/lib/ui/games/maexchen/**`,
+    `klunki/lib/ui/rules/games/maexchen_rules.dart`, `klunki/lib/ui/shell/{game_screen,seat_game_screen,
+    screen_registry}.dart`, `klunki/lib/ui/engine_l10n.dart`, `klunki/lib/l10n/**`;
+    `klunki/test/ui/games/{maexchen_seats (new),maexchen_layout,maexchen_screen,maexchen_shake}_test.dart`,
+    `klunki/test/e2e/live_ui/maexchen_seats_live_test.dart` (new), `klunki/test/screenshots/maexchen_seats_shots_test.dart`
+    (new); `AGENTS.md`
 
 ## Goal
 A family bluffing game with two dice: roll secretly under a cup, announce a value (true or not), the next player
@@ -83,7 +92,49 @@ announcement (or the verdict) to the next player. The result dialog shows the la
 - English/French/Spanish title "Mia" (the international name of the game).
 - Variants not built: "Mäxchen-Pasch"/special 31 rules, "drunter bleiben" (keep the dice without rolling), passing
   the cup without looking as an explicit option, a round-loser penalty other than a life.
-- Network in the app and 3–4 players (with KLD-088), where the game is much better.
+- Network in the app (2 players; 3–4 need the n-player network of KLD-088).
+- Step 2: "Spiel beenden" sits in the "⋮" menu only (with a confirmation); a button on the table between rounds
+  would be more visible but crowds the SE screen. Wanted?
+- Step 2: a resign with 3–4 players drops a round under way (no loser) and the round starts again; OK?
+
+## Step 2 (2026-11-09): 3–4 players on one device, "Unbegrenzte Leben"
+Built on the n-player infrastructure of KLD-119 / KLD-125 (branch `integrate-1109`).
+- **Engine** (`maexchen.dart`, now a `SeatGame`): 2–4 seats. The cup passes to the next seat still in; a seat
+  without lives is out and skipped; the last one with lives wins; the others rank by the order they went out
+  (out last = 2nd). The existing rules read the same with n seats: the loser starts the next round (the next
+  seat in when the loser is out), "Leben abgeben" only after an announced Mäxchen, a caught fake Mäxchen costs 2
+  lives under "Mäxchen doppelt", no undo across doubt / give-up. With 3–4 seats a resign names a seat
+  (`{'action': 'resign', 'seat': n}`): that seat is out, a round under way is dropped (no loser) and starts again
+  with the same seat to move (the next one if the leaver was to move); the others play on.
+- **"Unbegrenzte Leben"** (`GameConfig.maexchenUnlimited`, JSON `maexUnlimited: true` only when on, off by
+  default; `MaexchenGame.unlimitedLives`): nobody drops out, every lost life is counted (`lostOf`, the event and
+  view carry `lost`), the round still ends with "<player> verliert ein Leben" (2 with "Mäxchen doppelt" for a
+  caught fake Mäxchen), and the game goes on until the players end it with the `end` move (any time, not in
+  `legalMoves`, like a resign); fewest lives lost wins, equal counts share a place
+  (`GameEndReason.maexchenEnded`, params `a`/`b` = lives lost, `SeatResult` `lost0…`).
+- **Compatibility:** two seats without the variant are byte-identical to rules 1 (moves, rolls, events, both
+  views, results; compared over 300 seeds × lives 1/3/5 × "Mäxchen doppelt", and a transcript hash is a test).
+  The content hash is unchanged; the rules version goes to **2** because an older build would ignore
+  `maexUnlimited` and play such a game with lives (AGENTS.md: a config the old build reads differently). The
+  network stays 2-player; the guest passes the variant to its end-of-game check (`klunki_net`), a loopback test
+  ends an unlimited game from the guest.
+- **App:** "Wer spielt?" with 2 · 3 · 4 (`playerCountGames`), menu chip "2–4". 2 players keep `GameScreen`,
+  3–4 play in `SeatGameScreen` with the handover cover before every player who takes the cup (the cover shows
+  the announcement or the round's verdict). Lives row with four cells (seat token and name, hearts shrunk to one
+  line; a player who is out is greyed); with the variant a broken heart and the count of lives lost. Start
+  options: "Unbegrenzte Leben" under the lives (the lives greyed while on). "Spiel beenden" in the "⋮" menu (asks
+  first; `GameScreen` got `menuEntries` for it). Ranking: "noch 2 Leben" / "ausgeschieden" / "4 Leben verloren"
+  (the seat shell's custom score now takes its own width before the name). Rules page: 2–4 players line, goal
+  and the variant only when on. Room info: Mäxchen is not offered over the network in the app, so nothing there.
+- **Tests:** engine `maexchen_seats_test.dart` (3/4 seats, elimination and skipping, resign, random games and
+  replay, two-seat transcript hash, variant: tally, never ending, `end`, JSON round trip and omission, views);
+  net `maexchen_net_test.dart` (variant over the network); widget `test/ui/games/maexchen_seats_test.dart`
+  (cover before every seat, greyed and skipped seat, ranking, resign, lives row / tally on an iPhone SE in de
+  and ar, "Spiel beenden" with 2 and 4 players, options and "Wer spielt?", rules page, chip);
+  `maexchen_layout_test.dart` also with 4 players (5 lives, and with the tally); live UI
+  `test/e2e/live_ui/maexchen_seats_live_test.dart` (whole games with 3 and 4 players, an unlimited game ended by
+  the players). Screenshots `test/screenshots/maexchen_seats_shots_test.dart --plain-name kld121-4p`
+  (`<KLUNKI_SHOTS>/maexchen-4p-shots/`). The zh web font subset was re-run; the new strings needed no new glyphs.
 
 ## Follow-up 2026-11-08 (testing build 2026110806 on an iPhone 15 Pro)
 1. **The "ansagen" button was below the fold.** Now the board is the table part (lives, announcement, felt with
@@ -129,3 +180,7 @@ announcement (or the verdict) to the next player. The result dialog shows the la
   roll with a fake-sensor test; on-device tuning of the threshold open.
 - [x] Decisions 2026-11-06: no undo across doubt/giveUp (engine + app tests), fake Mäxchen caught = 2 lives with the
   toggle, option text in 7 locales, natural zh texts (font subset rebuild pending after merge).
+- [x] Step 2: 3–4 players on one device (engine seats, seat shell, cover before every player, elimination order
+  ranking), two players unchanged (transcript hash), rules 2 with the compat golden.
+- [x] Step 2: "Unbegrenzte Leben" (option, tally, "Spiel beenden", ranking by lives lost, rules page), 7 locales.
+- [x] Step 2: engine, net, widget, layout and live-UI tests; screenshots `--plain-name kld121-4p`.
