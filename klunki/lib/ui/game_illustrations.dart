@@ -19,6 +19,23 @@ Rect _square(Size size, [double inset = 0.08]) {
 
 Paint _fill(Color c) => Paint()..color = c;
 
+/// Vertical shift that centres a fan of cards on [centerY]: each card is the
+/// rect `(-w/2, -h - gap, w, h)` rotated by one of [angles] around [pivotY].
+double _fanShift(double centerY, double pivotY, double w, double h, double gap, Iterable<double> angles) {
+  var top = double.infinity, bottom = double.negativeInfinity;
+  for (final a in angles) {
+    final sin = math.sin(a), cos = math.cos(a);
+    for (final x in [-w / 2, w / 2]) {
+      for (final y in [-h - gap, -gap]) {
+        final ry = x * sin + y * cos;
+        top = math.min(top, ry);
+        bottom = math.max(bottom, ry);
+      }
+    }
+  }
+  return centerY - (pivotY + (top + bottom) / 2);
+}
+
 void _disc(Canvas canvas, Offset c, double r, Color color, {Color? edge}) {
   canvas.drawCircle(c + Offset(r * 0.08, r * 0.14), r, _fill(Colors.black.withValues(alpha: 0.18)));
   canvas.drawCircle(
@@ -134,9 +151,15 @@ class QuartettIllustration extends CustomPainter {
     final q = palette.quartett;
     final r = _square(size, 0.04);
     final w = r.width * 0.46, h = w * 1.4;
-    final pivot = Offset(r.center.dx, r.bottom - r.height * 0.02);
+    double angleOf(int i) => (i - (sets.length - 1) / 2) * 0.32;
+    // The fan hangs from a pivot near the bottom; shift it so its painted
+    // height is centred in the square, like the other games' pictures.
+    final pivotY = r.bottom - r.height * 0.02;
+    final shift =
+        _fanShift(r.center.dy, pivotY, w, h, r.height * 0.02, [for (var i = 0; i < sets.length; i++) angleOf(i)]);
+    final pivot = Offset(r.center.dx, pivotY + shift);
     for (var i = 0; i < sets.length; i++) {
-      final angle = (i - (sets.length - 1) / 2) * 0.32;
+      final angle = angleOf(i);
       canvas.save();
       canvas.translate(pivot.dx, pivot.dy);
       canvas.rotate(angle);

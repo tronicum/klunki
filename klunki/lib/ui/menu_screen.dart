@@ -401,6 +401,10 @@ class _GameGrid extends StatelessWidget {
 /// one-liner (tapping them starts the game on this device, as before), then
 /// the two ways to play as links: "An einem Gerät" (the same) and "Mit
 /// anderen" (a room for this game; not for [hotSeatOnlyGames]).
+/// How far the "Karten" pill hangs below a tile's picture box (the space is
+/// taken from the gap above the title, so every tile keeps its layout).
+const double _headerOverhang = 3;
+
 class _GameTile extends StatelessWidget {
   final GameSpec spec;
   final VoidCallback onLocal;
@@ -432,32 +436,50 @@ class _GameTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Container(
-                    height: 84,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
-                      ),
-                      border: Border(bottom: BorderSide(color: accent.color, width: 3)),
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    // KLD-124: how many play, in the box's top corner.
+                  // The picture box plus [_headerOverhang] below it, where
+                  // the "Karten" pill may hang over the box's lower edge.
+                  SizedBox(
+                    height: 84 + _headerOverhang,
                     child: Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        Positioned.fill(
-                          child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: 84,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [accent.container, Color.lerp(accent.container, accent.color, 0.2)!],
+                              ),
+                              border: Border(bottom: BorderSide(color: accent.color, width: 3)),
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            // KLD-124: how many play, in the box's top corner.
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Positioned.fill(
+                                  child: ExcludeSemantics(child: CustomPaint(painter: visuals.illustration(palette))),
+                                ),
+                                PositionedDirectional(top: -2, end: -2, child: PlayerCountChip(spec: spec)),
+                              ],
+                            ),
+                          ),
                         ),
-                        PositionedDirectional(top: -2, end: -2, child: PlayerCountChip(spec: spec)),
                         // KLD-069: the view-only card gallery of a game with
                         // decks, in the box's lower corner (the tile's foot
-                        // has no room next to "Regeln" on a phone).
+                        // has no room next to "Regeln" on a phone). It sits
+                        // on the box's lower edge, clear of the centred
+                        // cards, inside this Stack so the whole pill takes
+                        // taps.
                         if (spec.usesDeck)
                           PositionedDirectional(
-                            bottom: -4,
-                            end: -4,
+                            bottom: 0,
+                            end: 4,
                             child: _CardsLink(
                               key: Key('menu-${spec.id}-cards'),
                               accent: accent,
@@ -470,7 +492,7 @@ class _GameTile extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),
+                    padding: const EdgeInsetsDirectional.fromSTEB(12, 8 - _headerOverhang, 8, 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

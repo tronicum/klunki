@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../../app/fonts.dart' show robotoFontFamily;
+
 /// Colours of the word tile game (KLD-094): our own, chosen to look like no
 /// commercial product (word premiums in greens, letter premiums in ochre /
 /// sand, cream tiles).
@@ -241,7 +243,7 @@ class WordTilesIllustration extends CustomPainter {
     canvas.save();
     canvas.clipRRect(rr);
     canvas.drawRect(r, Paint()..color = c.board);
-    const premiums = {(0, 0): Premium.tripleWord, (3, 1): Premium.doubleLetter, (1, 3): Premium.doubleWord};
+    const premiums = {(0, 0): Premium.tripleWord, (3, 1): Premium.doubleLetter, (2, 3): Premium.doubleWord};
     for (var row = 0; row < n; row++) {
       for (var col = 0; col < n; col++) {
         final cellRect = Rect.fromLTWH(r.left + col * cell, r.top + row * cell, cell, cell).deflate(cell * 0.04);
@@ -264,19 +266,29 @@ class WordTilesIllustration extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: letter,
-          style: TextStyle(color: c.tileInk, fontSize: cell * 0.55, fontWeight: FontWeight.w700, height: 1),
+          // The bundled family: a painter does not inherit the theme's font,
+          // and the PWA has no system fonts (nothing is fetched).
+          style: TextStyle(
+            color: c.tileInk,
+            fontFamily: robotoFontFamily,
+            fontSize: cell * 0.6,
+            fontWeight: FontWeight.w700,
+            height: 1,
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, t.center - Offset(tp.width / 2, tp.height / 2));
+      tp.dispose();
     }
 
-    // Two words crossing at the A.
+    // WORT across, TOR down, crossing at the O.
     tile(1, 0, 'W');
-    tile(1, 1, 'A');
-    tile(1, 2, 'L');
-    tile(2, 1, 'B');
-    tile(0, 1, 'K');
+    tile(1, 1, 'O');
+    tile(1, 2, 'R');
+    tile(1, 3, 'T');
+    tile(0, 1, 'T');
+    tile(2, 1, 'R');
   }
 
   @override

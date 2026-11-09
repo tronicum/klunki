@@ -272,6 +272,23 @@ void paintMauMauBack(Canvas canvas, Rect r, Color color) {
 
 /// Menu illustration: three fanned cards (hearts 7, a back, the jack of
 /// spades) over the accent.
+/// Vertical shift that centres a fan of cards on [centerY]: each card is the
+/// rect `(-w/2, -h - gap, w, h)` rotated by one of [angles] around [pivotY].
+double _fanShift(double centerY, double pivotY, double w, double h, double gap, Iterable<double> angles) {
+  var top = double.infinity, bottom = double.negativeInfinity;
+  for (final a in angles) {
+    final sin = math.sin(a), cos = math.cos(a);
+    for (final x in [-w / 2, w / 2]) {
+      for (final y in [-h - gap, -gap]) {
+        final ry = x * sin + y * cos;
+        top = math.min(top, ry);
+        bottom = math.max(bottom, ry);
+      }
+    }
+  }
+  return centerY - (pivotY + (top + bottom) / 2);
+}
+
 class MauMauIllustration extends CustomPainter {
   final KlunkiPalette palette;
   const MauMauIllustration(this.palette);
@@ -281,7 +298,11 @@ class MauMauIllustration extends CustomPainter {
     final s = size.shortestSide;
     final square = Rect.fromCenter(center: size.center(Offset.zero), width: s, height: s).deflate(s * 0.04);
     final w = square.width * 0.42, h = w / maumauCardAspect;
-    final pivot = Offset(square.center.dx, square.bottom - square.height * 0.02);
+    // The fan hangs from a pivot near the bottom; shift it so its painted
+    // height is centred in the square, like the other games' pictures.
+    final pivotY = square.bottom - square.height * 0.02;
+    final shift = _fanShift(square.center.dy, pivotY, w, h, square.height * 0.02, const [-0.34, 0.0, 0.34]);
+    final pivot = Offset(square.center.dx, pivotY + shift);
     final accent = palette.accent('maumau').color;
     const cards = [MauMauSuit.hearts, null, MauMauSuit.spades];
     for (var i = 0; i < cards.length; i++) {
