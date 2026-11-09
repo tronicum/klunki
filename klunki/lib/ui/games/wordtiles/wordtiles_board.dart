@@ -1123,18 +1123,25 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       final preview = _previewLine(context, l10n);
       // KLD-094 step 8: the bench below the actions (rack and actions right
       // under the board, the bench is the optional extra).
-      // KLD-117: "Zug zurück" (hot-seat) right under the actions, at the end
+      // KLD-117: "Zug zurücknehmen" (hot-seat) right under the actions, at the end
       // of the bench line (the actions row is full on a phone; as dense as
       // the bench line). On a small phone, where the bench has its slim bar
       // above the rack, just the ↶ icon in the actions row, so the board
       // keeps its size. Nothing in network play.
-      const undo = UndoMoveButton(visualDensity: VisualDensity(horizontal: -4, vertical: -4));
       final Widget bench = compact
           ? const SizedBox.shrink()
-          : LayoutBuilder(
-              builder: (context, benchBox) =>
-                  _benchView(context, l10n, min(benchBox.maxWidth, WordTilesBoard.benchMaxWidth), benchOpen, trailing: undo),
-            );
+          : LayoutBuilder(builder: (context, benchBox) {
+              // Too narrow for "↶ Zug zurücknehmen" next to "› Bänkchen" and
+              // its clear button: just the ↶ icon (the label as its tooltip).
+              final need = UndoMoveButton.labelWidth(context) +
+                  UndoMoveButton.textButtonWidth(context, l10n.wordtilesBench) +
+                  48;
+              final undo = UndoMoveButton(
+                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                  iconOnly: need > benchBox.maxWidth);
+              return _benchView(context, l10n, min(benchBox.maxWidth, WordTilesBoard.benchMaxWidth), benchOpen,
+                  trailing: undo);
+            });
       final controls = Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1956,19 +1963,25 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final header = Row(
       mainAxisSize: open || trailing != null ? MainAxisSize.max : MainAxisSize.min,
       children: [
+        // The toggle takes the room the other buttons leave (no Spacer
+        // sharing it half and half: "Zug zurücknehmen" is long).
         Flexible(
-          child: Semantics(
-            expanded: open,
-            child: TextButton.icon(
-              key: const Key('wordtiles-bench-toggle'),
-              style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
-              icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
-              label: Text(l10n.wordtilesBench, maxLines: 1, overflow: TextOverflow.ellipsis),
-              onPressed: () => setState(() => _benchOpen = !open),
+          fit: open || trailing != null ? FlexFit.tight : FlexFit.loose,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            widthFactor: 1,
+            child: Semantics(
+              expanded: open,
+              child: TextButton.icon(
+                key: const Key('wordtiles-bench-toggle'),
+                style: TextButton.styleFrom(visualDensity: compact, padding: const EdgeInsets.symmetric(horizontal: 6)),
+                icon: Icon(open ? Icons.expand_more : Icons.chevron_right, size: 20),
+                label: Text(l10n.wordtilesBench, maxLines: 1, overflow: TextOverflow.ellipsis),
+                onPressed: () => setState(() => _benchOpen = !open),
+              ),
             ),
           ),
         ),
-        if (open || trailing != null) const Spacer(),
         if (open && hasTiles)
           IconButton(
             key: const Key('wordtiles-bench-clear'),
@@ -2211,7 +2224,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     );
   }
 
-  /// [undoIcon]: the icon-only "Zug zurück" at the start of the row (small
+  /// [undoIcon]: the icon-only "Zug zurücknehmen" at the start of the row (small
   /// phone, KLD-117).
   Widget _actions(BuildContext context, AppLocalizations l10n, {bool undoIcon = false}) {
     if (_exchanging) {

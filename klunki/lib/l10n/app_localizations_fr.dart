@@ -3126,11 +3126,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmMoveCommit => 'Jouer';
 
   @override
-  String get confirmMoveBack => 'Retour';
+  String get confirmMoveBack => 'Autre coup';
 
   @override
   String get confirmMoveHint =>
-      'C’est le bon coup ? Touche « Jouer » ou « Retour ».';
+      'C’est le bon coup ? Touche « Jouer » ou « Autre coup ».';
 
   @override
   String get confirmMoveOn => 'Confirmer le coup : activé.';
@@ -3770,7 +3770,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'Des conseils : quelle case va bien maintenant et quels dés garder. Tu peux quand même choisir n’importe quelle case.';
+      'La case qui va bien maintenant s’allume sur la feuille. Tu peux quand même choisir n’importe quelle case.';
+
+  @override
+  String get dicesheetTipsOption => 'Conseils';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'Une bulle dit quelle case va bien maintenant et pourquoi, et quels dés garder.';
 
   @override
   String get dicesheetTipLabel => 'Conseil';
@@ -3833,11 +3840,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Super lancer ! Tu n’as plus besoin de relancer.';
 
   @override
-  String get dicesheetBeginnerEnd => 'Quitter le mode débutant';
+  String get dicesheetTipsEnd => 'Désactiver les conseils';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'Mode débutant désactivé. Tu peux le réactiver dans les options.';
+  String get dicesheetTipsEnded =>
+      'Conseils désactivés. Tu peux les réactiver dans les options.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3857,7 +3864,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'Mode débutant (activé au début, désactivable dans les options) : un conseil montre quelle case va bien maintenant et quels dés garder. Tu peux quand même choisir n’importe quelle case.';
+      'Mode débutant (activé pendant la première partie) : la case qui va bien maintenant s’allume sur la feuille. Conseils (activés pendant les 5 premières parties) : une bulle dit pourquoi et quels dés garder. Les deux s’activent ou se désactivent dans les options. Tu peux quand même choisir n’importe quelle case.';
 
   @override
   String dicesheetCoachRoll(int count) {

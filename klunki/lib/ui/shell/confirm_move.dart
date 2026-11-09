@@ -21,7 +21,7 @@ bool confirmMoveFor(BuildContext context, GameController controller, Player move
     ConfirmMoveScope.of(context)
         .confirmFor(mover, onNetwork: controller.transport.localPlayers.length == 1);
 
-/// "✗ Zurück" and "✓ Ziehen" under a board with a pending move (KLD-122).
+/// "✗ Anders ziehen" and "✓ Ziehen" under a board with a pending move (KLD-122).
 /// Keys `confirm-move-bar`, `confirm-move-back`, `confirm-move-commit`.
 class ConfirmMoveBar extends StatelessWidget {
   final VoidCallback onCommit;

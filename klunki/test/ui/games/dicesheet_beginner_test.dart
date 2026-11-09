@@ -25,8 +25,9 @@ Future<void> _tap(WidgetTester tester, String key) async {
   await tester.pumpAndSettle();
 }
 
-Future<GameController> _pump(WidgetTester tester, {int seed = 1, List<List<int>> rolls = const []}) async {
-  tester.view.physicalSize = const Size(390, 844) * 2;
+Future<GameController> _pump(WidgetTester tester,
+    {int seed = 1, List<List<int>> rolls = const [], Size size = const Size(390, 844)}) async {
+  tester.view.physicalSize = size * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
   final c = GameController.hotSeat(GameConfig('dicesheet', seed: seed));
@@ -138,26 +139,43 @@ void main() {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
   }
 
-  testWidgets('"Anfängermodus beenden" turns it off, says so and persists', (tester) async {
+  testWidgets('"Tipps ausschalten" turns the tips off, says so and persists; the ring stays', (tester) async {
     await withStorage(tester);
     await _pump(tester, rolls: List.filled(3, [5, 5, 5, 2, 3]));
     for (var i = 0; i < 3; i++) {
       await _tap(tester, 'dicesheet-roll');
     }
-    await _tap(tester, 'dicesheet-beginner-end');
-    expect(find.text('Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.'), findsOneWidget);
+    await _tap(tester, 'dicesheet-tips-end');
+    expect(find.text('Tipps aus. Du kannst sie in den Optionen wieder einschalten.'), findsOneWidget);
     expect(_key('dicesheet-tip'), findsNothing);
-    expect(_key('dicesheet-tip-ring'), findsNothing);
-    expect(BeginnerSettings.shared().enabled, isFalse);
-    expect((await SharedPreferences.getInstance()).getBool(BeginnerSettings.prefsKey), isFalse);
+    expect(_key('dicesheet-tip-ring'), findsOneWidget, reason: 'the Anfängermodus is a setting of its own');
+    expect(BeginnerSettings.shared().tips, isFalse);
+    expect(BeginnerSettings.shared().enabled, isTrue);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool(BeginnerSettings.prefsKeyTips), isFalse);
+    expect(prefs.getBool(BeginnerSettings.prefsKey), isNull, reason: 'no choice made for the Anfängermodus');
     // A fresh start reads it back.
     BeginnerSettings.debugReset(loaded: true);
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-    expect(BeginnerSettings.shared().enabled, isFalse);
+    expect(BeginnerSettings.shared().tips, isFalse);
   });
 
-  testWidgets('off: no tips at all', (tester) async {
+  testWidgets('a short screen: the folded tip has a close button that turns the tips off', (tester) async {
+    await _pump(tester, rolls: List.filled(3, [5, 5, 5, 2, 3]), size: const Size(375, 667));
+    for (var i = 0; i < 3; i++) {
+      await _tap(tester, 'dicesheet-roll');
+    }
+    expect(_key('dicesheet-tip-more'), findsOneWidget, reason: 'folded');
+    expect(_key('dicesheet-tips-end'), findsNothing);
+    await _tap(tester, 'dicesheet-tips-close');
+    expect(_key('dicesheet-tip'), findsNothing);
+    expect(BeginnerSettings.shared().tips, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('both off: no tips at all', (tester) async {
     await BeginnerSettings.shared().setEnabled(false);
+    await BeginnerSettings.shared().setTips(false);
     await _pump(tester, rolls: List.filled(3, [5, 5, 5, 2, 3]));
     await _tap(tester, 'dicesheet-roll');
     expect(_key('dicesheet-tip-button'), findsNothing);
@@ -165,18 +183,75 @@ void main() {
     await _tap(tester, 'dicesheet-roll');
     expect(_key('dicesheet-tip'), findsNothing);
     expect(_key('dicesheet-tip-ring'), findsNothing);
+    expect(find.text('Wähle ein Feld im Blatt.'), findsOneWidget, reason: 'the hint line is back');
   });
 
-  testWidgets('the start options: the "Anfängermodus" switch, on by default, stored at once', (tester) async {
+  testWidgets('second game: no ring (Anfängermodus off), the tip bubble still there', (tester) async {
+    BeginnerSettings.debugReset(games: 1);
+    await _pump(tester, rolls: List.filled(3, [5, 5, 5, 2, 3]));
+    await _tap(tester, 'dicesheet-roll');
+    expect(_key('dicesheet-tip-button'), findsOneWidget);
+    await _tap(tester, 'dicesheet-roll');
+    await _tap(tester, 'dicesheet-roll');
+    expect(_key('dicesheet-tip'), findsOneWidget);
+    expect(_tipText(tester), 'Tipp: Fünfer – 15 Punkte helfen dir beim Bonus (63).');
+    expect(_key('dicesheet-tip-ring'), findsNothing);
+  });
+
+  testWidgets('sixth game: neither, unless turned on in the options', (tester) async {
+    BeginnerSettings.debugReset(games: 5);
+    await _pump(tester, rolls: List.filled(3, [5, 5, 5, 2, 3]));
+    for (var i = 0; i < 3; i++) {
+      await _tap(tester, 'dicesheet-roll');
+    }
+    expect(_key('dicesheet-tip'), findsNothing);
+    expect(_key('dicesheet-tip-ring'), findsNothing);
+    await BeginnerSettings.shared().setEnabled(true);
+    await BeginnerSettings.shared().setTips(true);
+    await tester.pumpAndSettle();
+    expect(_key('dicesheet-tip'), findsOneWidget);
+    expect(_key('dicesheet-tip-ring'), findsOneWidget);
+  });
+
+  testWidgets('a game that ends (here: given up) counts; the next one starts without the ring', (tester) async {
+    final c = await _pump(tester);
+    expect(BeginnerSettings.shared().gamesPlayed, 0);
+    await c.resign(Player.a);
+    await tester.pumpAndSettle();
+    expect(c.game.isOver, isTrue);
+    expect(BeginnerSettings.shared().gamesPlayed, 1);
+    expect(BeginnerSettings.shared().enabled, isFalse);
+    expect(BeginnerSettings.shared().tips, isTrue);
+    // Rebuilds of the finished game do not count it again.
+    await tester.pumpAndSettle();
+    expect(BeginnerSettings.shared().gamesPlayed, 1);
+  });
+
+  testWidgets('the start options: both switches, on at first, stored at once', (tester) async {
     await withStorage(tester);
     await tester.pumpWidget(localizedApp(const Scaffold(body: SizedBox.expand())));
     showDiceSheetOptionsDialog(tester.element(find.byType(Scaffold)));
     await tester.pumpAndSettle();
     expect(tester.widget<SwitchListTile>(_key('dicesheet-beginner')).value, isTrue);
+    expect(tester.widget<SwitchListTile>(_key('dicesheet-tips')).value, isTrue);
     await _tap(tester, 'dicesheet-beginner');
     expect(tester.widget<SwitchListTile>(_key('dicesheet-beginner')).value, isFalse);
     expect(BeginnerSettings.shared().enabled, isFalse);
     expect((await SharedPreferences.getInstance()).getBool(BeginnerSettings.prefsKey), isFalse);
+    await _tap(tester, 'dicesheet-tips');
+    expect(tester.widget<SwitchListTile>(_key('dicesheet-tips')).value, isFalse);
+    expect((await SharedPreferences.getInstance()).getBool(BeginnerSettings.prefsKeyTips), isFalse);
+  });
+
+  testWidgets('the start options after 5 games: both off, can be turned back on', (tester) async {
+    BeginnerSettings.debugReset(games: 5);
+    await tester.pumpWidget(localizedApp(const Scaffold(body: SizedBox.expand())));
+    showDiceSheetOptionsDialog(tester.element(find.byType(Scaffold)));
+    await tester.pumpAndSettle();
+    expect(tester.widget<SwitchListTile>(_key('dicesheet-beginner')).value, isFalse);
+    expect(tester.widget<SwitchListTile>(_key('dicesheet-tips')).value, isFalse);
+    await _tap(tester, 'dicesheet-tips');
+    expect(BeginnerSettings.shared().tips, isTrue);
   });
 
   testWidgets('the sheet: used boxes look done, the header counts the free ones', (tester) async {
@@ -247,11 +322,12 @@ void main() {
     });
   });
 
-  testWidgets('rules page: each box only once, and the Anfängermodus', (tester) async {
+  testWidgets('rules page: each box only once, the Anfängermodus and the tips', (tester) async {
     await _pump(tester);
     await _tap(tester, 'shell-rules');
     expect(find.text('Jedes Feld füllst du nur einmal. 13 Felder, 13 Runden.'), findsOneWidget);
     await tester.ensureVisible(_key('rules-dicesheet-beginner'));
-    expect(find.textContaining('Anfängermodus (am Anfang an'), findsOneWidget);
+    expect(find.textContaining('Anfängermodus (im ersten Spiel an)'), findsOneWidget);
+    expect(find.textContaining('Tipps (in den ersten 5 Spielen an)'), findsOneWidget);
   });
 }

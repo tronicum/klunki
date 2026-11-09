@@ -3027,11 +3027,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get confirmMoveCommit => 'حرکت بده';
 
   @override
-  String get confirmMoveBack => 'برگشت';
+  String get confirmMoveBack => 'حرکت دیگر';
 
   @override
   String get confirmMoveHint =>
-      'این حرکت درست است؟ روی «حرکت بده» یا «برگشت» بزن.';
+      'این حرکت درست است؟ روی «حرکت بده» یا «حرکت دیگر» بزن.';
 
   @override
   String get confirmMoveOn => 'تأیید حرکت: روشن است.';
@@ -3658,7 +3658,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'نکته‌ها: الان کدام خانه خوب است و کدام تاس‌ها را نگه داری. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
+      'خانه‌ای که الان خوب است روشن می‌شود. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
+
+  @override
+  String get dicesheetTipsOption => 'نکته‌ها';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'یک حباب می‌گوید الان کدام خانه خوب است و چرا، و کدام تاس‌ها را نگه داری.';
 
   @override
   String get dicesheetTipLabel => 'نکته';
@@ -3720,11 +3727,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get dicesheetTipStop => 'تاس عالی! دیگر لازم نیست بیندازی.';
 
   @override
-  String get dicesheetBeginnerEnd => 'پایان حالت مبتدی';
+  String get dicesheetTipsEnd => 'خاموش کردن نکته‌ها';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'حالت مبتدی خاموش شد. می‌توانی آن را در گزینه‌ها دوباره روشن کنی.';
+  String get dicesheetTipsEnded =>
+      'نکته‌ها خاموش شد. می‌توانی آن‌ها را در گزینه‌ها دوباره روشن کنی.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3743,7 +3750,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'حالت مبتدی (اول روشن است و در گزینه‌ها خاموش می‌شود): یک نکته نشان می‌دهد الان کدام خانه خوب است و کدام تاس‌ها را نگه داری. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
+      'حالت مبتدی (در بازی اول روشن است): خانه‌ای که الان خوب است روشن می‌شود. نکته‌ها (در ۵ بازی اول روشن است): یک حباب می‌گوید چرا و کدام تاس‌ها را نگه داری. هر دو را در گزینه‌ها روشن یا خاموش می‌کنی. باز هم می‌توانی هر خانه‌ای را انتخاب کنی.';
 
   @override
   String dicesheetCoachRoll(int count) {

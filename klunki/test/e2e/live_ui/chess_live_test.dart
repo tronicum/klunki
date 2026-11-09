@@ -46,7 +46,7 @@ void main() {
   // Only taps a finger could make: a tap on something covered fails.
   setUp(() {
     WidgetController.hitTestWarningShouldBeFatal = true;
-    ConfirmMoveSettings.debugReset(); // the defaults: on over the network, off in hot-seat
+    ConfirmMoveSettings.debugReset(); // the defaults: on, over the network and in hot-seat
   });
   tearDown(() => WidgetController.hitTestWarningShouldBeFatal = false);
 
@@ -113,7 +113,8 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final hotSeat = ChessAdapter(offerRate: 0.02, acceptRate: 0);
-    await ConfirmMoveSettings.shared().setHotSeat(Player.b, true);
+    // White turns "Zug bestätigen" off (on by default), Black keeps it.
+    await ConfirmMoveSettings.shared().setHotSeat(Player.a, false);
     final log = await playHotSeat(tester, hotSeat, const GameConfig('chess', seed: 6), rng: Random(6));
     log.printIfVerbose();
     final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
@@ -127,7 +128,7 @@ void main() {
   test('the network games were played on the board and checked against the engine', () {
     expect(ends, hasLength(seeds.length));
     expect(adapter.tapped['move'] ?? 0, greaterThan(20), reason: '${adapter.tapped}');
-    // KLD-122: every board move over the network was confirmed, some after "Zurück".
+    // KLD-122: every board move over the network was confirmed, some after "Anders ziehen".
     expect(adapter.tapped['confirm'], adapter.tapped['move'], reason: '${adapter.tapped}');
     expect(adapter.tapped['back'] ?? 0, greaterThan(0), reason: '${adapter.tapped}');
     expect(adapter.boardChecks, greaterThan(10));

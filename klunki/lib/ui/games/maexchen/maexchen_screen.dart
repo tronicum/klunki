@@ -34,7 +34,7 @@ class MaexchenScreen extends StatelessWidget {
         if (last == null || game.resignedBy != null) return const SizedBox.shrink();
         return MaexchenRoundSummary(end: last);
       },
-      // "Zug zurück" sits in the board's control row, next to the actions.
+      // "Zug zurücknehmen" sits in the board's control row, next to the actions.
       boardPlacesUndo: true,
       boardBuilder: (context, controller) => MaexchenBoard(controller: controller),
     );

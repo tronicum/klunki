@@ -196,7 +196,7 @@ class GameSpec {
   /// Whether [GameConfig.deck] picks a Quartett deck for this game (KLD-069).
   final bool usesDeck;
 
-  /// Moves that hot-seat "Zug zurück" never takes back (null = none), e.g.
+  /// Moves that hot-seat "Zug zurücknehmen" never takes back (null = none), e.g.
   /// Mäxchen's doubt, which lifted the cup for everyone (KLD-121): undo
   /// stops once such a move is the last one. Not part of the fingerprint.
   final bool Function(Map<String, dynamic> move)? undoBarrier;
@@ -291,7 +291,7 @@ final List<GameSpec> gameSpecs = [
   // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
   // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network
   // session is 2-player). House rule "Extra-Fünfer" in the config
-  // (`extraFives`), random start (`start`). A roll is final for hot-seat "Zug zurück".
+  // (`extraFives`), random start (`start`). A roll is final for hot-seat "Zug zurücknehmen".
   GameSpec('dicesheet', 'Ausgewürfelt',
       (c, _) => DiceSheetGame(
           seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),

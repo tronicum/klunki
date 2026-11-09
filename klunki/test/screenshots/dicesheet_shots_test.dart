@@ -446,15 +446,15 @@ void main() {
       });
     }
 
-    testWidgets('"Anfängermodus beenden" and the snackbar', skip: skip, (tester) async {
+    testWidgets('"Tipps ausschalten" and the snackbar', skip: skip, (tester) async {
       await _game(tester,
           size: const Size(393, 852),
           safe: const EdgeInsets.only(top: 59, bottom: 34),
           rolls: List.filled(3, [3, 2, 6, 4, 5]));
       await _tap(tester, 'dicesheet-roll');
       await shot(tester, 'b07-tip-stop-large-straight');
-      await _tap(tester, 'dicesheet-beginner-end');
-      await shot(tester, 'b08-beginner-ended-snackbar');
+      await _tap(tester, 'dicesheet-tips-end');
+      await shot(tester, 'b08-tips-ended-snackbar');
     });
 
     for (final (tag, locale, brightness) in [

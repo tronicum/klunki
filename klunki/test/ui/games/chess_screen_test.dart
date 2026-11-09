@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/confirm_move_settings.dart';
 import 'package:klunki/ui/games/chess/chess_board.dart';
 import 'package:klunki/ui/games/chess/chess_pieces.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -65,6 +66,16 @@ void _expectMatchesEngine(WidgetTester tester, GameController c) {
 }
 
 void main() {
+  // These tests play hot-seat moves straight away: "Zug bestätigen" (on by
+  // default since 2026-11-09) is off here; chess_confirm_move_test.dart
+  // covers it.
+  setUp(() {
+    ConfirmMoveSettings.debugReset();
+    ConfirmMoveSettings.shared()
+      ..setHotSeat(Player.a, false)
+      ..setHotSeat(Player.b, false);
+  });
+
   testWidgets('select a piece, see its legal targets, move it; the board turns to Black', (tester) async {
     final c = await pumpGame(tester, 'chess');
     expect(_status(tester), 'Anna (Weiß) ist am Zug');

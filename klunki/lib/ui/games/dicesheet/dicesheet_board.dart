@@ -26,17 +26,19 @@ import 'dicesheet_screen.dart' show diceBoxName;
 ///   colour, a lock and "behalten" under it); a second tap lets it go.
 /// * The sheet shows in the column of the player to move what every empty
 ///   box would score with these dice; a tap writes it (a 0 strikes the box).
-///   A mis-tap: "Zug zurück" takes the entry back until the next player
+///   A mis-tap: "Zug zurücknehmen" takes the entry back until the next player
 ///   rolls (a roll itself is final, `GameSpec.undoBarrier`).
 /// * The upper section shows the way to the bonus ("41/63", then "+35"),
 ///   the header the names, the round and the boxes still free, the footer
 ///   the totals. A filled box looks used (a solid chip with a check), an
 ///   empty one like an open slot.
-/// * Anfängermodus ([BeginnerSettings], on by default): after the last roll
-///   (or with a big box already made) the box [DiceSheetAdvisor] recommends
-///   glows in the sheet and a tip bubble above the dice says why, with
-///   "Anfängermodus beenden"; while rolls are left a "Tipp" button shows
-///   which dice to keep. Advice only: any box can be tapped as before.
+/// * Anfängermodus and Tipps ([BeginnerSettings]; on by default for the
+///   first game, the tips for the first 5 games on the device): after the
+///   last roll (or with a big box already made) the box [DiceSheetAdvisor]
+///   recommends glows in the sheet (Anfängermodus) and a tip bubble above
+///   the dice says which box and why, with "Tipps ausschalten" (a close
+///   button on a short screen); while rolls are left a "Tipp" button shows
+///   which dice to keep (Tipps). Advice only: any box can be tapped as before.
 /// * The first game on a device starts with a short tour ([showCoachMarks],
 ///   [SeenTips.dicesheetIntro]); "Kurz erklärt" in the "⋮" menu ([tour])
 ///   shows it again.
@@ -78,6 +80,10 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
   /// The move count the recommended box was last scrolled into view for.
   int? _revealedFor;
 
+  /// This game's end was counted for the Anfängermodus and tips defaults
+  /// ([BeginnerSettings.countGame]).
+  bool _counted = false;
+
   GameController get controller => widget.controller;
   DiceSheetGame get game => controller.game as DiceSheetGame;
   BeginnerSettings get _beginner => BeginnerSettings.shared();
@@ -85,6 +91,7 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    _counted = game.isOver;
     controller.addListener(_onChange);
     _beginner.addListener(_onSettings);
     widget.tour?.addListener(_replayTour);
@@ -106,6 +113,7 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
       old.controller.removeListener(_onChange);
       widget.controller.addListener(_onChange);
       _seen = controller.moves.length;
+      _counted = game.isOver;
       _keep.clear();
       _restoreKeep();
     }
@@ -133,6 +141,12 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
     final grew = moves.length > _seen;
     final changed = moves.length != _seen;
     _seen = moves.length;
+    if (!game.isOver) {
+      _counted = false;
+    } else if (!_counted) {
+      _counted = true;
+      _beginner.countGame();
+    }
     setState(() {
       if (changed) _tipOpen = _tipExpanded = false;
       if (game.rollsUsed == 0 || game.isOver) {
@@ -249,10 +263,12 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
 
   // ------------------------------------------------------------- tips
 
-  /// The advice for the player to move (Anfängermodus on, dice on the table
-  /// and not tumbling), else null.
+  /// The advice for the player to move (Anfängermodus or tips on, dice on
+  /// the table and not tumbling), else null.
   DiceSheetAdvice? get _advice =>
-      _beginner.enabled && _myTurn && game.canScore && _tumbling.isEmpty ? DiceSheetAdvisor.forGame(game) : null;
+      (_beginner.enabled || _beginner.tips) && _myTurn && game.canScore && _tumbling.isEmpty
+          ? DiceSheetAdvisor.forGame(game)
+          : null;
 
   /// The box tip shows by itself after the last roll, with a big box
   /// already made, or with a joker's forced choice.
@@ -266,11 +282,11 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
     }
   }
 
-  void _endBeginner(AppLocalizations l10n) {
-    _beginner.setEnabled(false);
+  void _endTips(AppLocalizations l10n) {
+    _beginner.setTips(false);
     ScaffoldMessenger.maybeOf(context)
       ?..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l10n.dicesheetBeginnerEnded)));
+      ..showSnackBar(SnackBar(content: Text(l10n.dicesheetTipsEnded)));
   }
 
   /// The lines of the tip bubble.
@@ -326,7 +342,7 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
     // The tip says what to do: no hint line under it then (room for the
     // sheet on a small phone).
     final advice = _advice;
-    GameScreen.of(context).setHint(advice != null && _boxTip(advice) ? null : _hint(l10n));
+    GameScreen.of(context).setHint(advice != null && _beginner.tips && _boxTip(advice) ? null : _hint(l10n));
     _maybeCoach();
     return ShakeToRoll(
       enabled: _canRoll,
@@ -339,7 +355,11 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
     final wide = box.maxWidth >= 600 && box.maxWidth > box.maxHeight * 1.15;
     final advice = _advice;
     final boxTip = advice != null && _boxTip(advice);
-    if (boxTip && _revealedFor != controller.moves.length) {
+    // Anfängermodus: the box glows in the sheet; tips: the bubble and the
+    // "Tipp" button.
+    final ring = boxTip && _beginner.enabled;
+    final tips = advice != null && _beginner.tips;
+    if (ring && _revealedFor != controller.moves.length) {
       _revealedFor = controller.moves.length;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _revealTip();
@@ -352,11 +372,11 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
       active: _myTurn && game.canScore,
       onScore: _score,
       lastScored: _lastScored,
-      tipBox: boxTip ? advice.box : null,
+      tipBox: ring ? advice.box : null,
       tipCellKey: _tipCellKey,
       boxKey: _boxKey,
     );
-    final bubble = advice != null && (boxTip || _tipOpen)
+    final bubble = tips && (boxTip || _tipOpen)
         ? _TipBubble(
             key: const Key('dicesheet-tip'),
             text: _tipText(l10n, advice, boxTip),
@@ -365,14 +385,14 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
             compact: !wide && box.maxHeight < 560 && !_tipExpanded,
             onTap: () {
               if (!wide && box.maxHeight < 560) setState(() => _tipExpanded = !_tipExpanded);
-              if (boxTip) _revealTip();
+              if (ring) _revealTip();
             },
-            onEnd: () => _endBeginner(l10n),
+            onEnd: () => _endTips(l10n),
           )
         : null;
     final controls = game.isOver
         ? null
-        : _controls(context, l10n, shakeReady, narrow: box.maxWidth < 420, tipButton: advice != null && !boxTip);
+        : _controls(context, l10n, shakeReady, narrow: box.maxWidth < 420, tipButton: tips && !boxTip);
     if (wide) {
       return Center(
         child: ConstrainedBox(
@@ -484,7 +504,14 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
           );
         }),
         const SizedBox(height: 4),
-        Row(
+        LayoutBuilder(builder: (context, row) {
+          // Too narrow for "↶ Zug zurücknehmen" next to "Tipp" (a phone, the
+          // side panel of a tablet): just the ↶ icon, the label as its
+          // tooltip.
+          final need = UndoMoveButton.labelWidth(context) +
+              (tipButton ? UndoMoveButton.textButtonWidth(context, l10n.dicesheetTipLabel) + 4 : 0) +
+              8;
+          return Row(
           children: [
             Expanded(
               child: shakeReady && _canRoll
@@ -514,9 +541,10 @@ class _DiceSheetBoardState extends State<DiceSheetBoard> with SingleTickerProvid
               ),
               const SizedBox(width: 4),
             ],
-            const UndoMoveButton(),
+            UndoMoveButton(iconOnly: need > row.maxWidth),
           ],
-        ),
+        );
+        }),
         const SizedBox(height: 2),
         KeyedSubtree(
           key: _rollKey,
@@ -1200,15 +1228,32 @@ class _TipBubble extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Compact: more on a tap.
-                  if (compact) Icon(Icons.expand_more, key: const Key('dicesheet-tip-more'), color: edge),
+                  // Compact: more on a tap, and the tips can be closed for good
+                  // right here (the end link is in the expanded tip).
+                  if (compact) ...[
+                    Icon(Icons.expand_more, key: const Key('dicesheet-tip-more'), color: edge),
+                    IconButton(
+                      key: const Key('dicesheet-tips-close'),
+                      tooltip: l10n.dicesheetTipsEnd,
+                      // No taller than the first line: the folded tip keeps
+                      // the sheet's room on a small phone.
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                      constraints: const BoxConstraints(minWidth: 36, minHeight: 22),
+                      padding: EdgeInsets.zero,
+                      iconSize: 20,
+                      color: scheme.onSurfaceVariant,
+                      onPressed: onEnd,
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ],
               ),
               if (!compact)
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
                   child: TextButton(
-                    key: const Key('dicesheet-beginner-end'),
+                    key: const Key('dicesheet-tips-end'),
                     style: TextButton.styleFrom(
                       foregroundColor: scheme.onSurfaceVariant,
                       visualDensity: VisualDensity.compact,
@@ -1217,7 +1262,7 @@ class _TipBubble extends StatelessWidget {
                       textStyle: theme.textTheme.labelMedium?.copyWith(decoration: TextDecoration.underline),
                     ),
                     onPressed: onEnd,
-                    child: Text(l10n.dicesheetBeginnerEnd),
+                    child: Text(l10n.dicesheetTipsEnd),
                   ),
                 ),
             ],

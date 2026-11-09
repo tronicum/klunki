@@ -3123,11 +3123,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirmMoveCommit => 'Mover';
 
   @override
-  String get confirmMoveBack => 'Atrás';
+  String get confirmMoveBack => 'Otra jugada';
 
   @override
   String get confirmMoveHint =>
-      '¿Es la jugada correcta? Toca «Mover» o «Atrás».';
+      '¿Es la jugada correcta? Toca «Mover» u «Otra jugada».';
 
   @override
   String get confirmMoveOn => 'Confirmar jugada: activado.';
@@ -3764,7 +3764,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'Consejos: qué casilla va bien ahora y qué dados guardar. Puedes elegir cualquier casilla igualmente.';
+      'La casilla que va bien ahora se ilumina en la hoja. Puedes elegir cualquier casilla igualmente.';
+
+  @override
+  String get dicesheetTipsOption => 'Consejos';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'Un bocadillo dice qué casilla va bien ahora y por qué, y qué dados guardar.';
 
   @override
   String get dicesheetTipLabel => 'Consejo';
@@ -3826,11 +3833,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dicesheetTipStop => '¡Gran tirada! Ya no hace falta tirar más.';
 
   @override
-  String get dicesheetBeginnerEnd => 'Salir del modo principiante';
+  String get dicesheetTipsEnd => 'Quitar los consejos';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'Modo principiante desactivado. Puedes volver a activarlo en las opciones.';
+  String get dicesheetTipsEnded =>
+      'Consejos desactivados. Puedes volver a activarlos en las opciones.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3850,7 +3857,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'Modo principiante (activado al principio, se puede quitar en las opciones): un consejo muestra qué casilla va bien ahora y qué dados guardar. Puedes elegir cualquier casilla igualmente.';
+      'Modo principiante (activado en la primera partida): la casilla que va bien ahora se ilumina en la hoja. Consejos (activados en las 5 primeras partidas): un bocadillo dice por qué y qué dados guardar. Puedes poner o quitar los dos en las opciones. Puedes elegir cualquier casilla igualmente.';
 
   @override
   String dicesheetCoachRoll(int count) {

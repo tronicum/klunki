@@ -189,7 +189,7 @@ flutter run -d chrome                  # web, hot-seat works there too
    ranks are never visible. In GoStrategy the cover also shows the outcome of the fight just made (public), and the next player then
    sees the fight card on the board.
 4. At the end the result dialog shows "X gewinnt!" or "Unentschieden" plus the reason, with **Nochmal** (new game) or **Menü**.
-   The app bar has **Zug zurück** (undo), **Neues Spiel** ("Neues Spiel?" → **Neu starten**) and **Züge** (move history).
+   The app bar has **Zug zurücknehmen** (undo), **Neues Spiel** ("Neues Spiel?" → **Neu starten**) and **Züge** (move history).
 
 ### What the audience sees
 - Suggested order (fast to slow): 4 Gewinnt → Mühle → Quartett (Trumpf) → Schiffe versenken (use **Zufällig** for setup) → Quartett (Sets)

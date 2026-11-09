@@ -158,7 +158,7 @@ void main() {
     expect(tester.widget<Icon>(_key('maexchen-heart-a-1')).icon, Icons.favorite_border);
   });
 
-  group('"Zug zurück" never goes back across a doubt or a given-up life (decision 2026-11-06)', () {
+  group('"Zug zurücknehmen" never goes back across a doubt or a given-up life (decision 2026-11-06)', () {
     const undo = Key('shell-undo');
     VoidCallback? undoPressed(WidgetTester tester) =>
         tester.widget<TextButton>(find.byKey(undo).first).onPressed;

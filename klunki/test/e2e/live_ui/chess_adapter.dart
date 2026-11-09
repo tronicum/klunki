@@ -13,7 +13,7 @@
 // one, often the best capture, else any legal move) and picks the piece in
 // the promotion picker. Now and then it flips the board (a side action).
 // KLD-122: with "Zug bestätigen" on (the network default) the chosen move
-// waits: it taps "Ziehen", sometimes "Zurück" first and then the move again.
+// waits: it taps "Ziehen", sometimes "Anders ziehen" first and then the move again.
 //
 // The game-ending board move is never on screen long (the result dialog
 // opens over it), so [engineTurns] leaves it out; the test checks the
@@ -38,7 +38,7 @@ class ChessAdapter extends LiveUiAdapter {
   /// Offers declined before any is accepted.
   final int minDeclines;
 
-  /// Chance to take a pending move back ("Zurück") before confirming it.
+  /// Chance to take a pending move back ("Anders ziehen") before confirming it.
   final double backRate;
 
   /// Its own dice: the game's random choices stay those of the seed.

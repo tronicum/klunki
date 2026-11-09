@@ -3519,7 +3519,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dicesheetBeginnerOption => '新手模式';
 
   @override
-  String get dicesheetBeginnerExplain => '提示现在哪一格合适、该留下哪些骰子。你仍然可以选任何一格。';
+  String get dicesheetBeginnerExplain => '现在合适的那一格会亮起来。你仍然可以选任何一格。';
+
+  @override
+  String get dicesheetTipsOption => '提示';
+
+  @override
+  String get dicesheetTipsExplain => '一个对话框会告诉你现在哪一格合适、为什么，以及该留下哪些骰子。';
 
   @override
   String get dicesheetTipLabel => '提示';
@@ -3578,10 +3584,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dicesheetTipStop => '好骰子！不用再掷了。';
 
   @override
-  String get dicesheetBeginnerEnd => '退出新手模式';
+  String get dicesheetTipsEnd => '关闭提示';
 
   @override
-  String get dicesheetBeginnerEnded => '新手模式已关闭。你可以在选项里重新打开。';
+  String get dicesheetTipsEnded => '提示已关闭。你可以在选项里重新打开。';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3600,7 +3606,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      '新手模式（一开始是开着的，可以在选项里关闭）：提示会告诉你现在哪一格合适、该留下哪些骰子。你仍然可以选任何一格。';
+      '新手模式（第一局是开着的）：现在合适的那一格会亮起来。提示（前 5 局是开着的）：一个对话框会告诉你为什么，以及该留下哪些骰子。两者都可以在选项里打开或关闭。你仍然可以选任何一格。';
 
   @override
   String dicesheetCoachRoll(int count) {

@@ -1,4 +1,4 @@
-// KLD-117 screenshots of "Zug zurück" in the game area (no longer in the app
+// KLD-117 screenshots of "Zug zurücknehmen" in the game area (no longer in the app
 // bar): chess (next to the flip buttons), Wortgewandt (its control row),
 // 4 Gewinnt and Schiffe versenken (the shell's row under the board) and the
 // handover cover, hot-seat on a phone (390×844), de light plus 4 Gewinnt

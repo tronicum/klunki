@@ -3098,10 +3098,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmMoveCommit => 'Move';
 
   @override
-  String get confirmMoveBack => 'Back';
+  String get confirmMoveBack => 'Other move';
 
   @override
-  String get confirmMoveHint => 'Is this the right move? Tap “Move” or “Back”.';
+  String get confirmMoveHint =>
+      'Is this the right move? Tap “Move” or “Other move”.';
 
   @override
   String get confirmMoveOn => 'Confirm move is on.';
@@ -3736,7 +3737,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'Tips on which box fits well right now and which dice to keep. You can still pick any box.';
+      'The box that fits well right now lights up on the sheet. You can still pick any box.';
+
+  @override
+  String get dicesheetTipsOption => 'Tips';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'A speech bubble says which box fits well right now and why, and which dice to keep.';
 
   @override
   String get dicesheetTipLabel => 'Tip';
@@ -3797,11 +3805,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dicesheetTipStop => 'Great roll! You don’t need to roll again.';
 
   @override
-  String get dicesheetBeginnerEnd => 'End beginner mode';
+  String get dicesheetTipsEnd => 'Turn tips off';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'Beginner mode off. You can turn it back on in the options.';
+  String get dicesheetTipsEnded =>
+      'Tips off. You can turn them back on in the options.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3821,7 +3829,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'Beginner mode (on at first, can be turned off in the options): a tip shows which box fits well right now and which dice to keep. You can still pick any box.';
+      'Beginner mode (on in your first game): the box that fits well right now lights up on the sheet. Tips (on in your first 5 games): a speech bubble says why and which dice to keep. You can turn both on or off in the options. You can still pick any box.';
 
   @override
   String dicesheetCoachRoll(int count) {

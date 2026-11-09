@@ -122,11 +122,11 @@ class ShellStatus {
 ///   opened once for the game or from the 4th game on, [SeenTips]),
 /// * network games that offer "Zug bestätigen" (KLD-122): its toggle for
 ///   this device ([ConfirmMoveToggle]) in the app bar,
-/// * "Zug zurück" ([UndoMoveButton], hot-seat only, KLD-117) in the game
+/// * "Zug zurücknehmen" ([UndoMoveButton], hot-seat only, KLD-117) in the game
 ///   area: in a small row under the board, unless the board places the
 ///   button in its own control row ([boardPlacesUndo]),
 /// * a [HandoverCover] over the body while the controller needs a handover
-///   (the cover offers "Zug zurück" too, so the player who just moved can
+///   (the cover offers "Zug zurücknehmen" too, so the player who just moved can
 ///   take the move back before passing the device, without seeing secrets),
 /// * a result dialog ("Nochmal" / "Menü") once the game is over.
 ///
@@ -765,7 +765,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   }
 }
 
-/// "Zug zurück" (KLD-117): takes back the last move, hot-seat only; nothing
+/// "Zug zurücknehmen" (KLD-117): takes back the last move, hot-seat only; nothing
 /// on a network device. One look for every game: the ↶ icon (mirrored in
 /// right-to-left locales) plus the label. Disabled while there is nothing
 /// to take back. Must sit inside a [GameScreen]; the shell places it under
@@ -782,6 +782,26 @@ class UndoMoveButton extends StatelessWidget {
   final bool iconOnly;
 
   const UndoMoveButton({super.key, this.visualDensity = VisualDensity.compact, this.iconOnly = false});
+
+  /// About the width of the labelled button ("↶ Zug zurücknehmen") at the
+  /// current text size: a row that is too narrow for it shows [iconOnly]
+  /// instead of cutting the word.
+  static double labelWidth(BuildContext context) =>
+      textButtonWidth(context, AppLocalizations.of(context).shellTakeBack);
+
+  /// About the width of a [TextButton.icon] / [OutlinedButton.icon] with
+  /// [label] (an 18 px icon, the gap and the padding included).
+  static double textButtonWidth(BuildContext context, String label) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: Theme.of(context).textTheme.labelLarge),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width + 18 + 8 + 32;
+    painter.dispose();
+    return width;
+  }
 
   @override
   Widget build(BuildContext context) {

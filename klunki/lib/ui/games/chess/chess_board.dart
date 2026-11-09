@@ -41,8 +41,8 @@ import 'chess_pieces.dart';
 ///   hot-seat), a chosen move (tap, drag, or promotion after the piece is
 ///   picked) is only shown: the piece on its target, a faint copy on the
 ///   square it left, a captured piece small and faint in the corner of its
-///   square, and "✗ Zurück" / "✓ Ziehen" under the board ([ConfirmMoveBar]).
-///   Nothing is submitted before "Ziehen"; "Zurück" restores the board. A
+///   square, and "✗ Anders ziehen" / "✓ Ziehen" under the board ([ConfirmMoveBar]).
+///   Nothing is submitted before "Ziehen"; "Anders ziehen" restores the board. A
 ///   draw offer, a resign or an undo drops the pending move.
 ///
 /// Keys for tests: squares `chess-sq-<e4>` ([ChessSquareView]), `chess-flip`,
@@ -371,7 +371,7 @@ class _ChessBoardState extends State<ChessBoard> {
     }
   }
 
-  /// "✗ Zurück": the board as before, choose again.
+  /// "✗ Anders ziehen": the board as before, choose again.
   void _back() => setState(() => _pending = null);
 
   void _dragStarted(String sq) {
@@ -404,7 +404,7 @@ class _ChessBoardState extends State<ChessBoard> {
     final controls = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // "Zug zurück" (hot-seat, KLD-117) next to the board buttons.
+        // "Zug zurücknehmen" (hot-seat, KLD-117) next to the board buttons.
         const UndoMoveButton(),
         IconButton(
           key: const Key('chess-flip'),
@@ -449,7 +449,7 @@ class _ChessBoardState extends State<ChessBoard> {
           ],
         );
     final moves = _MoveList(san: g.sanHistory, wrap: true);
-    // KLD-122: "✗ Zurück" / "✓ Ziehen" above the move list while a move
+    // KLD-122: "✗ Anders ziehen" / "✓ Ziehen" above the move list while a move
     // waits; in a very short pane the bar takes all of it (and shrinks).
     Widget movePane() => _pending == null
         ? _MovePane(child: moves)

@@ -168,11 +168,11 @@
   "@shellPlayAgain": {
     "description": "Result dialog button: start a new game of the same kind."
   },
-  "shellUndo": "Zug zurück",
+  "shellUndo": "Zug zurücknehmen",
   "@shellUndo": {
     "description": "Tooltip of the take-back button (shellTakeBack) in the game area: take back the last move (hot-seat)."
   },
-  "shellTakeBack": "Zug zurück",
+  "shellTakeBack": "Zug zurücknehmen",
   "@shellTakeBack": {
     "description": "Label of the button in the game area (under the board or in the board's control row, KLD-117) that takes back the last move (hot-seat). Short: it sits in a row with icon buttons."
   },
@@ -4552,11 +4552,11 @@
   "@confirmMoveCommit": {
     "description": "KLD-122: button under the board that makes a pending (shown, not yet sent) move count. Short verb, matches the quote in confirmMoveHelper and confirmMoveHint."
   },
-  "confirmMoveBack": "Zurück",
+  "confirmMoveBack": "Anders ziehen",
   "@confirmMoveBack": {
-    "description": "KLD-122: button next to confirmMoveCommit: takes the pending move back so the player can choose again. Short."
+    "description": "KLD-122: button next to confirmMoveCommit: drops the pending move so the player can choose another one (\"move differently\"; must not sound like the undo button shellTakeBack). Short; quoted in confirmMoveHint."
   },
-  "confirmMoveHint": "Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.",
+  "confirmMoveHint": "Passt der Zug? Tippe auf „Ziehen“ oder „Anders ziehen“.",
   "@confirmMoveHint": {
     "description": "KLD-122: hint line while a move waits for confirmation; quotes confirmMoveCommit and confirmMoveBack."
   },
@@ -5299,9 +5299,9 @@
   "@rulesDicesheetChance": {
     "description": "KLD-119/KLD-123: five-dice rules, the chance box."
   },
-  "rulesDicesheetSpecial": "Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurück“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.",
+  "rulesDicesheetSpecial": "Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.",
   "@rulesDicesheetSpecial": {
-    "description": "KLD-119/KLD-123: five-dice rules, special rules (lines separated by \\n); \"Zug zurück\" and \"Würfeln\" are the button labels."
+    "description": "KLD-119/KLD-123: five-dice rules, special rules (lines separated by \\n); \"Zug zurücknehmen\" and \"Würfeln\" are the button labels."
   },
   "rulesDicesheetExtraFives": "Noch ein Fünferpasch, wenn dort schon 50 stehen: {bonus} Punkte extra. Ist das Feld Fünferpasch schon gefüllt (auch mit 0), ist ein Fünferpasch ein Joker: zuerst ins obere Feld seiner Zahl; ist das voll, in ein freies unteres Feld mit vollen Punkten; sonst mit 0 in ein oberes Feld.",
   "@rulesDicesheetExtraFives": {
@@ -5402,9 +5402,17 @@
   "@dicesheetBeginnerOption": {
     "description": "KLD-119 Anfängermodus: the switch in the Ausgewürfelt start options."
   },
-  "dicesheetBeginnerExplain": "Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.",
+  "dicesheetBeginnerExplain": "Das Feld, das gerade gut passt, leuchtet im Blatt. Du darfst trotzdem jedes Feld wählen.",
   "@dicesheetBeginnerExplain": {
-    "description": "KLD-119 Anfängermodus: explanation under the switch."
+    "description": "KLD-119 Anfängermodus: explanation under the switch: the recommended box glows in the sheet (on by default in the first game)."
+  },
+  "dicesheetTipsOption": "Tipps",
+  "@dicesheetTipsOption": {
+    "description": "KLD-119 Tipps: the second switch in the Ausgewürfelt start options (the tip bubble and the Tipp button; on by default in the first 5 games)."
+  },
+  "dicesheetTipsExplain": "Eine Sprechblase sagt, welches Feld gerade gut passt und warum, und welche Würfel du behalten kannst.",
+  "@dicesheetTipsExplain": {
+    "description": "KLD-119 Tipps: explanation under the tips switch."
   },
   "dicesheetTipLabel": "Tipp",
   "@dicesheetTipLabel": {
@@ -5518,13 +5526,13 @@
   "@dicesheetTipStop": {
     "description": "KLD-119 Anfängermodus: the roll already makes a big box; stop rolling."
   },
-  "dicesheetBeginnerEnd": "Anfängermodus beenden",
-  "@dicesheetBeginnerEnd": {
-    "description": "KLD-119 Anfängermodus: link in the tip that turns the mode off."
+  "dicesheetTipsEnd": "Tipps ausschalten",
+  "@dicesheetTipsEnd": {
+    "description": "KLD-119 Tipps: button in the tip bubble that turns the tips off."
   },
-  "dicesheetBeginnerEnded": "Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.",
-  "@dicesheetBeginnerEnded": {
-    "description": "KLD-119 Anfängermodus: snackbar after turning it off."
+  "dicesheetTipsEnded": "Tipps aus. Du kannst sie in den Optionen wieder einschalten.",
+  "@dicesheetTipsEnded": {
+    "description": "KLD-119 Tipps: snackbar after turning the tips off."
   },
   "dicesheetFreeBoxes": "{count, plural, =1{noch 1 Feld frei} other{noch {count} Felder frei}}",
   "@dicesheetFreeBoxes": {
@@ -5544,9 +5552,9 @@
       }
     }
   },
-  "rulesDicesheetBeginner": "Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.",
+  "rulesDicesheetBeginner": "Anfängermodus (im ersten Spiel an): Das Feld, das gerade gut passt, leuchtet im Blatt. Tipps (in den ersten 5 Spielen an): Eine Sprechblase sagt, warum, und welche Würfel du behalten kannst. Beides kannst du in den Optionen ein- und ausschalten. Du darfst trotzdem jedes Feld wählen.",
   "@rulesDicesheetBeginner": {
-    "description": "KLD-119: rules page: one line about the Anfängermodus."
+    "description": "KLD-119: rules page: one line about the Anfängermodus (first game) and the Tipps (first 5 games)."
   },
   "dicesheetCoachRoll": "Du hast bis zu {count} Würfe pro Runde.",
   "@dicesheetCoachRoll": {

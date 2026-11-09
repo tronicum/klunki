@@ -171,7 +171,7 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
     });
   }
 
-  /// Phones narrower than this get the compact controls ("Zug zurück" as an
+  /// Phones narrower than this get the compact controls ("Zug zurücknehmen" as an
   /// icon next to "Nachschauen").
   static const double _narrow = 420;
 
@@ -302,7 +302,7 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
   }
 
   /// A small row above the big buttons: [leading] (the shake hint, the peek
-  /// button) and "Zug zurück" at the end.
+  /// button) and "Zug zurücknehmen" at the end.
   Widget _toolRow({Widget? leading, bool undoIcon = false}) => Row(
         children: [
           Expanded(child: Align(alignment: AlignmentDirectional.centerStart, child: leading)),

@@ -10,7 +10,7 @@ import '../../game_titles.dart';
 /// "Extra-Fünfer" (off by default) and, on a device that may have a motion
 /// sensor, the device setting "Schütteln zum Würfeln" ([ShakeSettings],
 /// stored at once, shared with Mäxchen), the device setting
-/// "Anfängermodus" ([BeginnerSettings], stored at once), and "Wer fängt an?"
+/// "Anfängermodus" and "Tipps" ([BeginnerSettings], stored at once), and "Wer fängt an?"
 /// ([DiceSheetStart]). Then "Wer spielt?" asks for the player count and the
 /// names (with arrows to reorder them for [DiceSheetStart.order]).
 typedef DiceSheetOptions = ({bool extraFives, DiceSheetStart start});
@@ -22,7 +22,7 @@ enum DiceSheetStart { first, order, random }
 
 /// Asks for the options before a game; null when cancelled. Keys:
 /// `dicesheet-options`, `dicesheet-extra-fives`, `dicesheet-shake`, `dicesheet-beginner`,
-/// `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
+/// `dicesheet-tips`, `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
 Future<DiceSheetOptions?> showDiceSheetOptionsDialog(BuildContext context) => showDialog<DiceSheetOptions>(
       context: context,
       builder: (_) => const _DiceSheetOptionsDialog(),
@@ -72,6 +72,19 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
             ),
           ),
           Text(l10n.dicesheetBeginnerExplain, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 12),
+          ListenableBuilder(
+            listenable: BeginnerSettings.shared(),
+            builder: (context, _) => SwitchListTile(
+              key: const Key('dicesheet-tips'),
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.chat_bubble_outline),
+              title: Text(l10n.dicesheetTipsOption),
+              value: BeginnerSettings.shared().tips,
+              onChanged: BeginnerSettings.shared().setTips,
+            ),
+          ),
+          Text(l10n.dicesheetTipsExplain, style: theme.textTheme.bodySmall),
           const SizedBox(height: 16),
           Text(l10n.dicesheetStartTitle, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),

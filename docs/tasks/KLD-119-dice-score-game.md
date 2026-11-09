@@ -6,7 +6,8 @@
   docs, store texts or commits; say "dice score-sheet game" or "five-dice game".
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (engine, n-player hot-seat shell, UI, 7 locales, screenshots; 2026-11-08). Step 2 DONE
-  (Anfängermodus, "each box only once" on the sheet and the rules page, first-game tour; 2026-11-08). Next:
+  (Anfängermodus, "each box only once" on the sheet and the rules page, first-game tour; 2026-11-08). Step 2b
+  DONE (Anfängermodus for the first game, Tipps for the first 5, explicit choice wins; 2026-11-09). Next:
   maintainer feedback on the screenshots, then network for 2 (secret seed) and a kids' short game (open questions).
 - **Depends on:** KLD-088 (seats, `SeatGame`), KLD-103 (player names), KLD-121 follow-up (`ShakeToRoll`, shake setting)
 - **Touched paths:**
@@ -47,7 +48,7 @@ it is the first Klunki game with more than two players in the app.
 - **Resign:** with 2 players the common resign (the other wins). With 3–4 `{'action': 'resign', 'seat': n}`: that
   seat leaves at any time, the others play on; one left → it wins (`common.resigned`). A seat that left ranks last.
 - **Who starts:** seat 0 (the first name in "Wer spielt?").
-- **"Zug zurück":** takes back a filled box (a mis-tap) until the next player rolls. A roll is final
+- **"Zug zurücknehmen":** takes back a filled box (a mis-tap) until the next player rolls. A roll is final
   (`GameSpec.undoBarrier`: the dice were seen); undo back to a roll restores its kept dice.
 
 ## Engine (`dice_sheet.dart`)
@@ -101,7 +102,7 @@ it is the first Klunki game with more than two players in the app.
   highlighted until the next player rolls; the hint says "Anna: 25 bei Full House."
 - Below, always on screen: **five dice drawn in Flutter** (shared painter with Mäxchen), tap to keep (lifted,
   framed in the player's colour, lock badge and "behalten"), a short tumble animation and a haptic knock; the
-  "Zug zurück" button and the shake hint; the big filled **"Würfeln (noch 2)"** button with three pips (after the
+  "Zug zurücknehmen" button and the shake hint; the big filled **"Würfeln (noch 2)"** button with three pips (after the
   third roll it says "Feld im Blatt wählen", disabled). **Shake to roll** via `ShakeToRoll` with the shared setting.
 - Wide screens (landscape, tablets in landscape): sheet left, dice and button right. Rules: the shared "Regeln" page (KLD-123,
   `ui/rules/games/dicesheet_rules.dart`) with an example throw per box.
@@ -146,6 +147,26 @@ Dreierpasch 20) and that fewer points now can be smarter; and that every box, Ch
 - Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/dicesheet_shots_test.dart --plain-name beginner`
   (`<dir>/beginner`: phone, SE, dark, ar).
 
+## Step 2b: Anfängermodus and Tipps, on only at first (2026-11-09)
+Maintainer: the aids should not stay on forever, and the two parts have their own defaults.
+- `BeginnerSettings` holds two settings and a game count (prefs `dicesheetBeginner`, `dicesheetTips` = explicit
+  choices only, `dicesheetGames` = Ausgewürfelt games that ended on this device, counted by the board when it
+  sees the game end: finished or given up; a game left unfinished does not count).
+  - **Anfängermodus** (`enabled`): the recommended box glows in the sheet and is scrolled into view. On by
+    default in the **first game** (`autoGamesBeginner` = 1), off from the second.
+  - **Tipps** (`tips`): the tip bubble (which box and why) and the "Tipp" button (which dice to keep). On by
+    default in the **first 5 games** (`autoGamesTips` = 5), off from the sixth.
+  - An explicit choice (a switch, or "Tipps ausschalten") wins over the automatic default for good.
+- The bubble's end link is now **"Tipps ausschalten"** (`dicesheet-tips-end`; snackbar "Tipps aus. Du kannst sie
+  in den Optionen wieder einschalten."); the folded bubble on a short phone has a close button
+  (`dicesheet-tips-close`) so the tips can be turned off without unfolding it. The start options have a
+  second switch "Tipps" (`dicesheet-tips`) under "Anfängermodus". The rules line names both defaults.
+- The advisor is unchanged.
+- Tests: `test/profile/beginner_settings_test.dart` (game 1 vs 2, game 5 vs 6, listeners, explicit choice wins,
+  stored count and choices, values set before storage loaded), `dicesheet_beginner_test.dart` (tips off keeps the
+  ring, close button on the SE, both off, second game: bubble without ring, sixth game: neither until switched
+  on, a resigned game counts once, both switches in the options, after 5 games both off).
+
 ## Tests
 - Engine (`dice_sheet_test.dart`, 27): every box's scoring, roll/keep validation, three rolls, draws independent of
   keep, undo barrier, scoring/striking/refusals, upper bonus, full 2/3/4-seat bot games with replay equality and
@@ -167,7 +188,8 @@ Dreierpasch 20) and that fewer points now can be smarter; and that every box, Ch
 3. Kids' variant: a short game (e.g. only the upper section, or 6 rounds)? "Forced order" mode?
 4. Who starts: always the first name, or random from the seed?
 5. Extra-Fünfer default off (as decided in the WIP notes): keep?
-6. Anfängermodus: on until turned off (as built), or off by itself after N games? Per player instead of per device?
+6. ~~Anfängermodus: on until turned off, or off by itself after N games?~~ Decided (2026-11-09): Anfängermodus
+   for the first game, Tipps for the first 5 (step 2b). Per player instead of per device: open.
 7. On an iPhone SE the tip bubble leaves about two rows of the sheet visible (only its first line until tapped):
    OK, or should the tip replace the disabled "Feld im Blatt wählen" button after the last roll?
 
@@ -179,3 +201,6 @@ Dreierpasch 20) and that fewer points now can be smarter; and that every box, Ch
 - [x] Whole games through the real UI with 2 and 4 players; 7 locales; screenshots (phone + tablet, dark, ar).
 - [x] Step 2: Anfängermodus (advisor with tests, tip, keep hint, end link, option), used/open boxes, rules line,
       tour; widget tests; screenshots (phone, SE, dark, ar).
+- [x] Step 2b: Anfängermodus on by default in the first game, Tipps in the first 5; explicit choice wins; "Tipps
+      ausschalten" in the tip (close button when folded); both switches in the start options; unit and widget
+      tests.

@@ -8,7 +8,7 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import 'shell_test_utils.dart';
 
-/// KLD-117: "Zug zurück" sits in the game area for every game, no longer in
+/// KLD-117: "Zug zurücknehmen" sits in the game area for every game, no longer in
 /// the app bar next to the whole-game controls.
 void main() {
   // The one-time Bänkchen explanation (Wortgewandt) is seen, so it does not
@@ -21,7 +21,13 @@ void main() {
   });
 
   const undo = Key('shell-undo');
-  TextButton button(WidgetTester tester) => tester.widget<TextButton>(find.byKey(undo));
+  // The label, or just the ↶ icon where a row is full (e.g. Ausgewürfelt
+  // with the "Tipp" button on a phone).
+  ({VoidCallback? onPressed}) button(WidgetTester tester) => switch (tester.widget(find.byKey(undo))) {
+        TextButton b => (onPressed: b.onPressed),
+        IconButton b => (onPressed: b.onPressed),
+        final w => throw StateError('unexpected $w'),
+      };
 
   // Games whose board places the button in its own control row, with a
   // control of that row.
@@ -31,14 +37,16 @@ void main() {
   const ownPanel = {'maexchen': Key('maexchen-controls'), 'dicesheet': Key('dicesheet-controls')};
 
   for (final id in gameScreens.keys) {
-    testWidgets('$id: "Zug zurück" in the game area, not in the app bar', (tester) async {
+    testWidgets('$id: "Zug zurücknehmen" in the game area, not in the app bar', (tester) async {
       final c = await pumpGame(tester, id);
       expect(find.byKey(undo), findsOneWidget);
       expect(find.descendant(of: find.byType(AppBar), matching: find.byKey(undo)), findsNothing);
       // The seat shell (KLD-119) has no handover cover: no secrets.
       expect(find.descendant(of: find.byType(HandoverCover), matching: find.byKey(undo)),
           seatGames.contains(id) ? findsNothing : findsOneWidget);
-      expect(find.text('Zug zurück'), findsOneWidget);
+      // The label, or where a row is full just the ↶ icon with the label as
+      // its tooltip (both carry it as the tooltip).
+      expect(find.byTooltip('Zug zurücknehmen'), findsOneWidget);
       // The app bar keeps the whole-game controls; "Neues Spiel" (and the
       // names) in its "⋮" menu.
       for (final k in ['shell-menu', 'shell-resign', 'shell-history', 'shell-rules']) {
@@ -89,7 +97,7 @@ void main() {
   }
 
   for (final id in ['quartett-trumpf', 'quartett-sets', 'schiffe', 'gostrategy']) {
-    testWidgets('$id: while the device is passed on only the cover offers "Zug zurück"', (tester) async {
+    testWidgets('$id: while the device is passed on only the cover offers "Zug zurücknehmen"', (tester) async {
       final c = await pumpGame(tester, id);
       await playUntilHandover(tester);
       final moves = c.moves.length;
@@ -138,8 +146,8 @@ void main() {
     final c = await pumpGame(tester, 'wordtiles');
     final icon = find.byKey(undo);
     expect(tester.widget(icon), isA<IconButton>());
-    expect(tester.widget<IconButton>(icon).tooltip, 'Zug zurück');
-    expect(find.text('Zug zurück'), findsNothing);
+    expect(tester.widget<IconButton>(icon).tooltip, 'Zug zurücknehmen');
+    expect(find.text('Zug zurücknehmen'), findsNothing);
     expect(
       (tester.getCenter(icon).dy - tester.getCenter(find.byKey(const Key('wordtiles-shuffle'))).dy).abs(),
       lessThan(4),

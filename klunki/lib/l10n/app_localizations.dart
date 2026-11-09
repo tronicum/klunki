@@ -333,13 +333,13 @@ abstract class AppLocalizations {
   /// Tooltip of the take-back button (shellTakeBack) in the game area: take back the last move (hot-seat).
   ///
   /// In de, this message translates to:
-  /// **'Zug zurück'**
+  /// **'Zug zurücknehmen'**
   String get shellUndo;
 
   /// Label of the button in the game area (under the board or in the board's control row, KLD-117) that takes back the last move (hot-seat). Short: it sits in a row with icon buttons.
   ///
   /// In de, this message translates to:
-  /// **'Zug zurück'**
+  /// **'Zug zurücknehmen'**
   String get shellTakeBack;
 
   /// App bar tooltip: restart the game.
@@ -4811,16 +4811,16 @@ abstract class AppLocalizations {
   /// **'Ziehen'**
   String get confirmMoveCommit;
 
-  /// KLD-122: button next to confirmMoveCommit: takes the pending move back so the player can choose again. Short.
+  /// KLD-122: button next to confirmMoveCommit: drops the pending move so the player can choose another one ("move differently"; must not sound like the undo button shellTakeBack). Short; quoted in confirmMoveHint.
   ///
   /// In de, this message translates to:
-  /// **'Zurück'**
+  /// **'Anders ziehen'**
   String get confirmMoveBack;
 
   /// KLD-122: hint line while a move waits for confirmation; quotes confirmMoveCommit and confirmMoveBack.
   ///
   /// In de, this message translates to:
-  /// **'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.'**
+  /// **'Passt der Zug? Tippe auf „Ziehen“ oder „Anders ziehen“.'**
   String get confirmMoveHint;
 
   /// KLD-122: snack bar after turning the confirm-move toggle on during a network game.
@@ -5693,10 +5693,10 @@ abstract class AppLocalizations {
   /// **'Passt immer. Alle Augen zählen.'**
   String get rulesDicesheetChance;
 
-  /// KLD-119/KLD-123: five-dice rules, special rules (lines separated by \n); "Zug zurück" and "Würfeln" are the button labels.
+  /// KLD-119/KLD-123: five-dice rules, special rules (lines separated by \n); "Zug zurücknehmen" and "Würfeln" are the button labels.
   ///
   /// In de, this message translates to:
-  /// **'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurück“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.'**
+  /// **'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.'**
   String get rulesDicesheetSpecial;
 
   /// KLD-119/KLD-123: five-dice rules, the house rule "Extra-Fünfer" in full (title is dicesheetOptionExtraFives). bonus = 100.
@@ -5825,11 +5825,23 @@ abstract class AppLocalizations {
   /// **'Anfängermodus'**
   String get dicesheetBeginnerOption;
 
-  /// KLD-119 Anfängermodus: explanation under the switch.
+  /// KLD-119 Anfängermodus: explanation under the switch: the recommended box glows in the sheet (on by default in the first game).
   ///
   /// In de, this message translates to:
-  /// **'Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.'**
+  /// **'Das Feld, das gerade gut passt, leuchtet im Blatt. Du darfst trotzdem jedes Feld wählen.'**
   String get dicesheetBeginnerExplain;
+
+  /// KLD-119 Tipps: the second switch in the Ausgewürfelt start options (the tip bubble and the Tipp button; on by default in the first 5 games).
+  ///
+  /// In de, this message translates to:
+  /// **'Tipps'**
+  String get dicesheetTipsOption;
+
+  /// KLD-119 Tipps: explanation under the tips switch.
+  ///
+  /// In de, this message translates to:
+  /// **'Eine Sprechblase sagt, welches Feld gerade gut passt und warum, und welche Würfel du behalten kannst.'**
+  String get dicesheetTipsExplain;
 
   /// KLD-119 Anfängermodus: the small badge on the recommended box and the tip button while rolls are left.
   ///
@@ -5915,17 +5927,17 @@ abstract class AppLocalizations {
   /// **'Super Wurf! Du musst nicht mehr würfeln.'**
   String get dicesheetTipStop;
 
-  /// KLD-119 Anfängermodus: link in the tip that turns the mode off.
+  /// KLD-119 Tipps: button in the tip bubble that turns the tips off.
   ///
   /// In de, this message translates to:
-  /// **'Anfängermodus beenden'**
-  String get dicesheetBeginnerEnd;
+  /// **'Tipps ausschalten'**
+  String get dicesheetTipsEnd;
 
-  /// KLD-119 Anfängermodus: snackbar after turning it off.
+  /// KLD-119 Tipps: snackbar after turning the tips off.
   ///
   /// In de, this message translates to:
-  /// **'Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.'**
-  String get dicesheetBeginnerEnded;
+  /// **'Tipps aus. Du kannst sie in den Optionen wieder einschalten.'**
+  String get dicesheetTipsEnded;
 
   /// KLD-119: under the round in the sheet header: the empty boxes left on the sheet of the player to move.
   ///
@@ -5939,10 +5951,10 @@ abstract class AppLocalizations {
   /// **'Jedes Feld füllst du nur einmal. {count} Felder, {count} Runden.'**
   String rulesDicesheetOnce(int count);
 
-  /// KLD-119: rules page: one line about the Anfängermodus.
+  /// KLD-119: rules page: one line about the Anfängermodus (first game) and the Tipps (first 5 games).
   ///
   /// In de, this message translates to:
-  /// **'Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.'**
+  /// **'Anfängermodus (im ersten Spiel an): Das Feld, das gerade gut passt, leuchtet im Blatt. Tipps (in den ersten 5 Spielen an): Eine Sprechblase sagt, warum, und welche Würfel du behalten kannst. Beides kannst du in den Optionen ein- und ausschalten. Du darfst trotzdem jedes Feld wählen.'**
   String get rulesDicesheetBeginner;
 
   /// KLD-119 intro tour, step 1 (the roll button); {count} is 3.

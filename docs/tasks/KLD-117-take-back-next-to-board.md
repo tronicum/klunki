@@ -1,7 +1,7 @@
 # KLD-117: Take back a move next to the board
 
 - **ID:** `KLD-117`
-- **Title:** Take back a move next to the board ("Zug zurück" in the game area)
+- **Title:** Take back a move next to the board ("Zug zurücknehmen" in the game area)
 - **Milestone:** M4 (UX polish)
 - **Status:** DONE
 - **Depends on:** KLD-059 (chess controls), KLD-094 (Wortgewandt control row), KLD-065 (resign)
@@ -15,8 +15,9 @@
 ## Goal
 
 The maintainer found the "take back move" arrow odd in the app bar, next to the whole-game controls (new game,
-resign, history). It moves into the game area, the same for every game: a labelled button **"Zug zurück"**
-(↶ + text) next to the board, hot-seat only as before.
+resign, history). It moves into the game area, the same for every game: a labelled button **"Zug zurücknehmen"**
+(↶ + text) next to the board, hot-seat only as before. (Called "Zug zurück" until 2026-11-09; the maintainer
+renamed it so it does not sound like "Zurück" of other buttons; German only.)
 
 ## Acceptance criteria
 
@@ -28,7 +29,7 @@ resign, history). It moves into the game area, the same for every game: a labell
 - [x] Placement: chess in the control row under the board next to ⇅ and the turn toggle; Wortgewandt right
       under its control row (↓ / shuffle / zoom / Tauschen / Passen / Legen is full on a phone, one row on
       every width since step 8b), at the end of the "Bänkchen" line; on a small phone (bench button in the
-      score row, e.g. 375×667) **icon-only** (↶, tooltip "Zug zurück") at the start of the ↓ / shuffle / zoom
+      score row, e.g. 375×667) **icon-only** (↶, tooltip "Zug zurücknehmen") at the start of the ↓ / shuffle / zoom
       row, so the board keeps its size (maintainer, after the first version gave it a line of its own and cost
       the board about 32 px); every other game (4 Gewinnt, Mühle, Quartett Trumpf/Sets, Schiffe,
       GoStrategy) in a small row under the board that the shell provides (`shell-actions`, end-aligned).

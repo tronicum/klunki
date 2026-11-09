@@ -3,15 +3,16 @@ import 'package:klunki_engine/klunki_engine.dart' show Player;
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// "Zug bestätigen" (KLD-122): a move only counts after the player taps
-/// "Ziehen"; until then it is only shown on the board and "Zurück" takes it
+/// "Ziehen"; until then it is only shown on the board and "Anders ziehen" takes it
 /// back. A UI preference: nothing reaches the engine, the transport or the
 /// other device before the confirmation, so it needs no rules or protocol
 /// change and each device (each hot-seat player) chooses for itself.
 ///
 /// * [network]: this device's choice for network games (default on: over
 ///   the network a misplaced piece cannot be taken back).
-/// * [hotSeat]: per seat for games on one device (default off: hot-seat has
-///   "Zug zurück"), chosen in "Wer spielt?" (e.g. Anna on, Ben off).
+/// * [hotSeat]: per seat for games on one device, chosen in "Wer spielt?"
+///   (e.g. Anna on, Ben off). Default on as well (a slip of the finger is
+///   caught before the other player sees it); a player turns it off.
 ///
 /// One setting for every game that offers it (see `confirmMoveGames`), not
 /// one per game. Persisted under [prefsKeyNetwork], [prefsKeyHotSeatA] and
@@ -20,20 +21,22 @@ class ConfirmMoveSettings extends ChangeNotifier {
   ConfirmMoveSettings._(this._prefs);
 
   /// In-memory (no persistence): tests and the fallback without storage.
-  ConfirmMoveSettings.memory({bool network = defaultNetwork, bool hotSeatA = false, bool hotSeatB = false})
+  ConfirmMoveSettings.memory(
+      {bool network = defaultNetwork, bool hotSeatA = defaultHotSeat, bool hotSeatB = defaultHotSeat})
       : _prefs = null {
     _network = network;
     _hotSeat = {Player.a: hotSeatA, Player.b: hotSeatB};
   }
 
   static const bool defaultNetwork = true;
+  static const bool defaultHotSeat = true;
   static const String prefsKeyNetwork = 'confirmMoveNetwork';
   static const String prefsKeyHotSeatA = 'confirmMoveHotSeatA';
   static const String prefsKeyHotSeatB = 'confirmMoveHotSeatB';
 
   SharedPreferences? _prefs;
   bool _network = defaultNetwork;
-  Map<Player, bool> _hotSeat = {Player.a: false, Player.b: false};
+  Map<Player, bool> _hotSeat = {Player.a: defaultHotSeat, Player.b: defaultHotSeat};
 
   /// Values set before storage was loaded win over the stored ones.
   final Set<String> _chosen = {};
@@ -68,7 +71,7 @@ class ConfirmMoveSettings extends ChangeNotifier {
   bool get network => _network;
 
   /// [player]'s choice in a hot-seat game.
-  bool hotSeat(Player player) => _hotSeat[player] ?? false;
+  bool hotSeat(Player player) => _hotSeat[player] ?? defaultHotSeat;
 
   /// Whether [player]'s moves wait for "Ziehen": [onNetwork] = a network game
   /// (the device's choice), else the hot-seat choice of that seat.

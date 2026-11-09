@@ -3117,10 +3117,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmMoveCommit => 'تحريك';
 
   @override
-  String get confirmMoveBack => 'رجوع';
+  String get confirmMoveBack => 'حركة أخرى';
 
   @override
-  String get confirmMoveHint => 'هل هذه الحركة صحيحة؟ المس «تحريك» أو «رجوع».';
+  String get confirmMoveHint =>
+      'هل هذه الحركة صحيحة؟ المس «تحريك» أو «حركة أخرى».';
 
   @override
   String get confirmMoveOn => 'تأكيد الحركة: مفعّل.';
@@ -3756,7 +3757,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'نصائح: أي خانة تناسب الآن وأي نرود تُبقيها. يمكنك مع ذلك اختيار أي خانة.';
+      'تضيء الخانة التي تناسب الآن. يمكنك مع ذلك اختيار أي خانة.';
+
+  @override
+  String get dicesheetTipsOption => 'نصائح';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'فقاعة تقول أي خانة تناسب الآن ولماذا، وأي نرود تُبقيها.';
 
   @override
   String get dicesheetTipLabel => 'نصيحة';
@@ -3817,11 +3825,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dicesheetTipStop => 'رمية رائعة! لا داعي للرمي مرة أخرى.';
 
   @override
-  String get dicesheetBeginnerEnd => 'إنهاء وضع المبتدئين';
+  String get dicesheetTipsEnd => 'إيقاف النصائح';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'تم إيقاف وضع المبتدئين. يمكنك تشغيله من جديد في الخيارات.';
+  String get dicesheetTipsEnded =>
+      'تم إيقاف النصائح. يمكنك تشغيلها من جديد في الخيارات.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3843,7 +3851,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'وضع المبتدئين (يعمل في البداية، ويمكن إيقافه في الخيارات): تُظهر لك نصيحة أي خانة تناسب الآن وأي نرود تُبقيها. يمكنك مع ذلك اختيار أي خانة.';
+      'وضع المبتدئين (يعمل في أول مباراة): تضيء الخانة التي تناسب الآن. النصائح (تعمل في أول 5 مباريات): فقاعة تقول لماذا وأي نرود تُبقيها. يمكنك تشغيل الاثنين أو إيقافهما في الخيارات. يمكنك مع ذلك اختيار أي خانة.';
 
   @override
   String dicesheetCoachRoll(int count) {

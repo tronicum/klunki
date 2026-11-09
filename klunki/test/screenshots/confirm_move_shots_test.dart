@@ -1,5 +1,5 @@
 // KLD-122 screenshots of "Zug bestätigen" on a phone (390×844): a pending
-// capture with "✗ Zurück" / "✓ Ziehen" in hot-seat chess (de light, de dark,
+// capture with "✗ Anders ziehen" / "✓ Ziehen" in hot-seat chess (de light, de dark,
 // ar RTL), "Wer spielt?" with one switch per player, the switch on "Raum
 // starten", and a network device with a pending move and the app-bar toggle.
 // Skipped unless KLUNKI_SHOTS=<dir> is set:

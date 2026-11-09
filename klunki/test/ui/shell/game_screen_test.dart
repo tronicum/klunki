@@ -217,7 +217,7 @@ void main() {
   });
 
   group('app bar actions', () {
-    testWidgets('"Zug zurück" (in the game area, KLD-117) takes back the last move', (tester) async {
+    testWidgets('"Zug zurücknehmen" (in the game area, KLD-117) takes back the last move', (tester) async {
       final c = await pumpGame(tester, 'connect4');
       final undo = find.byKey(const Key('shell-undo'));
       expect(tester.widget<TextButton>(undo).onPressed, isNull);

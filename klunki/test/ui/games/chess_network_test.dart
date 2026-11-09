@@ -8,7 +8,7 @@
 // is White, moves first and sees its board un-turned, the host's is turned.
 // KLD-122: "Zug bestätigen" is on by default on both devices: every tapped
 // move waits for "Ziehen" and only then reaches the host ([_move] checks);
-// one test sets it per device and plays "Zurück", drag and the in-game toggle.
+// one test sets it per device and plays "Anders ziehen", drag and the in-game toggle.
 @Timeout(Duration(seconds: 90))
 library;
 
@@ -353,7 +353,7 @@ void main() {
         [(Player.b, 'offerDraw'), (Player.a, 'acceptDraw')]);
   });
 
-  testWidgets('KLD-122: the guest\'s move waits for "Ziehen", "Zurück" restores; host turns it on in the game',
+  testWidgets('KLD-122: the guest\'s move waits for "Ziehen", "Anders ziehen" restores; host turns it on in the game',
       (tester) async {
     final hostConfirm = ConfirmMoveSettings.memory(network: false);
     final guestConfirm = ConfirmMoveSettings.memory();
@@ -379,7 +379,7 @@ void main() {
     expect(view(_guestKey, 'e5').pendingTo, isTrue);
     expect(view(_guestKey, 'e7').piece, isNull);
     expect(view(_guestKey, 'e7').pendingFrom, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
-    expect(_text(tester, _guestKey, const Key('shell-hint')), 'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.');
+    expect(_text(tester, _guestKey, const Key('shell-hint')), 'Passt der Zug? Tippe auf „Ziehen“ oder „Anders ziehen“.');
     // Other pieces cannot be picked up meanwhile.
     await _tap(tester, _sq(_guestKey, 'g8'));
     expect(view(_guestKey, 'g8').selected, isFalse);
@@ -391,7 +391,7 @@ void main() {
     expect(gc.moves, hasLength(1));
     expect(view(_hostKey, 'e7').piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));
 
-    // "Zurück": the board as before.
+    // "Anders ziehen": the board as before.
     await _tap(tester, _on(_guestKey, find.byKey(const Key('confirm-move-back'))));
     expect(_on(_guestKey, find.byKey(const Key('confirm-move-bar'))), findsNothing);
     expect(view(_guestKey, 'e7').piece, const ChessPiece(ChessColor.black, ChessPieceType.pawn));

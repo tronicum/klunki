@@ -150,10 +150,10 @@ void main() {
     expect(g.rollsLeft, 0);
     expect(find.text('Feld im Blatt wählen'), findsOneWidget);
     expect(tester.widget<FilledButton>(_key('dicesheet-roll')).onPressed, isNull);
-    // Anfängermodus (on by default): the tip says which box, no hint line.
+    // Tipps (on by default at first): the tip says which box, no hint line.
     expect(_key('dicesheet-tip'), findsOneWidget);
     expect(find.text('Wähle ein Feld im Blatt.'), findsNothing);
-    await BeginnerSettings.shared().setEnabled(false);
+    await BeginnerSettings.shared().setTips(false);
     await tester.pumpAndSettle();
     expect(_key('dicesheet-tip'), findsNothing);
     expect(find.text('Wähle ein Feld im Blatt.'), findsOneWidget);

@@ -137,10 +137,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellPlayAgain => 'Nochmal';
 
   @override
-  String get shellUndo => 'Zug zurück';
+  String get shellUndo => 'Zug zurücknehmen';
 
   @override
-  String get shellTakeBack => 'Zug zurück';
+  String get shellTakeBack => 'Zug zurücknehmen';
 
   @override
   String get shellNewGame => 'Neues Spiel';
@@ -3113,11 +3113,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get confirmMoveCommit => 'Ziehen';
 
   @override
-  String get confirmMoveBack => 'Zurück';
+  String get confirmMoveBack => 'Anders ziehen';
 
   @override
   String get confirmMoveHint =>
-      'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.';
+      'Passt der Zug? Tippe auf „Ziehen“ oder „Anders ziehen“.';
 
   @override
   String get confirmMoveOn => 'Zug bestätigen ist an.';
@@ -3673,7 +3673,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get rulesDicesheetSpecial =>
-      'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurück“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.';
+      'Jedes Feld füllst du nur einmal.\nEin Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur den Eintrag ins Blatt zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.\nSchütteln: Statt auf „Würfeln“ zu tippen, kannst du das Handy schütteln.';
 
   @override
   String rulesDicesheetExtraFives(int bonus) {
@@ -3753,7 +3753,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get dicesheetBeginnerExplain =>
-      'Tipps, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.';
+      'Das Feld, das gerade gut passt, leuchtet im Blatt. Du darfst trotzdem jedes Feld wählen.';
+
+  @override
+  String get dicesheetTipsOption => 'Tipps';
+
+  @override
+  String get dicesheetTipsExplain =>
+      'Eine Sprechblase sagt, welches Feld gerade gut passt und warum, und welche Würfel du behalten kannst.';
 
   @override
   String get dicesheetTipLabel => 'Tipp';
@@ -3815,11 +3822,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dicesheetTipStop => 'Super Wurf! Du musst nicht mehr würfeln.';
 
   @override
-  String get dicesheetBeginnerEnd => 'Anfängermodus beenden';
+  String get dicesheetTipsEnd => 'Tipps ausschalten';
 
   @override
-  String get dicesheetBeginnerEnded =>
-      'Anfängermodus aus. Du kannst ihn in den Optionen wieder einschalten.';
+  String get dicesheetTipsEnded =>
+      'Tipps aus. Du kannst sie in den Optionen wieder einschalten.';
 
   @override
   String dicesheetFreeBoxes(int count) {
@@ -3839,7 +3846,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get rulesDicesheetBeginner =>
-      'Anfängermodus (am Anfang an, in den Optionen abschaltbar): Ein Tipp zeigt, welches Feld gerade gut passt und welche Würfel du behalten kannst. Du darfst trotzdem jedes Feld wählen.';
+      'Anfängermodus (im ersten Spiel an): Das Feld, das gerade gut passt, leuchtet im Blatt. Tipps (in den ersten 5 Spielen an): Eine Sprechblase sagt, warum, und welche Würfel du behalten kannst. Beides kannst du in den Optionen ein- und ausschalten. Du darfst trotzdem jedes Feld wählen.';
 
   @override
   String dicesheetCoachRoll(int count) {

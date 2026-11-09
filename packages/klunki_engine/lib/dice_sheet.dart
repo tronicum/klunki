@@ -76,7 +76,7 @@ enum DiceBox {
 ///
 /// Deterministic: the dice come from `Random(seed)`. Every `roll` draws all
 /// five values and uses only those of the positions rolled, so the draws
-/// never depend on what was kept: "Zug zurück" plus another choice could
+/// never depend on what was kept: "Zug zurücknehmen" plus another choice could
 /// not fish for better dice. A roll is final anyway in the app ([isRoll] is
 /// the hot-seat undo barrier); only a scoring can be taken back, until the
 /// next player rolls. No hidden information: every player sees everything.

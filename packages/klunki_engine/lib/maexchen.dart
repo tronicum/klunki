@@ -104,7 +104,7 @@ class MaexchenRoundEnd {
 ///   [maexchenDouble] (on by default) everything about an announced
 ///   Mäxchen counts double: a doubted real one costs the doubter 2 lives, a
 ///   caught fake one costs the bluffer 2 lives.
-/// * A doubt or a give-up ends the round for good: hot-seat "Zug zurück"
+/// * A doubt or a give-up ends the round for good: hot-seat "Zug zurücknehmen"
 ///   never goes back across it ([endsRound], `GameSpec.undoBarrier`).
 /// * After a doubt or a give-up a new round starts with the player who lost
 ///   the life (the next one in turn if that player is out).

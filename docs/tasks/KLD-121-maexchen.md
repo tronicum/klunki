@@ -40,7 +40,7 @@ believes it (and must top it) or doubts it. Best with 3+ players; ships for 2 pl
   double. A doubted Mäxchen that is real costs the doubter 2 lives; a bluffed Mäxchen that is caught costs the
   announcer 2 lives ("Falsches Mäxchen!"). Only when Mäxchen was *announced*; a real 21 announced as something
   lower costs 1. Off: every doubt costs 1.
-- **No undo across a doubt or a give-up:** hot-seat "Zug zurück" never takes back `doubt` or `giveUp` (the dice
+- **No undo across a doubt or a give-up:** hot-seat "Zug zurücknehmen" never takes back `doubt` or `giveUp` (the dice
   were shown, or a life was given). Engine hook `GameSpec.undoBarrier` (`MaexchenGame.endsRound`), enforced in
   `HotSeatTransport.canUndo`; the moves of the next round can be taken back down to the barrier.
 - After a doubt or a give-up a new round starts with the player who lost the life (next in turn if out).
@@ -68,7 +68,7 @@ After a doubt the cup lifts after a short pause and the verdict appears; the han
 announcement (or the verdict) to the next player. The result dialog shows the last round.
 
 ## Decisions (maintainer, 2026-11-06)
-- No undo after a doubt: once "Anzweifeln" or "Leben abgeben" is played, "Zug zurück" does not go back across it.
+- No undo after a doubt: once "Anzweifeln" or "Leben abgeben" is played, "Zug zurücknehmen" does not go back across it.
 - The announced value shown as two dice in the banner stays as it is.
 - A caught bluffed Mäxchen costs the bluffer 2 lives, under the "Mäxchen doppelt" toggle ("everything about
   Mäxchen counts double"); the option's explanation says so in all 7 locales. Unreleased, so rules version stays 1
@@ -90,7 +90,7 @@ announcement (or the verdict) to the next player. The result dialog shows the la
    the cup; it scrolls only when even its minimum does not fit) plus the controls pinned under it (beside it when
    the screen is wide and low, e.g. a phone in landscape); on a tablet a phone-wide column (600 px, 1100 px in
    landscape). The values are a grid of 8 per row with a wide "Mäxchen!" as the last cell (3 rows instead of 5),
-   "Nachschauen" and "Zug zurück" (icon only on narrow phones; the board places it, `boardPlacesUndo`) share a
+   "Nachschauen" and "Zug zurücknehmen" (icon only on narrow phones; the board places it, `boardPlacesUndo`) share a
    small row above the grid, the value order help text sits under the grid and scrolls away first. While
    announcing the table keeps 240 px (the lifted cup and the dice stay visible), otherwise 170 px. The announce
    button says "Wähle eine Zahl" (disabled) until a value is chosen. The cup may grow to 340 px on tablets.
@@ -112,7 +112,7 @@ announcement (or the verdict) to the next player. The result dialog shows the la
      `lib/profile/shake_settings.dart` (shared_preferences `shakeToRoll`, default on; switch in the Mäxchen
      options dialog when the device may have a sensor).
    - Mäxchen: a shake rolls like the button (the cup wobbles), `HapticFeedback.mediumImpact()` when the dice
-     land (every roll), "oder schüttle das Handy" next to "Zug zurück" once samples arrive.
+     land (every roll), "oder schüttle das Handy" next to "Zug zurücknehmen" once samples arrive.
    - Tests: `test/platform/shake_test.dart` (detector), `test/ui/games/maexchen_shake_test.dart` (fake sensor:
      rolls once, ignored while announcing/responding/covered/under a dialog, setting off, failing sensor, the
      option stored).

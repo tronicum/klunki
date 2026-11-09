@@ -32,7 +32,7 @@ class WordTilesScreen extends StatelessWidget {
       handoverDetail: (context) => WordTilesLastTurn(controller: controller),
       resultDetail: (context) => WordTilesResult(controller: controller),
       boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
-      // "Zug zurück" under the actions, on the bench line (KLD-117).
+      // "Zug zurücknehmen" under the actions, on the bench line (KLD-117).
       boardPlacesUndo: true,
       // The score row names the players next to their scores (KLD-094 step 8g).
       showPlayersLegend: false,

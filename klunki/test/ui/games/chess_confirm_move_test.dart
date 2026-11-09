@@ -97,12 +97,13 @@ void main() {
     await tester.ensureVisible(find.byKey(const Key('menu-chess-local')));
     await tester.tap(find.byKey(const Key('menu-chess-local')));
     await tester.pumpAndSettle();
-    // One switch per player, off by default in hot-seat; the helper once.
+    // One switch per player, on by default in hot-seat too; the helper once.
     for (final m in ['X', 'O']) {
-      expect(tester.widget<SwitchListTile>(find.byKey(Key('hot-seat-confirm-$m'))).value, isFalse, reason: m);
+      expect(tester.widget<SwitchListTile>(find.byKey(Key('hot-seat-confirm-$m'))).value, isTrue, reason: m);
     }
     expect(find.text('Ein Zug zählt erst nach einem Tipp auf „Ziehen“.'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('hot-seat-confirm-X')));
+    // Ben turns it off.
+    await tester.tap(find.byKey(const Key('hot-seat-confirm-O')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
     await tester.pumpAndSettle();
@@ -122,10 +123,10 @@ void main() {
     expect(_view(tester, 'e2').piece, isNull);
     expect(_view(tester, 'e2').pendingFrom, _wp);
     expect(find.byKey(const Key('chess-pending-from')), findsOneWidget);
-    expect(_hint(tester), 'Passt der Zug? Tippe auf „Ziehen“ oder „Zurück“.');
+    expect(_hint(tester), 'Passt der Zug? Tippe auf „Ziehen“ oder „Anders ziehen“.');
     expect(find.text('Ziehen'), findsOneWidget);
-    expect(find.text('Zurück'), findsOneWidget);
-    // "Zurück": as before.
+    expect(find.text('Anders ziehen'), findsOneWidget);
+    // "Anders ziehen": as before.
     await _tapKey(tester, _back);
     expect(find.byKey(_bar), findsNothing);
     expect(_view(tester, 'e2').piece, _wp);
@@ -180,20 +181,21 @@ void main() {
     ConfirmMoveSettings.debugReset(loaded: true);
     final s = ConfirmMoveSettings.shared();
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-    expect((s.network, s.hotSeat(Player.a), s.hotSeat(Player.b)), (true, false, false), reason: 'the defaults');
-    await s.setHotSeat(Player.b, true);
+    expect((s.network, s.hotSeat(Player.a), s.hotSeat(Player.b)), (true, true, true), reason: 'the defaults: on');
+    await s.setHotSeat(Player.a, false);
     await s.setNetwork(false);
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getBool(ConfirmMoveSettings.prefsKeyHotSeatB), isTrue);
+    expect(prefs.getBool(ConfirmMoveSettings.prefsKeyHotSeatA), isFalse);
     expect(prefs.getBool(ConfirmMoveSettings.prefsKeyNetwork), isFalse);
     // A fresh start reads them back.
     ConfirmMoveSettings.debugReset(loaded: true);
     final again = ConfirmMoveSettings.shared();
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     expect((again.network, again.hotSeat(Player.a), again.hotSeat(Player.b)), (false, false, true));
+    expect(prefs.getBool(ConfirmMoveSettings.prefsKeyHotSeatB), isNull, reason: 'only a choice is stored');
   });
 
-  testWidgets('promotion: the piece first, then "Ziehen" shows and plays it; "Zurück" keeps the pawn',
+  testWidgets('promotion: the piece first, then "Ziehen" shows and plays it; "Anders ziehen" keeps the pawn',
       (tester) async {
     final c = await _pumpChess(tester, ConfirmMoveSettings.memory(hotSeatA: true));
     await _setup(tester, c, ['a2a4', 'b7b5', 'a4b5', 'a7a6', 'b5a6', 'c8b7', 'a6b7', 'b8c6']);
@@ -231,7 +233,7 @@ void main() {
     await _tapKey(tester, _commit);
     await _tapMove(tester, 'e7', 'e5');
     expect(find.byKey(_bar), findsOneWidget);
-    // "Zug zurück" takes back Anna's e4; Ben's pending move is gone too.
+    // "Zug zurücknehmen" takes back Anna's e4; Ben's pending move is gone too.
     await _tapKey(tester, const Key('shell-undo'));
     expect(find.byKey(_bar), findsNothing);
     expect(c.moves, isEmpty);

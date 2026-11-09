@@ -16,11 +16,12 @@ short German summary ("Kurz") for the store notes and the testers.
   won. House rule "Extra-Fünfer" (off by default): 100 extra for another five of a kind, which then counts as a
   joker. "Wer spielt?" now asks how many play (2, 3 or 4) for this game. "Wer fängt an?" before the game: the
   first player, your own order (arrows next to the names), or chance; the game says who starts.
-- **Ausgewürfelt: Anfängermodus** (KLD-119), on by default: after the last roll the box that fits best glows on
-  the sheet and a tip says why in one line ("Tipp: Fünfer – 15 Punkte helfen dir beim Bonus (63)."), also when
-  another box would give more now but is worth more later, or which box to strike; while rolls are left, "Tipp"
-  shows which dice to keep. Any box can still be chosen. "Anfängermodus beenden" in the tip or the switch in the
-  start options turns it off. Filled boxes now look used (a solid chip with a check, the name faded), empty ones
+- **Ausgewürfelt: Anfängermodus and Tipps** (KLD-119): after the last roll the box that fits best glows on
+  the sheet (Anfängermodus, on by default in the first game on a device) and a tip says why in one line ("Tipp:
+  Fünfer – 15 Punkte helfen dir beim Bonus (63)."), also when another box would give more now but is worth more
+  later, or which box to strike; while rolls are left, "Tipp" shows which dice to keep (Tipps, on by default in
+  the first 5 games). Any box can still be chosen. "Tipps ausschalten" in the tip turns the tips off; both have
+  a switch in the start options, and a choice made there or in the tip stays. Filled boxes now look used (a solid chip with a check, the name faded), empty ones
   like open slots, and the sheet says how many boxes are still free; the rules page says early that every box is
   filled only once. The first game on a device starts with a short tour (5 steps; again via "⋮" → "Kurz
   erklärt").
@@ -62,9 +63,12 @@ short German summary ("Kurz") for the store notes and the testers.
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).
 - **Wortgewandt**: a tile laid this turn drags right away, with a finger or the mouse (no more resting on it
   first); on a zoomed board a drag that starts elsewhere still scrolls.
-- **Schach**: "Zug bestätigen" (KLD-122): a chosen move is only shown until "✓ Ziehen"; "✗ Zurück" chooses
-  again. On by default for games with others (switch on "Raum starten", toggle in the game), off by default
-  on one device, where each player chooses in "Wer spielt?".
+- **Schach**: "Zug bestätigen" (KLD-122): a chosen move is only shown until "✓ Ziehen"; "✗ Anders ziehen" chooses
+  again. On by default, on one device too; each player can turn it off in "Wer spielt?", and for games with
+  others there is a switch on "Raum starten" and a toggle in the game.
+- **Wording**: the undo button is now called "Zug zurücknehmen" (was "Zug zurück"), and the cancel button of
+  "Zug bestätigen" "✗ Anders ziehen" (was "✗ Zurück"; en "Other move", fr "Autre coup", es "Otra jugada"), so
+  the two no longer sound alike.
 
 - **Rules for every game** (KLD-123): a "Spielregeln" page per game, the same parts everywhere (Ziel, So läuft
   ein Zug, Regeln, and "Regelvarianten": the rule variants that are on in this game, left out when none is on;
