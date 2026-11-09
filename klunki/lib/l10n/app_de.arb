@@ -3602,6 +3602,19 @@
       }
     }
   },
+  "engineReasonWordtilesPlayedOutSeats": "Alle Steine gelegt",
+  "@engineReasonWordtilesPlayedOutSeats": {
+    "description": "KLD-125: result reason (word tiles, 3–4 players; the ranking below shows the scores): the bag is empty and a player laid their last tile."
+  },
+  "engineReasonWordtilesScorelessSeats": "{turns} Züge ohne Punkte",
+  "@engineReasonWordtilesScorelessSeats": {
+    "description": "KLD-125: result reason (word tiles, 3–4 players; the ranking below shows the scores): too many turns in a row without points (turns = 6 or 8).",
+    "placeholders": {
+      "turns": {
+        "type": "int"
+      }
+    }
+  },
   "webBetaBadge": "Beta",
   "@webBetaBadge": {
     "description": "KLD-108: small badge next to \"Klunki\" in the menu app bar, only in the GitHub Pages web build (KLUNKI_WEB_CHANNEL=pages-beta)."
@@ -4899,6 +4912,14 @@
   "rulesWordtilesChallengeAfter": "Wer angezweifelt hat, ist danach normal dran.",
   "@rulesWordtilesChallengeAfter": {
     "description": "KLD-123: word tile game rules, after the challenge rule."
+  },
+  "rulesWordtilesPlayers": "Zu zweit, zu dritt oder zu viert an einem Gerät: Ihr seid reihum dran. In einem Raum spielt ihr zu zweit.",
+  "@rulesWordtilesPlayers": {
+    "description": "KLD-125: word tile game rules, goal section: 2–4 players on one device in turn; a network room is for two."
+  },
+  "rulesWordtilesChallengeNext": "Anzweifeln kann nur, wer als Nächstes dran ist.",
+  "@rulesWordtilesChallengeNext": {
+    "description": "KLD-125: word tile game rules, after the challenge rule: with 3–4 players only the next player may challenge the last word."
   },
   "rulesWordtilesScoreless": "Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.",
   "@rulesWordtilesScoreless": {

@@ -2459,6 +2459,14 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => 'Alle Steine gelegt';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns Züge ohne Punkte';
+  }
+
+  @override
   String get webBetaBadge => 'Beta';
 
   @override
@@ -3400,6 +3408,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'Wer angezweifelt hat, ist danach normal dran.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'Zu zweit, zu dritt oder zu viert an einem Gerät: Ihr seid reihum dran. In einem Raum spielt ihr zu zweit.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'Anzweifeln kann nur, wer als Nächstes dran ist.';
 
   @override
   String get rulesWordtilesScoreless =>

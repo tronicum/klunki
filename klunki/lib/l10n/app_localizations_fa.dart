@@ -2400,6 +2400,14 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => 'همهٔ کاشی‌ها گذاشته شد';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns نوبت بدون امتیاز';
+  }
+
+  @override
   String get webBetaBadge => 'آزمایشی';
 
   @override
@@ -3309,6 +3317,14 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'کسی که اعتراض کرده، بعد از آن مثل همیشه نوبتش را بازی می‌کند.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'دو تا چهار نفر روی یک دستگاه، به نوبت بازی می‌کنند. در اتاق دو نفره بازی می‌کنید.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'فقط کسی که نوبت بعدی با اوست می‌تواند اعتراض کند.';
 
   @override
   String get rulesWordtilesScoreless =>

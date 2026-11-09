@@ -38,10 +38,17 @@ GameRules wordTilesRules(BuildContext context, AppLocalizations l10n, GameConfig
   final dict = config.dictionary;
   final scoreless = WordTilesGame.defaultScorelessLimit(config.players);
   final dictionary = RuleItem(l10n.wordtilesHelpDictionary, lead: icon(Icons.spellcheck));
-  final challenge =
-      RuleItem('${l10n.wordtilesHelpChallenge} ${l10n.rulesWordtilesChallengeAfter}', lead: icon(Icons.gavel_outlined));
+  // KLD-125: 2–4 players at one device; with more than two only the next
+  // player may challenge.
+  final challenge = RuleItem(
+      '${l10n.wordtilesHelpChallenge} ${l10n.rulesWordtilesChallengeNext} ${l10n.rulesWordtilesChallengeAfter}',
+      lead: icon(Icons.gavel_outlined));
   return GameRules(
-    goal: [RuleItem(l10n.wordtilesHelpGoal), RuleItem(l10n.rulesWordtilesWin)],
+    goal: [
+      RuleItem(l10n.wordtilesHelpGoal),
+      RuleItem(l10n.rulesWordtilesWin),
+      RuleItem(l10n.rulesWordtilesPlayers, key: const Key('wordtiles-rules-players')),
+    ],
     turn: [
       ...ruleLines(l10n.rulesWordtilesTurn),
       RuleItem.heading(l10n.wordtilesHelpPremium),

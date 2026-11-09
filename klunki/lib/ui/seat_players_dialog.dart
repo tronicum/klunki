@@ -3,6 +3,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 
 import '../profile/player_name_controller.dart';
 import '../profile/seat_names.dart';
+import '../profile/undo_settings.dart';
 import 'player_name_dialog.dart' show playerNameInputFormatters;
 import 'shell/seat_labels.dart';
 
@@ -21,6 +22,12 @@ import 'shell/seat_labels.dart';
 /// each name move it up or down; the order of the names is the seat order
 /// (seat 1 starts). [randomStart]: the first name is not said to start.
 ///
+/// [undoFor] (KLD-125, Wortgewandt): the game's "Zug zurücknehmen
+/// erlauben" switch ([UndoSettings], key `hot-seat-undo`) as in the
+/// two-player dialog; [passDevice]: the hint that the device is passed and
+/// secrets stay hidden (`hot-seat-pass-device-hint`, hidden-information
+/// games).
+///
 /// Keys as the two-player dialog (`hot-seat-start-dialog` /
 /// `hot-seat-names-dialog`, `hot-seat-names-ok`, `hot-seat-names-cancel`),
 /// plus `seat-players-<n>`, `seat-name-<seat>`, `seat-up-<seat>` and
@@ -30,12 +37,14 @@ Future<int?> showSeatPlayersDialog(
   int? players,
   bool reorder = false,
   bool randomStart = false,
+  String? undoFor,
+  bool passDevice = false,
 }) async {
   final l10n = AppLocalizations.of(context);
   final two = PlayerNameScope.maybeOf(context)?.hotSeat;
   final extra = ExtraSeatNames.shared();
   final current = [two?.value.x, two?.value.o, extra.nameOf(2), extra.nameOf(3)];
-  final result = await showDialog<({int players, List<String> names})>(
+  final result = await showDialog<({int players, List<String> names, bool? undo})>(
     context: context,
     builder: (_) => _SeatPlayersDialog(
       names: [for (var s = 0; s < 4; s++) current[s] ?? defaultSeatName(l10n, s)],
@@ -43,9 +52,12 @@ Future<int?> showSeatPlayersDialog(
       fixed: players != null,
       reorder: reorder,
       randomStart: randomStart,
+      undo: undoFor == null || players != null ? null : UndoSettings.shared().allowed(undoFor),
+      passDevice: passDevice && players == null,
     ),
   );
   if (result == null) return null;
+  if (undoFor != null && result.undo != null) await UndoSettings.shared().setAllowed(undoFor, result.undo!);
   // The default name is not stored: it follows the app language.
   String? typed(int seat) {
     final s = sanitizePlayerName(result.names[seat]);
@@ -67,12 +79,16 @@ class _SeatPlayersDialog extends StatefulWidget {
   final bool fixed;
   final bool reorder;
   final bool randomStart;
+  final bool? undo;
+  final bool passDevice;
   const _SeatPlayersDialog({
     required this.names,
     required this.players,
     required this.fixed,
     this.reorder = false,
     this.randomStart = false,
+    this.undo,
+    this.passDevice = false,
   });
 
   @override
@@ -82,6 +98,7 @@ class _SeatPlayersDialog extends StatefulWidget {
 class _SeatPlayersDialogState extends State<_SeatPlayersDialog> {
   late final List<TextEditingController> _fields = [for (final n in widget.names) TextEditingController(text: n)];
   late int _players = widget.players;
+  late bool _undo = widget.undo ?? UndoSettings.defaultAllowed;
 
   @override
   void dispose() {
@@ -98,7 +115,11 @@ class _SeatPlayersDialogState extends State<_SeatPlayersDialog> {
     _fields[other].text = t;
   });
 
-  void _ok() => Navigator.of(context).pop((players: _players, names: [for (final f in _fields) f.text]));
+  void _ok() => Navigator.of(context).pop((
+        players: _players,
+        names: [for (final f in _fields) f.text],
+        undo: widget.undo == null ? null : _undo,
+      ));
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +210,31 @@ class _SeatPlayersDialogState extends State<_SeatPlayersDialog> {
             const SizedBox(height: 4),
           ],
           Text(l10n.hotSeatNamesHelper, style: theme.textTheme.bodySmall),
+          // KLD-125: as the two-player dialog, "Zug zurücknehmen erlauben"
+          // for this game and the pass-the-device hint.
+          if (widget.undo != null) ...[
+            const SizedBox(height: 4),
+            SwitchListTile(
+              key: const Key('hot-seat-undo'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.undo),
+              value: _undo,
+              onChanged: (v) => setState(() => _undo = v),
+              title: Text(l10n.undoAllowedSetting),
+            ),
+          ],
+          if (widget.passDevice) ...[
+            const SizedBox(height: 12),
+            Row(
+              key: const Key('hot-seat-pass-device-hint'),
+              children: [
+                Icon(Icons.visibility_off_outlined, size: 20, color: theme.colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(child: Text(l10n.hotSeatPassDeviceHint, style: theme.textTheme.bodyMedium)),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [

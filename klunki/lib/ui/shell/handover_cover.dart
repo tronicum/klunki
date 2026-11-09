@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_engine/klunki_engine.dart' show Player, SeatGame;
 
 import '../../game/game_controller.dart';
 import 'game_screen.dart' show UndoMoveButton;
 import 'player_labels.dart';
+import 'seat_labels.dart';
 
 /// Hides [child] behind an opaque full-size cover while
 /// [GameController.needsHandover] is set (hidden-information games in
@@ -56,8 +58,19 @@ class _Cover extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    // "Ben (O)" with hot-seat names, else just the mark (KLD-056).
-    final mark = PlayerLabelsScope.of(context).label(context, l10n, controller.game.currentPlayer);
+    // "Ben (O)" with hot-seat names, else just the mark (KLD-056). A game
+    // with more than two seats (KLD-125) names the seat to move from the
+    // seat labels and shows its token (colour and number).
+    // The player who acts next: with "Trotzdem zulassen" (KLD-094) the one
+    // who answers, not the player whose turn it is.
+    final seats = controller.seatGame;
+    final seat = seats?.actorSeat;
+    final game = controller.game;
+    final actor = game is SeatGame ? (game as SeatGame).actorSeat : null;
+    final mark = seats != null && seat != null
+        ? SeatLabelsScope.of(context).label(context, l10n, seat, count: seats.playerCount)
+        : PlayerLabelsScope.of(context).label(
+            context, l10n, actor != null && actor < 2 ? Player.values[actor] : game.currentPlayer);
     return Material(
       key: const Key('handover-cover'),
       color: theme.colorScheme.surfaceContainerHighest,
@@ -69,6 +82,10 @@ class _Cover extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.phonelink_lock, size: 72, color: theme.colorScheme.primary),
+              if (seats != null && seat != null) ...[
+                const SizedBox(height: 12),
+                SeatToken(key: const Key('handover-seat'), seat: seat, size: 40),
+              ],
               const SizedBox(height: 24),
               Text(l10n.shellHandoverPass(mark), textAlign: TextAlign.center, style: theme.textTheme.headlineSmall),
               if (detail != null) ...[const SizedBox(height: 20), detail!(context)],

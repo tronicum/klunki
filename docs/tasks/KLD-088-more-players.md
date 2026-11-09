@@ -4,8 +4,8 @@
 - **Title:** 3–4 players: seats next to `Player {a, b}`, first for Wortgewandt on one device, network later
 - **Milestone:** Long-term games
 - **Status:** IN_PROGRESS: step 1 ✅ (design + seat interface + Wortgewandt engine for 2–4 seats); the generic
-  hot-seat seat shell ✅ via KLD-119 (Ausgewürfelt, 2–4 players, no secrets); next: step 2 (Wortgewandt for 3–4:
-  the seat handover cover, its board in the seat shell)
+  hot-seat seat shell ✅ via KLD-119 (Ausgewürfelt, 2–4 players, no secrets); step 2 ✅ via KLD-125 (Wortgewandt
+  for 3–4 on one device); next: step 3 (Baulöwe), step 4 (n-player network)
 - **Depends on:** KLD-094 (Wortgewandt), KLD-060 (Baulöwe engine, the first n-seat engine), KLD-064 (redaction),
   KLD-085 (fingerprint), KLD-103 (player names)
 - **Touched paths (step 1):**
@@ -191,7 +191,8 @@ no protocol bump (3–4 seats never go on the wire yet).
 - [x] Step 1: design in this card; `SeatGame` / `SeatResult`; `GameConfig.players`; Wortgewandt engine 2–4 seats
       with tests; 2-player behaviour, goldens and protocol unchanged; network refuses 3–4.
 - [x] Generic seat shell for 2–4 on one device (KLD-119: Ausgewürfelt through the real UI with 2 and 4 players).
-- [ ] Step 2: hot-seat 3–4 players for Wortgewandt through the real UI (live-UI game, screenshots, 7 locales).
+- [x] Step 2: hot-seat 3–4 players for Wortgewandt through the real UI (live-UI game, screenshots, 7 locales):
+      done as KLD-125 (`docs/tasks/KLD-125-wordtiles-four-players.md`).
 - [ ] Step 3: Baulöwe as `SeatGame` in the registry.
 - [ ] Step 4: n-player network (protocol bump, lobby, per-seat redaction and commitments).
 

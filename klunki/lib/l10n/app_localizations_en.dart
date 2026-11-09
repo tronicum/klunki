@@ -2448,6 +2448,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get engineReasonWordtilesPlayedOutSeats => 'All tiles played';
+
+  @override
+  String engineReasonWordtilesScorelessSeats(int turns) {
+    return '$turns turns without points';
+  }
+
+  @override
   String get webBetaBadge => 'Beta';
 
   @override
@@ -3386,6 +3394,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rulesWordtilesChallengeAfter =>
       'The player who challenged then takes their turn as usual.';
+
+  @override
+  String get rulesWordtilesPlayers =>
+      'Two, three or four players on one device take turns. In a room you play as two.';
+
+  @override
+  String get rulesWordtilesChallengeNext =>
+      'Only the next player can challenge.';
 
   @override
   String get rulesWordtilesScoreless =>

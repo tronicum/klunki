@@ -29,6 +29,7 @@ import 'package:klunki/transport/network_transport.dart';
 import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
+import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -63,7 +64,13 @@ class UiDevice {
   bool has(Finder f) => on(f).evaluate().isNotEmpty;
   bool hasKey(Key k) => has(find.byKey(k));
 
-  GameController controller(WidgetTester tester) => tester.widget<GameScreen>(on(find.byType(GameScreen))).controller;
+  /// The controller of the device's game screen ([GameScreen], or the seat
+  /// shell of a game for 3–4 players, KLD-125).
+  GameController controller(WidgetTester tester) {
+    final seats = on(find.byType(SeatGameScreen));
+    if (seats.evaluate().isNotEmpty) return tester.widget<SeatGameScreen>(seats).controller;
+    return tester.widget<GameScreen>(on(find.byType(GameScreen))).controller;
+  }
 
   bool get networked => me != null;
 
@@ -316,8 +323,12 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
     if (d.hasKey(const Key('handover-cover'))) {
       final cover = _coverText(tester, d);
       log.note(d, 'cover "$cover"');
-      expect(cover, deL10n.shellHandoverPass(c.game.currentPlayer == Player.a ? 'Anna' : 'Ben'),
-          reason: '${log.label}: the handover cover names the player to move');
+      // The player who acts next (with "Trotzdem zulassen" the one who
+      // answers, not the player to move, KLD-094).
+      final g = c.game;
+      final actor = g is SeatGame ? (g as SeatGame).actorSeat! : g.currentPlayer.index;
+      expect(cover, deL10n.shellHandoverPass(actor == 0 ? 'Anna' : 'Ben'),
+          reason: '${log.label}: the handover cover names the player to act');
       a.checkCover(tester, d, c);
       coversAt.add(c.moves.length);
       await d.tapKey(tester, const Key('handover-continue'));

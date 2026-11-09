@@ -16,6 +16,15 @@ short German summary ("Kurz") for the store notes and the testers.
   on the free square (pot, pot with 500, fixed 200), double salary on Start, no rent while in the pause, auction of a bankrupt player's
   streets. A short tour in the first game; "Zug zurücknehmen" back to the last roll. Trading streets between
   players comes later.
+- **Wortgewandt: "Trotzdem zulassen" on one device** (KLD-094): the other player is now really asked. After
+  "Trotzdem zulassen" the device goes to them ("Gib das Gerät an Ben weiter"); they agree (and play on) or
+  refuse (the device goes back, the tiles are back on the rack). Before, both agreed at once, and a refusal
+  through "Zug zurücknehmen" left the game on the handover screen.
+- **Wortgewandt for 3 or 4 players** (KLD-125): on one device, "Wer spielt?" now asks how many play (2, 3 or 4).
+  Between every two players the device is covered ("Gib das Gerät an Cleo weiter"), so every rack stays secret;
+  the score row shows all players in their colours, and the end shows the ranking with the leftover tiles of
+  each player. With 3 or 4, "Trotzdem zulassen" is decided together at the table, and only the next player can
+  challenge a word. Playing in a room stays for two.
 - **New game: Ausgewürfelt** (KLD-119), the five-dice score-sheet game for **2 to 4 players on one device**, the
   first Klunki game for more than two: roll five dice up to three times (tap dice to keep them, or shake the
   phone), then write the result into one box of your column: ones to sixes (35 bonus from 63), three and four
