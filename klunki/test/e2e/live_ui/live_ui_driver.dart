@@ -323,8 +323,12 @@ Future<LiveUiLog> playHotSeat(WidgetTester tester, LiveUiAdapter a, GameConfig c
     if (d.hasKey(const Key('handover-cover'))) {
       final cover = _coverText(tester, d);
       log.note(d, 'cover "$cover"');
-      expect(cover, deL10n.shellHandoverPass(c.game.currentPlayer == Player.a ? 'Anna' : 'Ben'),
-          reason: '${log.label}: the handover cover names the player to move');
+      // The player who acts next (with "Trotzdem zulassen" the one who
+      // answers, not the player to move, KLD-094).
+      final g = c.game;
+      final actor = g is SeatGame ? (g as SeatGame).actorSeat! : g.currentPlayer.index;
+      expect(cover, deL10n.shellHandoverPass(actor == 0 ? 'Anna' : 'Ben'),
+          reason: '${log.label}: the handover cover names the player to act');
       a.checkCover(tester, d, c);
       coversAt.add(c.moves.length);
       await d.tapKey(tester, const Key('handover-continue'));

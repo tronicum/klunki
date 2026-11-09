@@ -113,7 +113,7 @@ void main() {
   }, timeout: liveUiTimeout);
 
   // KLD-094 step 5: with the German word list, on a tablet and on a small
-  // phone (375 × 667, the board auto-zooms): one "Trotzdem zulassen", a
+  // phone (375 × 667, the board auto-zooms; one refusal first): one "Trotzdem zulassen", a
   // swap, a pass with its confirmation, the game end with the summary, and
   // "Nochmal" starts a new game with the word list still on.
   for (final (name, size, seed) in [('tablet', Size(1180, 820), 3), ('phone', Size(375, 667), 4)]) {
@@ -123,11 +123,17 @@ void main() {
       tester.view.physicalSize = size * 2;
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.reset);
-      final adapter = WordTilesDictionaryAdapter();
+      // KLD-094 fix (2026-11-09): the other player answers after the
+      // handover; on the phone the first request is refused (the device goes
+      // back to the placer), the second agreed.
+      final refusals = name == 'phone' ? 1 : 0;
+      final adapter = WordTilesDictionaryAdapter(requests: 1 + refusals, refusals: refusals);
       final config = GameConfig('wordtiles', seed: seed, dictionary: true);
       final log = await playHotSeat(tester, adapter, config, rng: Random(seed));
       log.printIfVerbose();
-      expect(adapter.tapped['allow'], 1, reason: '${adapter.tapped}');
+      expect(adapter.tapped['allow'], 1 + refusals, reason: '${adapter.tapped}');
+      expect(adapter.tapped['refuse'] ?? 0, refusals, reason: '${adapter.tapped}');
+      expect(adapter.tapped['agree'], 1, reason: '${adapter.tapped}');
       expect(adapter.tapped['exchange'], 1, reason: '${adapter.tapped}');
       expect(adapter.tapped['pass'] ?? 0, greaterThanOrEqualTo(1), reason: '${adapter.tapped}');
       expect(adapter.tapped['place'] ?? 0, greaterThan(5), reason: '${adapter.tapped}');

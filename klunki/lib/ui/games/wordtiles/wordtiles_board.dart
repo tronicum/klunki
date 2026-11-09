@@ -46,9 +46,12 @@ import 'wordtiles_tiles.dart';
 ///   At "Legen" every formed word is looked up; unknown ones open a notice
 ///   (`wordtiles-unknown`) with "Zurücknehmen" (tiles back to the rack, the
 ///   turn goes on) and "Trotzdem zulassen" (the other player agrees: a
-///   `requestAllow` move, answered by `acceptAllow` / `declineAllow`; in
-///   hot-seat both go in at once, over the network (KLD-094 step 6) the
-///   other device shows `wordtiles-allow-dialog` while the placer waits).
+///   `requestAllow` move, answered by `acceptAllow` / `declineAllow`: over
+///   the network (KLD-094 step 6) the other device shows
+///   `wordtiles-allow-dialog` while the placer waits; in hot-seat with two
+///   the device is handed over (cover) and the other player answers in the
+///   same dialog, a refusal hands it back; 3–4 at one device agree together,
+///   at once (KLD-125)).
 ///   The history says "zugelassen: …". No challenges then.
 /// * **Bänkchen** (the bench, KLD-094 step 4): [benchRows] private practice
 ///   rows of [benchSlots] slots below the actions (KLD-094 step 8). Open from
@@ -253,14 +256,20 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   WordTilesGame get game => controller.game as WordTilesGame;
 
   /// The seat whose rack this device shows: the local player on a network
-  /// device, the player to move in hot-seat.
+  /// device; in hot-seat the seat that acts (the player to move, or the
+  /// player who answers an open "Trotzdem zulassen" request: they hold the
+  /// device then, so the placer's rack must not show).
   int get _seat {
     final local = controller.transport.localPlayers;
-    return local.length == 1 ? WordTilesGame.seatOf(local.single) : game.currentSeat;
+    return local.length == 1 ? WordTilesGame.seatOf(local.single) : game.actorSeat ?? game.currentSeat;
   }
 
   /// One player per device (KLD-094 step 6), not hot-seat.
   bool get _network => controller.transport.localPlayers.length == 1;
+
+  /// "Trotzdem zulassen" is agreed by the whole table at once (3–4 players
+  /// on one device, KLD-125); with two the other player answers.
+  bool get _tableAgrees => !_network && game.playerCount > 2;
 
   /// The seat after [_seat] still in the game (the other player with two).
   int get _nextSeat {
@@ -342,11 +351,12 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
 
   /// The seat on this device that answers the open request, or null (none
   /// open, or the other device answers it). Hot-seat: every seat (3–4
-  /// players too, KLD-125).
+  /// players too, KLD-125), once the device was handed over to it (not
+  /// while the cover is up).
   int? get _allowTo {
     final seat = game.allowRequestAnswerer;
     if (seat == null) return null;
-    if (!_network) return seat;
+    if (!_network) return controller.needsHandover ? null : seat;
     final to = WordTilesGame.playerOfSeat(seat);
     return to != null && controller.transport.localPlayers.contains(to) ? seat : null;
   }
@@ -357,7 +367,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// closes it when the request is gone (answered, a resign).
   void _syncAllow() {
     final to = _allowTo;
-    if (to == null || _hotSeatAgreeing) {
+    if (to == null) {
       _allowShownFor = null;
       final r = _allowRoute;
       _allowRoute = null;
@@ -368,13 +378,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     if (_allowShownFor == index) return;
     _allowShownFor = index;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _allowTo == to && _allowShownFor == index && !_hotSeatAgreeing) _answerAllow(to);
+      if (mounted && _allowTo == to && _allowShownFor == index) _answerAllow(to);
     });
   }
-
-  /// Hot-seat "Trotzdem zulassen": both players agreed at the device, the
-  /// request and its acceptance go in one go (no answer dialog in between).
-  bool _hotSeatAgreeing = false;
 
   static void _closeRoute(ModalRoute<Object?>? r) {
     final nav = r?.navigator;
@@ -837,22 +843,19 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       return;
     }
     // KLD-094 step 6: "Trotzdem zulassen" asks the other player. Over the
-    // network their device shows the request; in hot-seat both players
-    // agreed right here, so the answer follows at once.
-    // With 3–4 players (KLD-125) the whole table agrees at the device; the
-    // engine logs the answer as the next player's (the next seat still in).
+    // network their device shows the request; with two in hot-seat the
+    // device is handed over to them (the cover, as for a turn) and they
+    // answer in the same dialog; a refusal hands it back to the placer,
+    // tiles on the rack. With 3–4 at one device (KLD-125, maintainer) the
+    // table agrees together here: the agreement follows at once, logged
+    // as the next player's (the next seat still in).
     setState(() => _busy = true);
-    _hotSeatAgreeing = !_network;
-    try {
-      final r = await controller.submit(game.requestAllowMoveFor(_seat, placed, unknown, swaps: swaps));
-      final answerer = game.allowRequestAnswerer;
-      if (r.isAccepted && !_network && mounted && answerer != null) {
-        await controller.submit(game.acceptAllowMoveFor(answerer));
-      }
-      if (!r.isAccepted && mounted) setState(() => _busy = false);
-    } finally {
-      _hotSeatAgreeing = false;
+    final r = await controller.submit(game.requestAllowMoveFor(_seat, placed, unknown, swaps: swaps));
+    final answerer = game.allowRequestAnswerer;
+    if (r.isAccepted && _tableAgrees && mounted && answerer != null) {
+      await controller.submit(game.acceptAllowMoveFor(answerer));
     }
+    if (!r.isAccepted && mounted) setState(() => _busy = false);
   }
 
   /// "„XYZ“ steht nicht im Wörterbuch." – "Zurücknehmen" (false) or
@@ -862,8 +865,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// turn): only "Zurücknehmen".
   Future<bool> _askUnknown(List<String> words, {bool canAsk = true}) async {
     final l10n = AppLocalizations.of(context);
-    // The one who answers: over the network the other player; in hot-seat
-    // only the "declined before" line names one (the next player).
+    // The one who answers: the other player (with 3–4 the next one).
     final otherSeat = game.allowRequestAnswerer ?? _nextSeat;
     final allow = await showDialog<bool>(
       context: context,
@@ -877,11 +879,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             Text(l10n.wordtilesUnknownBody(wordList(ctx, words), words.length),
                 style: Theme.of(ctx).textTheme.bodyLarge),
             const SizedBox(height: 12),
+            // Two players: the other one is asked (after the handover in
+            // hot-seat); 3–4 at one device decide together.
             Text(!canAsk
                 ? l10n.wordtilesUnknownDeclinedBefore(_nameOfSeat(otherSeat))
-                : _network
-                    ? l10n.wordtilesUnknownAskNet(_nameOfSeat(otherSeat))
-                    : l10n.wordtilesUnknownAsk),
+                : _tableAgrees
+                    ? l10n.wordtilesUnknownAsk
+                    : l10n.wordtilesUnknownAskNet(_nameOfSeat(otherSeat))),
           ],
         ),
         actions: [
@@ -1089,9 +1093,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     ShellStatus? status;
     final request = game.allowRequest;
     final answerer = game.allowRequestAnswerer;
-    if (_network && request != null && answerer != null) {
-      final to = WordTilesGame.playerOfSeat(answerer)!;
-      status = answerer == _seat
+    // Hot-seat (two players): "Ben entscheidet…" while Ben holds the device
+    // (the seat shell of 3–4 names the answerer as the seat to act).
+    final to = answerer == null ? null : WordTilesGame.playerOfSeat(answerer);
+    if (request != null && answerer != null && to != null && game.playerCount == 2) {
+      status = _network && answerer == _seat
           ? ShellStatus(text: l10n.wordtilesAllowYouDecide, player: to)
           : ShellStatus(text: l10n.wordtilesAllowDeciding(_nameOfSeat(answerer)), player: to);
     }

@@ -445,13 +445,32 @@ class WordTilesJokerAdapter extends WordTilesAdapter {
 class WordTilesDictionaryAdapter extends WordTilesAdapter {
   /// How many "Trotzdem zulassen" requests to make (on the empty board).
   final int requests;
-  WordTilesDictionaryAdapter({this.requests = 1});
+
+  /// Hot-seat: how many requests the other player refuses before agreeing.
+  final int refusals;
+  WordTilesDictionaryAdapter({this.requests = 1, this.refusals = 0});
 
   @override
   Future<Map<String, dynamic>?> play(WidgetTester tester, UiDevice d, Random rng) async {
     final c = d.controller(tester);
     final g = c.game as WordTilesGame;
     if (g.isOver) return null;
+    // Hot-seat: after the handover the player who answers sees the request
+    // (KLD-094: no longer agreed by both at once) with their own rack.
+    final open = g.allowRequest;
+    if (!d.networked && open != null) {
+      final to = g.allowRequestAnswerer!;
+      expect(d.on(find.byKey(const Key('wordtiles-allow-dialog'))), findsOneWidget, reason: '${d.name}: answer dialog');
+      final rack = g.rackOf(to);
+      for (var i = 0; i < rack.length; i++) {
+        expect(d.on(find.byKey(Key('wordtiles-rack-$i'))), findsOneWidget, reason: 'the answerer\'s own rack');
+      }
+      final refuse = (tapped['refuse'] ?? 0) < refusals;
+      tapped.update(refuse ? 'refuse' : 'agree', (n) => n + 1, ifAbsent: () => 1);
+      await d.tapKey(tester, Key(refuse ? 'wordtiles-allow-decline' : 'wordtiles-allow-accept'));
+      await settle(tester, d);
+      return refuse ? g.declineAllowMoveFor(to) : g.acceptAllowMoveFor(to);
+    }
     await readCoach(tester, d);
     checkRack(tester, d, g);
     expect(g.canChallenge, isFalse, reason: 'no challenges with the word list');
@@ -489,7 +508,7 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
         // agreement follows at once).
         return {
           'action': WordTilesGame.requestAllow,
-          'player': g.currentPlayer.name,
+          'player': WordTilesGame.playerOfSeat(g.currentSeat)?.name ?? '${g.currentSeat}',
           'tiles': odd['tiles'],
           'allow': unknown,
         };

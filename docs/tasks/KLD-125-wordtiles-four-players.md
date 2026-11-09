@@ -35,10 +35,20 @@ two players; 2 players play as before (the two-player screen, network included).
   phone), tokens and scores only (the pill names the player to move; the semantics label keeps the names);
   scaled down only if even that does not fit. The rack deduction "(−7)" next to the score at the end.
 - **"Trotzdem zulassen" (word list on), hot-seat with 3–4:** the whole table decides together at the device
-  (the dialog already says "Seid ihr euch einig …"); the engine logs the agreement as the answer of the **next
-  player still in** (`requestAllowMoveFor(seat)` + `acceptAllowMoveFor(allowRequestAnswerer)`, the engine's rule
-  from KLD-088 step 1). No second dialog. Should a request ever be open on screen (e.g. after an undo), the
-  answer dialog comes up for that seat on this device.
+  (the dialog says "Seid ihr euch einig …"; maintainer, 2026-11-09: keep it); the engine logs the agreement as the
+  answer of the **next player still in** (`requestAllowMoveFor(seat)` + `acceptAllowMoveFor(allowRequestAnswerer)`,
+  the engine's rule from KLD-088 step 1). The next player can still refuse: "Zug zurücknehmen" on their cover
+  opens the request again, they get the device and the answer dialog over their own rack; a refusal hands the
+  device back to the placer.
+- **Fix (bug from the maintainer, 2 players, also on main):** "Trotzdem zulassen" used to be agreed at once in
+  hot-seat; the only way to refuse was "Zug zurücknehmen" on the other player's cover, and then the cover named the
+  placer while the other player had to answer (`GameController` followed `currentPlayer`, not the player who has
+  to act), so after the refusal the game seemed stuck on the cover. Now `GameController` (and the cover) follow
+  `SeatGame.actorSeat` for every seat game, so the device goes to whoever has to act; with two players the
+  request hands the device to the other player (cover with "Anna möchte „HSA“ zulassen (6 Punkte)."), who
+  answers in the answer dialog over their own rack ("Ben entscheidet…"); agreeing lets them play on without
+  another cover, refusing hands the device back to the placer (tiles on the rack, the same words cannot be
+  asked again this turn). The board shows the rack of the seat that acts. Network play is unchanged.
 - **Anzweifeln (no word list):** only the next player may challenge (engine rule, unchanged); the rules page
   says so now ("Anzweifeln kann nur, wer als Nächstes dran ist.").
 - **Result:** the seat shell's ranking (place, trophy, token, name, points; shared places; seats that resigned
@@ -72,14 +82,14 @@ JSON as before (`players` is written only when not 2). 2-player network compatib
 - [x] 7 locales (4 new keys), no rules-version change, network stays 2-player.
 
 ## Tests
+- `klunki/test/ui/games/wordtiles_allow_refuse_test.dart` (5): 2 players refuse / agree after the handover,
+  undo on the request cover, the old undo-after-agreement path, 3 players table agreement and refusal via undo.
 - `klunki/test/ui/games/wordtiles_seats_test.dart` (11): cover before every seat, undo on the cover, four seats in
   one row (SE, 320 px, ar), scoreless end with the ranking and rack notes, resign by seat, allow by the table,
   menu start with 4 and 2 players, config JSON.
 - `klunki/test/e2e/live_ui/wordtiles_seats_live_test.dart` (2 whole games).
 - Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_seats_shots_test.dart --plain-name kld125`.
 
-## Open questions (🧑)
-1. **"Trotzdem zulassen" with 3–4:** the whole table agrees at the device, logged as the next player's answer
-   (built). Or should one named player decide (the next one, "Ben, lässt du es zu?"), or a majority?
-2. **Score row with 4 on a phone:** tokens and scores only (built), or two rows of two with names?
-3. **Rank note wording:** "Reststeine: −2" under each name (as the two-player summary), or a column?
+## Decisions (maintainer, 2026-11-09)
+1. "Trotzdem zulassen" with 3–4: the table agrees together (kept).
+2. Score row with 4 on a phone: tokens and scores only (kept).

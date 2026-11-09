@@ -200,8 +200,21 @@ class WordTilesLastTurn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final game = controller.game;
-    if (game is! WordTilesGame || game.turns.isEmpty) return const SizedBox();
+    if (game is! WordTilesGame) return const SizedBox();
     final l10n = AppLocalizations.of(context);
+    // "Trotzdem zulassen" (KLD-094): the device goes to the player who
+    // answers; the cover says what they are asked.
+    final request = game.allowRequest;
+    if (request != null) {
+      return Text(
+        l10n.wordtilesAllowLine(
+            wordTilesSeatName(context, game, request.seat), wordList(context, request.allow), request.score),
+        key: const Key('wordtiles-cover-allow'),
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleMedium,
+      );
+    }
+    if (game.turns.isEmpty) return const SizedBox();
     final t = game.turns.last;
     final who = wordTilesSeatName(context, game, t.seat);
     return Text(

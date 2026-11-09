@@ -8,6 +8,10 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt: "Trotzdem zulassen" on one device** (KLD-094): the other player is now really asked. After
+  "Trotzdem zulassen" the device goes to them ("Gib das Gerät an Ben weiter"); they agree (and play on) or
+  refuse (the device goes back, the tiles are back on the rack). Before, both agreed at once, and a refusal
+  through "Zug zurücknehmen" left the game on the handover screen.
 - **Wortgewandt for 3 or 4 players** (KLD-125): on one device, "Wer spielt?" now asks how many play (2, 3 or 4).
   Between every two players the device is covered ("Gib das Gerät an Cleo weiter"), so every rack stays secret;
   the score row shows all players in their colours, and the end shows the ranking with the leftover tiles of

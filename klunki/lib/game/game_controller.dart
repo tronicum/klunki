@@ -73,11 +73,16 @@ class GameController extends ChangeNotifier {
   /// so hot-seat undo takes it back).
   Future<SubmitResult> resignSeat(int seat) => submit({'action': 'resign', 'seat': seat});
 
-  /// Who is to move as a number: the seat of a [seatGame], else the player's
-  /// index; null once over.
+  /// Who is to move as a number, null once over: the seat expected to act
+  /// for any [SeatGame] (also with two seats: the word tile game's answerer
+  /// of an open "Trotzdem zulassen" request, KLD-094, who is not
+  /// `currentPlayer`), else the player's index. The handover cover follows
+  /// it, so the device goes to whoever has to act next.
   int? get _turn {
-    if (game.isOver) return null;
-    return seatGame?.actorSeat ?? game.currentPlayer.index;
+    final g = game;
+    if (g.isOver) return null;
+    if (g is SeatGame) return (g as SeatGame).actorSeat;
+    return g.currentPlayer.index;
   }
 
   /// Undo is available (hot-seat only, with at least one move).
@@ -159,10 +164,11 @@ class GameController extends ChangeNotifier {
     if (game.isOver) {
       _needsHandover = false; // e.g. a resign while the cover was up
     } else if (_sharedDeviceSecrets && _toMove != before) {
-      // The turn passed to the other player. Usually by the mover's own
-      // move; with KLD-094 step 6 also by the other player's answer
-      // ("Trotzdem zulassen" agreed, then the turn passes), while a move
-      // that leaves the turn where it was needs no cover.
+      // The turn passed to another player. Usually by the mover's own
+      // move; with "Trotzdem zulassen" (KLD-094) the request hands the
+      // device to the player who answers, a refusal hands it back to the
+      // placer, and an agreement needs no cover (the answerer plays next);
+      // a move that leaves the turn where it was needs no cover.
       _needsHandover = true;
     }
     notifyListeners();

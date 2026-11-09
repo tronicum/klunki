@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_engine/klunki_engine.dart' show Player, SeatGame;
 
 import '../../game/game_controller.dart';
 import 'game_screen.dart' show UndoMoveButton;
@@ -60,11 +61,16 @@ class _Cover extends StatelessWidget {
     // "Ben (O)" with hot-seat names, else just the mark (KLD-056). A game
     // with more than two seats (KLD-125) names the seat to move from the
     // seat labels and shows its token (colour and number).
+    // The player who acts next: with "Trotzdem zulassen" (KLD-094) the one
+    // who answers, not the player whose turn it is.
     final seats = controller.seatGame;
     final seat = seats?.actorSeat;
+    final game = controller.game;
+    final actor = game is SeatGame ? (game as SeatGame).actorSeat : null;
     final mark = seats != null && seat != null
         ? SeatLabelsScope.of(context).label(context, l10n, seat, count: seats.playerCount)
-        : PlayerLabelsScope.of(context).label(context, l10n, controller.game.currentPlayer);
+        : PlayerLabelsScope.of(context).label(
+            context, l10n, actor != null && actor < 2 ? Player.values[actor] : game.currentPlayer);
     return Material(
       key: const Key('handover-cover'),
       color: theme.colorScheme.surfaceContainerHighest,

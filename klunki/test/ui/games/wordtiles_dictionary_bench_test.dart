@@ -120,13 +120,21 @@ void main() {
       await _tap(tester, find.byKey(_play));
       await _tap(tester, find.byKey(const Key('wordtiles-unknown-allow')));
       await tester.pumpAndSettle();
-      // KLD-094 step 6 (rules 3): on one device the request and the other
-      // player's agreement go in back to back.
+      // KLD-094 step 6 (rules 3): on one device the request hands the
+      // device to the other player (2026-11-09 fix: before, the agreement
+      // went in at once), who agrees in the answer dialog and plays on.
+      expect(c.moves.map((m) => m.move['action']), [WordTilesGame.requestAllow]);
+      expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
+      await _tap(tester, find.byKey(const Key('handover-continue')));
+      await tester.pumpAndSettle();
+      await _tap(tester, find.byKey(const Key('wordtiles-allow-accept')));
+      await tester.pumpAndSettle();
       expect(c.moves.map((m) => m.move['action']), [WordTilesGame.requestAllow, WordTilesGame.acceptAllow]);
       expect(c.moves.first.move['allow'], ['BAU']);
       expect(c.moves.last.move['player'], 'b');
       expect(_game(c).scoreOf(0), 8, reason: '(2+1+1)·2 on the centre');
-      expect(_text(tester, const Key('wordtiles-cover-turn')), 'Anna: BAU für 8 Punkte (zugelassen: BAU)');
+      expect(find.byKey(const Key('handover-continue')), findsNothing, reason: 'Ben has the device already');
+      expect(_text(tester, const Key('wordtiles-last-turn')), 'Anna: BAU für 8 Punkte (zugelassen: BAU)');
       expect(describeWordTilesMove(deL10n, c.moves.first), 'möchte BAU zulassen (8 Punkte)');
       expect(describeWordTilesMove(deL10n, c.moves.last), 'einverstanden: BAU zählt (8 Punkte)');
     });
