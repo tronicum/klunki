@@ -8,7 +8,9 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/undo_settings.dart';
+import 'package:klunki/ui/games/property/property_roll_show.dart';
 import 'package:klunki/ui/rules/rules_screen.dart';
+import 'package:klunki/ui/shell/game_screen.dart' show UndoMoveButton;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -271,5 +273,151 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('30 Runden'), findsOneWidget);
     expect(find.textContaining('Hausregel'), findsNothing);
+  });
+
+  // Maintainer feedback on build 2026110911: a roll is shown (dice, then
+  // the walk), the card and the question come after.
+  group('the roll is shown', () {
+    Future<GameController> pumpAt(WidgetTester tester, {int pos = 0, required List<int> dice}) async {
+      tester.view.physicalSize = const Size(390, 844) * 2;
+      tester.view.devicePixelRatio = 2;
+      addTearDown(tester.view.reset);
+      final c = GameController.hotSeat(const GameConfig('property', seed: 3));
+      addTearDown(c.dispose);
+      final g = c.game as PropertyGame;
+      g.debugScriptDice(dice);
+      if (pos != 0) g.debugSetCash(0, 1500, pos: pos);
+      await tester.pumpWidget(localizedApp(buildGameScreen(c)));
+      await tester.pumpAndSettle();
+      return c;
+    }
+
+    Future<void> tapRoll(WidgetTester tester) async {
+      await tester.ensureVisible(_key('property-roll'));
+      await tester.pumpAndSettle();
+      await tester.tap(_key('property-roll'));
+      await tester.pump();
+    }
+
+    const dice = PropertyRollShow.diceMs, step = PropertyRollShow.stepMs;
+
+    testWidgets('dice, then the token walks square by square, then the card and the question', (tester) async {
+      final c = await pumpAt(tester, dice: [1, 2]);
+      final street = berlin.squares[3];
+      await tapRoll(tester);
+      // The engine has the move at once.
+      expect((c.game as PropertyGame).seats[0].pos, 3);
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(_key('property-dice-rolling'), findsOneWidget);
+      expect(_tokenOn(0, 0), isTrue, reason: 'the token waits for the dice');
+      expect(_key('property-buy'), findsNothing, reason: 'the question waits');
+      expect(_key('property-focus-waiting'), findsOneWidget, reason: 'the card waits');
+      expect(tester.widget<FilledButton>(_key('property-rolling')).onPressed, isNull);
+      expect(find.text('Anna würfelt 1 + 2 → ${street.name}'), findsNothing, reason: 'the hint waits');
+      // Square by square: 1, 2, 3.
+      for (var sq = 1; sq <= 3; sq++) {
+        await tester.pump(Duration(milliseconds: (sq == 1 ? dice - 300 : 0) + step));
+        expect(_key('property-dice'), findsOneWidget, reason: 'the dice lie still');
+        expect(_tokenOn(0, sq), isTrue, reason: 'on square $sq');
+        expect(_key('property-walking-0'), findsOneWidget);
+      }
+      await tester.pumpAndSettle();
+      expect(_key('property-rolling'), findsNothing);
+      expect(_key('property-focus'), findsOneWidget);
+      expect(find.text('${street.name} gehört noch niemandem.'), findsOneWidget);
+      expect(_key('property-buy'), findsOneWidget);
+      expect(find.text('Anna würfelt 1 + 2 → ${street.name}'), findsOneWidget);
+    });
+
+    testWidgets('the walk passes Start', (tester) async {
+      await pumpAt(tester, pos: 38, dice: [1, 2]);
+      await tapRoll(tester);
+      await tester.pump(const Duration(milliseconds: dice + step ~/ 2 + 10));
+      expect(_tokenOn(0, 39), isTrue);
+      await tester.pump(const Duration(milliseconds: step));
+      expect(_tokenOn(0, 0), isTrue, reason: 'over Start');
+      await tester.pump(const Duration(milliseconds: step));
+      expect(_tokenOn(0, 1), isTrue);
+      await tester.pumpAndSettle();
+      expect(_tokenOn(0, 1), isTrue);
+      expect(find.textContaining('Startgeld'), findsOneWidget);
+    });
+
+    testWidgets('a tap on the dice or the board skips to the end', (tester) async {
+      await pumpAt(tester, dice: [1, 2, 3, 3]);
+      await tapRoll(tester);
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.tap(_key('property-dice-rolling'));
+      await tester.pump();
+      expect(_key('property-dice-rolling'), findsNothing);
+      expect(_tokenOn(0, 3), isTrue);
+      expect(_key('property-buy'), findsOneWidget);
+      // A tap on a square while the walk runs skips, it opens no sheet.
+      await _tap(tester, 'property-buy');
+      await _tap(tester, 'property-end');
+      await tapRoll(tester);
+      await tester.pump(const Duration(milliseconds: dice + 2 * step));
+      expect(_key('property-walking-1'), findsOneWidget);
+      await tester.tap(_key('property-square-25'));
+      await tester.pump();
+      expect(_key('property-square-sheet'), findsNothing);
+      expect(_key('property-walking-1'), findsNothing);
+      expect(_tokenOn(1, 6), isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('reduce motion: the result at once', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      await pumpAt(tester, dice: [1, 2]);
+      await tapRoll(tester);
+      await tester.pump();
+      expect(_key('property-dice-rolling'), findsNothing);
+      expect(_key('property-rolling'), findsNothing);
+      expect(_tokenOn(0, 3), isTrue);
+      expect(_key('property-buy'), findsOneWidget);
+    });
+
+    testWidgets('undo after the roll (back to the question) shows no roll again', (tester) async {
+      await UndoSettings.shared().setAllowed('property', true);
+      final c = await pumpAt(tester, dice: [1, 2]);
+      await tapRoll(tester);
+      await tester.pumpAndSettle();
+      await _tap(tester, 'property-buy');
+      await tester.ensureVisible(find.byType(UndoMoveButton));
+      await tester.tap(find.byType(UndoMoveButton));
+      await tester.pump();
+      expect(_key('property-dice-rolling'), findsNothing);
+      expect(_key('property-rolling'), findsNothing);
+      // (The undo replays from the seed, without the scripted dice.)
+      final g = c.game as PropertyGame;
+      expect(g.phase, PropertyPhase.buy);
+      expect(_tokenOn(0, g.seats[0].pos), isTrue);
+      expect(_key('property-buy'), findsOneWidget);
+      await tester.pumpAndSettle();
+    });
+
+    test('the path: a jump to the pause, a card back, a card "back to"', () {
+      PropertyRollShow show(int from, List<Map<String, dynamic>> events) =>
+          PropertyRollShow.of(seat: 0, from: from, events: events, theme: berlin)!;
+      final pause = show(5, [
+        {'type': 'rolled', 'dice': [2, 2]},
+        {'type': 'threeDoubles'},
+        {'type': 'toPause', 'seat': 0},
+      ]);
+      expect(pause.path, [5, PropertyGame.pauseSquare]);
+      expect(pause.jumps, {1});
+      final back = berlin.cards.firstWhere((c) => c.kind == PropertyCardKind.back);
+      final b = show(5, [
+        {'type': 'rolled', 'dice': [1, 1]},
+        {'type': 'moved', 'to': 7},
+        {'type': 'card', 'id': back.id},
+        {'type': 'moved', 'to': (7 - back.value + 40) % 40},
+      ]);
+      expect(b.path, [5, 6, 7, for (var i = 1; i <= back.value; i++) (7 - i + 40) % 40]);
+      expect(b.jumps, isEmpty);
+      expect(PropertyRollShow.of(seat: 0, from: 3, events: const [{'type': 'bought'}], theme: berlin), isNull);
+      expect(b.totalMs, PropertyRollShow.diceMs + (b.path.length - 1) * PropertyRollShow.stepMs);
+    });
   });
 }

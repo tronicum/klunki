@@ -57,10 +57,12 @@ Future<void> _loadFonts() async {
   if (icons.existsSync()) await family('MaterialIcons', [icons.path]);
 }
 
-Future<void> _shot(WidgetTester tester, String name, {String dir = 'kld060'}) async {
+Future<void> _shot(WidgetTester tester, String name, {String dir = 'kld060', bool wait = true}) async {
   debugDisableShadows = false;
-  await tester.pump(const Duration(milliseconds: 500));
-  await tester.pump();
+  if (wait) {
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+  }
   final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
@@ -287,6 +289,34 @@ void main() {
       await _game(tester);
       expect(find.byKey(const Key('property-coach')), findsOneWidget);
       await _shot(tester, '12-tour-step-1');
+    });
+
+    // A roll as it is shown (maintainer feedback on build 2026110911): the
+    // dice tumble, the token walks (here over Start), then the card and the
+    // question. Into <KLUNKI_SHOTS>/anim.
+    testWidgets('anim: dice, walk, card', skip: skip, (tester) async {
+      final c = GameController.hotSeat(const GameConfig('property', seed: 4, players: 3));
+      addTearDown(c.dispose);
+      final g = c.game as PropertyGame;
+      g.debugSetCash(0, 1500, pos: 34);
+      g.debugScriptDice([4, 5]);
+      await _pumpApp(tester, buildGameScreen(c));
+      await _shot(tester, 'a0-before-roll', dir: 'anim');
+      await tester.ensureVisible(find.byKey(const Key('property-roll')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('property-roll')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+      await _shot(tester, 'a1-dice-mid-roll', dir: 'anim', wait: false);
+      await tester.pump(const Duration(milliseconds: 300));
+      await _shot(tester, 'a2-dice-landing', dir: 'anim', wait: false);
+      // From square 34: Start is the 6th step; mid-hop onto it.
+      await tester.pump(const Duration(milliseconds: 200 + 5 * 150 + 90));
+      await _shot(tester, 'a3-token-mid-walk-over-start', dir: 'anim', wait: false);
+      await tester.pump(const Duration(milliseconds: 2 * 150));
+      await _shot(tester, 'a4-token-almost-there', dir: 'anim', wait: false);
+      await tester.pumpAndSettle();
+      await _shot(tester, 'a5-card-and-question', dir: 'anim');
     });
 
     testWidgets('rules page', skip: skip, (tester) async {

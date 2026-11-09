@@ -11,6 +11,7 @@ import '../../shell/coach_marks.dart';
 import '../../shell/game_screen.dart';
 import '../../shell/seat_game_screen.dart';
 import '../maexchen/maexchen_dice.dart' show DieFace;
+import 'property_roll_show.dart';
 import 'property_screen.dart';
 
 /// The Baulöwe board (KLD-060): the players with their money, the 40
@@ -20,6 +21,13 @@ import 'property_screen.dart';
 /// Straßen" (build, sell, mortgage) and "Zug zurücknehmen". A tap on a
 /// square shows its details (price, rents, owner). The last move's events
 /// are the shell's hint line.
+///
+/// A roll is shown, not just applied ([PropertyRollShow]): the dice tumble,
+/// the token walks square by square, the target square is outlined, and
+/// only then the square's card, the question or the rent appear; the
+/// buttons wait meanwhile. A tap on the board or the dice skips to the end;
+/// with "reduce motion" the result shows at once. The engine has the move
+/// at once (undo, tests and replays do not wait).
 ///
 /// One device for everyone (hot-seat): no secrets, so no handover cover.
 /// The first game on a device starts with a short tour ([showCoachMarks],
@@ -31,7 +39,10 @@ import 'property_screen.dart';
 /// `property-decline`, `property-bid-<0..2>`, `property-pass`,
 /// `property-end`, `property-bankrupt`, `property-trade-accept`,
 /// `property-trade-decline`, `property-manage`, `property-manage-sheet`,
-/// `property-manage-<action>-<square>`, `property-square-sheet`.
+/// `property-manage-<action>-<square>`, `property-square-sheet`; while a roll
+/// is shown `property-dice-rolling`, `property-rolling` (the waiting
+/// button), `property-focus-waiting` (the hidden card),
+/// `property-walking-<seat>` (the walking token).
 class PropertyBoard extends StatefulWidget {
   final GameController controller;
   final PropertyTourRequest? tour;
@@ -60,7 +71,7 @@ Color propertyGroupColor(int group) => const [
       Color(0xFF1E4FA8),
     ][group.clamp(0, 7)];
 
-class _PropertyBoardState extends State<PropertyBoard> {
+class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProviderStateMixin {
   final _rollKey = GlobalKey(debugLabel: 'property-roll');
   final _boardKey = GlobalKey(debugLabel: 'property-board');
   final _playersKey = GlobalKey(debugLabel: 'property-players');
@@ -68,6 +79,26 @@ class _PropertyBoardState extends State<PropertyBoard> {
   bool _coachPending = false;
   bool _coachOpen = false;
   String? _lastHint;
+
+  /// The roll being shown, null when the board shows the game as it is.
+  PropertyRollShow? _show;
+  late final AnimationController _anim = AnimationController(vsync: this)
+    ..addListener(() {
+      if (mounted && _show != null) setState(() {});
+    })
+    ..addStatusListener((status) {
+      if (status == AnimationStatus.completed) _skip();
+    });
+
+  /// The moves and positions the board last showed (to know where a walk
+  /// starts).
+  int _seenMoves = 0;
+  List<int> _shownPos = const [];
+  List<int> _shownCash = const [];
+
+  /// The money before the roll being shown (the chips change when the
+  /// token has arrived, not before it passes Start).
+  List<int> _cashBefore = const [];
 
   GameController get controller => widget.controller;
   PropertyGame get game => controller.game as PropertyGame;
@@ -77,7 +108,12 @@ class _PropertyBoardState extends State<PropertyBoard> {
     super.initState();
     controller.addListener(_changed);
     widget.tour?.addListener(_replayTour);
+    _seenMoves = controller.moves.length;
+    _shownPos = _positions();
+    _shownCash = [for (final st in game.seats) st.cash];
   }
+
+  List<int> _positions() => [for (final st in game.seats) st.pos];
 
   @override
   void didUpdateWidget(PropertyBoard old) {
@@ -96,11 +132,40 @@ class _PropertyBoardState extends State<PropertyBoard> {
   void dispose() {
     controller.removeListener(_changed);
     widget.tour?.removeListener(_replayTour);
+    _anim.dispose();
     super.dispose();
   }
 
   void _changed() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final moves = controller.moves;
+    PropertyRollShow? show;
+    // One new move (not an undo or a new game): a roll is shown.
+    if (moves.length == _seenMoves + 1 && !reduceMotion(context)) {
+      final m = moves.last;
+      final e = m.event;
+      if (e is PropertyEvent && m.seat < _shownPos.length) {
+        show = PropertyRollShow.of(seat: m.seat, from: _shownPos[m.seat], events: e.events, theme: game.theme);
+      }
+    }
+    _seenMoves = moves.length;
+    _shownPos = _positions();
+    _cashBefore = _shownCash;
+    _shownCash = [for (final st in game.seats) st.cash];
+    setState(() => _show = show);
+    if (show != null) {
+      _anim.duration = show.duration;
+      _anim.forward(from: 0);
+    } else {
+      _anim.stop();
+    }
+  }
+
+  /// Ends the roll being shown: the board shows the game as it is.
+  void _skip() {
+    if (!mounted || _show == null) return;
+    _anim.stop();
+    setState(() => _show = null);
   }
 
   String _name(int seat) {
@@ -207,7 +272,8 @@ class _PropertyBoardState extends State<PropertyBoard> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _updateHint();
+      // The hint tells the roll once it has been shown.
+      if (_show == null) _updateHint();
       _maybeCoach();
     });
     return LayoutBuilder(builder: (context, box) {
@@ -304,7 +370,10 @@ class _PropertyBoardState extends State<PropertyBoard> {
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.labelLarge?.copyWith(fontWeight: actor ? FontWeight.w800 : FontWeight.w600)),
                   Text(
-                    st.out ? l10n.propertyOut : '${_money(st.cash)} · ${l10n.propertyStreets(game.ownedBy(seat).length)}',
+                    st.out
+                        ? l10n.propertyOut
+                        : '${_money(_show != null && seat < _cashBefore.length ? _cashBefore[seat] : st.cash)} · '
+                            '${l10n.propertyStreets(game.ownedBy(seat).length)}',
                     key: Key('property-cash-$seat'),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -335,7 +404,12 @@ class _PropertyBoardState extends State<PropertyBoard> {
 
   Widget _board(double side) {
     final cell = side / 11;
-    final focus = game.auction?.square ?? game.seats[game.actor ?? game.currentSeat].pos;
+    final show = _show;
+    final now = show?.at(_anim.value);
+    final positions = _positions();
+    if (show != null) positions[show.seat] = now!.square;
+    // While a roll is shown the target square is outlined.
+    final focus = show?.target ?? game.auction?.square ?? game.seats[game.actor ?? game.currentSeat].pos;
     return Directionality(
       // The board is a picture: the same in every language.
       textDirection: TextDirection.ltr,
@@ -360,7 +434,10 @@ class _PropertyBoardState extends State<PropertyBoard> {
                   square: i,
                   size: cell,
                   focus: i == focus,
-                  onTap: () => showPropertySquareSheet(context, game, i),
+                  positions: positions,
+                  walking: show?.seat,
+                  hop: now?.hop ?? 0,
+                  onTap: show != null ? _skip : () => showPropertySquareSheet(context, game, i),
                 ),
               ),
             Positioned(
@@ -368,7 +445,18 @@ class _PropertyBoardState extends State<PropertyBoard> {
               top: cell,
               width: cell * 9,
               height: cell * 9,
-              child: _BoardCentre(game: game, cell: cell, focus: focus),
+              child: GestureDetector(
+                behavior: show != null ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+                onTap: show != null ? _skip : null,
+                child: _BoardCentre(
+                  game: game,
+                  cell: cell,
+                  focus: focus,
+                  dice: show?.dice ?? game.dice,
+                  rolling: now?.rolling == true ? _anim.value * show!.totalMs / PropertyRollShow.diceMs : null,
+                  showFocus: show == null,
+                ),
+              ),
             ),
           ],
         ),
@@ -382,7 +470,7 @@ class _PropertyBoardState extends State<PropertyBoard> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final palette = KlunkiPalette.of(context);
-    final a = game.actor;
+    final a = _show == null ? game.actor : null;
     final children = <Widget>[];
     void line(String text, {Key? key, bool strong = false}) => children.add(Padding(
           padding: const EdgeInsets.only(bottom: 6),
@@ -411,6 +499,10 @@ class _PropertyBoardState extends State<PropertyBoard> {
           label: Text(label),
         );
 
+    if (_show != null) {
+      // The roll is being shown: the buttons wait for the token.
+      children.add(big(const Key('property-rolling'), l10n.propertyRoll, null, icon: Icons.casino_outlined));
+    }
     if (a != null) {
       final seat = game.seats[a];
       switch (game.phase) {
@@ -533,8 +625,23 @@ class _SquareCell extends StatelessWidget {
   final int square;
   final double size;
   final bool focus;
+
+  /// Where every seat's token is shown (during a walk not where it stands).
+  final List<int> positions;
+
+  /// The seat whose token walks, and its hop (0–1).
+  final int? walking;
+  final double hop;
   final VoidCallback onTap;
-  const _SquareCell({required this.game, required this.square, required this.size, required this.focus, required this.onTap});
+  const _SquareCell(
+      {required this.game,
+      required this.square,
+      required this.size,
+      required this.focus,
+      required this.positions,
+      required this.walking,
+      required this.hop,
+      required this.onTap});
 
   IconData? get _icon => switch (game.theme.squares[square].kind) {
         PropertyKind.start => Icons.flag_rounded,
@@ -568,7 +675,7 @@ class _SquareCell extends StatelessWidget {
     final horizontal = inner == Alignment.topCenter || inner == Alignment.bottomCenter;
     final ownerColor = owner == null ? null : seatColor(context, owner);
     const ink = Color(0xFF26301F);
-    final here = [for (var s = 0; s < game.playerCount; s++) if (!game.seats[s].out && game.seats[s].pos == square) s];
+    final here = [for (var s = 0; s < game.playerCount; s++) if (!game.seats[s].out && positions[s] == square) s];
     return Semantics(
       button: true,
       label: sq.name,
@@ -627,7 +734,16 @@ class _SquareCell extends StatelessWidget {
                     alignment: WrapAlignment.center,
                     spacing: 0,
                     runSpacing: 0,
-                    children: [for (final s in here) SeatToken(seat: s, size: here.length == 1 ? size * 0.5 : size * 0.42)],
+                    children: [
+                      for (final s in here)
+                        s == walking
+                            ? Transform.translate(
+                                key: Key('property-walking-$s'),
+                                offset: Offset(0, -hop * size * 0.22),
+                                child: SeatToken(seat: s, size: here.length == 1 ? size * 0.5 : size * 0.42),
+                              )
+                            : SeatToken(seat: s, size: here.length == 1 ? size * 0.5 : size * 0.42),
+                    ],
                   ),
                 ),
             ],
@@ -645,14 +761,33 @@ class _BoardCentre extends StatelessWidget {
   final PropertyGame game;
   final double cell;
   final int focus;
-  const _BoardCentre({required this.game, required this.cell, required this.focus});
+
+  /// The dice shown.
+  final List<int>? dice;
+
+  /// While the dice tumble: how far (0–1); null when they lie still.
+  final double? rolling;
+
+  /// False while a roll is shown: the card of the square waits.
+  final bool showFocus;
+  const _BoardCentre(
+      {required this.game,
+      required this.cell,
+      required this.focus,
+      required this.dice,
+      required this.rolling,
+      required this.showFocus});
+
+  /// A changing face of die [i] while it tumbles (like Ausgewürfelt's).
+  int _tumbleFace(int i, double t) => 1 + ((i * 7 + (t * 14).floor() * 5) % 6);
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     const ink = Color(0xFF26301F);
-    final dice = game.dice;
+    final dice = this.dice;
+    final t = rolling;
     final sq = game.theme.squares[focus];
     final owner = game.ownerOf(focus);
     final usesPot = game.freeSquare == PropertyFreeSquare.pot || game.freeSquare == PropertyFreeSquare.potWithSeed;
@@ -668,66 +803,81 @@ class _BoardCentre extends StatelessWidget {
           ),
           if (dice != null)
             Row(
-              key: const Key('property-dice'),
+              key: Key(t == null ? 'property-dice' : 'property-dice-rolling'),
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                DieFace(value: dice[0], size: cell * 1.25, angle: -0.12),
-                SizedBox(width: cell * 0.4),
-                DieFace(value: dice[1], size: cell * 1.25, angle: 0.1),
+                for (final i in const [0, 1]) ...[
+                  if (i == 1) SizedBox(width: cell * 0.4),
+                  // Tumbling: changing faces, turning less and less, a small
+                  // bounce; then the result.
+                  Transform.translate(
+                    offset: Offset(0, t == null ? 0 : -(math.sin(t * math.pi * 3).abs()) * cell * 0.35 * (1 - t)),
+                    child: DieFace(
+                      value: t == null ? dice[i] : _tumbleFace(i, t),
+                      size: cell * 1.25,
+                      angle: t == null
+                          ? (i == 0 ? -0.12 : 0.1)
+                          : math.sin((t + i) * math.pi * 4) * 0.9 * (1 - t) + (i == 0 ? -0.12 : 0.1),
+                    ),
+                  ),
+                ],
               ],
             )
           else
             SizedBox(height: cell * 1.25),
           // The square in focus, as a small card.
-          Container(
-            key: const Key('property-focus'),
-            constraints: BoxConstraints(maxWidth: cell * 6.5),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFFBF0),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF7A8A70)),
-              boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 3, offset: Offset(0, 1))],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (sq.group >= 0) Container(height: cell * 0.35, color: propertyGroupColor(sq.group)),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Column(
-                    children: [
-                      Text(sq.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleSmall?.copyWith(color: ink, fontWeight: FontWeight.w800)),
-                      if (sq.isOwnable)
-                        Text(
-                          owner == null ? l10n.propertyPrice(l10n.propertyMoney(sq.price)) : '',
-                          style: theme.textTheme.bodySmall?.copyWith(color: ink),
-                        ),
-                      if (owner != null)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SeatToken(seat: owner, size: 16),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                game.isMortgaged(focus)
-                                    ? l10n.propertyMortgaged
-                                    : l10n.propertyRent(l10n.propertyMoney(game.rentFor(focus, diceTotal: 7))),
-                                style: theme.textTheme.bodySmall?.copyWith(color: ink),
+          Opacity(
+            opacity: showFocus ? 1 : 0,
+            child: Container(
+              key: Key(showFocus ? 'property-focus' : 'property-focus-waiting'),
+              constraints: BoxConstraints(maxWidth: cell * 6.5),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBF0),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFF7A8A70)),
+                boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 3, offset: Offset(0, 1))],
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (sq.group >= 0) Container(height: cell * 0.35, color: propertyGroupColor(sq.group)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Column(
+                      children: [
+                        Text(sq.name,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall?.copyWith(color: ink, fontWeight: FontWeight.w800)),
+                        if (sq.isOwnable)
+                          Text(
+                            owner == null ? l10n.propertyPrice(l10n.propertyMoney(sq.price)) : '',
+                            style: theme.textTheme.bodySmall?.copyWith(color: ink),
+                          ),
+                        if (owner != null)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SeatToken(seat: owner, size: 16),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  game.isMortgaged(focus)
+                                      ? l10n.propertyMortgaged
+                                      : l10n.propertyRent(l10n.propertyMoney(game.rentFor(focus, diceTotal: 7))),
+                                  style: theme.textTheme.bodySmall?.copyWith(color: ink),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                    ],
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           if (usesPot)
