@@ -19,6 +19,7 @@ import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<GameController> _pump(WidgetTester tester, GameConfig config) async {
   tester.view.physicalSize = const Size(390, 844) * 2;
@@ -167,7 +168,12 @@ Future<int> _playGame(WidgetTester tester, GameConfig config, Random rng) async 
 
 void main() {
   // The "how to play" tour (KLD-118) has its own test (maumau_coach_test).
-  setUp(() => SeenTips.shared.markFirst(SeenTips.maumauIntro));
+  setUp(() {
+    // Storage for the settings the screen reads ("Zug zurücknehmen
+    // erlauben", KLD-117 follow-up).
+    SharedPreferences.setMockInitialValues({});
+    SeenTips.shared.markFirst(SeenTips.maumauIntro);
+  });
   for (final (name, rules, seed) in [
     ('default rules (ace and "Mau!" on)', const MauMauRules(), 3),
     ('default rules, another deal', const MauMauRules(), 11),
