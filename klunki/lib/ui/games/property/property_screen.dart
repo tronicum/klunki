@@ -49,6 +49,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
           describeMove: (l10n, move) => describePropertyMove(l10n, widget.controller, move, propertySeatNamer(context, widget.controller.config.players)),
           // The narration names everybody ("Anna würfelt …", "Ben zahlt …").
           historyNamesMover: false,
+          // The board tells who starts in its story line (fixed height).
+          showStarter: false,
           resultScore: (l10n, result, seat) {
             final game = widget.controller.game;
             if (game is PropertyGame && game.isSeatOut(seat)) return l10n.propertyOut;

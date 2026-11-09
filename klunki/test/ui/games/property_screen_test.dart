@@ -304,6 +304,12 @@ void main() {
     testWidgets('dice, then the token walks square by square, then the card and the question', (tester) async {
       final c = await pumpAt(tester, dice: [1, 2]);
       final street = berlin.squares[3];
+      // The story line keeps its height from the start: the board does not
+      // move when the first sentences appear.
+      final boardAt = tester.getRect(_key('property-board'));
+      expect(find.byKey(const Key('shell-hint')), findsNothing);
+      expect(find.byKey(const Key('seat-starter')), findsNothing, reason: 'the shell line would go away');
+      expect(tester.widget<Text>(_key('property-story')).data, contains('Anna'), reason: 'who starts');
       await tapRoll(tester);
       // The engine has the move at once.
       expect((c.game as PropertyGame).seats[0].pos, 3);
@@ -327,6 +333,7 @@ void main() {
       expect(find.text('${street.name} gehört noch niemandem.'), findsOneWidget);
       expect(_key('property-buy'), findsOneWidget);
       expect(find.text('Anna würfelt 1 + 2 → ${street.name}'), findsOneWidget);
+      expect(tester.getRect(_key('property-board')), boardAt);
     });
 
     testWidgets('the walk passes Start', (tester) async {

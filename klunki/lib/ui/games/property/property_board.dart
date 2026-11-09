@@ -20,7 +20,9 @@ import 'property_screen.dart';
 /// roll, buy or auction, bid or drop out, pay a debt, end the turn, "Meine
 /// Straßen" (build, sell, mortgage) and "Zug zurücknehmen". A tap on a
 /// square shows its details (price, rents, owner). The last move's events
-/// are the shell's hint line.
+/// are told in a line of their own above the players (two lines' height
+/// kept from the start, so the board never moves; not the shell's hint,
+/// whose height changes with the text).
 ///
 /// A roll is shown, not just applied ([PropertyRollShow]): the dice tumble,
 /// the token walks square by square, the target square is outlined, and
@@ -33,7 +35,7 @@ import 'property_screen.dart';
 /// The first game on a device starts with a short tour ([showCoachMarks],
 /// [SeenTips.propertyIntro]); "Kurz erklärt" in the "⋮" menu shows it again.
 ///
-/// Keys: `property-board`, `property-players`, `property-player-<seat>`,
+/// Keys: `property-story`, `property-board`, `property-players`, `property-player-<seat>`,
 /// `property-square-<i>`, `property-controls`, `property-roll`,
 /// `property-pay-bail`, `property-use-card`, `property-buy`,
 /// `property-decline`, `property-bid-<0..2>`, `property-pass`,
@@ -78,7 +80,8 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
   final _manageKey = GlobalKey(debugLabel: 'property-manage');
   bool _coachPending = false;
   bool _coachOpen = false;
-  String? _lastHint;
+  /// What happened in the turn so far (else in the turn before).
+  String? _story;
 
   /// The roll being shown, null when the board shows the game as it is.
   PropertyRollShow? _show;
@@ -179,9 +182,9 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
 
   // ------------------------------------------------------------- hint
 
-  /// The events of the turn so far (else of the turn before) as the shell's
-  /// hint, the last three sentences.
-  void _updateHint() {
+  /// The events of the turn so far (else of the turn before), the last
+  /// three sentences; null before the first move.
+  String? _storyNow() {
     final l10n = AppLocalizations.of(context);
     final moves = controller.moves;
     List<String> linesFrom(int end) {
@@ -206,11 +209,29 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
       }
       if (end >= 0) lines = linesFrom(end);
     }
-    final hint = lines.isEmpty ? null : lines.skip(math.max(0, lines.length - 3)).join(' · ');
-    if (hint != _lastHint) {
-      _lastHint = hint;
-      GameScreen.of(context).setHint(hint);
-    }
+    return lines.isEmpty ? null : lines.skip(math.max(0, lines.length - 3)).join(' · ');
+  }
+
+  /// [_story] in a box of two lines' height, also when empty (an invisible
+  /// two-line text sets the height, with the text scale).
+  Widget _storyBox() {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+      child: Stack(
+        children: [
+          ExcludeSemantics(child: Opacity(opacity: 0, child: Text('\n', maxLines: 2, style: style))),
+          Positioned.fill(
+            child: Semantics(
+              liveRegion: true,
+              child: Text(_story ?? '',
+                  key: const Key('property-story'), maxLines: 2, overflow: TextOverflow.ellipsis, style: style),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ------------------------------------------------------------- tour
@@ -270,10 +291,18 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    // The story tells the roll once it has been shown; before the first
+    // move, who starts (the shell's line for it is off: it would go away
+    // and move the board).
+    if (_show == null) {
+      final l10n = AppLocalizations.of(context);
+      final first = game.actor;
+      _story = controller.moves.isEmpty && first != null && !game.isOver
+          ? (controller.config.randomStart ? l10n.seatStartsRandom(_name(first)) : l10n.seatStarts(_name(first)))
+          : _storyNow();
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      // The hint tells the roll once it has been shown.
-      if (_show == null) _updateHint();
       _maybeCoach();
     });
     return LayoutBuilder(builder: (context, box) {
@@ -291,7 +320,7 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [_players(), const SizedBox(height: 8), _panel()],
+                    children: [_storyBox(), _players(), const SizedBox(height: 8), _panel()],
                   ),
                 ),
               ),
@@ -305,6 +334,7 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _storyBox(),
           Padding(padding: const EdgeInsets.fromLTRB(8, 2, 8, 4), child: _players()),
           Center(child: SizedBox.square(dimension: side, child: _board(side))),
           Expanded(

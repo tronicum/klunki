@@ -78,6 +78,11 @@ class SeatGameScreen extends StatefulWidget {
   /// Public information on the handover cover (hidden-information games).
   final WidgetBuilder? handoverDetail;
 
+  /// False when the board tells who starts itself (Baulöwe keeps a line of
+  /// fixed height for that and its story, so nothing moves after the first
+  /// move); default true: "Los geht's: … fängt an." until the first move.
+  final bool showStarter;
+
   /// More of the result dialog, under the ranking.
   final WidgetBuilder? resultDetail;
 
@@ -96,6 +101,7 @@ class SeatGameScreen extends StatefulWidget {
     this.menuEntries = const [],
     this.resultScore,
     this.handoverDetail,
+    this.showStarter = true,
     this.resultDetail,
     this.rankingNote,
   });
@@ -668,7 +674,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                           ),
                           // Who starts, until the first move (KLD-119 follow-up):
                           // with "Zufall" the draw is announced.
-                          if (!over && controller.moves.isEmpty && seat != null)
+                          if (widget.showStarter && !over && controller.moves.isEmpty && seat != null)
                             Padding(
                               padding: const EdgeInsets.fromLTRB(16, 2, 16, 2),
                               child: Row(
