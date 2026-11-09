@@ -143,6 +143,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shellTakeBack => 'Deshacer';
 
   @override
+  String get undoAllowedSetting => 'Permitir deshacer jugadas';
+
+  @override
   String get shellNewGame => 'Nueva partida';
 
   @override

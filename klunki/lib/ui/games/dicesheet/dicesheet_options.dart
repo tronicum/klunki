@@ -4,6 +4,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import '../../../platform/shake.dart';
 import '../../../profile/beginner_settings.dart';
 import '../../../profile/shake_settings.dart';
+import '../../../profile/undo_settings.dart';
 import '../../game_titles.dart';
 
 /// The start options of an Ausgewürfelt game (KLD-119): the house rule
@@ -22,7 +23,7 @@ enum DiceSheetStart { first, order, random }
 
 /// Asks for the options before a game; null when cancelled. Keys:
 /// `dicesheet-options`, `dicesheet-extra-fives`, `dicesheet-shake`, `dicesheet-beginner`,
-/// `dicesheet-tips`, `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
+/// `dicesheet-tips`, `dicesheet-undo`, `dicesheet-options-next`, `dicesheet-options-cancel`, `dicesheet-start-<first|order|random>`.
 Future<DiceSheetOptions?> showDiceSheetOptionsDialog(BuildContext context) => showDialog<DiceSheetOptions>(
       context: context,
       builder: (_) => const _DiceSheetOptionsDialog(),
@@ -85,6 +86,19 @@ class _DiceSheetOptionsDialogState extends State<_DiceSheetOptionsDialog> {
             ),
           ),
           Text(l10n.dicesheetTipsExplain, style: theme.textTheme.bodySmall),
+          const SizedBox(height: 12),
+          // KLD-117 follow-up: "Zug zurücknehmen erlauben" (stored at once).
+          ListenableBuilder(
+            listenable: UndoSettings.shared(),
+            builder: (context, _) => SwitchListTile(
+              key: const Key('dicesheet-undo'),
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.undo),
+              title: Text(l10n.undoAllowedSetting),
+              value: UndoSettings.shared().allowed('dicesheet'),
+              onChanged: (v) => UndoSettings.shared().setAllowed('dicesheet', v),
+            ),
+          ),
           const SizedBox(height: 16),
           Text(l10n.dicesheetStartTitle, style: theme.textTheme.titleSmall),
           const SizedBox(height: 8),

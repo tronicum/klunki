@@ -40,6 +40,7 @@
   "shellPlayAgain": "Rejouer",
   "shellUndo": "Annuler le coup",
   "shellTakeBack": "Reprendre",
+  "undoAllowedSetting": "Autoriser à reprendre un coup",
   "shellNewGame": "Nouvelle partie",
   "shellNewGameTitle": "Nouvelle partie ?",
   "shellNewGameBody": "La partie en cours sera abandonnée.",

@@ -10,6 +10,7 @@ import 'package:klunki/ui/pairing/network_game_session.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../e2e/e2e_support.dart' show loopback, pingInterval, widgetNetTimeout, until;
 import '../../l10n/l10n_test_utils.dart';
@@ -30,7 +31,12 @@ Future<void> _openResign(WidgetTester tester) async {
 void main() {
   // The one-time Bänkchen explanation is seen: where the bench starts open
   // (KLD-094 step 8c) it would come up over the first word tile turn.
-  setUp(() => SeenTips.shared.markFirst(SeenTips.wordtilesBench));
+  setUp(() {
+    // Storage for the settings the screens read (e.g. "Zug zurücknehmen
+    // erlauben").
+    SharedPreferences.setMockInitialValues({});
+    SeenTips.shared.markFirst(SeenTips.wordtilesBench);
+  });
   group('hot-seat', () {
     for (final id in appGameSpecs.map((s) => s.id)) {
       testWidgets('$id: the flag asks who resigns; Ben resigns on Anna\'s turn', (tester) async {

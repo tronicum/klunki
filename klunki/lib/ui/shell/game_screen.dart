@@ -16,6 +16,7 @@ import '../game_visuals.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../../profile/seen_tips.dart';
+import '../../profile/undo_settings.dart';
 import '../rules/rules_screen.dart';
 import 'confirm_move.dart';
 import 'handover_cover.dart';
@@ -771,6 +772,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
 /// to take back. Must sit inside a [GameScreen]; the shell places it under
 /// the board unless the board shows it in its own control row
 /// ([GameScreen.boardPlacesUndo]). Key `shell-undo` on the button.
+/// Hidden when "Zug zurücknehmen erlauben" is off for the game
+/// ([UndoSettings]).
 class UndoMoveButton extends StatelessWidget {
   /// Compact by default; a board row of denser buttons passes its own
   /// density, so the row keeps its height.
@@ -806,9 +809,12 @@ class UndoMoveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = GameScreen.of(context).controller;
+    final settings = UndoSettings.shared();
     return ListenableBuilder(
-      listenable: controller,
-      builder: (context, _) => _UndoButton(controller: controller, visualDensity: visualDensity, iconOnly: iconOnly),
+      listenable: Listenable.merge([controller, settings]),
+      builder: (context, _) => settings.allowed(controller.spec.id)
+          ? _UndoButton(controller: controller, visualDensity: visualDensity, iconOnly: iconOnly)
+          : const SizedBox.shrink(),
     );
   }
 }

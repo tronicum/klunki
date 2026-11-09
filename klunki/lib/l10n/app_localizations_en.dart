@@ -141,6 +141,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTakeBack => 'Take back';
 
   @override
+  String get undoAllowedSetting => 'Allow taking back moves';
+
+  @override
   String get shellNewGame => 'New game';
 
   @override

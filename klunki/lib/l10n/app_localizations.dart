@@ -342,6 +342,12 @@ abstract class AppLocalizations {
   /// **'Zug zurücknehmen'**
   String get shellTakeBack;
 
+  /// KLD-117 follow-up: switch in "Wer spielt?" (and the Ausgewürfelt start options): whether the take-back button (shellTakeBack) is offered in this game, for both players. On by default.
+  ///
+  /// In de, this message translates to:
+  /// **'Zug zurücknehmen erlauben'**
+  String get undoAllowedSetting;
+
   /// App bar tooltip: restart the game.
   ///
   /// In de, this message translates to:

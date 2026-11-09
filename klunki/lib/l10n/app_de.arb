@@ -176,6 +176,10 @@
   "@shellTakeBack": {
     "description": "Label of the button in the game area (under the board or in the board's control row, KLD-117) that takes back the last move (hot-seat). Short: it sits in a row with icon buttons."
   },
+  "undoAllowedSetting": "Zug zurücknehmen erlauben",
+  "@undoAllowedSetting": {
+    "description": "KLD-117 follow-up: switch in \"Wer spielt?\" (and the Ausgewürfelt start options): whether the take-back button (shellTakeBack) is offered in this game, for both players. On by default."
+  },
   "shellNewGame": "Neues Spiel",
   "@shellNewGame": {
     "description": "App bar tooltip: restart the game."

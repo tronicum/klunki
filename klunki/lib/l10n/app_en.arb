@@ -39,6 +39,7 @@
   "shellPlayAgain": "Play again",
   "shellUndo": "Undo move",
   "shellTakeBack": "Take back",
+  "undoAllowedSetting": "Allow taking back moves",
   "shellNewGame": "New game",
   "shellNewGameTitle": "New game?",
   "shellNewGameBody": "The current game will be abandoned.",

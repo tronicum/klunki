@@ -6,6 +6,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' show Player, specById;
 
 import '../profile/player_name_controller.dart';
+import '../profile/undo_settings.dart';
 import 'shell/confirm_move.dart';
 import 'shell/game_screen.dart' show PlayerToken;
 import 'shell/player_labels.dart';
@@ -175,11 +176,13 @@ Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool 
       a: names.x ?? defaultPlayerName(l10n, Player.a),
       b: names.o ?? defaultPlayerName(l10n, Player.b),
       confirm: confirm == null ? null : (confirm.hotSeat(Player.a), confirm.hotSeat(Player.b)),
+      undo: gameId == null ? null : UndoSettings.shared().allowed(gameId),
       gameId: gameId,
       start: start,
     ),
   );
   if (result == null) return false;
+  if (gameId != null && result.undo != null) await UndoSettings.shared().setAllowed(gameId, result.undo!);
   if (confirm != null && result.confirm != null) {
     await confirm.setHotSeat(Player.a, result.confirm!.$1);
     await confirm.setHotSeat(Player.b, result.confirm!.$2);
@@ -194,18 +197,23 @@ Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool 
   return true;
 }
 
-/// What "Wer spielt?" returns: both names and, for a game with "Zug
-/// bestätigen", both players' choice.
-typedef _HotSeatChoice = ({String a, String b, (bool, bool)? confirm});
+/// What "Wer spielt?" returns: both names, for a game with "Zug
+/// bestätigen" both players' choice, and "Zug zurücknehmen erlauben".
+typedef _HotSeatChoice = ({String a, String b, (bool, bool)? confirm, bool? undo});
 
 class _HotSeatNamesDialog extends StatefulWidget {
-  const _HotSeatNamesDialog({required this.a, required this.b, this.confirm, this.gameId, this.start = false});
+  const _HotSeatNamesDialog(
+      {required this.a, required this.b, this.confirm, this.undo, this.gameId, this.start = false});
 
   final String a;
   final String b;
 
   /// "Zug bestätigen" for player A and B; null = the game does not offer it.
   final (bool, bool)? confirm;
+
+  /// "Zug zurücknehmen erlauben" for the game (both players); null = no
+  /// game (no switch).
+  final bool? undo;
   final String? gameId;
   final bool start;
 
@@ -218,6 +226,7 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
   late final TextEditingController _b = TextEditingController(text: widget.b);
   late bool _confirmA = widget.confirm?.$1 ?? false;
   late bool _confirmB = widget.confirm?.$2 ?? false;
+  late bool _undo = widget.undo ?? UndoSettings.defaultAllowed;
 
   @override
   void dispose() {
@@ -227,7 +236,12 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
   }
 
   void _ok() => Navigator.of(context)
-      .pop((a: _a.text, b: _b.text, confirm: widget.confirm == null ? null : (_confirmA, _confirmB)));
+      .pop((
+        a: _a.text,
+        b: _b.text,
+        confirm: widget.confirm == null ? null : (_confirmA, _confirmB),
+        undo: widget.undo == null ? null : _undo,
+      ));
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +304,20 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
             const SizedBox(height: 4),
             Text(l10n.confirmMoveHelper,
                 key: const Key('hot-seat-confirm-helper'), style: Theme.of(context).textTheme.bodySmall),
+          ],
+          // KLD-117 follow-up: "Zug zurücknehmen erlauben", for both
+          // players of this game.
+          if (widget.undo != null) ...[
+            const SizedBox(height: 4),
+            SwitchListTile(
+              key: const Key('hot-seat-undo'),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.undo),
+              value: _undo,
+              onChanged: (v) => setState(() => _undo = v),
+              title: Text(l10n.undoAllowedSetting),
+            ),
           ],
           // KLD-105: hidden-information games are played by passing the
           // device (the handover cover keeps the secrets); said once here

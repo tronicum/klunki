@@ -137,6 +137,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTakeBack => '悔棋';
 
   @override
+  String get undoAllowedSetting => '允许悔棋';
+
+  @override
   String get shellNewGame => '新游戏';
 
   @override

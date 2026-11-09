@@ -40,6 +40,7 @@
   "shellPlayAgain": "Otra vez",
   "shellUndo": "Deshacer jugada",
   "shellTakeBack": "Deshacer",
+  "undoAllowedSetting": "Permitir deshacer jugadas",
   "shellNewGame": "Nueva partida",
   "shellNewGameTitle": "¿Nueva partida?",
   "shellNewGameBody": "La partida en curso se abandonará.",

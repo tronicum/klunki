@@ -44,6 +44,21 @@ renamed it so it does not sound like "Zurück" of other buttons; German only.)
 - [x] Screenshots: `KLUNKI_SHOTS=/tmp/kld117 flutter test test/screenshots --plain-name kld117`
       (chess de/ar, 4 Gewinnt de/ar + start, Wortgewandt de on 390×844 and 375×667, Schiffe de + cover, phone 390×844).
 
+## Follow-up: "Zug zurücknehmen erlauben" (2026-11-09)
+
+The maintainer: undo becomes an option per game, on by default.
+- `UndoSettings` (`profile/undo_settings.dart`): one device setting per game id (prefs `undoAllowed.<gameId>`),
+  on by default, for both players. Off: `UndoMoveButton` shows nothing, in the game area and on the handover
+  cover alike; on again it is back at once.
+- The switch "Zug zurücknehmen erlauben" (`hot-seat-undo`, ARB `undoAllowedSetting`, 7 locales) sits in "Wer
+  spielt?" (start and the in-game "Spielernamen" dialog), stored with OK; Ausgewürfelt has it in its start
+  options (`dicesheet-undo`, stored at once) since it uses the seat dialog.
+- Network play: there is no undo over the network (only a `HotSeatTransport` can take a move back), so the
+  setting needs no `GameConfig` key, no rules version, no fingerprint and no `PROTOCOL.md` change, and there is
+  nothing for a room to carry.
+- Tests: `undo_move_button_test.dart` (default on; off hides the button and the cover's, per game; the "Wer
+  spielt?" switch through the menu; stored and read back, a choice before loading wins).
+
 ## Constraints
 
 - No rules or protocol change (UI only): no rules version, fingerprint or `protocolVersion` bump.

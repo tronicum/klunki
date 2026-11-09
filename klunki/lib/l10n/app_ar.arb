@@ -40,6 +40,7 @@
   "shellPlayAgain": "مرة أخرى",
   "shellUndo": "تراجع عن الحركة",
   "shellTakeBack": "تراجع",
+  "undoAllowedSetting": "السماح بالتراجع عن الحركة",
   "shellNewGame": "لعبة جديدة",
   "shellNewGameTitle": "لعبة جديدة؟",
   "shellNewGameBody": "سيتم إلغاء اللعبة الحالية.",

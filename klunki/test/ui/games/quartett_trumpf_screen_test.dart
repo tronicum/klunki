@@ -6,6 +6,7 @@ import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../shell/shell_test_utils.dart';
 import '../../l10n/l10n_test_utils.dart';
@@ -48,7 +49,12 @@ Future<void> tapContinue(WidgetTester tester) async {
 void main() {
   // Without the "Neu hier?" line of a new player (KLD-123): the default
   // 800×600 test screen has no room to spare.
-  setUp(() => SeenTips.shared.markFirst(SeenTips.rulesOpened('quartett-trumpf')));
+  setUp(() {
+    // Storage for the settings the screen reads (e.g. "Zug zurücknehmen
+    // erlauben").
+    SharedPreferences.setMockInitialValues({});
+    SeenTips.shared.markFirst(SeenTips.rulesOpened('quartett-trumpf'));
+  });
   testWidgets('shows the top card with all stats, the hint and stack counts', (tester) async {
     final c = await pumpGame(tester, 'quartett-trumpf', seed: 1);
     await tester.pump(); // hint is set post-frame

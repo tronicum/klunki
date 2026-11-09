@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/app/klunki_app.dart';
+import 'package:klunki/l10n/locale_controller.dart';
+import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/profile/undo_settings.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/handover_cover.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../l10n/l10n_test_utils.dart';
 import 'shell_test_utils.dart';
 
 /// KLD-117: "Zug zurücknehmen" sits in the game area for every game, no longer in
@@ -14,6 +20,7 @@ void main() {
   // The one-time Bänkchen explanation (Wortgewandt) is seen, so it does not
   // come up over the board.
   setUp(() {
+    UndoSettings.debugReset();
     SeenTips.debugReset();
     SeenTips.shared.markFirst(SeenTips.wordtilesBench);
     SeenTips.shared.markFirst(SeenTips.maumauIntro);
@@ -161,5 +168,64 @@ void main() {
     await tester.tap(icon);
     await tester.pump();
     expect(c.moves, isEmpty);
+  });
+
+  group('"Zug zurücknehmen erlauben" (KLD-117 follow-up)', () {
+    testWidgets('on by default; off hides the button in the game and on the cover, for that game only', (tester) async {
+      expect(UndoSettings.shared().allowed('schiffe'), isTrue);
+      final c = await pumpGame(tester, 'schiffe');
+      expect(find.byKey(undo), findsOneWidget);
+      await UndoSettings.shared().setAllowed('schiffe', false);
+      await tester.pump();
+      expect(find.byKey(undo, skipOffstage: false), findsNothing);
+      await playUntilHandover(tester);
+      expect(find.byKey(undo, skipOffstage: false), findsNothing, reason: 'not on the handover cover either');
+      expect(c.moves, isNotEmpty);
+      expect(UndoSettings.shared().allowed('connect4'), isTrue, reason: 'one setting per game');
+      // On again: back at once.
+      await UndoSettings.shared().setAllowed('schiffe', true);
+      await tester.pump();
+      expect(find.byKey(undo, skipOffstage: false), findsWidgets);
+    });
+
+    testWidgets('"Wer spielt?" has the switch (for both players), stored with OK', (tester) async {
+      tester.view.physicalSize = const Size(390, 844) * 3;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(KlunkiApp(
+        localeController: LocaleController.memory(testLocale),
+        playerNameController: PlayerNameController.memory(name: 'Anna'),
+        hotSeatNames: HotSeatNamesController.memory(),
+      ));
+      await tester.ensureVisible(find.byKey(const Key('menu-connect4-local')));
+      await tester.tap(find.byKey(const Key('menu-connect4-local')));
+      await tester.pumpAndSettle();
+      final sw = find.byKey(const Key('hot-seat-undo'));
+      expect(tester.widget<SwitchListTile>(sw).value, isTrue);
+      expect(find.text('Zug zurücknehmen erlauben'), findsOneWidget);
+      await tester.tap(sw);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
+      await tester.pumpAndSettle();
+      expect(UndoSettings.shared().allowed('connect4'), isFalse);
+      expect(find.byKey(undo), findsNothing);
+      await playMove(tester);
+      expect(find.byKey(undo), findsNothing);
+    });
+
+    test('stored per game and read back; a choice before loading wins', () async {
+      SharedPreferences.setMockInitialValues({'${UndoSettings.prefsPrefix}muehle': false});
+      UndoSettings.debugReset(loaded: true);
+      await UndoSettings.shared().setAllowed('chess', false);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(UndoSettings.shared().allowed('muehle'), isFalse);
+      expect(UndoSettings.shared().allowed('chess'), isFalse);
+      expect(UndoSettings.shared().allowed('connect4'), isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('${UndoSettings.prefsPrefix}chess'), isFalse);
+      UndoSettings.debugReset(loaded: true);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(UndoSettings.shared().allowed('chess'), isFalse);
+    });
   });
 }

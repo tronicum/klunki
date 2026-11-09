@@ -143,6 +143,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellTakeBack => 'Zug zurücknehmen';
 
   @override
+  String get undoAllowedSetting => 'Zug zurücknehmen erlauben';
+
+  @override
   String get shellNewGame => 'Neues Spiel';
 
   @override

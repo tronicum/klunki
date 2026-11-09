@@ -142,6 +142,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shellTakeBack => 'Reprendre';
 
   @override
+  String get undoAllowedSetting => 'Autoriser à reprendre un coup';
+
+  @override
   String get shellNewGame => 'Nouvelle partie';
 
   @override
