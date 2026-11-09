@@ -459,19 +459,21 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                 const SizedBox(width: 6),
                 SeatToken(seat: s, size: 24, out: game is SeatGame && (game as SeatGame).isSeatOut(s)),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Text(_name(s),
+                () {
+                  final name = Text(_name(s),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null)),
-                ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: r.places[s] == 1 ? FontWeight.w700 : null));
+                  // With a custom score the name takes at most 110 and the
+                  // score the rest: Mäxchen's "ausgeschieden" / "4 Leben
+                  // verloren" (KLD-121) were cut at half the row on an SE.
+                  return widget.resultScore?.call(l10n, r, s) == null
+                      ? Expanded(child: name)
+                      : ConstrainedBox(constraints: const BoxConstraints(maxWidth: 110), child: name);
+                }(),
                 const SizedBox(width: 8),
                 if (widget.resultScore?.call(l10n, r, s) case final custom?)
-                  // Its own width first (the name gives way); Mäxchen's
-                  // "ausgeschieden" / "4 Leben verloren" (KLD-121) were cut
-                  // at half the row.
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 170),
+                  Expanded(
                     child: Text(custom,
                         key: Key('result-score-$s'),
                         maxLines: 1,
