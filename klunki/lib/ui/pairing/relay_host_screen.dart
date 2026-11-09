@@ -209,6 +209,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         tiles: words?.tiles,
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
+        rackPenalty: words?.rest ?? true,
         chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
     NetworkTransport transport;
     try {

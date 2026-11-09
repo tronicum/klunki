@@ -3538,6 +3538,10 @@
   "@wordtilesHelpEnd": {
     "description": "Word tiles rules sheet: how the game ends and the rack penalties."
   },
+  "wordtilesHelpEndNoRest": "Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Übrige Steine zählen nicht.",
+  "@wordtilesHelpEndNoRest": {
+    "description": "KLD-094 step 10: wordtilesHelpEnd for a game with 'Restpunkte abziehen' off (nothing is deducted)."
+  },
   "wordtilesResultRack": "Reststeine: {points}",
   "@wordtilesResultRack": {
     "description": "Word tiles result: points for the tiles left on a rack at the end (negative), or gained by the player who went out (positive). points = signed number, e.g. \"−7\" or \"+12\".",
@@ -3663,9 +3667,26 @@
   "@wordtilesOptionJokerExplain": {
     "description": "Word tiles start options: the line under the 'Joker tauschen' switch that explains the house rule (off by default)."
   },
+  "wordtilesOptionRest": "Restpunkte abziehen",
+  "@wordtilesOptionRest": {
+    "description": "KLD-094 step 10: switch in the Wortgewandt start options (and on \"Raum starten\"): deduct the points of the tiles left on the racks at the end (on by default, the usual rule); a rule variant on the rules page."
+  },
+  "wordtilesOptionRestExplain": "Regelvariante: Am Ende verliert jeder die Punkte seiner übrigen Steine; wer alle Steine gelegt hat, bekommt sie dazu. Aus: Es zählen nur die gelegten Wörter.",
+  "@wordtilesOptionRestExplain": {
+    "description": "KLD-094 step 10: explanation under the wordtilesOptionRest switch and on the rules page."
+  },
   "wordtilesOptionsSummaryJoker": "{summary} · Joker tauschen",
   "@wordtilesOptionsSummaryJoker": {
     "description": "Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.",
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "wordtilesOptionsSummaryNoRest": "{summary} · ohne Restpunkte",
+  "@wordtilesOptionsSummaryNoRest": {
+    "description": "Word tiles: the options line of a network game when the host turned 'Restpunkte abziehen' off; {summary} is the line before.",
     "placeholders": {
       "summary": {
         "type": "String"
@@ -4882,6 +4903,14 @@
   "rulesWordtilesScoreless": "Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.",
   "@rulesWordtilesScoreless": {
     "description": "KLD-123: word tile game rules, the end after scoreless turns."
+  },
+  "rulesWordtilesNoRestTitle": "Ohne Restpunkte",
+  "@rulesWordtilesNoRestTitle": {
+    "description": "KLD-094 step 10: rules page, rule variant title when 'Restpunkte abziehen' is off."
+  },
+  "rulesWordtilesNoRest": "Am Ende wird nichts abgezogen und nichts dazugezählt: Es zählen nur die gelegten Wörter.",
+  "@rulesWordtilesNoRest": {
+    "description": "KLD-094 step 10: rules page, the text of that rule variant."
   },
   "rulesMaumauGoal": "Werde als Erster alle deine Karten los.",
   "@rulesMaumauGoal": {

@@ -191,11 +191,11 @@ void main() {
   });
   tearDown(WordLists.clear);
 
-  test('the word tile game is redacted with a secret seed; rules 4 and the word lists in the fingerprint', () {
+  test('the word tile game is redacted with a secret seed; rules 5 and the word lists in the fingerprint', () {
     final spec = specById('wordtiles')!;
     expect(spec.redaction, isA<WordTilesRedaction>());
     expect(spec.redaction!.secretSeed, isTrue);
-    expect(fingerprintOf(const GameConfig('wordtiles'))!.rules, 4);
+    expect(fingerprintOf(const GameConfig('wordtiles'))!.rules, 5);
     expect(WordTilesGame.gameplayData().last, everyElement(contains('sha256:')));
   });
 

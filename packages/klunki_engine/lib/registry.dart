@@ -32,7 +32,10 @@ import 'word_tiles.dart';
 /// for that tile set ([WordCheck.dictionary]); off = challenge mode.
 /// [jokerSwap] (KLD-094 step 9, JSON `joker`, written only when on; off by
 /// default) turns on the house rule "Joker tauschen"
-/// ([WordTilesGame.jokerSwap]). Other games ignore all three.
+/// ([WordTilesGame.jokerSwap]). [rackPenalty] (KLD-094 step 10, JSON `rest`,
+/// written only when off; on by default) deducts the tiles left on the
+/// racks at the end ([WordTilesGame.rackPenalty]). Other games ignore all
+/// four.
 ///
 /// [chessWhite] (KLD-059 step 4a, chess only): the player who plays White,
 /// JSON `white` (`"b"`), written only when it is [Player.b] (absent = A, as
@@ -70,6 +73,7 @@ class GameConfig {
   final String? tiles;
   final bool dictionary;
   final bool jokerSwap;
+  final bool rackPenalty;
   final Player chessWhite;
   final int players;
   final MauMauRules mauMau;
@@ -84,6 +88,7 @@ class GameConfig {
       this.tiles,
       this.dictionary = false,
       this.jokerSwap = false,
+      this.rackPenalty = true,
       this.chessWhite = Player.a,
       this.players = 2,
       this.mauMau = const MauMauRules(),
@@ -104,6 +109,7 @@ class GameConfig {
         if (tiles != null) 'tiles': tiles,
         if (dictionary) 'dict': true,
         if (jokerSwap) 'joker': true,
+        if (!rackPenalty) 'rest': false,
         if (chessWhite == Player.b) 'white': 'b',
         if (players != 2) 'players': players,
         if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
@@ -120,6 +126,7 @@ class GameConfig {
       tiles: json['tiles'] as String?,
       dictionary: json['dict'] == true,
       jokerSwap: json['joker'] == true,
+      rackPenalty: json['rest'] != false,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
       players: json['players'] as int? ?? 2,
       mauMau: MauMauRules.fromJson(json['maumau']),
@@ -135,6 +142,7 @@ class GameConfig {
       tiles: tiles,
       dictionary: dictionary,
       jokerSwap: jokerSwap,
+      rackPenalty: rackPenalty,
       chessWhite: chessWhite,
       players: players ?? this.players,
       mauMau: mauMau,
@@ -153,6 +161,7 @@ class GameConfig {
       other.tiles == tiles &&
       other.dictionary == dictionary &&
       other.jokerSwap == jokerSwap &&
+      other.rackPenalty == rackPenalty &&
       other.chessWhite == chessWhite &&
       other.players == players &&
       other.mauMau == mauMau &&
@@ -163,13 +172,13 @@ class GameConfig {
 
   @override
   int get hashCode => Object.hash(
-      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, chessWhite, players, mauMau, lives, maexchenDouble,
-      extraFives, randomStart);
+      gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty, chessWhite, players, mauMau, lives,
+      maexchenDouble, extraFives, randomStart);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
-      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}'
+      '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}${rackPenalty ? '' : ', rest: off'}'
       '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
@@ -275,8 +284,10 @@ final List<GameSpec> gameSpecs = [
   // only for now). Two seats are unchanged, so still rules 3. Rules 4
   // (step 9): the house rule "Joker tauschen" (GameConfig.jokerSwap, JSON
   // `joker`; `swaps` on `place` / `requestAllow`, the view's `jokerSwap`).
+  // Rules 5 (step 10): "Restpunkte abziehen" can be turned off
+  // (GameConfig.rackPenalty, JSON `rest: false`; the view's `rackPenalty`).
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 4, maxPlayers: 4),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 5, maxPlayers: 4),
   // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2); house rules
   // in GameConfig.mauMau (JSON `maumau`).
   GameSpec('maumau', 'Mau-Mau', (c, _) => MauMauGame(seed: c.seed, rules: c.mauMau),
@@ -302,7 +313,8 @@ WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
   final tileSet = TileSet.byId(c.tiles ?? TileSet.german.id) ??
       (throw ArgumentError.value(c.tiles, 'tiles', 'unknown tile set'));
   if (!c.dictionary) {
-    return WordTilesGame(seed: c.seed, tileSet: tileSet, playerCount: c.players, jokerSwap: c.jokerSwap);
+    return WordTilesGame(
+        seed: c.seed, tileSet: tileSet, playerCount: c.players, jokerSwap: c.jokerSwap, rackPenalty: c.rackPenalty);
   }
   final list = WordLists.of(tileSet.id) ??
       (throw ArgumentError.value(tileSet.id, 'tiles', 'no word list loaded for this tile set'));
@@ -312,7 +324,8 @@ WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {
       check: WordCheck.dictionary,
       validator: list,
       playerCount: c.players,
-      jokerSwap: c.jokerSwap);
+      jokerSwap: c.jokerSwap,
+      rackPenalty: c.rackPenalty);
 }
 
 /// The games the Flutter app offers (menu, hosting): [gameSpecs] with a

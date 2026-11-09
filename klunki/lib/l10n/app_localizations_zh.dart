@@ -2300,6 +2300,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesHelpEnd => '牌堆空了且有人出完所有牌时，本局结束。剩余的牌按分数失分；出完牌的人得到这些分数。';
 
   @override
+  String get wordtilesHelpEndNoRest => '牌堆空了且有人出完所有牌时，本局结束。剩余的牌不计分。';
+
+  @override
   String wordtilesResultRack(String points) {
     return '剩余牌：$points';
   }
@@ -2365,8 +2368,20 @@ class AppLocalizationsZh extends AppLocalizations {
       '规则变体：如果你有棋盘上空白牌代表的字母，可以把它放到那里，取走空白牌。然后本轮还要出牌。';
 
   @override
+  String get wordtilesOptionRest => '扣除剩余牌分';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      '规则变体：结束时，每人扣掉手里剩余牌的分数；出完所有牌的人得到这些分数。关闭时：只算摆出的单词。';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · 换空白牌';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · 不扣剩余牌分';
   }
 
   @override
@@ -3175,6 +3190,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesWordtilesScoreless => '如果因为没人再得分而结束，每个人都要减去自己剩余牌的分数。';
+
+  @override
+  String get rulesWordtilesNoRestTitle => '不扣剩余牌分';
+
+  @override
+  String get rulesWordtilesNoRest => '结束时不扣分也不加分：只算摆出的单词。';
 
   @override
   String get rulesMaumauGoal => '争取第一个出完手里所有的牌。';

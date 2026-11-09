@@ -585,6 +585,13 @@ class WordTilesGame extends Game implements SeatGame {
   /// `place` move may carry `swaps` (see the library docs).
   final bool jokerSwap;
 
+  /// "Restpunkte abziehen" (KLD-094 step 10, on by default, the usual rule):
+  /// at the end every player loses the points of the tiles left on the
+  /// rack and whoever went out gains their sum (on the scoreless end
+  /// everyone just loses theirs). Off: no deduction and no bonus, the
+  /// scores of the laid words decide ([rackPenalties] stay 0).
+  final bool rackPenalty;
+
   /// The word check: required in [WordCheck.dictionary]; optional in
   /// [WordCheck.challenge] (null: the challenger decides).
   final WordValidator? validator;
@@ -631,6 +638,7 @@ class WordTilesGame extends Game implements SeatGame {
       this.check = WordCheck.challenge,
       this.validator,
       this.jokerSwap = false,
+      this.rackPenalty = true,
       int? scorelessLimit})
       : scorelessLimit = scorelessLimit ?? defaultScorelessLimit(playerCount),
         _racks = List.generate(playerCount, (_) => <String>[]),
@@ -655,7 +663,7 @@ class WordTilesGame extends Game implements SeatGame {
 
   /// The empty shell of a view ([WordTilesView]): no bag, no racks dealt.
   WordTilesGame._view(this.tileSet, this.playerCount, this.check, this.validator, this.scorelessLimit,
-      {this.jokerSwap = false})
+      {this.jokerSwap = false, this.rackPenalty = true})
       : seed = 0,
         _racks = List.generate(playerCount, (_) => <String>[]),
         _scores = List.filled(playerCount, 0),
@@ -1445,7 +1453,7 @@ class WordTilesGame extends Game implements SeatGame {
 
   void _finishOut(int seat) {
     var total = 0;
-    for (var s = 0; s < playerCount; s++) {
+    for (var s = 0; s < playerCount && rackPenalty; s++) {
       if (s == seat) continue;
       final v = _rackValue(s);
       _penalties[s] = -v;
@@ -1462,7 +1470,7 @@ class WordTilesGame extends Game implements SeatGame {
 
   void _checkScoreless() {
     if (_over || _scoreless < scorelessLimit) return;
-    for (var s = 0; s < playerCount; s++) {
+    for (var s = 0; s < playerCount && rackPenalty; s++) {
       final v = _rackValue(s);
       _penalties[s] = -v;
       _scores[s] -= v;
@@ -1567,6 +1575,7 @@ class WordTilesGame extends Game implements SeatGame {
       'check': check.name,
       'scorelessLimit': scorelessLimit,
       if (jokerSwap) 'jokerSwap': true,
+      if (!rackPenalty) 'rackPenalty': false,
       'board': [
         for (var r = 0; r < size; r++) [for (var c = 0; c < size; c++) _board[r * size + c]?.toString() ?? '.'].join(),
       ],

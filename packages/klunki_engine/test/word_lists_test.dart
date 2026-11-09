@@ -284,7 +284,7 @@ void main() {
 
     test('the word list revisions are part of the fingerprint data', () {
       expect(WordTilesGame.gameplayData().last, contains(startsWith('de=')));
-      expect(specById('wordtiles')!.rulesVersion, 4);
+      expect(specById('wordtiles')!.rulesVersion, 5); // 4 with "Joker tauschen", 5 with "Restpunkte abziehen" optional
       expect(WordTilesGame.gameplayData().last, contains(contains('sha256:')));
     });
   });

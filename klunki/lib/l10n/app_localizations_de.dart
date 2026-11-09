@@ -2424,6 +2424,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Übrige Steine zählen nicht.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'Reststeine: $points';
   }
@@ -2503,8 +2507,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Regelvariante: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.';
 
   @override
+  String get wordtilesOptionRest => 'Restpunkte abziehen';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'Regelvariante: Am Ende verliert jeder die Punkte seiner übrigen Steine; wer alle Steine gelegt hat, bekommt sie dazu. Aus: Es zählen nur die gelegten Wörter.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · Joker tauschen';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · ohne Restpunkte';
   }
 
   @override
@@ -3388,6 +3404,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'Ohne Restpunkte';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'Am Ende wird nichts abgezogen und nichts dazugezählt: Es zählen nur die gelegten Wörter.';
 
   @override
   String get rulesMaumauGoal => 'Werde als Erster alle deine Karten los.';

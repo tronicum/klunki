@@ -42,7 +42,7 @@ void main() {
       expect((createGame(on) as WordTilesGame).jokerSwap, isTrue);
       expect((createGame(const GameConfig('wordtiles')) as WordTilesGame).jokerSwap, isFalse);
       expect(WordTilesGame().viewJson(Player.a).containsKey('jokerSwap'), isFalse);
-      expect(specById('wordtiles')!.rulesVersion, 4);
+      expect(specById('wordtiles')!.rulesVersion, 5); // 4 with "Joker tauschen", 5 with "Restpunkte abziehen" optional
     });
 
     test('a swap: the real letter goes on the square, the blank onto the rack; it then scores as a letter', () {

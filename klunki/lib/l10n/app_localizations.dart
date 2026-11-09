@@ -3869,6 +3869,12 @@ abstract class AppLocalizations {
   /// **'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Die Punkte der übrigen Steine werden abgezogen; wer fertig ist, bekommt sie dazu.'**
   String get wordtilesHelpEnd;
 
+  /// KLD-094 step 10: wordtilesHelpEnd for a game with 'Restpunkte abziehen' off (nothing is deducted).
+  ///
+  /// In de, this message translates to:
+  /// **'Das Spiel ist aus, wenn der Beutel leer ist und jemand alle Steine gelegt hat. Übrige Steine zählen nicht.'**
+  String get wordtilesHelpEndNoRest;
+
   /// Word tiles result: points for the tiles left on a rack at the end (negative), or gained by the player who went out (positive). points = signed number, e.g. "−7" or "+12".
   ///
   /// In de, this message translates to:
@@ -3965,11 +3971,29 @@ abstract class AppLocalizations {
   /// **'Regelvariante: Wer den Buchstaben hat, für den ein Joker auf dem Brett steht, darf ihn dorthin legen und den Joker nehmen. Danach legt man im selben Zug noch Steine.'**
   String get wordtilesOptionJokerExplain;
 
+  /// KLD-094 step 10: switch in the Wortgewandt start options (and on "Raum starten"): deduct the points of the tiles left on the racks at the end (on by default, the usual rule); a rule variant on the rules page.
+  ///
+  /// In de, this message translates to:
+  /// **'Restpunkte abziehen'**
+  String get wordtilesOptionRest;
+
+  /// KLD-094 step 10: explanation under the wordtilesOptionRest switch and on the rules page.
+  ///
+  /// In de, this message translates to:
+  /// **'Regelvariante: Am Ende verliert jeder die Punkte seiner übrigen Steine; wer alle Steine gelegt hat, bekommt sie dazu. Aus: Es zählen nur die gelegten Wörter.'**
+  String get wordtilesOptionRestExplain;
+
   /// Word tiles: the options line of a network game (wordtilesOptionsSummaryDict / Free) when the host turned on 'Joker tauschen'; {summary} is that line.
   ///
   /// In de, this message translates to:
   /// **'{summary} · Joker tauschen'**
   String wordtilesOptionsSummaryJoker(String summary);
+
+  /// Word tiles: the options line of a network game when the host turned 'Restpunkte abziehen' off; {summary} is the line before.
+  ///
+  /// In de, this message translates to:
+  /// **'{summary} · ohne Restpunkte'**
+  String wordtilesOptionsSummaryNoRest(String summary);
 
   /// Word tiles hint line ('Joker tauschen' on): the player to move holds a letter that a blank on the board stands for.
   ///
@@ -5248,6 +5272,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Endet das Spiel, weil niemand mehr Punkte macht, verliert jeder die Punkte seiner übrigen Steine.'**
   String get rulesWordtilesScoreless;
+
+  /// KLD-094 step 10: rules page, rule variant title when 'Restpunkte abziehen' is off.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Restpunkte'**
+  String get rulesWordtilesNoRestTitle;
+
+  /// KLD-094 step 10: rules page, the text of that rule variant.
+  ///
+  /// In de, this message translates to:
+  /// **'Am Ende wird nichts abgezogen und nichts dazugezählt: Es zählen nur die gelegten Wörter.'**
+  String get rulesWordtilesNoRest;
 
   /// KLD-123: Mau-Mau rules, goal.
   ///

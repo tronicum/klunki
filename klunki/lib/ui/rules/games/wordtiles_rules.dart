@@ -63,8 +63,10 @@ GameRules wordTilesRules(BuildContext context, AppLocalizations l10n, GameConfig
       RuleItem(l10n.wordtilesHelpSwap(WordTilesGame.rackSize), lead: icon(Icons.swap_horiz)),
       RuleItem(l10n.wordtilesHelpPass(scoreless), lead: icon(Icons.skip_next_outlined)),
       if (dict) ...[dictionary, challenge] else ...[challenge, dictionary],
-      RuleItem(l10n.wordtilesHelpEnd, lead: icon(Icons.flag_outlined)),
-      RuleItem(l10n.rulesWordtilesScoreless),
+      // Without "Restpunkte abziehen" (KLD-094 step 10) nothing is deducted.
+      RuleItem(config.rackPenalty ? l10n.wordtilesHelpEnd : l10n.wordtilesHelpEndNoRest,
+          lead: icon(Icons.flag_outlined)),
+      if (config.rackPenalty) RuleItem(l10n.rulesWordtilesScoreless),
       RuleItem(l10n.wordtilesHelpZoom, lead: icon(Icons.pinch_outlined)),
       RuleItem(l10n.wordtilesHelpBench, lead: icon(Icons.view_week_outlined)),
     ],
@@ -82,6 +84,15 @@ GameRules wordTilesRules(BuildContext context, AppLocalizations l10n, GameConfig
         text: l10n.wordtilesOptionJokerExplain,
         on: config.jokerSwap,
         lead: icon(Icons.published_with_changes),
+      ),
+      // KLD-094 step 10: "Restpunkte abziehen" is the usual rule (on by
+      // default); the variant is playing without it.
+      HouseRule(
+        id: 'rest',
+        title: l10n.rulesWordtilesNoRestTitle,
+        text: l10n.rulesWordtilesNoRest,
+        on: !config.rackPenalty,
+        lead: icon(Icons.remove_circle_outline),
       ),
     ],
     choosable: true,

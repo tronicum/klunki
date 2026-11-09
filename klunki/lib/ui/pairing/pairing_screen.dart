@@ -375,6 +375,7 @@ class _HostPanelState extends State<_HostPanel> {
         tiles: words?.tiles,
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
+        rackPenalty: words?.rest ?? true,
         chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
     final name = widget.deviceName();
     NetworkTransport transport;

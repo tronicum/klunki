@@ -2413,6 +2413,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'The game ends when the bag is empty and someone has laid all tiles. The points of the tiles left are subtracted; whoever finished gets them added.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'The game ends when the bag is empty and someone has laid all tiles. Tiles left over do not count.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'Tiles left: $points';
   }
@@ -2492,8 +2496,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Rule variant: if you hold the letter a blank on the board stands for, you may put it there and take the blank. Then you still lay tiles in the same turn.';
 
   @override
+  String get wordtilesOptionRest => 'Deduct leftover tiles';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'Rule variant: at the end everyone loses the points of the tiles left on their rack; whoever laid all tiles gets them added. Off: only the words laid count.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · swap the blank';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · no leftover deduction';
   }
 
   @override
@@ -3374,6 +3390,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'If the game ends because nobody scores any more, everyone loses the points of their remaining tiles.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'No leftover deduction';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'Nothing is deducted or added at the end: only the words laid count.';
 
   @override
   String get rulesMaumauGoal => 'Be the first to get rid of all your cards.';

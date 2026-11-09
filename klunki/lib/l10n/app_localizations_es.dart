@@ -2428,6 +2428,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'La partida termina cuando la bolsa está vacía y alguien ha colocado todas sus fichas. Los puntos de las fichas que quedan se restan; quien terminó los suma.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'La partida termina cuando la bolsa está vacía y alguien ha colocado todas sus fichas. Las fichas que quedan no cuentan.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'Fichas restantes: $points';
   }
@@ -2507,8 +2511,20 @@ class AppLocalizationsEs extends AppLocalizations {
       'Variante de regla: si tienes la letra que representa un comodín del tablero, puedes ponerla en su lugar y llevarte el comodín. Después colocas fichas en el mismo turno.';
 
   @override
+  String get wordtilesOptionRest => 'Restar las fichas sobrantes';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'Variante: al final, cada uno pierde los puntos de las fichas que le quedan; quien colocó todas sus fichas los suma. Desactivado: solo cuentan las palabras colocadas.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · cambiar el comodín';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · sin restar sobrantes';
   }
 
   @override
@@ -3397,6 +3413,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'Si la partida termina porque nadie consigue más puntos, cada jugador pierde los puntos de las fichas que le quedan.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'Sin restar sobrantes';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'Al final no se resta ni se suma nada: solo cuentan las palabras colocadas.';
 
   @override
   String get rulesMaumauGoal => 'Quédate sin cartas antes que el rival.';

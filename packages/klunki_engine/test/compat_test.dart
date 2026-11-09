@@ -21,7 +21,7 @@ void main() {
     'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     'chess': (3, 1, '5f2d81a850dc003d33424219c180126a'),
-    'wordtiles': (4, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
+    'wordtiles': (5, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
     'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
     'maexchen': (1, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
     'dicesheet': (1, 1, 'efb31c5c6fa32b9e12e025988708b559'),

@@ -2371,6 +2371,10 @@ class AppLocalizationsFa extends AppLocalizations {
       'بازی وقتی تمام می‌شود که کیسه خالی باشد و کسی همهٔ کاشی‌هایش را گذاشته باشد. امتیاز کاشی‌های باقی‌مانده کم می‌شود و کسی که تمام کرده آن را می‌گیرد.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'بازی وقتی تمام می‌شود که کیسه خالی باشد و کسی همهٔ کاشی‌هایش را گذاشته باشد. کاشی‌های باقی‌مانده حساب نمی‌شوند.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'کاشی‌های باقی‌مانده: $points';
   }
@@ -2438,8 +2442,20 @@ class AppLocalizationsFa extends AppLocalizations {
       'قانون جایگزین: اگر حرفی را داری که یک کاشی خالیِ روی صفحه به جای آن است، می‌توانی آن را همان‌جا بگذاری و کاشی خالی را برداری. بعد در همان نوبت کاشی هم می‌گذاری.';
 
   @override
+  String get wordtilesOptionRest => 'کم کردن کاشی‌های باقی‌مانده';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'قاعدهٔ جایگزین: در پایان امتیاز کاشی‌های باقی‌ماندهٔ هر کس کم می‌شود و کسی که همهٔ کاشی‌هایش را گذاشته آن را می‌گیرد. خاموش: فقط کلمه‌های گذاشته‌شده حساب می‌شوند.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · عوض کردن کاشی خالی';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · بدون کم کردن باقی‌مانده';
   }
 
   @override
@@ -3297,6 +3313,13 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'اگر بازی تمام شود چون دیگر کسی امتیاز نمی‌گیرد، امتیاز کاشی‌های باقی‌ماندهٔ هر کس از امتیازش کم می‌شود.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'بدون کم کردن باقی‌مانده';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'در پایان چیزی کم یا اضافه نمی‌شود: فقط کلمه‌های گذاشته‌شده حساب می‌شوند.';
 
   @override
   String get rulesMaumauGoal => 'اولین کسی باش که همهٔ کارت‌هایش تمام می‌شود.';

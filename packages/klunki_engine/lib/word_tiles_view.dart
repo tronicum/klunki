@@ -18,8 +18,8 @@ class WordTilesView extends WordTilesGame {
       WordTilesGame.playerOfSeat(viewerSeat) ?? (throw StateError('seat $viewerSeat has no Player (KLD-088)'));
 
   WordTilesView._(this.viewerSeat, TileSet tileSet, int players, WordCheck check, WordValidator? validator, int limit,
-      {bool jokerSwap = false})
-      : super._view(tileSet, players, check, validator, limit, jokerSwap: jokerSwap);
+      {bool jokerSwap = false, bool rackPenalty = true})
+      : super._view(tileSet, players, check, validator, limit, jokerSwap: jokerSwap, rackPenalty: rackPenalty);
 
   /// Rebuilds the view from [WordTilesGame.viewJson]; throws
   /// [BadViewException] if [j] is malformed. [validator] is the word check
@@ -34,7 +34,8 @@ class WordTilesView extends WordTilesGame {
       if (viewerSeat < 0 || viewerSeat >= players) throw BadViewException('bad viewer seat $viewerSeat');
       final v = WordTilesView._(viewerSeat, tileSet, players, check,
           validator ?? (check == WordCheck.dictionary ? const AcceptAllValidator() : null), j['scorelessLimit'] as int,
-          jokerSwap: j['jokerSwap'] == true)
+          jokerSwap: j['jokerSwap'] == true,
+          rackPenalty: j['rackPenalty'] != false)
         .._lazyList = validator == null;
       final rows = (j['board'] as List).cast<String>();
       if (rows.length != WordTilesGame.size) throw const BadViewException('bad board');

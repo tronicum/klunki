@@ -2401,6 +2401,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تنتهي اللعبة حين يفرغ الكيس ويضع أحدهم كل حروفه. تُطرح نقاط الحروف الباقية، ومن أنهى يحصل عليها.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'تنتهي اللعبة حين يفرغ الكيس ويضع أحدهم كل حروفه. لا تُحتسب الحروف الباقية.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'الحروف الباقية: $points';
   }
@@ -2468,8 +2472,20 @@ class AppLocalizationsAr extends AppLocalizations {
       'قاعدة بديلة: إن كان معك الحرف الذي تمثّله بلاطة فارغة على اللوحة، فضعه مكانها وخذ البلاطة الفارغة. بعد ذلك تضع بلاطات في الدور نفسه.';
 
   @override
+  String get wordtilesOptionRest => 'خصم الحروف الباقية';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'قاعدة بديلة: في النهاية تُطرح نقاط الحروف الباقية عند كل لاعب، ومن وضع كل حروفه يحصل عليها. عند الإيقاف: تُحتسب الكلمات الموضوعة فقط.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · تبديل البلاطة الفارغة';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · دون خصم الحروف الباقية';
   }
 
   @override
@@ -3392,6 +3408,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'إذا انتهت اللعبة لأن أحدًا لم يعد يحصل على نقاط، تُطرح من كل لاعب نقاط بلاطاته الباقية.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'دون خصم الحروف الباقية';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'لا يُطرح ولا يُضاف شيء في النهاية: تُحتسب الكلمات الموضوعة فقط.';
 
   @override
   String get rulesMaumauGoal => 'تخلّص من كل أوراقك قبل الطرف الآخر.';

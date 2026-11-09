@@ -59,7 +59,7 @@ compatible; a host without WebSocket support simply omits them.
 |---|---|---|---|
 | `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
-| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, joker?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `joker: true` = Wortgewandt house rule "Joker tauschen", KLD-094 step 9; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
+| `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, joker?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `joker: true` = Wortgewandt house rule "Joker tauschen", KLD-094 step 9; `rest: false` = Wortgewandt without "Restpunkte abziehen", KLD-094 step 10, absent = on; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
 | `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
 | `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
@@ -456,7 +456,13 @@ game the guest also checks what it can at once: each view must be its own
   the rest of a placement (the board change shows it anyway); the view says
   `jokerSwap: true`, its turn log `swaps: n`, an open `allowRequest` its
   `swaps`.
-- **Fingerprint.** Rules version 4 (3 before "Joker tauschen"). The content hash covers the tile sets,
+- **"Restpunkte abziehen" (KLD-094 step 10, rules 5).** On by default (the
+  usual end: the tiles left on a rack are deducted, whoever went out gains
+  them). The host may turn it off: `rest: false` in the `welcome` `config`
+  (written only when off); then nothing is deducted or added at the end and
+  the view says `rackPenalty: false`.
+- **Fingerprint.** Rules version 5 (4 before "Restpunkte abziehen" could be
+  turned off, 3 before "Joker tauschen"). The content hash covers the tile sets,
   the board layout and `WordLists.revisions`: per language the list's source
   and the SHA-256 of the bundled `words.txt.gz`. Builds with different lists
   (or rules 2) refuse each other (`incompatible-content` / `-rules`). The
@@ -468,7 +474,7 @@ game the guest also checks what it can at once: each view must be its own
   guest as `{action: exchange, count}` with a `commit`; placements, passes
   and challenges are public. At the end `reveal` brings the seed and the
   exchanged tiles; the guest replays the game (`verifyRedactedGame` with the
-  config's `tiles`, `dict` and `joker`).
+  config's `tiles`, `dict`, `joker` and `rest`).
 - **"Trotzdem zulassen" (dictionary mode).** The word check runs locally at
   "Legen" (no round trip); "Zurücknehmen" is local too. Letting a word the
   list lacks count needs the other player:

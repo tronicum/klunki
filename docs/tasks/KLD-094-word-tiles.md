@@ -733,6 +733,24 @@ the Wortgewandt point strings use ICU plurals in de/en/fr/es ("1 Punkt", "1 poin
 `wordtilesScore`, `Preview`, `PreviewBingo`, `OpenPlacement`, `MovePlace`, `MovePlaceAllowed`, `ResultBestWord`,
 `AllowLine`, `MoveAllowRequest`, `MoveAllowAccept`.
 
+## Step 10 ("Restpunkte abziehen" as an option): what was built
+Maintainer (2026-11-09): the end-of-game rack deduction becomes an option like "Joker tauschen".
+- **Engine (rules 5):** `WordTilesGame.rackPenalty` (on by default, the usual rule and the behaviour so far).
+  Off: neither end (played out, scoreless) deducts or adds anything; `rackPenalties` stay 0, the laid words decide
+  (a scoreless end with nothing laid is then a draw). `GameConfig.rackPenalty`, JSON `rest: false` only when off,
+  so every default config and the protocol stay unchanged; the view says `rackPenalty: false` only when off.
+  Rules version 4 → 5 (an old build would deduct where a new one does not), compat golden updated;
+  `PROTOCOL.md` lists `rest`.
+- **App:** switch "Restpunkte abziehen" (`wordtiles-rest`, explanation `wordtiles-rest-explain`) under "Joker
+  tauschen" in the start options and on "Raum starten" (the same `WordTilesOptionsPicker`); the options line of a
+  network room/game ends in "· ohne Restpunkte" when off. The result already showed penalty lines only when not 0.
+  Rules page: with the option off the end line says that leftover tiles do not count, the scoreless-deduction
+  line goes, and "Regelvarianten" lists "Ohne Restpunkte" (the usual rule itself is no variant, so the default
+  page is unchanged). 7 locales.
+- **Tests:** `word_tiles_rack_penalty_test.dart` (engine: config JSON round trip and omission, both end reasons on
+  and off, view round trip, rules 5), `wordtiles_rack_penalty_test.dart` (start options switch → game, rules page
+  on/off, the options line).
+
 ## Step 8h (web beta report): laid tiles drag at once, finger and mouse
 - **"Dragging of placed letters in the github version does not work."** The deployed PWA had the step 8g code
   (67ac2fe, build 2026110402; not a stale cache). Reproduced in headless Firefox against that build and a local

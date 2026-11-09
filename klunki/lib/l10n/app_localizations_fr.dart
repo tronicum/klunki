@@ -2435,6 +2435,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'La partie se termine quand le sac est vide et que quelqu’un a posé toutes ses lettres. Les points des lettres restantes sont retirés ; qui a fini les reçoit en plus.';
 
   @override
+  String get wordtilesHelpEndNoRest =>
+      'La partie se termine quand le sac est vide et que quelqu’un a posé toutes ses lettres. Les lettres restantes ne comptent pas.';
+
+  @override
   String wordtilesResultRack(String points) {
     return 'Lettres restantes : $points';
   }
@@ -2514,8 +2518,20 @@ class AppLocalizationsFr extends AppLocalizations {
       'Variante de règle : si tu as la lettre que remplace un joker sur le plateau, tu peux la poser à sa place et prendre le joker. Ensuite, tu poses encore des lettres dans le même tour.';
 
   @override
+  String get wordtilesOptionRest => 'Déduire les lettres restantes';
+
+  @override
+  String get wordtilesOptionRestExplain =>
+      'Variante : à la fin, chacun perd les points des lettres qui lui restent ; qui a posé toutes ses lettres les reçoit en plus. Désactivé : seuls les mots posés comptent.';
+
+  @override
   String wordtilesOptionsSummaryJoker(String summary) {
     return '$summary · échange du joker';
+  }
+
+  @override
+  String wordtilesOptionsSummaryNoRest(String summary) {
+    return '$summary · sans déduction des restes';
   }
 
   @override
@@ -3402,6 +3418,13 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rulesWordtilesScoreless =>
       'Si la partie se termine parce que plus personne ne marque de points, chacun perd les points de ses tuiles restantes.';
+
+  @override
+  String get rulesWordtilesNoRestTitle => 'Sans déduction des restes';
+
+  @override
+  String get rulesWordtilesNoRest =>
+      'Rien n’est déduit ni ajouté à la fin : seuls les mots posés comptent.';
 
   @override
   String get rulesMaumauGoal =>
