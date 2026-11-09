@@ -249,6 +249,47 @@ void main() {
     expect(find.text('1 × ${berlin.colourGroups[7].big}'), findsOneWidget);
   });
 
+  testWidgets('the deed card: the whole rent table, compact and centred', (tester) async {
+    await _pump(tester, const GameConfig('property', seed: 3));
+    final sq = berlin.squares[39];
+    final g = berlin.colourGroups[sq.group];
+    await _tap(tester, 'property-square-39');
+    String right(String key) => tester
+        .widgetList<Text>(find.descendant(of: _key(key), matching: find.byType(Text)))
+        .last
+        .data!;
+    expect(right('property-deed-rent-0'), '${sq.rents[0]} Taler');
+    expect(right('property-deed-rent-group'), '${sq.rents[0] * 2} Taler');
+    for (var h = 1; h <= 5; h++) {
+      expect(right('property-deed-rent-$h'), '${sq.rents[h]} Taler', reason: '$h buildings');
+    }
+    expect(find.text('1 × ${g.small}'), findsOneWidget);
+    expect(find.text('4 × ${g.smallPlural}'), findsOneWidget);
+    expect(find.text('Jedes Gebäude kostet ${sq.houseCost} Taler'), findsOneWidget);
+    expect(right('property-deed-mortgage'), '${sq.mortgageValue} Taler');
+    // A deed card, not a page.
+    final card = tester.getRect(_key('property-deed'));
+    expect(card.width, lessThanOrEqualTo(300));
+    expect(card.center.dx, closeTo(390 / 2, 1));
+    await tester.tapAt(const Offset(20, 20));
+    await tester.pumpAndSettle();
+
+    // A station: rent by the number of stations.
+    await _tap(tester, 'property-square-5');
+    for (var k = 1; k <= 4; k++) {
+      expect(right('property-deed-stations-$k'), '${berlin.squares[5].rents[k - 1]} Taler');
+    }
+    expect(find.text('2 Bahnhöfe'), findsOneWidget);
+    await tester.tapAt(const Offset(20, 20));
+    await tester.pumpAndSettle();
+
+    // A utility: the dice factors.
+    await _tap(tester, 'property-square-12');
+    expect(right('property-deed-utility-1'), 'Augensumme × 4');
+    expect(right('property-deed-utility-2'), 'Augensumme × 10');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('the first game shows the tour; "Kurz erklärt" shows it again', (tester) async {
     SeenTips.debugReset();
     await _pump(tester, const GameConfig('property', seed: 3));

@@ -1049,10 +1049,8 @@
   "propertyOwnerNone": "Aún es del banco",
   "propertyPrice": "Precio: {amount}",
   "propertyRent": "Alquiler: {amount}",
-  "propertyRentGroup": "Grupo completo: alquiler doble",
   "propertyHouseCost": "Cada edificio cuesta {amount}",
   "propertyStationRents": "Alquiler según el número de estaciones",
-  "propertyUtilityRent": "Alquiler: suma de dados × 4, con ambos × 10",
   "propertyTax": "Pagar: {amount}",
   "propertyCardSquare": "Robar una carta: {deck}",
   "propertyStartSquare": "Pasar por aquí da {amount}.",
@@ -1089,5 +1087,12 @@
   "propertyEvResigned": "{player} se rinde",
   "rulesPropertyGoal": "Compra calles, cobra alquiler y construye en ellas.\nGana quien quede último en el juego. Con límite de rondas, gana al final la mayor fortuna.",
   "rulesPropertyTurn": "Tira dos dados y avanza esas casillas.\nSi caes en una calle libre, puedes comprarla. Si no, se subasta: se la lleva la puja más alta.\nSi la calle es de otra persona, pagas alquiler.\nCon dobles vuelves a tirar.\nPasar por la Salida da {salary}.",
-  "rulesPropertySpecial": "Con todo un grupo de color, el alquiler es doble y puedes construir: por igual, primero 4 pequeños y luego 1 grande por calle.\nLas cartas dan dinero, cuestan dinero o te mueven por el tablero.\nTres dobles seguidos te mandan a la pausa. Sales con dobles, con {bail} o con una carta libre.\n¿Te falta dinero? Vende edificios a mitad de precio o hipoteca calles. Solo quiebras si ni así alcanza.\nHipotecar da la mitad del precio; levantar la hipoteca cuesta un 10 % más. Una calle hipotecada no da alquiler."
+  "rulesPropertySpecial": "Con todo un grupo de color, el alquiler es doble y puedes construir: por igual, primero 4 pequeños y luego 1 grande por calle.\nLas cartas dan dinero, cuestan dinero o te mueven por el tablero.\nTres dobles seguidos te mandan a la pausa. Sales con dobles, con {bail} o con una carta libre.\n¿Te falta dinero? Vende edificios a mitad de precio o hipoteca calles. Solo quiebras si ni así alcanza.\nHipotecar da la mitad del precio; levantar la hipoteca cuesta un 10 % más. Una calle hipotecada no da alquiler.",
+  "propertyDeedRent": "Alquiler",
+  "propertyDeedRentGroup": "Con todo el grupo",
+  "propertyDeedMortgageValue": "Valor de hipoteca",
+  "propertyDeedStations": "{count, plural, =1{1 estación} other{{count} estaciones}}",
+  "propertyDeedUtilityOne": "Con uno de los dos",
+  "propertyDeedUtilityBoth": "Con los dos",
+  "propertyDeedDiceTimes": "Suma de dados × {factor}"
 }

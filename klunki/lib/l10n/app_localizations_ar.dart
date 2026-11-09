@@ -4146,18 +4146,12 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get propertyRentGroup => 'المجموعة كاملة: إيجار مضاعف';
-
-  @override
   String propertyHouseCost(String amount) {
     return 'كل مبنى يكلف $amount';
   }
 
   @override
   String get propertyStationRents => 'الإيجار حسب عدد المحطات';
-
-  @override
-  String get propertyUtilityRent => 'الإيجار: مجموع النرد × 4، مع الاثنين × 10';
 
   @override
   String propertyTax(String amount) {
@@ -4336,5 +4330,38 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String rulesPropertySpecial(String bail) {
     return 'إذا امتلكت مجموعة لونية كاملة يتضاعف الإيجار ويمكنك البناء بالتساوي: أولًا 4 مبانٍ صغيرة ثم مبنى كبير واحد لكل شارع.\nالبطاقات تعطي مالًا أو تأخذه أو تنقلك على اللوحة.\nثلاثة أزواج متتالية ترسلك إلى الاستراحة. تخرج بزوج متطابق أو بدفع $bail أو ببطاقة مجانية.\nينقصك المال؟ بِع المباني بنصف السعر أو ارهن الشوارع. لا تُفلس إلا إذا لم يكفِ ذلك.\nالرهن يعطي نصف السعر، وفكّه يكلف 10 % أكثر. الشارع المرهون لا يجلب إيجارًا.';
+  }
+
+  @override
+  String get propertyDeedRent => 'الإيجار';
+
+  @override
+  String get propertyDeedRentGroup => 'مع المجموعة كاملة';
+
+  @override
+  String get propertyDeedMortgageValue => 'قيمة الرهن';
+
+  @override
+  String propertyDeedStations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count محطة',
+      few: '$count محطات',
+      two: 'محطتان',
+      one: 'محطة واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyDeedUtilityOne => 'مع واحد من الاثنين';
+
+  @override
+  String get propertyDeedUtilityBoth => 'مع الاثنين';
+
+  @override
+  String propertyDeedDiceTimes(int factor) {
+    return 'مجموع النرد × $factor';
   }
 }

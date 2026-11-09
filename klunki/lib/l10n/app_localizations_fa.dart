@@ -4045,18 +4045,12 @@ class AppLocalizationsFa extends AppLocalizations {
   }
 
   @override
-  String get propertyRentGroup => 'کل گروه رنگی: اجاره دوبرابر';
-
-  @override
   String propertyHouseCost(String amount) {
     return 'هر ساختمان $amount';
   }
 
   @override
   String get propertyStationRents => 'اجاره بر اساس تعداد ایستگاه‌ها';
-
-  @override
-  String get propertyUtilityRent => 'اجاره: جمع تاس × 4، با هر دو × 10';
 
   @override
   String propertyTax(String amount) {
@@ -4232,5 +4226,35 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String rulesPropertySpecial(String bail) {
     return 'اگر یک گروه رنگی کامل مال تو باشد، اجاره دوبرابر است و می‌توانی بسازی: یکنواخت، اول 4 ساختمان کوچک، بعد 1 ساختمان بزرگ برای هر خیابان.\nکارت‌ها پول می‌دهند، پول می‌گیرند یا تو را روی صفحه جابه‌جا می‌کنند.\nسه جفت پشت سر هم تو را به استراحت می‌فرستد. با جفت، با $bail یا با کارت آزادی بیرون می‌آیی.\nپول کم داری؟ ساختمان‌ها را نصف قیمت بفروش یا خیابان‌ها را گرو بگذار. فقط وقتی این هم کافی نباشد ورشکست می‌شوی.\nگرو گذاشتن نصف قیمت را می‌دهد؛ آزاد کردن 10 % بیشتر هزینه دارد. خیابان گرو اجاره نمی‌آورد.';
+  }
+
+  @override
+  String get propertyDeedRent => 'اجاره';
+
+  @override
+  String get propertyDeedRentGroup => 'با کل گروه رنگی';
+
+  @override
+  String get propertyDeedMortgageValue => 'ارزش گرو';
+
+  @override
+  String propertyDeedStations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ایستگاه',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyDeedUtilityOne => 'با یکی از دو تا';
+
+  @override
+  String get propertyDeedUtilityBoth => 'با هر دو';
+
+  @override
+  String propertyDeedDiceTimes(int factor) {
+    return 'جمع تاس × $factor';
   }
 }

@@ -4159,19 +4159,12 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get propertyRentGroup => 'Groupe complet : loyer double';
-
-  @override
   String propertyHouseCost(String amount) {
     return 'Chaque bâtiment coûte $amount';
   }
 
   @override
   String get propertyStationRents => 'Loyer selon le nombre de gares';
-
-  @override
-  String get propertyUtilityRent =>
-      'Loyer : total des dés × 4, avec les deux × 10';
 
   @override
   String propertyTax(String amount) {
@@ -4349,5 +4342,36 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String rulesPropertySpecial(String bail) {
     return 'Avec tout un groupe de couleur, le loyer double et tu peux construire : de façon égale, d’abord 4 petits, puis 1 grand bâtiment par rue.\nLes cartes rapportent, coûtent ou t’envoient ailleurs sur le plateau.\nTrois doubles de suite t’envoient en pause. On en sort avec un double, avec $bail ou avec une carte.\nPas assez d’argent ? Vends des bâtiments à moitié prix ou hypothèque des rues. La faillite arrive seulement si cela ne suffit pas.\nL’hypothèque rapporte la moitié du prix ; la lever coûte 10 % de plus. Une rue hypothéquée ne rapporte pas de loyer.';
+  }
+
+  @override
+  String get propertyDeedRent => 'Loyer';
+
+  @override
+  String get propertyDeedRentGroup => 'Avec tout le groupe';
+
+  @override
+  String get propertyDeedMortgageValue => 'Valeur d\'hypothèque';
+
+  @override
+  String propertyDeedStations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count gares',
+      one: '1 gare',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyDeedUtilityOne => 'Avec l\'un des deux';
+
+  @override
+  String get propertyDeedUtilityBoth => 'Avec les deux';
+
+  @override
+  String propertyDeedDiceTimes(int factor) {
+    return 'Total des dés × $factor';
   }
 }

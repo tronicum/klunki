@@ -1049,10 +1049,8 @@
   "propertyOwnerNone": "Appartient encore à la banque",
   "propertyPrice": "Prix : {amount}",
   "propertyRent": "Loyer : {amount}",
-  "propertyRentGroup": "Groupe complet : loyer double",
   "propertyHouseCost": "Chaque bâtiment coûte {amount}",
   "propertyStationRents": "Loyer selon le nombre de gares",
-  "propertyUtilityRent": "Loyer : total des dés × 4, avec les deux × 10",
   "propertyTax": "À payer : {amount}",
   "propertyCardSquare": "Tirer une carte : {deck}",
   "propertyStartSquare": "Passer ici rapporte {amount}.",
@@ -1089,5 +1087,12 @@
   "propertyEvResigned": "{player} abandonne la partie",
   "rulesPropertyGoal": "Achète des rues, encaisse des loyers et construis.\nLe dernier encore en jeu gagne. Avec une limite de tours, la plus grande fortune gagne à la fin.",
   "rulesPropertyTurn": "Lance deux dés et avance d’autant de cases.\nSur une rue libre, tu peux l’acheter. Sinon, elle est mise aux enchères : la meilleure offre l’emporte.\nSi la rue appartient à quelqu’un d’autre, tu paies un loyer.\nAvec un double, tu rejoues.\nPasser par Départ rapporte {salary}.",
-  "rulesPropertySpecial": "Avec tout un groupe de couleur, le loyer double et tu peux construire : de façon égale, d’abord 4 petits, puis 1 grand bâtiment par rue.\nLes cartes rapportent, coûtent ou t’envoient ailleurs sur le plateau.\nTrois doubles de suite t’envoient en pause. On en sort avec un double, avec {bail} ou avec une carte.\nPas assez d’argent ? Vends des bâtiments à moitié prix ou hypothèque des rues. La faillite arrive seulement si cela ne suffit pas.\nL’hypothèque rapporte la moitié du prix ; la lever coûte 10 % de plus. Une rue hypothéquée ne rapporte pas de loyer."
+  "rulesPropertySpecial": "Avec tout un groupe de couleur, le loyer double et tu peux construire : de façon égale, d’abord 4 petits, puis 1 grand bâtiment par rue.\nLes cartes rapportent, coûtent ou t’envoient ailleurs sur le plateau.\nTrois doubles de suite t’envoient en pause. On en sort avec un double, avec {bail} ou avec une carte.\nPas assez d’argent ? Vends des bâtiments à moitié prix ou hypothèque des rues. La faillite arrive seulement si cela ne suffit pas.\nL’hypothèque rapporte la moitié du prix ; la lever coûte 10 % de plus. Une rue hypothéquée ne rapporte pas de loyer.",
+  "propertyDeedRent": "Loyer",
+  "propertyDeedRentGroup": "Avec tout le groupe",
+  "propertyDeedMortgageValue": "Valeur d'hypothèque",
+  "propertyDeedStations": "{count, plural, =1{1 gare} other{{count} gares}}",
+  "propertyDeedUtilityOne": "Avec l'un des deux",
+  "propertyDeedUtilityBoth": "Avec les deux",
+  "propertyDeedDiceTimes": "Total des dés × {factor}"
 }

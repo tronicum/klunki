@@ -6401,12 +6401,6 @@ abstract class AppLocalizations {
   /// **'Miete: {amount}'**
   String propertyRent(String amount);
 
-  /// KLD-060 square details: owning the whole colour group doubles the rent of unbuilt streets.
-  ///
-  /// In de, this message translates to:
-  /// **'Ganze Farbgruppe: doppelte Miete'**
-  String get propertyRentGroup;
-
   /// KLD-060 square details: what each building costs on this street.
   ///
   /// In de, this message translates to:
@@ -6418,12 +6412,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Miete nach Zahl der Bahnhöfe'**
   String get propertyStationRents;
-
-  /// KLD-060 square details of a utility: rent = dice total × 4, or × 10 with both.
-  ///
-  /// In de, this message translates to:
-  /// **'Miete: Augensumme × 4, mit beiden × 10'**
-  String get propertyUtilityRent;
 
   /// KLD-060 square details of a tax square: the amount to pay.
   ///
@@ -6646,6 +6634,48 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Gehört dir eine ganze Farbgruppe, ist die Miete doppelt, und du darfst bauen: gleichmäßig, erst 4 kleine, dann 1 großes Gebäude pro Straße.\nKarten bringen Geld, kosten Geld oder schicken dich über das Brett.\nDreimal Pasch hintereinander schickt dich in die Pause. Raus kommst du mit einem Pasch, mit {bail} oder mit einer Freikarte.\nFehlt dir Geld, verkaufst du Gebäude zum halben Preis oder beleihst Straßen. Pleite bist du erst, wenn auch das nicht reicht.\nBeleihen bringt den halben Preis; auslösen kostet 10 % mehr. Eine beliehene Straße bringt keine Miete.'**
   String rulesPropertySpecial(String bail);
+
+  /// KLD-060 deed card of a street: the row with the plain rent (no buildings).
+  ///
+  /// In de, this message translates to:
+  /// **'Miete'**
+  String get propertyDeedRent;
+
+  /// KLD-060 deed card: the row with the rent when the owner has the whole colour group (no buildings).
+  ///
+  /// In de, this message translates to:
+  /// **'Mit ganzer Farbgruppe'**
+  String get propertyDeedRentGroup;
+
+  /// KLD-060 deed card: the money a mortgage brings for this property.
+  ///
+  /// In de, this message translates to:
+  /// **'Beleihungswert'**
+  String get propertyDeedMortgageValue;
+
+  /// KLD-060 deed card of a station: a row "rent when the owner has {count} stations".
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Bahnhof} other{{count} Bahnhöfe}}'**
+  String propertyDeedStations(int count);
+
+  /// KLD-060 deed card of a utility: the row for an owner with one of the two utilities.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit einem der beiden'**
+  String get propertyDeedUtilityOne;
+
+  /// KLD-060 deed card of a utility: the row for an owner with both utilities.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit beiden'**
+  String get propertyDeedUtilityBoth;
+
+  /// KLD-060 deed card of a utility: the rent is the dice total times {factor}.
+  ///
+  /// In de, this message translates to:
+  /// **'Augensumme × {factor}'**
+  String propertyDeedDiceTimes(int factor);
 }
 
 class _AppLocalizationsDelegate

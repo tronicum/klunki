@@ -928,108 +928,212 @@ class _BoardCentre extends StatelessWidget {
 
 // ------------------------------------------------------------- sheets
 
-/// The details of [square]: name, group, price, rents, building cost and
-/// owner (streets, stations, utilities), or what the special square does.
+/// The details of [square] as a deed card ([PropertyDeedCard]), with the
+/// owner below it; special squares say what they do.
 Future<void> showPropertySquareSheet(BuildContext context, PropertyGame game, int square) {
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
+    isScrollControlled: true,
     builder: (ctx) {
       final l10n = AppLocalizations.of(ctx);
       final theme = Theme.of(ctx);
-      final t = game.theme;
-      final sq = t.squares[square];
+      final sq = game.theme.squares[square];
       final owner = game.ownerOf(square);
-      String money(int a) => l10n.propertyMoney(a);
-      final rows = <Widget>[];
-      Widget row(String left, String right, {bool strong = false}) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(children: [
-              Expanded(child: Text(left, style: strong ? theme.textTheme.titleSmall : theme.textTheme.bodyMedium)),
-              Text(right, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
-            ]),
-          );
-      switch (sq.kind) {
-        case PropertyKind.street:
-          final g = t.colourGroups[sq.group];
-          rows.add(Text(g.name, style: theme.textTheme.labelLarge));
-          rows.add(row(l10n.propertyPrice(money(sq.price)), ''));
-          rows.add(row(l10n.propertyRent(money(sq.rents[0])), ''));
-          rows.add(Text(l10n.propertyRentGroup, style: theme.textTheme.bodySmall));
-          for (var h = 1; h <= 5; h++) {
-            rows.add(row('${h == 5 ? 1 : h} × ${h == 5 ? g.big : (h == 1 ? g.small : g.smallPlural)}', money(sq.rents[h])));
-          }
-          rows.add(Text(l10n.propertyHouseCost(money(sq.houseCost)), style: theme.textTheme.bodySmall));
-        case PropertyKind.station:
-          rows.add(row(l10n.propertyPrice(money(sq.price)), ''));
-          rows.add(Text(l10n.propertyStationRents, style: theme.textTheme.bodyMedium));
-          for (var k = 1; k <= 4; k++) {
-            rows.add(row('$k ×', money(25 * (1 << (k - 1)))));
-          }
-        case PropertyKind.utility:
-          rows.add(row(l10n.propertyPrice(money(sq.price)), ''));
-          rows.add(Text(l10n.propertyUtilityRent, style: theme.textTheme.bodyMedium));
-        case PropertyKind.tax:
-          rows.add(Text(l10n.propertyTax(money(sq.amount)), style: theme.textTheme.bodyLarge));
-        case PropertyKind.surprise:
-          rows.add(Text(l10n.propertyCardSquare(t.deckTitles[PropertyDeck.surprise] ?? ''), style: theme.textTheme.bodyLarge));
-        case PropertyKind.neighbourhood:
-          rows.add(
-              Text(l10n.propertyCardSquare(t.deckTitles[PropertyDeck.neighbourhood] ?? ''), style: theme.textTheme.bodyLarge));
-        case PropertyKind.start:
-          rows.add(Text(l10n.propertyStartSquare(money(PropertyGame.startSalary)), style: theme.textTheme.bodyLarge));
-        case PropertyKind.pause:
-          rows.add(Text(l10n.propertyPauseSquare, style: theme.textTheme.bodyLarge));
-        case PropertyKind.goToPause:
-          rows.add(Text(l10n.propertyGoToPauseSquare, style: theme.textTheme.bodyLarge));
-        case PropertyKind.free:
-          rows.add(Text(switch (game.freeSquare) {
-            PropertyFreeSquare.none => l10n.propertyFreeNone,
-            PropertyFreeSquare.pot => l10n.propertyFreeExplain,
-            PropertyFreeSquare.potWithSeed => l10n.propertyFreeExplain,
-            PropertyFreeSquare.fixedBonus => l10n.propertyFreeBonusExplain(sq.name, money(game.freeSquareAmount)),
-          }, style: theme.textTheme.bodyLarge));
-      }
-      if (sq.isOwnable) {
-        rows.add(const Divider());
-        rows.add(Row(children: [
-          if (owner != null) ...[SeatToken(seat: owner, size: 22), const SizedBox(width: 8)],
-          Expanded(
-            child: Text(
-              owner == null
-                  ? l10n.propertyOwnerNone
-                  : l10n.propertyOwnerLine(SeatLabelsScope.of(context).label(context, l10n, owner, count: game.playerCount)),
-              style: theme.textTheme.titleSmall,
-            ),
-          ),
-          if (game.isMortgaged(square)) Text(l10n.propertyMortgaged, style: theme.textTheme.labelLarge),
-        ]));
-      }
       return SafeArea(
         child: SingleChildScrollView(
           key: const Key('property-square-sheet'),
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(children: [
-                if (sq.group >= 0)
-                  Container(
-                      width: 18,
-                      height: 18,
-                      margin: const EdgeInsetsDirectional.only(end: 8),
-                      decoration: BoxDecoration(color: propertyGroupColor(sq.group), borderRadius: BorderRadius.circular(4))),
-                Expanded(child: Text(sq.name, style: theme.textTheme.titleLarge)),
-              ]),
-              const SizedBox(height: 8),
-              ...rows,
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Center(
+            child: ConstrainedBox(
+              // A deed card, not a page: compact and centred.
+              constraints: const BoxConstraints(maxWidth: PropertyDeedCard.maxWidth),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PropertyDeedCard(game: game, square: square),
+                  if (sq.isOwnable) ...[
+                    const SizedBox(height: 10),
+                    Row(children: [
+                      if (owner != null) ...[SeatToken(seat: owner, size: 22), const SizedBox(width: 8)],
+                      Expanded(
+                        child: Text(
+                          owner == null
+                              ? l10n.propertyOwnerNone
+                              : l10n.propertyOwnerLine(
+                                  SeatLabelsScope.of(context).label(context, l10n, owner, count: game.playerCount)),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                      ),
+                      if (game.isMortgaged(square)) Text(l10n.propertyMortgaged, style: theme.textTheme.labelLarge),
+                    ]),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       );
     },
   );
+}
+
+/// One square as a deed card, like the cards of a real board game: a header
+/// in the group's colour (or the square's symbol), the price, and the rent
+/// table: for a street the plain rent, with the whole colour group, with 1–4
+/// small buildings and with the big one (the group's own building names),
+/// the building cost and the mortgage value; for a station the rent by the
+/// number of stations owned; for a utility the dice factors. Special squares
+/// say what they do. Fixed light colours (a printed card, also in dark mode).
+///
+/// Keys: `property-deed`, `property-deed-rent-<0..5>`, `property-deed-rent-group`,
+/// `property-deed-house-cost`, `property-deed-mortgage`, `property-deed-stations-<n>`,
+/// `property-deed-utility-<1|2>`.
+class PropertyDeedCard extends StatelessWidget {
+  final PropertyGame game;
+  final int square;
+  const PropertyDeedCard({super.key, required this.game, required this.square});
+
+  /// The card's widest size (a deed card, not a page).
+  static const double maxWidth = 300;
+
+  static const _paper = Color(0xFFFFFBF0);
+  static const _ink = Color(0xFF26301F);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final t = game.theme;
+    final sq = t.squares[square];
+    String money(int a) => l10n.propertyMoney(a);
+    final body = theme.textTheme.bodyMedium?.copyWith(color: _ink);
+    final small = theme.textTheme.bodySmall?.copyWith(color: _ink);
+    final strong = body?.copyWith(fontWeight: FontWeight.w700);
+    Widget row(Key key, String left, String right) => Padding(
+          key: key,
+          padding: const EdgeInsets.symmetric(vertical: 1.5),
+          child: Row(children: [
+            Expanded(child: Text(left, style: body)),
+            const SizedBox(width: 8),
+            Text(right, style: strong),
+          ]),
+        );
+    Widget centred(String text, {TextStyle? style, Key? key}) =>
+        Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Text(text, key: key, textAlign: TextAlign.center, style: style ?? body));
+    const divider = Divider(height: 12, thickness: 1, color: Color(0x5526301F));
+
+    // The header: colour band with the group's name, or a symbol.
+    final Color band = sq.group >= 0 ? propertyGroupColor(sq.group) : const Color(0xFFE6E0CC);
+    final onBand = band.computeLuminance() > 0.45 ? Colors.black : Colors.white;
+    final IconData? icon = switch (sq.kind) {
+      PropertyKind.station => Icons.train_outlined,
+      PropertyKind.utility => square == 12 ? Icons.water_drop_outlined : Icons.cell_tower,
+      PropertyKind.tax => Icons.receipt_long_outlined,
+      PropertyKind.surprise => Icons.help_outline_rounded,
+      PropertyKind.neighbourhood => Icons.mail_outline_rounded,
+      PropertyKind.start => Icons.flag_rounded,
+      PropertyKind.pause => Icons.pause_circle_outline,
+      PropertyKind.free => Icons.weekend_outlined,
+      PropertyKind.goToPause => Icons.block,
+      PropertyKind.street => null,
+    };
+    final header = Container(
+      color: band,
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      child: Column(
+        children: [
+          if (sq.group >= 0)
+            Text(t.colourGroups[sq.group].name.toUpperCase(),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.labelSmall?.copyWith(color: onBand, letterSpacing: 1.2)),
+          if (icon != null) Icon(icon, size: 30, color: _ink),
+          Text(sq.name,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(color: sq.group >= 0 ? onBand : _ink, fontWeight: FontWeight.w800)),
+        ],
+      ),
+    );
+
+    final rows = <Widget>[];
+    switch (sq.kind) {
+      case PropertyKind.street:
+        final g = t.colourGroups[sq.group];
+        rows
+          ..add(centred(l10n.propertyPrice(money(sq.price)), style: strong))
+          ..add(divider)
+          ..add(row(const Key('property-deed-rent-0'), l10n.propertyDeedRent, money(sq.rents[0])))
+          ..add(row(const Key('property-deed-rent-group'), l10n.propertyDeedRentGroup, money(sq.rents[0] * 2)));
+        for (var h = 1; h <= 5; h++) {
+          rows.add(row(Key('property-deed-rent-$h'),
+              h == 5 ? '1 × ${g.big}' : '$h × ${h == 1 ? g.small : g.smallPlural}', money(sq.rents[h])));
+        }
+        rows
+          ..add(divider)
+          ..add(centred(l10n.propertyHouseCost(money(sq.houseCost)), style: small, key: const Key('property-deed-house-cost')))
+          ..add(row(const Key('property-deed-mortgage'), l10n.propertyDeedMortgageValue, money(sq.mortgageValue)));
+      case PropertyKind.station:
+        rows
+          ..add(centred(l10n.propertyPrice(money(sq.price)), style: strong))
+          ..add(divider)
+          ..add(centred(l10n.propertyStationRents, style: small));
+        for (var k = 1; k <= sq.rents.length; k++) {
+          rows.add(row(Key('property-deed-stations-$k'), l10n.propertyDeedStations(k), money(sq.rents[k - 1])));
+        }
+        rows
+          ..add(divider)
+          ..add(row(const Key('property-deed-mortgage'), l10n.propertyDeedMortgageValue, money(sq.mortgageValue)));
+      case PropertyKind.utility:
+        rows
+          ..add(centred(l10n.propertyPrice(money(sq.price)), style: strong))
+          ..add(divider);
+        for (var k = 1; k <= sq.rents.length && k <= 2; k++) {
+          rows.add(row(Key('property-deed-utility-$k'), k == 1 ? l10n.propertyDeedUtilityOne : l10n.propertyDeedUtilityBoth,
+              l10n.propertyDeedDiceTimes(sq.rents[k - 1])));
+        }
+        rows
+          ..add(divider)
+          ..add(row(const Key('property-deed-mortgage'), l10n.propertyDeedMortgageValue, money(sq.mortgageValue)));
+      case PropertyKind.tax:
+        rows.add(centred(l10n.propertyTax(money(sq.amount))));
+      case PropertyKind.surprise:
+        rows.add(centred(l10n.propertyCardSquare(t.deckTitles[PropertyDeck.surprise] ?? '')));
+      case PropertyKind.neighbourhood:
+        rows.add(centred(l10n.propertyCardSquare(t.deckTitles[PropertyDeck.neighbourhood] ?? '')));
+      case PropertyKind.start:
+        rows.add(centred(l10n.propertyStartSquare(money(PropertyGame.startSalary))));
+      case PropertyKind.pause:
+        rows.add(centred(l10n.propertyPauseSquare));
+      case PropertyKind.goToPause:
+        rows.add(centred(l10n.propertyGoToPauseSquare));
+      case PropertyKind.free:
+        rows.add(centred(switch (game.freeSquare) {
+          PropertyFreeSquare.none => l10n.propertyFreeNone,
+          PropertyFreeSquare.pot => l10n.propertyFreeExplain,
+          PropertyFreeSquare.potWithSeed => l10n.propertyFreeExplain,
+          PropertyFreeSquare.fixedBonus => l10n.propertyFreeBonusExplain(sq.name, money(game.freeSquareAmount)),
+        }));
+    }
+    return Container(
+      key: const Key('property-deed'),
+      decoration: BoxDecoration(
+        color: _paper,
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: _ink, width: 1.5),
+        boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 4, offset: Offset(0, 2))],
+      ),
+      padding: const EdgeInsets.all(5),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(borderRadius: BorderRadius.circular(3), child: header),
+          Padding(padding: const EdgeInsets.fromLTRB(8, 8, 8, 4), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows)),
+        ],
+      ),
+    );
+  }
 }
 
 /// "Meine Straßen" of [seat] (the player who must move): every property

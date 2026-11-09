@@ -3890,18 +3890,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get propertyRentGroup => '整组同色：租金翻倍';
-
-  @override
   String propertyHouseCost(String amount) {
     return '每栋建筑 $amount';
   }
 
   @override
   String get propertyStationRents => '租金取决于拥有的车站数';
-
-  @override
-  String get propertyUtilityRent => '租金：骰子点数 × 4，两个都有则 × 10';
 
   @override
   String propertyTax(String amount) {
@@ -4072,5 +4066,35 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String rulesPropertySpecial(String bail) {
     return '拥有整组同色街道时租金翻倍，并且可以建造：平均建造，每条街先 4 座小建筑，再 1 座大建筑。\n卡片会给钱、扣钱或让你在棋盘上移动。\n连续三次对子会让你进入暂停。掷出对子、付 $bail 或用免费卡可以出来。\n钱不够？半价卖掉建筑或抵押街道。只有这样还不够时才算破产。\n抵押得到一半价格；赎回要多付 10%。被抵押的街道不收租金。';
+  }
+
+  @override
+  String get propertyDeedRent => '租金';
+
+  @override
+  String get propertyDeedRentGroup => '拥有整组同色';
+
+  @override
+  String get propertyDeedMortgageValue => '抵押价值';
+
+  @override
+  String propertyDeedStations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个车站',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyDeedUtilityOne => '拥有其中一个';
+
+  @override
+  String get propertyDeedUtilityBoth => '两个都有';
+
+  @override
+  String propertyDeedDiceTimes(int factor) {
+    return '骰子点数 × $factor';
   }
 }

@@ -4124,18 +4124,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get propertyRentGroup => 'Whole colour group: double rent';
-
-  @override
   String propertyHouseCost(String amount) {
     return 'Each building costs $amount';
   }
 
   @override
   String get propertyStationRents => 'Rent by number of stations owned';
-
-  @override
-  String get propertyUtilityRent => 'Rent: dice total × 4, with both × 10';
 
   @override
   String propertyTax(String amount) {
@@ -4312,5 +4306,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String rulesPropertySpecial(String bail) {
     return 'Own a whole colour group and the rent is doubled, and you may build: evenly, first 4 small, then 1 big building per street.\nCards give money, cost money or send you across the board.\nThree doubles in a row send you to the break. You get out with doubles, with $bail or with a free card.\nShort of money? Sell buildings for half the price or mortgage streets. You are bankrupt only when even that is not enough.\nA mortgage pays half the price; lifting it costs 10 % more. A mortgaged street brings no rent.';
+  }
+
+  @override
+  String get propertyDeedRent => 'Rent';
+
+  @override
+  String get propertyDeedRentGroup => 'With the whole colour group';
+
+  @override
+  String get propertyDeedMortgageValue => 'Mortgage value';
+
+  @override
+  String propertyDeedStations(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stations',
+      one: '1 station',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyDeedUtilityOne => 'With one of the two';
+
+  @override
+  String get propertyDeedUtilityBoth => 'With both';
+
+  @override
+  String propertyDeedDiceTimes(int factor) {
+    return 'Dice total × $factor';
   }
 }
