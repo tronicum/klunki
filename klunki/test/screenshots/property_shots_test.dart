@@ -336,6 +336,35 @@ void main() {
   // Into <KLUNKI_SHOTS>/names-final2:
   //
   //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name names
+  // KLD-060: names on big squares (tablet portrait and landscape, a large
+  // iPhone, a zoomed phone board). Into <KLUNKI_SHOTS>/names-ipad:
+  //
+  //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name names-big
+  group('names-big', () {
+    for (final (dev, size, safe) in [
+      ('ipad', const Size(820, 1180), const EdgeInsets.only(top: 24, bottom: 20)),
+      ('ipad-landscape', const Size(1180, 820), const EdgeInsets.only(top: 24, bottom: 20)),
+      ('iphone15promax', const Size(430, 932), const EdgeInsets.only(top: 59, bottom: 34)),
+    ]) {
+      for (final board in ['berlin', 'fantasie']) {
+        testWidgets('on $dev, $board', skip: skip, (tester) async {
+          final c = await _game(tester, size: size, safe: safe, options: PropertyOptions(theme: board));
+          await _botMoves(tester, c, 220, until: 0);
+          await _shot(tester, '$dev-$board', dir: 'names-ipad');
+          if (dev == 'iphone15promax') {
+            final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
+            final side = tester.getSize(find.byType(InteractiveViewer)).width;
+            for (final zoom in [1.6, 2.5, 4.0]) {
+              viewer.transformationController!.value = BoardZoom.focusOn(Offset(side * 0.2, side * 0.8), zoom, side);
+              await tester.pumpAndSettle();
+              await _shot(tester, '$dev-$board-zoom-$zoom', dir: 'names-ipad');
+            }
+          }
+        });
+      }
+    }
+  });
+
   group('names', () {
     for (final (dev, size, safe) in [
       ('iphone15pro', const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),

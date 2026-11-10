@@ -466,10 +466,17 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
       for (final sq in game.theme.squares)
         if (sq.kind == PropertyKind.street) sq.index: fullNames ? propertyBreakable(sq.name) : sq.shortName,
     };
+    // Full names in up to three lines (a long word may be split), short
+    // forms in two.
+    final nameLines = fullNames ? 3 : 2;
     // Measured and drawn in the same style.
     final nameBase = DefaultTextStyle.of(context).style;
     final nameSize = propertyBoardNameSize(names.values, nameBox,
-        min: propertyMinNameSize / steps, max: (fullNames ? propertyMaxNameSize : 9) / steps, base: nameBase);
+        min: propertyMinNameSize / steps,
+        max: (fullNames ? propertyMaxNameSize : 9) / steps,
+        base: nameBase,
+        lines: nameLines,
+        hyphens: fullNames);
     final show = _show;
     final now = show?.at(_anim.value);
     final positions = _positions();
@@ -510,6 +517,7 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
                   nameSize: nameSize,
                   nameBox: nameBox,
                   nameBase: nameBase,
+                  nameLines: nameLines,
                   onTap: show != null ? _skip : () => showPropertySquareSheet(context, game, i),
                 ),
               ),
@@ -712,6 +720,7 @@ class _SquareCell extends StatelessWidget {
   final double nameSize;
   final Size nameBox;
   final TextStyle? nameBase;
+  final int nameLines;
   final VoidCallback onTap;
   const _SquareCell(
       {required this.game,
@@ -725,6 +734,7 @@ class _SquareCell extends StatelessWidget {
       this.nameSize = 8,
       this.nameBox = Size.zero,
       this.nameBase,
+      this.nameLines = 2,
       required this.onTap});
 
   IconData? get _icon => switch (game.theme.squares[square].kind) {
@@ -855,6 +865,7 @@ class _SquareCell extends StatelessWidget {
                                 box: nameBox,
                                 base: nameBase,
                                 alignment: _nameAt(row, col),
+                                lines: nameLines,
                                 color: ink),
                           ),
                         ),

@@ -442,7 +442,10 @@ class PropertyTheme {
       text(at, s.name, maxNameLength);
       if (s.short case final short?) {
         text('$at: short name', short, maxShortNameLength);
-        if (short.runes.length > s.name.runes.length) p.add('$at: short name longer than the name');
+        // Not longer than the name; a hyphen added for a line break
+        // ("Museums-Insel") does not count.
+        int letters(String t) => t.replaceAll('-', '').runes.length;
+        if (letters(short) > letters(s.name)) p.add('$at: short name longer than the name');
       }
       if (s.kind != propertyLayout[s.index]) p.add('$at: must be a ${propertyLayout[s.index].name}');
       bool range(String what, int v, int lo, int hi) {

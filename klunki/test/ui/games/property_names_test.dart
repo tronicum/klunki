@@ -36,6 +36,15 @@ void main() {
     expect(propertyBoardNameSize(['Wühlischstraße'], box, min: 5, max: 12), 5, reason: 'never below the minimum');
   });
 
+  test('full names: three lines and soft hyphens make the board size bigger', () {
+    const box = Size(60, 40);
+    final names = [propertyBreakable('Wühlischstraße'), 'Am Wriezener Bahnhof'];
+    final short = propertyBoardNameSize(names, box, min: 2, max: 14);
+    final full = propertyBoardNameSize(names, box, min: 2, max: 14, lines: 3, hyphens: true);
+    expect(full, greaterThan(short));
+    expect(propertyNameLayout(names[0], full, box, null, 3), 'Wühlisch-\nstraße');
+  });
+
   test('every short name on the board is one the theme chose: no text rule', () {
     for (final theme in PropertyTheme.builtIn) {
       for (final sq in theme.squares) {

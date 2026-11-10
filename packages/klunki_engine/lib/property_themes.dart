@@ -138,7 +138,7 @@ final PropertyTheme berlinTheme = PropertyTheme(
     // full name does not fit at the board's size, abbreviated as little as
     // possible and keeping the street type.
     8: 'Wühlischstr.', 13: 'Weserstr.', 24: 'Am Wriez. Bahnhof', 26: 'Kollwitzpl.', //
-    27: 'Kastan. Allee', 29: 'Schönh. Allee', 34: 'Kurfürstend.', 37: 'Mus.-Insel',
+    27: 'Kastan. Allee', 29: 'Schönh. Allee', 34: 'Kurfürstend.', 37: 'Museums-Insel',
   }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Nimm die S-Bahn – heute fährt sie sogar pünktlich.', 0),
