@@ -4257,4 +4257,72 @@ class AppLocalizationsFa extends AppLocalizations {
   String propertyDeedDiceTimes(int factor) {
     return 'جمع تاس × $factor';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'جان نامحدود';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'هیچ‌کس بیرون نمی‌رود. هر جانی که از دست برود شمرده می‌شود. تا وقتی بازی را تمام کنید بازی می‌کنید: هر کس کمترین جان را از دست داده باشد، می‌برد.';
+
+  @override
+  String get maexchenEndGame => 'پایان بازی';
+
+  @override
+  String get maexchenEndGameTitle => 'بازی تمام شود؟';
+
+  @override
+  String get maexchenEndGameBody =>
+      'هر کس کمترین جان را از دست داده باشد، می‌برد. اگر برابر باشد، رتبه را با هم شریک می‌شوید.';
+
+  @override
+  String get maexchenEndGameConfirm => 'تمام کن';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'بازی را تمام کردید. هر کس کمترین جان را از دست داده باشد، می‌برد.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جان از دست رفته',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جان از دست رفته',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جان مانده',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'بیرون';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'دو، سه یا چهار نفر روی یک دستگاه. لیوان دور میز می‌چرخد: همیشه به نفر بعدی اعلام می‌کنی. هر کس جانی برایش نمانده باشد، بیرون می‌رود و نوبتش رد می‌شود.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'تا می‌توانی کمتر جان از دست بده. تا وقتی بازی را تمام کنید بازی می‌کنید.';
+
+  @override
+  String get rulesMaexchenEndHow => '«پایان بازی» در منوی سه‌نقطه است.';
 }

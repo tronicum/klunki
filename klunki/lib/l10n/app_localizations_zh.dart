@@ -4097,4 +4097,69 @@ class AppLocalizationsZh extends AppLocalizations {
   String propertyDeedDiceTimes(int factor) {
     return '骰子点数 × $factor';
   }
+
+  @override
+  String get maexchenOptionUnlimited => '无限条命';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      '没有人出局。每输掉一条命都记下来。你们一直玩到结束游戏为止：输掉的命最少的人赢。';
+
+  @override
+  String get maexchenEndGame => '结束游戏';
+
+  @override
+  String get maexchenEndGameTitle => '结束游戏吗？';
+
+  @override
+  String get maexchenEndGameBody => '输掉的命最少的人赢。一样多就并列。';
+
+  @override
+  String get maexchenEndGameConfirm => '结束';
+
+  @override
+  String get engineReasonMaexchenEnded => '你们结束了游戏。输掉的命最少的人赢。';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '输了 $count 条命',
+    );
+    return '$player：$_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '输了 $count 条命',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还剩 $count 条命',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => '出局';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      '两到四人用一台设备玩。骰盅按顺序传：你总是向下一位报数。没有命的人出局，轮到时跳过。';
+
+  @override
+  String get rulesMaexchenGoalUnlimited => '尽量少输命。你们一直玩到结束游戏为止。';
+
+  @override
+  String get rulesMaexchenEndHow => '“结束游戏”在三个点的菜单里。';
 }

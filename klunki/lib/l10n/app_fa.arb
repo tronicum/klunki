@@ -1094,5 +1094,19 @@
   "propertyDeedStations": "{count, plural, other{{count} ایستگاه}}",
   "propertyDeedUtilityOne": "با یکی از دو تا",
   "propertyDeedUtilityBoth": "با هر دو",
-  "propertyDeedDiceTimes": "جمع تاس × {factor}"
+  "propertyDeedDiceTimes": "جمع تاس × {factor}",
+  "maexchenOptionUnlimited": "جان نامحدود",
+  "maexchenOptionUnlimitedExplain": "هیچ‌کس بیرون نمی‌رود. هر جانی که از دست برود شمرده می‌شود. تا وقتی بازی را تمام کنید بازی می‌کنید: هر کس کمترین جان را از دست داده باشد، می‌برد.",
+  "maexchenEndGame": "پایان بازی",
+  "maexchenEndGameTitle": "بازی تمام شود؟",
+  "maexchenEndGameBody": "هر کس کمترین جان را از دست داده باشد، می‌برد. اگر برابر باشد، رتبه را با هم شریک می‌شوید.",
+  "maexchenEndGameConfirm": "تمام کن",
+  "engineReasonMaexchenEnded": "بازی را تمام کردید. هر کس کمترین جان را از دست داده باشد، می‌برد.",
+  "maexchenLostOf": "{player}: {count, plural, other{{count} جان از دست رفته}}",
+  "maexchenResultLost": "{count, plural, other{{count} جان از دست رفته}}",
+  "maexchenResultLives": "{count, plural, other{{count} جان مانده}}",
+  "maexchenResultOut": "بیرون",
+  "rulesMaexchenPlayers": "دو، سه یا چهار نفر روی یک دستگاه. لیوان دور میز می‌چرخد: همیشه به نفر بعدی اعلام می‌کنی. هر کس جانی برایش نمانده باشد، بیرون می‌رود و نوبتش رد می‌شود.",
+  "rulesMaexchenGoalUnlimited": "تا می‌توانی کمتر جان از دست بده. تا وقتی بازی را تمام کنید بازی می‌کنید.",
+  "rulesMaexchenEndHow": "«پایان بازی» در منوی سه‌نقطه است."
 }

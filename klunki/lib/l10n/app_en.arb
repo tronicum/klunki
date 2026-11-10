@@ -1093,5 +1093,19 @@
   "propertyDeedStations": "{count, plural, =1{1 station} other{{count} stations}}",
   "propertyDeedUtilityOne": "With one of the two",
   "propertyDeedUtilityBoth": "With both",
-  "propertyDeedDiceTimes": "Dice total × {factor}"
+  "propertyDeedDiceTimes": "Dice total × {factor}",
+  "maexchenOptionUnlimited": "Unlimited lives",
+  "maexchenOptionUnlimitedExplain": "Nobody drops out. Every lost life is counted. You play until you end the game: whoever lost the fewest lives wins.",
+  "maexchenEndGame": "End game",
+  "maexchenEndGameTitle": "End the game?",
+  "maexchenEndGameBody": "Whoever lost the fewest lives wins. A tie shares the place.",
+  "maexchenEndGameConfirm": "End",
+  "engineReasonMaexchenEnded": "You ended the game. Whoever lost the fewest lives wins.",
+  "maexchenLostOf": "{player}: {count, plural, =1{lost 1 life} other{lost {count} lives}}",
+  "maexchenResultLost": "{count, plural, =1{lost 1 life} other{lost {count} lives}}",
+  "maexchenResultLives": "{count, plural, =1{1 life left} other{{count} lives left}}",
+  "maexchenResultOut": "out",
+  "rulesMaexchenPlayers": "Two, three or four players on one device. The cup goes round the table: you always announce to the next player. Whoever has no lives left is out and gets skipped.",
+  "rulesMaexchenGoalUnlimited": "Lose as few lives as you can. You play until you end the game.",
+  "rulesMaexchenEndHow": "“End game” is in the menu with the three dots."
 }

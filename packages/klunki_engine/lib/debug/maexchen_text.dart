@@ -21,7 +21,11 @@ class MaexchenText extends TextGame {
 
   @override
   MaexchenText restart() =>
-      MaexchenText(game: MaexchenGame(startLives: game.startLives, maexchenDouble: game.maexchenDouble));
+      MaexchenText(
+          game: MaexchenGame(
+              startLives: game.startLives,
+              maexchenDouble: game.maexchenDouble,
+              unlimitedLives: game.unlimitedLives));
 
   static String valueName(int v) => v == MaexchenGame.maexchen ? 'Mäxchen (21)' : '$v';
 

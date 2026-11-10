@@ -75,6 +75,12 @@ short German summary ("Kurz") for the store notes and the testers.
   dice cup to roll (iOS, Android, and the browser on phones; in Safari on iPhone after allowing motion access
   on the first "Würfeln" tap). The button stays; the phone gives a short knock when the dice land. On by
   default, switch in Mäxchen's start options.
+- **Mäxchen for 3 or 4 players** on one device (KLD-121): choose 2 · 3 · 4 in "Wer spielt?". The cup goes round
+  the table, a cover hides it before every player who takes it, whoever has no lives left is out and skipped,
+  and the last one with lives wins; the others rank by when they went out. New rule variant **"Unbegrenzte
+  Leben"** (off by default, in the start options under the lives): nobody drops out, every lost life is counted,
+  and the players end the game with "Spiel beenden" in the "⋮" menu; fewest lives lost wins. Builds without it
+  cannot play Mäxchen with builds that have it (rules version 2).
 - **Wortgewandt**: new house rule "Joker tauschen" (swap the blank), chosen at game start (also for a room),
   off by default: whoever holds the letter a laid blank stands for may put it there, take the blank and then lay
   tiles in the same turn. Builds without it cannot play Wortgewandt with builds that have it (rules version 4).

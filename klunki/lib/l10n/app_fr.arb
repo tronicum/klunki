@@ -1094,5 +1094,19 @@
   "propertyDeedStations": "{count, plural, =1{1 gare} other{{count} gares}}",
   "propertyDeedUtilityOne": "Avec l'un des deux",
   "propertyDeedUtilityBoth": "Avec les deux",
-  "propertyDeedDiceTimes": "Total des dés × {factor}"
+  "propertyDeedDiceTimes": "Total des dés × {factor}",
+  "maexchenOptionUnlimited": "Vies illimitées",
+  "maexchenOptionUnlimitedExplain": "Personne n’est éliminé. Chaque vie perdue est comptée. Vous jouez jusqu’à ce que vous arrêtiez la partie : qui a perdu le moins de vies gagne.",
+  "maexchenEndGame": "Terminer la partie",
+  "maexchenEndGameTitle": "Terminer la partie ?",
+  "maexchenEndGameBody": "Qui a perdu le moins de vies gagne. En cas d’égalité, vous partagez la place.",
+  "maexchenEndGameConfirm": "Terminer",
+  "engineReasonMaexchenEnded": "Vous avez terminé la partie. Qui a perdu le moins de vies gagne.",
+  "maexchenLostOf": "{player} : {count, plural, =1{1 vie perdue} other{{count} vies perdues}}",
+  "maexchenResultLost": "{count, plural, =1{1 vie perdue} other{{count} vies perdues}}",
+  "maexchenResultLives": "{count, plural, =1{encore 1 vie} other{encore {count} vies}}",
+  "maexchenResultOut": "hors jeu",
+  "rulesMaexchenPlayers": "À deux, trois ou quatre sur un appareil. Le gobelet fait le tour de la table : on annonce toujours à la personne suivante. Qui n’a plus de vies est hors jeu et on passe son tour.",
+  "rulesMaexchenGoalUnlimited": "Perds le moins de vies possible. Vous jouez jusqu’à ce que vous arrêtiez la partie.",
+  "rulesMaexchenEndHow": "« Terminer la partie » se trouve dans le menu aux trois points."
 }

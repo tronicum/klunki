@@ -41,7 +41,8 @@ Future<void> _loadRoboto() async {
   await loader.load();
 }
 
-Future<GameController> _start(WidgetTester tester, _Device d, List<List<int>> rolls) async {
+Future<GameController> _start(WidgetTester tester, _Device d, List<List<int>> rolls,
+    {int players = 2, bool unlimited = false}) async {
   const dpr = 3.0;
   tester.view.physicalSize = d.size * dpr;
   tester.view.devicePixelRatio = dpr;
@@ -52,7 +53,8 @@ Future<GameController> _start(WidgetTester tester, _Device d, List<List<int>> ro
   tester.platformDispatcher.textScaleFactorTestValue = d.text;
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-  final c = GameController.hotSeat(const GameConfig('maexchen', seed: 3));
+  final c = GameController.hotSeat(
+      GameConfig('maexchen', seed: 3, players: players, lives: players > 2 ? 5 : 3, maexchenUnlimited: unlimited));
   addTearDown(c.dispose);
   (c.game as MaexchenGame).debugScriptRolls(rolls);
   await tester.pumpWidget(localizedApp(buildGameScreen(c)));
@@ -93,42 +95,47 @@ Future<void> _handOver(WidgetTester tester) async {
 void main() {
   setUpAll(_loadRoboto);
 
-  for (final d in _devices) {
-    testWidgets('${d.name}: every action is on screen in every phase', (tester) async {
-      await _start(tester, d, [[4, 1], [3, 1], [2, 1]]);
-      _onScreen(tester, d, 'roll', ['maexchen-roll']);
+  // KLD-121 step 2: also with 4 players (seat shell, a lives row of four
+  // cells, 5 lives) and with the tally of "Unbegrenzte Leben".
+  for (final (players, unlimited) in [(2, false), (4, false), (4, true)]) {
+    for (final d in _devices) {
+      final what = players == 2 ? '' : ', $players players${unlimited ? ', Unbegrenzte Leben' : ', 5 lives'}';
+      testWidgets('${d.name}$what: every action is on screen in every phase', (tester) async {
+        await _start(tester, d, [[4, 1], [3, 1], [2, 1]], players: players, unlimited: unlimited);
+        _onScreen(tester, d, 'roll', ['maexchen-roll']);
 
-      await _tap(tester, 'maexchen-roll');
-      _onScreen(tester, d, 'announce, nothing chosen', ['maexchen-peek', 'maexchen-announce', 'maexchen-value-31']);
-      expect(tester.widget<FilledButton>(_key('maexchen-announce')).onPressed, isNull);
-      expect(find.text('Wähle eine Zahl'), findsOneWidget, reason: 'the button says what to do first');
+        await _tap(tester, 'maexchen-roll');
+        _onScreen(tester, d, 'announce, nothing chosen', ['maexchen-peek', 'maexchen-announce', 'maexchen-value-31']);
+        expect(tester.widget<FilledButton>(_key('maexchen-announce')).onPressed, isNull);
+        expect(find.text('Wähle eine Zahl'), findsOneWidget, reason: 'the button says what to do first');
 
-      await _tap(tester, 'maexchen-peek');
-      _onScreen(tester, d, 'announce, peeking', ['maexchen-peek', 'maexchen-announce']);
-      // The lowest value is always on screen; the chosen one ("Mäxchen!" is
-      // the last cell) may need the grid scrolled on the smallest screens.
-      await tester.ensureVisible(_key('maexchen-value-52'));
-      await tester.pumpAndSettle();
-      await _tap(tester, 'maexchen-value-52');
-      _onScreen(tester, d, 'announce, 52 chosen', ['maexchen-announce']);
-      expect(find.text('52 ansagen'), findsOneWidget);
+        await _tap(tester, 'maexchen-peek');
+        _onScreen(tester, d, 'announce, peeking', ['maexchen-peek', 'maexchen-announce']);
+        // The lowest value is always on screen; the chosen one ("Mäxchen!" is
+        // the last cell) may need the grid scrolled on the smallest screens.
+        await tester.ensureVisible(_key('maexchen-value-52'));
+        await tester.pumpAndSettle();
+        await _tap(tester, 'maexchen-value-52');
+        _onScreen(tester, d, 'announce, 52 chosen', ['maexchen-announce']);
+        expect(find.text('52 ansagen'), findsOneWidget);
 
-      await _tap(tester, 'maexchen-announce');
-      await _handOver(tester);
-      _onScreen(tester, d, 'respond', ['maexchen-believe', 'maexchen-doubt']);
+        await _tap(tester, 'maexchen-announce');
+        await _handOver(tester);
+        _onScreen(tester, d, 'respond', ['maexchen-believe', 'maexchen-doubt']);
 
-      await _tap(tester, 'maexchen-doubt');
-      await _handOver(tester);
-      _onScreen(tester, d, 'after the reveal', ['maexchen-roll', 'maexchen-summary']);
+        await _tap(tester, 'maexchen-doubt');
+        await _handOver(tester);
+        _onScreen(tester, d, 'after the reveal', ['maexchen-roll', 'maexchen-summary']);
 
-      await _tap(tester, 'maexchen-roll');
-      await tester.ensureVisible(_key('maexchen-value-21'));
-      await tester.pumpAndSettle();
-      await _tap(tester, 'maexchen-value-21');
-      _onScreen(tester, d, 'announce, Mäxchen chosen', ['maexchen-peek', 'maexchen-announce']);
-      await _tap(tester, 'maexchen-announce');
-      await _handOver(tester);
-      _onScreen(tester, d, 'respond to Mäxchen', ['maexchen-giveup', 'maexchen-doubt']);
-    });
+        await _tap(tester, 'maexchen-roll');
+        await tester.ensureVisible(_key('maexchen-value-21'));
+        await tester.pumpAndSettle();
+        await _tap(tester, 'maexchen-value-21');
+        _onScreen(tester, d, 'announce, Mäxchen chosen', ['maexchen-peek', 'maexchen-announce']);
+        await _tap(tester, 'maexchen-announce');
+        await _handOver(tester);
+        _onScreen(tester, d, 'respond to Mäxchen', ['maexchen-giveup', 'maexchen-doubt']);
+      });
+    }
   }
 }

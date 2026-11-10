@@ -250,9 +250,16 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(_key('maexchen-double'));
     await tester.pumpAndSettle();
+    expect(tester.widget<SwitchListTile>(_key('maexchen-unlimited')).value, isFalse, reason: 'off by default');
     await tester.tap(_key('maexchen-options-next'));
     await tester.pumpAndSettle();
+    // "Wer spielt?" with the player count (KLD-121 step 2): two.
+    expect(_key('seat-players-4'), findsOneWidget);
+    await tester.tap(_key('hot-seat-names-ok'));
+    await tester.pumpAndSettle();
     final c = controllerOf(tester);
+    expect(c.config.players, 2);
+    expect(c.config.maexchenUnlimited, isFalse);
     expect(c.config.lives, 5);
     expect(c.config.maexchenDouble, isFalse);
     expect((c.game as MaexchenGame).startLives, 5);

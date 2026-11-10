@@ -156,6 +156,9 @@ void main() {
     expect(ShakeSettings.shared().enabled, isFalse);
     await tester.tap(_key('maexchen-options-next'));
     await tester.pumpAndSettle();
+    // "Wer spielt?" (2–4 players, KLD-121 step 2).
+    await tester.tap(_key('hot-seat-names-ok'));
+    await tester.pumpAndSettle();
     expect(_sensor.hasListener, isFalse);
     // A fresh start reads the stored choice.
     ShakeSettings.debugReset(loaded: true);

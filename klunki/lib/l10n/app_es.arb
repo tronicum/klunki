@@ -1094,5 +1094,19 @@
   "propertyDeedStations": "{count, plural, =1{1 estación} other{{count} estaciones}}",
   "propertyDeedUtilityOne": "Con uno de los dos",
   "propertyDeedUtilityBoth": "Con los dos",
-  "propertyDeedDiceTimes": "Suma de dados × {factor}"
+  "propertyDeedDiceTimes": "Suma de dados × {factor}",
+  "maexchenOptionUnlimited": "Vidas ilimitadas",
+  "maexchenOptionUnlimitedExplain": "Nadie queda fuera. Se cuenta cada vida perdida. Jugáis hasta terminar la partida: gana quien haya perdido menos vidas.",
+  "maexchenEndGame": "Terminar la partida",
+  "maexchenEndGameTitle": "¿Terminar la partida?",
+  "maexchenEndGameBody": "Gana quien haya perdido menos vidas. Con empate, compartís el puesto.",
+  "maexchenEndGameConfirm": "Terminar",
+  "engineReasonMaexchenEnded": "Habéis terminado la partida. Gana quien haya perdido menos vidas.",
+  "maexchenLostOf": "{player}: {count, plural, =1{1 vida perdida} other{{count} vidas perdidas}}",
+  "maexchenResultLost": "{count, plural, =1{1 vida perdida} other{{count} vidas perdidas}}",
+  "maexchenResultLives": "{count, plural, =1{1 vida restante} other{{count} vidas restantes}}",
+  "maexchenResultOut": "fuera",
+  "rulesMaexchenPlayers": "De dos a cuatro en un dispositivo. El cubilete da la vuelta a la mesa: siempre anuncias a quien va después. Quien se queda sin vidas queda fuera y se le salta.",
+  "rulesMaexchenGoalUnlimited": "Pierde las menos vidas posibles. Jugáis hasta terminar la partida.",
+  "rulesMaexchenEndHow": "«Terminar la partida» está en el menú de los tres puntos."
 }

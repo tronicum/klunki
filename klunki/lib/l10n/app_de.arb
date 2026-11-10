@@ -6411,5 +6411,79 @@
         "type": "int"
       }
     }
+  },
+  "maexchenOptionUnlimited": "Unbegrenzte Leben",
+  "@maexchenOptionUnlimited": {
+    "description": "Mäxchen start option (rule variant, off by default, KLD-121 step 2): nobody drops out; lost lives are counted and the players end the game themselves."
+  },
+  "maexchenOptionUnlimitedExplain": "Niemand scheidet aus. Jedes verlorene Leben wird gezählt. Ihr spielt, bis ihr das Spiel beendet: Wer am wenigsten Leben verloren hat, gewinnt.",
+  "@maexchenOptionUnlimitedExplain": {
+    "description": "Explains the rule variant \"Unbegrenzte Leben\" under its switch (also on the rules page)."
+  },
+  "maexchenEndGame": "Spiel beenden",
+  "@maexchenEndGame": {
+    "description": "Mäxchen, rule variant \"Unbegrenzte Leben\": menu entry that ends the game; the ranking follows."
+  },
+  "maexchenEndGameTitle": "Spiel beenden?",
+  "@maexchenEndGameTitle": {
+    "description": "Mäxchen, \"Unbegrenzte Leben\": title of the dialog that asks before the game ends."
+  },
+  "maexchenEndGameBody": "Wer am wenigsten Leben verloren hat, gewinnt. Bei Gleichstand teilt ihr euch den Platz.",
+  "@maexchenEndGameBody": {
+    "description": "Mäxchen, \"Unbegrenzte Leben\": text of the dialog before the game ends (how the ranking works)."
+  },
+  "maexchenEndGameConfirm": "Beenden",
+  "@maexchenEndGameConfirm": {
+    "description": "Mäxchen, \"Unbegrenzte Leben\": button that ends the game in the dialog."
+  },
+  "engineReasonMaexchenEnded": "Ihr habt das Spiel beendet. Wer am wenigsten Leben verloren hat, gewinnt.",
+  "@engineReasonMaexchenEnded": {
+    "description": "Result reason (Mäxchen, rule variant \"Unbegrenzte Leben\"): the players ended the game; fewest lives lost wins."
+  },
+  "maexchenLostOf": "{player}: {count, plural, =1{1 Leben verloren} other{{count} Leben verloren}}",
+  "@maexchenLostOf": {
+    "description": "Mäxchen, \"Unbegrenzte Leben\": accessibility label of a player's tally. count = lives lost so far.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maexchenResultLost": "{count, plural, =1{1 Leben verloren} other{{count} Leben verloren}}",
+  "@maexchenResultLost": {
+    "description": "Mäxchen, \"Unbegrenzte Leben\": behind a name in the ranking. count = lives lost.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maexchenResultLives": "{count, plural, =1{noch 1 Leben} other{noch {count} Leben}}",
+  "@maexchenResultLives": {
+    "description": "Mäxchen with 3–4 players: behind the winner's name in the ranking. count = lives left.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maexchenResultOut": "ausgeschieden",
+  "@maexchenResultOut": {
+    "description": "Mäxchen with 3–4 players: behind the name of a player who lost all lives, in the ranking."
+  },
+  "rulesMaexchenPlayers": "Zu zweit, zu dritt oder zu viert an einem Gerät. Der Becher geht reihum: Angesagt wird immer dem Nächsten am Tisch. Wer keine Leben mehr hat, scheidet aus und wird übersprungen.",
+  "@rulesMaexchenPlayers": {
+    "description": "Rules page (Mäxchen, KLD-121 step 2): 2–4 players at one device, the cup passes round, players without lives are skipped."
+  },
+  "rulesMaexchenGoalUnlimited": "Verlier möglichst wenige Leben. Ihr spielt, bis ihr das Spiel beendet.",
+  "@rulesMaexchenGoalUnlimited": {
+    "description": "Rules page (Mäxchen) \"Ziel\" with the rule variant \"Unbegrenzte Leben\" on."
+  },
+  "rulesMaexchenEndHow": "„Spiel beenden“ steht im Menü mit den drei Punkten.",
+  "@rulesMaexchenEndHow": {
+    "description": "Rules page (Mäxchen, \"Unbegrenzte Leben\"): where \"Spiel beenden\" is (the app bar menu with three dots)."
   }
 }

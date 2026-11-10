@@ -8,11 +8,13 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
 import '../../shell/game_screen.dart';
+import '../../shell/seat_labels.dart';
 import '../shake_to_roll.dart';
 import 'maexchen_dice.dart';
 import 'maexchen_screen.dart' show maexchenValueLabel;
 
-/// The Mäxchen board (KLD-121): both players with their hearts, the
+/// The Mäxchen board (KLD-121): every player with their hearts (or, with
+/// "Unbegrenzte Leben", the lives lost so far), the
 /// announcement of the round, the table with the cup, and what the player
 /// to move can do:
 ///
@@ -148,8 +150,8 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
       MaexchenPhase.announce =>
         announced == null ? l10n.maexchenHintAnnounceFirst : l10n.maexchenHintAnnounceHigher(label(announced)),
       MaexchenPhase.respond => announced == MaexchenGame.maexchen
-          ? l10n.maexchenHintRespondMaexchen(playerName(context, game.announcer!))
-          : l10n.maexchenHintRespond(playerName(context, game.announcer!), label(announced!)),
+          ? l10n.maexchenHintRespondMaexchen(maexchenSeatName(context, game, game.announcerSeat!))
+          : l10n.maexchenHintRespond(maexchenSeatName(context, game, game.announcerSeat!), label(announced!)),
     };
   }
 
@@ -272,7 +274,8 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
                 _LivesRow(game: game),
                 const SizedBox(height: 6),
                 if (roundOver)
-                  MaexchenRoundSummary(key: ValueKey('summary-${last.round}'), end: last, animate: _freshReveal)
+                  MaexchenRoundSummary(
+                      key: ValueKey('summary-${last.round}'), game: game, end: last, animate: _freshReveal)
                 else
                   _AnnouncementBanner(game: game),
                 const SizedBox(height: 6),
@@ -579,69 +582,162 @@ class _ValueCell extends StatelessWidget {
   }
 }
 
-/// Both players: token, name and hearts; the player to move is outlined.
+/// [seat]'s name in a sentence: the seat labels with 3–4 players (KLD-121
+/// step 2), the player labels with 2 (as over the network).
+String maexchenSeatName(BuildContext context, MaexchenGame game, int seat) {
+  final p = MaexchenGame.playerOfSeat(seat);
+  if (game.playerCount > 2 || p == null) {
+    return SeatLabelsScope.of(context).label(context, AppLocalizations.of(context), seat, count: game.playerCount);
+  }
+  return playerName(context, p);
+}
+
+/// [seat]'s token: the seat token (colour and number) with 3–4 players, the
+/// game's player token with 2; greyed for a seat that is out.
+class MaexchenSeatToken extends StatelessWidget {
+  final MaexchenGame game;
+  final int seat;
+  final double size;
+  const MaexchenSeatToken({super.key, required this.game, required this.seat, this.size = 22});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = MaexchenGame.playerOfSeat(seat);
+    if (game.playerCount > 2 || p == null) return SeatToken(seat: seat, size: size, out: game.isSeatOut(seat));
+    return PlayerToken(gameId: 'maexchen', player: p, size: size);
+  }
+}
+
+/// Key suffix of [seat]: `a`, `b` (as the players), `c`, `d`.
+String _seatKey(int seat) => 'abcd'[seat];
+
+/// Every player: token, name and hearts; with "Unbegrenzte Leben" a broken
+/// heart and the lives lost so far instead (the tally). The player to move
+/// is outlined, a player who is out is greyed. With 3–4 players the cells
+/// are narrower: the name next to a smaller token, the hearts on one line
+/// below, shrunk to fit (a phone of 320 points, 5 lives). No LayoutBuilder:
+/// the table section measures this row's height.
 class _LivesRow extends StatelessWidget {
   final MaexchenGame game;
   const _LivesRow({required this.game});
 
   @override
   Widget build(BuildContext context) {
+    final n = game.playerCount;
+    final gap = n > 2 ? 4.0 : 8.0;
+    return Row(
+      children: [
+        for (var s = 0; s < n; s++) ...[
+          if (s > 0) SizedBox(width: gap),
+          Expanded(child: _SeatLives(game: game, seat: s)),
+        ],
+      ],
+    );
+  }
+}
+
+class _SeatLives extends StatelessWidget {
+  final MaexchenGame game;
+  final int seat;
+  const _SeatLives({required this.game, required this.seat});
+
+  static const Color _red = Color(0xFFD32F2F);
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final accent = KlunkiPalette.of(context).accent('maexchen');
-    return Row(
-      children: [
-        for (final p in Player.values) ...[
-          if (p != Player.a) const SizedBox(width: 8),
-          Expanded(
-            child: Semantics(
-              label: l10n.maexchenLivesOf(playerName(context, p), game.livesOf(p)),
-              excludeSemantics: true,
-              child: AnimatedContainer(
-                key: Key('maexchen-lives-${p.name}'),
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: !game.isOver && game.currentPlayer == p
-                        ? accent.onSurface(theme.brightness)
-                        : theme.colorScheme.outlineVariant,
-                    width: !game.isOver && game.currentPlayer == p ? 2.5 : 1,
-                  ),
-                ),
-                child: Row(
+    final compact = game.playerCount > 2;
+    final name = maexchenSeatName(context, game, seat);
+    final lives = game.livesOfSeat(seat);
+    final out = game.isSeatOut(seat);
+    final toMove = !game.isOver && game.actorSeat == seat;
+    final k = _seatKey(seat);
+    final tokenSize = compact ? 18.0 : 22.0;
+
+    final Widget marks;
+    if (game.unlimitedLives) {
+      final lost = game.lostOf(seat);
+      marks = Row(
+        key: Key('maexchen-tally-$k'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.heart_broken, size: 18, color: lost > 0 ? _red : theme.colorScheme.outline),
+          const SizedBox(width: 3),
+          Text('$lost',
+              key: Key('maexchen-lost-$k'),
+              textDirection: TextDirection.ltr,
+              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+        ],
+      );
+    } else {
+      final hearts = [
+        for (var i = 0; i < game.startLives; i++)
+          Icon(
+            i < lives ? Icons.favorite : Icons.favorite_border,
+            key: Key('maexchen-heart-$k-$i'),
+            size: 18,
+            color: i < lives ? _red : theme.colorScheme.outline,
+          ),
+      ];
+      marks = compact
+          // One line, shrunk to the cell (5 hearts in a quarter of a phone).
+          ? FittedBox(
+              key: Key('maexchen-hearts-$k'),
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Row(mainAxisSize: MainAxisSize.min, children: hearts),
+            )
+          : Wrap(key: Key('maexchen-hearts-$k'), children: hearts);
+    }
+    final nameText = Text(name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: (compact ? theme.textTheme.labelLarge : theme.textTheme.titleSmall)
+            ?.copyWith(fontWeight: toMove && compact ? FontWeight.w700 : null));
+    final token = MaexchenSeatToken(game: game, seat: seat, size: tokenSize);
+    return Semantics(
+      label: game.unlimitedLives ? l10n.maexchenLostOf(name, game.lostOf(seat)) : l10n.maexchenLivesOf(name, lives),
+      excludeSemantics: true,
+      child: Opacity(
+        opacity: out ? 0.5 : 1,
+        child: AnimatedContainer(
+          key: Key('maexchen-lives-$k'),
+          duration: const Duration(milliseconds: 250),
+          padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: toMove ? accent.onSurface(theme.brightness) : theme.colorScheme.outlineVariant,
+              width: toMove ? 2.5 : 1,
+            ),
+          ),
+          child: compact
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    PlayerToken(gameId: 'maexchen', player: p, size: 22),
+                    Row(children: [token, const SizedBox(width: 4), Expanded(child: nameText)]),
+                    const SizedBox(height: 2),
+                    marks,
+                  ],
+                )
+              : Row(
+                  children: [
+                    token,
                     const SizedBox(width: 6),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(playerName(context, p),
-                              maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleSmall),
-                          Wrap(
-                            children: [
-                              for (var i = 0; i < game.startLives; i++)
-                                Icon(
-                                  i < game.livesOf(p) ? Icons.favorite : Icons.favorite_border,
-                                  key: Key('maexchen-heart-${p.name}-$i'),
-                                  size: 18,
-                                  color: i < game.livesOf(p) ? const Color(0xFFD32F2F) : theme.colorScheme.outline,
-                                ),
-                            ],
-                          ),
-                        ],
+                        children: [nameText, marks],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-        ],
-      ],
+        ),
+      ),
     );
   }
 }
@@ -683,7 +779,9 @@ class _AnnouncementBanner extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(l10n.maexchenAnnouncedLabel, style: theme.textTheme.labelMedium),
-                      Text(l10n.maexchenAnnounced(playerName(context, game.announcer!), maexchenValueLabel(l10n, a)),
+                      Text(
+                          l10n.maexchenAnnounced(
+                              maexchenSeatName(context, game, game.announcerSeat!), maexchenValueLabel(l10n, a)),
                           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                     ],
                   ),
@@ -698,12 +796,14 @@ class _AnnouncementBanner extends StatelessWidget {
 /// who loses lives ("Geflunkert! Anna verliert ein Leben."). With [animate]
 /// the dice pop in after a short pause and the verdict follows: the reveal.
 class MaexchenRoundSummary extends StatelessWidget {
+  /// The game, for the players' names.
+  final MaexchenGame game;
   final MaexchenRoundEnd end;
   final bool animate;
-  const MaexchenRoundSummary({super.key, required this.end, this.animate = false});
+  const MaexchenRoundSummary({super.key, required this.game, required this.end, this.animate = false});
 
   String verdict(BuildContext context, AppLocalizations l10n) {
-    final loser = playerName(context, Player.values[end.loser]);
+    final loser = maexchenSeatName(context, game, end.loser);
     if (end.gaveUp) return l10n.maexchenVerdictGaveUp(loser);
     if (end.bluff) return end.lost >= 2 ? l10n.maexchenVerdictBluffTwo(loser) : l10n.maexchenVerdictBluff(loser);
     return end.lost >= 2 ? l10n.maexchenVerdictTrueTwo(loser) : l10n.maexchenVerdictTrue(loser);
@@ -736,8 +836,8 @@ class MaexchenRoundSummary extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.maexchenAnnounced(playerName(context, Player.values[end.announcer]),
-                      maexchenValueLabel(l10n, end.announced)),
+                  l10n.maexchenAnnounced(
+                      maexchenSeatName(context, game, end.announcer), maexchenValueLabel(l10n, end.announced)),
                   style: theme.textTheme.labelLarge,
                 ),
                 if (value != null) Text(l10n.maexchenUnderCup(maexchenValueLabel(l10n, value)), style: theme.textTheme.labelLarge),
@@ -784,7 +884,8 @@ class MaexchenHandoverDetail extends StatelessWidget {
     final moves = controller.moves;
     final action = moves.isEmpty ? null : moves.last.move['action'];
     if ((action == 'doubt' || action == 'giveUp') && game.lastRound != null) {
-      return MaexchenRoundSummary(key: const Key('maexchen-handover-summary'), end: game.lastRound!, animate: true);
+      return MaexchenRoundSummary(
+          key: const Key('maexchen-handover-summary'), game: game, end: game.lastRound!, animate: true);
     }
     final a = game.announced;
     if (a == null) return const SizedBox.shrink();
@@ -794,7 +895,7 @@ class MaexchenHandoverDetail extends StatelessWidget {
       children: [
         ValueDice(value: a, size: 40),
         const SizedBox(height: 8),
-        Text(l10n.maexchenAnnounced(playerName(context, game.announcer!), maexchenValueLabel(l10n, a)),
+        Text(l10n.maexchenAnnounced(maexchenSeatName(context, game, game.announcerSeat!), maexchenValueLabel(l10n, a)),
             textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
       ],
     );

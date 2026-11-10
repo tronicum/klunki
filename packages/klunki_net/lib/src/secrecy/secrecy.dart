@@ -81,6 +81,7 @@ String? verifyRedactedGame({
   bool jokerSwap = false,
   int lives = 3,
   bool maexchenDouble = true,
+  bool maexchenUnlimited = false,
   required Player me,
   required int seed,
   required String startViewHash,
@@ -123,7 +124,8 @@ String? verifyRedactedGame({
         dictionary: dictionary,
         jokerSwap: jokerSwap,
         lives: lives,
-        maexchenDouble: maexchenDouble));
+        maexchenDouble: maexchenDouble,
+        maexchenUnlimited: maexchenUnlimited));
   } catch (e) {
     return 'cannot create the game: $e';
   }

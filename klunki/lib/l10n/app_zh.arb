@@ -1094,5 +1094,19 @@
   "propertyDeedStations": "{count, plural, other{{count} 个车站}}",
   "propertyDeedUtilityOne": "拥有其中一个",
   "propertyDeedUtilityBoth": "两个都有",
-  "propertyDeedDiceTimes": "骰子点数 × {factor}"
+  "propertyDeedDiceTimes": "骰子点数 × {factor}",
+  "maexchenOptionUnlimited": "无限条命",
+  "maexchenOptionUnlimitedExplain": "没有人出局。每输掉一条命都记下来。你们一直玩到结束游戏为止：输掉的命最少的人赢。",
+  "maexchenEndGame": "结束游戏",
+  "maexchenEndGameTitle": "结束游戏吗？",
+  "maexchenEndGameBody": "输掉的命最少的人赢。一样多就并列。",
+  "maexchenEndGameConfirm": "结束",
+  "engineReasonMaexchenEnded": "你们结束了游戏。输掉的命最少的人赢。",
+  "maexchenLostOf": "{player}：{count, plural, other{输了 {count} 条命}}",
+  "maexchenResultLost": "{count, plural, other{输了 {count} 条命}}",
+  "maexchenResultLives": "{count, plural, other{还剩 {count} 条命}}",
+  "maexchenResultOut": "出局",
+  "rulesMaexchenPlayers": "两到四人用一台设备玩。骰盅按顺序传：你总是向下一位报数。没有命的人出局，轮到时跳过。",
+  "rulesMaexchenGoalUnlimited": "尽量少输命。你们一直玩到结束游戏为止。",
+  "rulesMaexchenEndHow": "“结束游戏”在三个点的菜单里。"
 }

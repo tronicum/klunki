@@ -4338,4 +4338,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String propertyDeedDiceTimes(int factor) {
     return 'Dice total × $factor';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'Unlimited lives';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'Nobody drops out. Every lost life is counted. You play until you end the game: whoever lost the fewest lives wins.';
+
+  @override
+  String get maexchenEndGame => 'End game';
+
+  @override
+  String get maexchenEndGameTitle => 'End the game?';
+
+  @override
+  String get maexchenEndGameBody =>
+      'Whoever lost the fewest lives wins. A tie shares the place.';
+
+  @override
+  String get maexchenEndGameConfirm => 'End';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'You ended the game. Whoever lost the fewest lives wins.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'lost $count lives',
+      one: 'lost 1 life',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'lost $count lives',
+      one: 'lost 1 life',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lives left',
+      one: '1 life left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'out';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'Two, three or four players on one device. The cup goes round the table: you always announce to the next player. Whoever has no lives left is out and gets skipped.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'Lose as few lives as you can. You play until you end the game.';
+
+  @override
+  String get rulesMaexchenEndHow =>
+      '“End game” is in the menu with the three dots.';
 }

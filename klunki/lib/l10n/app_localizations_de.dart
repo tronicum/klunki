@@ -4357,4 +4357,76 @@ class AppLocalizationsDe extends AppLocalizations {
   String propertyDeedDiceTimes(int factor) {
     return 'Augensumme × $factor';
   }
+
+  @override
+  String get maexchenOptionUnlimited => 'Unbegrenzte Leben';
+
+  @override
+  String get maexchenOptionUnlimitedExplain =>
+      'Niemand scheidet aus. Jedes verlorene Leben wird gezählt. Ihr spielt, bis ihr das Spiel beendet: Wer am wenigsten Leben verloren hat, gewinnt.';
+
+  @override
+  String get maexchenEndGame => 'Spiel beenden';
+
+  @override
+  String get maexchenEndGameTitle => 'Spiel beenden?';
+
+  @override
+  String get maexchenEndGameBody =>
+      'Wer am wenigsten Leben verloren hat, gewinnt. Bei Gleichstand teilt ihr euch den Platz.';
+
+  @override
+  String get maexchenEndGameConfirm => 'Beenden';
+
+  @override
+  String get engineReasonMaexchenEnded =>
+      'Ihr habt das Spiel beendet. Wer am wenigsten Leben verloren hat, gewinnt.';
+
+  @override
+  String maexchenLostOf(String player, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Leben verloren',
+      one: '1 Leben verloren',
+    );
+    return '$player: $_temp0';
+  }
+
+  @override
+  String maexchenResultLost(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Leben verloren',
+      one: '1 Leben verloren',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String maexchenResultLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'noch $count Leben',
+      one: 'noch 1 Leben',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get maexchenResultOut => 'ausgeschieden';
+
+  @override
+  String get rulesMaexchenPlayers =>
+      'Zu zweit, zu dritt oder zu viert an einem Gerät. Der Becher geht reihum: Angesagt wird immer dem Nächsten am Tisch. Wer keine Leben mehr hat, scheidet aus und wird übersprungen.';
+
+  @override
+  String get rulesMaexchenGoalUnlimited =>
+      'Verlier möglichst wenige Leben. Ihr spielt, bis ihr das Spiel beendet.';
+
+  @override
+  String get rulesMaexchenEndHow =>
+      '„Spiel beenden“ steht im Menü mit den drei Punkten.';
 }

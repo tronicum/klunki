@@ -7,9 +7,14 @@ import '../rules_model.dart';
 
 /// Mäxchen (KLD-123): the value order with dice pictures; lives and
 /// "Mäxchen doppelt" ([GameConfig.lives], [GameConfig.maexchenDouble],
-/// chosen before the game).
+/// chosen before the game). KLD-121 step 2: 2–4 players; the rule variant
+/// "Unbegrenzte Leben" ([GameConfig.maexchenUnlimited]) replaces the goal
+/// and the lives, listed only when on.
 GameRules maexchenRules(BuildContext context, AppLocalizations l10n, GameConfig config) => GameRules(
-      goal: ruleLines(l10n.rulesMaexchenGoal),
+      goal: [
+        ...ruleLines(config.maexchenUnlimited ? l10n.rulesMaexchenGoalUnlimited : l10n.rulesMaexchenGoal),
+        RuleItem(l10n.rulesMaexchenPlayers, key: const Key('maexchen-rules-players')),
+      ],
       turn: [
         ...ruleLines(l10n.rulesMaexchenTurn),
         RuleItem.heading(l10n.rulesMaexchenOrderTitle),
@@ -22,8 +27,15 @@ GameRules maexchenRules(BuildContext context, AppLocalizations l10n, GameConfig 
           id: 'lives',
           title: l10n.maexchenOptionLives,
           text: l10n.rulesMaexchenLives(config.lives),
-          on: true,
+          on: !config.maexchenUnlimited,
           lead: const Icon(Icons.favorite, size: 26, color: Color(0xFFD32F2F)),
+        ),
+        HouseRule(
+          id: 'unlimited',
+          title: l10n.maexchenOptionUnlimited,
+          text: '${l10n.maexchenOptionUnlimitedExplain} ${l10n.rulesMaexchenEndHow}',
+          on: config.maexchenUnlimited,
+          lead: const Icon(Icons.all_inclusive, size: 26),
         ),
         HouseRule(
           id: 'double',
