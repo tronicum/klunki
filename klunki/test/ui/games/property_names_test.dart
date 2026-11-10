@@ -21,6 +21,12 @@ void main() {
     expect(propertyNameLayout(propertyBreakable('Wühlischstraße'), 4, box), 'Wühlischstraße', reason: 'fits in one');
   });
 
+  test("a line may end after the name's own hyphen", () {
+    // "Simon-Dach-" (11) and "Straße" fit 70 at 6; one word of 17 does not.
+    expect(propertyBoardNameSize(['Simon-Dach-Straße'], const Size(70, 30), min: 2, max: 6), 6);
+    expect(propertyBoardNameSize(['SimonxDachxStraße'], const Size(70, 30), min: 2, max: 6), lessThan(6));
+  });
+
   test('one size for the whole board, set by the longest word, never by hyphens', () {
     const box = Size(60, 30);
     final size = propertyBoardNameSize(['Ponyhof', 'Wühlisch­straße'], box, min: 2, max: 12);

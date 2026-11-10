@@ -45,7 +45,8 @@ TextStyle propertyNameStyle(double size, Color color, [TextStyle? base]) => (bas
     .merge(TextStyle(fontSize: size, height: 1.05, color: color, fontWeight: FontWeight.w600, letterSpacing: -0.1));
 
 /// Whether [layout] fits [box] at [size]: two lines at most, no word wider
-/// than the box (it would be cut in the middle).
+/// than the box (it would be cut in the middle). A line may end at a space
+/// or after a hyphen the name already has ("Simon-Dach-" / "Straße").
 bool _fits(String layout, double size, Size box, TextStyle? base) {
   final style = propertyNameStyle(size, Colors.black, base);
   final p = TextPainter(
@@ -55,7 +56,7 @@ bool _fits(String layout, double size, Size box, TextStyle? base) {
     maxLines: 2,
   )..layout(maxWidth: box.width - 0.5); // a little room for rounding
   if (p.didExceedMaxLines || p.height > box.height) return false;
-  for (final word in layout.split(RegExp(r'\s'))) {
+  for (final word in layout.split(RegExp(r'\s|(?<=-)'))) {
     if (word.isEmpty) continue;
     final q = TextPainter(text: TextSpan(text: word, style: style), textDirection: TextDirection.ltr)..layout();
     if (q.width > box.width - 0.5) return false;

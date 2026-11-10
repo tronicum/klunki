@@ -134,11 +134,11 @@ final PropertyTheme berlinTheme = PropertyTheme(
     'Weichenstörung!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
     'Ostkreuz', 'Spree-Post', 'Museumsinsel', 'Fahrradreparatur', 'Unter den Linden',
   ], _prices, {
-    1: 'Skalitzer', 3: 'Schlesische', 6: 'Krossener', 8: 'Wühlischstr.', 9: 'Simon-Dach', //
-    11: 'Richardpl.', 13: 'Weserstr.', 16: 'Arkonapl.', 18: 'Str. d. 17. Juni', //
-    21: 'Revaler Str.', 24: 'Wriezener Bhf.', 26: 'Kollwitzpl.', 27: 'Kastan. Allee', 29: 'Schönh. Allee', //
-    31: 'Olivaer Pl.', 34: "Ku'damm", 37: 'Mus.-Insel', 39: 'Linden', //
-    5: 'Südkreuz', 12: 'Wasserwerk', 28: 'Fernsehturm',
+    // Short forms for the small squares on a phone (KLD-060): only where the
+    // full name does not fit at the board's size, abbreviated as little as
+    // possible and keeping the street type.
+    8: 'Wühlischstr.', 13: 'Weserstr.', 24: 'Am Wriez. Bahnhof', 26: 'Kollwitzpl.', //
+    27: 'Kastan. Allee', 29: 'Schönh. Allee', 34: 'Kurfürstend.', 37: 'Mus.-Insel',
   }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Nimm die S-Bahn – heute fährt sie sogar pünktlich.', 0),
@@ -202,9 +202,9 @@ final PropertyTheme fantasyTheme = PropertyTheme(
     'Ab in die Auszeit!', 'Erfinderstraße', 'Raketenplatz', 'Nachbarschaft', 'Roboterweg',
     'Luftschiff', 'Überraschung', 'Regenbogenbrücke', 'Fahrradreparatur', 'Schatzinsel',
   ], _prices, {
-    1: 'Schnecken', 3: 'Pfützeng.', 6: 'Kastanienw.', 8: 'Murmelg.', 9: 'Drachenw.', //
-    21: 'Leuchtturm', 23: 'Strand', 27: 'Kometenw.', //
-    31: 'Erfinderstr.', 32: 'Raketenpl.', 37: 'Regenbogen',
+    1: 'Schneck. Weg', 3: 'Pfützeng.', 6: 'Kastanienw.', 8: 'Murmelg.', 9: 'Drachenw.', //
+    21: 'Leuchtt. Weg', 23: 'Musch. Strand', 27: 'Kometenw.', //
+    31: 'Erfinderstr.', 32: 'Raketenpl.', 37: 'Regenb. Brücke',
   }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Du bekommst das Startgeld.', 0),

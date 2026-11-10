@@ -333,7 +333,7 @@ void main() {
 
   // KLD-060: street names on the board (read from the bottom, one size per
   // board, short forms on a phone, full names on a tablet or zoomed in).
-  // Into <KLUNKI_SHOTS>/names-final:
+  // Into <KLUNKI_SHOTS>/names-final2:
   //
   //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name names
   group('names', () {
@@ -341,19 +341,21 @@ void main() {
       ('iphone15pro', const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
       ('ipad', const Size(820, 1180), const EdgeInsets.only(top: 24, bottom: 20)),
     ]) {
-      testWidgets('on $dev', skip: skip, (tester) async {
-        final c = await _game(tester, size: size, safe: safe);
-        await _botMoves(tester, c, 220, until: 0);
-        await _shot(tester, dev, dir: 'names-final');
-        if (dev == 'iphone15pro') {
-          // Zoomed in (as by a pinch) on the bottom left corner: full names.
-          final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
-          final side = tester.getSize(find.byType(InteractiveViewer)).width;
-          viewer.transformationController!.value = BoardZoom.focusOn(Offset(side * 0.2, side * 0.8), 2.2, side);
-          await tester.pumpAndSettle();
-          await _shot(tester, '$dev-zoomed', dir: 'names-final');
-        }
-      });
+      for (final board in ['berlin', 'fantasie']) {
+        testWidgets('on $dev, $board', skip: skip, (tester) async {
+          final c = await _game(tester, size: size, safe: safe, options: PropertyOptions(theme: board));
+          await _botMoves(tester, c, 220, until: 0);
+          await _shot(tester, '$dev-$board', dir: 'names-final2');
+          if (dev == 'iphone15pro') {
+            // Zoomed in (as by a pinch) on the bottom left corner: full names.
+            final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
+            final side = tester.getSize(find.byType(InteractiveViewer)).width;
+            viewer.transformationController!.value = BoardZoom.focusOn(Offset(side * 0.2, side * 0.8), 2.2, side);
+            await tester.pumpAndSettle();
+            await _shot(tester, '$dev-$board-zoomed', dir: 'names-final2');
+          }
+        });
+      }
     }
   });
 }

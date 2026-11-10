@@ -404,7 +404,7 @@ class PropertyTheme {
   static const int maxNameLength = 30;
 
   /// The longest short name of a square ([PropertySquare.short]).
-  static const int maxShortNameLength = 16;
+  static const int maxShortNameLength = 20;
   static const int maxCardTextLength = 200;
 
   /// Everything wrong with this theme, in English, or an empty list. Checks

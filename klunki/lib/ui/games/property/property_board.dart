@@ -460,8 +460,8 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
     // Names in zoom steps of a quarter (one size per step, not per frame).
     final steps = (scale * 4).round() / 4;
     final fullNames = cell * steps >= propertyFullNameCell;
-    final band = cell * 0.24, pad = cell * 0.05;
-    final nameBox = Size(cell - 2 * pad, cell - band - 2 * pad);
+    final band = cell * 0.24;
+    final nameBox = Size(cell - 2 * cell * _SquareCell.nameAcross, cell - band - 2 * cell * _SquareCell.nameDepth);
     final names = {
       for (final sq in game.theme.squares)
         if (sq.kind == PropertyKind.street) sq.index: fullNames ? propertyBreakable(sq.name) : sq.shortName,
@@ -740,6 +740,11 @@ class _SquareCell extends StatelessWidget {
         PropertyKind.street => null,
       };
 
+  /// The name's margin (a share of the square) along the side and towards
+  /// the edges: little along the side, so long names fit; the borders are
+  /// drawn on top.
+  static const nameAcross = 0.02, nameDepth = 0.05;
+
   /// Quarter turns of the name on the side at [row]: every name reads
   /// from the bottom of the screen (the top row upright, both sides from
   /// bottom to top).
@@ -835,7 +840,9 @@ class _SquareCell extends StatelessWidget {
                     width: horizontal ? size : size - band,
                     height: horizontal ? size - band : size,
                     child: Padding(
-                      padding: EdgeInsets.all(size * 0.05),
+                      padding: horizontal
+                          ? EdgeInsets.symmetric(horizontal: size * nameAcross, vertical: size * nameDepth)
+                          : EdgeInsets.symmetric(horizontal: size * nameDepth, vertical: size * nameAcross),
                       child: RotatedBox(
                         quarterTurns: _turns(row),
                         child: Center(

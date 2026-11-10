@@ -126,8 +126,8 @@ void main() {
       expect(t.colourGroups.where((g) => g.small == 'Haus').map((g) => g.name), ['Charlottenburg']);
       // Revision 3: the short names for the board (KLD-060).
       expect(t.revision, 3);
-      expect(t.squares[34].shortName, "Ku'damm");
-      expect(t.squares[21].shortName, 'Revaler Str.');
+      expect(t.squares[34].shortName, 'Kurfürstend.');
+      expect(t.squares[21].shortName, 'Revaler Straße', reason: 'fits in full');
       expect(t.squares[19].shortName, 'Mauerpark', reason: 'no short form: the name');
       for (final s in t.squares) {
         if (s.short != null) expect(s.short!.length, lessThanOrEqualTo(s.name.length), reason: s.name);
