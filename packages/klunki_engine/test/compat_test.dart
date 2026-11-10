@@ -27,7 +27,7 @@ void main() {
     'maexchen': (2, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
     'dicesheet': (1, 1, 'efb31c5c6fa32b9e12e025988708b559'),
     // KLD-060: Baulöwe, keyed by board theme (revision = theme revision).
-    'property/berlin': (1, 3, 'ef2a37eaeffcd59ca12a6b00f00ee94c'),
+    'property/berlin': (1, 3, 'a04e66327f14adf2afdb409745272fc8'),
     'property/fantasie': (1, 2, 'a64f152bc40ac5326ff53ca925696966'),
   };
 

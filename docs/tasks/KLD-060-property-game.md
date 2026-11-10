@@ -213,8 +213,9 @@ flea-market group so the Boxhagener Kiez group does not overlap), cheap → expe
   (15), Hauptbahnhof (25), Ostkreuz (35)**.
 - Utilities by place, no company names: **Wasserwerk Friedrichshagen** (12), **Fernsehturm** (28, as the
   broadcasting mast).
-- Specials: Start, **Ersatzverkehr** (pause; you are stuck in the rail replacement service), **Späti-Pause**
-  (free), **Weichenstörung!** (go to the pause), Bürgeramt-Gebühr (tax 200), Fahrradreparatur (tax 100); decks
+- Specials: Start, **Stau auf der A100** (pause; you are stuck in a traffic jam on the city motorway; was
+  "Ersatzverkehr", renamed by the maintainer 2026-11-10), **Späti-Pause** (free), **Baustelle!** (go to the
+  pause; was "Weichenstörung!", renamed with it), Bürgeramt-Gebühr (tax 200), Fahrradreparatur (tax 100); decks
   **Spree-Post** (surprise) and **Kiez-Karte** (neighbourhood).
 - None of the classic German edition's street names is used (a test checks the list), and the selection is our
   own, not a city edition's. Hauptbahnhof is used as a generic word (maintainer decision).
@@ -225,9 +226,9 @@ flea-market group so the Boxhagener Kiez group does not overlap), cheap → expe
 - Cards: Berliner Schnauze for all ages (S-Bahn punctuality, Ringbahn Innenring/Außenring, Currywurst mit
   Pommes Schranke, Pfannkuchen, Schrippen, Mauerpark karaoke, "Kiek mal"). Maintainer-approved local jokes:
   **Bürgeramt** (tax square "Bürgeramt-Gebühr"; "Endlich ein Termin im Bürgeramt – für nächstes Jahr!", "Det
-  Formular bitte dreifach!"), **S-Bahn disruptions** (Weichenstörung, Signalstörung, Ersatzverkehr, "Die
-  Ringbahn steht …", "Die S-Bahn fällt aus, du fährst Rad …") and one mild **airport-delay** card ("so lange
-  auf die Eröffnung des neuen Flughafens gewartet, dass dein Sparschwein voll ist"); no blame, no real people
+  Formular bitte dreifach!"), **S-Bahn disruptions** ("Die Ringbahn steht …", "Die S-Bahn fällt aus, du fährst Rad …") and one mild **airport-delay** card ("so lange
+  auf die Eröffnung des neuen Flughafens gewartet, dass dein Sparschwein voll ist"), and the **A100 traffic jam**
+  as the pause ("Baustelle auf der Stadtautobahn! Ab in den Stau auf der A100.", "Vollsperrung! …"); no blame, no real people
   or companies.
 - Bar → Kiezkneipe (Boxhagener Kiez) and Späti → Späti-Palast (Kreuzberg 36) are maintainer decisions; they
   are building names only, card texts stay free of alcohol.

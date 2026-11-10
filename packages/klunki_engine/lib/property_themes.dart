@@ -127,11 +127,11 @@ final PropertyTheme berlinTheme = PropertyTheme(
   squares: _squares(const [
     'Start', 'Skalitzer Straße', 'Kiez-Karte', 'Schlesische Straße', 'Bürgeramt-Gebühr', //
     'Südkreuz', 'Krossener Straße', 'Spree-Post', 'Wühlischstraße', 'Simon-Dach-Straße',
-    'Ersatzverkehr', 'Richardplatz', 'Wasserwerk Friedrichshagen', 'Weserstraße', 'Sonnenallee',
+    'Stau auf der A100', 'Richardplatz', 'Wasserwerk Friedrichshagen', 'Weserstraße', 'Sonnenallee',
     'Westkreuz', 'Arkonaplatz', 'Kiez-Karte', 'Straße des 17. Juni', 'Mauerpark',
     'Späti-Pause', 'Revaler Straße', 'Spree-Post', 'Alt-Stralau', 'Am Wriezener Bahnhof',
     'Hauptbahnhof', 'Kollwitzplatz', 'Kastanienallee', 'Fernsehturm', 'Schönhauser Allee',
-    'Weichenstörung!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
+    'Baustelle!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
     'Ostkreuz', 'Spree-Post', 'Museumsinsel', 'Fahrradreparatur', 'Unter den Linden',
   ], _prices, {
     // Short forms for the small squares on a phone (KLD-060): only where the
@@ -148,9 +148,10 @@ final PropertyTheme berlinTheme = PropertyTheme(
     _c('s05', _s, _station, 'Steig in die Ringbahn: Fahr zum nächsten Bahnhof.'),
     _c('s06', _s, _adv, 'Fahr zum Südkreuz. Umsteigen, bitte!', 5),
     _c('s07', _s, _back, 'Falsche Richtung: Innenring statt Außenring! Geh 3 Felder zurück.', 3),
-    _c('s08', _s, _pause, 'Weichenstörung! Ab in den Ersatzverkehr. Du kommst nicht am Start vorbei.'),
+    _c('s08', _s, _pause,
+        'Baustelle auf der Stadtautobahn! Ab in den Stau auf der A100. Du kommst nicht am Start vorbei.'),
     _c('s09', _s, _free,
-        'Freifahrtschein: Damit verlässt du den Ersatzverkehr sofort. Behalte ihn, bis du ihn brauchst.'),
+        'Freifahrtschein: Damit kommst du sofort aus dem Stau auf der A100. Behalte ihn, bis du ihn brauchst.'),
     _c('s10', _s, _get, 'Die Ringbahn steht, du verkaufst Waffeln am Bahnsteig: 50 Taler.', 50),
     _c('s11', _s, _get, 'Du gewinnst das Seifenkistenrennen am Kreuzberg: 100 Taler.', 100),
     _c('s12', _s, _pay, 'Currywurst mit Pommes Schranke für alle am Tisch: zahle 15 Taler.', 15),
@@ -164,8 +165,8 @@ final PropertyTheme berlinTheme = PropertyTheme(
     _c('n03', _n, _get, 'Flohmarkt im Kiez: Du verkaufst alte Spielsachen für 50 Taler.', 50),
     _c('n04', _n, _pay, 'Zu viele Pfannkuchen genascht – ab zum Zahnarzt: zahle 50 Taler.', 50),
     _c('n05', _n, _free,
-        'Freifahrtschein: Damit verlässt du den Ersatzverkehr sofort. Behalte ihn, bis du ihn brauchst.'),
-    _c('n06', _n, _pause, 'Signalstörung! Ab in den Ersatzverkehr. Du kommst nicht am Start vorbei.'),
+        'Freifahrtschein: Damit kommst du sofort aus dem Stau auf der A100. Behalte ihn, bis du ihn brauchst.'),
+    _c('n06', _n, _pause, 'Vollsperrung! Ab in den Stau auf der A100. Du kommst nicht am Start vorbei.'),
     _c('n07', _n, _get,
         'Du hast so lange auf die Eröffnung des neuen Flughafens gewartet, dass dein Sparschwein voll ist: 100 Taler.',
         100),
