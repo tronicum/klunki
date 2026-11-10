@@ -124,7 +124,14 @@ void main() {
       expect([t.colourGroups[1].small, t.colourGroups[1].big], ['Bar', 'Kiezkneipe']);
       expect([for (final i in t.groups[3]) names[i]], ['Arkonaplatz', 'Straße des 17. Juni', 'Mauerpark']);
       expect(t.colourGroups.where((g) => g.small == 'Haus').map((g) => g.name), ['Charlottenburg']);
-      expect(t.revision, 2);
+      // Revision 3: the short names for the board (KLD-060).
+      expect(t.revision, 3);
+      expect(t.squares[34].shortName, "Ku'damm");
+      expect(t.squares[21].shortName, 'Revaler Str.');
+      expect(t.squares[19].shortName, 'Mauerpark', reason: 'no short form: the name');
+      for (final s in t.squares) {
+        if (s.short != null) expect(s.short!.length, lessThanOrEqualTo(s.name.length), reason: s.name);
+      }
       expect(t.colourGroups[5].small, 'Kindercafé');
       expect(t.colourGroups.map((g) => g.note), everyElement(isNotEmpty));
       final ownable = [for (final s in t.squares) if (s.isOwnable) s.name];
@@ -148,6 +155,11 @@ void main() {
       expect(problems((j) => sq(j, 1)['price'] = 0), isNotEmpty);
       expect(problems((j) => sq(j, 0)['price'] = 10), isNotEmpty);
       expect(problems((j) => sq(j, 1)['name'] = ''), isNotEmpty);
+      expect(problems((j) => sq(j, 1)['short'] = ''), isNotEmpty);
+      expect(problems((j) => sq(j, 1)['short'] = 'Skalitzer Straße, lang'), isNotEmpty);
+      expect(problems((j) => sq(j, 19)['short'] = 'Mauerp.'), isEmpty);
+      expect(() => PropertyTheme.fromJson(json()..update('squares', (l) => [for (final (i, e) in (l as List).indexed) i == 1 ? {...e as Map, 'short': 3} : e])),
+          throwsFormatException);
       expect(problems((j) => sq(j, 1)['name'] = 'x' * 31), isNotEmpty);
       expect(problems((j) => (j['groups'] as List)[0]['bigIcon'] = 'Haus!'), isNotEmpty);
       expect(problems((j) => (j['groups'] as List).removeLast()), isNotEmpty);

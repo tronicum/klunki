@@ -11,6 +11,8 @@ import '../../shell/coach_marks.dart';
 import '../../shell/game_screen.dart';
 import '../../shell/seat_game_screen.dart';
 import '../maexchen/maexchen_dice.dart' show DieFace;
+import '../../board_zoom.dart';
+import 'property_names.dart';
 import 'property_roll_show.dart';
 import 'property_screen.dart';
 
@@ -73,7 +75,7 @@ Color propertyGroupColor(int group) => const [
       Color(0xFF1E4FA8),
     ][group.clamp(0, 7)];
 
-class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProviderStateMixin {
+class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateMixin {
   final _rollKey = GlobalKey(debugLabel: 'property-roll');
   final _boardKey = GlobalKey(debugLabel: 'property-board');
   final _playersKey = GlobalKey(debugLabel: 'property-players');
@@ -82,6 +84,9 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
   bool _coachOpen = false;
   /// What happened in the turn so far (else in the turn before).
   String? _story;
+
+  /// Pinch zoom: zoomed in, the squares show the full street names.
+  late final BoardZoom _zoom = BoardZoom(vsync: this);
 
   /// The roll being shown, null when the board shows the game as it is.
   PropertyRollShow? _show;
@@ -136,6 +141,7 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
     controller.removeListener(_changed);
     widget.tour?.removeListener(_replayTour);
     _anim.dispose();
+    _zoom.dispose();
     super.dispose();
   }
 
@@ -433,7 +439,37 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
   }
 
   Widget _board(double side) {
+    _zoom.layout(side);
+    // Pinch to zoom; zoomed in, the squares show the full names.
+    return ValueListenableBuilder<Matrix4>(
+      valueListenable: _zoom,
+      builder: (context, _, _) => ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: InteractiveViewer(
+          transformationController: _zoom,
+          minScale: 1,
+          maxScale: 4,
+          child: _boardAt(side, _zoom.scale),
+        ),
+      ),
+    );
+  }
+
+  Widget _boardAt(double side, double scale) {
     final cell = side / 11;
+    // Names in zoom steps of a quarter (one size per step, not per frame).
+    final steps = (scale * 4).round() / 4;
+    final fullNames = cell * steps >= propertyFullNameCell;
+    final band = cell * 0.24, pad = cell * 0.05;
+    final nameBox = Size(cell - 2 * pad, cell - band - 2 * pad);
+    final names = {
+      for (final sq in game.theme.squares)
+        if (sq.kind == PropertyKind.street) sq.index: fullNames ? propertyBreakable(sq.name) : sq.shortName,
+    };
+    // Measured and drawn in the same style.
+    final nameBase = DefaultTextStyle.of(context).style;
+    final nameSize = propertyBoardNameSize(names.values, nameBox,
+        min: propertyMinNameSize / steps, max: (fullNames ? propertyMaxNameSize : 9) / steps, base: nameBase);
     final show = _show;
     final now = show?.at(_anim.value);
     final positions = _positions();
@@ -445,8 +481,11 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
       textDirection: TextDirection.ltr,
       child: Container(
         key: _boardKey,
-        decoration: BoxDecoration(
-          color: const Color(0xFFD9EAD3),
+        // The borders are drawn on top (foreground): a border as decoration
+        // would pad the squares, and the names are measured for the full
+        // square.
+        decoration: BoxDecoration(color: const Color(0xFFD9EAD3), borderRadius: BorderRadius.circular(6)),
+        foregroundDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: const Color(0xFF2E4B2A), width: 1.5),
         ),
@@ -467,6 +506,10 @@ class _PropertyBoardState extends State<PropertyBoard> with SingleTickerProvider
                   positions: positions,
                   walking: show?.seat,
                   hop: now?.hop ?? 0,
+                  name: names[i],
+                  nameSize: nameSize,
+                  nameBox: nameBox,
+                  nameBase: nameBase,
                   onTap: show != null ? _skip : () => showPropertySquareSheet(context, game, i),
                 ),
               ),
@@ -662,6 +705,13 @@ class _SquareCell extends StatelessWidget {
   /// The seat whose token walks, and its hop (0–1).
   final int? walking;
   final double hop;
+
+  /// The street name (with soft hyphens) written on the square, null for
+  /// other squares; the board's one name size and the name's area.
+  final String? name;
+  final double nameSize;
+  final Size nameBox;
+  final TextStyle? nameBase;
   final VoidCallback onTap;
   const _SquareCell(
       {required this.game,
@@ -671,6 +721,10 @@ class _SquareCell extends StatelessWidget {
       required this.positions,
       required this.walking,
       required this.hop,
+      this.name,
+      this.nameSize = 8,
+      this.nameBox = Size.zero,
+      this.nameBase,
       required this.onTap});
 
   IconData? get _icon => switch (game.theme.squares[square].kind) {
@@ -685,6 +739,28 @@ class _SquareCell extends StatelessWidget {
         PropertyKind.goToPause => Icons.block,
         PropertyKind.street => null,
       };
+
+  /// Quarter turns of the name on the side at [row]: every name reads
+  /// from the bottom of the screen (the top row upright, both sides from
+  /// bottom to top).
+  static int _turns(int row) => row == 10 || row == 0 ? 0 : 3;
+
+  /// Where the name sits in its (turned) area: at the square's outer edge,
+  /// away from the tokens next to the colour band.
+  static Alignment _nameAt(int row, int col) => switch ((row, col)) {
+        (10, _) => Alignment.bottomCenter,
+        (0, _) => Alignment.topCenter,
+        (_, 0) => Alignment.topCenter, // turned: the text's top faces left
+        _ => Alignment.bottomCenter,
+      };
+
+  Widget _token(int s, double size) => s == walking
+      ? Transform.translate(
+          key: Key('property-walking-$s'),
+          offset: Offset(0, -hop * this.size * 0.22),
+          child: SeatToken(seat: s, size: size),
+        )
+      : SeatToken(seat: s, size: size);
 
   @override
   Widget build(BuildContext context) {
@@ -714,8 +790,8 @@ class _SquareCell extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
         child: Container(
-          decoration: BoxDecoration(
-            color: ownerColor == null ? const Color(0xFFFFFBF0) : Color.alphaBlend(ownerColor.withValues(alpha: 0.28), Colors.white),
+          color: ownerColor == null ? const Color(0xFFFFFBF0) : Color.alphaBlend(ownerColor.withValues(alpha: 0.28), Colors.white),
+          foregroundDecoration: BoxDecoration(
             border: Border.all(
                 color: focus ? Colors.black : (ownerColor ?? const Color(0xFF7A8A70)), width: focus ? 2 : (owner == null ? 0.5 : 1.5)),
           ),
@@ -751,6 +827,34 @@ class _SquareCell extends StatelessWidget {
                 ),
               if (_icon case final icon?)
                 Center(child: Icon(icon, size: size * 0.5, color: ink.withValues(alpha: 0.75))),
+              if (name case final name?)
+                Align(
+                  // The part of the square outside the colour band.
+                  alignment: Alignment(-inner.x, -inner.y),
+                  child: SizedBox(
+                    width: horizontal ? size : size - band,
+                    height: horizontal ? size - band : size,
+                    child: Padding(
+                      padding: EdgeInsets.all(size * 0.05),
+                      child: RotatedBox(
+                        quarterTurns: _turns(row),
+                        child: Center(
+                          child: SizedBox.fromSize(
+                            size: nameBox,
+                            child: PropertyFieldName(
+                                key: Key('property-name-$square'),
+                                text: name,
+                                size: nameSize,
+                                box: nameBox,
+                                base: nameBase,
+                                alignment: _nameAt(row, col),
+                                color: ink),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               if (mortgaged)
                 Positioned.fill(
                   child: ColoredBox(
@@ -758,22 +862,24 @@ class _SquareCell extends StatelessWidget {
                     child: Center(child: Icon(Icons.lock_outline, size: size * 0.4, color: ink)),
                   ),
                 ),
-              if (here.isNotEmpty)
+              if (here.isNotEmpty && name != null)
+                Align(
+                  // Next to the colour band, on the inner part of the square:
+                  // the name at the outer edge stays readable.
+                  alignment: Alignment(inner.x * 0.42, inner.y * 0.42),
+                  child: Flex(
+                    direction: horizontal ? Axis.horizontal : Axis.vertical,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [for (final s in here) _token(s, here.length == 1 ? size * 0.36 : size * 0.24)],
+                  ),
+                )
+              else if (here.isNotEmpty)
                 Center(
                   child: Wrap(
                     alignment: WrapAlignment.center,
                     spacing: 0,
                     runSpacing: 0,
-                    children: [
-                      for (final s in here)
-                        s == walking
-                            ? Transform.translate(
-                                key: Key('property-walking-$s'),
-                                offset: Offset(0, -hop * size * 0.22),
-                                child: SeatToken(seat: s, size: here.length == 1 ? size * 0.5 : size * 0.42),
-                              )
-                            : SeatToken(seat: s, size: here.length == 1 ? size * 0.5 : size * 0.42),
-                    ],
+                    children: [for (final s in here) _token(s, here.length == 1 ? size * 0.5 : size * 0.42)],
                   ),
                 ),
             ],

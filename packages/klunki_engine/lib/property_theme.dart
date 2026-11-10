@@ -100,8 +100,20 @@ class PropertySquare {
   /// Tax squares: what to pay.
   final int amount;
 
+  /// A short form of [name] for the small squares on a phone ("Revaler
+  /// Str.", "Ku'damm"), optional (KLD-060). The app writes it on the board;
+  /// everything else (cards, narration, the deed card) uses [name].
+  final String? short;
+
   const PropertySquare(this.index, this.name, this.kind,
-      {this.group = -1, this.price = 0, this.houseCost = 0, this.rents = const [], this.amount = 0});
+      {this.group = -1, this.price = 0, this.houseCost = 0, this.rents = const [], this.amount = 0, this.short});
+
+  /// [short], else [name].
+  String get shortName => short ?? name;
+
+  /// A copy with the short form [short].
+  PropertySquare withShort(String? short) => PropertySquare(index, name, kind,
+      group: group, price: price, houseCost: houseCost, rents: rents, amount: amount, short: short);
 
   bool get isOwnable => kind == PropertyKind.street || kind == PropertyKind.station || kind == PropertyKind.utility;
 
@@ -115,6 +127,7 @@ class PropertySquare {
   Map<String, dynamic> toJson() => {
         'kind': kind.name,
         'name': name,
+        if (short != null) 'short': short,
         if (price != 0) 'price': price,
         if (houseCost != 0) 'house': houseCost,
         if (rents.isNotEmpty) 'rents': List.of(rents),
@@ -131,7 +144,8 @@ class PropertySquare {
         price: _int(m, 'price', 'square $index'),
         houseCost: _int(m, 'house', 'square $index'),
         rents: _ints(m, 'rents', 'square $index'),
-        amount: _int(m, 'amount', 'square $index'));
+        amount: _int(m, 'amount', 'square $index'),
+        short: m['short'] == null ? null : _str(m, 'short', 'square $index'));
   }
 }
 
@@ -388,6 +402,9 @@ class PropertyTheme {
 
   /// Text limits (characters) for names and card texts.
   static const int maxNameLength = 30;
+
+  /// The longest short name of a square ([PropertySquare.short]).
+  static const int maxShortNameLength = 16;
   static const int maxCardTextLength = 200;
 
   /// Everything wrong with this theme, in English, or an empty list. Checks
@@ -423,6 +440,10 @@ class PropertyTheme {
     for (final s in squares) {
       final at = 'square ${s.index} (${s.name})';
       text(at, s.name, maxNameLength);
+      if (s.short case final short?) {
+        text('$at: short name', short, maxShortNameLength);
+        if (short.runes.length > s.name.runes.length) p.add('$at: short name longer than the name');
+      }
       if (s.kind != propertyLayout[s.index]) p.add('$at: must be a ${propertyLayout[s.index].name}');
       bool range(String what, int v, int lo, int hi) {
         if (v < lo || v > hi) p.add('$at: $what must be $lo–$hi');

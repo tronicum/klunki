@@ -23,10 +23,10 @@ const _houseCosts = [50, 50, 100, 100, 150, 150, 200, 200];
 /// Squares for [names] (40, by position) with our own price ladder:
 /// [prices] for the 22 streets in board order, stations 200, utilities 150,
 /// taxes 200 (square 4) and 100 (square 38).
-List<PropertySquare> _squares(List<String> names, List<int> prices) {
+List<PropertySquare> _squares(List<String> names, List<int> prices, [Map<int, String> shorts = const {}]) {
   assert(names.length == 40 && prices.length == 22);
   var street = 0;
-  return [
+  final squares = [
     for (var i = 0; i < 40; i++)
       switch (propertyLayout[i]) {
         PropertyKind.street => PropertySquare(i, names[i], PropertyKind.street,
@@ -40,6 +40,7 @@ List<PropertySquare> _squares(List<String> names, List<int> prices) {
         final k => PropertySquare(i, names[i], k),
       },
   ];
+  return [for (final s in squares) shorts.containsKey(s.index) ? s.withShort(shorts[s.index]) : s];
 }
 
 const _prices = [60, 70, 100, 100, 120, 140, 140, 160, 180, 180, 200, 220, 220, 240, 260, 260, 280, 300, 300, 320, 350, 400];
@@ -60,7 +61,7 @@ const _repairs = PropertyCardKind.repairs, _free = PropertyCardKind.freeCard;
 /// Berlin, the first local theme.
 final PropertyTheme berlinTheme = PropertyTheme(
   id: 'berlin',
-  revision: 2,
+  revision: 3,
   title: 'Berlin',
   colourGroups: const [
     PropertyGroup('Kreuzberg 36',
@@ -132,7 +133,13 @@ final PropertyTheme berlinTheme = PropertyTheme(
     'Hauptbahnhof', 'Kollwitzplatz', 'Kastanienallee', 'Fernsehturm', 'Schönhauser Allee',
     'Weichenstörung!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
     'Ostkreuz', 'Spree-Post', 'Museumsinsel', 'Fahrradreparatur', 'Unter den Linden',
-  ], _prices),
+  ], _prices, {
+    1: 'Skalitzer', 3: 'Schlesische', 6: 'Krossener', 8: 'Wühlischstr.', 9: 'Simon-Dach', //
+    11: 'Richardpl.', 13: 'Weserstr.', 16: 'Arkonapl.', 18: 'Str. d. 17. Juni', //
+    21: 'Revaler Str.', 24: 'Wriezener Bhf.', 26: 'Kollwitzpl.', 27: 'Kastan. Allee', 29: 'Schönh. Allee', //
+    31: 'Olivaer Pl.', 34: "Ku'damm", 37: 'Mus.-Insel', 39: 'Linden', //
+    5: 'Südkreuz', 12: 'Wasserwerk', 28: 'Fernsehturm',
+  }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Nimm die S-Bahn – heute fährt sie sogar pünktlich.', 0),
     _c('s02', _s, _adv, 'Sonntag ist Karaoke im Mauerpark: Fahr hin und sing mit!', 19),
@@ -178,7 +185,7 @@ final PropertyTheme berlinTheme = PropertyTheme(
 /// Berlin and for tests.
 final PropertyTheme fantasyTheme = PropertyTheme(
   id: 'fantasie',
-  revision: 1,
+  revision: 2,
   title: 'Fantasiestadt',
   colourGroups: const [
     PropertyGroup('Braun'), PropertyGroup('Hellblau'), PropertyGroup('Rosa'), PropertyGroup('Orange'), //
@@ -194,7 +201,11 @@ final PropertyTheme fantasyTheme = PropertyTheme(
     'Bimmelbahn', 'Sternwarte', 'Kometenweg', 'Wasserturm', 'Mondplatz',
     'Ab in die Auszeit!', 'Erfinderstraße', 'Raketenplatz', 'Nachbarschaft', 'Roboterweg',
     'Luftschiff', 'Überraschung', 'Regenbogenbrücke', 'Fahrradreparatur', 'Schatzinsel',
-  ], _prices),
+  ], _prices, {
+    1: 'Schnecken', 3: 'Pfützeng.', 6: 'Kastanienw.', 8: 'Murmelg.', 9: 'Drachenw.', //
+    21: 'Leuchtturm', 23: 'Strand', 27: 'Kometenw.', //
+    31: 'Erfinderstr.', 32: 'Raketenpl.', 37: 'Regenbogen',
+  }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Du bekommst das Startgeld.', 0),
     _c('s02', _s, _adv, 'Ausflug zur Sternwarte.', 26),

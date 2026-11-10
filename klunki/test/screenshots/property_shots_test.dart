@@ -22,6 +22,7 @@ import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/beginner_settings.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/ui/board_zoom.dart';
 import 'package:klunki/ui/games/property/property_options.dart';
 import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
 import 'package:klunki/ui/rules/rules_screen.dart';
@@ -328,5 +329,31 @@ void main() {
           size: const Size(390, 2400));
       await _shot(tester, '13-rules-page');
     });
+  });
+
+  // KLD-060: street names on the board (read from the bottom, one size per
+  // board, short forms on a phone, full names on a tablet or zoomed in).
+  // Into <KLUNKI_SHOTS>/names-final:
+  //
+  //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name names
+  group('names', () {
+    for (final (dev, size, safe) in [
+      ('iphone15pro', const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
+      ('ipad', const Size(820, 1180), const EdgeInsets.only(top: 24, bottom: 20)),
+    ]) {
+      testWidgets('on $dev', skip: skip, (tester) async {
+        final c = await _game(tester, size: size, safe: safe);
+        await _botMoves(tester, c, 220, until: 0);
+        await _shot(tester, dev, dir: 'names-final');
+        if (dev == 'iphone15pro') {
+          // Zoomed in (as by a pinch) on the bottom left corner: full names.
+          final viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
+          final side = tester.getSize(find.byType(InteractiveViewer)).width;
+          viewer.transformationController!.value = BoardZoom.focusOn(Offset(side * 0.2, side * 0.8), 2.2, side);
+          await tester.pumpAndSettle();
+          await _shot(tester, '$dev-zoomed', dir: 'names-final');
+        }
+      });
+    }
   });
 }
