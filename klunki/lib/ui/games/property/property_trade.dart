@@ -21,7 +21,10 @@ import 'property_board.dart' show propertyGroupColor;
 /// 2. The device goes to the partner ([PropertyTradeGate]: "Gib das Gerät an
 ///    Ben weiter"; the offering player can still take the offer back).
 /// 3. The partner sees the whole offer ([PropertyTradeAnswer], full size
-///    over the board) and taps "Annehmen" or "Ablehnen".
+///    over the board) and taps "Annehmen" or "Ablehnen". "Brett ansehen"
+///    shows the board meanwhile (owners, buildings, a tap on a square for
+///    its card) under a bar with "Zurück zum Angebot"; no other move is
+///    possible there (the action panel has no buttons in the trade phase).
 /// 4. The device goes back ([PropertyTradeGate]: "Ben nimmt den Tausch an"),
 ///    and the turn goes on. The answer is final: "Zug zurücknehmen" stops
 ///    there ([PropertyGame.isUndoBarrier]).
@@ -35,7 +38,8 @@ import 'property_board.dart' show propertyGroupColor;
 /// `…-money-reset`, `property-trade-<give|get>-cards` with `…-cards-plus`,
 /// `…-cards-minus`, `property-trade-problem`, `property-trade-offer`;
 /// `property-trade-answer-view` with `property-trade-answer`,
-/// `property-trade-answer-<give|get>`, `property-trade-accept`, `property-trade-decline`;
+/// `property-trade-answer-<give|get>`, `property-trade-accept`, `property-trade-decline`,
+/// `property-trade-show-board`; `property-trade-peek` with `property-trade-show-offer`;
 /// `property-trade-cover`, `property-trade-handover`, `property-trade-back`.
 
 /// Whether [game]'s current player may open the trade sheet now: their turn
@@ -554,7 +558,11 @@ class PropertyTradeAnswer extends StatelessWidget {
   final PropertyGame game;
   final String Function(int seat) name;
   final void Function(Map<String, dynamic> move) submit;
-  const PropertyTradeAnswer({super.key, required this.game, required this.name, required this.submit});
+
+  /// "Brett ansehen": the partner looks at the board before answering.
+  final VoidCallback? onShowBoard;
+  const PropertyTradeAnswer(
+      {super.key, required this.game, required this.name, required this.submit, this.onShowBoard});
 
   @override
   Widget build(BuildContext context) {
@@ -629,6 +637,14 @@ class PropertyTradeAnswer extends StatelessWidget {
               icon: const Icon(Icons.close),
               label: Text(l10n.propertyTradeDecline),
             ),
+            if (onShowBoard != null)
+              TextButton.icon(
+                key: const Key('property-trade-show-board'),
+                style: TextButton.styleFrom(minimumSize: const Size(0, 48)),
+                onPressed: onShowBoard,
+                icon: const Icon(Icons.grid_view_rounded),
+                label: Text(l10n.propertyTradeShowBoard),
+              ),
           ],
         ),
       ],
@@ -656,6 +672,9 @@ class _PropertyTradeGateState extends State<PropertyTradeGate> {
   /// The move after which the cover was acknowledged (the offer, the answer).
   AcceptedMove? _seen;
 
+  /// The offer whose partner is looking at the board ("Brett ansehen").
+  AcceptedMove? _peekAt;
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -665,6 +684,7 @@ class _PropertyTradeGateState extends State<PropertyTradeGate> {
         final moves = widget.controller.moves;
         final last = moves.isEmpty ? null : moves.last;
         Widget? cover;
+        Widget? bar;
         if (game is PropertyGame &&
             !game.isOver &&
             game.phase == PropertyPhase.trade &&
@@ -672,7 +692,23 @@ class _PropertyTradeGateState extends State<PropertyTradeGate> {
             identical(last, _seen)) {
           // The partner has the device: the whole offer, full size (on a
           // phone the action panel under the board would be too small).
-          cover = _AnswerView(game: game, submit: widget.controller.submit);
+          if (!identical(_peekAt, last)) {
+            cover = _AnswerView(
+              game: game,
+              submit: widget.controller.submit,
+              onShowBoard: () => setState(() => _peekAt = last),
+            );
+          } else {
+            // Looking at the board: no other move meanwhile (the action
+            // panel has no buttons in the trade phase), back to the offer.
+            final t = game.trade!;
+            bar = _PeekBar(
+              from: t.from,
+              to: t.to,
+              count: game.playerCount,
+              onBack: () => setState(() => _peekAt = null),
+            );
+          }
         } else if (game is PropertyGame && !game.isOver && last != null && !identical(last, _seen)) {
           final action = last.move['action'];
           final t = game.trade;
@@ -701,17 +737,26 @@ class _PropertyTradeGateState extends State<PropertyTradeGate> {
           }
         }
         final covered = cover != null;
-        return Stack(
-          fit: StackFit.expand,
+        // Always two children, so the board keeps its state.
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Offstage(
-              offstage: covered,
-              child: TickerMode(
-                enabled: !covered,
-                child: ExcludeSemantics(excluding: covered, child: widget.child),
+            bar ?? const SizedBox.shrink(),
+            Expanded(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Offstage(
+                    offstage: covered,
+                    child: TickerMode(
+                      enabled: !covered,
+                      child: ExcludeSemantics(excluding: covered, child: widget.child),
+                    ),
+                  ),
+                  ?cover,
+                ],
               ),
             ),
-            ?cover,
           ],
         );
       },
@@ -719,10 +764,51 @@ class _PropertyTradeGateState extends State<PropertyTradeGate> {
   }
 }
 
+/// Above the board while the trade partner looks at it: whose offer it
+/// is and "Zurück zum Angebot".
+class _PeekBar extends StatelessWidget {
+  final int from;
+  final int to;
+  final int count;
+  final VoidCallback onBack;
+  const _PeekBar({required this.from, required this.to, required this.count, required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final labels = SeatLabelsScope.of(context);
+    String name(int s) => labels.label(context, l10n, s, count: count);
+    return Material(
+      key: const Key('property-trade-peek'),
+      color: theme.colorScheme.secondaryContainer,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 6, 8, 6),
+        child: Row(children: [
+          const Icon(Icons.swap_horiz, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(l10n.propertyTradeOfferFor(name(from), name(to)),
+                maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleSmall),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            key: const Key('property-trade-show-offer'),
+            onPressed: onBack,
+            icon: const Icon(Icons.handshake_outlined),
+            label: Text(l10n.propertyTradeShowOffer),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
 class _AnswerView extends StatelessWidget {
   final PropertyGame game;
   final void Function(Map<String, dynamic> move) submit;
-  const _AnswerView({required this.game, required this.submit});
+  final VoidCallback onShowBoard;
+  const _AnswerView({required this.game, required this.submit, required this.onShowBoard});
 
   @override
   Widget build(BuildContext context) {
@@ -748,6 +834,7 @@ class _AnswerView extends StatelessWidget {
                 game: game,
                 name: (s) => labels.label(context, l10n, s, count: game.playerCount),
                 submit: submit,
+                onShowBoard: onShowBoard,
               ),
             ),
           ),

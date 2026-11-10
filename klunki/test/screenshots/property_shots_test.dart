@@ -151,7 +151,7 @@ Future<void> _botMoves(WidgetTester tester, GameController c, int moves, {int? u
   Map<String, Object?> next() {
     final g = c.game as PropertyGame;
     final m = bot.choose(g);
-    // No trade screen yet: play on instead.
+    // Trades are shown in property_trade_shots_test.dart: play on instead.
     if (m['action'] == 'tradeOffer') {
       return g.legalMoves.firstWhere((x) => x['action'] == 'endTurn' || x['action'] == 'roll');
     }

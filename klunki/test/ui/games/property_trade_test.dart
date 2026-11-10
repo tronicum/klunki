@@ -170,6 +170,23 @@ void main() {
     expect(find.descendant(of: _key('property-trade-answer-get'), matching: find.text('50 Taler')), findsOneWidget);
     expect(_key('property-roll'), findsNothing);
     expect(_key('property-trade'), findsNothing, reason: 'no new offer while one waits');
+    // "Brett ansehen": the board, a square's card, no other move; back to the offer.
+    await _tap(tester, 'property-trade-show-board');
+    expect(_key('property-trade-peek'), findsOneWidget);
+    expect(_key('property-board'), findsOneWidget);
+    expect(_key('property-trade-accept'), findsNothing, reason: 'answers only on the offer');
+    expect(_key('property-trade-decline'), findsNothing);
+    for (final k in ['property-roll', 'property-end', 'property-trade', 'shell-undo']) {
+      expect(_key(k), findsNothing, reason: k);
+    }
+    expect(tester.widget<TextButton>(_key('property-manage')).onPressed, isNull);
+    await _tap(tester, 'property-square-6');
+    expect(_key('property-square-sheet'), findsOneWidget);
+    await tester.tapAt(const Offset(20, 20));
+    await tester.pumpAndSettle();
+    expect(c.moves, hasLength(1), reason: 'looking is not a move');
+    await _tap(tester, 'property-trade-show-offer');
+    expect(_key('property-trade-peek'), findsNothing);
     await _tap(tester, 'property-trade-accept');
     expect([g.ownerOf(3), g.ownerOf(6), g.ownerOf(1)], [1, 0, 0]);
     expect(g.isMortgaged(3), isTrue, reason: 'a mortgaged street moves as it is');

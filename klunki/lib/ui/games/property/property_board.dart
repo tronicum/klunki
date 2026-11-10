@@ -701,7 +701,10 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
                     label: Text(l10n.propertyTrade),
                   ),
                 ),
-              const UndoMoveButton(),
+              // Not while a trade offer waits for its answer (the partner
+              // may look at the board; the offer is taken back on the
+              // handover cover).
+              if (game.phase != PropertyPhase.trade) const UndoMoveButton(),
             ],
           ),
         ],

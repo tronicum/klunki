@@ -1,6 +1,7 @@
 // KLD-060 step 3b screenshots of trades in Baulöwe: the trade sheet (with
 // a street that cannot be traded), an offer that is not valid yet, the
-// handover to the partner, the partner's answer and the handover back; de
+// handover to the partner, the partner's answer (and its look at the
+// board) and the handover back; de
 // phone light, iPad, ar on a small phone (RTL). Skipped unless
 // KLUNKI_SHOTS=<output dir> is set; into <KLUNKI_SHOTS>/trade:
 //
@@ -172,6 +173,9 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('property-trade-accept')));
       await tester.pumpAndSettle();
       await _shot(tester, '$name-06-answer');
+      await _tap(tester, 'property-trade-show-board');
+      await _shot(tester, '$name-06b-answer-board');
+      await _tap(tester, 'property-trade-show-offer');
       await _tap(tester, 'property-trade-accept');
       await _shot(tester, '$name-07-back');
       await _tap(tester, 'property-trade-back');

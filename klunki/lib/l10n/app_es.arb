@@ -1134,5 +1134,7 @@
   "propertyEvTraded": "{player} acepta el intercambio",
   "propertyEvTradeDeclined": "{player} rechaza el intercambio",
   "propertyCoachTrade": "¿Te falta una calle para tener todo un color? Propón aquí un intercambio.",
-  "rulesPropertyTrade": "En tu turno puedes proponer un intercambio antes o después de tirar: calles, dinero y cartas libres, hasta {count} ofertas por turno.\nLas calles con edificios en su color no se intercambian: primero vende los edificios. Una calle hipotecada sigue hipotecada.\nEl dispositivo pasa a la otra persona, que acepta o rechaza. Un intercambio ya respondido no se puede deshacer."
+  "rulesPropertyTrade": "En tu turno puedes proponer un intercambio antes o después de tirar: calles, dinero y cartas libres, hasta {count} ofertas por turno.\nLas calles con edificios en su color no se intercambian: primero vende los edificios. Una calle hipotecada sigue hipotecada.\nEl dispositivo pasa a la otra persona, que acepta o rechaza. Un intercambio ya respondido no se puede deshacer.",
+  "propertyTradeShowBoard": "Ver el tablero",
+  "propertyTradeShowOffer": "Volver a la oferta"
 }

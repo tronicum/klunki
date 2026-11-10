@@ -4435,4 +4435,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'در نوبت خودت می‌توانی قبل یا بعد از تاس انداختن معامله پیشنهاد بدهی: خیابان، پول و کارت آزادی، تا $count پیشنهاد در هر نوبت.\nخیابان‌هایی که در رنگشان ساختمان هست معامله نمی‌شوند: اول ساختمان‌ها را بفروش. خیابان گرو، گرو می‌ماند.\nدستگاه به طرف مقابل می‌رسد تا بپذیرد یا رد کند. معامله‌ای که جواب گرفته برنمی‌گردد.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'دیدن صفحه';
+
+  @override
+  String get propertyTradeShowOffer => 'بازگشت به پیشنهاد';
 }

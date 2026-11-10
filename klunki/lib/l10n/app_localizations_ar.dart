@@ -4557,4 +4557,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'في دورك يمكن عرض تبادل قبل الرمي أو بعده: شوارع ومال وبطاقات مجانية، حتى $count عروض في الدور.\nالشوارع التي في لونها مبانٍ لا تُتبادل: يجب بيع المباني أولًا. الشارع المرهون يبقى مرهونًا.\nينتقل الجهاز إلى الطرف الآخر للقبول أو الرفض. لا يمكن التراجع عن تبادل تمّ الرد عليه.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'عرض اللوحة';
+
+  @override
+  String get propertyTradeShowOffer => 'العودة إلى العرض';
 }

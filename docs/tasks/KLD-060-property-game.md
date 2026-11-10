@@ -101,15 +101,21 @@ the richest after an optional round limit.
   size** over the board (the action panel under the board is too small on a phone): "Du gibst" / "Du bekommst"
   from his side, "Annehmen" / "Ablehnen". Then "Ben nimmt den Tausch an" / "lehnt den Tausch ab" and "Gib das
   Gerät an Anna weiter"; Anna's turn goes on.
+- **"Brett ansehen"** on the answer (maintainer decision 2026-11-10): the partner can switch to the board (owners,
+  buildings, a tap on a square for its card) under a bar "Tauschangebot von Anna an Ben" with "Zurück zum Angebot",
+  and back. No other move meanwhile: the action panel has no buttons in the trade phase (also no "Zug
+  zurücknehmen"; the offer is taken back on the handover cover), "Annehmen" / "Ablehnen" only on the offer view.
+- **Maintainer decisions 2026-11-10**: the handover covers stay (although nothing is secret, so the right person
+  decides); money in whole tens is fine; the **30-round default stays**.
 - **Undo**: the answer is final: `GameSpec.undoBarrier` is now `PropertyGame.isUndoBarrier` (roll, `tradeAccept`,
   `tradeDecline`); the offer itself can be taken back. No rules-version change (undo is not part of the
   fingerprint; no move is accepted or refused differently).
 - **History / story line**: "Tauschangebot von Anna an Ben: Südkreuz, 150 Taler gegen Schlesische Straße",
   "Ben nimmt den Tausch an", "Ben lehnt den Tausch ab".
 - **Rules page**: three lines on trading under "Regeln"; the tour has one more step at "Tauschen".
-- **30 rounds stay the app default** for now. With trades the greedy bots finish games without a limit much more
-  often (the long live-UI game, 3 players, 80-round limit, now ends by bankruptcy after 46 rounds); the
-  maintainer may reconsider "bis zum Ende" as the default after playing with trades.
+- **30 rounds stay the app default** (maintainer decision 2026-11-10). With trades the greedy bots finish games
+  without a limit much more often (the long live-UI game, 3 players, 80-round limit, now ends by bankruptcy after
+  46 rounds).
 - Tests: `test/ui/games/property_trade_test.dart` (sheet validation, streets with buildings, money bounds, offer →
   handover → accept / decline, taking the offer back, 3-offers limit), the live UI makes and answers trades
   (the bot's group offers plus random swaps, owners and money checked against the engine); screenshots:
@@ -303,14 +309,14 @@ separate private helpers in `property.dart` so they can be moved into a shared "
 ## Acceptance criteria (step 3b)
 - [x] "Tauschen" when an offer is possible; trade sheet with partner, streets (not with buildings in the group,
       shown with the reason), money bounded by cash, free cards; live check, "Angebot machen" only when valid.
-- [x] Handover to the partner, whole offer, "Annehmen" / "Ablehnen", handover back; history lines.
+- [x] Handover to the partner, whole offer, "Brett ansehen" and back, "Annehmen" / "Ablehnen", handover back;
+      history lines.
 - [x] No undo across the answer; at most 3 offers a turn.
 - [x] l10n in all 7 locales (Chinese web font subset rebuilt); rules page; tour step.
 - [x] Widget tests, live UI with trades, screenshots (de phone, iPad, ar SE).
 
 ## Next steps
 - ~~3b trade screen~~: done (see "Decisions (step 3b)").
-- **Default game length**: maybe back to "bis zum Ende" now that trades exist (maintainer to decide after playing).
 - **Theme texts translated** (see "Texts and localisation"); German in every locale for now (maintainer
   decision 2026-11-09).
 - **5–6 players** in the app (the shell stops at 4): later.

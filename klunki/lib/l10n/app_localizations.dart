@@ -6921,6 +6921,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Wer am Zug ist, kann vor oder nach dem Würfeln einen Tausch anbieten: Straßen, Geld und Freikarten, bis zu {count} Angebote pro Zug.\nStraßen mit Gebäuden in ihrer Farbe werden nicht getauscht: erst die Gebäude verkaufen. Beliehene Straßen bleiben beliehen.\nDas Gerät geht zum Gegenüber, das annimmt oder ablehnt. Ein beantworteter Tausch lässt sich nicht zurücknehmen.'**
   String rulesPropertyTrade(int count);
+
+  /// KLD-060 step 3b: button on the trade answer: the partner looks at the board before answering (no other move meanwhile).
+  ///
+  /// In de, this message translates to:
+  /// **'Brett ansehen'**
+  String get propertyTradeShowBoard;
+
+  /// KLD-060 step 3b: button above the board while the trade partner looks at it: back to the offer (accept or decline there).
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück zum Angebot'**
+  String get propertyTradeShowOffer;
 }
 
 class _AppLocalizationsDelegate

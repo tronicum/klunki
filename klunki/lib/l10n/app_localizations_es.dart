@@ -4551,4 +4551,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'En tu turno puedes proponer un intercambio antes o después de tirar: calles, dinero y cartas libres, hasta $count ofertas por turno.\nLas calles con edificios en su color no se intercambian: primero vende los edificios. Una calle hipotecada sigue hipotecada.\nEl dispositivo pasa a la otra persona, que acepta o rechaza. Un intercambio ya respondido no se puede deshacer.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'Ver el tablero';
+
+  @override
+  String get propertyTradeShowOffer => 'Volver a la oferta';
 }

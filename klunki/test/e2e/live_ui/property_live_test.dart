@@ -3,8 +3,8 @@
 // every move is a tap on the screen ("Würfeln", "Kaufen", "Nicht kaufen",
 // a bid, "Aussteigen", "Zug beenden", "Meine Straßen" → "Bauen" / "Verkaufen"
 // / "Beleihen" / "Auslösen", "Pleite erklären", "Tauschen" → partner, streets,
-// money → "Angebot machen", then the partner takes the device, "Annehmen" /
-// "Ablehnen", and back; step 3b). After every move the screen
+// money → "Angebot machen", then the partner takes the device, sometimes
+// looks at the board, "Annehmen" / "Ablehnen", and back; step 3b). After every move the screen
 // is checked against the engine: the status names the seat that must move,
 // every chip shows that seat's money, every token stands on its square, and
 // the history has one line per move. Ends at the result dialog with the
@@ -188,6 +188,13 @@ Future<String> _playOne(WidgetTester tester, GameController c, PropertyBot bot, 
       // The partner takes the device, sees the offer and answers.
       await _tap(tester, 'property-trade-handover');
       expect(_key('property-trade-answer'), findsOneWidget);
+      if (rng.nextBool()) {
+        // A look at the board first ("Brett ansehen"), then back.
+        await _tap(tester, 'property-trade-show-board');
+        _checkScreen(tester, c);
+        expect(_key('property-trade-accept'), findsNothing);
+        await _tap(tester, 'property-trade-show-offer');
+      }
       await _tap(tester, action == 'tradeAccept' ? 'property-trade-accept' : 'property-trade-decline');
       // Back to the player whose turn it is.
       expect(find.text('Gib das Gerät an ${_names[trade!.from]} weiter'), findsOneWidget);

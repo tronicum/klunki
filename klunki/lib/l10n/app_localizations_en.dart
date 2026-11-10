@@ -4522,4 +4522,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'On your turn you may offer a trade before or after rolling: streets, money and free cards, up to $count offers per turn.\nStreets with buildings in their colour cannot be traded: sell the buildings first. Mortgaged streets stay mortgaged.\nThe device goes to the other player, who accepts or declines. An answered trade cannot be taken back.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'Look at the board';
+
+  @override
+  String get propertyTradeShowOffer => 'Back to the offer';
 }

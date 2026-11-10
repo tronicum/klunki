@@ -4271,4 +4271,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return '轮到你时，可以在掷骰前或后提出交换：街道、钱和免费卡，每回合最多报价 $count 次。\n同色组里有建筑的街道不能交换：先卖掉建筑。被抵押的街道交换后仍是抵押状态。\n设备交给对方，由对方接受或拒绝。已经回答的交换不能撤销。';
   }
+
+  @override
+  String get propertyTradeShowBoard => '查看棋盘';
+
+  @override
+  String get propertyTradeShowOffer => '回到报价';
 }

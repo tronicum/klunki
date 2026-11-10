@@ -4541,4 +4541,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'Wer am Zug ist, kann vor oder nach dem Würfeln einen Tausch anbieten: Straßen, Geld und Freikarten, bis zu $count Angebote pro Zug.\nStraßen mit Gebäuden in ihrer Farbe werden nicht getauscht: erst die Gebäude verkaufen. Beliehene Straßen bleiben beliehen.\nDas Gerät geht zum Gegenüber, das annimmt oder ablehnt. Ein beantworteter Tausch lässt sich nicht zurücknehmen.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'Brett ansehen';
+
+  @override
+  String get propertyTradeShowOffer => 'Zurück zum Angebot';
 }

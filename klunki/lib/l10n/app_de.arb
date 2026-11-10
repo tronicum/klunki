@@ -6641,5 +6641,13 @@
         "type": "int"
       }
     }
+  },
+  "propertyTradeShowBoard": "Brett ansehen",
+  "@propertyTradeShowBoard": {
+    "description": "KLD-060 step 3b: button on the trade answer: the partner looks at the board before answering (no other move meanwhile)."
+  },
+  "propertyTradeShowOffer": "Zurück zum Angebot",
+  "@propertyTradeShowOffer": {
+    "description": "KLD-060 step 3b: button above the board while the trade partner looks at it: back to the offer (accept or decline there)."
   }
 }

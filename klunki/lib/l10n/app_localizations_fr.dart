@@ -4559,4 +4559,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String rulesPropertyTrade(int count) {
     return 'À ton tour, tu peux proposer un échange avant ou après le lancer : rues, argent et cartes de sortie, jusqu’à $count offres par tour.\nUne rue avec des bâtiments dans sa couleur ne s’échange pas : vends d’abord les bâtiments. Une rue hypothéquée le reste.\nL’appareil passe à l’autre personne, qui accepte ou refuse. Un échange qui a reçu une réponse ne peut pas être annulé.';
   }
+
+  @override
+  String get propertyTradeShowBoard => 'Voir le plateau';
+
+  @override
+  String get propertyTradeShowOffer => 'Retour à l’offre';
 }
