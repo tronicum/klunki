@@ -125,6 +125,12 @@ class PropertyFieldName extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = this.base ?? DefaultTextStyle.of(context).style;
+    // A board too small for the smallest size (an iPhone SE's) would cut
+    // words in the middle: there only, a name that does not fit gets its
+    // own smaller size.
+    final size = _layouts(text).any((l) => _fits(l, this.size, box, base, lines))
+        ? this.size
+        : propertyBoardNameSize([text], box, min: 2, max: this.size, base: base, lines: lines, hyphens: true);
     return Align(
       alignment: alignment,
       child: Text(

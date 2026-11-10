@@ -8,6 +8,7 @@ import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/undo_settings.dart';
+import 'package:klunki/ui/games/property/property_board.dart' show PropertyDeedCard;
 import 'package:klunki/ui/games/property/property_roll_show.dart';
 import 'package:klunki/ui/games/property/property_screen.dart' show propertyNarration;
 import 'package:klunki/ui/rules/rules_screen.dart';
@@ -376,6 +377,33 @@ void main() {
       expect(_key('property-buy'), findsOneWidget);
       expect(find.text('Anna würfelt 1 + 2 → ${street.name}'), findsOneWidget);
       expect(tester.getRect(_key('property-board')), boardAt);
+    });
+
+    testWidgets('after the landing: the compact deed card in the centre, the buy question below', (tester) async {
+      await pumpAt(tester, dice: [1, 2]);
+      await tapRoll(tester);
+      await tester.pumpAndSettle();
+      final sq = berlin.squares[3];
+      String right(String key) => tester
+          .widgetList<Text>(find.descendant(of: _key(key), matching: find.byType(Text)))
+          .last
+          .data!;
+      expect(right('property-focus-deed-rent-0'), '${sq.rents[0]}');
+      expect(right('property-focus-deed-rent-5'), '${sq.rents[5]}');
+      expect(find.descendant(of: _key('property-focus-deed'), matching: find.text('Preis: ${sq.price} Taler')),
+          findsOneWidget);
+      expect(_key('property-focus-deed-now'), findsNothing, reason: 'unowned: no rent applies');
+      // Inside the board centre, and the buy question stays on screen.
+      final board = tester.getRect(_key('property-board'));
+      final card = tester.getRect(_key('property-focus-deed'));
+      expect(card.width, lessThanOrEqualTo(PropertyDeedCard.maxWidth + 0.1));
+      expect(board.deflate(board.width / 11).contains(card.topLeft) && board.deflate(board.width / 11).contains(card.bottomRight),
+          isTrue);
+      expect(_key('property-buy').hitTestable(), findsOneWidget);
+      // A tap opens the full card.
+      await _tap(tester, 'property-focus');
+      expect(_key('property-square-sheet'), findsOneWidget);
+      expect(_key('property-deed-rent-group'), findsOneWidget);
     });
 
     testWidgets('the walk passes Start', (tester) async {

@@ -336,6 +336,40 @@ void main() {
   // Into <KLUNKI_SHOTS>/names-final2:
   //
   //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name names
+  // KLD-060: the compact deed card in the board centre (landing, buy
+  // question, an owned street with its rent highlighted). Into
+  // <KLUNKI_SHOTS>/deed-centre:
+  //
+  //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart --plain-name deed-centre
+  group('deed-centre', () {
+    for (final (dev, size, safe) in [
+      ('iphone15pro', const Size(393, 852), const EdgeInsets.only(top: 59, bottom: 34)),
+      ('iphonese', const Size(375, 667), EdgeInsets.zero),
+      ('ipad', const Size(820, 1180), const EdgeInsets.only(top: 24, bottom: 20)),
+    ]) {
+      testWidgets('on $dev', skip: skip, (tester) async {
+        final c = await _game(tester, size: size, safe: safe);
+        // Play until a player stands on an unowned street: the buy question.
+        final bot = PropertyBot(Random(3));
+        for (var i = 0; i < 400 && !c.game.isOver; i++) {
+          final g = c.game as PropertyGame;
+          if (i > 20 && g.phase == PropertyPhase.buy && g.theme.squares[g.seats[g.actor!].pos].kind == PropertyKind.street) {
+            break;
+          }
+          final m = bot.choose(g);
+          await c.submit(m['action'] == 'tradeOffer'
+              ? g.legalMoves.firstWhere((x) => x['action'] == 'endTurn' || x['action'] == 'roll')
+              : m);
+        }
+        await tester.pumpAndSettle();
+        await _shot(tester, '$dev-buy', dir: 'deed-centre');
+        // Later: an owned street, its rent row highlighted.
+        await _botMoves(tester, c, 200, until: 0);
+        await _shot(tester, '$dev-owned', dir: 'deed-centre');
+      });
+    }
+  });
+
   // KLD-060: names on big squares (tablet portrait and landscape, a large
   // iPhone, a zoomed phone board). Into <KLUNKI_SHOTS>/names-ipad:
   //
