@@ -4446,4 +4446,14 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '« Terminer la partie » se trouve dans le menu aux trois points.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place : faire un double, payer ou utiliser une carte.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return 'Direction $place pour $player';
+  }
 }

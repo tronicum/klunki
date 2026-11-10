@@ -1108,5 +1108,7 @@
   "maexchenResultOut": "خارج اللعبة",
   "rulesMaexchenPlayers": "من لاعبَين إلى أربعة على جهاز واحد. يدور الكوب حول الطاولة: تُعلن دائمًا لمن يليك. من لم تبقَ له أرواح يخرج ويُتخطّى دوره.",
   "rulesMaexchenGoalUnlimited": "اخسر أقل عدد ممكن من الأرواح. تلعبون حتى تُنهوا اللعبة.",
-  "rulesMaexchenEndHow": "«إنهاء اللعبة» في القائمة ذات النقاط الثلاث."
+  "rulesMaexchenEndHow": "«إنهاء اللعبة» في القائمة ذات النقاط الثلاث.",
+  "propertyInPausePhrase": "{player} {place}: زوج متطابق أو دفع أو بطاقة مجانية.",
+  "propertyEvToPausePhrase": "ذهاب {player} {place}"
 }

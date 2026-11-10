@@ -6760,6 +6760,18 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'„Spiel beenden“ steht im Menü mit den drei Punkten.'**
   String get rulesMaexchenEndHow;
+
+  /// KLD-060: like propertyInPause, with the theme's own phrase for the pause square (verb included, in the theme's language, German: "steht im Stau auf der A100"); used only when the UI language is the theme's.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} {place}: Pasch würfeln, zahlen oder Freikarte.'**
+  String propertyInPausePhrase(String player, String place);
+
+  /// KLD-060 narration: like propertyEvToPause, with the theme's phrase for going to the pause square (German: "in den Stau auf der A100"); used only when the UI language is the theme's.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} muss {place}'**
+  String propertyEvToPausePhrase(String player, String place);
 }
 
 class _AppLocalizationsDelegate

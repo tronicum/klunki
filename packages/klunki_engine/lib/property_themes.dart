@@ -11,7 +11,8 @@
 /// considered and left out on purpose. Each group names its buildings (small
 /// → big): Späti → Späti-Palast, Bar → Kiezkneipe, Laden → Markthalle,
 /// Trödelstand → Flohmarkt, Imbiss → Club, Kindercafé → Spielplatz, Galerie →
-/// Museum, Haus → Hotel (Charlottenburg). The utilities are a waterworks and
+/// Museum (Kunst und Kultur, with the museum island), Haus → Hotel (the
+/// Prachtstraßen Kurfürstendamm and Unter den Linden, the most expensive). The utilities are a waterworks and
 /// the TV tower by place, no company names. Card texts: our own, kid-friendly, Berliner
 /// Schnauze, no real people, companies or current controversies.
 library;
@@ -112,18 +113,22 @@ final PropertyTheme berlinTheme = PropertyTheme(
         smallIcon: 'cafe',
         bigIcon: 'playground',
         note: "The family-rich Kollwitzkiez and its avenues: children's cafés and playgrounds line all three."),
-    PropertyGroup('Charlottenburg', note: 'Elegant avenue, square and lakeside: fine houses and hotels fit all three.'),
-    PropertyGroup('Mitte',
+    PropertyGroup('Kunst und Kultur',
         small: 'Galerie',
         smallPlural: 'Galerien',
         big: 'Museum',
         bigPlural: 'Museen',
         smallIcon: 'gallery',
         bigIcon: 'museum',
-        note: 'The museum island and the grand avenue next to it: galleries and museums fit both.'),
+        note: 'The galleries around Olivaer Platz and Lietzensee and the museum island: galleries and museums fit all '
+            'three.'),
+    PropertyGroup('Prachtstraßen',
+        note: 'The grand avenues of West and East, both known for their grand hotels: fine houses and hotels fit both.'),
   ],
 
   deckTitles: const {_s: 'Spree-Post', _n: 'Kiez-Karte'},
+  pauseAt: 'steht im Stau auf der A100',
+  pauseTo: 'in den Stau auf der A100',
   squares: _squares(const [
     'Start', 'Skalitzer Straße', 'Kiez-Karte', 'Schlesische Straße', 'Bürgeramt-Gebühr', //
     'Südkreuz', 'Krossener Straße', 'Spree-Post', 'Wühlischstraße', 'Simon-Dach-Straße',
@@ -131,14 +136,14 @@ final PropertyTheme berlinTheme = PropertyTheme(
     'Westkreuz', 'Arkonaplatz', 'Kiez-Karte', 'Straße des 17. Juni', 'Mauerpark',
     'Späti-Pause', 'Revaler Straße', 'Spree-Post', 'Alt-Stralau', 'Am Wriezener Bahnhof',
     'Hauptbahnhof', 'Kollwitzplatz', 'Kastanienallee', 'Fernsehturm', 'Schönhauser Allee',
-    'Baustelle!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Kurfürstendamm',
-    'Ostkreuz', 'Spree-Post', 'Museumsinsel', 'Fahrradreparatur', 'Unter den Linden',
+    'Baustelle!', 'Olivaer Platz', 'Lietzensee', 'Kiez-Karte', 'Museumsinsel',
+    'Ostkreuz', 'Spree-Post', 'Kurfürstendamm', 'Fahrradreparatur', 'Unter den Linden',
   ], _prices, {
     // Short forms for the small squares on a phone (KLD-060): only where the
     // full name does not fit at the board's size, abbreviated as little as
     // possible and keeping the street type.
     8: 'Wühlischstr.', 13: 'Weserstr.', 24: 'Am Wriez. Bahnhof', 26: 'Kollwitzpl.', //
-    27: 'Kastan. Allee', 29: 'Schönh. Allee', 34: 'Kurfürstend.', 37: 'Museums-Insel',
+    27: 'Kastan. Allee', 29: 'Schönh. Allee', 34: 'Museums-Insel', 37: 'Kurfürstend.',
   }),
   cards: [
     _c('s01', _s, _adv, 'Ab zum Start! Nimm die S-Bahn – heute fährt sie sogar pünktlich.', 0),
@@ -193,6 +198,8 @@ final PropertyTheme fantasyTheme = PropertyTheme(
     PropertyGroup('Rot'), PropertyGroup('Gelb'), PropertyGroup('Grün'), PropertyGroup('Dunkelblau'),
   ],
   deckTitles: const {_s: 'Überraschung', _n: 'Nachbarschaft'},
+  pauseAt: 'ist in der Auszeit',
+  pauseTo: 'in die Auszeit',
   squares: _squares(const [
     'Start', 'Schneckenweg', 'Nachbarschaft', 'Pfützengasse', 'Stadtkasse', //
     'Seilbahn', 'Kastanienweg', 'Überraschung', 'Murmelgasse', 'Drachenwiese',

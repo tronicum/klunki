@@ -4410,4 +4410,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '“End game” is in the menu with the three dots.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place: roll doubles, pay or use a free card.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return '$player has to go $place';
+  }
 }

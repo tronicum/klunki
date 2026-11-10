@@ -1108,5 +1108,7 @@
   "maexchenResultOut": "出局",
   "rulesMaexchenPlayers": "两到四人用一台设备玩。骰盅按顺序传：你总是向下一位报数。没有命的人出局，轮到时跳过。",
   "rulesMaexchenGoalUnlimited": "尽量少输命。你们一直玩到结束游戏为止。",
-  "rulesMaexchenEndHow": "“结束游戏”在三个点的菜单里。"
+  "rulesMaexchenEndHow": "“结束游戏”在三个点的菜单里。",
+  "propertyInPausePhrase": "{player} {place}：掷出对子、付钱或用免费卡。",
+  "propertyEvToPausePhrase": "{player} 进入{place}"
 }

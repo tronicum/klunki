@@ -4439,4 +4439,14 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '«Terminar la partida» está en el menú de los tres puntos.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place: saca dobles, paga o usa una carta.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return '$player va $place';
+  }
 }

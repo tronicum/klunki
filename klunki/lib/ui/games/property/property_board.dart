@@ -588,7 +588,14 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
       final seat = game.seats[a];
       switch (game.phase) {
         case PropertyPhase.roll:
-          if (seat.inPause) line(l10n.propertyInPause(_name(a), game.theme.squares[PropertyGame.pauseSquare].name));
+          if (seat.inPause) {
+            // The theme's phrase ("steht im Stau auf der A100") in its
+            // language (German), else the quoted square name.
+            line(switch (game.theme.pauseAt) {
+              final at? when l10n.localeName == 'de' => l10n.propertyInPausePhrase(_name(a), at),
+              _ => l10n.propertyInPause(_name(a), game.theme.squares[PropertyGame.pauseSquare].name),
+            });
+          }
           children.add(big(const Key('property-roll'), l10n.propertyRoll, () => _submit({'action': 'roll'}),
               icon: Icons.casino_outlined, anchor: _rollKey));
           if (seat.inPause) {

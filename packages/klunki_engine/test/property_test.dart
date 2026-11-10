@@ -123,13 +123,16 @@ void main() {
       expect([for (final i in t.groups[1]) names[i]], ['Krossener Straße', 'Wühlischstraße', 'Simon-Dach-Straße']);
       expect([t.colourGroups[1].small, t.colourGroups[1].big], ['Bar', 'Kiezkneipe']);
       expect([for (final i in t.groups[3]) names[i]], ['Arkonaplatz', 'Straße des 17. Juni', 'Mauerpark']);
-      expect(t.colourGroups.where((g) => g.small == 'Haus').map((g) => g.name), ['Charlottenburg']);
+      expect(t.colourGroups.where((g) => g.small == 'Haus').map((g) => g.name), ['Prachtstraßen']);
       // Revision 3: the short names for the board (KLD-060).
       expect(t.revision, 3);
-      expect(t.squares[34].shortName, 'Kurfürstend.');
-      expect(t.squares[37].shortName, 'Museums-Insel', reason: 'breaks after its own hyphen');
+      expect(t.squares[37].shortName, 'Kurfürstend.', reason: 'the most expensive group (maintainer)');
+      expect(t.squares[34].shortName, 'Museums-Insel', reason: 'breaks after its own hyphen');
       expect(t.squares[21].shortName, 'Revaler Straße', reason: 'fits in full');
       expect(t.squares[19].shortName, 'Mauerpark', reason: 'no short form: the name');
+      expect(t.pauseAt, 'steht im Stau auf der A100');
+      expect(t.pauseTo, 'in den Stau auf der A100');
+      expect(PropertyTheme.fromJson(t.toJson()).pauseTo, t.pauseTo, reason: 'round trip');
       for (final s in t.squares) {
         if (s.short case final short?) {
           expect(short.replaceAll('-', '').length, lessThanOrEqualTo(s.name.replaceAll('-', '').length), reason: s.name);

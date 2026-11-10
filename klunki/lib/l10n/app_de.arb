@@ -6485,5 +6485,29 @@
   "rulesMaexchenEndHow": "„Spiel beenden“ steht im Menü mit den drei Punkten.",
   "@rulesMaexchenEndHow": {
     "description": "Rules page (Mäxchen, \"Unbegrenzte Leben\"): where \"Spiel beenden\" is (the app bar menu with three dots)."
+  },
+  "propertyInPausePhrase": "{player} {place}: Pasch würfeln, zahlen oder Freikarte.",
+  "@propertyInPausePhrase": {
+    "description": "KLD-060: like propertyInPause, with the theme's own phrase for the pause square (verb included, in the theme's language, German: \"steht im Stau auf der A100\"); used only when the UI language is the theme's.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvToPausePhrase": "{player} muss {place}",
+  "@propertyEvToPausePhrase": {
+    "description": "KLD-060 narration: like propertyEvToPause, with the theme's phrase for going to the pause square (German: \"in den Stau auf der A100\"); used only when the UI language is the theme's.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
   }
 }

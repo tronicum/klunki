@@ -178,7 +178,12 @@ List<String> propertyNarration(AppLocalizations l10n, PropertyGame game, List<Ma
       case 'unmortgaged':
         out.add(l10n.propertyEvUnmortgaged(who(e['seat']), square(e['square']), money(e['amount'])));
       case 'toPause':
-        out.add(l10n.propertyEvToPause(who(e['seat']), square(PropertyGame.pauseSquare)));
+        // The theme's own phrase ("muss in den Stau auf der A100") in its
+        // language (German), else the quoted square name.
+        out.add(switch (theme.pauseTo) {
+          final to? when l10n.localeName == 'de' => l10n.propertyEvToPausePhrase(who(e['seat']), to),
+          _ => l10n.propertyEvToPause(who(e['seat']), square(PropertyGame.pauseSquare)),
+        });
       case 'threeDoubles':
         out.add(l10n.propertyEvThreeDoubles);
       case 'leftPause':

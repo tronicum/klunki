@@ -206,8 +206,8 @@ flea-market group so the Boxhagener Kiez group does not overlap), cheap → expe
 | Flohmärkte | Arkonaplatz, Straße des 17. Juni, Mauerpark | Trödelstand → Flohmarkt | all three host a well-known weekend flea market |
 | Friedrichshain | Revaler Straße, Alt-Stralau, Am Wriezener Bahnhof | Imbiss → Club | the streets of the well-known clubs |
 | Prenzlauer Berg | Kollwitzplatz, Kastanienallee, Schönhauser Allee | Kindercafé → Spielplatz | the family-rich Kollwitzkiez |
-| Charlottenburg | Olivaer Platz, Lietzensee, Kurfürstendamm | Haus → Hotel | elegant avenue, square, lakeside |
-| Mitte | Museumsinsel, Unter den Linden | Galerie → Museum | the museum island and the avenue next to it |
+| Kunst und Kultur | Olivaer Platz, Lietzensee, Museumsinsel | Galerie → Museum | galleries in the west, the museum island |
+| Prachtstraßen | Kurfürstendamm, Unter den Linden | Haus → Hotel | the grand avenues of West and East (maintainer 2026-11-10: Kurfürstendamm takes the most expensive group) |
 
 - Stations: the Ring corners and the main station, in ring order around the board: **Südkreuz (5), Westkreuz
   (15), Hauptbahnhof (25), Ostkreuz (35)**.

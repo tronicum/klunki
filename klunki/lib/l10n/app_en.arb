@@ -1107,5 +1107,7 @@
   "maexchenResultOut": "out",
   "rulesMaexchenPlayers": "Two, three or four players on one device. The cup goes round the table: you always announce to the next player. Whoever has no lives left is out and gets skipped.",
   "rulesMaexchenGoalUnlimited": "Lose as few lives as you can. You play until you end the game.",
-  "rulesMaexchenEndHow": "“End game” is in the menu with the three dots."
+  "rulesMaexchenEndHow": "“End game” is in the menu with the three dots.",
+  "propertyInPausePhrase": "{player} {place}: roll doubles, pay or use a free card.",
+  "propertyEvToPausePhrase": "{player} has to go {place}"
 }

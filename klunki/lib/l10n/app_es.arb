@@ -1108,5 +1108,7 @@
   "maexchenResultOut": "fuera",
   "rulesMaexchenPlayers": "De dos a cuatro en un dispositivo. El cubilete da la vuelta a la mesa: siempre anuncias a quien va después. Quien se queda sin vidas queda fuera y se le salta.",
   "rulesMaexchenGoalUnlimited": "Pierde las menos vidas posibles. Jugáis hasta terminar la partida.",
-  "rulesMaexchenEndHow": "«Terminar la partida» está en el menú de los tres puntos."
+  "rulesMaexchenEndHow": "«Terminar la partida» está en el menú de los tres puntos.",
+  "propertyInPausePhrase": "{player} {place}: saca dobles, paga o usa una carta.",
+  "propertyEvToPausePhrase": "{player} va {place}"
 }

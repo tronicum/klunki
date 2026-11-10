@@ -4441,4 +4441,14 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '«إنهاء اللعبة» في القائمة ذات النقاط الثلاث.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place: زوج متطابق أو دفع أو بطاقة مجانية.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return 'ذهاب $player $place';
+  }
 }

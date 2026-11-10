@@ -4162,4 +4162,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesMaexchenEndHow => '“结束游戏”在三个点的菜单里。';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place：掷出对子、付钱或用免费卡。';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return '$player 进入$place';
+  }
 }

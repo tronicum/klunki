@@ -320,6 +320,12 @@ class PropertyTheme {
   /// All cards of both decks, in the theme's (unshuffled) order.
   final List<PropertyCard> cards;
 
+  /// How the theme's language (German) says a player is in the pause
+  /// square, with the verb ("steht im Stau auf der A100"), and goes there
+  /// ("in den Stau auf der A100"), for the status and history lines;
+  /// optional (KLD-060). Without them the lines quote the square's name.
+  final String? pauseAt, pauseTo;
+
   /// Square indexes of each colour group, in board order.
   late final List<List<int>> groups = List.unmodifiable([
     for (var g = 0; g < 8; g++) List<int>.unmodifiable([for (final s in squares) if (s.group == g) s.index]),
@@ -333,7 +339,9 @@ class PropertyTheme {
       required List<PropertyGroup> colourGroups,
       required List<PropertySquare> squares,
       required Map<PropertyDeck, String> deckTitles,
-      required List<PropertyCard> cards})
+      required List<PropertyCard> cards,
+      this.pauseAt,
+      this.pauseTo})
       : colourGroups = List.unmodifiable(colourGroups),
         squares = List.unmodifiable(squares),
         deckTitles = Map.unmodifiable(deckTitles),
@@ -359,6 +367,8 @@ class PropertyTheme {
         'revision': revision,
         'title': title,
         'currency': currency,
+        if (pauseAt != null) 'pauseAt': pauseAt,
+        if (pauseTo != null) 'pauseTo': pauseTo,
         'groups': [for (final g in colourGroups) g.toJson()],
         'squares': [for (final s in squares) s.toJson()],
         'decks': {
@@ -397,7 +407,9 @@ class PropertyTheme {
         colourGroups: [for (final g in groups) PropertyGroup.fromJson(g)],
         squares: [for (var i = 0; i < squares.length; i++) PropertySquare.fromJson(i, squares[i])],
         deckTitles: titles,
-        cards: cards);
+        cards: cards,
+        pauseAt: m['pauseAt'] == null ? null : _str(m, 'pauseAt', 'theme'),
+        pauseTo: m['pauseTo'] == null ? null : _str(m, 'pauseTo', 'theme'));
   }
 
   /// Text limits (characters) for names and card texts.
@@ -423,6 +435,9 @@ class PropertyTheme {
     if (revision < 1) p.add('revision must be at least 1');
     text('title', title, maxNameLength);
     text('currency', currency, 12);
+    for (final (what, phrase) in [('pauseAt', pauseAt), ('pauseTo', pauseTo)]) {
+      if (phrase != null) text(what, phrase, 40);
+    }
     if (colourGroups.length != 8) p.add('there must be 8 groups');
     for (final g in colourGroups) {
       for (final t in [g.name, g.small, g.smallPlural, g.big, g.bigPlural]) {

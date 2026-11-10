@@ -1108,5 +1108,7 @@
   "maexchenResultOut": "بیرون",
   "rulesMaexchenPlayers": "دو، سه یا چهار نفر روی یک دستگاه. لیوان دور میز می‌چرخد: همیشه به نفر بعدی اعلام می‌کنی. هر کس جانی برایش نمانده باشد، بیرون می‌رود و نوبتش رد می‌شود.",
   "rulesMaexchenGoalUnlimited": "تا می‌توانی کمتر جان از دست بده. تا وقتی بازی را تمام کنید بازی می‌کنید.",
-  "rulesMaexchenEndHow": "«پایان بازی» در منوی سه‌نقطه است."
+  "rulesMaexchenEndHow": "«پایان بازی» در منوی سه‌نقطه است.",
+  "propertyInPausePhrase": "{player} {place}: جفت بینداز، پول بده یا کارت آزادی.",
+  "propertyEvToPausePhrase": "{player} باید {place} برود"
 }

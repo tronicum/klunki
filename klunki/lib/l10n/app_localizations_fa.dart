@@ -4325,4 +4325,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get rulesMaexchenEndHow => '«پایان بازی» در منوی سه‌نقطه است.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place: جفت بینداز، پول بده یا کارت آزادی.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return '$player باید $place برود';
+  }
 }

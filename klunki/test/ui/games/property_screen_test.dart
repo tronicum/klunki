@@ -9,6 +9,7 @@ import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/undo_settings.dart';
 import 'package:klunki/ui/games/property/property_roll_show.dart';
+import 'package:klunki/ui/games/property/property_screen.dart' show propertyNarration;
 import 'package:klunki/ui/rules/rules_screen.dart';
 import 'package:klunki/ui/shell/game_screen.dart' show UndoMoveButton;
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -443,6 +444,15 @@ void main() {
       expect(_tokenOn(0, g.seats[0].pos), isTrue);
       expect(_key('property-buy'), findsOneWidget);
       await tester.pumpAndSettle();
+    });
+
+    test("the pause in the theme's own words (German), else quoted", () {
+      const ev = [{'type': 'toPause', 'seat': 0}];
+      String name(int s) => 'Anna';
+      expect(propertyNarration(deL10n, PropertyGame(), ev, 0, name), ['Anna muss in den Stau auf der A100']);
+      expect(propertyNarration(deL10n, PropertyGame(theme: PropertyTheme.byId('fantasie')), ev, 0, name),
+          ['Anna muss in die Auszeit']);
+      expect(propertyNarration(enL10n, PropertyGame(), ev, 0, name), ['Anna has to go to “Stau auf der A100”']);
     });
 
     test('the path: a jump to the pause, a card back, a card "back to"', () {

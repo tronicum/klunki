@@ -4429,4 +4429,14 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '„Spiel beenden“ steht im Menü mit den drei Punkten.';
+
+  @override
+  String propertyInPausePhrase(String player, String place) {
+    return '$player $place: Pasch würfeln, zahlen oder Freikarte.';
+  }
+
+  @override
+  String propertyEvToPausePhrase(String player, String place) {
+    return '$player muss $place';
+  }
 }
