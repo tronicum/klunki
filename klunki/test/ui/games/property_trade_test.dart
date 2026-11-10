@@ -90,6 +90,11 @@ void main() {
     await _tap(tester, 'property-trade-get-6');
     expect(_enabled(tester, 'property-trade-offer'), isFalse, reason: 'unchosen again');
     expect(c.moves, isEmpty, reason: 'nothing sent yet');
+    // The info button shows the street's deed card, without choosing it.
+    await _tap(tester, 'property-trade-deed-6');
+    expect(_key('property-square-sheet'), findsOneWidget);
+    expect(_key('property-deed-rent-5'), findsOneWidget);
+    expect(_enabled(tester, 'property-trade-offer'), isFalse, reason: 'still not chosen');
   });
 
   testWidgets('streets with buildings in their group are shown, but cannot be chosen', (tester) async {

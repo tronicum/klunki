@@ -7,7 +7,7 @@ import '../../../game/game_controller.dart';
 import '../../../transport/game_transport.dart' show AcceptedMove;
 import '../../shell/game_screen.dart' show UndoMoveButton;
 import '../../shell/seat_game_screen.dart';
-import 'property_board.dart' show propertyGroupColor;
+import 'property_board.dart' show propertyGroupColor, showPropertySquareSheet;
 
 /// Trades in Baulöwe (KLD-060 step 3b), hot-seat:
 ///
@@ -444,7 +444,9 @@ class _Stepper extends StatelessWidget {
 
 /// A street (or station, utility) as a small deed chip: the group's colour,
 /// the name, a lock when mortgaged; chosen with a check mark. A street that
-/// cannot be traded is greyed out with the [reason] under it.
+/// cannot be traded is greyed out with the [reason] under it. The info
+/// button opens the street's deed card (rents, buildings, mortgage; the
+/// same card as on the board).
 class PropertyDeedChip extends StatelessWidget {
   final PropertyGame game;
   final int square;
@@ -458,7 +460,11 @@ class PropertyDeedChip extends StatelessWidget {
     this.selected = false,
     this.reason,
     this.onTap,
+    this.deed = true,
   });
+
+  /// Show the info button for the deed card.
+  final bool deed;
 
   @override
   Widget build(BuildContext context) {
@@ -517,6 +523,17 @@ class PropertyDeedChip extends StatelessWidget {
                             const SizedBox(width: 4),
                             Icon(Icons.lock_outline, size: 14, semanticLabel: l10n.propertyMortgaged),
                           ],
+                          if (deed)
+                            IconButton(
+                              key: Key('property-trade-deed-$square'),
+                              tooltip: sq.name,
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                              iconSize: 18,
+                              icon: const Icon(Icons.info_outline),
+                              onPressed: () => showPropertySquareSheet(context, game, square),
+                            ),
                           if (interactive) ...[
                             const SizedBox(width: 4),
                             Icon(
