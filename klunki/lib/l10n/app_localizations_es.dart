@@ -4439,4 +4439,116 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get rulesMaexchenEndHow =>
       '«Terminar la partida» está en el menú de los tres puntos.';
+
+  @override
+  String get propertyTrade => 'Intercambiar';
+
+  @override
+  String get propertyTradeTitle => 'Proponer un intercambio';
+
+  @override
+  String get propertyTradeWith => '¿Con quién?';
+
+  @override
+  String get propertyTradeGive => 'Das';
+
+  @override
+  String get propertyTradeGet => 'Recibes';
+
+  @override
+  String get propertyTradeMoney => 'Dinero';
+
+  @override
+  String get propertyTradeMoneyReset => 'Volver a 0';
+
+  @override
+  String get propertyTradeFreeCards => 'Cartas libres';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cartas libres',
+      one: '1 carta libre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => 'nada';
+
+  @override
+  String get propertyTradeNoStreets => 'Ninguna calle';
+
+  @override
+  String get propertyTradeOffer => 'Hacer la oferta';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count ofertas en este turno',
+      one: 'Queda 1 oferta en este turno',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => 'Elige qué vais a intercambiar.';
+
+  @override
+  String get propertyTradeHouses => 'Hay edificios en el color: no se cambia';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return 'Ya hubo $count ofertas en este turno.';
+  }
+
+  @override
+  String get propertyTradeNotNow => 'Ahora no se puede intercambiar.';
+
+  @override
+  String get propertyTradeNoMoney => 'No hay tanto dinero.';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return 'Oferta de intercambio: $player → $other';
+  }
+
+  @override
+  String get propertyTradeAccept => 'Aceptar';
+
+  @override
+  String get propertyTradeDecline => 'Rechazar';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return 'Oferta de intercambio $player → $other: $give por $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return '$player acepta el intercambio';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return '$player rechaza el intercambio';
+  }
+
+  @override
+  String get propertyCoachTrade =>
+      '¿Te falta una calle para tener todo un color? Propón aquí un intercambio.';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return 'En tu turno puedes proponer un intercambio antes o después de tirar: calles, dinero y cartas libres, hasta $count ofertas por turno.\nLas calles con edificios en su color no se intercambian: primero vende los edificios. Una calle hipotecada sigue hipotecada.\nEl dispositivo pasa a la otra persona, que acepta o rechaza. Un intercambio ya respondido no se puede deshacer.';
+  }
 }

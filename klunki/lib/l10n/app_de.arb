@@ -6485,5 +6485,161 @@
   "rulesMaexchenEndHow": "„Spiel beenden“ steht im Menü mit den drei Punkten.",
   "@rulesMaexchenEndHow": {
     "description": "Rules page (Mäxchen, \"Unbegrenzte Leben\"): where \"Spiel beenden\" is (the app bar menu with three dots)."
+  },
+  "propertyTrade": "Tauschen",
+  "@propertyTrade": {
+    "description": "KLD-060 step 3b: button in the action panel: open the trade sheet (only the player whose turn it is, before or after rolling)."
+  },
+  "propertyTradeTitle": "Tausch anbieten",
+  "@propertyTradeTitle": {
+    "description": "KLD-060 step 3b: title of the trade sheet."
+  },
+  "propertyTradeWith": "Mit wem?",
+  "@propertyTradeWith": {
+    "description": "KLD-060 step 3b: trade sheet: pick the player to trade with."
+  },
+  "propertyTradeGive": "Du gibst",
+  "@propertyTradeGive": {
+    "description": "KLD-060 step 3b: trade column: what the reader (the offering player, or the partner answering) gives."
+  },
+  "propertyTradeGet": "Du bekommst",
+  "@propertyTradeGet": {
+    "description": "KLD-060 step 3b: trade column: what the reader gets."
+  },
+  "propertyTradeMoney": "Geld",
+  "@propertyTradeMoney": {
+    "description": "KLD-060 step 3b: trade column: the money row."
+  },
+  "propertyTradeMoneyReset": "Zurück auf 0",
+  "@propertyTradeMoneyReset": {
+    "description": "KLD-060 step 3b: tooltip of the button that sets the money of a trade side back to 0."
+  },
+  "propertyTradeFreeCards": "Freikarten",
+  "@propertyTradeFreeCards": {
+    "description": "KLD-060 step 3b: trade column: the free cards row (cards that get a player out of the pause)."
+  },
+  "propertyTradeCardCount": "{count, plural, =1{1 Freikarte} other{{count} Freikarten}}",
+  "@propertyTradeCardCount": {
+    "description": "KLD-060 step 3b: a number of free cards in a trade (history, offer).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyTradeNothing": "nichts",
+  "@propertyTradeNothing": {
+    "description": "KLD-060 step 3b: an empty side of a trade (\"… for nothing\")."
+  },
+  "propertyTradeNoStreets": "Keine Straßen",
+  "@propertyTradeNoStreets": {
+    "description": "KLD-060 step 3b: trade column: the player has no streets."
+  },
+  "propertyTradeOffer": "Angebot machen",
+  "@propertyTradeOffer": {
+    "description": "KLD-060 step 3b: button: send the trade offer (the device then goes to the partner)."
+  },
+  "propertyTradeOffersLeft": "{count, plural, =1{Noch 1 Angebot in diesem Zug} other{Noch {count} Angebote in diesem Zug}}",
+  "@propertyTradeOffersLeft": {
+    "description": "KLD-060 step 3b: trade sheet: how many more offers the player may make this turn (at most 3 a turn).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyTradeEmpty": "Wähle aus, was ihr tauscht.",
+  "@propertyTradeEmpty": {
+    "description": "KLD-060 step 3b: trade sheet: nothing chosen yet, so no offer can be made."
+  },
+  "propertyTradeHouses": "Gebäude in der Farbe: nicht tauschbar",
+  "@propertyTradeHouses": {
+    "description": "KLD-060 step 3b: trade sheet, under a street that cannot be chosen: its colour group has buildings."
+  },
+  "propertyTradeTooMany": "Schon {count} Angebote in diesem Zug.",
+  "@propertyTradeTooMany": {
+    "description": "KLD-060 step 3b: trade sheet: the player already made the most offers allowed this turn ({count}).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyTradeNotNow": "Gerade kann nicht getauscht werden.",
+  "@propertyTradeNotNow": {
+    "description": "KLD-060 step 3b: trade sheet: a trade is not possible right now (fallback)."
+  },
+  "propertyTradeNoMoney": "So viel Geld ist nicht da.",
+  "@propertyTradeNoMoney": {
+    "description": "KLD-060 step 3b: trade sheet: a side offers more money than that player has (fallback)."
+  },
+  "propertyTradeOfferFor": "Tauschangebot von {player} an {other}",
+  "@propertyTradeOfferFor": {
+    "description": "KLD-060 step 3b: title of a trade offer: {player} offers it to {other} (handover step and the answer). A noun phrase, no gendered verb.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyTradeAccept": "Annehmen",
+  "@propertyTradeAccept": {
+    "description": "KLD-060 step 3b: button of the trade partner: accept the offer."
+  },
+  "propertyTradeDecline": "Ablehnen",
+  "@propertyTradeDecline": {
+    "description": "KLD-060 step 3b: button of the trade partner: decline the offer."
+  },
+  "propertyEvTradeOffered": "Tauschangebot von {player} an {other}: {give} gegen {get}",
+  "@propertyEvTradeOffered": {
+    "description": "KLD-060 narration: {player} offers {other} a trade: {give} (what {player} gives) for {get} (what {player} gets); both are lists of streets, money and free cards, or \"nichts\".",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      },
+      "give": {
+        "type": "String"
+      },
+      "get": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvTraded": "{player} nimmt den Tausch an",
+  "@propertyEvTraded": {
+    "description": "KLD-060 narration: {player} (the partner) accepts the trade offer.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyEvTradeDeclined": "{player} lehnt den Tausch ab",
+  "@propertyEvTradeDeclined": {
+    "description": "KLD-060 narration: {player} (the partner) declines the trade offer.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyCoachTrade": "Fehlt dir eine Straße zu einer ganzen Farbe? Biete hier einen Tausch an.",
+  "@propertyCoachTrade": {
+    "description": "KLD-060 step 3b: tour step at the \"Tauschen\" button."
+  },
+  "rulesPropertyTrade": "Wer am Zug ist, kann vor oder nach dem Würfeln einen Tausch anbieten: Straßen, Geld und Freikarten, bis zu {count} Angebote pro Zug.\nStraßen mit Gebäuden in ihrer Farbe werden nicht getauscht: erst die Gebäude verkaufen. Beliehene Straßen bleiben beliehen.\nDas Gerät geht zum Gegenüber, das annimmt oder ablehnt. Ein beantworteter Tausch lässt sich nicht zurücknehmen.",
+  "@rulesPropertyTrade": {
+    "description": "KLD-060 step 3b rules page, trades (lines separated by \\n); {count} is the most offers per turn.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

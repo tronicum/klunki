@@ -6760,6 +6760,167 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'„Spiel beenden“ steht im Menü mit den drei Punkten.'**
   String get rulesMaexchenEndHow;
+
+  /// KLD-060 step 3b: button in the action panel: open the trade sheet (only the player whose turn it is, before or after rolling).
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschen'**
+  String get propertyTrade;
+
+  /// KLD-060 step 3b: title of the trade sheet.
+  ///
+  /// In de, this message translates to:
+  /// **'Tausch anbieten'**
+  String get propertyTradeTitle;
+
+  /// KLD-060 step 3b: trade sheet: pick the player to trade with.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit wem?'**
+  String get propertyTradeWith;
+
+  /// KLD-060 step 3b: trade column: what the reader (the offering player, or the partner answering) gives.
+  ///
+  /// In de, this message translates to:
+  /// **'Du gibst'**
+  String get propertyTradeGive;
+
+  /// KLD-060 step 3b: trade column: what the reader gets.
+  ///
+  /// In de, this message translates to:
+  /// **'Du bekommst'**
+  String get propertyTradeGet;
+
+  /// KLD-060 step 3b: trade column: the money row.
+  ///
+  /// In de, this message translates to:
+  /// **'Geld'**
+  String get propertyTradeMoney;
+
+  /// KLD-060 step 3b: tooltip of the button that sets the money of a trade side back to 0.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück auf 0'**
+  String get propertyTradeMoneyReset;
+
+  /// KLD-060 step 3b: trade column: the free cards row (cards that get a player out of the pause).
+  ///
+  /// In de, this message translates to:
+  /// **'Freikarten'**
+  String get propertyTradeFreeCards;
+
+  /// KLD-060 step 3b: a number of free cards in a trade (history, offer).
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Freikarte} other{{count} Freikarten}}'**
+  String propertyTradeCardCount(int count);
+
+  /// KLD-060 step 3b: an empty side of a trade ("… for nothing").
+  ///
+  /// In de, this message translates to:
+  /// **'nichts'**
+  String get propertyTradeNothing;
+
+  /// KLD-060 step 3b: trade column: the player has no streets.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Straßen'**
+  String get propertyTradeNoStreets;
+
+  /// KLD-060 step 3b: button: send the trade offer (the device then goes to the partner).
+  ///
+  /// In de, this message translates to:
+  /// **'Angebot machen'**
+  String get propertyTradeOffer;
+
+  /// KLD-060 step 3b: trade sheet: how many more offers the player may make this turn (at most 3 a turn).
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{Noch 1 Angebot in diesem Zug} other{Noch {count} Angebote in diesem Zug}}'**
+  String propertyTradeOffersLeft(int count);
+
+  /// KLD-060 step 3b: trade sheet: nothing chosen yet, so no offer can be made.
+  ///
+  /// In de, this message translates to:
+  /// **'Wähle aus, was ihr tauscht.'**
+  String get propertyTradeEmpty;
+
+  /// KLD-060 step 3b: trade sheet, under a street that cannot be chosen: its colour group has buildings.
+  ///
+  /// In de, this message translates to:
+  /// **'Gebäude in der Farbe: nicht tauschbar'**
+  String get propertyTradeHouses;
+
+  /// KLD-060 step 3b: trade sheet: the player already made the most offers allowed this turn ({count}).
+  ///
+  /// In de, this message translates to:
+  /// **'Schon {count} Angebote in diesem Zug.'**
+  String propertyTradeTooMany(int count);
+
+  /// KLD-060 step 3b: trade sheet: a trade is not possible right now (fallback).
+  ///
+  /// In de, this message translates to:
+  /// **'Gerade kann nicht getauscht werden.'**
+  String get propertyTradeNotNow;
+
+  /// KLD-060 step 3b: trade sheet: a side offers more money than that player has (fallback).
+  ///
+  /// In de, this message translates to:
+  /// **'So viel Geld ist nicht da.'**
+  String get propertyTradeNoMoney;
+
+  /// KLD-060 step 3b: title of a trade offer: {player} offers it to {other} (handover step and the answer). A noun phrase, no gendered verb.
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschangebot von {player} an {other}'**
+  String propertyTradeOfferFor(String player, String other);
+
+  /// KLD-060 step 3b: button of the trade partner: accept the offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Annehmen'**
+  String get propertyTradeAccept;
+
+  /// KLD-060 step 3b: button of the trade partner: decline the offer.
+  ///
+  /// In de, this message translates to:
+  /// **'Ablehnen'**
+  String get propertyTradeDecline;
+
+  /// KLD-060 narration: {player} offers {other} a trade: {give} (what {player} gives) for {get} (what {player} gets); both are lists of streets, money and free cards, or "nichts".
+  ///
+  /// In de, this message translates to:
+  /// **'Tauschangebot von {player} an {other}: {give} gegen {get}'**
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  );
+
+  /// KLD-060 narration: {player} (the partner) accepts the trade offer.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} nimmt den Tausch an'**
+  String propertyEvTraded(String player);
+
+  /// KLD-060 narration: {player} (the partner) declines the trade offer.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} lehnt den Tausch ab'**
+  String propertyEvTradeDeclined(String player);
+
+  /// KLD-060 step 3b: tour step at the "Tauschen" button.
+  ///
+  /// In de, this message translates to:
+  /// **'Fehlt dir eine Straße zu einer ganzen Farbe? Biete hier einen Tausch an.'**
+  String get propertyCoachTrade;
+
+  /// KLD-060 step 3b rules page, trades (lines separated by \n); {count} is the most offers per turn.
+  ///
+  /// In de, this message translates to:
+  /// **'Wer am Zug ist, kann vor oder nach dem Würfeln einen Tausch anbieten: Straßen, Geld und Freikarten, bis zu {count} Angebote pro Zug.\nStraßen mit Gebäuden in ihrer Farbe werden nicht getauscht: erst die Gebäude verkaufen. Beliehene Straßen bleiben beliehen.\nDas Gerät geht zum Gegenüber, das annimmt oder ablehnt. Ein beantworteter Tausch lässt sich nicht zurücknehmen.'**
+  String rulesPropertyTrade(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -2,7 +2,9 @@
 // players at one table would: the greedy bot (`PropertyBot`) decides, but
 // every move is a tap on the screen ("Würfeln", "Kaufen", "Nicht kaufen",
 // a bid, "Aussteigen", "Zug beenden", "Meine Straßen" → "Bauen" / "Verkaufen"
-// / "Beleihen" / "Auslösen", "Pleite erklären"). After every move the screen
+// / "Beleihen" / "Auslösen", "Pleite erklären", "Tauschen" → partner, streets,
+// money → "Angebot machen", then the partner takes the device, "Annehmen" /
+// "Ablehnen", and back; step 3b). After every move the screen
 // is checked against the engine: the status names the seat that must move,
 // every chip shows that seat's money, every token stands on its square, and
 // the history has one line per move. Ends at the result dialog with the
@@ -56,6 +58,12 @@ const _names = ['Anna', 'Ben', 'Cleo', 'Dani'];
 void _checkScreen(WidgetTester tester, GameController c) {
   final g = c.game as PropertyGame;
   if (!g.isOver) expect(find.text('${_names[g.actor!]} ist am Zug'), findsOneWidget);
+  if (_key('property-trade-cover').evaluate().isNotEmpty) {
+    // A trade offer waits: the board is hidden until the partner has the device.
+    expect(g.phase, PropertyPhase.trade);
+    expect(find.text('Gib das Gerät an ${_names[g.trade!.to]} weiter'), findsOneWidget);
+    return;
+  }
   for (var s = 0; s < g.playerCount; s++) {
     final cash = tester.widget<Text>(_key('property-cash-$s')).data!;
     final st = g.seats[s];
@@ -72,16 +80,85 @@ void _checkScreen(WidgetTester tester, GameController c) {
   }
 }
 
+/// Now and then a random swap (the greedy bot only offers money for the
+/// last street of a group, which the other side always accepts): one of
+/// the partner's streets for one of the player's own and/or some money.
+Map<String, dynamic>? _randomOffer(PropertyGame g, Random rng) {
+  final a = g.currentSeat;
+  final others = [for (final s in g.activeSeats) if (s != a) s];
+  final to = others[rng.nextInt(others.length)];
+  final theirs = [for (final i in g.ownedBy(to)) if (g.tradeSquareProblem(to, i) == null) i];
+  final mine = [for (final i in g.ownedBy(a)) if (g.tradeSquareProblem(a, i) == null) i];
+  if (theirs.isEmpty) return null;
+  final get = PropertyTradeSide(squares: [theirs[rng.nextInt(theirs.length)]]);
+  final give = PropertyTradeSide(
+      money: 10 * rng.nextInt(min(g.seats[a].cash, 200) ~/ 10 + 1),
+      squares: [if (mine.isNotEmpty && rng.nextBool()) mine[rng.nextInt(mine.length)]]);
+  if (g.tradeProblem(to, give, get) != null) return null;
+  return {'action': 'tradeOffer', 'to': to, 'give': give.toJson(), 'get': get.toJson()};
+}
+
+/// Money as the trade sheet's steps make it (whole tens).
+int _tens(int money) => money ~/ 10 * 10;
+
+/// Puts the offer [m] together in the trade sheet by tapping and sends it.
+Future<void> _offer(WidgetTester tester, PropertyGame g, Map<String, dynamic> m) async {
+  await _tap(tester, 'property-trade');
+  final sheet = find.descendant(of: _key('property-trade-sheet'), matching: find.byType(Scrollable)).first;
+  Future<void> tapIn(String key) async {
+    await tester.scrollUntilVisible(_key(key), 120, scrollable: sheet);
+    await _tap(tester, key);
+  }
+
+  final to = m['to'] as int;
+  if (g.activeSeats.length > 2) await tapIn('property-trade-partner-$to');
+  for (final (tag, side) in [('give', m['give']), ('get', m['get'])]) {
+    final s = PropertyTradeSide.parse(side)!;
+    for (final i in s.squares) {
+      await tapIn('property-trade-$tag-$i');
+    }
+    var money = _tens(s.money);
+    for (final step in [100, 50, 10]) {
+      while (money >= step) {
+        await tapIn('property-trade-$tag-money-plus-$step');
+        money -= step;
+      }
+    }
+    for (var k = 0; k < s.cards; k++) {
+      await tapIn('property-trade-$tag-cards-plus');
+    }
+  }
+  await tester.scrollUntilVisible(_key('property-trade-offer'), 120, scrollable: sheet);
+  await _tap(tester, 'property-trade-offer');
+}
+
 /// Makes the bot's next move by tapping, returns its action.
-Future<String> _playOne(WidgetTester tester, GameController c, PropertyBot bot) async {
+Future<String> _playOne(WidgetTester tester, GameController c, PropertyBot bot, Random rng) async {
   final g = c.game as PropertyGame;
   var m = bot.choose(g);
-  // Trades have no screen yet (a later step): the bot plays on instead.
+  if ((g.phase == PropertyPhase.roll || g.phase == PropertyPhase.end) &&
+      m['action'] != 'tradeOffer' &&
+      g.tradeOffersLeft > 0 &&
+      rng.nextInt(12) == 0) {
+    m = _randomOffer(g, rng) ?? m;
+  }
   if (m['action'] == 'tradeOffer') {
-    m = g.legalMoves.firstWhere((x) => x['action'] == 'endTurn' || x['action'] == 'roll');
+    // The sheet makes whole tens: the offer as it can be tapped.
+    final give = PropertyTradeSide.parse(m['give'])!, get = PropertyTradeSide.parse(m['get'])!;
+    final tapped = PropertyTradeSide(money: _tens(give.money), squares: give.squares, cards: give.cards);
+    final asked = PropertyTradeSide(money: _tens(get.money), squares: get.squares, cards: get.cards);
+    if (g.tradeProblem(m['to'] as int, tapped, asked) != null) {
+      m = g.legalMoves.firstWhere((x) => x['action'] == 'endTurn' || x['action'] == 'roll');
+    } else {
+      m = {'action': 'tradeOffer', 'to': m['to'], 'give': tapped.toJson(), 'get': asked.toJson()};
+    }
   }
   final action = m['action'] as String;
   final before = c.moves.length;
+  // Who owns what before an answer to a trade (to check the swap).
+  final owners = [for (var i = 0; i < 40; i++) g.ownerOf(i)];
+  final cash = [for (final s in g.seats) s.cash];
+  final trade = g.trade;
   switch (action) {
     case 'roll':
       await _tap(tester, 'property-roll');
@@ -103,6 +180,30 @@ Future<String> _playOne(WidgetTester tester, GameController c, PropertyBot bot) 
       await _tap(tester, 'property-use-card');
     case 'bankrupt':
       await _tap(tester, 'property-bankrupt');
+    case 'tradeOffer':
+      await _offer(tester, g, m);
+      expect(c.moves.last.move, m, reason: 'the sheet sent the offer as tapped');
+      expect(_key('property-trade-cover'), findsOneWidget, reason: 'the device goes to the partner');
+    case 'tradeAccept' || 'tradeDecline':
+      // The partner takes the device, sees the offer and answers.
+      await _tap(tester, 'property-trade-handover');
+      expect(_key('property-trade-answer'), findsOneWidget);
+      await _tap(tester, action == 'tradeAccept' ? 'property-trade-accept' : 'property-trade-decline');
+      // Back to the player whose turn it is.
+      expect(find.text('Gib das Gerät an ${_names[trade!.from]} weiter'), findsOneWidget);
+      await _tap(tester, 'property-trade-back');
+      final accepted = action == 'tradeAccept';
+      final g2 = c.game as PropertyGame;
+      for (final i in trade.give.squares) {
+        expect(g2.ownerOf(i), accepted ? trade.to : owners[i], reason: 'square $i');
+      }
+      for (final i in trade.get.squares) {
+        expect(g2.ownerOf(i), accepted ? trade.from : owners[i], reason: 'square $i');
+      }
+      final flow = accepted ? trade.give.money - trade.get.money : 0;
+      expect(g2.seats[trade.from].cash, cash[trade.from] - flow);
+      expect(g2.seats[trade.to].cash, cash[trade.to] + flow);
+      expect(c.canUndo, isFalse, reason: 'the answer is final');
     case 'build' || 'sell' || 'mortgage' || 'unmortgage':
       await _tap(tester, 'property-manage');
       // A long list is built lazily: scroll to the street like a player.
@@ -127,11 +228,12 @@ Future<String> _playOne(WidgetTester tester, GameController c, PropertyBot bot) 
 Future<void> _playGame(WidgetTester tester, GameConfig config, {int maxMoves = 3000}) async {
   final c = await _pump(tester, config);
   final bot = PropertyBot(Random(config.seed));
+  final rng = Random(config.seed + 1);
   final seen = <String>{};
   var n = 0;
   while (!(c.game as PropertyGame).isOver) {
     expect(++n, lessThan(maxMoves), reason: 'the game should end');
-    seen.add(await _playOne(tester, c, bot));
+    seen.add(await _playOne(tester, c, bot, rng));
     if (!(c.game as PropertyGame).isOver) _checkScreen(tester, c);
     expect(tester.takeException(), isNull);
   }
@@ -146,7 +248,7 @@ Future<void> _playGame(WidgetTester tester, GameConfig config, {int maxMoves = 3
   }
   // The history lists every move.
   expect(c.moves.length, g.history.length);
-  expect(seen, containsAll(['roll', 'endTurn']));
+  expect(seen, containsAll(['roll', 'endTurn', 'tradeOffer', 'tradeAccept', 'tradeDecline']));
   if (_verbose) {
     // ignore: avoid_print
     print('${config.players} players, ${c.moves.length} moves, ${g.rounds} rounds: ${r.code} places ${r.places}; $seen');

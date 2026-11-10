@@ -7,6 +7,7 @@ import '../../../transport/game_transport.dart';
 import '../../shell/game_screen.dart' show ShellMenuEntry;
 import '../../shell/seat_game_screen.dart';
 import 'property_board.dart';
+import 'property_trade.dart';
 
 /// Baulöwe (KLD-060): the property-trading dice game for 2–4 players on one
 /// device, in the seat shell ([SeatGameScreen]). The board
@@ -65,7 +66,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
               onSelected: _tour.request,
             ),
           ],
-          boardBuilder: (context, controller) => PropertyBoard(controller: controller, tour: _tour),
+          // Trades (step 3b): the device goes to the partner and back.
+          boardBuilder: (context, controller) =>
+              PropertyTradeGate(controller: controller, child: PropertyBoard(controller: controller, tour: _tour)),
         ),
       ),
     );
@@ -189,6 +192,14 @@ List<String> propertyNarration(AppLocalizations l10n, PropertyGame game, List<Ma
         out.add(l10n.propertyEvBankrupt(who(e['seat'])));
       case 'resigned':
         out.add(l10n.propertyEvResigned(who(e['seat'])));
+      case 'tradeOffered':
+        out.add(l10n.propertyEvTradeOffered(who(e['from']), who(e['to']),
+            propertyTradeSideText(l10n, theme, e['give'] as Map<String, dynamic>?),
+            propertyTradeSideText(l10n, theme, e['get'] as Map<String, dynamic>?)));
+      case 'traded':
+        out.add(l10n.propertyEvTraded(who(e['to'])));
+      case 'tradeDeclined':
+        out.add(l10n.propertyEvTradeDeclined(who(e['to'])));
     }
   }
   return out;

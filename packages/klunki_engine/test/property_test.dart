@@ -759,6 +759,7 @@ void main() {
       expect(g.actor, 1);
       refused(g, mv('roll'));
       refused(g, mv('tradeAccept', {'seat': 0}));
+      expect(g.tradeOffersLeft, 2);
       play(g, ['tradeAccept']);
       expect([g.ownerOf(1), g.ownerOf(3)], [1, 0]);
       expect([g.seats[0].cash, g.seats[1].cash], [1450, 1550]);
@@ -771,6 +772,7 @@ void main() {
       expect(g.ownerOf(1), 1);
       play(g, [back, 'tradeDecline']);
       refused(g, back); // fourth offer this turn
+      expect(g.tradeOffersLeft, 0);
       play(g, ['roll']);
     });
 
@@ -799,6 +801,11 @@ void main() {
       ]) {
         refused(g, mv('tradeOffer', bad));
       }
+      // Per street, for the trade screen.
+      expect(g.tradeSquareProblem(0, 1), isNull);
+      expect(g.tradeSquareProblem(1, 6), startsWith('sell the houses'));
+      expect(g.tradeSquareProblem(1, 1), contains('not theirs'));
+      expect(g.tradeSquareProblem(1, 40), contains('not theirs'));
     });
   });
 

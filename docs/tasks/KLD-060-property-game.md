@@ -5,7 +5,7 @@
   2026-11-02; English working title **"Housing Corp"**, maintainer decision 2026-11-02)
 - **Milestone:** long-term games
 - **Status:** IN_PROGRESS: step 1 ✅ (engine); step 2a ✅ (registry entry, hot-seat only); step 3a ✅ (hot-seat
-  UI, 2–4 players); next: 3b (trade screen), then network (step 2b, with KLD-088)
+  UI, 2–4 players); step 3b ✅ (trade screen); next: theme texts, then network (step 2b, with KLD-088)
 - **Depends on:** n-player lobby and protocol (KLD-088, no card file yet) for network play
 - **Touched paths (step 1):**
   - `packages/klunki_engine/lib/property.dart` (engine), `property_theme.dart` (theme format, validation),
@@ -19,6 +19,11 @@
   illustration), `lib/ui/rules/games/property_rules.dart`, the registries, l10n (all 7 locales), tests
   (`test/ui/games/property_screen_test.dart`, `test/e2e/live_ui/property_live_test.dart`,
   `test/screenshots/property_shots_test.dart`)
+
+- **Touched paths (step 3b):** `property.dart` (`tradeOffersLeft`, `tradeSquareProblem`, `isUndoBarrier`),
+  `registry.dart` (undo barrier); app `lib/ui/games/property/property_trade.dart` (new), the action panel in
+  `property_board.dart`, `property_screen.dart` (gate, history), `property_rules.dart`, l10n, tests
+  (`property_trade_test.dart`, live UI, `property_trade_shots_test.dart`)
 
 Keep it generic: never write the brand name of the original game anywhere; own card texts, own selection of
 streets. Kid-friendly tone: competition yes, nastiness no; no real people, real companies, real property
@@ -78,6 +83,37 @@ the richest after an optional round limit.
 - **First game**: a short tour (coach marks, `SeenTips.propertyIntro`), again via "⋮" → "Kurz erklärt".
 - **Theme texts** (street names, card texts, building names) stay German data in every locale for now
   (like the Quartett card names); the board title is translated.
+
+## Decisions (step 3b: trade screen)
+- **"Tauschen"** in the action panel's bottom row (next to "Meine Straßen") while the current player may offer:
+  their turn, `roll` or `end` phase, offers left (`PropertyGame.tradeOffersLeft`, new getter), somebody to trade
+  with. It opens the **trade sheet** (`lib/ui/games/property/property_trade.dart`): "Mit wem?" (chosen already
+  with two players; a change of partner clears the other side), then two columns **"Du gibst" / "Du bekommst ·
+  Ben"**: money (−10, +10, +50, +100, back to 0; bounded by that player's cash), free cards (only when held),
+  the streets as small deed chips (group colour, lock when mortgaged, check mark when chosen). A street whose
+  colour group has buildings is shown greyed out with "Gebäude in der Farbe: nicht tauschbar"
+  (`PropertyGame.tradeSquareProblem`, new, also used by `tradeProblem`). The offer is checked live with
+  `tradeProblem`; its reason is shown in words ("Wähle aus, was ihr tauscht.", "Schon 3 Angebote …") and
+  "Angebot machen" stays disabled until it is valid. Money in whole tens (the steps); the engine takes any amount.
+- **Handover** (`PropertyTradeGate` around the board, no secrets, only so the right person decides): after the
+  offer the board is covered: "Tauschangebot von Anna an Ben", "Gib das Gerät an Ben weiter", "Ich bin Ben –
+  weiter" (Anna can still take the offer back with "Zug zurücknehmen"). Then Ben sees the **whole offer full
+  size** over the board (the action panel under the board is too small on a phone): "Du gibst" / "Du bekommst"
+  from his side, "Annehmen" / "Ablehnen". Then "Ben nimmt den Tausch an" / "lehnt den Tausch ab" and "Gib das
+  Gerät an Anna weiter"; Anna's turn goes on.
+- **Undo**: the answer is final: `GameSpec.undoBarrier` is now `PropertyGame.isUndoBarrier` (roll, `tradeAccept`,
+  `tradeDecline`); the offer itself can be taken back. No rules-version change (undo is not part of the
+  fingerprint; no move is accepted or refused differently).
+- **History / story line**: "Tauschangebot von Anna an Ben: Südkreuz, 150 Taler gegen Schlesische Straße",
+  "Ben nimmt den Tausch an", "Ben lehnt den Tausch ab".
+- **Rules page**: three lines on trading under "Regeln"; the tour has one more step at "Tauschen".
+- **30 rounds stay the app default** for now. With trades the greedy bots finish games without a limit much more
+  often (the long live-UI game, 3 players, 80-round limit, now ends by bankruptcy after 46 rounds); the
+  maintainer may reconsider "bis zum Ende" as the default after playing with trades.
+- Tests: `test/ui/games/property_trade_test.dart` (sheet validation, streets with buildings, money bounds, offer →
+  handover → accept / decline, taking the offer back, 3-offers limit), the live UI makes and answers trades
+  (the bot's group offers plus random swaps, owners and money checked against the engine); screenshots:
+  `KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_trade_shots_test.dart` (de phone, iPad, ar SE).
 
 ## Decisions (step 1)
 
@@ -264,9 +300,17 @@ separate private helpers in `property.dart` so they can be moved into a shared "
       12 rounds Fantasiestadt; `KLUNKI_LIVE_UI_FULL=1`: 3 players / 80 rounds).
 - [x] Screenshots: `KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/property_shots_test.dart`.
 
+## Acceptance criteria (step 3b)
+- [x] "Tauschen" when an offer is possible; trade sheet with partner, streets (not with buildings in the group,
+      shown with the reason), money bounded by cash, free cards; live check, "Angebot machen" only when valid.
+- [x] Handover to the partner, whole offer, "Annehmen" / "Ablehnen", handover back; history lines.
+- [x] No undo across the answer; at most 3 offers a turn.
+- [x] l10n in all 7 locales (Chinese web font subset rebuilt); rules page; tour step.
+- [x] Widget tests, live UI with trades, screenshots (de phone, iPad, ar SE).
+
 ## Next steps
-- **3b trade screen (next, maintainer decision 2026-11-09)**: offer (money, streets, free card) to another player, the other answers on the same
-  device (handover). Without trades, games without a round limit rarely end (bots seldom get a whole group).
+- ~~3b trade screen~~: done (see "Decisions (step 3b)").
+- **Default game length**: maybe back to "bis zum Ende" now that trades exist (maintainer to decide after playing).
 - **Theme texts translated** (see "Texts and localisation"); German in every locale for now (maintainer
   decision 2026-11-09).
 - **5–6 players** in the app (the shell stops at 4): later.

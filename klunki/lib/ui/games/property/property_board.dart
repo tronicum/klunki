@@ -15,6 +15,7 @@ import '../../board_zoom.dart';
 import 'property_names.dart';
 import 'property_roll_show.dart';
 import 'property_screen.dart';
+import 'property_trade.dart';
 
 /// The Baulöwe board (KLD-060): the players with their money, the 40
 /// squares around the centre (dice, the square in focus, the pot) and below
@@ -41,8 +42,8 @@ import 'property_screen.dart';
 /// `property-square-<i>`, `property-controls`, `property-roll`,
 /// `property-pay-bail`, `property-use-card`, `property-buy`,
 /// `property-decline`, `property-bid-<0..2>`, `property-pass`,
-/// `property-end`, `property-bankrupt`, `property-trade-accept`,
-/// `property-trade-decline`, `property-manage`, `property-manage-sheet`,
+/// `property-end`, `property-bankrupt`, `property-trade` (the trade sheet;
+/// it and the answer are in `property_trade.dart`), `property-manage`, `property-manage-sheet`,
 /// `property-manage-<action>-<square>`, `property-square-sheet`; while a roll
 /// is shown `property-dice-rolling`, `property-rolling` (the waiting
 /// button), `property-focus-waiting` (the hidden card),
@@ -80,6 +81,7 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
   final _boardKey = GlobalKey(debugLabel: 'property-board');
   final _playersKey = GlobalKey(debugLabel: 'property-players');
   final _manageKey = GlobalKey(debugLabel: 'property-manage');
+  final _tradeKey = GlobalKey(debugLabel: 'property-trade');
   bool _coachPending = false;
   bool _coachOpen = false;
   /// What happened in the turn so far (else in the turn before).
@@ -284,6 +286,8 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
           CoachStep(target: _boardKey, icon: Icons.home_work_outlined, text: l10n.propertyCoachBoard),
           CoachStep(target: _playersKey, icon: Icons.savings_outlined, text: l10n.propertyCoachPlayers),
           CoachStep(target: _manageKey, icon: Icons.construction, text: l10n.propertyCoachManage),
+          if (_tradeKey.currentContext != null)
+            CoachStep(target: _tradeKey, icon: Icons.swap_horiz, text: l10n.propertyCoachTrade),
           if (rules.currentContext != null)
             CoachStep(target: rules, icon: Icons.menu_book_outlined, text: l10n.rulesCoachHere),
         ],
@@ -633,11 +637,9 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
             other(const Key('property-pass'), l10n.propertyPass, () => _submit({'action': 'pass'}), icon: Icons.back_hand_outlined),
           ]));
         case PropertyPhase.trade:
-          children.add(Wrap(spacing: 8, runSpacing: 6, children: [
-            big(const Key('property-trade-accept'), MaterialLocalizations.of(context).okButtonLabel,
-                () => _submit({'action': 'tradeAccept'})),
-            other(const Key('property-trade-decline'), l10n.shellCancel, () => _submit({'action': 'tradeDecline'})),
-          ]));
+          // The partner answers over the board ([PropertyTradeGate]).
+          final t = game.trade!;
+          line(l10n.propertyTradeOfferFor(_name(t.from), _name(t.to)), strong: true);
         case PropertyPhase.debt:
           final d = game.debts.first;
           line(l10n.propertyDebt(_name(d.debtor), _money(d.amount), _money(game.seats[d.debtor].cash)),
@@ -689,6 +691,16 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
                   label: Text(l10n.propertyManage),
                 ),
               ),
+              if (a != null && propertyCanTrade(game))
+                KeyedSubtree(
+                  key: _tradeKey,
+                  child: TextButton.icon(
+                    key: const Key('property-trade'),
+                    onPressed: () => showPropertyTradeSheet(context, controller),
+                    icon: const Icon(Icons.swap_horiz),
+                    label: Text(l10n.propertyTrade),
+                  ),
+                ),
               const UndoMoveButton(),
             ],
           ),

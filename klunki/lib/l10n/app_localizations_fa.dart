@@ -4325,4 +4325,114 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get rulesMaexchenEndHow => '«پایان بازی» در منوی سه‌نقطه است.';
+
+  @override
+  String get propertyTrade => 'معامله';
+
+  @override
+  String get propertyTradeTitle => 'پیشنهاد معامله';
+
+  @override
+  String get propertyTradeWith => 'با چه کسی؟';
+
+  @override
+  String get propertyTradeGive => 'می‌دهی';
+
+  @override
+  String get propertyTradeGet => 'می‌گیری';
+
+  @override
+  String get propertyTradeMoney => 'پول';
+
+  @override
+  String get propertyTradeMoneyReset => 'صفر کردن';
+
+  @override
+  String get propertyTradeFreeCards => 'کارت‌های آزادی';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count کارت آزادی',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => 'هیچ';
+
+  @override
+  String get propertyTradeNoStreets => 'بدون خیابان';
+
+  @override
+  String get propertyTradeOffer => 'ارسال پیشنهاد';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count پیشنهاد دیگر در این نوبت',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => 'چیزی برای معامله انتخاب کن.';
+
+  @override
+  String get propertyTradeHouses => 'این رنگ ساختمان دارد: قابل معامله نیست';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return 'در این نوبت $count پیشنهاد داده شده است.';
+  }
+
+  @override
+  String get propertyTradeNotNow => 'الان معامله ممکن نیست.';
+
+  @override
+  String get propertyTradeNoMoney => 'پول کافی نیست.';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return 'پیشنهاد معامله از $player به $other';
+  }
+
+  @override
+  String get propertyTradeAccept => 'پذیرفتن';
+
+  @override
+  String get propertyTradeDecline => 'رد کردن';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return 'پیشنهاد معامله از $player به $other: $give در برابر $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return '$player معامله را می‌پذیرد';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return '$player معامله را رد می‌کند';
+  }
+
+  @override
+  String get propertyCoachTrade =>
+      'یک خیابان تا یک رنگ کامل کم داری؟ اینجا معامله پیشنهاد بده.';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return 'در نوبت خودت می‌توانی قبل یا بعد از تاس انداختن معامله پیشنهاد بدهی: خیابان، پول و کارت آزادی، تا $count پیشنهاد در هر نوبت.\nخیابان‌هایی که در رنگشان ساختمان هست معامله نمی‌شوند: اول ساختمان‌ها را بفروش. خیابان گرو، گرو می‌ماند.\nدستگاه به طرف مقابل می‌رسد تا بپذیرد یا رد کند. معامله‌ای که جواب گرفته برنمی‌گردد.';
+  }
 }

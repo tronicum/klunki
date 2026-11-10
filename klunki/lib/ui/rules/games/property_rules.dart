@@ -7,7 +7,7 @@ import '../rules_model.dart';
 
 /// Baulöwe (KLD-060, KLD-123): goal, a turn (roll, buy or auction, rent,
 /// doubles, Start), the rules (whole group, building, cards, the pause,
-/// money trouble, mortgages) and the settings chosen before the game
+/// money trouble, mortgages, trades) and the settings chosen before the game
 /// ([GameConfig.property]): the board, a round limit and the rule variants
 /// that are on. Amounts come from the engine.
 GameRules propertyRules(BuildContext context, AppLocalizations l10n, GameConfig config) {
@@ -25,6 +25,8 @@ GameRules propertyRules(BuildContext context, AppLocalizations l10n, GameConfig 
     ],
     special: [
       ...ruleLines(l10n.rulesPropertySpecial(money(PropertyGame.bail))),
+      // Trades (step 3b).
+      ...ruleLines(l10n.rulesPropertyTrade(PropertyGame.maxTradeOffersPerTurn)),
     ],
     houseRules: [
       HouseRule(
