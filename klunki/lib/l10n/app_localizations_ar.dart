@@ -4451,4 +4451,126 @@ class AppLocalizationsAr extends AppLocalizations {
   String propertyEvToPausePhrase(String player, String place) {
     return 'ذهاب $player $place';
   }
+
+  @override
+  String get propertyTrade => 'تبادل';
+
+  @override
+  String get propertyTradeTitle => 'عرض تبادل';
+
+  @override
+  String get propertyTradeWith => 'مع من؟';
+
+  @override
+  String get propertyTradeGive => 'منك';
+
+  @override
+  String get propertyTradeGet => 'لك';
+
+  @override
+  String get propertyTradeMoney => 'المال';
+
+  @override
+  String get propertyTradeMoneyReset => 'إعادة إلى 0';
+
+  @override
+  String get propertyTradeFreeCards => 'البطاقات المجانية';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بطاقة مجانية',
+      few: '$count بطاقات مجانية',
+      two: 'بطاقتان مجانيتان',
+      one: 'بطاقة مجانية واحدة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => 'لا شيء';
+
+  @override
+  String get propertyTradeNoStreets => 'لا شوارع';
+
+  @override
+  String get propertyTradeOffer => 'تقديم العرض';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بقي $count عرضًا في هذا الدور',
+      few: 'بقيت $count عروض في هذا الدور',
+      two: 'بقي عرضان في هذا الدور',
+      one: 'بقي عرض واحد في هذا الدور',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => 'لم يُختر شيء للتبادل بعد.';
+
+  @override
+  String get propertyTradeHouses => 'توجد مبانٍ في هذا اللون: لا يمكن تبادله';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return 'تم تقديم $count عروض في هذا الدور.';
+  }
+
+  @override
+  String get propertyTradeNotNow => 'لا يمكن التبادل الآن.';
+
+  @override
+  String get propertyTradeNoMoney => 'المال غير كافٍ.';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return 'عرض تبادل من $player إلى $other';
+  }
+
+  @override
+  String get propertyTradeAccept => 'قبول';
+
+  @override
+  String get propertyTradeDecline => 'رفض';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return 'عرض تبادل من $player إلى $other: $give مقابل $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return 'قبول التبادل من $player';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return 'رفض التبادل من $player';
+  }
+
+  @override
+  String get propertyCoachTrade =>
+      'ينقصك شارع واحد لإكمال لون؟ من هنا يُعرض تبادل.';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return 'في دورك يمكن عرض تبادل قبل الرمي أو بعده: شوارع ومال وبطاقات مجانية، حتى $count عروض في الدور.\nالشوارع التي في لونها مبانٍ لا تُتبادل: يجب بيع المباني أولًا. الشارع المرهون يبقى مرهونًا.\nينتقل الجهاز إلى الطرف الآخر للقبول أو الرفض. لا يمكن التراجع عن تبادل تمّ الرد عليه.';
+  }
+
+  @override
+  String get propertyTradeShowBoard => 'عرض اللوحة';
+
+  @override
+  String get propertyTradeShowOffer => 'العودة إلى العرض';
 }

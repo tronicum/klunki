@@ -4172,4 +4172,119 @@ class AppLocalizationsZh extends AppLocalizations {
   String propertyEvToPausePhrase(String player, String place) {
     return '$player 进入$place';
   }
+
+  @override
+  String get propertyTrade => '交换';
+
+  @override
+  String get propertyTradeTitle => '提出交换';
+
+  @override
+  String get propertyTradeWith => '和谁交换？';
+
+  @override
+  String get propertyTradeGive => '你给出';
+
+  @override
+  String get propertyTradeGet => '你得到';
+
+  @override
+  String get propertyTradeMoney => '钱';
+
+  @override
+  String get propertyTradeMoneyReset => '归零';
+
+  @override
+  String get propertyTradeFreeCards => '免费卡';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 张免费卡',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => '无';
+
+  @override
+  String get propertyTradeNoStreets => '没有街道';
+
+  @override
+  String get propertyTradeOffer => '发出报价';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '本回合还可报价 $count 次',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => '请选择要交换的东西。';
+
+  @override
+  String get propertyTradeHouses => '该色组有建筑，不能交换';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return '本回合已经报价 $count 次。';
+  }
+
+  @override
+  String get propertyTradeNotNow => '现在不能交换。';
+
+  @override
+  String get propertyTradeNoMoney => '钱不够。';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return '$player 向 $other 提出交换';
+  }
+
+  @override
+  String get propertyTradeAccept => '接受';
+
+  @override
+  String get propertyTradeDecline => '拒绝';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return '$player 向 $other 提出交换：$give 换 $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return '$player 接受了交换';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return '$player 拒绝了交换';
+  }
+
+  @override
+  String get propertyCoachTrade => '差一条街就能凑齐一整组颜色？在这里提出交换。';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return '轮到你时，可以在掷骰前或后提出交换：街道、钱和免费卡，每回合最多报价 $count 次。\n同色组里有建筑的街道不能交换：先卖掉建筑。被抵押的街道交换后仍是抵押状态。\n设备交给对方，由对方接受或拒绝。已经回答的交换不能撤销。';
+  }
+
+  @override
+  String get propertyTradeShowBoard => '查看棋盘';
+
+  @override
+  String get propertyTradeShowOffer => '回到报价';
 }

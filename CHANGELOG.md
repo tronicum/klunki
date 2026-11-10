@@ -14,8 +14,10 @@ short German summary ("Kurz") for the store notes and the testers.
   rounds by default, then the richest wins (20 or 40 rounds, or until only one player is left, can be chosen).
   Two boards: Berlin (real streets, district groups) and Fantasiestadt. Rule variants ("Regelvarianten"): money
   on the free square (pot, pot with 500, fixed 200), double salary on Start, no rent while in the pause, auction of a bankrupt player's
-  streets. A short tour in the first game; "Zug zurücknehmen" back to the last roll. Trading streets between
-  players comes later.
+  streets. A short tour in the first game; "Zug zurücknehmen" back to the last roll. **Tauschen**: on your turn
+  (before or after rolling, up to 3 offers a turn) offer streets, money and free cards to another player; the
+  device goes to them, they see the whole offer and accept or decline, then it comes back. Streets whose colour
+  has buildings cannot be traded.
 - **Wortgewandt: "Trotzdem zulassen" on one device** (KLD-094): the other player is now really asked. After
   "Trotzdem zulassen" the device goes to them ("Gib das Gerät an Ben weiter"); they agree (and play on) or
   refuse (the device goes back, the tiles are back on the rack). Before, both agreed at once, and a refusal

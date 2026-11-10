@@ -22,6 +22,10 @@ void main() {
       expect(spec.hiddenInformation, isFalse);
       expect(spec.undoBarrier!(mv('roll')), isTrue);
       expect(spec.undoBarrier!(mv('buy')), isFalse);
+      // The partner's answer to a trade is final; the offer is not (3b).
+      expect(spec.undoBarrier!(mv('tradeAccept')), isTrue);
+      expect(spec.undoBarrier!(mv('tradeDecline')), isTrue);
+      expect(spec.undoBarrier!(mv('tradeOffer')), isFalse);
       expect(DebugConsole.games.keys, contains('property'));
       expect(specById('chess')!.networkPlay, isTrue);
     });

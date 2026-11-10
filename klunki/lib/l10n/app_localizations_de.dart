@@ -4439,4 +4439,122 @@ class AppLocalizationsDe extends AppLocalizations {
   String propertyEvToPausePhrase(String player, String place) {
     return '$player muss $place';
   }
+
+  @override
+  String get propertyTrade => 'Tauschen';
+
+  @override
+  String get propertyTradeTitle => 'Tausch anbieten';
+
+  @override
+  String get propertyTradeWith => 'Mit wem?';
+
+  @override
+  String get propertyTradeGive => 'Du gibst';
+
+  @override
+  String get propertyTradeGet => 'Du bekommst';
+
+  @override
+  String get propertyTradeMoney => 'Geld';
+
+  @override
+  String get propertyTradeMoneyReset => 'Zurück auf 0';
+
+  @override
+  String get propertyTradeFreeCards => 'Freikarten';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Freikarten',
+      one: '1 Freikarte',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => 'nichts';
+
+  @override
+  String get propertyTradeNoStreets => 'Keine Straßen';
+
+  @override
+  String get propertyTradeOffer => 'Angebot machen';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Noch $count Angebote in diesem Zug',
+      one: 'Noch 1 Angebot in diesem Zug',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => 'Wähle aus, was ihr tauscht.';
+
+  @override
+  String get propertyTradeHouses => 'Gebäude in der Farbe: nicht tauschbar';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return 'Schon $count Angebote in diesem Zug.';
+  }
+
+  @override
+  String get propertyTradeNotNow => 'Gerade kann nicht getauscht werden.';
+
+  @override
+  String get propertyTradeNoMoney => 'So viel Geld ist nicht da.';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return 'Tauschangebot von $player an $other';
+  }
+
+  @override
+  String get propertyTradeAccept => 'Annehmen';
+
+  @override
+  String get propertyTradeDecline => 'Ablehnen';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return 'Tauschangebot von $player an $other: $give gegen $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return '$player nimmt den Tausch an';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return '$player lehnt den Tausch ab';
+  }
+
+  @override
+  String get propertyCoachTrade =>
+      'Fehlt dir eine Straße zu einer ganzen Farbe? Biete hier einen Tausch an.';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return 'Wer am Zug ist, kann vor oder nach dem Würfeln einen Tausch anbieten: Straßen, Geld und Freikarten, bis zu $count Angebote pro Zug.\nStraßen mit Gebäuden in ihrer Farbe werden nicht getauscht: erst die Gebäude verkaufen. Beliehene Straßen bleiben beliehen.\nDas Gerät geht zum Gegenüber, das annimmt oder ablehnt. Ein beantworteter Tausch lässt sich nicht zurücknehmen.';
+  }
+
+  @override
+  String get propertyTradeShowBoard => 'Brett ansehen';
+
+  @override
+  String get propertyTradeShowOffer => 'Zurück zum Angebot';
 }

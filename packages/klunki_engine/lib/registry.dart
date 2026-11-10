@@ -368,7 +368,7 @@ final List<GameSpec> gameSpecs = [
       rulesVersion: PropertyGame.rulesVersion,
       usesTheme: true,
       networkPlay: false,
-      undoBarrier: PropertyGame.isRoll),
+      undoBarrier: PropertyGame.isUndoBarrier),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

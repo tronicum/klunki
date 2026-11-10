@@ -4420,4 +4420,122 @@ class AppLocalizationsEn extends AppLocalizations {
   String propertyEvToPausePhrase(String player, String place) {
     return '$player has to go $place';
   }
+
+  @override
+  String get propertyTrade => 'Trade';
+
+  @override
+  String get propertyTradeTitle => 'Offer a trade';
+
+  @override
+  String get propertyTradeWith => 'With whom?';
+
+  @override
+  String get propertyTradeGive => 'You give';
+
+  @override
+  String get propertyTradeGet => 'You get';
+
+  @override
+  String get propertyTradeMoney => 'Money';
+
+  @override
+  String get propertyTradeMoneyReset => 'Back to 0';
+
+  @override
+  String get propertyTradeFreeCards => 'Free cards';
+
+  @override
+  String propertyTradeCardCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count free cards',
+      one: '1 free card',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeNothing => 'nothing';
+
+  @override
+  String get propertyTradeNoStreets => 'No streets';
+
+  @override
+  String get propertyTradeOffer => 'Make offer';
+
+  @override
+  String propertyTradeOffersLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count offers left this turn',
+      one: '1 offer left this turn',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get propertyTradeEmpty => 'Pick what you want to swap.';
+
+  @override
+  String get propertyTradeHouses => 'Buildings in this colour: not tradable';
+
+  @override
+  String propertyTradeTooMany(int count) {
+    return 'Already $count offers this turn.';
+  }
+
+  @override
+  String get propertyTradeNotNow => 'No trading right now.';
+
+  @override
+  String get propertyTradeNoMoney => 'Not that much money.';
+
+  @override
+  String propertyTradeOfferFor(String player, String other) {
+    return 'Trade offer from $player to $other';
+  }
+
+  @override
+  String get propertyTradeAccept => 'Accept';
+
+  @override
+  String get propertyTradeDecline => 'Decline';
+
+  @override
+  String propertyEvTradeOffered(
+    String player,
+    String other,
+    String give,
+    String get,
+  ) {
+    return 'Trade offer from $player to $other: $give for $get';
+  }
+
+  @override
+  String propertyEvTraded(String player) {
+    return '$player accepts the trade';
+  }
+
+  @override
+  String propertyEvTradeDeclined(String player) {
+    return '$player declines the trade';
+  }
+
+  @override
+  String get propertyCoachTrade =>
+      'Missing one street for a whole colour? Offer a trade here.';
+
+  @override
+  String rulesPropertyTrade(int count) {
+    return 'On your turn you may offer a trade before or after rolling: streets, money and free cards, up to $count offers per turn.\nStreets with buildings in their colour cannot be traded: sell the buildings first. Mortgaged streets stay mortgaged.\nThe device goes to the other player, who accepts or declines. An answered trade cannot be taken back.';
+  }
+
+  @override
+  String get propertyTradeShowBoard => 'Look at the board';
+
+  @override
+  String get propertyTradeShowOffer => 'Back to the offer';
 }

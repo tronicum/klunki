@@ -523,6 +523,10 @@ class PropertyGame extends Game implements SeatGame {
   List<int>? get dice => _dice == null ? null : List.unmodifiable(_dice!);
   PropertyAuction? get auction => _auction;
   PropertyTrade? get trade => _trade;
+
+  /// How many more trade offers the current player may make this turn
+  /// ([maxTradeOffersPerTurn] minus the offers made).
+  int get tradeOffersLeft => maxTradeOffersPerTurn - _tradeOffers;
   List<PropertyDebt> get debts => List.unmodifiable(_debts);
   /// The outcome by seat in the engine's own terms (winner seat, tied
   /// leaders); [result] is the two-player view, [seatResult] the places.
@@ -752,9 +756,18 @@ class PropertyGame extends Game implements SeatGame {
     if (side.money > s.cash) return 'not enough money';
     if (side.cards > s.freeCards.length) return 'not enough free cards';
     for (final i in side.squares) {
-      if (_owner[i] != seat) return 'square $i is not theirs';
-      if (_groupOf(i).any((j) => _houses[j] > 0)) return 'sell the houses of square $i first';
+      final p = tradeSquareProblem(seat, i);
+      if (p != null) return p;
     }
+    return null;
+  }
+
+  /// Why [seat] cannot trade [square] away, or null if it can: it must be
+  /// theirs, with no buildings in its colour group. For the trade screen
+  /// (a street shown, but not selectable) and [tradeProblem].
+  String? tradeSquareProblem(int seat, int square) {
+    if (!_validSquare(square) || _owner[square] != seat) return 'square $square is not theirs';
+    if (_groupOf(square).any((j) => _houses[j] > 0)) return 'sell the houses of square $square first';
     return null;
   }
 
@@ -877,6 +890,13 @@ class PropertyGame extends Game implements SeatGame {
   /// from the seed, so hot-seat "Zug zurücknehmen" never takes it back
   /// (`GameSpec.undoBarrier`).
   static bool isRoll(Map<String, dynamic> move) => move['action'] == 'roll';
+
+  /// Whether hot-seat "Zug zurücknehmen" stops before [move]
+  /// (`GameSpec.undoBarrier`): a roll ([isRoll]) and the answer to a trade
+  /// offer (`tradeAccept`, `tradeDecline`): the other player decided it, so
+  /// the player whose turn it is cannot take it back alone.
+  static bool isUndoBarrier(Map<String, dynamic> move) =>
+      isRoll(move) || move['action'] == 'tradeAccept' || move['action'] == 'tradeDecline';
 
   int _nextDie() => _scriptedDice.isNotEmpty ? _scriptedDice.removeAt(0) : _rng.nextInt(6) + 1;
 
