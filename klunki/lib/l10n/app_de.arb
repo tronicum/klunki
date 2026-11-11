@@ -6830,5 +6830,14 @@
         "type": "int"
       }
     }
+  },
+  "maexchenSummaryLives": "{count, plural, =1{1 Leben} other{{count} Leben}}",
+  "@maexchenSummaryLives": {
+    "description": "Mäxchen over the network: the lives each player starts with, in the one-line summary of the host's options in the room and at the start of the game (e.g. \"3 Leben · Mäxchen doppelt\"). count = lives.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

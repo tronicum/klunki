@@ -576,6 +576,7 @@ class KlunkiGuest {
       }
       final secretSeed = specById(_config.gameId)!.redaction!.secretSeed;
       error = verifyRedactedGame(
+        config: _config,
         gameId: _config.gameId,
         deck: _config.deck,
         pickLowCards: _config.pickLowCards,

@@ -1162,5 +1162,6 @@
   "engineReasonChessTimeoutDraw": "{player} 超时，但只剩一个王无法将死",
   "rulesChessClockTitle": "棋钟：{time}",
   "rulesChessClock": "每一方都有自己的思考时间。轮到哪一方走，哪一方的钟就在走，每走一步就换边；开启“确认走棋”时，点“走棋”才换。\n时间用完，对方获胜。如果对方只剩一个王，就是和棋。\n暂停会停下两边的钟；联网时要双方都同意。\n悔棋时，棋钟也会回到之前的时间。",
-  "rulesChessClockIncrement": "每走一步加 {seconds} 秒。"
+  "rulesChessClockIncrement": "每走一步加 {seconds} 秒。",
+  "maexchenSummaryLives": "{count, plural, other{{count} 条命}}"
 }

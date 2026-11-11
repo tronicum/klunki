@@ -608,6 +608,67 @@ void main() {
       expect(r.redactMove(draw, Player.a, Player.b), draw);
     });
 
+    // KLD-118 network step: what the guest may hold, at every step of
+    // whole games, with every set of house rules: its own hand, the top
+    // card and the card laid by a move; the other player's hand, the draw
+    // pile and whatever the other player drew stay out of every view and
+    // every redacted step.
+    test('no hidden card in any view or redacted step, all game long, with every house rule', () {
+      final cardId = RegExp(r'"([cshd](?:7|8|9|10|J|Q|K|A))"');
+      Set<String> idsIn(Object? x) => {for (final m in cardId.allMatches(jsonEncode(x))) m[1]!};
+      const r = MauMauRedaction();
+      var forgot = 0, hiddenDraws = 0;
+      for (final rules in [
+        const MauMauRules(),
+        const MauMauRules(jackOnJack: true),
+        const MauMauRules(stackSevens: false, mustPlay: false),
+        const MauMauRules(sevenDraws: false, eightSkips: false, aceAgain: false, mauCall: false),
+      ]) {
+        for (var seed = 0; seed < 12; seed++) {
+          final g = MauMauGame(seed: seed, rules: rules);
+          final rng = Random(seed);
+          var n = 0;
+          void checkViews() {
+            for (final viewer in Player.values) {
+              final own = ids(g.handOf(viewer)).toSet();
+              final view = r.view(g, viewer);
+              expect(idsIn(view).difference({...own, g.topCard.id}), isEmpty, reason: 'move $n, ${viewer.name}');
+              expect(view.containsKey('seed'), isFalse);
+            }
+          }
+
+          checkViews();
+          while (!g.isOver) {
+            expect(++n, lessThan(3000));
+            final legal = g.legalMoves;
+            var move = Map<String, dynamic>.of(legal[rng.nextInt(legal.length)]);
+            if (move['mau'] == true && rng.nextBool()) {
+              move = Map.of(move)..remove('mau');
+              forgot++;
+            }
+            final mover = g.currentPlayer;
+            final e = g.applyMove(Map.of(move))!;
+            final other = mover == Player.a ? Player.b : Player.a;
+            final step = r.step(g, move, mover, e, other);
+            final payload = (step['event'] as Map)['payload'] as Map;
+            expect(payload.containsKey('drew'), isFalse, reason: 'move $n');
+            expect(payload.containsKey('fits'), isFalse, reason: 'move $n');
+            if ((e.payload as Map)['drew'] != null) {
+              hiddenDraws++;
+              expect(payload['count'], ((e.payload as Map)['drew'] as List).length);
+            }
+            final allowed = {...ids(g.handOf(other)), g.topCard.id, if (move['card'] is String) move['card'] as String};
+            expect(idsIn(step).difference(allowed), isEmpty, reason: 'move $n: $step');
+            // The mover's own step is complete.
+            expect(r.step(g, move, mover, e, mover)['event']['payload'], jsonSafe(e.payload));
+            checkViews();
+          }
+        }
+      }
+      expect(forgot, greaterThan(0));
+      expect(hiddenDraws, greaterThan(0));
+    });
+
     test('the drawn card is the drawer\'s secret', () {
       final g = setup(['h7', 'c8'], ['s8'], 'h9', stock: ['h10', 'dK']);
       g.applyMove(draw);

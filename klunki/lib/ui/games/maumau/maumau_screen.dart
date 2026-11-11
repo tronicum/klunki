@@ -11,8 +11,10 @@ import '../../../transport/game_transport.dart';
 import '../../shell/coach_marks.dart';
 import '../../shell/game_screen.dart';
 import 'maumau_cards.dart';
+import 'maumau_options.dart' show mauMauRulesSummary;
 
-/// Mau-Mau screen (KLD-118 step 2, hot-seat).
+/// Mau-Mau screen (KLD-118 step 2, hot-seat; network step: one player per
+/// device).
 ///
 /// Contract (keep it): the public class name `MauMauScreen` and the
 /// constructor `const MauMauScreen({super.key, required this.controller})`.
@@ -30,6 +32,11 @@ import 'maumau_cards.dart';
 /// the turn (no fit, or the cards of a 7) are shown to the drawer first,
 /// "Weiter" submits the draw and the shell's handover cover follows. While
 /// the cover is up the board renders no card.
+///
+/// Over the network (one player per device, no cover) a draw is submitted
+/// at once; the cards it brought stay framed in the own hand while the
+/// other player is on, and before the first move a line names the house
+/// rules the host chose (`maumau-net-options`).
 ///
 /// Keys: `maumau-opponent`, `maumau-last`, `maumau-stock`, `maumau-top`,
 /// `maumau-wish`, `maumau-penalty`, `maumau-draw`, `maumau-keep`,
@@ -413,10 +420,15 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     setState(() => _submit(move));
   }
 
+  /// One player on this device (a network game): nobody to hand over to.
+  bool get _network => c.transport.localPlayers.length == 1;
+
   void _draw(MauMauGame g) {
     if (!_canAct || !g.canDraw) return;
     const move = {'action': 'draw'};
-    final copy = c.previewCopy();
+    // Over the network the drawn cards show in the hand after the move
+    // ([_arrivedOverNetwork]); a guest holds no deck to preview with.
+    final copy = _network ? null : c.previewCopy();
     if (copy == null) {
       setState(() => _submit(move));
       return;
@@ -500,6 +512,18 @@ class _MauMauBoardState extends State<_MauMauBoard> {
     );
   }
 
+  /// Over the network: the cards [viewer]'s last move drew when it ended the
+  /// turn (from the move's event, which only the drawer gets in full), shown
+  /// framed in the hand while the other player is on.
+  _Drawn? _arrivedOverNetwork(MauMauGame g, Player viewer, AcceptedMove? last) {
+    if (!_network || last == null || g.isOver || last.player != viewer || g.currentPlayer == viewer) return null;
+    final p = last.event.payload;
+    if (last.move['action'] != 'draw' || p is! Map || p['drew'] is! List) return null;
+    final cards = [for (final id in p['drew'] as List) ?MauMauCard.byId('$id')];
+    if (cards.isEmpty) return null;
+    return _Drawn(cards, g.handOf(viewer), p['penalty'] != null, last.move);
+  }
+
   String? _hint(AppLocalizations l10n, MauMauGame g, Player viewer) {
     if (g.isOver || _drawn != null || !_canAct || g.currentPlayer != viewer) return null;
     if (g.penalty > 0) {
@@ -544,7 +568,18 @@ class _MauMauBoardState extends State<_MauMauBoard> {
                 children: [
                   _opponent(context, g, _other(viewer)),
                   const SizedBox(height: 8),
-                  if (last != null) _lastAction(context, last),
+                  if (last != null)
+                    _lastAction(context, last)
+                  else if ((_network ? mauMauRulesSummary(l10n, g.rules) : null) case final rules?)
+                    // The host's house rules, until the first move.
+                    Text(
+                      rules,
+                      key: const Key('maumau-net-options'),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   const SizedBox(height: 12),
                   _table(context, g, tableCard),
                   const SizedBox(height: 12),
@@ -555,7 +590,7 @@ class _MauMauBoardState extends State<_MauMauBoard> {
                   ] else if (!g.isOver) ...[
                     _actions(context, g),
                     const SizedBox(height: 8),
-                    _hand(context, g, viewer),
+                    _hand(context, g, viewer, arrived: _arrivedOverNetwork(g, viewer, last)),
                   ],
                 ],
               ),

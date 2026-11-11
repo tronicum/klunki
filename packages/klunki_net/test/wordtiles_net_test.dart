@@ -73,7 +73,8 @@ WordTilesGame _guestView(KlunkiGuest g) => g.game as WordTilesGame;
 /// The keys a guest's view may have (anything else would be a leak).
 const _viewKeys = {
   'viewer', 'tileSet', 'players', 'check', 'scorelessLimit', 'board', 'rack', 'racks', 'bag', 'scores', //
-  'penalties', 'seat', 'scoreless', 'open', 'endPending', 'allowRequest', 'declined', 'turns', 'end', 'resigned',
+  'penalties', 'seat', 'scoreless', 'open', 'endPending', 'allowRequest', 'declined', 'turns', 'end', 'resigned', //
+  'jokerSwap', 'rackPenalty',
 };
 
 /// After every move: the guest's view is its own and nothing of the host's
@@ -318,6 +319,23 @@ void main() {
       });
     });
   }
+
+  // The guest replays with the whole public config (KLD-118 network step):
+  // before, `rest: false` was not passed to the replay, and a game that
+  // ended with tiles on the racks failed the check.
+  test('"Restpunkte abziehen" off: the guest verifies the game', () async {
+    const config = GameConfig('wordtiles', seed: 3, rackPenalty: false);
+    final (host, guest, wire, close) = await _transports['tcp']!(config);
+    addTearDown(close);
+    addTearDown(host.close);
+    addTearDown(guest.close);
+    expect(guest.config.rackPenalty, isFalse);
+    await _hostMove(host, guest, WordTilesGame.placeMove(_findPlacement(_hostGame(host), 0)));
+    await _guestMove(host, guest, const {'action': 'accept'});
+    await _passToEnd(host, guest, wire);
+    expect(_hostGame(host).rackPenalty, isFalse);
+    await _expectVerified(host, guest);
+  });
 
   test('a rejoining guest gets the open request back and answers it', () async {
     const config = GameConfig('wordtiles', seed: 21, dictionary: true);

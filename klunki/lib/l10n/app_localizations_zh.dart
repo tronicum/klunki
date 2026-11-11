@@ -4382,4 +4382,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String rulesChessClockIncrement(int seconds) {
     return '每走一步加 $seconds 秒。';
   }
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条命',
+    );
+    return '$_temp0';
+  }
 }

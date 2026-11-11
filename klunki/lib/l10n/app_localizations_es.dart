@@ -4663,4 +4663,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String rulesChessClockIncrement(int seconds) {
     return 'Se suman $seconds segundos tras cada jugada propia.';
   }
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vidas',
+      one: '1 vida',
+    );
+    return '$_temp0';
+  }
 }

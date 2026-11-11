@@ -9,7 +9,9 @@ import '../../shell/game_screen.dart';
 import '../../shell/seat_game_screen.dart';
 import 'maexchen_board.dart';
 
-/// Mäxchen screen (KLD-121): the dice bluffing game, hot-seat. The board
+/// Mäxchen screen (KLD-121): the dice bluffing game, hot-seat and (network
+/// step, 2 players) one player per device: no cover, the guest's board is
+/// the [MaexchenView] (its own dice only while it rolled). The board
 /// (`maexchen_board.dart`) has the lives, the announcement, the table with
 /// the cup and the actions; the shell adds status, hint, history, "Zug
 /// zurück" and the handover cover, which shows the announcement (or how
@@ -47,6 +49,17 @@ class MaexchenScreen extends StatelessWidget {
         ),
       );
     }
+    if (controller.transport is! HotSeatTransport) {
+      // Over the network "Spiel beenden" follows whose turn it is.
+      return ListenableBuilder(
+        listenable: controller,
+        builder: (context, _) => _twoPlayers(context, controller.game as MaexchenGame),
+      );
+    }
+    return _twoPlayers(context, game);
+  }
+
+  Widget _twoPlayers(BuildContext context, MaexchenGame game) {
     return GameScreen(
       controller: controller,
       describeMove: describeMaexchenMove,
@@ -79,9 +92,12 @@ class MaexchenScreen extends StatelessWidget {
     return MaexchenRoundSummary(game: game, end: last);
   }
 
-  /// "Spiel beenden" for "Unbegrenzte Leben" on this device.
+  /// "Spiel beenden" for "Unbegrenzte Leben": on one device always; over
+  /// the network (KLD-121 network step) on the device of the player to move,
+  /// who submits the `end` move.
   List<ShellMenuEntry> _menuEntries(BuildContext context, MaexchenGame game) {
-    if (!game.unlimitedLives || game.isOver || controller.transport is! HotSeatTransport) return const [];
+    if (!game.unlimitedLives || game.isOver) return const [];
+    if (controller.transport is! HotSeatTransport && !controller.canAct) return const [];
     final l10n = AppLocalizations.of(context);
     return [
       ShellMenuEntry(
@@ -170,7 +186,8 @@ class MaexchenTally extends StatelessWidget {
                 const SizedBox(width: 8),
                 Icon(Icons.heart_broken, size: 18, color: theme.colorScheme.error),
                 const SizedBox(width: 4),
-                Text(l10n.maexchenResultLost(game.lostOf(s)), style: theme.textTheme.titleSmall),
+                // A narrow dialog (a network game's result) wraps the count.
+                Flexible(child: Text(l10n.maexchenResultLost(game.lostOf(s)), style: theme.textTheme.titleSmall)),
               ],
             ),
           ),

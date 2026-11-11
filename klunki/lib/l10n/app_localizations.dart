@@ -7089,6 +7089,12 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nach jedem eigenen Zug kommen {seconds} Sekunden dazu.'**
   String rulesChessClockIncrement(int seconds);
+
+  /// Mäxchen over the network: the lives each player starts with, in the one-line summary of the host's options in the room and at the start of the game (e.g. "3 Leben · Mäxchen doppelt"). count = lives.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Leben} other{{count} Leben}}'**
+  String maexchenSummaryLives(int count);
 }
 
 class _AppLocalizationsDelegate

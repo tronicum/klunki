@@ -1161,5 +1161,6 @@
   "engineReasonChessTimeoutDraw": "{player} ran out of time, but a lone king cannot give mate",
   "rulesChessClockTitle": "Chess clock: {time}",
   "rulesChessClock": "Each side has its own thinking time. The clock runs for the side to move and switches with every move – with “Confirm move” only on “Move”.\nWhen the time is up, the other side wins. If that side has only the king left, it is a draw.\nPause stops both clocks; over the network only when both agree.\n“Take back” also turns the clock back.",
-  "rulesChessClockIncrement": "{seconds} seconds are added after each of your own moves."
+  "rulesChessClockIncrement": "{seconds} seconds are added after each of your own moves.",
+  "maexchenSummaryLives": "{count, plural, =1{1 life} other{{count} lives}}"
 }

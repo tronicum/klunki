@@ -4547,4 +4547,14 @@ class AppLocalizationsFa extends AppLocalizations {
   String rulesChessClockIncrement(int seconds) {
     return 'بعد از هر حرکت خودت $seconds ثانیه اضافه می‌شود.';
   }
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جان',
+    );
+    return '$_temp0';
+  }
 }

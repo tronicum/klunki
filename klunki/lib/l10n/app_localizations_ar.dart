@@ -4669,4 +4669,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String rulesChessClockIncrement(int seconds) {
     return 'تُضاف $seconds ثانية بعد كل حركة خاصة.';
   }
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أرواح',
+      two: 'روحان',
+      one: 'روح واحدة',
+    );
+    return '$_temp0';
+  }
 }

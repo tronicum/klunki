@@ -662,7 +662,9 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                   child: RulesButton(key: const Key('shell-rules'), onPressed: _openRules),
                 ),
               // Hot-seat names (KLD-056, when the app provides the store)
-              // and "Neues Spiel", in the "⋮" menu so the title fits.
+              // and "Neues Spiel", in the "⋮" menu so the title fits. Over
+              // the network only the game's own entries (Mäxchen's "Spiel
+              // beenden", KLD-121).
               if (_canRestart)
                 ShellMenu(entries: [
                   ...widget.menuEntries,
@@ -679,7 +681,9 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                     label: l10n.shellNewGame,
                     onSelected: _restart,
                   ),
-                ]),
+                ])
+              else
+                ShellMenu(entries: widget.menuEntries),
             ],
           ),
           body: KlunkiBackground(
