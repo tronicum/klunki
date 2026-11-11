@@ -70,6 +70,7 @@ void main() {
       expect(find.byKey(const Key('pair-game-wordtiles')), findsOneWidget);
       expect(networkGameSpecs.map((s) => s.id), contains('wordtiles'));
       expect(find.byKey(const Key('pair-game-maumau')), findsOneWidget);
+      expect(find.byKey(const Key('pair-game-maexchen')), findsOneWidget);
     });
 
     testWidgets('shows name, every address with the real port and the QR; advertises', (tester) async {
@@ -518,6 +519,61 @@ void main() {
       expect(find.byType(RelayHostScreen), findsOneWidget);
       expect(configs.single.mauMau, const MauMauRules(mauCall: false));
       expect(tester.widget<SwitchListTile>(find.byKey(const Key('relay-maumau-rule-mau'))).value, isFalse);
+      await unmountAndSettleSockets(tester, created);
+    });
+
+    // KLD-121 network step: Mäxchen's lives, "Unbegrenzte Leben" and
+    // "Mäxchen doppelt" on "Raum starten".
+    for (final (taps, expected, summary) in [
+      (<String>[], const GameConfig('maexchen'), '3 Leben · Mäxchen doppelt'),
+      (['pair-maexchen-lives-5', 'pair-maexchen-double'], const GameConfig('maexchen', lives: 5, maexchenDouble: false),
+          '5 Leben'),
+      (['pair-maexchen-unlimited'], const GameConfig('maexchen', maexchenUnlimited: true),
+          'Unbegrenzte Leben · Mäxchen doppelt'),
+    ]) {
+      testWidgets('Mäxchen: $taps -> hosted and shown in the room as "$summary"', (tester) async {
+        final created = CreatedTransports();
+        await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'maexchen');
+        expect(find.byKey(const Key('pair-rules')), findsOneWidget);
+        expect(find.byKey(const Key('pair-maexchen-shake')), findsNothing, reason: 'a device setting, not the room');
+        for (final k in taps) {
+          await tester.ensureVisible(find.byKey(Key(k)));
+          await tester.tap(find.byKey(Key(k)));
+          await tester.pump();
+        }
+        await tester.ensureVisible(find.byKey(const Key('pair-host-start')));
+        await _startHosting(tester);
+        final config = created.hosts.single.config;
+        expect(config.copyWith(seed: 0), expected);
+        expect(config.players, 2);
+        expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data, summary);
+        await unmountAndSettleSockets(tester, created);
+      }, timeout: _timeout);
+    }
+
+    testWidgets('Mäxchen through the relay: the options go along to the relay room screen', (tester) async {
+      final created = CreatedTransports();
+      final configs = <GameConfig>[];
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        roomSettings: RoomSettings.memory(true),
+        relaySettings: RelaySettings.memory(Uri.parse('ws://127.0.0.1:9/')),
+        relayHost: (config, relay, {required name}) async {
+          configs.add(config);
+          throw const SocketLikeError('no relay');
+        },
+      );
+      await pumpFor(tester, deps, 'maexchen');
+      await tester.ensureVisible(find.byKey(const Key('pair-maexchen-lives-5')));
+      await tester.tap(find.byKey(const Key('pair-maexchen-lives-5')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('pair-host-start')));
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RelayHostScreen), findsOneWidget);
+      expect(configs.single.lives, 5);
+      expect(find.byKey(const Key('relay-maexchen-lives')), findsOneWidget);
       await unmountAndSettleSockets(tester, created);
     });
 

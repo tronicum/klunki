@@ -458,6 +458,20 @@ game the guest also checks what it can at once: each view must be its own
   step 3 the guest rebuilt it from single options and missed `maumau` and
   Wortgewandt's `rest`, so such games failed the check). No protocol change.
 
+### Mäxchen (`maexchen`, KLD-121)
+
+- **Config.** `lives` (absent = 3), `maexDouble: false` ("Mäxchen doppelt" off),
+  `maexUnlimited: true` ("Unbegrenzte Leben") in the `welcome` `config`; the
+  seed decides every roll: secret, committed as `seedCommit`. Always 2 players
+  on the wire (`players` other than 2 is refused, as for every game).
+- **Secrecy.** The dice of a roll are in the roller's view only (`dice`, while
+  `roller` is that player's seat); a host `roll` reaches the guest with the
+  event `{rolled: true}`. A `doubt` lifts the cup: its event and the view's
+  `last` carry the dice; a `giveUp` never shows them. Moves hold no secret (no
+  `commit`). `end` ("Unbegrenzte Leben") is a move of the player to move.
+- **Check.** `reveal` brings the seed; the guest replays with the whole
+  public config.
+
 ### Wortgewandt (`wordtiles`, KLD-094 step 6)
 
 - **Config.** The host chooses the tile set (`tiles`: `de`/`en`) and the

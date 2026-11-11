@@ -427,6 +427,53 @@ void main() {
       expect(r.redactMove(roll, Player.a, Player.b), roll);
     });
 
+    // KLD-121 network step: at every step of whole games, with every option
+    // set, the other player's view and redacted step hold no die of a roll
+    // that is still under the cup; a give-up never shows the dice.
+    test('no hidden die in any view or redacted step, all game long, with every option', () {
+      var doubts = 0, giveUps = 0;
+      for (final (lives, double, unlimited) in [(3, true, false), (5, false, false), (3, true, true)]) {
+        for (var seed = 0; seed < 15; seed++) {
+          final g = MaexchenGame(seed: seed, startLives: lives, maexchenDouble: double, unlimitedLives: unlimited);
+          final rng = Random(seed);
+          var n = 0;
+          void checkViews() {
+            for (final viewer in Player.values) {
+              final v = r.view(g, viewer);
+              expect(v.containsKey('dice'), g.dice != null && g.roller == viewer, reason: 'move $n');
+              expect(v.containsKey('seed'), isFalse);
+              final last = v['last'] as Map?;
+              if (last?['gaveUp'] == true) expect(last!.containsKey('dice'), isFalse);
+            }
+          }
+
+          checkViews();
+          while (!g.isOver && n < 400) {
+            n++;
+            final legal = [for (final m in g.legalMoves) if (m['action'] != 'end') m];
+            final move = n == 400 && unlimited ? MaexchenGame.endMove : legal[rng.nextInt(legal.length)];
+            final mover = g.currentPlayer;
+            final e = g.applyMove(Map.of(move))!;
+            final other = mover == Player.a ? Player.b : Player.a;
+            final step = r.step(g, move, mover, e, other);
+            final payload = (step['event'] as Map)['payload'];
+            if (move['action'] == 'roll') expect(payload, {'rolled': true}, reason: 'move $n');
+            if (move['action'] == 'doubt') doubts++;
+            if (move['action'] == 'giveUp') {
+              giveUps++;
+              expect(jsonEncode(step), isNot(contains('"dice"')), reason: 'a give-up keeps the cup closed');
+            }
+            if (payload is Map && payload.containsKey('dice')) expect(move['action'], 'doubt');
+            checkViews();
+          }
+          if (unlimited && !g.isOver) expect(g.applyMove(MaexchenGame.endMove), isNotNull);
+          expect(g.isOver, isTrue);
+        }
+      }
+      expect(doubts, greaterThan(0));
+      expect(giveUps, greaterThan(0));
+    });
+
     test('views are read-only and refuse bad data', () {
       final g = scripted([[6, 5]]);
       final view = r.fromView(r.view(g, Player.a));

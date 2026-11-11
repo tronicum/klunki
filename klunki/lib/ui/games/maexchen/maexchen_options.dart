@@ -26,6 +26,95 @@ Future<MaexchenOptions?> showMaexchenOptionsDialog(BuildContext context) => show
       builder: (_) => const _MaexchenOptionsDialog(),
     );
 
+/// The options as one line ("3 Leben · Mäxchen doppelt", "Unbegrenzte Leben
+/// · Mäxchen doppelt"; without "Mäxchen doppelt" when it is off): the room
+/// of a network game and the start of the game show what the host chose
+/// (KLD-121 network step).
+String maexchenOptionsSummary(AppLocalizations l10n, GameConfig config) => [
+      config.maexchenUnlimited ? l10n.maexchenOptionUnlimited : l10n.maexchenSummaryLives(config.lives),
+      if (config.maexchenDouble) l10n.maexchenOptionDouble,
+    ].join(' · ');
+
+/// The lives (3 or 5), "Unbegrenzte Leben" with its explanation and
+/// "Mäxchen doppelt" with its explanation: in the start dialog and, for a
+/// network game, on "Raum starten" (KLD-121 network step). Keys:
+/// `<keyPrefix>lives`, `<keyPrefix>lives-<n>`, `<keyPrefix>unlimited`,
+/// `<keyPrefix>double` (prefix `maexchen-` in the dialog).
+class MaexchenOptionsPicker extends StatelessWidget {
+  final MaexchenOptions value;
+  final ValueChanged<MaexchenOptions> onChanged;
+  final bool enabled;
+  final String keyPrefix;
+
+  const MaexchenOptionsPicker({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.enabled = true,
+    this.keyPrefix = 'maexchen-',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final o = value;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.maexchenOptionLives,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: o.unlimited ? theme.colorScheme.onSurface.withValues(alpha: 0.45) : null,
+          ),
+        ),
+        const SizedBox(height: 8),
+        // "Unbegrenzte Leben" on: nobody drops out, the count does not
+        // matter (shown greyed, not chosen).
+        SegmentedButton<int>(
+          key: Key('${keyPrefix}lives'),
+          segments: [
+            for (final n in MaexchenGame.livesOptions)
+              ButtonSegment(
+                value: n,
+                icon: Icon(
+                  Icons.favorite,
+                  color: o.unlimited ? theme.colorScheme.outline : const Color(0xFFD32F2F),
+                ),
+                label: Text('$n', key: Key('${keyPrefix}lives-$n')),
+              ),
+          ],
+          selected: {o.lives},
+          showSelectedIcon: false,
+          onSelectionChanged: o.unlimited || !enabled
+              ? null
+              : (s) => onChanged((lives: s.single, double: o.double, unlimited: false)),
+        ),
+        const SizedBox(height: 8),
+        SwitchListTile(
+          key: Key('${keyPrefix}unlimited'),
+          contentPadding: EdgeInsets.zero,
+          secondary: const Icon(Icons.all_inclusive),
+          title: Text(l10n.maexchenOptionUnlimited),
+          value: o.unlimited,
+          onChanged: enabled ? (v) => onChanged((lives: o.lives, double: o.double, unlimited: v)) : null,
+        ),
+        Text(l10n.maexchenOptionUnlimitedExplain, style: theme.textTheme.bodySmall),
+        const SizedBox(height: 16),
+        SwitchListTile(
+          key: Key('${keyPrefix}double'),
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.maexchenOptionDouble),
+          value: o.double,
+          onChanged: enabled ? (v) => onChanged((lives: o.lives, double: v, unlimited: o.unlimited)) : null,
+        ),
+        Text(l10n.maexchenOptionDoubleExplain, style: theme.textTheme.bodySmall),
+      ],
+    );
+  }
+}
+
 class _MaexchenOptionsDialog extends StatefulWidget {
   const _MaexchenOptionsDialog();
 
@@ -48,54 +137,7 @@ class _MaexchenOptionsDialogState extends State<_MaexchenOptionsDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            l10n.maexchenOptionLives,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: _options.unlimited ? theme.colorScheme.onSurface.withValues(alpha: 0.45) : null,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // "Unbegrenzte Leben" on: nobody drops out, the count does not
-          // matter (shown greyed, not chosen).
-          SegmentedButton<int>(
-            key: const Key('maexchen-lives'),
-            segments: [
-              for (final n in MaexchenGame.livesOptions)
-                ButtonSegment(
-                  value: n,
-                  icon: Icon(
-                    Icons.favorite,
-                    color: _options.unlimited ? theme.colorScheme.outline : const Color(0xFFD32F2F),
-                  ),
-                  label: Text('$n', key: Key('maexchen-lives-$n')),
-                ),
-            ],
-            selected: {_options.lives},
-            showSelectedIcon: false,
-            onSelectionChanged: _options.unlimited
-                ? null
-                : (s) => setState(() => _options = (lives: s.single, double: _options.double, unlimited: false)),
-          ),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            key: const Key('maexchen-unlimited'),
-            contentPadding: EdgeInsets.zero,
-            secondary: const Icon(Icons.all_inclusive),
-            title: Text(l10n.maexchenOptionUnlimited),
-            value: _options.unlimited,
-            onChanged: (v) => setState(() => _options = (lives: _options.lives, double: _options.double, unlimited: v)),
-          ),
-          Text(l10n.maexchenOptionUnlimitedExplain, style: theme.textTheme.bodySmall),
-          const SizedBox(height: 16),
-          SwitchListTile(
-            key: const Key('maexchen-double'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(l10n.maexchenOptionDouble),
-            value: _options.double,
-            onChanged: (v) =>
-                setState(() => _options = (lives: _options.lives, double: v, unlimited: _options.unlimited)),
-          ),
-          Text(l10n.maexchenOptionDoubleExplain, style: theme.textTheme.bodySmall),
+          MaexchenOptionsPicker(value: _options, onChanged: (o) => setState(() => _options = o)),
           if (Motion.maybeAvailable) ...[
             const SizedBox(height: 12),
             ListenableBuilder(

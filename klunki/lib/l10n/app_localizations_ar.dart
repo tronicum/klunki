@@ -4573,4 +4573,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'العودة إلى العرض';
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أرواح',
+      two: 'روحان',
+      one: 'روح واحدة',
+    );
+    return '$_temp0';
+  }
 }

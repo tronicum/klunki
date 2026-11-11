@@ -4451,4 +4451,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'بازگشت به پیشنهاد';
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count جان',
+    );
+    return '$_temp0';
+  }
 }

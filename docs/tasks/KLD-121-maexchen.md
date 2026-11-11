@@ -6,8 +6,8 @@
 - **Milestone:** long-term games
 - **Status:** step 1 DONE (engine, redaction, CLI, hot-seat UI, 7 locales, screenshots); rules decided 2026-11-06
   (see Decisions); follow-up 2026-11-08 DONE (actions always on screen, shake to roll, zh font subset rebuilt);
-  step 2 DONE 2026-11-09 (3–4 players on one device, rule variant "Unbegrenzte Leben", rules 2); next: tune the
-  shake threshold on devices, then network in the app (2 players)
+  step 2 DONE 2026-11-09 (3–4 players on one device, rule variant "Unbegrenzte Leben", rules 2); network step
+  DONE 2026-11-11 (2 players in the app, LAN and relay); next: tune the shake threshold on devices
 - **Depends on:** KLD-064 (redaction), KLD-085 (fingerprint), KLD-088 (seats, later), KLD-103 (player names)
 - **Touched paths:**
   - `packages/klunki_engine/lib/maexchen.dart`, `maexchen_view.dart` (new), `lib/debug/maexchen_text.dart` (new),
@@ -138,6 +138,31 @@ Built on the n-player infrastructure of KLD-119 / KLD-125 (branch `integrate-110
   the players). Screenshots `test/screenshots/maexchen_seats_shots_test.dart --plain-name kld121-4p`
   (`<KLUNKI_SHOTS>/maexchen-4p-shots/`). The zh web font subset was re-run; the new strings needed no new glyphs.
 
+## Network step (2026-11-11): 2 players over the network in the app
+
+- `maexchen` is out of `hotSeatOnlyGames`: the menu tile has "Mit anderen", "Raum starten" offers it (on this
+  device and through the relay). 3–4 players stay on one device (the room is 2-player; KLD-088).
+- The host chooses the lives (3/5), "Unbegrenzte Leben" and "Mäxchen doppelt" on "Raum starten": the start
+  dialog's switches are now `MaexchenOptionsPicker` (`maexchen_options.dart`; keys `<prefix>lives-<n>`,
+  `<prefix>unlimited`, `<prefix>double`; in the room `pair-maexchen-*` / `relay-maexchen-*`), used through
+  `RoomRulesPicker` (`ui/pairing/room_rules.dart`, shared with Mau-Mau). "Schütteln zum Würfeln" stays a device
+  setting of the start dialog. The options travel in the public config (`lives`, `maexDouble`,
+  `maexUnlimited`) and show as one line ("3 Leben · Mäxchen doppelt", new string `maexchenSummaryLives`, 7
+  locales, no new zh glyph) in the waiting room and on both boards before the first move
+  (`maexchen-net-options`).
+- Guest: the board is the `MaexchenView` (dice only of its own roll, until a doubt lifts the cup), no cover, no
+  "Zug zurücknehmen"; roll by tap or by shaking the phone, "Nachschauen", announce, believe / doubt / "Leben
+  abgeben" all on the own device. "Spiel beenden" ("Unbegrenzte Leben") is in the "⋮" menu of the player to
+  move only (the `end` move is that player's); the menu follows the turn.
+- No engine, rules version or protocol change (the engine redacted for the network since step 1; the guest's
+  end-of-game check takes the whole public config since KLD-118 step 3).
+- Tests: engine (`maexchen_test.dart`: no hidden die in any view or redacted step over whole games with every
+  option set, give-ups never show the dice); net (`maexchen_net_test.dart`: TCP / WebSocket / relay × default, 5
+  lives without "Mäxchen doppelt", "Unbegrenzte Leben", wire captured, verification); app
+  (`pairing_screen_test.dart`, `menu_modes_test.dart`, live UI `maexchen_network_live_test.dart`: whole games
+  over TCP with the Wi-Fi proxy, WebSocket and the relay, the unlimited one ended with "Spiel beenden", the guest
+  rolls by shaking). Screenshots `network_games_shots_test.dart --plain-name kld121`.
+
 ## Follow-up 2026-11-08 (testing build 2026110806 on an iPhone 15 Pro)
 1. **The "ansagen" button was below the fold.** Now the board is the table part (lives, announcement, felt with
    the cup; it scrolls only when even its minimum does not fit) plus the controls pinned under it (beside it when
@@ -186,3 +211,5 @@ Built on the n-player infrastructure of KLD-119 / KLD-125 (branch `integrate-110
   ranking), two players unchanged (transcript hash), rules 2 with the compat golden.
 - [x] Step 2: "Unbegrenzte Leben" (option, tally, "Spiel beenden", ranking by lives lost, rules page), 7 locales.
 - [x] Step 2: engine, net, widget, layout and live-UI tests; screenshots `--plain-name kld121-4p`.
+- [x] Network step: 2 players in the app (room options, guest view, shake on the guest, "Spiel beenden" for the
+  player to move), engine / net / live-UI network tests, screenshots.

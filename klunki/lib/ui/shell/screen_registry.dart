@@ -59,13 +59,12 @@ const Set<String> previewGames = {};
 /// pickers of "Über WLAN spielen" and the relay host. A guest joining a host
 /// that plays one still gets its screen. Empty since chess (KLD-059 step 3)
 /// and Wortgewandt (KLD-094 step 6) play over the network, Mau-Mau too
-/// since its network step (KLD-118, the house rules on "Raum starten").
-/// Mäxchen (KLD-121) is
-/// one device only for now: the engine has its redaction, the app's network
-/// screens do not offer it yet. Ausgewürfelt (KLD-119) is for 2–4 players
+/// since its network step (KLD-118, the house rules on "Raum starten"), and
+/// Mäxchen (KLD-121 network step, 2 players; 3–4 on one device only).
+/// Ausgewürfelt (KLD-119) is for 2–4 players
 /// at one table; the network session is 2-player. Baulöwe (KLD-060) is
 /// one device only until its n-player network step (`GameSpec.networkPlay`).
-const Set<String> hotSeatOnlyGames = {'maexchen', 'dicesheet', 'property'};
+const Set<String> hotSeatOnlyGames = {'dicesheet', 'property'};
 
 /// Games played in the seat shell for 2–4 players on one device (KLD-119,
 /// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.

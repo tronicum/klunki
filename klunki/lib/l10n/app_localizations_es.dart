@@ -4567,4 +4567,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'Volver a la oferta';
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vidas',
+      one: '1 vida',
+    );
+    return '$_temp0';
+  }
 }

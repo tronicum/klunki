@@ -11,6 +11,7 @@ import '../../shell/game_screen.dart';
 import '../../shell/seat_labels.dart';
 import '../shake_to_roll.dart';
 import 'maexchen_dice.dart';
+import 'maexchen_options.dart' show maexchenOptionsSummary;
 import 'maexchen_screen.dart' show maexchenValueLabel;
 
 /// The Mäxchen board (KLD-121): every player with their hearts (or, with
@@ -272,6 +273,19 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _LivesRow(game: game),
+                // Over the network: the host's options, until the first move.
+                if (controller.transport.localPlayers.length == 1 && controller.moves.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      maexchenOptionsSummary(AppLocalizations.of(context), controller.config),
+                      key: const Key('maexchen-net-options'),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ),
                 const SizedBox(height: 6),
                 if (roundOver)
                   MaexchenRoundSummary(

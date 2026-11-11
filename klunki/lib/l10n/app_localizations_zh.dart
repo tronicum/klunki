@@ -4287,4 +4287,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => '回到报价';
+
+  @override
+  String maexchenSummaryLives(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 条命',
+    );
+    return '$_temp0';
+  }
 }

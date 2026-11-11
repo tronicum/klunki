@@ -13,6 +13,11 @@ short German summary ("Kurz") for the store notes and the testers.
   room; both players see them in the room and at the start of the game. Each device shows only its own cards,
   drawn cards are seen only by the one who drew them, and at the end the guest's device checks that the game was
   dealt fairly.
+- **Mäxchen over the network** (KLD-121): two players on two devices, in the same Wi-Fi or through a relay. The
+  host chooses the lives, "Unbegrenzte Leben" and "Mäxchen doppelt" when starting the room; both see them at the
+  start. Each player rolls on their own phone (tap or shake), only they can look under their cup, and a doubt
+  lifts it for both. With "Unbegrenzte Leben" the player whose turn it is can end the game. Three or four
+  players still play on one device.
 - **Fix: network games with house rules checked correctly** (KLD-118): a Wortgewandt game without "Restpunkte
   abziehen" was reported as "Spielverlauf konnte nicht bestätigt werden" on the guest at the end.
 - **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll

@@ -322,13 +322,12 @@ final List<GameSpec> gameSpecs = [
   // (GameConfig.rackPenalty, JSON `rest: false`; the view's `rackPenalty`).
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
       hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 5, maxPlayers: 4),
-  // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2); house rules
-  // in GameConfig.mauMau (JSON `maumau`).
+  // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2), over the
+  // network since step 3; house rules in GameConfig.mauMau (JSON `maumau`).
   GameSpec('maumau', 'Mau-Mau', (c, _) => MauMauGame(seed: c.seed, rules: c.mauMau),
       hiddenInformation: true, redaction: const MauMauRedaction()),
-  // KLD-121: the dice bluffing game, hot-seat in the app (network play
-  // works in the engine and the CLI, the app does not offer it yet:
-  // `hotSeatOnlyGames`). Lives and the "Mäxchen doppelt" house rule in the
+  // KLD-121: the dice bluffing game, hot-seat in the app and (network step,
+  // 2 players) over the network. Lives and the "Mäxchen doppelt" house rule in the
   // config (`lives`, `maexDouble`). Rules 2 (step 2): 2–4 seats on one
   // device (`players`; two seats unchanged) and the rule variant
   // "Unbegrenzte Leben" (`maexUnlimited`, the `end` move, the view's

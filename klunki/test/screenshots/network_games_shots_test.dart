@@ -202,4 +202,33 @@ void main() {
     await _shot(tester, _hostKey, 'kld118-03-host-mid-game');
     await _shot(tester, _guestKey, 'kld118-04-guest-mid-game');
   });
+
+  testWidgets('kld121 network: "Raum starten" with the lives and the house rule, the waiting room', skip: skip,
+      (tester) async {
+    await _room(tester, 'maexchen', 'kld121-01', () async {
+      await tester.tap(find.byKey(const Key('pair-maexchen-lives-5')));
+      await tester.pump();
+    });
+  });
+
+  testWidgets('kld121 network: a game in progress on the host and the guest', skip: skip, (tester) async {
+    final (host, guest) = await _start(tester, const GameConfig('maexchen', seed: 4));
+    await _shot(tester, _guestKey, 'kld121-02-guest-start-options');
+    // Anna rolls and says the truth (or the lowest value above), Ben
+    // believes and rolls: Ben looks under his cup, Anna waits.
+    await _play(tester, host, guest, 4, (view, rng) {
+      final g = view as MaexchenGame;
+      return switch (g.phase) {
+        MaexchenPhase.roll => MaexchenGame.rollMove,
+        MaexchenPhase.announce => MaexchenGame.announceMove(
+            MaexchenGame.valuesAbove(g.announced).contains(g.diceValue)
+                ? g.diceValue!
+                : MaexchenGame.valuesAbove(g.announced).first),
+        MaexchenPhase.respond => MaexchenGame.believeMove,
+      };
+    });
+    await tester.tap(_on(_guestKey, find.byKey(const Key('maexchen-peek'))));
+    await _shot(tester, _guestKey, 'kld121-03-guest-peeks');
+    await _shot(tester, _hostKey, 'kld121-04-host-waits');
+  });
 }

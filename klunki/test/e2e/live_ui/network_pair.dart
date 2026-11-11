@@ -109,8 +109,11 @@ class NetPair {
   }
 
   /// Waits until both devices hold [n] moves (and the frames settled).
+  /// Fails only after 2000 rounds *and* a minute of wall clock (a busy
+  /// machine runs few rounds per second; KLD-109).
   Future<void> synced(int n, {String why = ''}) async {
-    for (var i = 0; i < 20000; i++) {
+    final clock = Stopwatch()..start();
+    for (var i = 0; i < 2000 || clock.elapsed < const Duration(minutes: 1); i++) {
       if (host.moves.length == n && guest.moves.length == n) {
         await net();
         return;
