@@ -8,6 +8,11 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Chess with a clock** (KLD-126): "Ohne Uhr", 5, 10, 15 minutes + 10 seconds per move, or 30 minutes, chosen
+  in "Wer spielt?" or on "Raum starten". The running clock is highlighted and turns red in the last ten seconds;
+  whoever runs out of time loses (a draw if the other has only the king left). A pause button stops both clocks
+  (in a room the other player agrees). Over the network the host's clock decides; older builds cannot play
+  chess with this one (chess rules version 4).
 - **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll
   around the board, buy streets or bid for them, collect rent, build houses once you own a whole group, draw
   cards, sit in the pause, mortgage when money is short; whoever cannot pay any more is out. A game lasts 30
