@@ -74,9 +74,17 @@ jobs:
       - run: tool/build_number_test.sh
 
   app:
-    name: klunki app (flutter analyze + test)
+    name: klunki app (flutter analyze + test, part ${{ matrix.part }}/2)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # The app suite outgrew one 30-minute runner (2026-11-11: cancelled at
+    # 1295 of ~1306 tests), so it runs in two halves side by side.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { part: 1, index: 0 }
+          - { part: 2, index: 1 }
     defaults:
       run:
         working-directory: klunki
@@ -96,4 +104,4 @@ jobs:
           flutter gen-l10n
           git diff --exit-code -- lib/l10n
       - run: flutter analyze
-      - run: flutter test
+      - run: flutter test --total-shards 2 --shard-index ${{ matrix.index }}
