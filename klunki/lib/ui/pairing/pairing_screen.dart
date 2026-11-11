@@ -27,6 +27,7 @@ import '../games/chess/chess_color_picker.dart';
 import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../games/wordtiles/wordtiles_options.dart';
+import 'room_rules.dart';
 import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
@@ -301,6 +302,9 @@ class _HostPanelState extends State<_HostPanel> {
 
   /// The host's colour in chess (KLD-059 step 4a); random by default.
   ChessColorChoice _chessColor = defaultChessColorChoice;
+
+  /// House rules (Mau-Mau, KLD-118 network step), chosen by the host.
+  RoomRules _rules = const RoomRules();
   bool _starting = false;
   String? _error;
 
@@ -348,6 +352,7 @@ class _HostPanelState extends State<_HostPanel> {
           initialGameId: _gameId,
           initialWordTiles: _gameId == 'wordtiles' ? _wordOptions : null,
           initialChessColor: _chessColor,
+          initialRules: _rules,
           fixedGame: widget.gameId != null,
           autoStart: true,
         ),
@@ -369,14 +374,14 @@ class _HostPanelState extends State<_HostPanel> {
     final seed = deps.seed();
     // Chess: "Zufällig" is decided here, from the seed; the config carries
     // the result to the guest (KLD-059 step 4a).
-    final config = GameConfig(_gameId,
+    final config = _rules.applyTo(GameConfig(_gameId,
         seed: seed,
         deck: _hostDeck,
         tiles: words?.tiles,
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
         rackPenalty: words?.rest ?? true,
-        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a));
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -524,6 +529,17 @@ class _HostPanelState extends State<_HostPanel> {
             onChanged: (c) => setState(() => _chessColor = c),
           ),
         ],
+        if (hasRoomRules(_gameId)) ...[
+          const SizedBox(height: 12),
+          RoomRulesPicker(
+            key: const Key('pair-rules'),
+            keyPrefix: 'pair-',
+            gameId: _gameId,
+            value: _rules,
+            enabled: !_starting,
+            onChanged: (r) => setState(() => _rules = r),
+          ),
+        ],
         // KLD-122: this device's "Zug bestätigen" for the game.
         if (confirmMoveGames.contains(_gameId)) ...[
           const SizedBox(height: 4),
@@ -591,6 +607,9 @@ class _HostPanelState extends State<_HostPanel> {
               key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
         if (_gameId == 'chess')
           Text(chessYouPlay(l10n, chessColorIn(t.config, t.me)),
+              key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+        if (roomRulesSummary(l10n, t.config) case final rules?)
+          Text(rules,
               key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
         const SizedBox(height: 12),
         if (payload != null)

@@ -87,13 +87,16 @@ void main() {
     expect(_local('wordtiles'), findsOneWidget);
     expect(_network('wordtiles'), findsOneWidget);
     expect(hotSeatOnlyGames, isNot(contains('wordtiles')));
-    // KLD-118: Mau-Mau and KLD-121: Mäxchen are one device only for now.
+    // KLD-118 network step: Mau-Mau plays over the network too (2 players).
+    expect(_local('maumau'), findsOneWidget);
+    expect(_network('maumau'), findsOneWidget);
+    // KLD-121: Mäxchen is one device only for now.
     expect(_local('maexchen'), findsOneWidget);
     expect(_network('maexchen'), findsNothing);
     // KLD-119: Ausgewürfelt is for 2–4 players at one table.
     expect(_network('dicesheet'), findsNothing);
     expect(_network('property'), findsNothing);
-    expect(hotSeatOnlyGames, {'maumau', 'maexchen', 'dicesheet', 'property'});
+    expect(hotSeatOnlyGames, {'maexchen', 'dicesheet', 'property'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {

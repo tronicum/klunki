@@ -72,7 +72,15 @@ Map<String, dynamic> _copy(Map<String, dynamic> m) => jsonDecode(jsonEncode(m)) 
 ///   player, the redacted move, the redacted event and the hash of [me]'s
 ///   view that the host reported, and the start view [startViewHash];
 /// * the game is over at the end.
+///
+/// [config] is the game's public config (as the guest got it in `welcome`):
+/// when given, the game is created from it with the revealed [seed], so
+/// every start option counts (Mau-Mau's house rules, Wortgewandt's
+/// "Restpunkte abziehen", …) and [gameId] and the single options below are
+/// ignored. Without it the game is built from those single options (older
+/// callers and tests).
 String? verifyRedactedGame({
+  GameConfig? config,
   required String gameId,
   String? deck,
   bool pickLowCards = true,
@@ -90,9 +98,10 @@ String? verifyRedactedGame({
   String? seedSalt,
   String? seedCommit,
 }) {
-  final spec = specById(gameId);
+  final id = config?.gameId ?? gameId;
+  final spec = specById(id);
   final redaction = spec?.redaction;
-  if (spec == null || redaction == null) return 'not a hidden-information game: $gameId';
+  if (spec == null || redaction == null) return 'not a hidden-information game: $id';
   if (redaction.secretSeed) {
     if (seedCommit == null || seedSalt == null) return 'seed commitment missing';
     if (commitment(seedSalt, 'seed', seed) != seedCommit) return 'the seed does not match its commitment';
@@ -116,8 +125,9 @@ String? verifyRedactedGame({
 
   final Game game;
   try {
-    game = createGame(GameConfig(gameId,
-        seed: seed,
+    game = createGame(config?.copyWith(seed: seed) ??
+        GameConfig(gameId,
+            seed: seed,
         deck: deck,
         pickLowCards: pickLowCards,
         tiles: tiles,

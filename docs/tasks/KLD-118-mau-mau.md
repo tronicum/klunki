@@ -3,7 +3,7 @@
 - **ID:** `KLD-118`
 - **Title:** The classic shedding card game Mau-Mau (id `maumau`)
 - **Milestone:** long-term games
-- **Status:** IN_PROGRESS (step 1 engine ✅, step 2 hot-seat UI ✅; step 3 network later). Added 2026-11-02 by the
+- **Status:** IN_PROGRESS (step 1 engine ✅, step 2 hot-seat UI ✅, step 3 network ✅ 2026-11-11). Added 2026-11-02 by the
   maintainer.
 - **Depends on:** KLD-064 (redaction), KLD-085 (fingerprints); KLD-088 (3–4 players) for more than 2 players
 - **Touched paths:**
@@ -54,9 +54,24 @@ without cards wins. Plays with a standard 32-card deck. Hot-seat first, network 
      next to "Deine Karten". Built as a reusable coach-mark widget (`lib/ui/shell/coach_marks.dart`, targets by
      `GlobalKey`) for other games later. Tests: `test/ui/games/maumau_coach_test.dart`; screenshots `21-*`
      (375×667, 393×852, tablet), `22-*` (dark, ar), `23-tour-*`, `24-chain-*`. No rule change.
-3. **Network** (later): remove `maumau` from `hotSeatOnlyGames`, house rules on "Raum starten" (and the room
-   summary), guest screen from `MauMauView` (the board already reads only `handOf(viewer)`, counts and the top
-   card; a guest's draw has no preview, it shows the drawn cards from the accepted event), live-UI network game.
+3. **Network** ✅ (2026-11-11, 2 players; 3–4 stay with KLD-088): `maumau` is out of `hotSeatOnlyGames`, so
+   the menu tile has "Mit anderen" and "Raum starten" offers it (on this device and through the relay). The
+   house rules are switched on "Raum starten" (`RoomRulesPicker` in `ui/pairing/room_rules.dart`, the same
+   `MauMauOptionsPicker` as the start dialog, keys `pair-maumau-rule-*` / `relay-maumau-rule-*`), travel in
+   the public config (`maumau`) and show as one line in the waiting room (`pair-hosting-options` /
+   `relay-host-options`) and on both devices before the first move (`maumau-net-options`). The guest's board is
+   the `MauMauView`; over the network a draw is submitted at once (no "Weiter" preview: no cover to hand over
+   to) and the drawn cards stay framed in the drawer's hand while the other player is on (from the accepted
+   event, which only the drawer gets with the cards). No cover, no undo (hot-seat only, as everywhere).
+   Fix found on the way: the guest's end-of-game check (`verifyRedactedGame`) rebuilt the game from single
+   options and missed `maumau` (and Wortgewandt's `rest`): with any house rule the replay differed and the
+   game showed "Spielverlauf konnte nicht bestätigt werden". It now takes the whole public config. No rules
+   version or protocol change (moves, views and wire format are unchanged). Tests: engine
+   (`mau_mau_test.dart`: no hidden card in any view or redacted step all game long, every rule set), net
+   (`maumau_net_test.dart`: TCP / WebSocket / relay with four rule sets, wire captured, forgotten "Mau!" and
+   stacked 7s, rejoin, a lying config caught), app (`pairing_screen_test.dart`, live UI
+   `maumau_network_live_test.dart`: whole games over TCP with the Wi-Fi proxy, WebSocket and the relay).
+   Screenshots `network_games_shots_test.dart --plain-name kld118`.
 
 ## Rules (defaults decided by the maintainer on 2026-11-06; every switch stays in the start options)
 
@@ -99,7 +114,7 @@ The "Mau-Mau" call on the last card is not modelled (the game ends anyway).
 - [x] Maintainer: rule defaults (2026-11-06: 5 cards, ace again and "Mau!" on, 7 ends the turn).
 - [x] Landing page: `GAMES` in `site/build_site.py`, screenshot `site/assets/shot-maumau.jpg` in the gallery.
 - [ ] Maintainer: card look, layout (step-by-step UX).
-- [ ] Step 3: network.
+- [x] Step 3: network (2 players; room rules, guest view, live-UI network games, guest verifies the game).
 
 ## Decisions (maintainer, 2026-11-06)
 - 5 cards each (classic).

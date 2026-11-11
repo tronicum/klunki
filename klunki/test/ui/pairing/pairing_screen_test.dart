@@ -15,7 +15,7 @@ import 'package:klunki/ui/pairing/device_name.dart';
 import 'package:klunki/ui/pairing/pairing_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart' show RelayHostScreen;
 import 'package:klunki/ui/shell/screen_registry.dart' show networkGameSpecs;
-import 'package:klunki_engine/klunki_engine.dart' show ChessColorChoice, GameConfig, Player;
+import 'package:klunki_engine/klunki_engine.dart' show ChessColorChoice, GameConfig, MauMauRules, Player;
 import 'package:klunki_net/guest_web.dart' show NetException;
 
 import '../../l10n/l10n_test_utils.dart';
@@ -69,6 +69,7 @@ void main() {
       expect(networkGameSpecs.map((s) => s.id), contains('chess'));
       expect(find.byKey(const Key('pair-game-wordtiles')), findsOneWidget);
       expect(networkGameSpecs.map((s) => s.id), contains('wordtiles'));
+      expect(find.byKey(const Key('pair-game-maumau')), findsOneWidget);
     });
 
     testWidgets('shows name, every address with the real port and the QR; advertises', (tester) async {
@@ -467,6 +468,63 @@ void main() {
       final picker = find.descendant(
           of: find.byKey(const Key('relay-chess-color')), matching: find.byType(SegmentedButton<ChessColorChoice>));
       expect(tester.widget<SegmentedButton<ChessColorChoice>>(picker).selected, {ChessColorChoice.white});
+      await unmountAndSettleSockets(tester, created);
+    });
+
+    // KLD-118 network step: Mau-Mau's house rules are chosen on "Raum
+    // starten", travel in the config and show in the waiting room.
+    testWidgets('Mau-Mau: the house rules are chosen, hosted and shown in the room', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'maumau');
+      expect(find.byKey(const Key('pair-rules')), findsOneWidget);
+      expect(find.byKey(const Key('pair-maumau-jack-info')), findsOneWidget);
+      expect(tester.widget<SwitchListTile>(find.byKey(const Key('pair-maumau-rule-jackOnJack'))).value, isFalse);
+      await tester.ensureVisible(find.byKey(const Key('pair-maumau-rule-jackOnJack')));
+      await tester.tap(find.byKey(const Key('pair-maumau-rule-jackOnJack')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('pair-maumau-rule-eight')));
+      await tester.tap(find.byKey(const Key('pair-maumau-rule-eight')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('pair-host-start')));
+      await _startHosting(tester);
+      final config = created.hosts.single.config;
+      expect(config.gameId, 'maumau');
+      expect(config.mauMau, const MauMauRules(jackOnJack: true, eightSkips: false));
+      expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data,
+          '7: zwei Karten ziehen · 7 auf 7 · Bube auf Bube · Ass: noch mal · „Mau!“ sagen · Legen, wenn möglich');
+      await unmountAndSettleSockets(tester, created);
+    }, timeout: _timeout);
+
+    testWidgets('Mau-Mau through the relay: the house rules go along to the relay room screen', (tester) async {
+      final created = CreatedTransports();
+      final configs = <GameConfig>[];
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        roomSettings: RoomSettings.memory(true),
+        relaySettings: RelaySettings.memory(Uri.parse('ws://127.0.0.1:9/')),
+        relayHost: (config, relay, {required name}) async {
+          configs.add(config);
+          throw const SocketLikeError('no relay');
+        },
+      );
+      await pumpFor(tester, deps, 'maumau');
+      await tester.ensureVisible(find.byKey(const Key('pair-maumau-rule-mau')));
+      await tester.tap(find.byKey(const Key('pair-maumau-rule-mau')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('pair-host-start')));
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await tester.pumpAndSettle();
+      expect(find.byType(RelayHostScreen), findsOneWidget);
+      expect(configs.single.mauMau, const MauMauRules(mauCall: false));
+      expect(tester.widget<SwitchListTile>(find.byKey(const Key('relay-maumau-rule-mau'))).value, isFalse);
+      await unmountAndSettleSockets(tester, created);
+    });
+
+    testWidgets('other games show no house rules', (tester) async {
+      final created = CreatedTransports();
+      await pumpFor(tester, testDeps(discovery: FakeDiscovery(), created: created), 'schiffe');
+      expect(find.byKey(const Key('pair-rules')), findsNothing);
       await unmountAndSettleSockets(tester, created);
     });
 

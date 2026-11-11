@@ -15,6 +15,7 @@ import '../games/chess/chess_color_picker.dart';
 import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
 import '../games/wordtiles/wordtiles_options.dart';
+import 'room_rules.dart';
 import '../ltr.dart';
 import '../player_name_dialog.dart';
 import '../shell/confirm_move.dart' show ConfirmMoveSwitch, confirmMoveGames;
@@ -96,6 +97,10 @@ class RelayHostScreen extends StatefulWidget {
   /// default ([defaultChessColorChoice]).
   final ChessColorChoice? initialChessColor;
 
+  /// House rules already chosen (Mau-Mau, KLD-118 network step); null: the
+  /// defaults.
+  final RoomRules? initialRules;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -111,6 +116,7 @@ class RelayHostScreen extends StatefulWidget {
     this.fixedGame = false,
     this.initialWordTiles,
     this.initialChessColor,
+    this.initialRules,
   });
 
 
@@ -132,6 +138,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
 
   /// The host's colour in chess (KLD-059 step 4a).
   late ChessColorChoice _chessColor = widget.initialChessColor ?? defaultChessColorChoice;
+
+  /// House rules (Mau-Mau, KLD-118 network step).
+  late RoomRules _rules = widget.initialRules ?? const RoomRules();
   late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
@@ -203,14 +212,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
     if (!mounted) return;
     final seed = widget.seed();
     // Chess: "Zufällig" is decided here, from the seed (KLD-059 step 4a).
-    final config = GameConfig(_gameId,
+    final config = _rules.applyTo(GameConfig(_gameId,
         seed: seed,
         deck: _hostDeck,
         tiles: words?.tiles,
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
         rackPenalty: words?.rest ?? true,
-        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a));
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -345,6 +354,17 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           onChanged: (c) => setState(() => _chessColor = c),
         ),
       ],
+      if (hasRoomRules(_gameId)) ...[
+        const SizedBox(height: 12),
+        RoomRulesPicker(
+          key: const Key('relay-rules'),
+          keyPrefix: 'relay-',
+          gameId: _gameId,
+          value: _rules,
+          enabled: !_starting,
+          onChanged: (r) => setState(() => _rules = r),
+        ),
+      ],
       // KLD-122: this device's "Zug bestätigen" for the game.
       if (confirmMoveGames.contains(_gameId)) ...[
         const SizedBox(height: 4),
@@ -414,6 +434,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
                 key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           if (_gameId == 'chess')
             Text(chessYouPlay(l10n, chessColorIn(t.config, t.me)),
+                key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
+          if (roomRulesSummary(l10n, t.config) case final rules?)
+            Text(rules,
                 key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
           Text(l10n.relayRoomCode, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),

@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+import 'package:klunki/l10n/app_localizations.dart';
+import 'package:klunki_engine/klunki_engine.dart' hide Card;
+
+import '../games/maumau/maumau_options.dart';
+
+/// The house rules a room starts with, for the games that have them in the
+/// start dialog (KLD-118 network step: Mau-Mau). The host chooses them on
+/// "Raum starten" (on this device or through the relay); they travel to the
+/// guest in the game's public config, and the waiting room and the game show
+/// them ([roomRulesSummary]).
+class RoomRules {
+  final MauMauRules mauMau;
+
+  const RoomRules({this.mauMau = const MauMauRules()});
+
+  RoomRules copyWith({MauMauRules? mauMau}) => RoomRules(mauMau: mauMau ?? this.mauMau);
+
+  /// [config] with these rules for its game (the others ignore them).
+  GameConfig applyTo(GameConfig config) => GameConfig.fromJson({
+        ...config.toJson(),
+        if (config.gameId == 'maumau' && !mauMau.isDefault) 'maumau': mauMau.toJson(),
+      });
+}
+
+/// Whether [gameId] has house rules in a room.
+bool hasRoomRules(String gameId) => gameId == 'maumau';
+
+/// The house-rule switches of [gameId] for "Raum starten" (nothing for a
+/// game without them). Keys: `<keyPrefix>maumau-rule-<name>` (see
+/// [MauMauOptionsPicker]).
+class RoomRulesPicker extends StatelessWidget {
+  final String gameId;
+  final RoomRules value;
+  final ValueChanged<RoomRules> onChanged;
+  final bool enabled;
+  final String keyPrefix;
+
+  const RoomRulesPicker({
+    super.key,
+    required this.gameId,
+    required this.value,
+    required this.onChanged,
+    required this.keyPrefix,
+    this.enabled = true,
+  });
+
+  @override
+  Widget build(BuildContext context) => switch (gameId) {
+        'maumau' => MauMauOptionsPicker(
+            keyPrefix: '${keyPrefix}maumau-',
+            value: value.mauMau,
+            enabled: enabled,
+            onChanged: (r) => onChanged(value.copyWith(mauMau: r)),
+          ),
+        _ => const SizedBox.shrink(),
+      };
+}
+
+/// The house rules of [config] as one line for the room and the game (null:
+/// the game has none in a room, or none is on).
+String? roomRulesSummary(AppLocalizations l10n, GameConfig config) => switch (config.gameId) {
+      'maumau' => mauMauRulesSummary(l10n, config.mauMau),
+      _ => null,
+    };

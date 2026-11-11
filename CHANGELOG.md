@@ -8,6 +8,13 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Mau-Mau over the network** (KLD-118): two players on two devices, "Raum starten" / "Raum beitreten" in the
+  same Wi-Fi or through a relay (also browser to browser). The host switches the house rules before starting the
+  room; both players see them in the room and at the start of the game. Each device shows only its own cards,
+  drawn cards are seen only by the one who drew them, and at the end the guest's device checks that the game was
+  dealt fairly.
+- **Fix: network games with house rules checked correctly** (KLD-118): a Wortgewandt game without "Restpunkte
+  abziehen" was reported as "Spielverlauf konnte nicht bestätigt werden" on the guest at the end.
 - **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll
   around the board, buy streets or bid for them, collect rent, build houses once you own a whole group, draw
   cards, sit in the pause, mortgage when money is short; whoever cannot pay any more is out. A game lasts 30
