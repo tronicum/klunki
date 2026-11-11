@@ -6673,5 +6673,162 @@
   "propertyTradeShowOffer": "Zurück zum Angebot",
   "@propertyTradeShowOffer": {
     "description": "KLD-060 step 3b: button above the board while the trade partner looks at it: back to the offer (accept or decline there)."
+  },
+  "chessClockLabel": "Schachuhr",
+  "@chessClockLabel": {
+    "description": "KLD-126: title of the chess clock choice (\"Wer spielt?\" and \"Raum starten\")."
+  },
+  "chessClockNone": "Ohne Uhr",
+  "@chessClockNone": {
+    "description": "KLD-126: chess clock choice: play without a clock (the default)."
+  },
+  "chessClockMinutes": "{minutes} Min",
+  "@chessClockMinutes": {
+    "description": "KLD-126: chess clock choice: {minutes} minutes per player, short (\"5 Min\").",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "chessClockMinutesIncrement": "{minutes} Min + {seconds} s",
+  "@chessClockMinutesIncrement": {
+    "description": "KLD-126: chess clock choice: {minutes} minutes per player plus {seconds} seconds after every own move, short (\"15 Min + 10 s\").",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chessClockHelper": "Die Uhr läuft für die Seite am Zug. Ist die Zeit um, ist das Spiel verloren.",
+  "@chessClockHelper": {
+    "description": "KLD-126: one line under the chess clock choice."
+  },
+  "chessClockSemantics": "Uhr von {player}: {time}",
+  "@chessClockSemantics": {
+    "description": "KLD-126: screen reader label of a chess clock: {player} (name) and the remaining {time} (\"4:59\").",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "chessClockPause": "Pause",
+  "@chessClockPause": {
+    "description": "KLD-126: tooltip of the pause button next to the chess board (stops both clocks; over the network it asks the other player)."
+  },
+  "chessClockPausedTitle": "Pause – die Uhren stehen",
+  "@chessClockPausedTitle": {
+    "description": "KLD-126: title of the pause cover over the chess board."
+  },
+  "chessClockResume": "Weiter",
+  "@chessClockResume": {
+    "description": "KLD-126: button on the pause cover: the clocks run again (over the network it asks the other player)."
+  },
+  "chessClockPauseAsk": "{player} möchte eine Pause machen.",
+  "@chessClockPauseAsk": {
+    "description": "KLD-126: network chess: {player} (the other player) asks for a pause; answered with Annehmen / Ablehnen.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessClockResumeAsk": "{player} möchte weiterspielen.",
+  "@chessClockResumeAsk": {
+    "description": "KLD-126: network chess, paused: {player} (the other player) asks to go on; answered with Annehmen / Ablehnen.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessClockWaiting": "Angefragt – {player} entscheidet.",
+  "@chessClockWaiting": {
+    "description": "KLD-126: network chess: this device asked for a pause (or to go on); {player} (the other player) answers.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessClockRefusedHint": "{player} möchte nicht.",
+  "@chessClockRefusedHint": {
+    "description": "KLD-126: hint line after {player} declined a pause (or going on).",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "chessMoveTimeout": "Zeit abgelaufen",
+  "@chessMoveTimeout": {
+    "description": "KLD-126: move history entry: the time of this player ran out."
+  },
+  "chessMovePauseAsk": "Pause angefragt",
+  "@chessMovePauseAsk": {
+    "description": "KLD-126: move history entry: asked for a pause."
+  },
+  "chessMoveResumeAsk": "Weiterspielen angefragt",
+  "@chessMoveResumeAsk": {
+    "description": "KLD-126: move history entry: asked to go on after a pause."
+  },
+  "chessMovePaused": "Pause",
+  "@chessMovePaused": {
+    "description": "KLD-126: move history entry: agreed to the pause (the clocks stop)."
+  },
+  "chessMoveResumed": "Weiter",
+  "@chessMoveResumed": {
+    "description": "KLD-126: move history entry: agreed to go on (the clocks run again)."
+  },
+  "chessMoveClockRefused": "Abgelehnt",
+  "@chessMoveClockRefused": {
+    "description": "KLD-126: move history entry: declined a pause or going on."
+  },
+  "engineReasonChessTimeout": "Zeit abgelaufen bei {player}",
+  "@engineReasonChessTimeout": {
+    "description": "KLD-126: result reason (chess): the time of {player} ran out; the other player wins.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "engineReasonChessTimeoutDraw": "Zeit abgelaufen bei {player}, aber mit dem König allein kann niemand mattsetzen",
+  "@engineReasonChessTimeoutDraw": {
+    "description": "KLD-126: result reason (chess): the time of {player} ran out, but the other player has only the king left: draw.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesChessClockTitle": "Schachuhr: {time}",
+  "@rulesChessClockTitle": {
+    "description": "KLD-126: rules page, the setting of a game with a clock; {time} is the choice (\"15 Min + 10 s\").",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "rulesChessClock": "Jede Seite hat ihre eigene Bedenkzeit. Die Uhr läuft für die Seite am Zug und wechselt mit jedem Zug – mit „Zug bestätigen“ erst bei „Ziehen“.\nIst die Zeit um, gewinnt die andere Seite. Hat sie nur noch den König, ist es unentschieden.\nPause hält beide Uhren an, im Netz nur, wenn beide einverstanden sind.\n„Zug zurücknehmen“ stellt auch die Uhr zurück.",
+  "@rulesChessClock": {
+    "description": "KLD-126: rules page: how the chess clock works (lines separated by \\n)."
+  },
+  "rulesChessClockIncrement": "Nach jedem eigenen Zug kommen {seconds} Sekunden dazu.",
+  "@rulesChessClockIncrement": {
+    "description": "KLD-126: rules page, a clock with increment: {seconds} seconds are added after every own move.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
   }
 }

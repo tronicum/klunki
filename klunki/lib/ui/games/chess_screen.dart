@@ -64,6 +64,18 @@ String describeChessMove(AcceptedMove m, [AppLocalizations? l10n]) {
         return l10n.chessMoveDrawDecline;
       case ChessGame.acceptDraw:
         return l10n.chessMoveDrawAccept;
+      // KLD-126: the clock moves.
+      case ChessGame.timeout:
+        return l10n.chessMoveTimeout;
+      case ChessGame.clockPause:
+        return l10n.chessMovePauseAsk;
+      case ChessGame.clockResume:
+        return l10n.chessMoveResumeAsk;
+      case ChessGame.clockRefuse:
+        return l10n.chessMoveClockRefused;
+      case ChessGame.clockAgree:
+        final p = m.event.payload;
+        return p is Map && p['clockPaused'] == true ? l10n.chessMovePaused : l10n.chessMoveResumed;
     }
   }
   final payload = m.event.payload;

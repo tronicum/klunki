@@ -157,6 +157,11 @@ flutter:
         - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf
         - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.ttf
           weight: 700
+    - family: NotoSansSC2
+      fonts:
+        - asset: assets/fonts/NotoSansSC/NotoSansSC2-Regular.ttf
+        - asset: assets/fonts/NotoSansSC/NotoSansSC2-Bold.ttf
+          weight: 700
     # END NotoSansSC
     # BEGIN NotoSansMath (written by tool/update_web_fonts.py subset)
     - family: NotoSansMath

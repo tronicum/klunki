@@ -4567,4 +4567,100 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'Volver a la oferta';
+
+  @override
+  String get chessClockLabel => 'Reloj de ajedrez';
+
+  @override
+  String get chessClockNone => 'Sin reloj';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes min + $seconds s';
+  }
+
+  @override
+  String get chessClockHelper =>
+      'El reloj corre para el bando que mueve. Si se acaba el tiempo, se pierde la partida.';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return 'Reloj de $player: $time';
+  }
+
+  @override
+  String get chessClockPause => 'Pausa';
+
+  @override
+  String get chessClockPausedTitle => 'Pausa: los relojes están parados';
+
+  @override
+  String get chessClockResume => 'Seguir';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return '$player quiere hacer una pausa.';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return '$player quiere seguir jugando.';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return 'Pedido enviado: decide $player.';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return '$player ha dicho que no.';
+  }
+
+  @override
+  String get chessMoveTimeout => 'Tiempo agotado';
+
+  @override
+  String get chessMovePauseAsk => 'Pausa pedida';
+
+  @override
+  String get chessMoveResumeAsk => 'Reanudar pedido';
+
+  @override
+  String get chessMovePaused => 'Pausa';
+
+  @override
+  String get chessMoveResumed => 'Reanudado';
+
+  @override
+  String get chessMoveClockRefused => 'Rechazado';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return 'Se acabó el tiempo de $player';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return 'Se acabó el tiempo de $player, pero un rey solo no puede dar mate';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return 'Reloj de ajedrez: $time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      'Cada bando tiene su propio tiempo para pensar. El reloj corre para el bando que mueve y cambia con cada jugada; con «Confirmar jugada», solo al pulsar «Mover».\nSi se acaba el tiempo, gana el otro bando. Si a ese bando solo le queda el rey, son tablas.\nLa pausa para los dos relojes; en red, solo si los dos están de acuerdo.\nDeshacer una jugada también devuelve el reloj atrás.';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return 'Se suman $seconds segundos tras cada jugada propia.';
+  }
 }

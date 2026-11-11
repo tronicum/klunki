@@ -6,6 +6,7 @@ import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
 
 import '../app/build_info.dart';
+import 'game_clock.dart';
 import 'game_transport.dart';
 
 /// Connection state of a [NetworkTransport], for the pairing / reconnect UI.
@@ -55,7 +56,11 @@ enum NetRole { host, guest }
 ///
 /// Restart is not supported over the network (the host owns the session);
 /// a `GameController` for this transport should not call `restart`.
-class NetworkTransport implements GameTransport {
+///
+/// A chess game with a clock (KLD-126, [ClockedTransport]): [clock] is the
+/// host's authoritative clock on the host and the guest's local copy on the
+/// guest; the pause by agreement goes through [submit] like any move.
+class NetworkTransport implements GameTransport, ClockedTransport {
   final NetRole role;
   final KlunkiHost? _host;
   final KlunkiGuest? _guest;
@@ -201,8 +206,23 @@ class NetworkTransport implements GameTransport {
     return NetworkTransport._guest(guest, autoReconnect: autoReconnect, reconnectFor: reconnectFor);
   }
 
+  final ClockNotifier _clockChanges = ClockNotifier();
+  StreamSubscription<ChessClockSnapshot>? _clockSub;
+
+  @override
+  ChessClock? get clock => _host?.clock ?? _guest!.clock;
+
+  @override
+  int clockNow() => _host?.clockNow() ?? _guest!.clockNow();
+
+  @override
+  Listenable get clockChanges => _clockChanges;
+
   void _init(Stream<NetEvent> events) {
     _netSub = events.listen(_onNetEvent);
+    _clockSub = (_host?.clockUpdates ?? _guest!.clockUpdates).listen((_) {
+      if (!_disposed) _clockChanges.changed();
+    });
     _catchUp(); // the snapshot (guest) or a resumed log (host)
   }
 
@@ -266,7 +286,7 @@ class NetworkTransport implements GameTransport {
       // A stale/ahead index means the log moved under us: not our turn there.
       return RejectReason.notYourTurn;
     }
-    if (reason == 'game is over') return RejectReason.gameOver;
+    if (reason == 'game is over' || reason == 'time is up') return RejectReason.gameOver;
     if (reason == 'not connected' || reason == 'disconnected') return RejectReason.disconnected;
     return RejectReason.illegal; // 'illegal move', 'move is not JSON', anything else
   }
@@ -289,6 +309,7 @@ class NetworkTransport implements GameTransport {
     _disposed = true;
     _reconnector?.stop();
     _netSub.cancel();
+    _clockSub?.cancel();
     _setState(NetConnectionState.closed);
     _accepted.close();
     _stateChanges.close();

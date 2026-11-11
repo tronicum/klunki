@@ -41,6 +41,9 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.chessSeventyFiveMoves => l10n.engineReasonChessSeventyFiveMoves(p('moves')),
     GameEndReason.chessThreefoldRepetition => l10n.engineReasonChessThreefoldRepetition(p('times')),
     GameEndReason.chessDrawAgreed => l10n.engineReasonChessDrawAgreed,
+    GameEndReason.chessTimeout => l10n.engineReasonChessTimeout(label(p('player') == 1 ? Player.b : Player.a)),
+    GameEndReason.chessTimeoutDraw =>
+      l10n.engineReasonChessTimeoutDraw(label(p('player') == 1 ? Player.b : Player.a)),
     // KLD-125: 3–4 players (a seat result: `score0…3`, no `a` / `b`) say
     // why without the score; the ranking under it has every score.
     GameEndReason.wordtilesPlayedOut => params.containsKey('a')

@@ -4451,4 +4451,100 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'بازگشت به پیشنهاد';
+
+  @override
+  String get chessClockLabel => 'ساعت شطرنج';
+
+  @override
+  String get chessClockNone => 'بدون ساعت';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes دقیقه';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes دقیقه + $seconds ثانیه';
+  }
+
+  @override
+  String get chessClockHelper =>
+      'ساعتِ طرفی که نوبتش است کار می‌کند. اگر وقت تمام شود، بازی باخته است.';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return 'ساعت $player: $time';
+  }
+
+  @override
+  String get chessClockPause => 'توقف';
+
+  @override
+  String get chessClockPausedTitle => 'توقف – ساعت‌ها ایستاده‌اند';
+
+  @override
+  String get chessClockResume => 'ادامه';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return '$player می‌خواهد کمی استراحت کند.';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return '$player می‌خواهد بازی را ادامه دهد.';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return 'درخواست فرستاده شد – تصمیم با $player است.';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return '$player موافق نیست.';
+  }
+
+  @override
+  String get chessMoveTimeout => 'وقت تمام شد';
+
+  @override
+  String get chessMovePauseAsk => 'درخواست توقف';
+
+  @override
+  String get chessMoveResumeAsk => 'درخواست ادامه';
+
+  @override
+  String get chessMovePaused => 'توقف';
+
+  @override
+  String get chessMoveResumed => 'ادامه';
+
+  @override
+  String get chessMoveClockRefused => 'رد شد';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return 'وقت $player تمام شد';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return 'وقت $player تمام شد، ولی شاه تنها نمی‌تواند مات کند';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return 'ساعت شطرنج: $time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      'هر طرف وقت فکر کردن خودش را دارد. ساعتِ طرفی که نوبتش است کار می‌کند و با هر حرکت عوض می‌شود – با «تأیید حرکت» فقط بعد از «حرکت بده».\nاگر وقت تمام شود، طرف مقابل می‌برد. اگر برای آن طرف فقط شاه مانده باشد، مساوی است.\nتوقف هر دو ساعت را نگه می‌دارد؛ در شبکه فقط وقتی هر دو موافق باشند.\nبرگرداندن حرکت، ساعت را هم برمی‌گرداند.';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return 'بعد از هر حرکت خودت $seconds ثانیه اضافه می‌شود.';
+  }
 }

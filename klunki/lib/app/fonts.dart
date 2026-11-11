@@ -40,7 +40,7 @@ const String symbolFontFamily = 'NotoSansMath';
 /// characters per request, so a bigger subset comes as NotoSansSC,
 /// NotoSansSC2, ... (the first part holds printable ASCII). Written by
 /// `tool/update_web_fonts.py subset` together with pubspec.yaml.
-const List<String> chineseFontFamilies = ['NotoSansSC'];
+const List<String> chineseFontFamilies = ['NotoSansSC', 'NotoSansSC2'];
 const List<String> symbolFontFamilies = ['NotoSansMath'];
 
 /// `fontFamilyFallback` for all app text on the web: Arabic script, symbols,

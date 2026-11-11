@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:klunki/l10n/app_localizations.dart';
-import 'package:klunki_engine/klunki_engine.dart' show Player, specById;
+import 'package:klunki_engine/klunki_engine.dart' show ChessTimeControl, Player, specById;
 
+import '../profile/chess_clock_settings.dart';
 import '../profile/player_name_controller.dart';
 import '../profile/undo_settings.dart';
+import 'games/chess/chess_clock_view.dart';
 import 'shell/confirm_move.dart';
 import 'shell/game_screen.dart' show PlayerToken;
 import 'shell/player_labels.dart';
@@ -177,11 +179,14 @@ Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool 
       b: names.o ?? defaultPlayerName(l10n, Player.b),
       confirm: confirm == null ? null : (confirm.hotSeat(Player.a), confirm.hotSeat(Player.b)),
       undo: gameId == null ? null : UndoSettings.shared().allowed(gameId),
+      clock: start && gameId == 'chess' ? (ChessClockSettings.shared().control,) : null,
       gameId: gameId,
       start: start,
     ),
   );
   if (result == null) return false;
+  // KLD-126: the chess clock for the game that starts now (and next time).
+  if (result.clock != null) await ChessClockSettings.shared().setControl(result.clock!.$1);
   if (gameId != null && result.undo != null) await UndoSettings.shared().setAllowed(gameId, result.undo!);
   if (confirm != null && result.confirm != null) {
     await confirm.setHotSeat(Player.a, result.confirm!.$1);
@@ -199,11 +204,12 @@ Future<bool> showHotSeatNamesDialog(BuildContext context, {String? gameId, bool 
 
 /// What "Wer spielt?" returns: both names, for a game with "Zug
 /// bestätigen" both players' choice, and "Zug zurücknehmen erlauben".
-typedef _HotSeatChoice = ({String a, String b, (bool, bool)? confirm, bool? undo});
+/// For chess (KLD-126) also the clock (a record: null = not offered).
+typedef _HotSeatChoice = ({String a, String b, (bool, bool)? confirm, bool? undo, (ChessTimeControl?,)? clock});
 
 class _HotSeatNamesDialog extends StatefulWidget {
   const _HotSeatNamesDialog(
-      {required this.a, required this.b, this.confirm, this.undo, this.gameId, this.start = false});
+      {required this.a, required this.b, this.confirm, this.undo, this.clock, this.gameId, this.start = false});
 
   final String a;
   final String b;
@@ -214,6 +220,9 @@ class _HotSeatNamesDialog extends StatefulWidget {
   /// "Zug zurücknehmen erlauben" for the game (both players); null = no
   /// game (no switch).
   final bool? undo;
+
+  /// The chess clock (KLD-126) of a starting chess game; null = no choice.
+  final (ChessTimeControl?,)? clock;
   final String? gameId;
   final bool start;
 
@@ -227,6 +236,7 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
   late bool _confirmA = widget.confirm?.$1 ?? false;
   late bool _confirmB = widget.confirm?.$2 ?? false;
   late bool _undo = widget.undo ?? UndoSettings.defaultAllowed;
+  late ChessTimeControl? _clock = widget.clock?.$1;
 
   @override
   void dispose() {
@@ -241,6 +251,7 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
         b: _b.text,
         confirm: widget.confirm == null ? null : (_confirmA, _confirmB),
         undo: widget.undo == null ? null : _undo,
+        clock: widget.clock == null ? null : (_clock,),
       ));
 
   @override
@@ -304,6 +315,15 @@ class _HotSeatNamesDialogState extends State<_HotSeatNamesDialog> {
             const SizedBox(height: 4),
             Text(l10n.confirmMoveHelper,
                 key: const Key('hot-seat-confirm-helper'), style: Theme.of(context).textTheme.bodySmall),
+          ],
+          // KLD-126: the chess clock.
+          if (widget.clock != null) ...[
+            const SizedBox(height: 12),
+            ChessClockPicker(
+              key: const Key('hot-seat-chess-clock'),
+              value: _clock,
+              onChanged: (c) => setState(() => _clock = c),
+            ),
           ],
           // KLD-117 follow-up: "Zug zurücknehmen erlauben", for both
           // players of this game.

@@ -4287,4 +4287,99 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => '回到报价';
+
+  @override
+  String get chessClockLabel => '棋钟';
+
+  @override
+  String get chessClockNone => '不计时';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes 分钟';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes 分钟 + $seconds 秒';
+  }
+
+  @override
+  String get chessClockHelper => '轮到哪一方走，哪一方的钟就在走。时间用完就输棋。';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return '$player 的棋钟：$time';
+  }
+
+  @override
+  String get chessClockPause => '暂停';
+
+  @override
+  String get chessClockPausedTitle => '暂停：棋钟已停';
+
+  @override
+  String get chessClockResume => '继续';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return '$player 想暂停一下。';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return '$player 想继续下棋。';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return '已询问，由 $player 决定。';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return '$player 不同意。';
+  }
+
+  @override
+  String get chessMoveTimeout => '超时';
+
+  @override
+  String get chessMovePauseAsk => '请求暂停';
+
+  @override
+  String get chessMoveResumeAsk => '请求继续';
+
+  @override
+  String get chessMovePaused => '暂停';
+
+  @override
+  String get chessMoveResumed => '继续';
+
+  @override
+  String get chessMoveClockRefused => '拒绝';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return '$player 超时';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return '$player 超时，但只剩一个王无法将死';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return '棋钟：$time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      '每一方都有自己的思考时间。轮到哪一方走，哪一方的钟就在走，每走一步就换边；开启“确认走棋”时，点“走棋”才换。\n时间用完，对方获胜。如果对方只剩一个王，就是和棋。\n暂停会停下两边的钟；联网时要双方都同意。\n悔棋时，棋钟也会回到之前的时间。';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return '每走一步加 $seconds 秒。';
+  }
 }

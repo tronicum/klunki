@@ -22,6 +22,7 @@ import '../games/wordtiles_screen.dart';
 import '../games/wordtiles/wordtiles_options.dart';
 import '../games/maumau/maumau_options.dart';
 import '../games/maumau/maumau_screen.dart';
+import '../../profile/chess_clock_settings.dart';
 import '../../profile/player_name_controller.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../seat_players_dialog.dart';
@@ -148,6 +149,7 @@ Future<void> openGame(BuildContext context, String gameId,
     int players = 2,
     bool extraFives = false,
     bool randomStart = false,
+    ChessTimeControl? chessClock,
     PropertyOptions property = const PropertyOptions()}) {
   return Navigator.of(context).push(MaterialPageRoute<void>(
     builder: (_) => GameSession(
@@ -165,6 +167,7 @@ Future<void> openGame(BuildContext context, String gameId,
             players: players,
             extraFives: extraFives,
             randomStart: randomStart,
+            chessClock: gameId == 'chess' ? chessClock : null,
             property: property)),
   ));
 }
@@ -243,6 +246,8 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
       players: players,
       extraFives: sheet?.extraFives ?? false,
       randomStart: sheet?.start == DiceSheetStart.random,
+      // KLD-126: the clock chosen in "Wer spielt?".
+      chessClock: gameId == 'chess' ? ChessClockSettings.shared().control : null,
       property: property ?? const PropertyOptions());
 }
 

@@ -4575,4 +4575,100 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'Retour à l’offre';
+
+  @override
+  String get chessClockLabel => 'Pendule';
+
+  @override
+  String get chessClockNone => 'Sans pendule';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes min + $seconds s';
+  }
+
+  @override
+  String get chessClockHelper =>
+      'La pendule tourne pour le camp qui doit jouer. Quand le temps est écoulé, la partie est perdue.';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return 'Pendule – $player : $time';
+  }
+
+  @override
+  String get chessClockPause => 'Pause';
+
+  @override
+  String get chessClockPausedTitle => 'Pause – les pendules sont arrêtées';
+
+  @override
+  String get chessClockResume => 'Reprendre';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return 'Demande de pause : $player.';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return 'Demande de reprise : $player.';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return 'Demande envoyée – décision : $player.';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return 'Refus : $player.';
+  }
+
+  @override
+  String get chessMoveTimeout => 'Temps écoulé';
+
+  @override
+  String get chessMovePauseAsk => 'Pause demandée';
+
+  @override
+  String get chessMoveResumeAsk => 'Reprise demandée';
+
+  @override
+  String get chessMovePaused => 'Pause';
+
+  @override
+  String get chessMoveResumed => 'Reprise';
+
+  @override
+  String get chessMoveClockRefused => 'Refusé';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return 'Temps écoulé – $player';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return 'Temps écoulé – $player, mais un roi seul ne peut pas mater';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return 'Pendule : $time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      'Chaque camp a son propre temps de réflexion. La pendule tourne pour le camp qui doit jouer et change à chaque coup – avec « Confirmer le coup », seulement sur « Jouer ».\nQuand le temps est écoulé, l’autre camp gagne. S’il ne lui reste que le roi, c’est nulle.\nLa pause arrête les deux pendules ; en réseau seulement si les deux sont d’accord.\nAnnuler un coup remet aussi la pendule en arrière.';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return '$seconds secondes de plus après chaque coup joué.';
+  }
 }

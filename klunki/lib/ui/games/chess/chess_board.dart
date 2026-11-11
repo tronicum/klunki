@@ -6,10 +6,13 @@ import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../app/theme.dart';
 import '../../../game/game_controller.dart';
+import '../../../transport/game_clock.dart';
 import '../../../transport/game_transport.dart';
+import '../../../transport/hot_seat_transport.dart';
 import '../../ltr.dart';
 import '../../shell/confirm_move.dart';
 import '../../shell/game_screen.dart';
+import 'chess_clock_view.dart';
 import 'chess_pieces.dart';
 
 /// The interactive chess board (KLD-059 step 2).
@@ -62,7 +65,7 @@ class ChessBoard extends StatefulWidget {
   State<ChessBoard> createState() => _ChessBoardState();
 }
 
-class _ChessBoardState extends State<ChessBoard> {
+class _ChessBoardState extends State<ChessBoard> with WidgetsBindingObserver {
   String? _selected;
   bool _autoFlip = true;
   bool _flipped = false;
@@ -90,7 +93,198 @@ class _ChessBoardState extends State<ChessBoard> {
     _transport = controller.transport;
     _seen = controller.moves.length;
     controller.addListener(_onChange);
+    _listenClock(null, _transport);
+    WidgetsBinding.instance.addObserver(this);
     _syncDrawOffer(); // e.g. a guest that rejoins while an offer is open
+  }
+
+  // ------------------------------------------------------------------ clock
+
+  /// The transport with a chess clock (KLD-126), or null.
+  ClockedTransport? get _clocked {
+    final t = controller.transport;
+    return t is ClockedTransport && (t as ClockedTransport).clock != null ? t as ClockedTransport : null;
+  }
+
+  void _listenClock(GameTransport? old, GameTransport? now) {
+    if (old is ClockedTransport) (old as ClockedTransport).clockChanges.removeListener(_onClock);
+    if (now is ClockedTransport) (now as ClockedTransport).clockChanges.addListener(_onClock);
+  }
+
+  void _onClock() {
+    if (mounted) setState(() {});
+  }
+
+  /// Whether the clocks stand still: the hot-seat pause cover or an agreed
+  /// pause of a network game.
+  bool get _paused {
+    final t = controller.transport;
+    if (_clocked == null || game.isOver) return false;
+    return t is HotSeatTransport ? t.clockPaused : game.clockPaused;
+  }
+
+  /// Hot-seat: the device goes to the background (a call, the phone
+  /// locked): the clocks stop behind the pause cover.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final t = controller.transport;
+    if ((state == AppLifecycleState.paused || state == AppLifecycleState.hidden) &&
+        t is HotSeatTransport &&
+        t.clock != null &&
+        !game.isOver) {
+      t.setClockPaused(true);
+    }
+  }
+
+  /// "Pause": on one device at once, over the network a request.
+  void _pause() {
+    final t = controller.transport;
+    if (t is HotSeatTransport) return t.setClockPaused(true);
+    final me = _offerer;
+    if (game.canRequestClock(me)) controller.submit(ChessGame.clockMove(ChessGame.clockPause, me));
+  }
+
+  /// "Weiter" on the cover: on one device at once, over the network a
+  /// request.
+  void _resume() {
+    final t = controller.transport;
+    if (t is HotSeatTransport) return t.setClockPaused(false);
+    final me = _offerer;
+    if (game.canRequestClock(me)) controller.submit(ChessGame.clockMove(ChessGame.clockResume, me));
+  }
+
+  /// The local player who answers the open pause / resume request, or null.
+  Player? get _clockAnswerer {
+    final r = game.clockRequest;
+    if (r == null) return null;
+    final to = _other(r.by);
+    return controller.transport.localPlayers.contains(to) ? to : null;
+  }
+
+  void _answerClock(bool agree) {
+    final to = _clockAnswerer;
+    if (to == null) return;
+    controller.submit(ChessGame.clockMove(agree ? ChessGame.clockAgree : ChessGame.clockRefuse, to));
+  }
+
+  /// The hint about a pause request (network): "Angefragt – Ben
+  /// entscheidet." on the asking device, "Ben möchte nicht." after a
+  /// refusal; null otherwise.
+  String? _clockHint(AppLocalizations l10n) {
+    final r = game.clockRequest;
+    if (r != null) {
+      final to = _other(r.by);
+      return controller.transport.localPlayers.contains(to) ? null : l10n.chessClockWaiting(playerName(context, to));
+    }
+    final moves = controller.moves;
+    if (moves.isEmpty || moves.last.move['action'] != ChessGame.clockRefuse) return null;
+    return l10n.chessClockRefusedHint(playerName(context, moves.last.player));
+  }
+
+  /// The captured pieces of [player] with the player's clock at the end.
+  Widget _side(Player player) {
+    final clocked = _clocked;
+    final captured = _Captured(controller: controller, player: player);
+    if (clocked == null) return captured;
+    return Row(
+      children: [
+        Expanded(child: captured),
+        const SizedBox(width: 6),
+        ChessClockFace(transport: clocked, player: player, playerLabel: playerName(context, player)),
+      ],
+    );
+  }
+
+  /// The board with the pause cover (KLD-126) or, over the network, the
+  /// question of the other player on top.
+  Widget _withClockOverlay(Widget board) {
+    if (_clocked == null || game.isOver) return board;
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final request = game.clockRequest;
+    final answerer = _clockAnswerer;
+    Widget answerButtons() => Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          children: [
+            OutlinedButton(
+              key: const Key('chess-clock-refuse'),
+              onPressed: () => _answerClock(false),
+              child: Text(l10n.chessDrawDecline),
+            ),
+            FilledButton(
+              key: const Key('chess-clock-agree'),
+              onPressed: () => _answerClock(true),
+              child: Text(l10n.chessDrawAccept),
+            ),
+          ],
+        );
+    final Widget? overlay;
+    if (_paused) {
+      overlay = Positioned.fill(
+        child: Container(
+          key: const Key('chess-pause-cover'),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface.withValues(alpha: 0.97),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.pause_circle_outline, size: 56, color: theme.colorScheme.primary),
+                  const SizedBox(height: 8),
+                  Text(l10n.chessClockPausedTitle, textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 16),
+                  if (request != null && answerer != null) ...[
+                    Text(l10n.chessClockResumeAsk(playerName(context, request.by)), textAlign: TextAlign.center),
+                    const SizedBox(height: 8),
+                    answerButtons(),
+                  ] else if (request != null)
+                    Text(l10n.chessClockWaiting(playerName(context, _other(request.by))), textAlign: TextAlign.center)
+                  else
+                    FilledButton.icon(
+                      key: const Key('chess-resume'),
+                      onPressed: _resume,
+                      icon: const Icon(Icons.play_arrow),
+                      label: Text(l10n.chessClockResume),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (request != null && answerer != null && !request.resume) {
+      overlay = Positioned(
+        left: 8,
+        right: 8,
+        top: 8,
+        child: Material(
+          key: const Key('chess-clock-request'),
+          elevation: 4,
+          borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.secondaryContainer,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l10n.chessClockPauseAsk(playerName(context, request.by)), textAlign: TextAlign.center),
+                const SizedBox(height: 8),
+                answerButtons(),
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      overlay = null;
+    }
+    if (overlay == null) return board;
+    return Stack(children: [board, overlay]);
   }
 
   @override
@@ -99,6 +293,7 @@ class _ChessBoardState extends State<ChessBoard> {
     if (old.controller != widget.controller) {
       old.controller.removeListener(_onChange);
       widget.controller.addListener(_onChange);
+      _listenClock(_transport, controller.transport);
       _transport = controller.transport;
       _seen = controller.moves.length;
       _selected = null;
@@ -108,6 +303,8 @@ class _ChessBoardState extends State<ChessBoard> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _listenClock(_transport, null);
     controller.removeListener(_onChange);
     super.dispose();
   }
@@ -116,6 +313,7 @@ class _ChessBoardState extends State<ChessBoard> {
     if (!mounted) return;
     setState(() {
       if (!identical(_transport, controller.transport) || controller.moves.length != _seen) {
+        if (!identical(_transport, controller.transport)) _listenClock(_transport, controller.transport);
         _transport = controller.transport;
         _seen = controller.moves.length;
         _selected = null;
@@ -293,7 +491,8 @@ class _ChessBoardState extends State<ChessBoard> {
   /// Pieces move on the own turn, not while the promotion picker is up, a
   /// draw offer waits for its answer (the offerer is the player to move) or
   /// a move waits for "Ziehen".
-  bool get _canMove => controller.canAct && !_promoting && game.drawOfferBy == null && _pending == null;
+  bool get _canMove =>
+      controller.canAct && !_promoting && game.drawOfferBy == null && _pending == null && !_paused;
 
   List<Map<String, dynamic>> _movesFrom(String? sq) => sq == null || !_canMove ? const [] : game.legalMovesFrom(sq);
 
@@ -389,7 +588,8 @@ class _ChessBoardState extends State<ChessBoard> {
         ? null
         : _pending != null
             ? l10n.confirmMoveHint
-            : _drawHint(l10n) ??
+            : _clockHint(l10n) ??
+            _drawHint(l10n) ??
             (_selected == null ? _colorHint(l10n) : null) ??
             (!controller.canAct
                 ? null
@@ -421,12 +621,22 @@ class _ChessBoardState extends State<ChessBoard> {
             selectedIcon: const Icon(Icons.screen_rotation),
             onPressed: () => setState(() => _autoFlip = !_autoFlip),
           ),
+        // KLD-126: the pause (hot-seat at once, network a request).
+        if (!g.isOver && _clocked != null)
+          IconButton(
+            key: const Key('chess-pause'),
+            tooltip: l10n.chessClockPause,
+            icon: const Icon(Icons.pause),
+            onPressed: !_paused && (controller.transport is HotSeatTransport || g.canRequestClock(_offerer))
+                ? _pause
+                : null,
+          ),
         if (!g.isOver)
           IconButton(
             key: const Key('chess-offer-draw'),
             tooltip: l10n.chessOfferDraw,
             icon: const Icon(Icons.handshake_outlined),
-            onPressed: g.canOfferDraw(_offerer) && _offerTo == null ? _offerDraw : null,
+            onPressed: g.canOfferDraw(_offerer) && _offerTo == null && !_paused ? _offerDraw : null,
           ),
       ],
     );
@@ -481,13 +691,13 @@ class _ChessBoardState extends State<ChessBoard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Captured(controller: controller, player: top),
+                    _side(top),
                     const SizedBox(height: 8),
                     controlRow(300),
                     const SizedBox(height: 8),
                     Expanded(child: movePane()),
                     const SizedBox(height: 8),
-                    _Captured(controller: controller, player: bottom),
+                    _side(bottom),
                   ],
                 ),
               ),
@@ -504,9 +714,9 @@ class _ChessBoardState extends State<ChessBoard> {
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
         child: Column(
           children: [
-            SizedBox(width: extent, child: _Captured(controller: controller, player: top)),
+            SizedBox(width: extent, child: _side(top)),
             _frame(context, extent, bottom),
-            SizedBox(width: extent, child: _Captured(controller: controller, player: bottom)),
+            SizedBox(width: extent, child: _side(bottom)),
             SizedBox(
               width: extent,
               height: 48,
@@ -600,7 +810,8 @@ class _ChessBoardState extends State<ChessBoard> {
       );
     }
 
-    return ChessBoardFrame(flip: g.colorOf(bottom) == ChessColor.black, extent: extent, square: square);
+    return _withClockOverlay(
+        ChessBoardFrame(flip: g.colorOf(bottom) == ChessColor.black, extent: extent, square: square));
   }
 
   static String? _kingSquare(List<ChessPiece?> board, ChessColor color) {

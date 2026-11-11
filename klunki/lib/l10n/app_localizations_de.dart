@@ -4557,4 +4557,100 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'Zurück zum Angebot';
+
+  @override
+  String get chessClockLabel => 'Schachuhr';
+
+  @override
+  String get chessClockNone => 'Ohne Uhr';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes Min';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes Min + $seconds s';
+  }
+
+  @override
+  String get chessClockHelper =>
+      'Die Uhr läuft für die Seite am Zug. Ist die Zeit um, ist das Spiel verloren.';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return 'Uhr von $player: $time';
+  }
+
+  @override
+  String get chessClockPause => 'Pause';
+
+  @override
+  String get chessClockPausedTitle => 'Pause – die Uhren stehen';
+
+  @override
+  String get chessClockResume => 'Weiter';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return '$player möchte eine Pause machen.';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return '$player möchte weiterspielen.';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return 'Angefragt – $player entscheidet.';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return '$player möchte nicht.';
+  }
+
+  @override
+  String get chessMoveTimeout => 'Zeit abgelaufen';
+
+  @override
+  String get chessMovePauseAsk => 'Pause angefragt';
+
+  @override
+  String get chessMoveResumeAsk => 'Weiterspielen angefragt';
+
+  @override
+  String get chessMovePaused => 'Pause';
+
+  @override
+  String get chessMoveResumed => 'Weiter';
+
+  @override
+  String get chessMoveClockRefused => 'Abgelehnt';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return 'Zeit abgelaufen bei $player';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return 'Zeit abgelaufen bei $player, aber mit dem König allein kann niemand mattsetzen';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return 'Schachuhr: $time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      'Jede Seite hat ihre eigene Bedenkzeit. Die Uhr läuft für die Seite am Zug und wechselt mit jedem Zug – mit „Zug bestätigen“ erst bei „Ziehen“.\nIst die Zeit um, gewinnt die andere Seite. Hat sie nur noch den König, ist es unentschieden.\nPause hält beide Uhren an, im Netz nur, wenn beide einverstanden sind.\n„Zug zurücknehmen“ stellt auch die Uhr zurück.';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return 'Nach jedem eigenen Zug kommen $seconds Sekunden dazu.';
+  }
 }

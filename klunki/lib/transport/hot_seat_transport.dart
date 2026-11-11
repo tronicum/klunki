@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 
+import 'game_clock.dart';
 import 'game_transport.dart';
 
 /// Hot-seat transport: one device, both players local (every seat in a
@@ -10,7 +12,13 @@ import 'game_transport.dart';
 ///
 /// [accepted] is a synchronous broadcast stream: listeners have seen a move
 /// before the [submit] future completes.
-class HotSeatTransport implements GameTransport {
+///
+/// A chess game with a clock (KLD-126): the transport owns the clock. White's
+/// clock starts with the transport, a board move switches it, the flag
+/// fall is submitted here as [ChessGame.timeoutMove], [setClockPaused] is
+/// the pause cover (no agreement on one device), and [undo] puts the clock
+/// back to where it stood before the undone move.
+class HotSeatTransport implements GameTransport, ClockedTransport {
   @override
   final GameConfig config;
 
@@ -19,7 +27,66 @@ class HotSeatTransport implements GameTransport {
   final StreamController<AcceptedMove> _accepted = StreamController<AcceptedMove>.broadcast(sync: true);
   bool _disposed = false;
 
-  HotSeatTransport(this.config) : _game = createGame(config);
+  // KLD-126: the chess clock.
+  ChessClock? _clock;
+  final int Function() _now;
+  final List<ChessClockSnapshot> _clockBefore = []; // parallel to _moves
+  final ClockNotifier _clockChanges = ClockNotifier();
+  Timer? _flagTimer;
+  bool _clockPaused = false;
+
+  /// [clockNow]: the clock's time in ms (default: a monotonic stopwatch;
+  /// tests pass a fake).
+  HotSeatTransport(this.config, {int Function()? clockNow})
+      : _game = createGame(config),
+        _now = clockNow ?? stopwatchClock() {
+    final control = config.gameId == 'chess' ? config.chessClock : null;
+    if (control != null) {
+      _clock = ChessClock(control)..start(_game.currentPlayer, _now());
+      _armFlag();
+    }
+  }
+
+  @override
+  ChessClock? get clock => _clock;
+
+  @override
+  int clockNow() => _now();
+
+  @override
+  Listenable get clockChanges => _clockChanges;
+
+  /// Whether the clocks stand still behind the pause cover.
+  bool get clockPaused => _clockPaused;
+
+  /// Stops or restarts both clocks (the hot-seat pause cover, KLD-126).
+  void setClockPaused(bool paused) {
+    final clock = _clock;
+    if (clock == null || _disposed || paused == _clockPaused) return;
+    _clockPaused = paused;
+    clock.setPaused(paused, _now());
+    _clockChanged();
+  }
+
+  void _clockChanged() {
+    _armFlag();
+    _clockChanges.changed();
+  }
+
+  void _armFlag() {
+    _flagTimer?.cancel();
+    final until = _clock?.untilFlag(_now());
+    if (until == null || _disposed || _game.isOver) return;
+    _flagTimer = Timer(Duration(milliseconds: until < 0 ? 0 : until), _onFlag);
+  }
+
+  void _onFlag() {
+    final clock = _clock;
+    if (clock == null || _disposed || _game.isOver) return;
+    final flagged = clock.flagged(_now());
+    if (flagged == null) return _armFlag(); // fired early
+    submitSync(ChessGame.timeoutMove(flagged));
+  }
 
   @override
   Set<Player> get localPlayers => const {Player.a, Player.b};
@@ -59,6 +126,18 @@ class HotSeatTransport implements GameTransport {
     }
 
     final copy = Map<String, dynamic>.unmodifiable(move);
+    final clock = _clock;
+    final now = _now();
+    // KLD-126: a move after the flag fell (its timer not run yet: a busy
+    // or sleeping device) is too late; the time-out ends the game instead.
+    if (clock != null && !ChessGame.isTimeout(copy)) {
+      final flagged = clock.flagged(now);
+      if (flagged != null) {
+        submitSync(ChessGame.timeoutMove(flagged));
+        return const SubmitResult.rejected(RejectReason.gameOver);
+      }
+    }
+    final before = clock?.snapshot(now);
     GameEvent? event;
     try {
       event = _game.applyMove(copy);
@@ -71,7 +150,13 @@ class HotSeatTransport implements GameTransport {
 
     final accepted = AcceptedMove(index: _moves.length, player: player, seat: seat, move: copy, event: event);
     _moves.add(accepted);
+    if (clock != null) {
+      _clockBefore.add(before!);
+      if (ChessGame.isBoardMove(copy)) clock.moveMade(player, now);
+      if (_game.isOver) clock.stop(now);
+    }
     _accepted.add(accepted);
+    if (clock != null) _clockChanged();
     return SubmitResult.accepted(accepted);
   }
 
@@ -95,6 +180,14 @@ class HotSeatTransport implements GameTransport {
     }
     _game = rebuilt;
     _moves.removeLast();
+    // KLD-126: the clock as it stood before the move, still paused if the
+    // cover is up.
+    final control = _clock?.control;
+    if (control != null) {
+      final now = _now();
+      _clock = ChessClock.fromSnapshot(control, _clockBefore.removeLast(), now)..setPaused(_clockPaused, now);
+      _clockChanged();
+    }
     return true;
   }
 
@@ -102,6 +195,7 @@ class HotSeatTransport implements GameTransport {
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    _flagTimer?.cancel();
     _accepted.close();
   }
 }

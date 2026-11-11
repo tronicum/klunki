@@ -4538,4 +4538,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get propertyTradeShowOffer => 'Back to the offer';
+
+  @override
+  String get chessClockLabel => 'Chess clock';
+
+  @override
+  String get chessClockNone => 'No clock';
+
+  @override
+  String chessClockMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String chessClockMinutesIncrement(int minutes, int seconds) {
+    return '$minutes min + $seconds s';
+  }
+
+  @override
+  String get chessClockHelper =>
+      'The clock runs for the side to move. When the time is up, the game is lost.';
+
+  @override
+  String chessClockSemantics(String player, String time) {
+    return 'Clock of $player: $time';
+  }
+
+  @override
+  String get chessClockPause => 'Pause';
+
+  @override
+  String get chessClockPausedTitle => 'Paused – the clocks are stopped';
+
+  @override
+  String get chessClockResume => 'Continue';
+
+  @override
+  String chessClockPauseAsk(String player) {
+    return '$player would like a break.';
+  }
+
+  @override
+  String chessClockResumeAsk(String player) {
+    return '$player would like to go on.';
+  }
+
+  @override
+  String chessClockWaiting(String player) {
+    return 'Asked – $player decides.';
+  }
+
+  @override
+  String chessClockRefusedHint(String player) {
+    return '$player said no.';
+  }
+
+  @override
+  String get chessMoveTimeout => 'Time is up';
+
+  @override
+  String get chessMovePauseAsk => 'Asked for a break';
+
+  @override
+  String get chessMoveResumeAsk => 'Asked to go on';
+
+  @override
+  String get chessMovePaused => 'Break';
+
+  @override
+  String get chessMoveResumed => 'Go on';
+
+  @override
+  String get chessMoveClockRefused => 'Declined';
+
+  @override
+  String engineReasonChessTimeout(String player) {
+    return '$player ran out of time';
+  }
+
+  @override
+  String engineReasonChessTimeoutDraw(String player) {
+    return '$player ran out of time, but a lone king cannot give mate';
+  }
+
+  @override
+  String rulesChessClockTitle(String time) {
+    return 'Chess clock: $time';
+  }
+
+  @override
+  String get rulesChessClock =>
+      'Each side has its own thinking time. The clock runs for the side to move and switches with every move – with “Confirm move” only on “Move”.\nWhen the time is up, the other side wins. If that side has only the king left, it is a draw.\nPause stops both clocks; over the network only when both agree.\n“Take back” also turns the clock back.';
+
+  @override
+  String rulesChessClockIncrement(int seconds) {
+    return '$seconds seconds are added after each of your own moves.';
+  }
 }

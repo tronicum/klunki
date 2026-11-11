@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
+import '../../games/chess/chess_clock_view.dart';
 import '../../games/chess/chess_pieces.dart';
 import '../rules_model.dart';
 
 /// Schach (KLD-123): how every piece moves (with its picture), check and
 /// mate, castling, en passant, promotion and the kinds of draw the engine
-/// knows. No house rules.
+/// knows. A game with a clock (KLD-126) lists it as its setting.
 GameRules chessRules(BuildContext context, AppLocalizations l10n, GameConfig config) {
   RuleItem piece(ChessPieceType t, String text) => RuleItem(
         '${chessPieceName(l10n, t)}: $text',
@@ -30,6 +31,19 @@ GameRules chessRules(BuildContext context, AppLocalizations l10n, GameConfig con
       ...ruleLines(l10n.rulesChessSpecial),
       RuleItem.heading(l10n.rulesChessDrawTitle),
       ...ruleLines(l10n.rulesChessDraw),
+    ],
+    houseRules: [
+      if (config.chessClock case final clock?)
+        HouseRule(
+          id: 'clock',
+          title: l10n.rulesChessClockTitle(chessClockName(l10n, clock)),
+          text: [
+            l10n.rulesChessClock,
+            if (clock.incrementMs > 0) l10n.rulesChessClockIncrement(clock.incrementMs ~/ 1000),
+          ].join('\n'),
+          on: true,
+          lead: const Icon(Icons.timer_outlined, size: 32),
+        ),
     ],
   );
 }

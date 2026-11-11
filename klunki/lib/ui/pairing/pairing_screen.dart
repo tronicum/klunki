@@ -23,6 +23,8 @@ import '../player_name_dialog.dart';
 import '../shell/confirm_move.dart' show ConfirmMoveSwitch, confirmMoveGames;
 import '../shell/game_screen.dart' show newGameSeed;
 import '../shell/screen_registry.dart' show networkGameSpecs;
+import '../../profile/chess_clock_settings.dart';
+import '../games/chess/chess_clock_view.dart';
 import '../games/chess/chess_color_picker.dart';
 import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
@@ -376,7 +378,9 @@ class _HostPanelState extends State<_HostPanel> {
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
         rackPenalty: words?.rest ?? true,
-        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a,
+        // KLD-126: the clock chosen below (the last one on this device).
+        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null);
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -522,6 +526,14 @@ class _HostPanelState extends State<_HostPanel> {
             value: _chessColor,
             enabled: !_starting,
             onChanged: (c) => setState(() => _chessColor = c),
+          ),
+          const SizedBox(height: 12),
+          ChessClockPicker(
+            key: const Key('pair-chess-clock'),
+            keyPrefix: 'pair-chess-clock-',
+            value: ChessClockSettings.shared().control,
+            enabled: !_starting,
+            onChanged: (c) => setState(() => ChessClockSettings.shared().setControl(c)),
           ),
         ],
         // KLD-122: this device's "Zug bestätigen" for the game.

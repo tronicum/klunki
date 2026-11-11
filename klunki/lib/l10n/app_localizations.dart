@@ -6945,6 +6945,150 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Zurück zum Angebot'**
   String get propertyTradeShowOffer;
+
+  /// KLD-126: title of the chess clock choice ("Wer spielt?" and "Raum starten").
+  ///
+  /// In de, this message translates to:
+  /// **'Schachuhr'**
+  String get chessClockLabel;
+
+  /// KLD-126: chess clock choice: play without a clock (the default).
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Uhr'**
+  String get chessClockNone;
+
+  /// KLD-126: chess clock choice: {minutes} minutes per player, short ("5 Min").
+  ///
+  /// In de, this message translates to:
+  /// **'{minutes} Min'**
+  String chessClockMinutes(int minutes);
+
+  /// KLD-126: chess clock choice: {minutes} minutes per player plus {seconds} seconds after every own move, short ("15 Min + 10 s").
+  ///
+  /// In de, this message translates to:
+  /// **'{minutes} Min + {seconds} s'**
+  String chessClockMinutesIncrement(int minutes, int seconds);
+
+  /// KLD-126: one line under the chess clock choice.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Uhr läuft für die Seite am Zug. Ist die Zeit um, ist das Spiel verloren.'**
+  String get chessClockHelper;
+
+  /// KLD-126: screen reader label of a chess clock: {player} (name) and the remaining {time} ("4:59").
+  ///
+  /// In de, this message translates to:
+  /// **'Uhr von {player}: {time}'**
+  String chessClockSemantics(String player, String time);
+
+  /// KLD-126: tooltip of the pause button next to the chess board (stops both clocks; over the network it asks the other player).
+  ///
+  /// In de, this message translates to:
+  /// **'Pause'**
+  String get chessClockPause;
+
+  /// KLD-126: title of the pause cover over the chess board.
+  ///
+  /// In de, this message translates to:
+  /// **'Pause – die Uhren stehen'**
+  String get chessClockPausedTitle;
+
+  /// KLD-126: button on the pause cover: the clocks run again (over the network it asks the other player).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get chessClockResume;
+
+  /// KLD-126: network chess: {player} (the other player) asks for a pause; answered with Annehmen / Ablehnen.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte eine Pause machen.'**
+  String chessClockPauseAsk(String player);
+
+  /// KLD-126: network chess, paused: {player} (the other player) asks to go on; answered with Annehmen / Ablehnen.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte weiterspielen.'**
+  String chessClockResumeAsk(String player);
+
+  /// KLD-126: network chess: this device asked for a pause (or to go on); {player} (the other player) answers.
+  ///
+  /// In de, this message translates to:
+  /// **'Angefragt – {player} entscheidet.'**
+  String chessClockWaiting(String player);
+
+  /// KLD-126: hint line after {player} declined a pause (or going on).
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte nicht.'**
+  String chessClockRefusedHint(String player);
+
+  /// KLD-126: move history entry: the time of this player ran out.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeit abgelaufen'**
+  String get chessMoveTimeout;
+
+  /// KLD-126: move history entry: asked for a pause.
+  ///
+  /// In de, this message translates to:
+  /// **'Pause angefragt'**
+  String get chessMovePauseAsk;
+
+  /// KLD-126: move history entry: asked to go on after a pause.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen angefragt'**
+  String get chessMoveResumeAsk;
+
+  /// KLD-126: move history entry: agreed to the pause (the clocks stop).
+  ///
+  /// In de, this message translates to:
+  /// **'Pause'**
+  String get chessMovePaused;
+
+  /// KLD-126: move history entry: agreed to go on (the clocks run again).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiter'**
+  String get chessMoveResumed;
+
+  /// KLD-126: move history entry: declined a pause or going on.
+  ///
+  /// In de, this message translates to:
+  /// **'Abgelehnt'**
+  String get chessMoveClockRefused;
+
+  /// KLD-126: result reason (chess): the time of {player} ran out; the other player wins.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeit abgelaufen bei {player}'**
+  String engineReasonChessTimeout(String player);
+
+  /// KLD-126: result reason (chess): the time of {player} ran out, but the other player has only the king left: draw.
+  ///
+  /// In de, this message translates to:
+  /// **'Zeit abgelaufen bei {player}, aber mit dem König allein kann niemand mattsetzen'**
+  String engineReasonChessTimeoutDraw(String player);
+
+  /// KLD-126: rules page, the setting of a game with a clock; {time} is the choice ("15 Min + 10 s").
+  ///
+  /// In de, this message translates to:
+  /// **'Schachuhr: {time}'**
+  String rulesChessClockTitle(String time);
+
+  /// KLD-126: rules page: how the chess clock works (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Jede Seite hat ihre eigene Bedenkzeit. Die Uhr läuft für die Seite am Zug und wechselt mit jedem Zug – mit „Zug bestätigen“ erst bei „Ziehen“.\nIst die Zeit um, gewinnt die andere Seite. Hat sie nur noch den König, ist es unentschieden.\nPause hält beide Uhren an, im Netz nur, wenn beide einverstanden sind.\n„Zug zurücknehmen“ stellt auch die Uhr zurück.'**
+  String get rulesChessClock;
+
+  /// KLD-126: rules page, a clock with increment: {seconds} seconds are added after every own move.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach jedem eigenen Zug kommen {seconds} Sekunden dazu.'**
+  String rulesChessClockIncrement(int seconds);
 }
 
 class _AppLocalizationsDelegate

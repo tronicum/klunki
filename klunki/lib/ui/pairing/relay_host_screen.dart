@@ -11,6 +11,8 @@ import '../../profile/quartett_deck_settings.dart';
 import '../../profile/relay_settings.dart';
 import '../../transport/network_transport.dart';
 import '../game_titles.dart';
+import '../../profile/chess_clock_settings.dart';
+import '../games/chess/chess_clock_view.dart';
 import '../games/chess/chess_color_picker.dart';
 import '../games/chess/chess_pieces.dart' show chessYouPlay;
 import '../games/quartett_deck_picker.dart' show QuartettDeckChooser;
@@ -210,7 +212,9 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         dictionary: words?.dictionary ?? false,
         jokerSwap: words?.joker ?? false,
         rackPenalty: words?.rest ?? true,
-        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a);
+        chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a,
+        // KLD-126: the clock chosen below (the last one on this device).
+        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null);
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -343,6 +347,14 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           value: _chessColor,
           enabled: !_starting,
           onChanged: (c) => setState(() => _chessColor = c),
+        ),
+        const SizedBox(height: 12),
+        ChessClockPicker(
+          key: const Key('relay-chess-clock'),
+          keyPrefix: 'relay-chess-clock-',
+          value: ChessClockSettings.shared().control,
+          enabled: !_starting,
+          onChanged: (c) => setState(() => ChessClockSettings.shared().setControl(c)),
         ),
       ],
       // KLD-122: this device's "Zug bestätigen" for the game.
