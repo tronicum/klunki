@@ -210,10 +210,10 @@ class NetworkTransport implements GameTransport, ClockedTransport {
   StreamSubscription<ChessClockSnapshot>? _clockSub;
 
   @override
-  ChessClock? get clock => _host?.clock ?? _guest!.clock;
+  ChessClock? get clock => _host != null ? _host.clock : _guest!.clock; // no clock: null, also on the host
 
   @override
-  int clockNow() => _host?.clockNow() ?? _guest!.clockNow();
+  int clockNow() => _host != null ? _host.clockNow() : _guest!.clockNow();
 
   @override
   Listenable get clockChanges => _clockChanges;

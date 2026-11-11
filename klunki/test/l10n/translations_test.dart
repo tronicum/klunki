@@ -60,6 +60,10 @@ const sameAsEnglish = {
   'Total',
   // KLD-060: the city board's name (French spells it the same).
   'Berlin',
+  // KLD-126: the chess clock's units (min, s) and "Pause" (French).
+  '{minutes} min',
+  '{minutes} min + {seconds} s',
+  'Pause',
 };
 
 Map<String, dynamic> _arb(String locale) =>
