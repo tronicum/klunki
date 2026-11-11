@@ -82,7 +82,10 @@ Future<void> _loadFonts() async {
     'assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf',
   ]);
   await family('NotoSansMath', ['assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf']);
-  await family('NotoSansSC', ['assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf']);
+  // Every part of the Chinese subset (NotoSansSC, NotoSansSC2, ...: tool/update_web_fonts.py).
+  for (final f in chineseFontFamilies) {
+    await family(f, ['assets/fonts/NotoSansSC/$f-Regular.ttf', 'assets/fonts/NotoSansSC/$f-Bold.ttf']);
+  }
   final flutterRoot = Platform.environment['FLUTTER_ROOT'] ?? '';
   final icons = File('$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
   if (icons.existsSync()) await family('MaterialIcons', [icons.path]);

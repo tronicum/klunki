@@ -38,7 +38,13 @@ Future<void> _loadFonts() async {
     'assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf',
     'assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf',
   ]);
-  await family('NotoSansSC', ['assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf']);
+  // Every part of the Chinese subset (NotoSansSC, NotoSansSC2, ...: tool/update_web_fonts.py).
+  for (final f in chineseFontFamilies) {
+    await family(f, ['assets/fonts/NotoSansSC/$f-Regular.ttf', 'assets/fonts/NotoSansSC/$f-Bold.ttf']);
+  }
+  // The fallback chain names NotoSansMath before the Chinese parts: unloaded,
+  // the test font would draw some Chinese characters as boxes.
+  await family('NotoSansMath', ['assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf']);
 }
 
 // The web font setup (Roboto + the bundled fallbacks): since KLD-093 only the

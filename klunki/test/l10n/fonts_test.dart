@@ -53,6 +53,19 @@ void main() {
     }
   });
 
+  // Tests that draw Chinese with the bundled subset must load every part,
+  // or the characters of the later parts show as boxes.
+  test('tests load every part of the Chinese subset, not only the first file', () {
+    final onlyFirst = [
+      for (final f in Directory('test').listSync(recursive: true).whereType<File>())
+        if (f.path.endsWith('.dart') &&
+            !f.path.endsWith('fonts_test.dart') &&
+            f.readAsStringSync().contains("'assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf'"))
+          f.path,
+    ];
+    expect(onlyFirst, isEmpty, reason: 'load `for (final f in chineseFontFamilies)` instead');
+  });
+
   // KLD-093: on iOS a fallback list displaced the system font (Latin from the
   // Noto Sans SC subset, umlauts from the system fallback: a bold "ä"). The
   // tests run as a native (non-web) app, like Android/iOS.

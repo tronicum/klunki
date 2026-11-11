@@ -13,7 +13,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:klunki/app/fonts.dart' show withAppFonts;
+import 'package:klunki/app/fonts.dart' show chineseFontFamilies, withAppFonts;
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/app_localizations.dart';
@@ -51,7 +51,10 @@ Future<void> _loadFonts() async {
     'assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf',
     'assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf',
   ]);
-  await family('NotoSansSC', ['assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf']);
+  // Every part of the Chinese subset (NotoSansSC, NotoSansSC2, ...: tool/update_web_fonts.py).
+  for (final f in chineseFontFamilies) {
+    await family(f, ['assets/fonts/NotoSansSC/$f-Regular.ttf', 'assets/fonts/NotoSansSC/$f-Bold.ttf']);
+  }
   await family('NotoSansMath', ['assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf']);
   final flutterRoot = Platform.environment['FLUTTER_ROOT'] ?? '';
   final icons = File('$flutterRoot/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf');
