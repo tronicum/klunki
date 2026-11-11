@@ -522,9 +522,14 @@ Future<LiveUiLog> playNetwork(WidgetTester tester, LiveUiAdapter a, GameConfig c
   log.engine = a.engineTurns(hc);
   a.checkTurnRule(log.engine, log.label);
   // The host applied exactly the tapped moves, each by the tapping player.
-  expect([for (final m in hc.moves) '${playerMark(m.player)} ${m.move}'],
-      [for (final t in log.tapped) '$t'],
+  // A chess clock's time-out (KLD-126) is the host's, not a tap; the moves
+  // tapped after the flag fell were refused (at most one per device).
+  final timedOut = hc.moves.isNotEmpty && hc.moves.last.move['action'] == 'timeout';
+  final applied = [for (final m in hc.moves) if (m.move['action'] != 'timeout') '${playerMark(m.player)} ${m.move}'];
+  final taps = [for (final t in log.tapped) '$t'];
+  expect(timedOut && taps.length > applied.length ? taps.sublist(0, applied.length) : taps, applied,
       reason: '${log.label}: host log vs taps');
+  if (timedOut) expect(taps.length - applied.length, lessThanOrEqualTo(2), reason: '${log.label}: taps after the flag');
   // Both devices hold the same log (the guest's redacted for a hidden game:
   // e.g. a host's Quartett choice arrives without its card, KLD-100).
   final gc = controllers[devices[1].name]!;

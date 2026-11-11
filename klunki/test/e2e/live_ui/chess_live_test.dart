@@ -9,6 +9,8 @@
 // network game with the host on Black (the guest opens). KLD-122: "Zug
 // bestätigen" is on over the network (the default), and in hot-seat for
 // Black only: those moves are confirmed ("Ziehen"), some taken back first.
+// KLD-126: one hot-seat and one network game with a short chess clock that
+// runs out mid-game.
 //
 //   cd klunki && flutter test test/e2e/live_ui/chess_live_test.dart
 //   KLUNKI_LIVE_UI_VERBOSE=1 flutter test test/e2e/live_ui/chess_live_test.dart   # move logs
@@ -124,6 +126,48 @@ void main() {
     final black = c.moves.where((m) => m.move['action'] == 'move' && m.player == Player.b).length;
     expect(hotSeat.tapped['confirm'] ?? 0, allOf(black, greaterThan(5)), reason: '${hotSeat.tapped}');
   });
+
+  // KLD-126: a short clock (real time) that runs out while the players
+  // tap: the time-out ends the game, both devices name it, nothing after it.
+  testWidgets('hot-seat with a short clock: the time runs out mid-game, "Zeit abgelaufen"', (tester) async {
+    tester.view.physicalSize = const Size(1180, 820);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final clocked = ChessAdapter(offerRate: 0, acceptRate: 0);
+    await ConfirmMoveSettings.shared().setHotSeat(Player.a, false);
+    await ConfirmMoveSettings.shared().setHotSeat(Player.b, false);
+    final log = await playHotSeat(tester, clocked,
+        const GameConfig('chess', seed: 6, chessClock: ChessTimeControl(1000)), rng: Random(6));
+    log.printIfVerbose();
+    final c = tester.widget<GameScreen>(find.byType(GameScreen)).controller;
+    expect(c.game.result.code, anyOf(GameEndReason.chessTimeout, GameEndReason.chessTimeoutDraw),
+        reason: '${c.game.result}');
+    expect(ChessGame.isTimeout(c.moves.last.move), isTrue);
+    expect(c.moves.where((m) => ChessGame.isTimeout(m.move)), hasLength(1));
+    _expectResult(tester, UiDevice('hot-seat'), c.game);
+    expect(find.textContaining('Zeit abgelaufen bei'), findsWidgets);
+    c.transport.dispose();
+  });
+
+  testWidgets('network with a short clock: the host calls time, both devices show the same end', (tester) async {
+    final clocked = ChessAdapter(offerRate: 0, acceptRate: 0);
+    final log = await playNetwork(tester, clocked,
+        const GameConfig('chess', seed: 11, chessClock: ChessTimeControl(2000)),
+        rng: Random(11), behaviour: const NetBehaviour(dawdle: 0.2, wait: 0.05, fidget: 0), proxy: false);
+    log.printIfVerbose();
+    final host = UiDevice('host', scope: const Key('device-host'), me: Player.a);
+    final guest = UiDevice('guest', scope: const Key('device-guest'), me: Player.b);
+    final hc = host.controller(tester), gc = guest.controller(tester);
+    expect(hc.game.result.code, anyOf(GameEndReason.chessTimeout, GameEndReason.chessTimeoutDraw),
+        reason: '${hc.game.result}');
+    expect(gc.game.result.code, hc.game.result.code);
+    expect((gc.game as ChessGame).fen, (hc.game as ChessGame).fen);
+    expect(ChessGame.isTimeout(hc.moves.last.move), isTrue);
+    for (final d in [host, guest]) {
+      expect(d.resultShown(), isTrue, reason: d.name);
+      _expectResult(tester, d, hc.game);
+    }
+  }, timeout: liveUiTimeout);
 
   test('the network games were played on the board and checked against the engine', () {
     expect(ends, hasLength(seeds.length));
