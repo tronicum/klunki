@@ -42,6 +42,13 @@ Roboto and Noto Sans SC. Goal: PASS 7/7 in all three check modes with no request
     requested code point in the returned cmap. The full ~10 MB source font is never downloaded, so it
     cannot end up in the repo. `SOURCE.txt` records family, Google Fonts version (`v41`) and the
     character list; `OFL.txt` is google/fonts' `ofl/notosanssc/OFL.txt`.
+  - **More than 800 characters (2026-11-11):** the CSS API subsets at most 800 characters per request;
+    with more it silently serves the full ~10 MB font. The tool splits the sorted characters into parts
+    of ≤ 800 and makes one font family per part (`NotoSansSC`, `NotoSansSC2`, …; no merging, which would
+    need fontTools). It writes the families into `pubspec.yaml` (between `# BEGIN/END NotoSansSC`) and
+    `chineseFontFamilies` / `symbolFontFamilies` in `lib/app/fonts.dart` (the web fallback chain), and
+    refuses any downloaded file over 1 MB. `test/l10n/fonts_test.dart` checks that files, pubspec and
+    fallback list agree.
 - **Fallback, every locale:** `appFontFallback = [NotoSansArabic, NotoSansMath, NotoSansSC]` on
   `textTheme` and `primaryTextTheme` (in `KlunkiTheme.light/dark` via `withAppFonts`; the per-locale
   `MaterialApp.builder` from I18N-04b is gone). One chain for all locales is simpler and also renders

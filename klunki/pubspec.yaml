@@ -148,14 +148,21 @@ flutter:
         - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Regular.ttf
         - asset: assets/fonts/NotoSansArabic/NotoSansArabic-Bold.ttf
           weight: 700
+    # The subsets come in parts of <= 800 characters, one family per part
+    # (NotoSansSC, NotoSansSC2, ...): tool/update_web_fonts.py subset writes
+    # the entries between the markers and the lists in lib/app/fonts.dart.
+    # BEGIN NotoSansSC (written by tool/update_web_fonts.py subset)
     - family: NotoSansSC
       fonts:
         - asset: assets/fonts/NotoSansSC/NotoSansSC-Regular.ttf
         - asset: assets/fonts/NotoSansSC/NotoSansSC-Bold.ttf
           weight: 700
+    # END NotoSansSC
+    # BEGIN NotoSansMath (written by tool/update_web_fonts.py subset)
     - family: NotoSansMath
       fonts:
         - asset: assets/fonts/NotoSansMath/NotoSansMath-Regular.ttf
+    # END NotoSansMath
 
   # To add assets to your application, add an assets section, like this:
   # assets:

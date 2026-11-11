@@ -25,6 +25,14 @@ subset: rebuilds the two subset fonts from the characters the app shows
         served as TrueType), i.e. Google subsets the google/fonts font for us:
         no fontTools needed, and the full ~10 MB source font never touches
         the repo. Every requested character is checked in the result's cmap.
+        The API subsets at most 800 characters per request (with more it
+        silently serves the full ~10 MB font), so the sorted characters are
+        split into parts of <= 800, one font family per part: NotoSansSC
+        (printable ASCII + the first CJK characters), NotoSansSC2, ... The
+        tool rewrites the families in pubspec.yaml (between the BEGIN/END
+        markers) and the family lists in lib/app/fonts.dart (the web
+        fallback chain). A downloaded file over 1 MB is refused (a full
+        font, not a subset). fontTools is not needed (no merging).
         Rerun whenever test/l10n/glyph_coverage_test.dart says so.
 fetch:  downloads NotoSansArabic-<version>.zip from the official notofonts
         GitHub release into a new temporary directory, checks it, and replaces
@@ -76,6 +84,15 @@ SUBSETS = {
     'Noto Sans Math': ('NotoSansMath', 'NotoSansMath', {400: 'Regular'}),
 }
 TRUETYPE_MAGIC = (b'\x00\x01\x00\x00', b'OTTO')
+# The CSS API subsets at most this many characters per request; with more it
+# serves the full font (Noto Sans SC: ~10 MB). Measured 2026-11-11.
+TEXT_LIMIT = 800
+# A subset part is far smaller; a bigger download is a full font: refuse it.
+MAX_SUBSET_BYTES = 1_000_000
+PUBSPEC = os.path.join(KLUNKI, 'pubspec.yaml')
+FONTS_DART = os.path.join(KLUNKI, 'lib', 'app', 'fonts.dart')
+# Family -> the Dart list of its part families in lib/app/fonts.dart.
+DART_LISTS = {'Noto Sans SC': 'chineseFontFamilies', 'Noto Sans Math': 'symbolFontFamilies'}
 # An old user agent makes the CSS API serve TrueType instead of WOFF2
 # (CanvasKit's FreeType cannot read WOFF2).
 TTF_USER_AGENT = 'Wget/1.0'
@@ -291,11 +308,25 @@ def subset_texts():
     return sc, symbols
 
 
-def fetch_subset(family, cps, work):
-    directory, stem, weights = SUBSETS[family]
+def part_family(stem, index):
+    """Family (and file stem) of subset part [index]: NotoSansSC, NotoSansSC2, ..."""
+    return stem if index == 0 else f'{stem}{index + 1}'
+
+
+def split_parts(cps):
+    """The sorted code points in parts of at most TEXT_LIMIT. Deterministic;
+    printable ASCII sorts first, so it lands in the first part."""
+    ordered = sorted(cps)
+    return [ordered[i:i + TEXT_LIMIT] for i in range(0, len(ordered), TEXT_LIMIT)] or [[]]
+
+
+def fetch_part(family, weights, cps):
+    """(weight -> TrueType bytes of [family] subset to [cps], first font URL)."""
+    if len(cps) > TEXT_LIMIT:
+        raise ValueError(f'{len(cps)} characters in one request (limit {TEXT_LIMIT})')
     query = urllib.parse.urlencode({
         'family': f'{family}:wght@' + ';'.join(str(w) for w in sorted(weights)),
-        'text': ''.join(chr(c) for c in sorted(cps)),
+        'text': ''.join(chr(c) for c in cps),
     }, safe=':@;')
     css = download(f'{CSS_API}?{query}', TTF_USER_AGENT).decode('utf-8')
     faces = re.findall(r'font-weight:\s*(\d+);\s*src:\s*url\((https://fonts\.gstatic\.com/[^)]+)\)'
@@ -303,46 +334,121 @@ def fetch_subset(family, cps, work):
     got = {int(w): u for w, u in faces}
     if set(got) != set(weights):
         sys.exit(f'error: {family}: expected TrueType weights {sorted(weights)}, CSS API returned:\n{css}')
-    blobs = {}
-    for weight, name in weights.items():
+    out = {}
+    for weight in sorted(weights):
         blob = download(got[weight])
+        if len(blob) > MAX_SUBSET_BYTES:
+            sys.exit(f'error: {family} {weight}: the font service sent {len(blob)} B for {len(cps)} '
+                     f'characters ({got[weight]}): a full font, not a subset. Did its per-request '
+                     f'limit drop below TEXT_LIMIT = {TEXT_LIMIT}? Lower TEXT_LIMIT and rerun.')
         if blob[:4] not in TRUETYPE_MAGIC:
             sys.exit(f'error: {family} {weight} is not a TrueType font')
         missing = {c for c in cps if not (0x21 <= c <= 0x7E)} - cmap_code_points(blob)
         if missing:
             sys.exit(f'error: {family} {weight} lacks {fmt_chars(missing)}')
-        blobs[f'{stem}-{name}.ttf'] = blob
-        with open(os.path.join(work, f'{stem}-{name}.ttf'), 'wb') as f:
-            f.write(blob)
+        out[weight] = blob
+    return out, got[min(weights)]
+
+
+def fetch_subset(family, cps, work):
+    """Downloads the subset parts of [family] into its asset directory and
+    returns the part family names (NotoSansSC, NotoSansSC2, ...)."""
+    directory, stem, weights = SUBSETS[family]
+    parts = split_parts(cps)
+    names = [part_family(stem, i) for i in range(len(parts))]
+    blobs = {}
+    version = None
+    for name, part in zip(names, parts):
+        fonts, url = fetch_part(family, weights, part)
+        version = version or re.search(r'[?&]v=(v\d+)', url)
+        for weight, blob in fonts.items():
+            file = f'{name}-{weights[weight]}.ttf'
+            blobs[file] = blob
+            with open(os.path.join(work, file), 'wb') as f:
+                f.write(blob)
     ofl = download(GOOGLE_FONTS_OFL.format(dir=stem.lower()))
     if b'SIL Open Font License' not in ofl:
         sys.exit(f'error: {family}: OFL.txt does not contain the SIL OFL')
     blobs['OFL.txt'] = ofl
-    version = re.search(r'[?&]v=(v\d+)', got[min(weights)])
+    text = lambda part: ''.join(chr(c) for c in part)  # noqa: E731
+    if len(parts) == 1:
+        how, chars = '', f'Characters:\n{text(parts[0])}\n'
+    else:
+        how = f' in {len(parts)} parts of <= {TEXT_LIMIT} (one font family each, see pubspec.yaml)'
+        chars = 'Characters per family:\n' + ''.join(f'{n}: {text(p)}\n' for n, p in zip(names, parts))
     blobs['SOURCE.txt'] = (
         f'{family}, Google Fonts {version.group(1) if version else "?"} (google/fonts, SIL OFL 1.1),\n'
-        f'subset by the Google Fonts CSS API (text=) to {len(cps)} code points.\n'
+        f'subset by the Google Fonts CSS API (text=) to {len(cps)} code points{how}.\n'
         'Generated by `python3 -I tool/update_web_fonts.py subset`; do not edit by hand.\n'
-        f'Characters:\n{"".join(chr(c) for c in sorted(cps))}\n').encode('utf-8')
-    # Replace the directory content (a weight may have been dropped).
+        + chars).encode('utf-8')
+    # Replace the directory content (a weight or a part may have been dropped).
     target = os.path.join(FONTS, directory)
     if os.path.isdir(target):
         shutil.rmtree(target)
     write_files(target, blobs)
     size = sum(len(b) for n, b in blobs.items() if n.endswith('.ttf'))
-    print(f'{family}: {len(cps)} code points -> {os.path.relpath(target, KLUNKI)} ({size} B of TTF)')
+    print(f'{family}: {len(cps)} code points in {len(parts)} part(s) -> '
+          f'{os.path.relpath(target, KLUNKI)} ({size} B of TTF)')
+    return names
+
+
+def pubspec_block(family, names):
+    """The pubspec.yaml `fonts:` entries of [family]'s part families."""
+    directory, _, weights = SUBSETS[family]
+    lines = []
+    for name in names:
+        lines += [f'    - family: {name}', '      fonts:']
+        for weight in sorted(weights):
+            lines.append(f'        - asset: assets/fonts/{directory}/{name}-{weights[weight]}.ttf')
+            if weight != 400:
+                lines.append(f'          weight: {weight}')
+    return '\n'.join(lines) + '\n'
+
+
+def register_families(parts):
+    """Writes the part families ({family: [names]}) into pubspec.yaml (between
+    its BEGIN/END markers) and into the family lists of lib/app/fonts.dart."""
+    with open(PUBSPEC, encoding='utf-8') as f:
+        pubspec = f.read()
+    with open(FONTS_DART, encoding='utf-8') as f:
+        dart = f.read()
+    for family, names in parts.items():
+        stem = SUBSETS[family][1]
+        begin = f'    # BEGIN {stem} (written by tool/update_web_fonts.py subset)\n'
+        end = f'    # END {stem}\n'
+        if pubspec.count(begin) != 1 or pubspec.count(end) != 1:
+            sys.exit(f'error: pubspec.yaml lacks the markers {begin.strip()!r} / {end.strip()!r}')
+        head, rest = pubspec.split(begin)
+        _, tail = rest.split(end)
+        pubspec = head + begin + pubspec_block(family, names) + end + tail
+        var = DART_LISTS[family]
+        pattern = re.compile(r'const List<String> ' + var + r' = \[[^\]]*\];')
+        if len(pattern.findall(dart)) != 1:
+            sys.exit(f'error: lib/app/fonts.dart lacks `const List<String> {var} = [...];`')
+        listed = ', '.join(f"'{n}'" for n in names)
+        dart = pattern.sub(lambda _: f'const List<String> {var} = [{listed}];', dart)
+    with open(PUBSPEC, 'w', encoding='utf-8') as f:
+        f.write(pubspec)
+    with open(FONTS_DART, 'w', encoding='utf-8') as f:
+        f.write(dart)
 
 
 def cmd_subset(args):
     sc, symbols = subset_texts()
+    if args.extra_text:
+        # Testing only (the parts with > 800 characters): add the characters
+        # of this file to the Noto Sans SC set. Never commit such a result.
+        with open(args.extra_text, encoding='utf-8') as f:
+            sc |= {ord(ch) for ch in f.read() if needs_glyph(ord(ch))}
     work = tempfile.mkdtemp(prefix='klunki-fonts-')  # new, empty directory
-    fetch_subset('Noto Sans SC', sc, work)
+    parts = {'Noto Sans SC': fetch_subset('Noto Sans SC', sc, work)}
     if symbols:
-        fetch_subset('Noto Sans Math', symbols, work)
+        parts['Noto Sans Math'] = fetch_subset('Noto Sans Math', symbols, work)
     else:
         print('Noto Sans Math: nothing outside Roboto / Arabic needed')
     shutil.rmtree(work)
-    subprocess.run(['git', 'diff', '--stat', '--', FONTS], cwd=KLUNKI, check=False)
+    register_families(parts)
+    subprocess.run(['git', 'diff', '--stat', '--', FONTS, PUBSPEC, FONTS_DART], cwd=KLUNKI, check=False)
     return 0
 
 
@@ -412,7 +518,9 @@ def main():
     p_list = sub.add_parser('list', help='show bundled files and the engine fallback URLs')
     p_list.add_argument('--family', action='append',
                         help='fallback family to look up (repeatable), e.g. "Noto Sans SC"')
-    sub.add_parser('subset', help='rebuild the Noto Sans SC / Noto Sans Math subsets from the ARB files')
+    p_subset = sub.add_parser('subset', help='rebuild the Noto Sans SC / Noto Sans Math subsets from the ARB files')
+    p_subset.add_argument('--extra-text', metavar='FILE',
+                          help='testing only: also subset the characters of FILE into Noto Sans SC')
     p_fetch = sub.add_parser('fetch', help='refetch Noto Sans Arabic from the notofonts release')
     p_fetch.add_argument('--version', required=True, help='release version, e.g. v2.013')
     p_roboto = sub.add_parser('fetch-roboto', help='refetch Roboto from the roboto-3-classic release')

@@ -36,13 +36,20 @@ const String arabicFontFamily = 'NotoSansArabic';
 const String chineseFontFamily = 'NotoSansSC';
 const String symbolFontFamily = 'NotoSansMath';
 
+/// The families of the subset parts: the font service subsets at most 800
+/// characters per request, so a bigger subset comes as NotoSansSC,
+/// NotoSansSC2, ... (the first part holds printable ASCII). Written by
+/// `tool/update_web_fonts.py subset` together with pubspec.yaml.
+const List<String> chineseFontFamilies = ['NotoSansSC'];
+const List<String> symbolFontFamilies = ['NotoSansMath'];
+
 /// `fontFamilyFallback` for all app text on the web: Arabic script, symbols,
 /// then the Chinese subset (last, so symbols such as → never take its CJK
 /// widths). Use [platformFontFallback] in widgets.
 const List<String> appFontFallback = [
   arabicFontFamily,
-  symbolFontFamily,
-  chineseFontFamily,
+  ...symbolFontFamilies,
+  ...chineseFontFamilies,
 ];
 
 /// Package name -> asset path of each bundled font's license (SIL OFL 1.1).

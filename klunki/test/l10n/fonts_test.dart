@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,7 +21,36 @@ void main() {
       ?.fontFamilyFallback;
 
   test('fallback order: Arabic, symbols, then the Chinese subset', () {
-    expect(appFontFallback, [arabicFontFamily, symbolFontFamily, chineseFontFamily]);
+    expect(appFontFallback, [arabicFontFamily, ...symbolFontFamilies, ...chineseFontFamilies]);
+    expect(symbolFontFamilies.first, symbolFontFamily);
+    expect(chineseFontFamilies.first, chineseFontFamily);
+  });
+
+  // The font service subsets <= 800 characters per request, so
+  // tool/update_web_fonts.py writes a subset in parts, one family each
+  // (NotoSansSC, NotoSansSC2, ...): every part file must be declared in
+  // pubspec.yaml and its family be in the web fallback chain.
+  test('subset parts: every font file declared, every part family in the fallback', () {
+    final pubspec = File('pubspec.yaml').readAsStringSync();
+    final declared = <String, List<String>>{};
+    String? family;
+    for (final line in pubspec.split('\n')) {
+      final f = RegExp(r'^    - family: (\S+)').firstMatch(line);
+      if (f != null) family = f.group(1);
+      final a = RegExp(r'^        - asset: (assets/fonts/\S+)').firstMatch(line);
+      if (a != null) (declared[family!] ??= []).add(a.group(1)!);
+    }
+    for (final (dir, families) in [('NotoSansSC', chineseFontFamilies), ('NotoSansMath', symbolFontFamilies)]) {
+      final files = Directory('assets/fonts/$dir')
+          .listSync()
+          .whereType<File>()
+          .map((f) => 'assets/fonts/$dir/${f.uri.pathSegments.last}')
+          .where((p) => p.endsWith('.ttf'))
+          .toSet();
+      final partFamilies = declared.keys.where((k) => RegExp('^$dir\\d*\$').hasMatch(k)).toList();
+      expect(partFamilies, families, reason: '$dir: pubspec.yaml families vs lib/app/fonts.dart');
+      expect({for (final f in families) ...declared[f]!}, files, reason: '$dir: declared assets vs files');
+    }
   });
 
   // KLD-093: on iOS a fallback list displaced the system font (Latin from the
