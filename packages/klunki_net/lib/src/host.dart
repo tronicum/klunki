@@ -33,6 +33,13 @@ import 'secrecy/secrecy.dart';
 /// host commits to every secret of its own (its setup, a secret seed) and
 /// reveals them with `reveal` once the game is over, so the guest can check
 /// the whole game.
+///
+/// A chess game with a clock (KLD-126, `GameConfig.chessClock`): the host
+/// keeps the authoritative clock ([clock], [clockUpdates]). It starts when
+/// the guest joins, stands still while the guest is away, charges the
+/// guest's own measured think time within [clockLagCreditMs] of what the
+/// host measured, sends the clock with every `accepted` and `welcome`, and
+/// plays the `timeout` move when a flag falls (PROTOCOL.md, "Chess clock").
 class KlunkiHost {
   final GameConfig config;
   /// The host's player name, sanitised ([sanitizePlayerName]; the mark of
@@ -69,6 +76,22 @@ class KlunkiHost {
   final String _seedSalt = newSalt();
   Map<String, dynamic>? _lastGuestView; // the guest's view after the last move
 
+  // Chess with a clock only (KLD-126).
+  final ChessClock? _clock;
+  final Stopwatch _watch = Stopwatch()..start();
+  final List<ChessClockSnapshot?> _clockLog = []; // parallel to _log
+  final _clockUpdates = StreamController<ChessClockSnapshot>.broadcast(sync: true);
+  Timer? _flagTimer;
+
+  /// How much of the host's measured time a guest's move may leave
+  /// uncharged (ms), for the network delay (PROTOCOL.md, "Chess clock").
+  /// It is also the guest's grace after its time ran out on the host's
+  /// clock, for a move that is on its way.
+  int clockLagCreditMs = 1000;
+
+  /// Test hook: the clock's time in ms (default: a monotonic stopwatch).
+  int Function()? debugClockNow;
+
   /// Test hook: rewrites (or drops, by returning null) every message to the
   /// guest before it is sent. Lets tests play a cheating host.
   Map<String, dynamic>? Function(String type, Map<String, dynamic> fields)? debugRewriteOutgoing;
@@ -76,7 +99,8 @@ class KlunkiHost {
   KlunkiHost._(
       this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat,
       [this._address])
-      : _redaction = specById(config.gameId)?.redaction {
+      : _redaction = specById(config.gameId)?.redaction,
+        _clock = config.gameId == 'chess' && config.chessClock != null ? ChessClock(config.chessClock!) : null {
     final redaction = _redaction;
     if (redaction != null) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
   }
@@ -272,10 +296,22 @@ class KlunkiHost {
   /// guest), otherwise the rejection reason; the state is then unchanged.
   String? submitLocal(Map<String, dynamic> move) => _apply(me, move);
 
+  /// The authoritative clock of a chess game with a clock (KLD-126), else
+  /// null. Read it with [clockNow]; never change it.
+  ChessClock? get clock => _clock;
+
+  /// The [clock]'s current time in ms.
+  int clockNow() => debugClockNow?.call() ?? _watch.elapsedMilliseconds;
+
+  /// The clock after every change (a move, a pause, the guest away or
+  /// back); synchronous.
+  Stream<ChessClockSnapshot> get clockUpdates => _clockUpdates.stream;
+
   /// Says `bye` to the guest and stops listening (a relay host leaves its
   /// room, which the relay then closes).
   Future<void> close({String reason = 'host closed the game'}) async {
     _closing = true;
+    _flagTimer?.cancel();
     await _rebinding;
     await _statusSub?.cancel();
     _guest?.close(reason);
@@ -288,6 +324,7 @@ class KlunkiHost {
     _helloDeadlines.clear();
     await _server.close();
     await _events.close();
+    await _clockUpdates.close();
   }
 
   void _onChannel(MessageChannel channel) {
@@ -347,6 +384,14 @@ class KlunkiHost {
     old?.close('replaced by a new connection');
     _guestName = name;
     _token ??= _newToken();
+    // KLD-126: the clock starts when the guest is first here and goes on
+    // when it is back.
+    final clock = _clock;
+    final now = clockNow();
+    if (clock != null) {
+      clock.setHeld(false, now);
+      if (!_game.isOver) clock.start(_game.currentPlayer, now);
+    }
     _send(conn, 'hello', {
       'role': 'host',
       'name': this.name,
@@ -363,6 +408,7 @@ class KlunkiHost {
         'moves': moves,
         'token': _token,
         'host': this.name,
+        if (clock != null) 'clock': clock.snapshot(now).toJson(),
       });
     } else {
       _send(conn, 'welcome', {
@@ -379,6 +425,7 @@ class KlunkiHost {
       if (_game.isOver) _sendReveal(conn);
     }
     _emit(PeerConnected(name, reconnect: reconnect));
+    _clockChanged();
   }
 
   /// This build's fingerprint of the hosted game.
@@ -432,7 +479,11 @@ class KlunkiHost {
     } else if (index > _log.length) {
       reason = 'index ahead: $index (log has ${_log.length} moves)';
     } else {
-      reason = _apply(guestPlayer, move);
+      final think = m['think'];
+      // KLD-126: time is up when the host's clock says so, never the guest.
+      reason = ChessGame.isTimeout(move)
+          ? 'only the host calls time'
+          : _apply(guestPlayer, move, think: think is int ? think : null);
     }
     if (reason != null) {
       _send(conn, 'rejected', {'index': index, 'reason': reason});
@@ -441,11 +492,27 @@ class KlunkiHost {
   }
 
   /// Validates and applies [move] for [by]; null on success, else the reason.
-  String? _apply(Player by, Map<String, dynamic> move) {
+  /// [think]: the guest's own measure of its turn (KLD-126).
+  String? _apply(Player by, Map<String, dynamic> move, {int? think}) {
     if (_game.isOver) return 'game is over';
     // The player to move, or for a resign the player it names (either
     // player may resign at any time, KLD-065).
     if (_game.playerOf(move) != by) return 'not your turn';
+    // KLD-126: what the move costs on the clock; a move after the flag
+    // fell ends the game on time instead.
+    final clock = _clock;
+    final now = clock == null ? 0 : clockNow();
+    int? charge;
+    if (clock != null && ChessGame.isBoardMove(move) && clock.ticking && clock.running == by) {
+      final measured = clock.turnElapsed(now);
+      charge = by == guestPlayer && think != null && think >= 0
+          ? think.clamp(max(0, measured - clockLagCreditMs), measured)
+          : measured;
+      if (clock.remainingOf(by, now) + measured - charge <= 0) {
+        _apply(by, ChessGame.timeoutMove(by));
+        return 'time is up';
+      }
+    }
     final String encoded;
     try {
       encoded = jsonEncode(move);
@@ -462,6 +529,7 @@ class KlunkiHost {
     if (result == null) return 'illegal move';
     final entry = MoveAccepted(_log.length, by, jsonDecode(encoded) as Map<String, dynamic>, event: result);
     _log.add(entry);
+    _clockAfter(entry, result, now, charge);
     final redaction = _redaction;
     if (redaction != null) _recordForGuest(redaction, entry, result);
     final guest = _guest;
@@ -470,7 +538,45 @@ class KlunkiHost {
       if (redaction != null && _game.isOver) _sendReveal(guest);
     }
     _emit(entry);
+    _clockChanged();
     return null;
+  }
+
+  /// KLD-126: runs the clock for an accepted move: a board move switches
+  /// it, an agreed pause stops it, the end of the game stops it for good.
+  /// Records the clock for the move's `accepted`.
+  void _clockAfter(MoveAccepted entry, GameEvent event, int now, int? charge) {
+    final clock = _clock;
+    if (clock == null) return _clockLog.add(null);
+    if (ChessGame.isBoardMove(entry.move)) clock.moveMade(entry.player, now, charge: charge);
+    final payload = event.payload;
+    if (payload is Map && payload['clockPaused'] is bool) clock.setPaused(payload['clockPaused'] as bool, now);
+    if (_game.isOver) clock.stop(now);
+    _clockLog.add(clock.snapshot(now));
+  }
+
+  /// Tells listeners about the clock and sets the timer for the next flag.
+  void _clockChanged() {
+    final clock = _clock;
+    if (clock == null) return;
+    final now = clockNow();
+    if (!_clockUpdates.isClosed) _clockUpdates.add(clock.snapshot(now));
+    _flagTimer?.cancel();
+    final until = clock.untilFlag(now);
+    if (until == null || _closing) return;
+    final grace = clock.running == guestPlayer ? clockLagCreditMs : 0;
+    _flagTimer = Timer(Duration(milliseconds: max(0, until + grace)), _onFlagTimer);
+  }
+
+  /// The running player's time is up (the guest's after its grace): the
+  /// host plays the `timeout` move for that player.
+  void _onFlagTimer() {
+    final clock = _clock;
+    final running = clock?.running;
+    if (clock == null || running == null || _game.isOver || _closing) return;
+    final grace = running == guestPlayer ? clockLagCreditMs : 0;
+    if (clock.remainingOf(running, clockNow()) + grace > 0) return _clockChanged(); // early
+    _apply(running, ChessGame.timeoutMove(running));
   }
 
   /// The guest's redacted step for [entry]; a move that hides a secret of
@@ -534,7 +640,10 @@ class KlunkiHost {
     }
     if (conn != _guest) return;
     _guest = null;
+    // KLD-126: the clocks stand still while the guest is away.
+    _clock?.setHeld(true, clockNow());
     _emit(PeerDisconnected(reason, timedOut: timedOut));
+    _clockChanged();
     // KLD-120: through a relay, silence from the guest may as well be our
     // own relay connection gone quiet (the system silenced it while the app
     // was suspended, a NAT forgot it). It has no keepalive of its own, so
@@ -550,7 +659,10 @@ class KlunkiHost {
   }
 
   Map<String, dynamic> _fields(MoveAccepted e) {
-    if (_redaction == null) return {'index': e.index, 'player': e.player.name, 'move': e.move};
+    if (_redaction == null) {
+      final clock = _clockLog[e.index];
+      return {'index': e.index, 'player': e.player.name, 'move': e.move, if (clock != null) 'clock': clock.toJson()};
+    }
     final step = _guestLog[e.index].step;
     return {
       'index': e.index,

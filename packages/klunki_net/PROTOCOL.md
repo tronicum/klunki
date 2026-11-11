@@ -61,8 +61,8 @@ compatible; a host without WebSocket support simply omits them.
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
 | `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, joker?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `joker: true` = Wortgewandt house rule "Joker tauschen", KLD-094 step 9; `rest: false` = Wortgewandt without "Restpunkte abziehen", KLD-094 step 10, absent = on; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
-| `move` | guest → host | `index` (int), `move` (object) | `index` = the position the move would take in the log |
-| `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move` | a move entered the log (guest's or host's) |
+| `move` | guest → host | `index` (int), `move` (object), `think?` (int, ms) | `index` = the position the move would take in the log; `think`: chess clock, see "Chess clock" |
+| `accepted` | host → guest | `index`, `player` (`"a"`/`"b"`), `move`, `clock?` | a move entered the log (guest's or host's); `clock`: chess clock, see "Chess clock" |
 | `accepted` (redacted) | host → guest | `index`, `player`, `move` (redacted), `event` (redacted), `view`, `commit?` | the same for a hidden-information game |
 | `reveal` | host → guest | `seed?`, `seedSalt?`, `secrets` (array of `{index, move, salt}`) | hidden-information game over: the host's secrets, for the guest's check |
 | `rejected` | host → guest | `index`, `reason` | the guest's move was refused; nothing changed |
@@ -155,7 +155,8 @@ and the guest B as in every game; who plays which colour is config (step
 must carry `"promotion":"q"|"r"|"b"|"n"` (the host refuses it without one,
 or with one on any other move: `"illegal move"`). All draws by rule
 (stalemate, insufficient material, 75 moves, threefold repetition) are
-automatic, so nobody claims anything. There are no clocks (a follow-up).
+automatic, so nobody claims anything. Clocks: see "Chess clock (KLD-126)"
+below.
 
 **Chess colours (KLD-059 step 4a).** The host chooses its colour when it
 starts the room: White, Black or random. The seats do not change (host = A,
@@ -193,6 +194,70 @@ can cross an answer in flight and make it a stale index. The offer lives in the 
 bump: the moves arrived with chess rules version 2 (KLD-085 fingerprint),
 so a build with chess rules 1 is refused with `incompatible-rules` instead
 of meeting a move it does not know.
+
+**Chess clock (KLD-126).** A chess config may carry a time control,
+`"clock": "<base s>+<increment s>"` (`"300+0"` = 5 minutes, `"900+10"` =
+15 minutes + 10 s per move; absent = no clock, nothing below happens).
+The host keeps the authoritative clock; no new message type, only
+optional fields that appear in such a game:
+
+- `clock` in `welcome` and in every `accepted` (also for a resend):
+  `{"a": ms, "b": ms, "run": "a"|"b"|null, "paused": bool, "spent": ms}` =
+  both players' remaining time *after* the entry, whose clock runs (null
+  before the start and after the end), whether the clocks stand still (an
+  agreed pause, or the guest away), and how much of the current turn the
+  running player has used. The guest copies it and counts down locally
+  from the moment it arrives (its display is late by the one-way delay;
+  the host's numbers decide).
+- `think` in the guest's `move` for a board move: the time the guest's own
+  copy of its clock ran in this turn, from the start of the turn (`spent`
+  tells it when a snapshot arrives mid-turn).
+
+What the host does:
+
+- **Start:** the clock of the player to move (White) starts when the first
+  guest has joined, so waiting for the guest costs nothing.
+- **Charge (delay compensation):** a board move switches the clock. The
+  host's own move costs what the host measured. A guest move costs its
+  `think`, but at least the host's measure minus the lag credit (1 s,
+  `clockLagCreditMs`) and at most the host's measure: the network delay
+  of the move (and of the `accepted` that started the turn) does not cost
+  the guest time, and a guest that lies about its time gains at most 1 s
+  per move. Without `think` the host's measure counts. Then the increment
+  is added.
+- **Flag fall:** when the running player's time is up on the host's clock
+  (the guest's after the lag credit too, for a move that is on its way),
+  the host plays `{"action":"timeout","player":p}` itself, an ordinary
+  move in the log: the other player wins, or a draw when that one has only
+  the king left (`chess.timeout` / `chess.timeoutDraw`). A guest move that
+  arrives after that is `"game is over"`; one whose charge empties the
+  guest's time is refused with `"time is up"` and the host plays `timeout`
+  in its place (the `timeout` entry tells the guest). A guest may never
+  send `timeout` (`"only the host calls time"`). **Trust:** the result is
+  the host's announcement, like everything a host referees; the guest can
+  check it against its own copy (which shows its time at 0 when the flag
+  falls) and the `clock` of every entry, but cannot prove it. For a family
+  game that is enough; a cheating host could as well have played on with
+  a wrong clock.
+- **Pause by agreement:** four ordinary chess moves that name their player
+  (rules version 4): `clockPause` (either player, while the clocks run),
+  `clockResume` (either player, while paused), each only while no request
+  is open, answered by the other player with `clockAgree` or
+  `clockRefuse`. An agreed pause stops both clocks (`"paused": true`) and
+  refuses board moves, draw moves and `timeout` until an agreed resume; a
+  resign always works. The pause lives in the log, so a rejoining guest
+  replays it.
+- **Guest away:** while the guest is disconnected the host holds both
+  clocks (`"paused": true` in the snapshot); a rejoining guest's
+  `welcome` carries the clock as it stood, and it runs again from then.
+  So a locked phone or lost Wi-Fi never loses on time; the price is that
+  a guest could think while "away" (the host sees the guest missing).
+
+No protocol version bump: the fields and moves only ever appear in a chess
+game with `clock` in its config, and chess rules version 4 (KLD-085
+fingerprint) makes a build without the clock refuse such a game with
+`incompatible-rules` before any of it is sent; every other game and a
+chess game without a clock is unchanged on the wire.
 
 **Guest.** Applies `accepted` only when `index == local log length` (it ignores
 lower indices = duplicates; a higher index is a gap → `error`). If an accepted

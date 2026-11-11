@@ -79,12 +79,12 @@ void _expectSame(KlunkiHost host, KlunkiGuest guest) {
 }
 
 void main() {
-  test('chess is a plain game: no redaction, rules version 3 in the fingerprint', () {
+  test('chess is a plain game: no redaction, its rules version in the fingerprint', () {
     final spec = specById('chess')!;
     expect(spec.hiddenInformation, isFalse);
     expect(spec.redaction, isNull);
-    expect(spec.rulesVersion, 3);
-    expect(fingerprintOf(_chess)!.rules, 3);
+    expect(spec.rulesVersion, 4); // 4: the clock (KLD-126)
+    expect(fingerprintOf(_chess)!.rules, 4);
     expect(fingerprintOf(_hostBlack), fingerprintOf(_chess), reason: 'the colours are config, not a game variant');
   });
 

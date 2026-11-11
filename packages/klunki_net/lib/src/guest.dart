@@ -75,6 +75,18 @@ class KlunkiGuest {
   Verification _verification = Verification.notNeeded;
   String? _verificationError;
 
+  // Chess with a clock (KLD-126): a mirror of the host's clock.
+  ChessClock? _clock;
+  final Stopwatch _watch = Stopwatch()..start();
+  final _clockUpdates = StreamController<ChessClockSnapshot>.broadcast(sync: true);
+
+  /// Test hook: the clock's time in ms (default: a monotonic stopwatch).
+  int Function()? debugClockNow;
+
+  /// Test hook: the think time sent with the next own board move instead of
+  /// the measured one (a cheating guest).
+  int? debugThink;
+
   KlunkiGuest._(this.host, this.port, this.webSocketUrl, String name, this._token, this._pingInterval, this._timeout,
       {this.roomCode, BuildCompat? compat, String? clubCode})
       : _clubCode = clubCode,
@@ -208,6 +220,8 @@ class KlunkiGuest {
 
   /// Sends [move] to the host. Completes with null once the host accepted it
   /// (the local game has then applied it), or with the rejection reason.
+  /// A board move of a chess game with a clock carries the time this guest
+  /// measured for its turn (`think`, KLD-126).
   Future<String?> submit(Map<String, dynamic> move) {
     final conn = _conn;
     if (conn == null || !_connected) return Future.value('not connected');
@@ -215,8 +229,42 @@ class KlunkiGuest {
     final c = Completer<String?>();
     _waiting.putIfAbsent(index, () => []).add(c);
     if (_redacted) _sent[index] = jsonSafe(move) as Map<String, dynamic>;
-    conn.send('move', {'index': index, 'move': move});
+    final clock = _clock;
+    final think = clock != null && ChessGame.isBoardMove(move) && clock.running == _me
+        ? debugThink ?? clock.turnElapsed(clockNow())
+        : null;
+    conn.send('move', {'index': index, 'move': move, if (think != null) 'think': think});
     return c.future;
+  }
+
+  /// The host's clock as this guest sees it (KLD-126): a copy that counts
+  /// down locally from the last `clock` the host sent; null without a
+  /// clock. Read it with [clockNow].
+  ChessClock? get clock => _clock;
+
+  /// The [clock]'s current time in ms.
+  int clockNow() => debugClockNow?.call() ?? _watch.elapsedMilliseconds;
+
+  /// The clock after every `clock` from the host and when the connection
+  /// drops (the local copy stops); synchronous.
+  Stream<ChessClockSnapshot> get clockUpdates => _clockUpdates.stream;
+
+  /// Takes the host's `clock` (an `accepted` or `welcome` field); false if
+  /// it is missing or malformed in a game with a clock.
+  bool _takeClock(Object? json) {
+    final control = _config.gameId == 'chess' ? _config.chessClock : null;
+    if (control == null) return true;
+    final snapshot = ChessClockSnapshot.tryParse(json);
+    if (snapshot == null) return false;
+    final now = clockNow();
+    _clock = ChessClock.fromSnapshot(control, snapshot, now);
+    if (_game.isOver) _clock!.stop(now);
+    return true;
+  }
+
+  void _clockChanged() {
+    final clock = _clock;
+    if (clock != null && !_clockUpdates.isClosed) _clockUpdates.add(clock.snapshot(clockNow()));
   }
 
   /// Opens a new connection (after a disconnect) using the token from
@@ -234,6 +282,7 @@ class KlunkiGuest {
   Future<void> close({String reason = 'guest left'}) async {
     _conn?.close(reason);
     await _events.close();
+    await _clockUpdates.close();
   }
 
   Future<void> _open() async {
@@ -300,6 +349,7 @@ class KlunkiGuest {
         }
         _connected = true;
         welcome.complete();
+        _clockChanged();
       case 'accepted' when _connected:
         _redacted ? _onRedactedAccepted(conn, m) : _onAccepted(conn, m);
       case 'reveal' when _connected && _redacted:
@@ -392,6 +442,7 @@ class KlunkiGuest {
       _emit(Resynced(entries.length));
     }
     _joined = true;
+    if (!_takeClock(m['clock'])) return 'welcome without a valid "clock"';
     return null;
   }
 
@@ -468,8 +519,12 @@ class KlunkiGuest {
     if (event == null) return _diverged(conn, 'diverged: accepted move does not apply locally');
     final entry = MoveAccepted(index, player, move, event: event);
     _log.add(entry);
-    if (player == _me) _complete(index, null);
+    if (!_takeClock(m['clock'])) throw const ProtocolException('accepted without a valid "clock"');
+    // The host's `timeout` for us (KLD-126) takes the index of a move we
+    // may have sent too late: that one was not accepted.
+    if (player == _me) _complete(index, ChessGame.isTimeout(move) ? 'time is up' : null);
     _emit(entry);
+    _clockChanged();
   }
 
   /// `accepted` of a hidden-information game: a redacted move, its event,
@@ -583,6 +638,9 @@ class KlunkiGuest {
     }
     _waiting.clear();
     if (wasConnected) _emit(PeerDisconnected(reason, timedOut: timedOut));
+    // KLD-126: the host holds the clocks while we are away.
+    _clock?.setHeld(true, clockNow());
+    _clockChanged();
   }
 
   void _emit(NetEvent e) {
