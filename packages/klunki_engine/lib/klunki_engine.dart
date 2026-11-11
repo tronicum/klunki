@@ -7,6 +7,7 @@ export 'quartett.dart' show QuartettGame, QuartettMode, QuartettStat, QuartettDe
 export 'schiffe.dart';
 export 'gostrategy.dart';
 export 'chess.dart';
+export 'chess_clock.dart';
 export 'word_tiles.dart';
 export 'mau_mau.dart';
 export 'maexchen.dart';

@@ -1,4 +1,5 @@
 import 'chess.dart';
+import 'chess_clock.dart';
 import 'connect4.dart';
 import 'dice_sheet.dart';
 import 'game.dart';
@@ -44,6 +45,11 @@ import 'word_tiles.dart';
 /// and the guest moves first. A random choice is made by the host before
 /// the game: the config always holds the result.
 ///
+/// [chessClock] (KLD-126, chess only): the time control of a game with a
+/// clock ([ChessTimeControl], JSON `clock`: `"300+0"` = 5 minutes, seconds
+/// base + increment), written only when there is one (absent = no clock,
+/// as before). Public config like the colours.
+///
 /// [players] (KLD-088): the number of seats, 2 by default; JSON `players`,
 /// written only when not 2, so every 2-player config (and with it the
 /// protocol) is unchanged. Only games with [GameSpec.maxPlayers] above 2
@@ -85,6 +91,7 @@ class GameConfig {
   final bool jokerSwap;
   final bool rackPenalty;
   final Player chessWhite;
+  final ChessTimeControl? chessClock;
   final int players;
   final MauMauRules mauMau;
   final int lives;
@@ -102,6 +109,7 @@ class GameConfig {
       this.jokerSwap = false,
       this.rackPenalty = true,
       this.chessWhite = Player.a,
+      this.chessClock,
       this.players = 2,
       this.mauMau = const MauMauRules(),
       this.lives = 3,
@@ -125,6 +133,7 @@ class GameConfig {
         if (jokerSwap) 'joker': true,
         if (!rackPenalty) 'rest': false,
         if (chessWhite == Player.b) 'white': 'b',
+        if (chessClock != null) 'clock': chessClock!.id,
         if (players != 2) 'players': players,
         if (!mauMau.isDefault) 'maumau': mauMau.toJson(),
         if (lives != 3) 'lives': lives,
@@ -144,6 +153,7 @@ class GameConfig {
       jokerSwap: json['joker'] == true,
       rackPenalty: json['rest'] != false,
       chessWhite: json['white'] == 'b' ? Player.b : Player.a,
+      chessClock: ChessTimeControl.tryParse(json['clock']),
       players: json['players'] as int? ?? 2,
       mauMau: MauMauRules.fromJson(json['maumau']),
       lives: json['lives'] as int? ?? 3,
@@ -162,6 +172,7 @@ class GameConfig {
       jokerSwap: jokerSwap,
       rackPenalty: rackPenalty,
       chessWhite: chessWhite,
+      chessClock: chessClock,
       players: players ?? this.players,
       mauMau: mauMau,
       lives: lives,
@@ -183,6 +194,7 @@ class GameConfig {
       other.jokerSwap == jokerSwap &&
       other.rackPenalty == rackPenalty &&
       other.chessWhite == chessWhite &&
+      other.chessClock == chessClock &&
       other.players == players &&
       other.mauMau == mauMau &&
       other.lives == lives &&
@@ -194,13 +206,14 @@ class GameConfig {
 
   @override
   int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty,
-      chessWhite, players, mauMau, lives, maexchenDouble, maexchenUnlimited, extraFives, randomStart, property);
+      chessWhite, chessClock, players, mauMau, lives, maexchenDouble, maexchenUnlimited, extraFives, randomStart,
+      property);
 
   @override
   String toString() =>
       'GameConfig($gameId, seed: $seed${deck == null ? '' : ', deck: $deck'}${pickLowCards ? '' : ', pickLow: off'}'
       '${tiles == null ? '' : ', tiles: $tiles'}${dictionary ? ', dict' : ''}${jokerSwap ? ', joker' : ''}${rackPenalty ? '' : ', rest: off'}'
-      '${chessWhite == Player.b ? ', white: b' : ''}${players == 2 ? '' : ', players: $players'}'
+      '${chessWhite == Player.b ? ', white: b' : ''}${chessClock == null ? '' : ', clock: ${chessClock!.id}'}${players == 2 ? '' : ', players: $players'}'
       '${mauMau.isDefault ? '' : ', maumau: ${mauMau.toJson()}'}'
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
       '${maexchenUnlimited ? ', maexUnlimited' : ''}'
@@ -304,7 +317,11 @@ final List<GameSpec> gameSpecs = [
   // Rules 2 (step 3): the draw offer moves (`offerDraw`, `acceptDraw`,
   // `declineDraw`). Rules 3 (step 4a): the colours per player
   // (GameConfig.chessWhite, JSON `white`): B may play White and move first.
-  GameSpec('chess', 'Schach', (c, _) => ChessGame(white: c.chessWhite), rulesVersion: 3),
+  // Rules 4 (KLD-126): the clock (GameConfig.chessClock, JSON `clock`; the
+  // `timeout` and pause moves).
+  // A flag fall is final for hot-seat "Zug zurücknehmen" (the time is up).
+  GameSpec('chess', 'Schach', (c, _) => ChessGame(white: c.chessWhite, timeControl: c.chessClock),
+      rulesVersion: 4, undoBarrier: ChessGame.isTimeout),
   // KLD-094 step 1: engine only (challenge mode, German tiles, 2 players);
   // title "Wortgewandt" (chosen by the maintainer, 2026-11-01). Rules 2
   // (step 4): tile set and word list per game (GameConfig.tiles /

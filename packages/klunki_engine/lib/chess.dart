@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'chess_clock.dart';
 import 'game.dart';
 
 /// Schach (chess, KLD-059) with the full FIDE rules.
@@ -60,6 +61,31 @@ import 'game.dart';
 /// `{'drawOffer': 'a'|'b'}`, `{'drawAccepted': …}` or `{'drawDeclined': …}`
 /// (the player who sent the move).
 ///
+/// **Clock** (KLD-126, rules version 4): a game with a [timeControl] knows
+/// two more kinds of moves; the clock itself (the time) lives outside the
+/// engine ([ChessClock]: the hot-seat transport, the network host), so the
+/// move log stays a deterministic replay. Without a [timeControl] all of
+/// them are refused.
+/// - `{'action': 'timeout', 'player': p}` ([timeoutMove]): [p]'s flag fell.
+///   Only for the player to move (whose clock runs) and not while the
+///   clocks are paused. The other player wins
+///   ([GameEndReason.chessTimeout]), except when that player has nothing
+///   but the king left: then nobody can mate any more and it is a draw
+///   ([GameEndReason.chessTimeoutDraw], FIDE 6.9; other dead positions
+///   end the game before by insufficient material). params: `player` (the
+///   index of [p]). Who decides that time ran out is the clock's owner: on
+///   one device the app, over the network the host (PROTOCOL.md).
+/// - The pause by agreement of a network game: `clockPause` (ask for a
+///   pause while the clocks run), `clockResume` (ask to go on while
+///   paused), each from either player at any time while no request is
+///   open, and `clockAgree` / `clockRefuse` from the other player. An
+///   agreed pause ([clockPaused]) refuses board moves, the draw moves and
+///   `timeout` until an agreed resume; a resign is always possible.
+///   Payloads: `{'pauseRequest': p}`, `{'resumeRequest': p}`,
+///   `{'clockPaused': bool}` (agreed), `{'clockRefused': p}`. A hot-seat
+///   pause needs no agreement and no move (the app stops its clock). Not
+///   in [history].
+///
 /// [history] holds the applied moves with their SAN (`'san': 'Nf3'`); the
 /// extra key is ignored when a history entry is replayed.
 class ChessGame extends Game {
@@ -77,6 +103,9 @@ class ChessGame extends Game {
 
   /// The player who plays White (default [Player.a]); the other plays Black.
   final Player whitePlayer;
+
+  /// The time control of a game with a clock (KLD-126), else null.
+  final ChessTimeControl? timeControl;
 
   // Board: 0 empty, +type White, -type Black.
   final Int8List _b = Int8List(64);
@@ -96,7 +125,8 @@ class ChessGame extends Game {
   final Map<Player, int> _offeredAt = {};
 
   /// The standard starting position; [white] plays White (KLD-059 step 4a).
-  ChessGame({Player white = Player.a}) : this._(startFen, white);
+  /// [timeControl]: a game with a clock (KLD-126).
+  ChessGame({Player white = Player.a, ChessTimeControl? timeControl}) : this._(startFen, white, timeControl);
 
   /// A game from a FEN string. Castling rights whose king or rook is not on
   /// its home square are dropped. Throws [FormatException] for anything
@@ -104,9 +134,10 @@ class ChessGame extends Game {
   /// last rank, an en passant square without the pawn that just moved, or the
   /// side not to move in check). The half-move and full-move fields may be
   /// left out (0 and 1).
-  factory ChessGame.fromFen(String fen, {Player white = Player.a}) => ChessGame._(fen.trim(), white);
+  factory ChessGame.fromFen(String fen, {Player white = Player.a, ChessTimeControl? timeControl}) =>
+      ChessGame._(fen.trim(), white, timeControl);
 
-  ChessGame._(this.startPosition, this.whitePlayer) {
+  ChessGame._(this.startPosition, this.whitePlayer, this.timeControl) {
     _loadFen(startPosition);
     _afterPositionChange();
   }
@@ -216,7 +247,93 @@ class ChessGame extends Game {
   /// The draw moves name their player (an answer comes from the player not
   /// to move); everything else as [Game.playerOf].
   @override
-  Player playerOf(Map<String, dynamic> move) => drawPlayerOf(move) ?? super.playerOf(move);
+  Player playerOf(Map<String, dynamic> move) => drawPlayerOf(move) ?? clockPlayerOf(move) ?? super.playerOf(move);
+
+  // ------------------------------------------------------------------ clock
+
+  /// The clock moves (KLD-126, see the class docs).
+  static const String timeout = 'timeout',
+      clockPause = 'clockPause',
+      clockResume = 'clockResume',
+      clockAgree = 'clockAgree',
+      clockRefuse = 'clockRefuse';
+  static const Set<String> _clockActions = {timeout, clockPause, clockResume, clockAgree, clockRefuse};
+
+  /// [player]'s flag fell.
+  static Map<String, dynamic> timeoutMove(Player player) => {'action': timeout, 'player': player.name};
+
+  /// A clock move of [action] for [player].
+  static Map<String, dynamic> clockMove(String action, Player player) => {'action': action, 'player': player.name};
+
+  /// Whether [move] is a flag fall (final for hot-seat undo).
+  static bool isTimeout(Map<String, dynamic> move) => move['action'] == timeout;
+
+  /// Whether [move] is a board move, the only kind that switches the clock.
+  static bool isBoardMove(Map<String, dynamic> move) => move['action'] == 'move';
+
+  /// The player a well-formed clock move names, else null.
+  static Player? clockPlayerOf(Map<String, dynamic> move) {
+    if (!_clockActions.contains(move['action'])) return null;
+    return switch (move['player']) { 'a' => Player.a, 'b' => Player.b, _ => null };
+  }
+
+  bool _clockPaused = false;
+  ({Player by, bool resume})? _clockRequest;
+
+  /// Whether the players agreed on a pause (network play) that is not over.
+  bool get clockPaused => _clockPaused;
+
+  /// The open pause or resume request, or null.
+  ({Player by, bool resume})? get clockRequest => isOver ? null : _clockRequest;
+
+  /// Whether [player] may ask for a pause (or, while paused, to go on) now.
+  bool canRequestClock(Player player) => timeControl != null && !isOver && _clockRequest == null;
+
+  GameEvent? _applyClock(Map<String, dynamic> move) {
+    final p = clockPlayerOf(move);
+    if (p == null || timeControl == null) return null;
+    final other = p == Player.a ? Player.b : Player.a;
+    switch (move['action']) {
+      case timeout:
+        if (_clockPaused || p != currentPlayer) return null;
+        final draw = _onlyKing(other);
+        _result = draw
+            ? GameResult(
+                draw: true, reason: 'time out, no mating material', code: GameEndReason.chessTimeoutDraw,
+                params: {'player': p.index})
+            : GameResult(
+                winner: other, reason: 'time out', code: GameEndReason.chessTimeout, params: {'player': p.index});
+        _drawOffer = null;
+        _clockRequest = null;
+        return GameEvent(winner: _result.winner, draw: draw, payload: {'timeout': p.name});
+      case clockPause || clockResume:
+        final resume = move['action'] == clockResume;
+        if (!canRequestClock(p) || resume != _clockPaused) return null;
+        _clockRequest = (by: p, resume: resume);
+        return GameEvent(payload: {resume ? 'resumeRequest' : 'pauseRequest': p.name});
+      case clockAgree:
+        final r = _clockRequest;
+        if (r == null || r.by != other) return null;
+        _clockRequest = null;
+        _clockPaused = !r.resume;
+        return GameEvent(payload: {'clockPaused': _clockPaused});
+      default: // clockRefuse
+        final r = _clockRequest;
+        if (r == null || r.by != other) return null;
+        _clockRequest = null;
+        return GameEvent(payload: {'clockRefused': p.name});
+    }
+  }
+
+  /// Whether [player] has nothing but the king.
+  bool _onlyKing(Player player) {
+    final sign = colorOf(player) == ChessColor.white ? 1 : -1;
+    for (var sq = 0; sq < 64; sq++) {
+      final v = _b[sq];
+      if (v != 0 && v.sign == sign && v.abs() != _k) return false;
+    }
+    return true;
+  }
 
   GameEvent? _applyDraw(Map<String, dynamic> move) {
     final p = drawPlayerOf(move);
@@ -267,6 +384,9 @@ class ChessGame extends Game {
   @override
   GameEvent? applyPlayMove(Map<String, dynamic> move) {
     if (isOver) return null;
+    if (_clockActions.contains(move['action'])) return _applyClock(move);
+    // An agreed pause (KLD-126): nothing but the clock moves and a resign.
+    if (_clockPaused) return null;
     if (drawPlayerOf(move) != null || const {offerDraw, acceptDraw, declineDraw}.contains(move['action'])) {
       return _applyDraw(move);
     }

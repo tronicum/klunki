@@ -69,6 +69,12 @@ enum GameEndReason {
   /// Draw: one player offered a draw and the other accepted it (KLD-059
   /// step 3).
   chessDrawAgreed('chess.drawAgreed'),
+  /// The player `player` (index) ran out of time (KLD-126); the other one
+  /// wins.
+  chessTimeout('chess.timeout'),
+  /// Draw: the player `player` (index) ran out of time, but the other one
+  /// has only the king left and can never mate (KLD-126, FIDE 6.9).
+  chessTimeoutDraw('chess.timeoutDraw'),
   /// Word tiles (KLD-094): a player used up the last tiles with the bag
   /// empty; the others' rack values went to them. params: `a`, `b` (final
   /// scores).

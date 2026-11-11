@@ -795,7 +795,7 @@ void main() {
       final g = replay(swapped, [mv('e2', 'e4'), mv('e7', 'e5')])! as ChessGame;
       expect(g.currentPlayer, Player.b);
       expect(replay(swapped, [mv('e2', 'e4'), mv('e2', 'e4')]), isNull);
-      expect(specById('chess')!.rulesVersion, 3);
+      expect(specById('chess')!.rulesVersion, greaterThanOrEqualTo(3));
     });
 
     test('ChessColorChoice: the host (A) plays the chosen colour; random follows the seed', () {

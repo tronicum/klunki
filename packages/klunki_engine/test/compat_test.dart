@@ -20,7 +20,8 @@ void main() {
     'quartett-sets/planes': (1, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
     'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
-    'chess': (3, 1, '5f2d81a850dc003d33424219c180126a'),
+    // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).
+    'chess': (4, 1, '5f2d81a850dc003d33424219c180126a'),
     'wordtiles': (5, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
     'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
     // Rules 2 (KLD-121 step 2): 2–4 seats and "Unbegrenzte Leben".
