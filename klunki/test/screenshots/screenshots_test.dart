@@ -32,11 +32,17 @@ import 'package:klunki/app/fonts.dart';
 import 'package:klunki/app/klunki_app.dart';
 import 'package:klunki/app/theme.dart';
 import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/profile/beginner_settings.dart';
+import 'package:klunki/profile/chess_clock_settings.dart';
+import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/profile/shake_settings.dart';
+import 'package:klunki/profile/undo_settings.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
 import 'package:klunki/net/join_payload.dart' show klunkiDefaultPort, klunkiDefaultWebSocketPort;
+import 'package:klunki/ui/game_visuals.dart' show visualsOf;
 import 'package:klunki/ui/games/schiffe/schiffe_grid.dart';
 import 'package:klunki/ui/menu_screen.dart' show menuShowsDebugConsole;
 import 'package:klunki/profile/quartett_deck_settings.dart';
@@ -52,8 +58,10 @@ import 'package:klunki/ui/shell/game_screen.dart' show PlayerLabels, PlayerLabel
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
+import 'package:klunki_engine/debug.dart' show DiceSheetText;
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 import 'package:klunki_net/relay_server.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/asset_images.dart';
 import '../ui/pairing/pairing_test_utils.dart';
@@ -204,7 +212,8 @@ void main() {
   });
 
   _storeShots('appstore', _appstoreOut, _appStoreDevices);
-  _storeShots('playstore', _playstoreOut, _playStoreDevices);
+  _storeShots('playstore', _playstoreOut, _playStoreDevices, maxScenes: 8);
+  _featureGraphic(_playstoreOut);
 
 
   for (final size in [phone, tablet]) {
@@ -995,8 +1004,9 @@ const _playStoreDevices = <String, (Size, double)>{
 };
 
 /// The store screenshot set [name] (the test group) at [devices], written
-/// below [out]; skipped when [out] is null.
-void _storeShots(String name, String? out, Map<String, (Size, double)> devices) {
+/// below [out]; skipped when [out] is null. [maxScenes]: the first scenes
+/// only (Google Play takes at most 8 per device type).
+void _storeShots(String name, String? out, Map<String, (Size, double)> devices, {int maxScenes = 10}) {
   final skip = out == null;
 
   Future<void> setup(WidgetTester tester, Size size, double dpr) async {
@@ -1029,7 +1039,8 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
   Future<GameController> game(WidgetTester tester, GameConfig config, Locale locale) async {
     final c = GameController.hotSeat(config);
     addTearDown(c.dispose);
-    await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale)));
+    // The bundled fallback fonts: symbols such as → as on a device.
+    await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale, webFonts: true)));
     return c;
   }
 
@@ -1037,98 +1048,83 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
     if (c.needsHandover) c.acknowledgeHandover();
   }
 
-  // Each scene builds its screen and returns a cleanup (sockets) or null.
+  // Each scene builds its screen and returns a cleanup (sockets, clock) or
+  // null. Set-up moves go through the controller; what is shown is the
+  // screen of the player to move, without a handover cover.
   final scenes = <String, Future<Future<void> Function()?> Function(WidgetTester, Locale)>{
+    // The release menu: "Klunki Spielesammlung", all tiles, "Karten" on the
+    // Quartett tiles.
     '01-menu': (tester, locale) async {
       menuShowsDebugConsole = false; // as in a release build
       addTearDown(() => menuShowsDebugConsole = true);
       await tester.pumpWidget(_wrap(KlunkiApp(localeController: LocaleController.memory(locale))));
+      await tester.pumpAndSettle();
       return null;
     },
-    '02-quartett': (tester, locale) async {
+    // KLD-060: Baulöwe, Berlin (the street names are German in every
+    // language), 4 players mid-game (bot moves, seed 11: round 16, ten
+    // houses): a player has landed on someone else's street with houses,
+    // its deed card in the centre with the rent paid.
+    '02-property': (tester, locale) async {
+      final c = await game(tester, const GameConfig('property', seed: 11, players: 4), locale);
+      final bot = PropertyBot(Random(3));
+      for (var i = 0; i < 1500 && !c.game.isOver; i++) {
+        final g = c.game as PropertyGame;
+        final actor = g.actor;
+        if (actor != null && g.phase == PropertyPhase.end) {
+          final seat = g.seats[actor];
+          final houses = [for (var s = 0; s < 40; s++) g.housesOn(s)].fold(0, (a, b) => a + b);
+          if (houses >= 4 &&
+              !seat.inPause &&
+              g.theme.squares[seat.pos].kind == PropertyKind.street &&
+              g.housesOn(seat.pos) > 0 &&
+              g.ownerOf(seat.pos) != actor) {
+            break;
+          }
+        }
+        final m = bot.choose(g);
+        // Trades have their own shots (property_trade_shots_test.dart).
+        await c.submit(m['action'] == 'tradeOffer'
+            ? g.legalMoves.firstWhere((x) => x['action'] == 'endTurn' || x['action'] == 'roll')
+            : m);
+      }
+      expect((c.game as PropertyGame).phase, PropertyPhase.end);
+      handover(c);
+      await tester.pumpAndSettle();
+      return null;
+    },
+    // Quartett (Trumpf), rockets deck: a round result with photos.
+    '03-quartett': (tester, locale) async {
       final c = await game(tester, const GameConfig('quartett-trumpf', seed: 7, deck: 'rockets'), locale);
       _play(c, 3);
       await tester.pump();
       await _precachePhotos(tester);
       return null;
     },
-    '03-quartett-gallery': (tester, locale) async {
-      await tester.pumpWidget(_wrap(_themed(QuartettDeckGalleryScreen(deck: QuartettDeck.rockets), locale: locale)));
-      await _precachePhotos(tester);
-      return null;
-    },
-    '04-schiffe': (tester, locale) async {
-      final c = await game(tester, const GameConfig('schiffe', seed: 7), locale);
-      _play(c, 60);
-      await tester.pump();
-      return null;
-    },
-    '05-gostrategy': (tester, locale) async {
-      final c = await game(tester, const GameConfig('gostrategy', seed: 7), locale);
-      c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(14)));
-      handover(c);
-      c.submit(GoStrategyGame.setupMove(GoStrategyGame.randomSetup(15)));
-      handover(c);
-      final g = c.game as GoStrategyGame;
-      // Quiet moves (no fights) so both armies stay on the board.
-      for (var i = 0; i < 30; i++) {
-        final quiet = [
-          for (final m in g.legalMoves)
-            if (m['action'] == 'move' && g.board[m['to'] as int].owner == null) m
-        ];
-        if (quiet.isEmpty) break;
-        c.submit(quiet[(i * 7 + 3) % quiet.length]);
-        handover(c);
-      }
-      await tester.pump();
-      return null;
-    },
-    '06-chess': (tester, locale) async {
-      final c = await game(tester, const GameConfig('chess', seed: 7), locale);
-      // An Italian opening; White to move, the knight on f3 selected.
-      for (final m in ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1c4', 'f8c5', 'c2c3', 'g8f6', 'd2d3', 'd7d6', 'e1g1', 'e8g8']) {
-        c.submit({'action': 'move', 'from': m.substring(0, 2), 'to': m.substring(2)});
-        handover(c);
-      }
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('chess-sq-f3')));
-      await tester.pump();
-      return null;
-    },
-    '07-play-together': (tester, locale) async {
-      final created = CreatedTransports();
-      final deps = testDeps(
-        discovery: FakeDiscovery(),
-        created: created,
-        name: 'Anna',
-        addresses: const ['192.168.1.20'],
-        preferredPort: klunkiDefaultPort,
-        preferredWsPort: klunkiDefaultWebSocketPort,
-      );
-      await tester.pumpWidget(_wrap(_themed(PairingScreen(deps: deps), locale: locale)));
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('pair-host-start')));
-      await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty, what: 'waiting');
-      return () => unmountAndSettleSockets(tester, created);
-    },
-    '08-muehle': (tester, locale) async {
-      final c = await game(tester, const GameConfig('muehle', seed: 7), locale);
-      _play(c, 13);
-      await tester.pump();
-      return null;
-    },
-    // KLD-094 step 7: Wortgewandt, three crossing words in the store
+    // KLD-094: Wortgewandt for 3, three crossing words in the store
     // language (de HAUS / STERN / BIRNE, en GAME / EARTH / LIGHT), the last
-    // one accepted: the next player's rack, no open placement.
-    '09-wordtiles': (tester, locale) async {
+    // one accepted: Anna's rack and the score row of three.
+    '04-wordtiles': (tester, locale) async {
       final de = locale.languageCode == 'de';
-      final c = await game(tester, GameConfig('wordtiles', seed: 7, tiles: de ? 'de' : 'en'), locale);
+      final c = await game(tester, GameConfig('wordtiles', seed: 7, players: 3, tiles: de ? 'de' : 'en'), locale);
       final (w1, w2, w3) = de ? ('HAUS', 'STERN', 'BIRNE') : ('GAME', 'EARTH', 'LIGHT');
       (c.game as WordTilesGame).debugSetup(
         racks: de
-            ? const [['H', 'A', 'U', 'S', 'E', 'I', 'N'], ['T', 'E', 'R', 'N', 'O', 'D', 'L']]
-            : const [['G', 'A', 'M', 'E', 'L', 'I', 'T'], ['A', 'R', 'T', 'H', 'O', 'S', 'N']],
-        bag: [...List.filled(30, 'E'), 'S', 'O', 'N', 'P', if (de) ...['B', 'R', 'K', 'D'] else ...['G', 'B', 'K', 'D']],
+            ? const [
+                ['H', 'A', 'U', 'S', 'E', 'I', 'N'],
+                ['T', 'E', 'R', 'N', 'O', 'D', 'L'],
+                ['B', 'I', 'R', 'E', 'K', 'A', 'M'],
+              ]
+            : const [
+                ['G', 'A', 'M', 'E', 'L', 'I', 'T'],
+                ['A', 'R', 'T', 'H', 'O', 'S', 'N'],
+                ['L', 'I', 'G', 'T', 'E', 'R', 'D'],
+              ],
+        bag: [
+          ...List.filled(30, 'E'),
+          ...['S', 'O', 'N', 'P', 'R', 'T', 'A'],
+          if (de) ...['B', 'R', 'K', 'D'] else ...['G', 'B', 'K', 'D'],
+        ],
       );
       Future<void> submit(Map<String, dynamic> move) async {
         expect((await c.submit(move)).isAccepted, isTrue, reason: '$move');
@@ -1146,12 +1142,171 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
       await tester.pump();
       return null;
     },
+    // KLD-118: Mau-Mau a few cards in: the own hand (the fitting cards
+    // lifted), the discard pile.
+    '05-maumau': (tester, locale) async {
+      // Three plain cards laid (no 7, 8 or jack: no penalty, skip or wish);
+      // the first seed where the player to move then holds 4+ cards, 2–3 of
+      // them fitting.
+      List<Map<String, dynamic>> plain(MauMauGame g) => [
+            for (final m in g.legalMoves)
+              if (m['action'] == 'play' &&
+                  !const [MauMauRank.seven, MauMauRank.eight, MauMauRank.jack]
+                      .contains(MauMauCard.byId(m['card'] as String)!.rank))
+                m
+          ];
+      for (var seed = 1; seed < 500; seed++) {
+        final g = createGame(GameConfig('maumau', seed: seed)) as MauMauGame;
+        final moves = <Map<String, dynamic>>[];
+        while (moves.length < 3 && plain(g).isNotEmpty) {
+          moves.add(plain(g).first);
+          g.applyMove(moves.last);
+        }
+        final fitting = g.playableCards.length;
+        if (moves.length < 3 || g.handOf(g.currentPlayer).length < 4 || fitting < 2 || fitting > 3) continue;
+        final c = await game(tester, GameConfig('maumau', seed: seed), locale);
+        for (final m in moves) {
+          expect((await c.submit(m)).isAccepted, isTrue);
+          handover(c);
+        }
+        await tester.pumpAndSettle();
+        return null;
+      }
+      throw StateError('no Mau-Mau deal');
+    },
+    // KLD-121: Mäxchen for 4: lives lost, Dani says 64 to Anna, who has to
+    // believe or doubt.
+    '06-maexchen': (tester, locale) async {
+      final c = await game(tester, const GameConfig('maexchen', seed: 5, players: 4), locale);
+      (c.game as MaexchenGame).debugScriptRolls(const [
+        [3, 1],
+        [5, 5],
+        [6, 2],
+        [4, 2],
+        [4, 2],
+        [6, 4],
+      ]);
+      const roll = MaexchenGame.rollMove, believe = MaexchenGame.believeMove, doubt = MaexchenGame.doubtMove;
+      Map<String, dynamic> say(int v) => MaexchenGame.announceMove(v);
+      for (final m in [
+        roll, say(65), doubt, // Anna loses a life
+        roll, say(55), believe, roll, say(66), doubt, // Ben loses one
+        roll, say(42), doubt, // Cleo doubts the truth and loses one
+        roll, say(43), believe, roll, say(64), // Dani rolled 64 and says so
+      ]) {
+        expect((await c.submit(m)).isAccepted, isTrue, reason: '$m');
+        handover(c);
+      }
+      await tester.pumpAndSettle();
+      return null;
+    },
+    // KLD-119: Ausgewürfelt for 4, six rounds in (Anna has the upper
+    // bonus), Anna's first roll of round 7.
+    '07-dicesheet': (tester, locale) async {
+      final c = await game(tester, const GameConfig('dicesheet', seed: 11, players: 4), locale);
+      final g = c.game as DiceSheetGame;
+      final rng = Random(5);
+      for (var round = 1; round <= 6; round++) {
+        g.debugScriptRolls([
+          [round, round, round, round, round == 6 ? 1 : 6],
+        ]);
+        await c.submit(DiceSheetGame.rollMove());
+        await c.submit(DiceSheetGame.scoreMove(DiceBox.upperFor(round)));
+        for (var s = 1; s < g.playerCount; s++) {
+          while (true) {
+            final m = DiceSheetText(game: g).autoMove(rng);
+            await c.submit(m);
+            if (m['action'] == 'score') break;
+          }
+        }
+      }
+      g.debugScriptRolls(const [
+        [5, 5, 2, 5, 3],
+      ]);
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('dicesheet-roll')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('dicesheet-roll')));
+      await tester.pumpAndSettle();
+      return null;
+    },
+    // KLD-126: chess with a 10-minute clock, an Italian opening, both sides
+    // castled; White's knight on f3 selected with its targets.
+    '08-chess': (tester, locale) async {
+      var now = 0;
+      const config = GameConfig('chess', chessClock: ChessTimeControl(10 * 60000));
+      final c = GameController(HotSeatTransport(config, clockNow: () => now),
+          transportFactory: (cfg) => HotSeatTransport(cfg, clockNow: () => now));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_wrap(_themed(buildGameScreen(c), locale: locale, webFonts: true)));
+      await tester.pump();
+      const opening = ['e2e4', 'e7e5', 'g1f3', 'b8c6', 'f1c4', 'f8c5', 'c2c3', 'g8f6', 'd2d3', 'd7d6', 'e1g1', 'e8g8'];
+      const thinking = [9, 14, 21, 12, 33, 18, 47, 26, 39, 52, 31, 44]; // seconds per move
+      for (final (i, m) in opening.indexed) {
+        now += thinking[i] * 1000;
+        await tester.pump(Duration(seconds: thinking[i]));
+        final r = await c.submit({'action': 'move', 'from': m.substring(0, 2), 'to': m.substring(2)});
+        expect(r.isAccepted, isTrue, reason: m);
+        handover(c);
+        await tester.pump();
+      }
+      now += 17000;
+      await tester.pump(const Duration(seconds: 17));
+      await tester.tap(find.byKey(const Key('chess-sq-f3')));
+      await tester.pump();
+      return () async => c.transport.dispose();
+    },
+    // Schiffe versenken: 60 shots in, hits, misses, the own fleet.
+    '09-schiffe': (tester, locale) async {
+      final c = await game(tester, const GameConfig('schiffe', seed: 7), locale);
+      _play(c, 60);
+      await tester.pump();
+      return null;
+    },
+    // "Raum starten": waiting for a guest with the QR code (a made-up LAN
+    // address, the default name).
+    '10-play-together': (tester, locale) async {
+      final created = CreatedTransports();
+      final deps = testDeps(
+        discovery: FakeDiscovery(),
+        created: created,
+        name: 'Anna',
+        addresses: const ['192.168.1.20'],
+        preferredPort: klunkiDefaultPort,
+        preferredWsPort: klunkiDefaultWebSocketPort,
+      );
+      await tester.pumpWidget(_wrap(_themed(PairingScreen(deps: deps), locale: locale)));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('pair-host-start')));
+      await pumpUntil(tester, () => find.byKey(const Key('pair-host-waiting')).evaluate().isNotEmpty, what: 'waiting');
+      return () => unmountAndSettleSockets(tester, created);
+    },
   };
 
   group(name, () {
+    // A fresh install that has seen the tours and opened the rules (no
+    // "Neu hier?" line), default player names per language.
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      SeenTips.debugReset();
+      for (final tip in [
+        SeenTips.wordtilesBench,
+        SeenTips.maumauIntro,
+        SeenTips.dicesheetIntro,
+        SeenTips.propertyIntro,
+        for (final spec in gameSpecs) SeenTips.rulesOpened(spec.id),
+      ]) {
+        SeenTips.shared.markFirst(tip);
+      }
+      ExtraSeatNames.debugReset();
+      ChessClockSettings.debugReset();
+      ShakeSettings.debugReset();
+      BeginnerSettings.debugReset();
+      UndoSettings.debugReset();
+    });
     for (final MapEntry(key: device, value: (size, dpr)) in devices.entries) {
       for (final locale in const [Locale('de'), Locale('en')]) {
-        for (final MapEntry(key: name, value: build) in scenes.entries) {
+        for (final MapEntry(key: name, value: build) in scenes.entries.take(maxScenes)) {
           final path = '$device/${locale.languageCode}/$name';
           testWidgets(path, skip: skip, (tester) async {
             await setup(tester, size, dpr);
@@ -1163,7 +1318,160 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices) 
         }
       }
     }
+
+    // A contact sheet per language: one row per device, the scenes in
+    // order, from the files written above (`<out>/overview-<lang>.png`).
+    for (final lang in const ['de', 'en']) {
+      testWidgets('overview-$lang', skip: skip, (tester) async {
+        await tester.runAsync(() => _contactSheet(out!, [for (final d in devices.keys) '$d/$lang'], 'overview-$lang'));
+      });
+    }
   });
+}
+
+/// Writes `<out>/<name>.png`: the PNGs of each folder in [rows] (below
+/// [out], sorted by name) scaled to one height, side by side, a row per
+/// folder. RGB without alpha like the shots.
+Future<void> _contactSheet(String out, List<String> rows, String name) async {
+  const cellHeight = 560.0, gap = 16.0;
+  final images = <List<ui.Image>>[];
+  for (final row in rows) {
+    final dir = Directory('$out/$row');
+    if (!dir.existsSync()) continue;
+    final files = dir.listSync().whereType<File>().where((f) => f.path.endsWith('.png')).toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+    final decoded = <ui.Image>[];
+    for (final f in files) {
+      final codec = await ui.instantiateImageCodec(f.readAsBytesSync(), targetHeight: cellHeight.round());
+      decoded.add((await codec.getNextFrame()).image);
+    }
+    images.add(decoded);
+  }
+  if (images.isEmpty) return;
+  final width = images.map((r) => r.fold<double>(gap, (w, i) => w + i.width + gap)).reduce(max).ceil();
+  final height = (gap + images.length * (cellHeight + gap)).ceil();
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder)
+    ..drawRect(Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), Paint()..color = const Color(0xFF5A4636));
+  var y = gap;
+  for (final row in images) {
+    var x = gap;
+    for (final img in row) {
+      canvas.drawImage(img, Offset(x, y), Paint()..filterQuality = FilterQuality.medium);
+      x += img.width + gap;
+    }
+    y += cellHeight + gap;
+  }
+  final sheet = await recorder.endRecording().toImage(width, height);
+  final rgba = await sheet.toByteData(format: ui.ImageByteFormat.rawRgba);
+  File('$out/$name.png').writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), width, height));
+}
+
+/// The Google Play feature graphic (docs/PLAYSTORE.md "Graphics"): 1024 ×
+/// 500, no alpha. The app icon, "Klunki" and the store subtitle on the
+/// Spieltisch amber of the icon, a row of the menu's game pictures; all of
+/// it inside the middle so a cropped or overlaid edge loses nothing.
+/// `<out>/feature-graphic.png` (German) and `feature-graphic-en.png`.
+void _featureGraphic(String? out) {
+  const size = Size(1024, 500);
+  const palette = KlunkiPalette.classicLight;
+  const games = ['connect4', 'chess', 'maumau', 'maexchen', 'quartett-trumpf', 'property'];
+  Widget picture(String id) => Container(
+        width: 74,
+        height: 74,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: palette.accent(id).container,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: const [BoxShadow(color: Color(0x55000000), blurRadius: 8, offset: Offset(0, 3))],
+        ),
+        child: CustomPaint(painter: visualsOf(id).illustration(palette)),
+      );
+
+  for (final (lang, subtitle) in const [('de', 'Brett-, Karten- & Würfelspiele'), ('en', 'Board, card & dice games')]) {
+    final file = lang == 'de' ? 'feature-graphic' : 'feature-graphic-$lang';
+    testWidgets('playstore $file', skip: out == null, (tester) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      debugDisableShadows = false;
+      await tester.pumpWidget(RepaintBoundary(
+        key: _boundary,
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: RadialGradient(
+                center: Alignment(-0.35, -0.3),
+                radius: 1.3,
+                colors: [Color(0xFFF2B266), Color(0xFFE59A48), Color(0xFFA9531F)],
+                stops: [0, 0.45, 1],
+              ),
+            ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.asset('assets/icon/app_icon.png', width: 220, height: 220),
+                    ),
+                  ),
+                  const SizedBox(width: 40),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Klunki',
+                          style: TextStyle(
+                            fontFamily: 'Roboto',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 112,
+                            height: 1,
+                            color: Color(0xFFFFF8EC),
+                            shadows: [Shadow(color: Color(0x80000000), blurRadius: 10, offset: Offset(0, 4))],
+                          )),
+                      const SizedBox(height: 10),
+                      Text(subtitle,
+                          style: const TextStyle(
+                              fontFamily: 'Roboto', fontWeight: FontWeight.w500, fontSize: 30, color: Color(0xFF3B2412))),
+                      const SizedBox(height: 26),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final (i, id) in games.indexed) ...[
+                            if (i > 0) const SizedBox(width: 12),
+                            picture(id),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ));
+      await precacheShownImages(tester);
+      await tester.pump();
+      final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
+      await tester.runAsync(() async {
+        final img = await ro.toImage(pixelRatio: 1);
+        expect((img.width, img.height), (1024, 500));
+        final rgba = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+        File('$out/$file.png')
+          ..parent.createSync(recursive: true)
+          ..writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), 1024, 500));
+      });
+      debugDisableShadows = true;
+    });
+  }
 }
 
 /// An RGB PNG (colour type 2, no alpha) of [rgba]; pixels are composited on

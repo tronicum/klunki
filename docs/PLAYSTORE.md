@@ -331,7 +331,7 @@ Sources: Play Console help "Add preview assets to showcase your app" **(check in
 | Asset | Rules | Status |
 |---|---|---|
 | **App icon** | 512 × 512, 32-bit PNG (alpha allowed), ≤ 1 MB. Full square, **no own rounded corners or drop shadow**: Play applies the mask (rounded square) and the shadow itself | Done (KLD-097, `c5-zoom-b-fill`): `docs/store/play-store-512.png`, rendered from the same source as iOS by `klunki/tool/icon/export_icon_test.dart`, together with the Android launcher icons (`mipmap-*`, adaptive `mipmap-anydpi-v26`) |
-| **Feature graphic** | 1024 × 500, JPEG or 24-bit PNG (no alpha), required. Shown at the top of the listing and in promotions; keep text and key art away from the edges, it may be cropped or overlaid | **TODO:** the icon is final now, so this can be made next (icon art + "Klunki" + a few game pieces on the Spieltisch background). Can be rendered by a test like the screenshots |
+| **Feature graphic** | 1024 × 500, JPEG or 24-bit PNG (no alpha), required. Shown at the top of the listing and in promotions; keep text and key art away from the edges, it may be cropped or overlaid | Rendered by the `playstore` group (test `playstore feature-graphic`): the app icon, "Klunki", the subtitle ("Brett-, Karten- & Würfelspiele" / "Board, card & dice games") and six menu game pictures on the Spieltisch amber, all inside the middle. `feature-graphic.png` (de) and `feature-graphic-en.png` |
 | **Phone screenshots** | 2–8, JPEG or 24-bit PNG (no alpha), each side 320–3840 px, the long side at most twice the short side. For promotion (recommendations, "suggested" lists) at least 4 screenshots, at least 1080 px, 9:16 portrait or 16:9 landscape | Generated: `phone`, 1080 × 1920 (9:16) |
 | **7" tablet screenshots** | up to 8, same format rules, each side 320–3840 px | Generated: `tablet-7`, 1200 × 1920 |
 | **10" tablet screenshots** | up to 8, each side 1080–7680 px | Generated: `tablet-10`, 1600 × 2560 |
@@ -345,23 +345,26 @@ ratio rule**. Hence a separate set.
 
 ### Generating the screenshots
 
-The `playstore` group of `klunki/test/screenshots/screenshots_test.dart` renders the same nine scenes as the App
-Store set (see [APPSTORE.md](APPSTORE.md#generating-them): menu, Quartett round, card gallery, Schiffe versenken,
-GoStrategy, Chess, room hosting with QR code, Mühle, Wortgewandt) in light mode, German and English, as RGB PNGs without alpha,
-and checks the pixel size. Without `KLUNKI_PLAYSTORE` the group is skipped.
+The `playstore` group of `klunki/test/screenshots/screenshots_test.dart` renders the first **8** scenes of the App
+Store set (see [APPSTORE.md](APPSTORE.md#generating-them): menu, Baulöwe, Quartett round, Wortgewandt, Mau-Mau,
+Mäxchen, Ausgewürfelt, Schach with the clock) in light mode, German and English, as RGB PNGs without alpha, and
+checks the pixel size. Play takes at most 8 screenshots per device type, so Schiffe versenken (09) and "Raum
+starten" (10) are App Store only. Without `KLUNKI_PLAYSTORE` the group is skipped.
 
 ```bash
 cd klunki
-KLUNKI_PLAYSTORE=/tmp/playstore flutter test test/screenshots --plain-name playstore
+KLUNKI_PLAYSTORE=../build/store-shots/playstore flutter test test/screenshots --plain-name playstore \
+  --dart-define=KLUNKI_BUILD=$(git rev-parse --short HEAD)
 # One device or language only:
 KLUNKI_PLAYSTORE=/tmp/playstore flutter test test/screenshots --plain-name "playstore phone/de"
 # Check:
 sips -g pixelWidth -g pixelHeight -g hasAlpha /tmp/playstore/*/*/*.png
 ```
 
-Output: `<dir>/{phone,tablet-7,tablet-10}/{de,en}/NN-scene.png`, 54 files, about 22 MB. Play takes at most 8
-screenshots per device type: leave one out (e.g. 03, the card gallery). The phone set is rendered at
-411 × 731 dp × 2.625 (a typical Android phone width); the tablets at 600 × 960 and 800 × 1280 dp × 2.
+Output: `<dir>/{phone,tablet-7,tablet-10}/{de,en}/NN-scene.png`, 48 files, about 15 MB, a contact sheet per
+language (`overview-de.png`, `overview-en.png`, not for upload) and the feature graphic (`feature-graphic.png`
+German, `feature-graphic-en.png` English, see [Graphics](#graphics)). The phone set is rendered at 411 × 731 dp ×
+2.625 (a typical Android phone width); the tablets at 600 × 960 and 800 × 1280 dp × 2.
 
 ## App content
 
@@ -492,7 +495,7 @@ Data deletion: not applicable (no accounts).
 
 **Later**
 
-- [ ] Feature graphic rendered (the icon is final, KLD-097).
+- [x] Feature graphic rendered (the icon is final, KLD-097): `playstore` group, `feature-graphic.png`.
 - [ ] Translated listings for fr, es, ar, fa, zh.
 - [ ] Optional CI signing secrets, so `klunki-android-aab` from CI is uploadable.
 - [ ] Revisit data safety and the privacy policy if crash reporting, a hosted relay or anything that sends data is

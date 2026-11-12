@@ -45,30 +45,45 @@ in light mode, in German and English. It writes RGB PNGs without alpha and check
 
 ```bash
 cd klunki
-KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name appstore
+# The commit in the menu's version line ("Version 1.1.0 (abc1234)" instead of "(dev)"):
+KLUNKI_APPSTORE=../build/store-shots/appstore flutter test test/screenshots --plain-name appstore \
+  --dart-define=KLUNKI_BUILD=$(git rev-parse --short HEAD)
 # One device or language only:
 KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name "appstore ipad-13/de"
 # Check the result:
 sips -g pixelWidth -g pixelHeight -g hasAlpha /tmp/appstore/*/*/*.png
 ```
 
-Output: `<dir>/{iphone-6.9,iphone-6.3,ipad-13}/{de,en}/NN-scene.png`, about 28 MB for all 54 files.
+Output: `<dir>/{iphone-6.9,iphone-6.3,ipad-13}/{de,en}/NN-scene.png`, 60 files, about 20 MB, plus a contact
+sheet per language (`<dir>/overview-de.png`, `overview-en.png`: a row per device, not for upload). `build/` is
+gitignored, so `build/store-shots/` in the repo root is a good permanent place.
+
+Players use the default names of the language (Anna, Ben, Cleo, Dani in German; Dan instead of Dani in
+English); the tours and the "Neu hier?" line count as seen; no handover cover is on screen.
 
 | # | Scene | Setup |
 |---|---|---|
-| 01 | Menu with all games | Menu as in a release build (no debug console link) |
-| 02 | Quartett (Trumpf), rockets deck | Seed 7, three picks played: a round result with photos and the card counts |
-| 03 | Quartett card gallery | Rockets deck with photos |
-| 04 | Schiffe versenken | Seed 7, 60 shots played: hits, misses, own fleet |
-| 05 | GoStrategy | Both armies set up (seeds 14/15), 30 quiet moves |
-| 06 | Chess | Italian opening, both sides castled, the f3 knight selected with its targets |
-| 07 | "Über WLAN spielen", host | Waiting for a guest: QR code, `192.168.1.20:4747`, player name "Anna" |
-| 08 | Mühle | Seed 7, 13 moves (placing phase) |
-| 09 | Wortgewandt / Wordsmith | Tiles in the store language: HAUS, STERN, BIRNE (de) or GAME, EARTH, LIGHT (en), the last word accepted; the next player's rack |
+| 01 | Menu | Release look ("Klunki Spielesammlung", no debug console link), all games, "Karten" on the Quartett tiles; on the iPhones the first rows, on the iPad all twelve tiles |
+| 02 | Baulöwe / Housing Corp | Berlin (German street names in every language), 4 players, seed 11 with bot moves to round 16: Dani has landed on Ben's Schlesische Straße with a Späti-Palast, its deed card in the centre with the rent paid, "Zug beenden" |
+| 03 | Quartett (Trumpf), rockets deck | Seed 7, three picks played: a round result with photos and the card counts |
+| 04 | Wortgewandt / Wordsmith | 3 players, tiles in the store language: HAUS, STERN, BIRNE (de) or GAME, EARTH, LIGHT (en), the last word accepted; Anna's rack and the score row of three |
+| 05 | Mau-Mau | The first seed where three plain cards (no 7, 8, jack) leave Ben with 4 cards, 2 of them fitting: own hand, discard pile, Anna's card backs |
+| 06 | Mäxchen / Mia | 4 players, scripted rolls: three lives lost, Dani says 64 to Anna ("Glauben" / "Anzweifeln") |
+| 07 | Ausgewürfelt / Rolled Out | 4 players, six rounds (Anna has the upper bonus), Anna's first roll of round 7 |
+| 08 | Schach / Chess | 10-minute clock running (KLD-126, 7:14 and 6:43 left), Italian opening, both sides castled, the f3 knight selected with its targets |
+| 09 | Schiffe versenken / Sink the Fleet | Seed 7, 60 shots played: hits, misses, own fleet |
+| 10 | "Raum starten" / "Start a room" | Waiting for a guest: QR code, the made-up address `192.168.1.20:4747`, player name "Anna" |
 
-No real addresses or device names are used. Apple allows up to 10 screenshots per device size.
+No real addresses or device names are used. Apple allows up to 10 screenshots per device size, so all ten go up
+in this order.
 
-Upload order: 01, 02, 09, 04, 05, 06, 08, 03, 07 works well too (games first, then gallery and network play).
+Dropped in the November 2026 refresh (to make room for the new games): the Quartett card gallery, GoStrategy and
+Mühle. Their scenes are still in the history of `screenshots_test.dart` if they are wanted back.
+
+Known look: on the iPad (and the Play phone/tablet sets) the Baulöwe action row under "Zug beenden" ("Meine
+Straßen", "Tauschen") is cut at the bottom edge: the board takes all the width and the action panel scrolls
+there. That is the app's own layout (`property_board.dart`, portrait: board side = height − 250), not a capture
+error.
 
 ## Store texts (German)
 
