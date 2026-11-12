@@ -43,11 +43,13 @@ runs out of time loses, except against a bare king (then it is a draw).
       games with a short clock that runs out, `chess_live_test.dart`).
 - [x] Screenshots `kld126` (de phone and iPad): `test/screenshots/chess_clock_shots_test.dart`.
 
-## Decisions (for the maintainer to confirm)
+## Decisions (confirmed by the maintainer 2026-11-12)
 - Lag credit 1 s per move over the network.
 - Clocks stand still while the guest is disconnected (the guest could think while away).
 - Draw on time only against a bare king (other dead positions already end the game as a draw).
 - The time-out cannot be undone.
+- Also confirmed: the app going to the background pauses the hot-seat clock (pause cover); the clock choice is
+  remembered per device.
 
 ## Hints / context
 `KLUNKI_SHOTS=/tmp/kld126 flutter test test/screenshots --plain-name kld126`.
