@@ -208,91 +208,116 @@ Version codes are shared across all tracks: promoting a release reuses its bundl
 
 ## Store texts (German)
 
-**App-Name** (≤ 30): `Klunki – Spiele zu zweit` (24). Plain `Klunki` also works; the name must not contain
-claims like "Nr. 1", prices or emoji.
+**App-Name** (≤ 30): `Klunki Spielesammlung` (21), the title the app shows. Plain `Klunki` also works; the name
+must not contain claims like "Nr. 1", prices or emoji.
 
 **Kurzbeschreibung** (≤ 80):
 
-> 4 Gewinnt, Mühle, Schach, Quartett und mehr – zu zweit, offline, ohne Werbung.
+> 12 Spiele für 2–4: 4 Gewinnt, Schach, Mau-Mau, Mäxchen, Quartett. Ohne Werbung.
 
-(78 characters)
+(79 characters)
 
 **Vollständige Beschreibung** (≤ 4000):
 
-> Klunki ist eine Spielesammlung für zwei: Klassiker zum Mitnehmen, ohne Werbung, ohne Konto und ohne
-> In-App-Käufe.
+> Klunki ist eine Spielesammlung für die ganze Familie: zwölf Klassiker zum Mitnehmen, für zwei bis vier
+> Spieler, ohne Werbung, ohne Konto und ohne In-App-Käufe.
 >
 > DIE SPIELE
 > • 4 Gewinnt: vier in einer Reihe, waagerecht, senkrecht oder schräg
 > • Mühle: bilde Dreierreihen und schlage gegnerische Steine
-> • Schach: der Klassiker, mit markierten Zügen und Zugliste
-> • Schiffe versenken: versteckt eure Flotten und schießt abwechselnd
-> • GoStrategy: verdeckte Armeen auf einem 10×10-Feld, finde und erobere die gegnerische Fahne
-> • Wortgewandt: legt Wörter aus Buchstabensteinen, auf Deutsch oder Englisch, mit eingebautem Wörterbuch
 > • Quartett (Trumpf): vergleicht Werte, der bessere Wert gewinnt beide Karten
 > • Quartett (Sets): erfrage Karten und sammle vollständige Vierer-Sets
+> • Schiffe versenken: versteckt eure Flotten und schießt abwechselnd
+> • GoStrategy: verdeckte Armeen auf einem 10×10-Feld, finde und erobere die gegnerische Fahne
+> • Schach: der Klassiker, mit markierten Zügen, Zugliste und auf Wunsch mit Schachuhr
+> • Wortgewandt: legt Wörter aus Buchstabensteinen, auf Deutsch oder Englisch, mit eingebautem Wörterbuch (2–4
+> Spieler)
+> • Mau-Mau: legt passende Karten ab, wer zuerst keine mehr hat, gewinnt
+> • Mäxchen: würfeln, flunkern, durchschauen – wer glaubt dir, wer zweifelt? (2–4 Spieler)
+> • Ausgewürfelt: fünf Würfel, bis zu drei Würfe, dann ein Feld im Spielzettel füllen (2–4 Spieler)
+> • Baulöwe: würfle übers Spielfeld, kaufe Straßen, baue Häuser und kassiere Miete, in Berlin oder in der
+> Fantasiestadt (2–4 Spieler)
+>
+> Zu jedem Spiel gibt es die Regeln direkt in der App. Bei Mäxchen und Ausgewürfelt kannst du auch durch
+> Schütteln würfeln.
 >
 > QUARTETT MIT ECHTEN FOTOS
 > Vier Kartendecks mit je 32 Karten: Autos, Flugzeuge, Raketen und Züge, mit Fotos, Kennzahlen und Link zum
-> Wikipedia-Artikel. Alle Karten kannst du auch ohne Spiel in der Galerie ansehen.
+> Wikipedia-Artikel. Über „Karten“ auf der Quartett-Kachel siehst du dir alle Karten auch ohne Spiel an.
 >
-> ZU ZWEIT AN EINEM GERÄT
-> Ihr spielt abwechselnd. Bei Spielen mit geheimen Karten, Buchstaben oder Flotten verdeckt Klunki den Bildschirm, bis das
-> Gerät weitergereicht ist.
+> GEMEINSAM AN EINEM GERÄT
+> Ihr spielt abwechselnd: zu zweit, bei Wortgewandt, Mäxchen, Ausgewürfelt und Baulöwe auch zu dritt oder zu
+> viert. Bei geheimen Karten, Buchstaben, Würfeln oder Flotten verdeckt Klunki den Bildschirm, bis das Gerät
+> weitergereicht ist.
 >
 > ÜBER WLAN SPIELEN
-> Ein Gerät startet einen Raum, das andere tritt per QR-Code oder Adresse bei: Android, iPhone, iPad oder ein
-> Browser im selben WLAN. Kein Konto, kein Server von uns: die Geräte verbinden sich direkt.
+> Zu zweit auf zwei Geräten: Ein Gerät tippt auf „Raum starten“, das andere auf „Raum beitreten“ und scannt den
+> QR-Code oder tippt den Raumcode ein. iPhone, iPad und Android spielen miteinander. Kein Konto, kein Server von
+> uns: die Geräte verbinden sich direkt im selben WLAN. Über WLAN gehen alle Spiele außer Ausgewürfelt und
+> Baulöwe; zu dritt oder zu viert spielt ihr an einem Gerät.
 >
 > OHNE INTERNET
 > Alle Spiele laufen offline. Klunki sammelt keine Daten für uns, zeigt keine Werbung und verkauft nichts.
 >
 > Sprachen: Deutsch, Englisch, Französisch, Spanisch, Arabisch, Persisch, Chinesisch.
 
-(about 1,400 characters; Play has no separate keyword field, the description is indexed for search, so the game
+(2427 characters; Play has no separate keyword field, the description is indexed for search, so the game
 names in it matter. Avoid keyword lists and repetition: the metadata policy forbids them.)
 
 **Versionshinweise** for the first release (≤ 500): `Erste Version von Klunki.`
 
 ## Store texts (English)
 
-**App name** (≤ 30): `Klunki – Games for Two` (22).
+**App name** (≤ 30): `Klunki Game Collection` (22).
 
 **Short description** (≤ 80):
 
-> Four in a Row, Mill, Chess, Quartett and more for two. Offline, no ads.
+> 12 games for 2–4: Four in a Row, Chess, Mau-Mau, Mia, Quartett and more. No ads.
 
-(71 characters)
+(80 characters)
 
 **Full description** (≤ 4000):
 
-> Klunki is a collection of games for two: classics to take along, without ads, accounts or in-app purchases.
+> Klunki is a game collection for the whole family: twelve classics to take along, for two to four players,
+> without ads, accounts or in-app purchases.
 >
 > THE GAMES
 > • Four in a Row: four in a line, across, down or diagonal
 > • Mill: form rows of three and capture your opponent's pieces
-> • Chess: the classic, with highlighted moves and a move list
-> • Sink the Fleet: hide your fleets and take turns firing
-> • GoStrategy: hidden armies on a 10×10 board, find and capture the enemy flag
-> • Wordsmith: lay words from letter tiles, in German or English, with a built-in dictionary
 > • Quartett (Trumps): compare values, the better value wins both cards
 > • Quartett (Sets): ask for cards and collect complete sets of four
+> • Sink the Fleet: hide your fleets and take turns firing
+> • GoStrategy: hidden armies on a 10×10 board, find and capture the enemy flag
+> • Chess: the classic, with highlighted moves, a move list and an optional chess clock
+> • Wordsmith: lay words from letter tiles, in German or English, with a built-in dictionary (2–4 players)
+> • Mau-Mau: play a matching card, the first to run out of cards wins
+> • Mia: roll, bluff and call the bluff – who believes you, who doubts? (2–4 players)
+> • Rolled Out: five dice, up to three rolls, then fill one box on the score sheet (2–4 players)
+> • Housing Corp: roll around the board, buy streets, build houses and collect rent, in Berlin or in Fantasy
+> Town (2–4 players; street names in German for now)
+>
+> Every game has its rules right in the app. In Mia and Rolled Out you can also shake the phone to roll.
 >
 > QUARTETT WITH REAL PHOTOS
-> Four decks of 32 cards each: cars, planes, rockets and trains, with photos, stats and a link to the
-> Wikipedia article. Browse every card in the gallery, no game needed.
+> Four decks of 32 cards each: cars, planes, rockets and trains, with photos, stats and a link to the Wikipedia
+> article. Tap "Cards" on the Quartett tile to browse every card, no game needed.
 >
-> TWO PLAYERS, ONE DEVICE
-> Take turns. In games with secret cards, letters or fleets, Klunki covers the screen until the device has been passed on.
+> TOGETHER ON ONE DEVICE
+> Take turns: two players, and in Wordsmith, Mia, Rolled Out and Housing Corp also three or four. In games with
+> secret cards, letters, dice or fleets, Klunki covers the screen until the device has been passed on.
 >
 > PLAY OVER WI-FI
-> One device opens a room, the other joins by QR code or address: Android, iPhone, iPad or a browser on the same
-> Wi-Fi. No account, no server of ours: the devices connect directly.
+> Two players on two devices: one taps "Start a room", the other "Join a room" and scans the QR code or types
+> the room code. iPhone, iPad and Android play together. No account, no server of ours: the devices connect
+> directly on the same Wi-Fi. Every game except Rolled Out and Housing Corp works over Wi-Fi; with three or four
+> players, play on one device.
 >
 > NO INTERNET NEEDED
 > All games work offline. Klunki collects no data for us, shows no ads and sells nothing.
 >
 > Languages: German, English, French, Spanish, Arabic, Persian, Chinese.
+
+(2254 characters)
 
 **Release notes** (≤ 500): `First release of Klunki.`
 
@@ -305,8 +330,8 @@ Sources: Play Console help "Add preview assets to showcase your app" **(check in
 
 | Asset | Rules | Status |
 |---|---|---|
-| **App icon** | 512 × 512, 32-bit PNG (alpha allowed), ≤ 1 MB. Full square, **no own rounded corners or drop shadow**: Play applies the mask (rounded square) and the shadow itself | **TODO:** still the default Flutter icon. Comes from KLD-097 (the "pocket" concept, variant pending); render the 512 px master from the same source as iOS, together with the Android launcher icons (`mipmap-*`, adaptive `mipmap-anydpi-v26`) |
-| **Feature graphic** | 1024 × 500, JPEG or 24-bit PNG (no alpha), required. Shown at the top of the listing and in promotions; keep text and key art away from the edges, it may be cropped or overlaid | **TODO:** after the icon is final (icon art + "Klunki" + a few game pieces on the Spieltisch background). Can be rendered by a test like the screenshots |
+| **App icon** | 512 × 512, 32-bit PNG (alpha allowed), ≤ 1 MB. Full square, **no own rounded corners or drop shadow**: Play applies the mask (rounded square) and the shadow itself | Done (KLD-097, `c5-zoom-b-fill`): `docs/store/play-store-512.png`, rendered from the same source as iOS by `klunki/tool/icon/export_icon_test.dart`, together with the Android launcher icons (`mipmap-*`, adaptive `mipmap-anydpi-v26`) |
+| **Feature graphic** | 1024 × 500, JPEG or 24-bit PNG (no alpha), required. Shown at the top of the listing and in promotions; keep text and key art away from the edges, it may be cropped or overlaid | **TODO:** the icon is final now, so this can be made next (icon art + "Klunki" + a few game pieces on the Spieltisch background). Can be rendered by a test like the screenshots |
 | **Phone screenshots** | 2–8, JPEG or 24-bit PNG (no alpha), each side 320–3840 px, the long side at most twice the short side. For promotion (recommendations, "suggested" lists) at least 4 screenshots, at least 1080 px, 9:16 portrait or 16:9 landscape | Generated: `phone`, 1080 × 1920 (9:16) |
 | **7" tablet screenshots** | up to 8, same format rules, each side 320–3840 px | Generated: `tablet-7`, 1200 × 1920 |
 | **10" tablet screenshots** | up to 8, each side 1080–7680 px | Generated: `tablet-10`, 1600 × 2560 |
@@ -444,7 +469,8 @@ Data deletion: not applicable (no accounts).
 - [ ] Decision: `applicationId` stays `de.klunki.klunki` (same as the iOS bundle id; cannot change after the first upload).
 - [ ] Upload key created (`keytool`, above), backed up with its password, `klunki/android/key.properties` filled in,
       `git status` shows no secret.
-- [ ] Final app icon in the Android launcher (`mipmap-*`, adaptive icon) and as 512 × 512 Play icon (KLD-097).
+- [x] Final app icon in the Android launcher (`mipmap-*`, adaptive icon) and as 512 × 512 Play icon (KLD-097,
+      `docs/store/play-store-512.png`); the look on real home screens is still to be checked.
 - [ ] Bundle built by CI from `main` or a release tag (build number `YYYYMMDDNN` above every code uploaded before; `docs/RELEASING.md`).
 - [ ] `flutter build appbundle --release --dart-define=KLUNKI_BUILD=<sha>` built; `keytool -printcert -jarfile …aab`
       shows the upload certificate.
@@ -466,7 +492,7 @@ Data deletion: not applicable (no accounts).
 
 **Later**
 
-- [ ] Feature graphic rendered after the icon is final.
+- [ ] Feature graphic rendered (the icon is final, KLD-097).
 - [ ] Translated listings for fr, es, ar, fa, zh.
 - [ ] Optional CI signing secrets, so `klunki-android-aab` from CI is uploadable.
 - [ ] Revisit data safety and the privacy policy if crash reporting, a hosted relay or anything that sends data is
