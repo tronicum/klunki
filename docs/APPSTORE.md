@@ -77,10 +77,11 @@ Upload order: 01, 02, 09, 04, 05, 06, 08, 03, 07 works well too (games first, th
 Alternative with a keyword, if "Klunki" alone is taken or too bare: `Klunki Spielesammlung` (21), the title
 the app itself shows.
 
-**Untertitel** (≤ 30):
+**Untertitel** (≤ 30): `Brett-, Karten- & Würfelspiele` (30), chosen by the maintainer.
+
+Alternatives (not used):
 
 - `Spiele für 2–4, auch offline` (28)
-- `Brett-, Karten- & Würfelspiele` (30)
 - `Spielesammlung für die Familie` (30)
 
 **Werbetext** (≤ 170, can be changed without a new review):
