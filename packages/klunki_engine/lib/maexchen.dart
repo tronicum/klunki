@@ -118,6 +118,17 @@ class MaexchenRoundEnd {
 ///   ([lostOf]); the game goes on until the players end it (`end`, any time,
 ///   [endMove]); then the fewest lives lost wins, equal counts share a
 ///   place. [startLives] does not matter then.
+/// * "Spiel beenden" by agreement (network play, 2 seats, rules version 3):
+///   `{'action': 'endRequest', 'player': p}` asks to end (either player, at
+///   any time while the game runs and no request is open; the game goes on
+///   meanwhile), `{'action': 'endAgree', 'player': q}` from the other player
+///   ends the game like `end`, `{'action': 'endRefuse', 'player': q}` drops
+///   the request. The three name their player like a resign ([playerOf]).
+///   Payloads: `{'endRequest': p}`, `{'ended': true, 'lost': […], 'agreed':
+///   q}`, `{'endRefused': q}`; the view carries an open request as
+///   `endRequest`. On one device the plain `end` stays (the confirm dialog
+///   is enough); a network host refuses `end` from the guest, and the apps
+///   only send the request over the network.
 ///
 /// Seats (KLD-121 step 2): 2–4 seats (`0 … playerCount-1`, seat 0 is
 /// [Player.a], seat 1 [Player.b]); the game is a [SeatGame], so 3–4 seats
@@ -199,6 +210,10 @@ class MaexchenGame extends Game implements SeatGame {
   /// The players ended an "Unbegrenzte Leben" game.
   bool _ended = false;
 
+  /// The player who asked to end the game ([endRequestMove]), until the
+  /// other one answers.
+  Player? _endRequestBy;
+
   /// With 3–4 seats: the others resigned and one seat is left.
   bool _othersResigned = false;
   MaexchenPhase _phase = MaexchenPhase.roll;
@@ -257,6 +272,8 @@ class MaexchenGame extends Game implements SeatGame {
       final s = playerCount == 2 ? Game.resignerOf(move)?.index : move['seat'];
       if (s is int) return s;
     }
+    final p = endPlayerOf(move);
+    if (p != null) return p.index;
     return _seat;
   }
 
@@ -284,6 +301,15 @@ class MaexchenGame extends Game implements SeatGame {
 
   /// The players ended an "Unbegrenzte Leben" game ([endMove]).
   bool get ended => _ended;
+
+  /// Who asked to end the game and waits for the other player's answer
+  /// (network play), or null.
+  Player? get endRequestBy => isOver ? null : _endRequestBy;
+
+  /// Whether [player] may ask to end the game now: "Unbegrenzte Leben", two
+  /// seats, the game runs and no request is open.
+  bool canRequestEnd(Player player) =>
+      unlimitedLives && playerCount == 2 && !isOver && _endRequestBy == null;
 
   /// Round number, from 1.
   int get round => _round;
@@ -421,6 +447,32 @@ class MaexchenGame extends Game implements SeatGame {
   /// [legalMoves], like a resign.
   static const Map<String, dynamic> endMove = {'action': 'end'};
 
+  /// The moves of "Spiel beenden" by agreement (see the class docs).
+  static const String endRequest = 'endRequest', endAgree = 'endAgree', endRefuse = 'endRefuse';
+  static const Set<String> _endActions = {endRequest, endAgree, endRefuse};
+
+  /// [player] asks to end the game.
+  static Map<String, dynamic> endRequestMove(Player player) => {'action': endRequest, 'player': player.name};
+
+  /// [player] answers the other player's request: [agree] ends the game.
+  static Map<String, dynamic> endAnswerMove(Player player, {required bool agree}) =>
+      {'action': agree ? endAgree : endRefuse, 'player': player.name};
+
+  /// Whether [move] is the plain `end` (one device only; a network host
+  /// refuses it from the guest).
+  static bool isPlainEnd(Map<String, dynamic> move) => move['action'] == 'end';
+
+  /// The player a well-formed end request or answer names, else null.
+  static Player? endPlayerOf(Map<String, dynamic> move) {
+    if (!_endActions.contains(move['action'])) return null;
+    return switch (move['player']) { 'a' => Player.a, 'b' => Player.b, _ => null };
+  }
+
+  /// An end request or answer belongs to the player it names (either one,
+  /// whoever is to move).
+  @override
+  Player playerOf(Map<String, dynamic> move) => endPlayerOf(move) ?? super.playerOf(move);
+
   /// The resign move for [seat] in a game with 3–4 seats.
   static Map<String, dynamic> resignSeatMove(int seat) => {'action': 'resign', 'seat': seat};
 
@@ -469,15 +521,39 @@ class MaexchenGame extends Game implements SeatGame {
     return GameEvent(payload: {'resigned': seat, if (midRound) 'roundDropped': true});
   }
 
-  GameEvent? _end() {
+  GameEvent? _end({Player? agreed}) {
     if (!unlimitedLives) return null;
-    _log(endMove);
+    if (agreed == null) {
+      _log(endMove);
+    } else {
+      _history.add({'action': endAgree, 'player': agreed});
+    }
     _ended = true;
+    _endRequestBy = null;
     final w = winnerSeats;
     return GameEvent(
         winner: w.length == 1 ? playerOfSeat(w.single) : null,
         draw: w.length != 1 || playerOfSeat(w.single) == null,
-        payload: {'ended': true, 'lost': List.of(_lost)});
+        payload: {'ended': true, 'lost': List.of(_lost), if (agreed != null) 'agreed': agreed.name});
+  }
+
+  GameEvent? _applyEnd(Map<String, dynamic> move) {
+    final p = endPlayerOf(move);
+    if (p == null || move.length != 2) return null;
+    final by = _endRequestBy;
+    switch (move['action']) {
+      case endRequest:
+        if (!canRequestEnd(p)) return null;
+        _endRequestBy = p;
+        return GameEvent(payload: {'endRequest': p.name});
+      case endAgree:
+        if (by == null || by == p) return null;
+        return _end(agreed: p);
+      default: // endRefuse
+        if (by == null || by == p) return null;
+        _endRequestBy = null;
+        return GameEvent(payload: {'endRefused': p.name});
+    }
   }
 
   @override
@@ -485,6 +561,7 @@ class MaexchenGame extends Game implements SeatGame {
     if (isOver) return null;
     return switch (move['action']) {
       'end' => _end(),
+      endRequest || endAgree || endRefuse => _applyEnd(move),
       'roll' => _roll(),
       'announce' => _announce(move['value']),
       'believe' => _believe(),
@@ -627,6 +704,7 @@ class MaexchenGame extends Game implements SeatGame {
         if (unlimitedLives) 'lost': List.of(_lost),
         if (_out.isNotEmpty && playerCount > 2) 'out': List.of(_out),
         if (_ended) 'ended': true,
+        if (endRequestBy != null) 'endRequest': endRequestBy!.name,
         if (_othersResigned) 'othersResigned': true,
         if (_announced != null) 'announced': _announced,
         if (_announcer != null) 'announcer': _announcer,

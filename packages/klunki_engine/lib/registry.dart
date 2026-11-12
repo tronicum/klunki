@@ -349,6 +349,9 @@ final List<GameSpec> gameSpecs = [
   // device (`players`; two seats unchanged) and the rule variant
   // "Unbegrenzte Leben" (`maexUnlimited`, the `end` move, the view's
   // `unlimited` / `lost`): an older build would play such a game with lives.
+  // Rules 3 (KLD-121, network decisions 2026-11-12): "Spiel beenden" over the
+  // network needs the other player's agreement (`endRequest` / `endAgree` /
+  // `endRefuse`, the view's `endRequest`).
   GameSpec(
       'maexchen',
       'Mäxchen',
@@ -361,7 +364,7 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true,
       redaction: const MaexchenRedaction(),
       undoBarrier: MaexchenGame.endsRound,
-      rulesVersion: 2,
+      rulesVersion: 3,
       maxPlayers: MaexchenGame.maxPlayers),
   // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
   // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network

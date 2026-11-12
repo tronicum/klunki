@@ -1163,5 +1163,11 @@
   "rulesChessClockTitle": "ساعة الشطرنج: {time}",
   "rulesChessClock": "لكل طرف وقت تفكير خاص به. تعمل الساعة للطرف صاحب الدور وتتبدّل مع كل حركة – ومع «تأكيد الحركة» عند «تحريك» فقط.\nإذا انتهى الوقت فاز الطرف الآخر. وإذا لم يبقَ لذلك الطرف إلا الملك فالنتيجة تعادل.\nالإيقاف المؤقت يوقف الساعتين، وعبر الشبكة فقط باتفاق الطرفين.\nالتراجع عن حركة يعيد الساعة أيضًا.",
   "rulesChessClockIncrement": "تُضاف {seconds} ثانية بعد كل حركة خاصة.",
-  "maexchenSummaryLives": "{count, plural, =1{روح واحدة} =2{روحان} other{{count} أرواح}}"
+  "maexchenSummaryLives": "{count, plural, =1{روح واحدة} =2{روحان} other{{count} أرواح}}",
+  "maexchenEndAsk": "طلب إنهاء اللعبة من اللاعب {player}.",
+  "maexchenEndContinue": "مواصلة اللعب",
+  "maexchenEndWaiting": "أُرسل الطلب – القرار للاعب {player}.",
+  "maexchenEndRefused": "الرد من اللاعب {player}: مواصلة اللعب.",
+  "maexchenMoveEndRequest": "طلب إنهاء اللعبة",
+  "roomRuleOff": "بدون {rule}"
 }

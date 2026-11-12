@@ -125,7 +125,8 @@ void main() {
     await host.close();
   });
 
-  test('"Unbegrenzte Leben": the tally reaches the guest, the guest ends the game and verifies it', () async {
+  test('"Unbegrenzte Leben": ending needs the other player (declined: the game goes on; agreed: over on both); '
+      'the guest verifies it', () async {
     const config = GameConfig('maexchen', seed: 8, maexchenUnlimited: true);
     final host = await startHost(config);
     final guest = await joinHost(host.port);
@@ -146,12 +147,36 @@ void main() {
       }
     }
     expect(host.game.isOver, isFalse, reason: 'nobody drops out');
-    // The player to move ends the game.
-    if ((host.game as MaexchenGame).currentPlayer == host.me) {
-      expect(host.submitLocal(MaexchenGame.endMove), isNull);
+    // KLD-121 network decisions: "Spiel beenden" needs the other player.
+    // The plain `end` of one device is refused from the guest.
+    expect(await guest.submit(MaexchenGame.endMove), isNotNull);
+    expect(host.game.isOver, isFalse);
+    // The guest asks (whoever is to move), the host declines: the game goes on.
+    final h = host.game as MaexchenGame;
+    expect(await guest.submit(MaexchenGame.endRequestMove(Player.b)), isNull);
+    await until(() => (host.game as MaexchenGame).endRequestBy == Player.b);
+    expect((guest.game as MaexchenGame).endRequestBy, Player.b, reason: 'the view carries the request');
+    expect(host.submitLocal(MaexchenGame.endAnswerMove(Player.a, agree: false)), isNull);
+    var n = host.moves.length;
+    await until(() => guest.moves.length == n);
+    expect(guest.entries.last.event!.payload, {'endRefused': 'a'});
+    expect((guest.game as MaexchenGame).endRequestBy, isNull);
+    expect(host.game.isOver, isFalse);
+    expect(guest.game.isOver, isFalse);
+    // Play on: one move by whoever is to move.
+    if (h.currentPlayer == host.me) {
+      expect(host.submitLocal(h.legalMoves.first), isNull);
     } else {
-      expect(await guest.submit(MaexchenGame.endMove), isNull);
+      expect(await guest.submit((guest.game as MaexchenGame).legalMoves.first), isNull);
     }
+    n = host.moves.length;
+    await until(() => guest.moves.length == n);
+    // The host asks, the guest agrees: over on both devices.
+    expect(host.submitLocal(MaexchenGame.endRequestMove(Player.a)), isNull);
+    n = host.moves.length;
+    await until(() => guest.moves.length == n && (guest.game as MaexchenGame).endRequestBy == Player.a);
+    expect(host.game.isOver, isFalse);
+    expect(await guest.submit(MaexchenGame.endAnswerMove(Player.b, agree: true)), isNull);
     await until(() => guest.game.isOver);
     expect(host.game.result.code, GameEndReason.maexchenEnded);
     await until(() => guest.verification != Verification.pending);
@@ -178,13 +203,20 @@ void main() {
         while (!host.game.isOver) {
           expect(++steps, lessThan(3000));
           final h = host.game as MaexchenGame;
-          final hostTurn = h.currentPlayer == host.me;
+          var hostTurn = h.currentPlayer == host.me;
           final legal = (hostTurn ? h : guest.game as MaexchenGame).legalMoves;
           var move = legal[rng.nextInt(legal.length)];
-          // "Unbegrenzte Leben": the player to move ends it after a while.
-          if (config.maexchenUnlimited) {
-            final others = [for (final m in legal) if (m['action'] != 'end') m];
-            move = steps > 150 ? MaexchenGame.endMove : others[rng.nextInt(others.length)];
+          // "Unbegrenzte Leben": after a while the player to move asks to
+          // end, the other one agrees (KLD-121 network decisions).
+          if (config.maexchenUnlimited && steps > 150) {
+            final asker = h.endRequestBy;
+            if (asker == null) {
+              move = MaexchenGame.endRequestMove(h.currentPlayer);
+            } else {
+              final other = asker == Player.a ? Player.b : Player.a;
+              move = MaexchenGame.endAnswerMove(other, agree: true);
+              hostTurn = other == host.me;
+            }
           }
           seen.add('${move['action']}');
           final n = host.moves.length;

@@ -71,8 +71,9 @@ Future<Map<String, int>> _playGame(WidgetTester tester, GameConfig config, NetLi
   final seen = <String, int>{};
   void count(String k) => seen[k] = (seen[k] ?? 0) + 1;
   final tapped = <String>[];
-  // Before the first move the guest sees the host's house rules.
-  expect(p.guestDevice.hasKey(const Key('maumau-net-options')), isTrue);
+  // Before the first move the guest sees the host's house rules that differ
+  // from the defaults; none with the defaults (network decisions 2026-11-12).
+  expect(p.guestDevice.hasKey(const Key('maumau-net-options')), !config.mauMau.isDefault);
   _checkScreens(p, 'start');
   var steps = 0;
   while (!p.engine.isOver) {

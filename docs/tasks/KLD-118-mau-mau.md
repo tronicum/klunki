@@ -72,6 +72,10 @@ without cards wins. Plays with a standard 32-card deck. Hot-seat first, network 
    stacked 7s, rejoin, a lying config caught), app (`pairing_screen_test.dart`, live UI
    `maumau_network_live_test.dart`: whole games over TCP with the Wi-Fi proxy, WebSocket and the relay).
    Screenshots `network_games_shots_test.dart --plain-name kld118`.
+   **Network decision (maintainer, 2026-11-12) ✅:** the rules line in the room and at the start of the game
+   lists only the house rules that differ from the defaults, a rule switched off as „ohne …“ (`roomRuleOff`,
+   `mauMauRulesSummary`); nothing with the default rules. Tests: `test/ui/pairing/room_rules_test.dart`,
+   `pairing_screen_test.dart`, `maumau_network_live_test.dart`.
 
 ## Rules (defaults decided by the maintainer on 2026-11-06; every switch stays in the start options)
 
@@ -115,6 +119,8 @@ The "Mau-Mau" call on the last card is not modelled (the game ends anyway).
 - [x] Landing page: `GAMES` in `site/build_site.py`, screenshot `site/assets/shot-maumau.jpg` in the gallery.
 - [ ] Maintainer: card look, layout (step-by-step UX).
 - [x] Step 3: network (2 players; room rules, guest view, live-UI network games, guest verifies the game).
+- [x] Network decision 2026-11-12: the room rules line (and the line at the start of the game) names only the
+  house rules that differ from the defaults ("ohne 8: aussetzen · Bube auf Bube"); none with the defaults.
 
 ## Decisions (maintainer, 2026-11-06)
 - 5 cards each (classic).

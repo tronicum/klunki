@@ -4674,4 +4674,30 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String maexchenEndAsk(String player) {
+    return '$player quiere terminar la partida.';
+  }
+
+  @override
+  String get maexchenEndContinue => 'Seguir jugando';
+
+  @override
+  String maexchenEndWaiting(String player) {
+    return 'Pedido enviado: decide $player.';
+  }
+
+  @override
+  String maexchenEndRefused(String player) {
+    return '$player quiere seguir jugando.';
+  }
+
+  @override
+  String get maexchenMoveEndRequest => 'pide terminar la partida';
+
+  @override
+  String roomRuleOff(String rule) {
+    return 'sin $rule';
+  }
 }

@@ -47,6 +47,7 @@ class MaexchenView extends MaexchenGame {
       }
       view._ended = j['ended'] == true;
       view._othersResigned = j['othersResigned'] == true;
+      if (j['endRequest'] != null) view._endRequestBy = playerIn(j['endRequest']);
       view._phase = MaexchenPhase.values.byName(j['phase'] as String);
       view._seat = view._checkSeat(j['seat']);
       view._round = j['round'] as int;

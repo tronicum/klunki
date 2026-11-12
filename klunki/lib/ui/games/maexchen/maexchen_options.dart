@@ -26,14 +26,22 @@ Future<MaexchenOptions?> showMaexchenOptionsDialog(BuildContext context) => show
       builder: (_) => const _MaexchenOptionsDialog(),
     );
 
-/// The options as one line ("3 Leben · Mäxchen doppelt", "Unbegrenzte Leben
-/// · Mäxchen doppelt"; without "Mäxchen doppelt" when it is off): the room
-/// of a network game and the start of the game show what the host chose
-/// (KLD-121 network step).
-String maexchenOptionsSummary(AppLocalizations l10n, GameConfig config) => [
-      config.maexchenUnlimited ? l10n.maexchenOptionUnlimited : l10n.maexchenSummaryLives(config.lives),
-      if (config.maexchenDouble) l10n.maexchenOptionDouble,
-    ].join(' · ');
+/// The options that differ from the defaults (3 lives, "Mäxchen doppelt"
+/// on) as one line ("5 Leben · ohne Mäxchen doppelt", "Unbegrenzte
+/// Leben"); null with the defaults. The room of a network game and the
+/// start of the game show what the host chose (KLD-121 network step; only
+/// the changes since the network decisions 2026-11-12).
+String? maexchenOptionsSummary(AppLocalizations l10n, GameConfig config) {
+  final changed = [
+    if (config.maexchenUnlimited)
+      l10n.maexchenOptionUnlimited
+    else if (config.lives != defaultMaexchenOptions.lives)
+      l10n.maexchenSummaryLives(config.lives),
+    if (config.maexchenDouble != defaultMaexchenOptions.double)
+      config.maexchenDouble ? l10n.maexchenOptionDouble : l10n.roomRuleOff(l10n.maexchenOptionDouble),
+  ];
+  return changed.isEmpty ? null : changed.join(' · ');
+}
 
 /// The lives (3 or 5), "Unbegrenzte Leben" with its explanation and
 /// "Mäxchen doppelt" with its explanation: in the start dialog and, for a

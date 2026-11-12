@@ -7,7 +7,9 @@
 - **Status:** step 1 DONE (engine, redaction, CLI, hot-seat UI, 7 locales, screenshots); rules decided 2026-11-06
   (see Decisions); follow-up 2026-11-08 DONE (actions always on screen, shake to roll, zh font subset rebuilt);
   step 2 DONE 2026-11-09 (3–4 players on one device, rule variant "Unbegrenzte Leben", rules 2); network step
-  DONE 2026-11-11 (2 players in the app, LAN and relay); next: tune the shake threshold on devices
+  DONE 2026-11-11 (2 players in the app, LAN and relay); network decisions DONE 2026-11-12 (ending by agreement,
+  rules 3; shake switch in the ⋮ menu; room rules line only with non-default rules); next: tune the shake
+  threshold on devices
 - **Depends on:** KLD-064 (redaction), KLD-085 (fingerprint), KLD-088 (seats, later), KLD-103 (player names)
 - **Touched paths:**
   - `packages/klunki_engine/lib/maexchen.dart`, `maexchen_view.dart` (new), `lib/debug/maexchen_text.dart` (new),
@@ -163,6 +165,34 @@ Built on the n-player infrastructure of KLD-119 / KLD-125 (branch `integrate-110
   over TCP with the Wi-Fi proxy, WebSocket and the relay, the unlimited one ended with "Spiel beenden", the guest
   rolls by shaking). Screenshots `network_games_shots_test.dart --plain-name kld121`.
 
+## Network decisions (maintainer, 2026-11-12) ✅
+The three proposals of the network step, approved and built:
+1. **"Spiel beenden" over the network needs the other player** ("Unbegrenzte Leben"). Engine (rules 3, compat
+   golden): `endRequest` / `endAgree` / `endRefuse` name their player like a resign (`playerOf`), so either
+   player may ask at any time while no request is open; the game goes on meanwhile; the view carries an open
+   request (`endRequest`, also after a rejoin). Hot-seat keeps the plain `end` after the confirm dialog; a host
+   rejects `end` from the guest ("ending needs the other player"); `PROTOCOL.md` documents it, no
+   `protocolVersion` bump (gated by the rules version, as KLD-126). App: "Spiel beenden" is in the ⋮ menu on both
+   devices (not only the player to move), the confirm dialog sends the request; the other device shows
+   „{player} möchte das Spiel beenden.“ (`maexchen-end-ask`, the ranking line under it) with „Weiterspielen“ /
+   „Beenden“; the asker sees „Angefragt – {player} entscheidet.“ and after a no „{player} möchte
+   weiterspielen.“ (until the next move). A request or a no leaves the table as it is (the peeking roller keeps
+   the cup lifted, the chosen value stays). History: „möchte das Spiel beenden“, „Weiterspielen“, „Spiel
+   beenden“.
+2. **"Schütteln zum Würfeln" in the ⋮ menu of a network game** (both devices, a check box; key `shake-menu`,
+   `shakeMenuEntry` in `shake_to_roll.dart`; the same stored `ShakeSettings`). Only on devices that may have a
+   sensor. Mäxchen is the only network game with shaking (the five-dice game and Baulöwe are hot-seat only).
+3. **The room rules line names only non-default rules** (Mäxchen and Mau-Mau, `roomRulesSummary`): a rule
+   switched on by its name, one switched off as „ohne …“ (new string `roomRuleOff`), "5 Leben", "Unbegrenzte
+   Leben"; no line at all with the defaults (as Mau-Mau already showed nothing without rules). The same line at
+   the start of the game on both boards.
+- Tests: engine (`maexchen_test.dart` "end by agreement"), net (`maexchen_net_test.dart`: guest asks, host
+  declines, play goes on; host asks, guest agrees, over on both and verified; plain `end` from the guest
+  rejected; the transport matrix ends by agreement), app (`test/ui/pairing/room_rules_test.dart`: the line, the
+  menu check box; `pairing_screen_test.dart`), live UI (`maexchen_network_live_test.dart`: ask → "Weiterspielen"
+  → note, game goes on → the other device asks → "Beenden" → over on both; the guest switches shaking off and on
+  in the ⋮ menu; `maumau_network_live_test.dart`: the line only with non-default rules).
+
 ## Follow-up 2026-11-08 (testing build 2026110806 on an iPhone 15 Pro)
 1. **The "ansagen" button was below the fold.** Now the board is the table part (lives, announcement, felt with
    the cup; it scrolls only when even its minimum does not fit) plus the controls pinned under it (beside it when
@@ -213,3 +243,5 @@ Built on the n-player infrastructure of KLD-119 / KLD-125 (branch `integrate-110
 - [x] Step 2: engine, net, widget, layout and live-UI tests; screenshots `--plain-name kld121-4p`.
 - [x] Network step: 2 players in the app (room options, guest view, shake on the guest, "Spiel beenden" for the
   player to move), engine / net / live-UI network tests, screenshots.
+- [x] Network decisions 2026-11-12: "Spiel beenden" by agreement over the network (rules 3), shake switch in the
+  ⋮ menu, room rules line only with non-default rules; engine / net / widget / live-UI tests.

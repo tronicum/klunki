@@ -6,9 +6,13 @@
 // or a bluff, believe, doubt or, after a Mäxchen, "Leben abgeben". After
 // every move both screens are checked: the dice under a closed cup are on
 // no table but their roller's (and only while peeking), the hearts (or the
-// tally) are the host's, no cover, no "Zug zurücknehmen". The "Unbegrenzte
-// Leben" game is ended with "Spiel beenden" by the player to move. At the end
-// both devices show the result and the guest verifies the game.
+// tally) are the host's, no cover, no "Zug zurücknehmen". In the "Unbegrenzte
+// Leben" game "Spiel beenden" asks the other device (network decisions
+// 2026-11-12): the first time the other player taps "Weiterspielen" (the
+// asker sees the note, the game goes on), a few moves later the other
+// device asks and "Beenden" ends it. "Schütteln zum Würfeln" is switched in
+// the guest's "⋮" menu. At the end both devices show the result and the guest
+// verifies the game.
 //
 //   flutter test test/e2e/live_ui/maexchen_network_live_test.dart
 @Timeout(Duration(minutes: 8))
@@ -84,32 +88,67 @@ Future<Map<String, int>> _playGame(WidgetTester tester, GameConfig config, NetLi
   final tapped = <String, int>{};
   void count(String k) => tapped[k] = (tapped[k] ?? 0) + 1;
   for (final d in p.devices) {
-    expect(d.hasKey(const Key('maexchen-net-options')), isTrue, reason: 'the host\'s options at the start');
+    // The host's options that differ from the defaults; none with them.
+    final changed = config.lives != 3 || !config.maexchenDouble || config.maexchenUnlimited;
+    expect(d.hasKey(const Key('maexchen-net-options')), changed, reason: 'the host\'s options at the start');
   }
   var steps = 0;
+  int? refusedInRound;
   while (!p.engine.isOver) {
     expect(++steps, lessThan(3000), reason: 'the game should end');
     final d = p.onTurn;
     final g = p.controllerOf(d).game as MaexchenGame; // the device's own view
     final n = p.host.moves.length;
     var what = '';
-    if (endAfterRounds > 0 && g.round > endAfterRounds && g.phase == MaexchenPhase.roll && g.roller == null) {
-      // "Spiel beenden" on the device of the player to move only.
-      final other = d == p.hostDevice ? p.guestDevice : p.hostDevice;
-      if (other.hasKey(const Key('shell-menu'))) {
-        await other.tapKey(tester, const Key('shell-menu'));
-        await _frames(tester, 4);
-        expect(other.hasKey(const Key('maexchen-end')), isFalse, reason: 'not on the other device');
-        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-        await _frames(tester, 4);
+    if (endAfterRounds > 0 &&
+        g.round > (refusedInRound ?? endAfterRounds) &&
+        g.phase == MaexchenPhase.roll &&
+        g.roller == null) {
+      // "Spiel beenden" asks the other device: first the player to move asks
+      // and hears no, a round later the other player asks and hears yes.
+      final refuse = refusedInRound == null;
+      final asker = refuse ? d : (d == p.hostDevice ? p.guestDevice : p.hostDevice);
+      final answerer = asker == p.hostDevice ? p.guestDevice : p.hostDevice;
+      await answerer.tapKey(tester, const Key('shell-menu'));
+      await _frames(tester, 4);
+      expect(answerer.hasKey(const Key('maexchen-end')), isTrue, reason: 'on both devices');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _frames(tester, 4);
+      await asker.tapKey(tester, const Key('shell-menu'));
+      await _frames(tester, 4);
+      await asker.tapKey(tester, const Key('maexchen-end'));
+      await _frames(tester, 4);
+      await asker.tapKey(tester, const Key('maexchen-end-confirm'));
+      await p.synced(n + 1, why: 'endRequest');
+      await _frames(tester, 6);
+      expect(p.host.moves.last.move['action'], MaexchenGame.endRequest);
+      expect(p.host.moves.last.player, asker.me);
+      expect(asker.hasKey(const Key('maexchen-end-waiting')), isTrue, reason: 'Angefragt – … entscheidet.');
+      expect(answerer.hasKey(const Key('maexchen-end-ask')), isTrue, reason: 'the question on the other device');
+      expect(asker.hasKey(const Key('maexchen-end-ask')), isFalse);
+      await asker.tapKey(tester, const Key('shell-menu'));
+      await _frames(tester, 4);
+      expect(asker.hasKey(const Key('maexchen-end')), isFalse, reason: 'one request at a time');
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _frames(tester, 4);
+      await answerer.tapKey(tester, Key(refuse ? 'maexchen-end-refuse' : 'maexchen-end-agree'));
+      await p.synced(n + 2, why: refuse ? 'endRefuse' : 'endAgree');
+      await _frames(tester, 6);
+      expect(p.host.moves.last.player, answerer.me);
+      expect(answerer.hasKey(const Key('maexchen-end-ask')), isFalse, reason: 'answered');
+      if (refuse) {
+        expect(p.engine.isOver, isFalse, reason: 'the game goes on');
+        expect(asker.hasKey(const Key('maexchen-end-refused')), isTrue, reason: '… möchte weiterspielen.');
+        expect(asker.hasKey(const Key('maexchen-end-waiting')), isFalse);
+        refusedInRound = g.round;
+        count('endRefused');
+        _checkScreens(tester, p, 'after the no');
+      } else {
+        expect(p.engine.isOver, isTrue);
+        expect((p.engine as MaexchenGame).ended, isTrue);
+        count('end');
       }
-      await d.tapKey(tester, const Key('shell-menu'));
-      await _frames(tester, 4);
-      await d.tapKey(tester, const Key('maexchen-end'));
-      await _frames(tester, 4);
-      await d.tapKey(tester, const Key('maexchen-end-confirm'));
-      count('end');
-      what = 'end';
+      continue;
     } else {
       switch (g.phase) {
         case MaexchenPhase.roll:
@@ -199,7 +238,10 @@ void main() {
       debugPrint('maexchen network $name: $tapped');
       expect(tapped['maexchen-doubt'] ?? 0, greaterThan(0), reason: '$tapped');
       expect(tapped['bluff'] ?? 0, greaterThan(0), reason: '$tapped');
-      if (endAfter > 0) expect(tapped['end'], 1);
+      if (endAfter > 0) {
+        expect(tapped['endRefused'], 1);
+        expect(tapped['end'], 1);
+      }
       expect((tapped['hostShake'] ?? 0) + (tapped['guestShake'] ?? 0), greaterThan(0), reason: '$tapped');
       expect(deL10n.maexchenEndGame, isNotEmpty);
     }, timeout: liveUiTimeout);
@@ -223,6 +265,25 @@ void main() {
     await _frames(tester);
     await step(p.guestDevice, const Key('maexchen-believe'));
     _sensor.add(AccelSample(0, 0, 1, _t));
+    await _frames(tester, 2);
+    expect(p.guestDevice.hasKey(const Key('maexchen-shake-hint')), isTrue);
+    // "Schütteln zum Würfeln" in the guest's "⋮" menu (network decisions
+    // 2026-11-12): off, then on again; the same stored device setting.
+    Future<void> toggleShake() async {
+      await p.guestDevice.tapKey(tester, const Key('shell-menu'));
+      await _frames(tester, 4);
+      await p.guestDevice.tapKey(tester, const Key('shake-menu'));
+      await _frames(tester, 4);
+    }
+
+    await toggleShake();
+    expect(ShakeSettings.shared().enabled, isFalse);
+    _sensor.add(AccelSample(0, 0, 1, _t += 10));
+    await _frames(tester, 2);
+    expect(p.guestDevice.hasKey(const Key('maexchen-shake-hint')), isFalse, reason: 'shaking is off');
+    await toggleShake();
+    expect(ShakeSettings.shared().enabled, isTrue);
+    _sensor.add(AccelSample(0, 0, 1, _t += 10));
     await _frames(tester, 2);
     expect(p.guestDevice.hasKey(const Key('maexchen-shake-hint')), isTrue);
     expect(p.hostDevice.hasKey(const Key('maexchen-shake-hint')), isFalse);

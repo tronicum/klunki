@@ -4557,4 +4557,30 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String maexchenEndAsk(String player) {
+    return '$player می‌خواهد بازی را تمام کند.';
+  }
+
+  @override
+  String get maexchenEndContinue => 'ادامه بازی';
+
+  @override
+  String maexchenEndWaiting(String player) {
+    return 'درخواست فرستاده شد – تصمیم با $player است.';
+  }
+
+  @override
+  String maexchenEndRefused(String player) {
+    return '$player می‌خواهد بازی را ادامه دهد.';
+  }
+
+  @override
+  String get maexchenMoveEndRequest => 'می‌خواهد بازی را تمام کند';
+
+  @override
+  String roomRuleOff(String rule) {
+    return 'بدون $rule';
+  }
 }

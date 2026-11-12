@@ -491,8 +491,9 @@ void main() {
       final config = created.hosts.single.config;
       expect(config.gameId, 'maumau');
       expect(config.mauMau, const MauMauRules(jackOnJack: true, eightSkips: false));
+      // Only the rules that differ from the defaults (network decisions 2026-11-12).
       expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data,
-          '7: zwei Karten ziehen · 7 auf 7 · Bube auf Bube · Ass: noch mal · „Mau!“ sagen · Legen, wenn möglich');
+          'ohne 8: aussetzen · Bube auf Bube');
       await unmountAndSettleSockets(tester, created);
     }, timeout: _timeout);
 
@@ -523,13 +524,14 @@ void main() {
     });
 
     // KLD-121 network step: Mäxchen's lives, "Unbegrenzte Leben" and
-    // "Mäxchen doppelt" on "Raum starten".
-    for (final (taps, expected, summary) in [
-      (<String>[], const GameConfig('maexchen'), '3 Leben · Mäxchen doppelt'),
+    // "Mäxchen doppelt" on "Raum starten". The room names only the rules
+    // that differ from the defaults; none: no line (network decisions
+    // 2026-11-12).
+    for (final (taps, expected, String? summary) in [
+      (<String>[], const GameConfig('maexchen'), null),
       (['pair-maexchen-lives-5', 'pair-maexchen-double'], const GameConfig('maexchen', lives: 5, maexchenDouble: false),
-          '5 Leben'),
-      (['pair-maexchen-unlimited'], const GameConfig('maexchen', maexchenUnlimited: true),
-          'Unbegrenzte Leben · Mäxchen doppelt'),
+          '5 Leben · ohne Mäxchen doppelt'),
+      (['pair-maexchen-unlimited'], const GameConfig('maexchen', maexchenUnlimited: true), 'Unbegrenzte Leben'),
     ]) {
       testWidgets('Mäxchen: $taps -> hosted and shown in the room as "$summary"', (tester) async {
         final created = CreatedTransports();
@@ -546,7 +548,11 @@ void main() {
         final config = created.hosts.single.config;
         expect(config.copyWith(seed: 0), expected);
         expect(config.players, 2);
-        expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data, summary);
+        if (summary == null) {
+          expect(find.byKey(const Key('pair-hosting-options')), findsNothing);
+        } else {
+          expect(tester.widget<Text>(find.byKey(const Key('pair-hosting-options'))).data, summary);
+        }
         await unmountAndSettleSockets(tester, created);
       }, timeout: _timeout);
     }

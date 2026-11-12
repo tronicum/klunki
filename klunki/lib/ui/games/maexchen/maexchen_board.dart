@@ -29,6 +29,13 @@ import 'maexchen_screen.dart' show maexchenValueLabel;
 /// After a doubt the cup lifts by itself and the round's verdict shows
 /// until the next roll. The dice of the current roll are drawn only while
 /// the roller peeks; nobody else ever sees them on this screen.
+///
+/// "Spiel beenden" over the network (KLD-121 network decisions 2026-11-12):
+/// when the other player asks, this device shows the question
+/// (`maexchen-end-ask`: "Beenden" `maexchen-end-agree` / "Weiterspielen"
+/// `maexchen-end-refuse`); the asking device shows "Angefragt – Ben
+/// entscheidet." (`maexchen-end-waiting`) and after a no "Ben möchte
+/// weiterspielen." (`maexchen-end-refused`) until the next move.
 class MaexchenBoard extends StatefulWidget {
   final GameController controller;
   const MaexchenBoard({super.key, required this.controller});
@@ -50,6 +57,11 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
   /// The last move was a doubt: the verdict appears with a short drum roll.
   bool _freshReveal = false;
 
+  /// The question "Ben möchte das Spiel beenden." while it is open, and the
+  /// log index of the request it answers.
+  ModalRoute<Object?>? _endRoute;
+  int? _endShownFor;
+
   GameController get controller => widget.controller;
   MaexchenGame get game => controller.game as MaexchenGame;
 
@@ -58,6 +70,7 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
     super.initState();
     controller.addListener(_onChange);
     _lift.value = _liftTarget;
+    _syncEndRequest(); // e.g. a guest that rejoins while a request is open
   }
 
   @override
@@ -80,6 +93,7 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
 
   void _onChange() {
     if (!mounted) return;
+    _syncEndRequest();
     final moves = controller.moves;
     if (moves.length == _seen) {
       setState(() {});
@@ -88,6 +102,12 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
     final grew = moves.length > _seen;
     _seen = moves.length;
     final action = moves.isEmpty ? null : moves.last.move['action'];
+    // A request to end the game or its "no" leaves the table as it is (the
+    // roller keeps peeking, the chosen value stays).
+    if (grew && (action == MaexchenGame.endRequest || action == MaexchenGame.endRefuse)) {
+      setState(() {});
+      return;
+    }
     setState(() {
       _peek = false;
       _choice = null;
@@ -141,6 +161,119 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
   }
 
   void _submit(Map<String, dynamic> move) => controller.submit(move);
+
+  // ------------------------------------------------- end by agreement
+
+  static Player _other(Player p) => p == Player.a ? Player.b : Player.a;
+
+  /// The local player who has to answer the other player's request to end
+  /// the game (network), or null.
+  Player? get _endAnswerer {
+    final by = game.endRequestBy;
+    if (by == null) return null;
+    final to = _other(by);
+    final local = controller.transport.localPlayers;
+    return local.length == 1 && local.single == to ? to : null;
+  }
+
+  /// Shows the question for a new request to this device, closes it when the
+  /// request is gone (answered, the game over).
+  void _syncEndRequest() {
+    final to = _endAnswerer;
+    if (to == null) {
+      _endShownFor = null;
+      final r = _endRoute;
+      _endRoute = null;
+      _closeRoute(r);
+      return;
+    }
+    final index = controller.moves.lastIndexWhere((m) => m.move['action'] == MaexchenGame.endRequest);
+    if (_endShownFor == index) return;
+    _endShownFor = index;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _endAnswerer == to && _endShownFor == index) _answerEndRequest(to);
+    });
+  }
+
+  static void _closeRoute(ModalRoute<Object?>? r) {
+    final nav = r?.navigator;
+    if (r == null || nav == null || !r.isActive) return;
+    if (r.isCurrent) {
+      nav.pop();
+    } else {
+      nav.removeRoute(r);
+    }
+  }
+
+  Future<void> _answerEndRequest(Player to) async {
+    final l10n = AppLocalizations.of(context);
+    final by = _other(to);
+    final name = maexchenSeatName(context, game, by.index);
+    final agree = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        _endRoute = ModalRoute.of(ctx);
+        return AlertDialog(
+          key: const Key('maexchen-end-ask'),
+          icon: const Icon(Icons.sports_score, size: 36),
+          title: Text(l10n.maexchenEndAsk(name)),
+          content: Text(l10n.maexchenEndGameBody),
+          actions: [
+            TextButton(
+              key: const Key('maexchen-end-refuse'),
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(l10n.maexchenEndContinue),
+            ),
+            FilledButton(
+              key: const Key('maexchen-end-agree'),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(l10n.maexchenEndGameConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    _endRoute = null;
+    if (agree == null || !mounted || game.endRequestBy != by) return;
+    final r = await controller.submit(MaexchenGame.endAnswerMove(to, agree: agree));
+    // Not delivered (e.g. the connection dropped): ask again while the
+    // request is still open.
+    if (!r.isAccepted && mounted && game.endRequestBy == by) {
+      _endShownFor = null;
+      _syncEndRequest();
+    }
+  }
+
+  /// The line about a request to end the game on the asking device:
+  /// "Angefragt – Ben entscheidet." while open, "Ben möchte weiterspielen."
+  /// right after a no (until the next move); null otherwise.
+  Widget? _endNote(BuildContext context) {
+    final local = controller.transport.localPlayers;
+    if (local.length != 1 || game.isOver) return null;
+    final me = local.single;
+    final l10n = AppLocalizations.of(context);
+    final String text;
+    final Key key;
+    if (game.endRequestBy == me) {
+      text = l10n.maexchenEndWaiting(maexchenSeatName(context, game, _other(me).index));
+      key = const Key('maexchen-end-waiting');
+    } else {
+      final moves = controller.moves;
+      if (moves.isEmpty || moves.last.move['action'] != MaexchenGame.endRefuse || moves.last.player == me) return null;
+      text = l10n.maexchenEndRefused(maexchenSeatName(context, game, moves.last.player.index));
+      key = const Key('maexchen-end-refused');
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        text,
+        key: key,
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
 
   String _hint(AppLocalizations l10n) {
     if (game.isOver || !controller.canAct) return '';
@@ -273,19 +406,22 @@ class _MaexchenBoardState extends State<MaexchenBoard> with TickerProviderStateM
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _LivesRow(game: game),
-                // Over the network: the host's options, until the first move.
+                ?_endNote(context),
+                // Over the network: the host's options that differ from the
+                // defaults, until the first move.
                 if (controller.transport.localPlayers.length == 1 && controller.moves.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      maexchenOptionsSummary(AppLocalizations.of(context), controller.config),
-                      key: const Key('maexchen-net-options'),
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                  if (maexchenOptionsSummary(AppLocalizations.of(context), controller.config) case final options?)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        options,
+                        key: const Key('maexchen-net-options'),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
                     ),
-                  ),
                 const SizedBox(height: 6),
                 if (roundOver)
                   MaexchenRoundSummary(

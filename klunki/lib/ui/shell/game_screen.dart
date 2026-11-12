@@ -1299,7 +1299,13 @@ class ShellMenuEntry {
   final IconData icon;
   final String label;
   final VoidCallback onSelected;
-  const ShellMenuEntry({required this.key, required this.icon, required this.label, required this.onSelected});
+
+  /// A switch in the menu (e.g. "Schütteln zum Würfeln" in a network game,
+  /// KLD-121): on or off, shown as a check box after the label; null for
+  /// a plain action.
+  final bool? checked;
+  const ShellMenuEntry(
+      {required this.key, required this.icon, required this.label, required this.onSelected, this.checked});
 }
 
 /// The "⋮" menu at the end of a game's app bar (key `shell-menu`): the
@@ -1330,6 +1336,14 @@ class ShellMenu extends StatelessWidget {
                 Icon(e.icon, color: Theme.of(context).colorScheme.onSurfaceVariant),
                 const SizedBox(width: 12),
                 Flexible(child: Text(e.label)),
+                if (e.checked case final on?) ...[
+                  const SizedBox(width: 12),
+                  Semantics(
+                    toggled: on,
+                    child: Icon(on ? Icons.check_box : Icons.check_box_outline_blank,
+                        color: on ? Theme.of(context).colorScheme.primary : null),
+                  ),
+                ],
               ],
             ),
           ),

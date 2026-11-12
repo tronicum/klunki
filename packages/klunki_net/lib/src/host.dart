@@ -483,7 +483,11 @@ class KlunkiHost {
       // KLD-126: time is up when the host's clock says so, never the guest.
       reason = ChessGame.isTimeout(move)
           ? 'only the host calls time'
-          : _apply(guestPlayer, move, think: think is int ? think : null);
+          // KLD-121: over the network "Spiel beenden" needs the host's
+          // agreement (`endRequest`), never the plain `end`.
+          : _game is MaexchenGame && MaexchenGame.isPlainEnd(move)
+              ? 'ending needs the other player'
+              : _apply(guestPlayer, move, think: think is int ? think : null);
     }
     if (reason != null) {
       _send(conn, 'rejected', {'index': index, 'reason': reason});

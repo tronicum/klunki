@@ -21,8 +21,14 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Mäxchen over the network** (KLD-121): two players on two devices, in the same Wi-Fi or through a relay. The
   host chooses the lives, "Unbegrenzte Leben" and "Mäxchen doppelt" when starting the room; both see them at the
   start. Each player rolls on their own phone (tap or shake), only they can look under their cup, and a doubt
-  lifts it for both. With "Unbegrenzte Leben" the player whose turn it is can end the game. Three or four
-  players still play on one device.
+  lifts it for both. With "Unbegrenzte Leben" either player can ask to end the game ("Spiel beenden" in the ⋮
+  menu); the other device asks "… möchte das Spiel beenden." and only "Beenden" there ends it, "Weiterspielen"
+  lets the game go on (the asker sees "… möchte weiterspielen."). "Schütteln zum Würfeln" can be switched on and
+  off in the ⋮ menu during a network game. Older builds cannot play Mäxchen with this one (Mäxchen rules
+  version 3). Three or four players still play on one device.
+- **Room rules line shows only what differs** (KLD-118, KLD-121): the room and the start of a Mau-Mau or
+  Mäxchen network game name only the house rules that differ from the defaults ("5 Leben · ohne Mäxchen
+  doppelt"); with the default rules there is no rules line.
 - **Fix: network games with house rules checked correctly** (KLD-118): a Wortgewandt game without "Restpunkte
   abziehen" was reported as "Spielverlauf konnte nicht bestätigt werden" on the guest at the end.
 - **New game: Baulöwe** (KLD-060), the property-trading dice game for **2 to 4 players on one device**: roll

@@ -533,7 +533,18 @@ game the guest also checks what it can at once: each view must be its own
   `roller` is that player's seat); a host `roll` reaches the guest with the
   event `{rolled: true}`. A `doubt` lifts the cup: its event and the view's
   `last` carry the dice; a `giveUp` never shows them. Moves hold no secret (no
-  `commit`). `end` ("Unbegrenzte Leben") is a move of the player to move.
+  `commit`).
+- **"Spiel beenden" ("Unbegrenzte Leben", rules 3).** Ending needs the other
+  player's agreement: `{"action": "endRequest", "player": p}` from either
+  player at any time while no request is open (the game goes on meanwhile),
+  then `{"action": "endAgree", "player": q}` (the game ends, event payload
+  `{ended: true, lost: [...], agreed: q}`) or `{"action": "endRefuse",
+  "player": q}` (payload `{endRefused: q}`) from the other one. The three name
+  their player like a resign. An open request is in the view as
+  `endRequest: p`, so a rejoining device sees it. The plain `end` (one device)
+  from a guest is rejected ("ending needs the other player"). No
+  `protocolVersion` bump: gated by the Mäxchen rules version 3 in the
+  fingerprint.
 - **Check.** `reveal` brings the seed; the guest replays with the whole
   public config.
 

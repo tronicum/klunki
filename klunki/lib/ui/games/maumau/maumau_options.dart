@@ -52,21 +52,27 @@ class _MauMauOptionsDialogState extends State<_MauMauOptionsDialog> {
   }
 }
 
-/// The house rules that are on, as one line ("7: zwei Karten ziehen · 7 auf
-/// 7 · 8: aussetzen · …"), from the switches' own titles; null when none is
-/// on. The room of a network game shows what the host chose (KLD-118
-/// network step).
+/// The house rules that differ from the defaults, as one line ("ohne 8:
+/// aussetzen · Bube auf Bube"), from the switches' own titles: a rule
+/// switched on by name, one switched off as "ohne …" (`roomRuleOff`); null
+/// with the default rules. The room of a network game and the game until
+/// the first move show what the host chose (KLD-118 network step; only the
+/// changes since the network decisions 2026-11-12).
 String? mauMauRulesSummary(AppLocalizations l10n, MauMauRules rules) {
-  final on = [
-    if (rules.sevenDraws) l10n.maumauOptionSeven,
-    if (rules.sevenDraws && rules.stackSevens) l10n.maumauOptionStack,
-    if (rules.eightSkips) l10n.maumauOptionEight,
-    if (rules.jackOnJack) l10n.maumauOptionJackOnJack,
-    if (rules.aceAgain) l10n.maumauOptionAce,
-    if (rules.mauCall) l10n.maumauOptionMau,
-    if (rules.mustPlay) l10n.maumauOptionMustPlay,
+  const d = MauMauRules();
+  String rule(bool on, String name) => on ? name : l10n.roomRuleOff(name);
+  final changed = [
+    if (rules.sevenDraws != d.sevenDraws) rule(rules.sevenDraws, l10n.maumauOptionSeven),
+    // "7 auf 7" counts only while a 7 makes the other player draw.
+    if (rules.sevenDraws && rules.stackSevens != d.stackSevens)
+      rule(rules.stackSevens, l10n.maumauOptionStack),
+    if (rules.eightSkips != d.eightSkips) rule(rules.eightSkips, l10n.maumauOptionEight),
+    if (rules.jackOnJack != d.jackOnJack) rule(rules.jackOnJack, l10n.maumauOptionJackOnJack),
+    if (rules.aceAgain != d.aceAgain) rule(rules.aceAgain, l10n.maumauOptionAce),
+    if (rules.mauCall != d.mauCall) rule(rules.mauCall, l10n.maumauOptionMau),
+    if (rules.mustPlay != d.mustPlay) rule(rules.mustPlay, l10n.maumauOptionMustPlay),
   ];
-  return on.isEmpty ? null : on.join(' · ');
+  return changed.isEmpty ? null : changed.join(' · ');
 }
 
 /// The house-rule switches, each with a line that explains it, and the

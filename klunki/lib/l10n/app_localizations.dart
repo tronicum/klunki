@@ -7095,6 +7095,42 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, =1{1 Leben} other{{count} Leben}}'**
   String maexchenSummaryLives(int count);
+
+  /// KLD-121 network decisions: Mäxchen "Unbegrenzte Leben" over the network: title of the question on the other device when {player} (the other player) asks to end the game; answered with "Beenden" / "Weiterspielen".
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte das Spiel beenden.'**
+  String maexchenEndAsk(String player);
+
+  /// KLD-121 network decisions: button of the question "{player} möchte das Spiel beenden.": say no, the game goes on. Also the history line of that answer.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen'**
+  String get maexchenEndContinue;
+
+  /// KLD-121 network decisions: Mäxchen over the network: this device asked to end the game; {player} (the other player) answers.
+  ///
+  /// In de, this message translates to:
+  /// **'Angefragt – {player} entscheidet.'**
+  String maexchenEndWaiting(String player);
+
+  /// KLD-121 network decisions: Mäxchen over the network: {player} (the other player) said no to ending the game; shown on the asking device until the next move.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} möchte weiterspielen.'**
+  String maexchenEndRefused(String player);
+
+  /// KLD-121 network decisions: history line (after "{player}: ") of a request to end a Mäxchen game.
+  ///
+  /// In de, this message translates to:
+  /// **'möchte das Spiel beenden'**
+  String get maexchenMoveEndRequest;
+
+  /// KLD-121/KLD-118 network decisions: in the one-line summary of a room's house rules (only the rules that differ from the defaults), a rule that is on by default but switched off; {rule} is the rule's name (e.g. "7: zwei Karten ziehen", "Mäxchen doppelt").
+  ///
+  /// In de, this message translates to:
+  /// **'ohne {rule}'**
+  String roomRuleOff(String rule);
 }
 
 class _AppLocalizationsDelegate

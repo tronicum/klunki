@@ -6,6 +6,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import '../../platform/shake.dart';
 import '../../profile/seen_tips.dart';
 import '../../profile/shake_settings.dart';
+import '../shell/game_screen.dart' show ShellMenuEntry;
 
 /// "Schütteln zum Würfeln" for a dice game (KLD-121 follow-up; Mäxchen now,
 /// the five-dice game next): calls [onShake] when the phone is shaken like a
@@ -19,6 +20,28 @@ import '../../profile/shake_settings.dart';
 ///
 /// [builder] gets `shakeReady`: shaking works right now, so the screen can
 /// say "…oder schüttle das Handy".
+/// "Schütteln zum Würfeln" as a switch in the game's "⋮" menu (key
+/// `shake-menu`): a network game has no start dialog on the guest, so both
+/// devices switch the device setting ([ShakeSettings], the same stored
+/// value as the start dialogs' switch) here (KLD-121 network decisions
+/// 2026-11-12). Null on a device without a motion sensor. The screen
+/// rebuilds its menu when [ShakeSettings.shared] changes.
+ShellMenuEntry? shakeMenuEntry(AppLocalizations l10n) {
+  if (!Motion.maybeAvailable) return null;
+  final settings = ShakeSettings.shared();
+  return ShellMenuEntry(
+    key: const Key('shake-menu'),
+    icon: Icons.vibration,
+    label: l10n.shakeToRollSetting,
+    checked: settings.enabled,
+    onSelected: () {
+      final on = !settings.enabled;
+      if (on) Motion.askPermission();
+      settings.setEnabled(on);
+    },
+  );
+}
+
 class ShakeToRoll extends StatefulWidget {
   final bool enabled;
   final VoidCallback onShake;

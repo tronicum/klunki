@@ -3,10 +3,12 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
 import '../../../game/game_controller.dart';
+import '../../../profile/shake_settings.dart';
 import '../../../transport/game_transport.dart';
 import '../../../transport/hot_seat_transport.dart';
 import '../../shell/game_screen.dart';
 import '../../shell/seat_game_screen.dart';
+import '../shake_to_roll.dart';
 import 'maexchen_board.dart';
 
 /// Mäxchen screen (KLD-121): the dice bluffing game, hot-seat and (network
@@ -24,7 +26,11 @@ import 'maexchen_board.dart';
 ///
 /// Rule variant "Unbegrenzte Leben": "Spiel beenden" in the "⋮" menu
 /// (key `maexchen-end`) asks first, then ends the game; the ranking goes by
-/// the lives lost.
+/// the lives lost. Over the network (KLD-121 network decisions 2026-11-12)
+/// it asks the other player instead (`endRequest`): the other device shows
+/// the question (see the board), only "Beenden" there ends the game.
+/// Over the network the "⋮" menu also has "Schütteln zum Würfeln"
+/// ([shakeMenuEntry]): the guest has no start dialog with that switch.
 ///
 /// Contract: `const MaexchenScreen({super.key, required this.controller})`,
 /// built by `ui/shell/screen_registry.dart`.
@@ -50,9 +56,10 @@ class MaexchenScreen extends StatelessWidget {
       );
     }
     if (controller.transport is! HotSeatTransport) {
-      // Over the network "Spiel beenden" follows whose turn it is.
+      // Over the network the menu follows the game ("Spiel beenden" while no
+      // request is open) and the shake setting.
       return ListenableBuilder(
-        listenable: controller,
+        listenable: Listenable.merge([controller, ShakeSettings.shared()]),
         builder: (context, _) => _twoPlayers(context, controller.game as MaexchenGame),
       );
     }
@@ -93,24 +100,31 @@ class MaexchenScreen extends StatelessWidget {
   }
 
   /// "Spiel beenden" for "Unbegrenzte Leben": on one device always; over
-  /// the network (KLD-121 network step) on the device of the player to move,
-  /// who submits the `end` move.
+  /// the network on both devices, at any time while no request is open (it
+  /// asks the other player). Over the network also "Schütteln zum Würfeln".
   List<ShellMenuEntry> _menuEntries(BuildContext context, MaexchenGame game) {
-    if (!game.unlimitedLives || game.isOver) return const [];
-    if (controller.transport is! HotSeatTransport && !controller.canAct) return const [];
     final l10n = AppLocalizations.of(context);
+    final network = controller.transport is! HotSeatTransport;
+    final local = controller.transport.localPlayers;
+    final canEnd = game.unlimitedLives &&
+        !game.isOver &&
+        (!network || (local.length == 1 && game.canRequestEnd(local.single)));
+    final shake = network && !game.isOver ? shakeMenuEntry(l10n) : null;
     return [
-      ShellMenuEntry(
-        key: const Key('maexchen-end'),
-        icon: Icons.sports_score,
-        label: l10n.maexchenEndGame,
-        onSelected: () => confirmMaexchenEnd(context, controller),
-      ),
+      if (canEnd)
+        ShellMenuEntry(
+          key: const Key('maexchen-end'),
+          icon: Icons.sports_score,
+          label: l10n.maexchenEndGame,
+          onSelected: () => confirmMaexchenEnd(context, controller),
+        ),
+      ?shake,
     ];
   }
 }
 
-/// Asks "Spiel beenden?" and ends an "Unbegrenzte Leben" game on yes.
+/// Asks "Spiel beenden?" and on yes ends an "Unbegrenzte Leben" game (one
+/// device) or asks the other player (network: `endRequest`).
 /// Keys: `maexchen-end-dialog`, `maexchen-end-cancel`, `maexchen-end-confirm`.
 Future<void> confirmMaexchenEnd(BuildContext context, GameController controller) async {
   final l10n = AppLocalizations.of(context);
@@ -135,7 +149,13 @@ Future<void> confirmMaexchenEnd(BuildContext context, GameController controller)
       ],
     ),
   );
-  if (ok == true && !controller.game.isOver) await controller.submit(MaexchenGame.endMove);
+  if (ok != true || controller.game.isOver) return;
+  final local = controller.transport.localPlayers;
+  if (controller.transport is HotSeatTransport) {
+    await controller.submit(MaexchenGame.endMove);
+  } else if (local.length == 1 && (controller.game as MaexchenGame).canRequestEnd(local.single)) {
+    await controller.submit(MaexchenGame.endRequestMove(local.single));
+  }
 }
 
 /// What the seat shell's ranking shows behind [seat]'s name: the lives lost
@@ -208,6 +228,8 @@ String describeMaexchenMove(AppLocalizations l10n, AcceptedMove move) => switch 
   'believe' => l10n.maexchenMoveBelieve,
   'doubt' => l10n.maexchenMoveDoubt,
   'giveUp' => l10n.maexchenMoveGiveUp,
-  'end' => l10n.maexchenEndGame,
+  'end' || MaexchenGame.endAgree => l10n.maexchenEndGame,
+  MaexchenGame.endRequest => l10n.maexchenMoveEndRequest,
+  MaexchenGame.endRefuse => l10n.maexchenEndContinue,
   _ => move.move.toString(),
 };

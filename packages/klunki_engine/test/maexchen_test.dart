@@ -394,8 +394,8 @@ void main() {
       final spec = specById('maexchen')!;
       expect(spec.hiddenInformation, isTrue);
       expect(spec.redaction!.secretSeed, isTrue);
-      // Rules 2 (KLD-121 step 2): 2–4 seats, "Unbegrenzte Leben".
-      expect(spec.rulesVersion, 2);
+      // Rules 2 (KLD-121 step 2): 2–4 seats, "Unbegrenzte Leben"; 3: ending by agreement.
+      expect(spec.rulesVersion, 3);
       expect(spec.maxPlayers, 4);
     });
   });
@@ -484,6 +484,80 @@ void main() {
       final badValue = r.view(scripted([[1, 1]])..applyMove(roll)..applyMove(announce(11)), Player.a)
         ..['announced'] = 12;
       expect(() => r.fromView(badValue), throwsA(isA<BadViewException>()));
+    });
+  });
+
+  // KLD-121 network decisions 2026-11-12: over the network "Spiel beenden"
+  // needs the other player's agreement.
+  group('end by agreement', () {
+    MaexchenGame unlimited() => MaexchenGame(unlimitedLives: true)..debugScriptRolls([[6, 5], [3, 1]]);
+    final requestA = MaexchenGame.endRequestMove(Player.a), requestB = MaexchenGame.endRequestMove(Player.b);
+    Map<String, dynamic> answer(Player p, bool agree) => MaexchenGame.endAnswerMove(p, agree: agree);
+
+    test('a request names its player, whoever is to move; the game goes on meanwhile', () {
+      final g = unlimited();
+      expect(g.playerOf(requestB), Player.b);
+      expect(g.seatOfMove(requestB), 1);
+      expect(g.canRequestEnd(Player.b), isTrue);
+      expect(g.applyMove(requestB)!.payload, {'endRequest': 'b'});
+      expect(g.endRequestBy, Player.b);
+      expect(g.canRequestEnd(Player.a), isFalse, reason: 'one request at a time');
+      expect(g.applyMove(requestA), isNull);
+      play(g, [roll, announce(65)]);
+      expect(g.endRequestBy, Player.b);
+      expect(MaexchenRedaction().view(g, Player.a)['endRequest'], 'b');
+      final view = const MaexchenRedaction().fromView(
+          jsonDecode(jsonEncode(const MaexchenRedaction().view(g, Player.b))) as Map<String, dynamic>) as MaexchenGame;
+      expect(view.endRequestBy, Player.b);
+    });
+
+    test('refused: the request is gone, the game goes on, a new one may be asked', () {
+      final g = unlimited();
+      play(g, [roll, requestA]);
+      expect(g.applyMove(answer(Player.a, false)), isNull, reason: 'not the asker');
+      expect(g.applyMove(answer(Player.b, false))!.payload, {'endRefused': 'b'});
+      expect(g.endRequestBy, isNull);
+      expect(g.isOver, isFalse);
+      expect(g.applyMove(answer(Player.b, true)), isNull, reason: 'nothing to answer');
+      play(g, [announce(65), doubt]);
+      expect(g.lostOf(1), 1, reason: 'the 65 was real');
+      expect(g.canRequestEnd(Player.b), isTrue);
+    });
+
+    test('agreed: the game ends like "end", the fewest lives lost wins', () {
+      final g = unlimited();
+      play(g, [roll, announce(65), doubt, requestA]);
+      expect(g.applyMove(answer(Player.a, true)), isNull, reason: 'not the asker');
+      final e = g.applyMove(answer(Player.b, true))!;
+      expect(e.payload, {'ended': true, 'lost': [0, 1], 'agreed': 'b'});
+      expect(g.isOver, isTrue);
+      expect(g.ended, isTrue);
+      expect(g.playResult.winner, Player.a);
+      expect(g.playResult.code, GameEndReason.maexchenEnded);
+      expect(g.endRequestBy, isNull);
+      expect(g.applyMove(requestB), isNull);
+      // Replays the same.
+      final log = [roll, announce(65), doubt, requestA, answer(Player.b, true)];
+      final again = replay(const GameConfig('maexchen', maexchenUnlimited: true), log) as MaexchenGame;
+      expect(again.isOver, isTrue);
+    });
+
+    test('only with "Unbegrenzte Leben", two seats and well-formed moves', () {
+      expect(MaexchenGame().applyMove(requestA), isNull);
+      expect(MaexchenGame(unlimitedLives: true, playerCount: 3).applyMove(requestA), isNull);
+      final g = unlimited();
+      expect(g.applyMove({...requestA, 'extra': 1}), isNull);
+      expect(g.applyMove({'action': MaexchenGame.endRequest, 'player': 'c'}), isNull);
+      expect(g.endRequestBy, isNull);
+    });
+
+    test('the plain end stays for one device', () {
+      expect(MaexchenGame.isPlainEnd(MaexchenGame.endMove), isTrue);
+      expect(MaexchenGame.isPlainEnd(requestA), isFalse);
+      final g = unlimited();
+      play(g, [requestB]);
+      expect(g.applyMove(MaexchenGame.endMove), isNotNull);
+      expect(g.isOver, isTrue);
     });
   });
 

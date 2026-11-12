@@ -1163,5 +1163,11 @@
   "rulesChessClockTitle": "Pendule : {time}",
   "rulesChessClock": "Chaque camp a son propre temps de réflexion. La pendule tourne pour le camp qui doit jouer et change à chaque coup – avec « Confirmer le coup », seulement sur « Jouer ».\nQuand le temps est écoulé, l’autre camp gagne. S’il ne lui reste que le roi, c’est nulle.\nLa pause arrête les deux pendules ; en réseau seulement si les deux sont d’accord.\nAnnuler un coup remet aussi la pendule en arrière.",
   "rulesChessClockIncrement": "{seconds} secondes de plus après chaque coup joué.",
-  "maexchenSummaryLives": "{count, plural, =1{1 vie} other{{count} vies}}"
+  "maexchenSummaryLives": "{count, plural, =1{1 vie} other{{count} vies}}",
+  "maexchenEndAsk": "Demande de fin de partie : {player}.",
+  "maexchenEndContinue": "Continuer",
+  "maexchenEndWaiting": "Demande envoyée – décision : {player}.",
+  "maexchenEndRefused": "{player} veut continuer à jouer.",
+  "maexchenMoveEndRequest": "demande la fin de la partie",
+  "roomRuleOff": "sans {rule}"
 }

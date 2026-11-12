@@ -4392,4 +4392,30 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String maexchenEndAsk(String player) {
+    return '$player 想结束游戏。';
+  }
+
+  @override
+  String get maexchenEndContinue => '继续玩';
+
+  @override
+  String maexchenEndWaiting(String player) {
+    return '已询问，由 $player 决定。';
+  }
+
+  @override
+  String maexchenEndRefused(String player) {
+    return '$player 想继续玩。';
+  }
+
+  @override
+  String get maexchenMoveEndRequest => '想结束游戏';
+
+  @override
+  String roomRuleOff(String rule) {
+    return '取消：$rule';
+  }
 }

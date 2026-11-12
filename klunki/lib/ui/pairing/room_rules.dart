@@ -72,8 +72,11 @@ class RoomRulesPicker extends StatelessWidget {
       };
 }
 
-/// The house rules of [config] as one line for the room and the game (null:
-/// the game has none in a room, or none is on).
+/// The house rules of [config] that differ from the defaults, as one line
+/// for the room and the game ("5 Leben · ohne Mäxchen doppelt"); null when
+/// the game has none in a room or plays by the default rules (then the room
+/// shows no rules line at all: KLD-121/KLD-118 network decisions
+/// 2026-11-12).
 String? roomRulesSummary(AppLocalizations l10n, GameConfig config) => switch (config.gameId) {
       'maumau' => mauMauRulesSummary(l10n, config.mauMau),
       'maexchen' => maexchenOptionsSummary(l10n, config),
