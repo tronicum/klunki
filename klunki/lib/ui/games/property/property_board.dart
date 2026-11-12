@@ -338,24 +338,90 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
           ),
         );
       }
-      // Portrait: the players, the board as big as fits with room for the
-      // actions, the actions (scrolling when they need more room).
-      final side = math.min(box.maxWidth - 8, math.max(220.0, box.maxHeight - 250));
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      // Portrait: the story, the players, the board as big as fits with
+      // room for the actions, the actions (scrolling when a phase needs
+      // more room, e.g. "Kaufen" and "Nicht kaufen"). The story and the
+      // players are measured; the room kept for the actions is that of the
+      // panel with a main button and the row "Meine Straßen" / "Tauschen" /
+      // "Zug zurücknehmen" ([_panelReserve]), the same in every phase, so
+      // the board keeps its size. Where that row would take the board room,
+      // "Zug zurücknehmen" is just its "↶" (when the label needs a line of
+      // its own: a phone with 4 players).
+      final width = box.maxWidth - _panelPadding.horizontal;
+      final labelled = _panelReserve(width);
+      return CustomMultiChildLayout(
+        delegate: _PortraitLayout(
+            reserve: labelled,
+            compactReserve: _panelReserve(width, compactRow: true),
+            mainOnlyReserve: _panelReserve(width, row: false)),
         children: [
-          _storyBox(),
-          Padding(padding: const EdgeInsets.fromLTRB(8, 2, 8, 4), child: _players()),
-          Center(child: SizedBox.square(dimension: side, child: _board(side))),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-              child: _panel(),
+          LayoutId(id: _Slot.story, child: _storyBox()),
+          LayoutId(
+              id: _Slot.players, child: Padding(padding: const EdgeInsets.fromLTRB(8, 2, 8, 4), child: _players())),
+          LayoutId(id: _Slot.board, child: LayoutBuilder(builder: (context, b) => _board(b.maxWidth))),
+          LayoutId(
+            id: _Slot.panel,
+            child: LayoutBuilder(
+              builder: (context, b) => SingleChildScrollView(
+                  padding: _panelPadding, child: _panel(compactRow: b.maxHeight < labelled - 0.5)),
             ),
           ),
         ],
       );
     });
+  }
+
+  /// Around the action panel under the board (portrait).
+  static const _panelPadding = EdgeInsets.fromLTRB(8, 6, 8, 8);
+
+  /// The action panel's padding and border (inside [_panelPadding]).
+  static const _panelInset = 10.0 + 1;
+
+  /// The width of the "↶" button alone (a compact [IconButton]).
+  static const _undoIconWidth = 40.0;
+
+  /// Whether "Zug zurücknehmen" needs a line of its own in the row at
+  /// [width] (inside the panel; a phone): then a compact row
+  /// ([_panel]'s `compactRow`) shows only its "↶".
+  bool _undoIconOnly(double width, {required bool trade}) {
+    final l10n = AppLocalizations.of(context);
+    final labels = [l10n.propertyManage, if (trade) l10n.propertyTrade, l10n.shellTakeBack];
+    return labels.fold(0.0, (sum, t) => sum + UndoMoveButton.textButtonWidth(context, t)) > width;
+  }
+
+  /// The lines the row "Meine Straßen" / "Tauschen" / "Zug zurücknehmen"
+  /// takes at [width] (inside the panel; a [Wrap]: a line breaks where the
+  /// next button does not fit), with [compact] as in [_panel].
+  int _rowRuns(double width, {required bool compact}) {
+    final l10n = AppLocalizations.of(context);
+    final widths = [
+      UndoMoveButton.textButtonWidth(context, l10n.propertyManage),
+      UndoMoveButton.textButtonWidth(context, l10n.propertyTrade),
+      compact && _undoIconOnly(width, trade: true) ? _undoIconWidth : UndoMoveButton.textButtonWidth(context, l10n.shellTakeBack),
+    ];
+    var runs = 1;
+    var used = 0.0;
+    for (final w in widths) {
+      if (used > 0 && used + w > width) {
+        runs++;
+        used = 0;
+      }
+      used += w;
+    }
+    return runs;
+  }
+
+  /// The height of the action panel with a main button ("Würfeln", "Zug
+  /// beenden") and, with [row], the row "Meine Straßen" / "Tauschen" /
+  /// "Zug zurücknehmen" as it wraps at [width] (the panel's outer width), at
+  /// the current text size, with [compactRow] as in [_panel];
+  /// [_panelPadding] included.
+  double _panelReserve(double width, {bool row = true, bool compactRow = false}) {
+    // A button: 48 high (the tap target), or its label line with padding.
+    final button = math.max(48.0, MediaQuery.textScalerOf(context).scale(20) + 16);
+    final frame = _panelPadding.vertical + 2 * _panelInset;
+    if (!row) return frame + button;
+    return frame + button + 6 + _rowRuns(width - 2 * _panelInset, compact: compactRow) * button;
   }
 
   // ------------------------------------------------------------- players
@@ -551,7 +617,10 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
 
   // ------------------------------------------------------------- actions
 
-  Widget _panel() {
+  /// The actions; with [compactRow] "Zug zurücknehmen" is just its "↶"
+  /// where its label would need a line of its own (portrait, when the room
+  /// under the board is short).
+  Widget _panel({bool compactRow = false}) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final palette = KlunkiPalette.of(context);
@@ -684,40 +753,90 @@ class _PropertyBoardState extends State<PropertyBoard> with TickerProviderStateM
         children: [
           ...children,
           const SizedBox(height: 6),
-          // A Wrap: on a narrow side panel the two buttons stack.
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              KeyedSubtree(
-                key: _manageKey,
-                child: TextButton.icon(
-                  key: const Key('property-manage'),
-                  onPressed: canManage ? () => showPropertyManageSheet(context, controller, a) : null,
-                  icon: const Icon(Icons.holiday_village_outlined),
-                  label: Text(l10n.propertyManage),
-                ),
-              ),
-              if (a != null && propertyCanTrade(game))
+          // A Wrap: on a narrow side panel the buttons stack. In a compact
+          // row, where the labelled "Zug zurücknehmen" would need a line of
+          // its own, just its "↶" (the label is its tooltip).
+          LayoutBuilder(builder: (context, box) {
+            final trade = a != null && propertyCanTrade(game);
+            return Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
                 KeyedSubtree(
-                  key: _tradeKey,
+                  key: _manageKey,
                   child: TextButton.icon(
-                    key: const Key('property-trade'),
-                    onPressed: () => showPropertyTradeSheet(context, controller),
-                    icon: const Icon(Icons.swap_horiz),
-                    label: Text(l10n.propertyTrade),
+                    key: const Key('property-manage'),
+                    onPressed: canManage ? () => showPropertyManageSheet(context, controller, a) : null,
+                    icon: const Icon(Icons.holiday_village_outlined),
+                    label: Text(l10n.propertyManage),
                   ),
                 ),
-              // Not while a trade offer waits for its answer (the partner
-              // may look at the board; the offer is taken back on the
-              // handover cover).
-              if (game.phase != PropertyPhase.trade) const UndoMoveButton(),
-            ],
-          ),
+                if (trade)
+                  KeyedSubtree(
+                    key: _tradeKey,
+                    child: TextButton.icon(
+                      key: const Key('property-trade'),
+                      onPressed: () => showPropertyTradeSheet(context, controller),
+                      icon: const Icon(Icons.swap_horiz),
+                      label: Text(l10n.propertyTrade),
+                    ),
+                  ),
+                // Not while a trade offer waits for its answer (the partner
+                // may look at the board; the offer is taken back on the
+                // handover cover).
+                if (game.phase != PropertyPhase.trade)
+                  UndoMoveButton(iconOnly: compactRow && _undoIconOnly(box.maxWidth, trade: trade)),
+              ],
+            );
+          }),
         ],
       ),
     );
   }
+}
+
+enum _Slot { story, players, board, panel }
+
+/// Portrait ([_PropertyBoardState.build]): the story and the players at
+/// their height, then the board as big as the width allows with [reserve]
+/// left for the action panel below; the panel takes the rest. Where that
+/// would make the board smaller than the width, [compactReserve] (the row
+/// with just "↶") is kept instead; where the board would be smaller than
+/// [minSide] (an iPhone SE), only [mainOnlyReserve] (the main button) and
+/// the row scrolls.
+class _PortraitLayout extends MultiChildLayoutDelegate {
+  final double reserve;
+  final double compactReserve;
+  final double mainOnlyReserve;
+  _PortraitLayout({required this.reserve, required this.compactReserve, required this.mainOnlyReserve});
+
+  /// The smallest board kept with the whole action panel on screen: below
+  /// it the short street names would get smaller than they are made for.
+  static const minSide = 240.0;
+
+  @override
+  void performLayout(Size size) {
+    final w = size.width;
+    final story = layoutChild(_Slot.story, BoxConstraints.tightFor(width: w));
+    positionChild(_Slot.story, Offset.zero);
+    final players = layoutChild(_Slot.players, BoxConstraints.tightFor(width: w));
+    positionChild(_Slot.players, Offset(0, story.height));
+    final top = story.height + players.height;
+    final avail = size.height - top;
+    var side = avail - reserve;
+    if (side < w - 8) side = avail - compactReserve;
+    if (side < minSide) side = math.max(side, math.min(avail - mainOnlyReserve, minSide));
+    side = math.max(0.0, math.min(math.min(w - 8, avail), side));
+    layoutChild(_Slot.board, BoxConstraints.tight(Size.square(side)));
+    positionChild(_Slot.board, Offset((w - side) / 2, top));
+    final panelTop = top + side;
+    layoutChild(_Slot.panel, BoxConstraints.tightFor(width: w, height: math.max(0.0, size.height - panelTop)));
+    positionChild(_Slot.panel, Offset(0, panelTop));
+  }
+
+  @override
+  bool shouldRelayout(_PortraitLayout old) =>
+      old.reserve != reserve || old.compactReserve != compactReserve || old.mainOnlyReserve != mainOnlyReserve;
 }
 
 /// One square of the ring: the group's colour band on the side facing the

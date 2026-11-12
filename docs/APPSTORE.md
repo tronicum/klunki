@@ -80,11 +80,6 @@ in this order.
 Dropped in the November 2026 refresh (to make room for the new games): the Quartett card gallery, GoStrategy and
 Mühle. Their scenes are still in the history of `screenshots_test.dart` if they are wanted back.
 
-Known look: on the iPad (and the Play phone/tablet sets) the Baulöwe action row under "Zug beenden" ("Meine
-Straßen", "Tauschen") is cut at the bottom edge: the board takes all the width and the action panel scrolls
-there. That is the app's own layout (`property_board.dart`, portrait: board side = height − 250), not a capture
-error.
-
 ## Store texts (German)
 
 **Name** (≤ 30): `Klunki`
