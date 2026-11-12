@@ -104,4 +104,11 @@ jobs:
           flutter gen-l10n
           git diff --exit-code -- lib/l10n
       - run: flutter analyze
-      - run: flutter test --total-shards 2 --shard-index ${{ matrix.index }}
+      # Split by file, not with --total-shards: that splits single tests of a
+      # file across the halves, and tests that build on an earlier one in their
+      # file (a shared mock, a summary of the games before) then fail.
+      - name: flutter test (every other test file)
+        run: |
+          files=$(find test -name '*_test.dart' | sort | awk -v i=${{ matrix.index }} 'NR % 2 == i')
+          echo "$(echo "$files" | wc -l) test files in part ${{ matrix.part }}"
+          flutter test $files
