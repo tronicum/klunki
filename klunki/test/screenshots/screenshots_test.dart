@@ -13,6 +13,9 @@
 //
 //   KLUNKI_APPSTORE=/tmp/appstore flutter test test/screenshots --plain-name appstore
 //
+// That includes Apple's creative assets (group "appstore creative": product
+// page header, search results, universal image) in <dir>/creative/.
+//
 // The Google Play set (group "playstore", the same scenes at Play's sizes)
 // needs KLUNKI_PLAYSTORE=<output dir> instead; see docs/PLAYSTORE.md:
 //
@@ -214,6 +217,7 @@ void main() {
   _storeShots('appstore', _appstoreOut, _appStoreDevices);
   _storeShots('playstore', _playstoreOut, _playStoreDevices, maxScenes: 8);
   _featureGraphic(_playstoreOut);
+  _creativeAssets(_appstoreOut);
 
 
   for (final size in [phone, tablet]) {
@@ -1009,15 +1013,6 @@ const _playStoreDevices = <String, (Size, double)>{
 void _storeShots(String name, String? out, Map<String, (Size, double)> devices, {int maxScenes = 10}) {
   final skip = out == null;
 
-  Future<void> setup(WidgetTester tester, Size size, double dpr) async {
-    tester.view.physicalSize = size * dpr;
-    tester.view.devicePixelRatio = dpr;
-    tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
-    debugDisableShadows = false;
-    addTearDown(tester.view.reset);
-    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
-  }
-
   Future<void> shot(WidgetTester tester, String path, Size size, double dpr,
       {Duration settle = const Duration(seconds: 2)}) async {
     await precacheShownImages(tester);
@@ -1036,6 +1031,68 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices, 
     debugDisableShadows = true;
   }
 
+  final scenes = _storeScenes();
+
+  group(name, () {
+    setUp(_storeReset);
+    for (final MapEntry(key: device, value: (size, dpr)) in devices.entries) {
+      for (final locale in const [Locale('de'), Locale('en')]) {
+        for (final MapEntry(key: name, value: build) in scenes.entries.take(maxScenes)) {
+          final path = '$device/${locale.languageCode}/$name';
+          testWidgets(path, skip: skip, (tester) async {
+            await _storeView(tester, size, dpr);
+            final cleanup = await build(tester, locale);
+            await shot(tester, path, size, dpr,
+                settle: cleanup == null ? const Duration(seconds: 2) : const Duration(milliseconds: 300));
+            await cleanup?.call();
+          });
+        }
+      }
+    }
+
+    // A contact sheet per language: one row per device, the scenes in
+    // order, from the files written above (`<out>/overview-<lang>.png`).
+    for (final lang in const ['de', 'en']) {
+      testWidgets('overview-$lang', skip: skip, (tester) async {
+        await tester.runAsync(() => _contactSheet(out!, [for (final d in devices.keys) '$d/$lang'], 'overview-$lang'));
+      });
+    }
+  });
+}
+
+/// Light mode at [size] × [dpr] with real shadows (the capture resets them).
+Future<void> _storeView(WidgetTester tester, Size size, double dpr) async {
+  tester.view.physicalSize = size * dpr;
+  tester.view.devicePixelRatio = dpr;
+  tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
+  debugDisableShadows = false;
+  addTearDown(tester.view.reset);
+  addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+}
+
+/// A fresh install that has seen the tours and opened the rules (no
+/// "Neu hier?" line), default player names per language.
+void _storeReset() {
+  SharedPreferences.setMockInitialValues({});
+  SeenTips.debugReset();
+  for (final tip in [
+    SeenTips.wordtilesBench,
+    SeenTips.maumauIntro,
+    SeenTips.dicesheetIntro,
+    SeenTips.propertyIntro,
+    for (final spec in gameSpecs) SeenTips.rulesOpened(spec.id),
+  ]) {
+    SeenTips.shared.markFirst(tip);
+  }
+  ExtraSeatNames.debugReset();
+  ChessClockSettings.debugReset();
+  ShakeSettings.debugReset();
+  BeginnerSettings.debugReset();
+  UndoSettings.debugReset();
+}
+
+/// The store scenes by file name.
+Map<String, Future<Future<void> Function()?> Function(WidgetTester, Locale)> _storeScenes() {
   Future<GameController> game(WidgetTester tester, GameConfig config, Locale locale) async {
     final c = GameController.hotSeat(config);
     addTearDown(c.dispose);
@@ -1051,7 +1108,7 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices, 
   // Each scene builds its screen and returns a cleanup (sockets, clock) or
   // null. Set-up moves go through the controller; what is shown is the
   // screen of the player to move, without a handover cover.
-  final scenes = <String, Future<Future<void> Function()?> Function(WidgetTester, Locale)>{
+  return <String, Future<Future<void> Function()?> Function(WidgetTester, Locale)>{
     // The release menu: "Klunki Spielesammlung", all tiles, "Karten" on the
     // Quartett tiles.
     '01-menu': (tester, locale) async {
@@ -1282,51 +1339,6 @@ void _storeShots(String name, String? out, Map<String, (Size, double)> devices, 
       return () => unmountAndSettleSockets(tester, created);
     },
   };
-
-  group(name, () {
-    // A fresh install that has seen the tours and opened the rules (no
-    // "Neu hier?" line), default player names per language.
-    setUp(() {
-      SharedPreferences.setMockInitialValues({});
-      SeenTips.debugReset();
-      for (final tip in [
-        SeenTips.wordtilesBench,
-        SeenTips.maumauIntro,
-        SeenTips.dicesheetIntro,
-        SeenTips.propertyIntro,
-        for (final spec in gameSpecs) SeenTips.rulesOpened(spec.id),
-      ]) {
-        SeenTips.shared.markFirst(tip);
-      }
-      ExtraSeatNames.debugReset();
-      ChessClockSettings.debugReset();
-      ShakeSettings.debugReset();
-      BeginnerSettings.debugReset();
-      UndoSettings.debugReset();
-    });
-    for (final MapEntry(key: device, value: (size, dpr)) in devices.entries) {
-      for (final locale in const [Locale('de'), Locale('en')]) {
-        for (final MapEntry(key: name, value: build) in scenes.entries.take(maxScenes)) {
-          final path = '$device/${locale.languageCode}/$name';
-          testWidgets(path, skip: skip, (tester) async {
-            await setup(tester, size, dpr);
-            final cleanup = await build(tester, locale);
-            await shot(tester, path, size, dpr,
-                settle: cleanup == null ? const Duration(seconds: 2) : const Duration(milliseconds: 300));
-            await cleanup?.call();
-          });
-        }
-      }
-    }
-
-    // A contact sheet per language: one row per device, the scenes in
-    // order, from the files written above (`<out>/overview-<lang>.png`).
-    for (final lang in const ['de', 'en']) {
-      testWidgets('overview-$lang', skip: skip, (tester) async {
-        await tester.runAsync(() => _contactSheet(out!, [for (final d in devices.keys) '$d/$lang'], 'overview-$lang'));
-      });
-    }
-  });
 }
 
 /// Writes `<out>/<name>.png`: the PNGs of each folder in [rows] (below
@@ -1367,13 +1379,23 @@ Future<void> _contactSheet(String out, List<String> rows, String name) async {
   File('$out/$name.png').writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), width, height));
 }
 
-/// The Google Play feature graphic (docs/PLAYSTORE.md "Graphics"): 1024 ×
-/// 500, no alpha. The app icon, "Klunki" and the store subtitle on the
-/// Spieltisch amber of the icon, a row of the menu's game pictures; all of
-/// it inside the middle so a cropped or overlaid edge loses nothing.
-/// `<out>/feature-graphic.png` (German) and `feature-graphic-en.png`.
-void _featureGraphic(String? out) {
-  const size = Size(1024, 500);
+/// The store subtitle per language, as on the Play feature graphic.
+const _storeSubtitles = [('de', 'Brett-, Karten- & Würfelspiele'), ('en', 'Board, card & dice games')];
+
+/// The Spieltisch amber of the app icon, lit from the upper left.
+const _storeTable = BoxDecoration(
+  gradient: RadialGradient(
+    center: Alignment(-0.35, -0.3),
+    radius: 1.3,
+    colors: [Color(0xFFF2B266), Color(0xFFE59A48), Color(0xFFA9531F)],
+    stops: [0, 0.45, 1],
+  ),
+);
+
+/// The store brand block at the feature graphic's scale (about 764 × 220):
+/// the app icon, "Klunki", [subtitle] and a row of the menu's game pictures;
+/// [stacked]: the icon above the text (about 504 × 520).
+Widget _storeBrand(String subtitle, Widget icon, {bool stacked = false}) {
   const palette = KlunkiPalette.classicLight;
   const games = ['connect4', 'chess', 'maumau', 'maexchen', 'quartett-trumpf', 'property'];
   Widget picture(String id) => Container(
@@ -1388,7 +1410,78 @@ void _featureGraphic(String? out) {
         child: CustomPaint(painter: visualsOf(id).illustration(palette)),
       );
 
-  for (final (lang, subtitle) in const [('de', 'Brett-, Karten- & Würfelspiele'), ('en', 'Board, card & dice games')]) {
+  final iconBox = DecoratedBox(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(50),
+      boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(50),
+      child: SizedBox(width: 220, height: 220, child: icon),
+    ),
+  );
+  final align = stacked ? CrossAxisAlignment.center : CrossAxisAlignment.start;
+  final text = [
+    const Text('Klunki',
+        style: TextStyle(
+          fontFamily: 'Roboto',
+          fontWeight: FontWeight.w700,
+          fontSize: 112,
+          height: 1,
+          color: Color(0xFFFFF8EC),
+          shadows: [Shadow(color: Color(0x80000000), blurRadius: 10, offset: Offset(0, 4))],
+        )),
+    const SizedBox(height: 10),
+    Text(subtitle,
+        style: const TextStyle(fontFamily: 'Roboto', fontWeight: FontWeight.w500, fontSize: 30, color: Color(0xFF3B2412))),
+    const SizedBox(height: 26),
+    Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final (i, id) in games.indexed) ...[
+          if (i > 0) const SizedBox(width: 12),
+          picture(id),
+        ],
+      ],
+    ),
+  ];
+  if (stacked) {
+    return Column(mainAxisSize: MainAxisSize.min, children: [iconBox, const SizedBox(height: 30), ...text]);
+  }
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      iconBox,
+      const SizedBox(width: 40),
+      Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: align, children: text),
+    ],
+  );
+}
+
+/// Captures the [_boundary] at pixel ratio 1 and writes it to [path] as an
+/// RGB PNG without alpha, checking the size.
+Future<void> _writeCanvas(WidgetTester tester, String path, Size size) async {
+  final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
+  await tester.runAsync(() async {
+    final img = await ro.toImage(pixelRatio: 1);
+    final w = size.width.round(), h = size.height.round();
+    expect((img.width, img.height), (w, h), reason: path);
+    final rgba = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
+    img.dispose();
+    File(path)
+      ..parent.createSync(recursive: true)
+      ..writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), w, h));
+  });
+}
+
+/// The Google Play feature graphic (docs/PLAYSTORE.md "Graphics"): 1024 ×
+/// 500, no alpha. The app icon, "Klunki" and the store subtitle on the
+/// Spieltisch amber of the icon, a row of the menu's game pictures; all of
+/// it inside the middle so a cropped or overlaid edge loses nothing.
+/// `<out>/feature-graphic.png` (German) and `feature-graphic-en.png`.
+void _featureGraphic(String? out) {
+  const size = Size(1024, 500);
+  for (final (lang, subtitle) in _storeSubtitles) {
     final file = lang == 'de' ? 'feature-graphic' : 'feature-graphic-$lang';
     testWidgets('playstore $file', skip: out == null, (tester) async {
       tester.view.physicalSize = size;
@@ -1400,78 +1493,201 @@ void _featureGraphic(String? out) {
         child: Directionality(
           textDirection: TextDirection.ltr,
           child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment(-0.35, -0.3),
-                radius: 1.3,
-                colors: [Color(0xFFF2B266), Color(0xFFE59A48), Color(0xFFA9531F)],
-                stops: [0, 0.45, 1],
-              ),
-            ),
-            child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      boxShadow: const [BoxShadow(color: Color(0x66000000), blurRadius: 18, offset: Offset(0, 6))],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.asset('assets/icon/app_icon.png', width: 220, height: 220),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Klunki',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 112,
-                            height: 1,
-                            color: Color(0xFFFFF8EC),
-                            shadows: [Shadow(color: Color(0x80000000), blurRadius: 10, offset: Offset(0, 4))],
-                          )),
-                      const SizedBox(height: 10),
-                      Text(subtitle,
-                          style: const TextStyle(
-                              fontFamily: 'Roboto', fontWeight: FontWeight.w500, fontSize: 30, color: Color(0xFF3B2412))),
-                      const SizedBox(height: 26),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final (i, id) in games.indexed) ...[
-                            if (i > 0) const SizedBox(width: 12),
-                            picture(id),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            decoration: _storeTable,
+            child: Center(child: _storeBrand(subtitle, Image.asset('assets/icon/app_icon.png', width: 220, height: 220))),
           ),
         ),
       ));
       await precacheShownImages(tester);
       await tester.pump();
-      final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
-      await tester.runAsync(() async {
-        final img = await ro.toImage(pixelRatio: 1);
-        expect((img.width, img.height), (1024, 500));
-        final rgba = await img.toByteData(format: ui.ImageByteFormat.rawRgba);
-        File('$out/$file.png')
-          ..parent.createSync(recursive: true)
-          ..writeAsBytesSync(_pngRgb(rgba!.buffer.asUint8List(), 1024, 500));
-      });
+      await _writeCanvas(tester, '$out/$file.png', size);
       debugDisableShadows = true;
     });
   }
+}
+
+/// Apple's creative asset images (docs/APPSTORE.md "Creative assets"):
+/// file name → (canvas, art safe area, box of the brand block inside it,
+/// brand stacked), canvas and safe area from "Creative assets
+/// specifications". Everything outside the safe area is "auxiliary art"
+/// that some devices and orientations crop.
+const _creativeFormats = <String, (Size, Rect, Rect, bool)>{
+  // Product page header, 21:9.
+  'header': (Size(3840, 1646), Rect.fromLTWH(1097, 493, 1646, 661), Rect.fromLTWH(1150, 520, 1540, 607), false),
+  // Search results, 3:2 at the maximum size; the brand narrower than the
+  // safe area, so the game screens beside it stay uncovered.
+  'search': (Size(3840, 2560), Rect.fromLTWH(836, 765, 2168, 1030), Rect.fromLTWH(1090, 800, 1660, 960), false),
+  // Both placements, 16:9, PNG only; the safe area is narrow and sits high.
+  'universal': (Size(5244, 2950), Rect.fromLTWH(1921, 660, 1402, 962), Rect.fromLTWH(1981, 690, 1282, 902), true),
+};
+
+/// A scene card: store scene, centre (in canvas pixels), height, angle in
+/// degrees. Listed back to front.
+typedef _CreativeCard = (String scene, Offset centre, double height, double degrees);
+
+/// The game screens beside the brand, in the auxiliary area (mirrored left /
+/// right), per format.
+const _creativeCards = <String, List<_CreativeCard>>{
+  'header': [
+    ('03-quartett', Offset(260, 860), 1440, -7),
+    ('06-maexchen', Offset(3580, 860), 1440, 7),
+    ('02-property', Offset(700, 800), 1500, 3),
+    ('08-chess', Offset(3140, 800), 1500, -3),
+  ],
+  'search': [
+    ('03-quartett', Offset(110, 1330), 1900, -6),
+    ('06-maexchen', Offset(3730, 1330), 1900, 6),
+    ('02-property', Offset(540, 1260), 2000, 3),
+    ('08-chess', Offset(3300, 1260), 2000, -3),
+  ],
+  'universal': [
+    ('03-quartett', Offset(560, 1500), 2250, -6),
+    ('06-maexchen', Offset(4684, 1500), 2250, 6),
+    ('02-property', Offset(1290, 1430), 2420, 3),
+    ('08-chess', Offset(3954, 1430), 2420, -3),
+  ],
+};
+
+/// Apple's creative assets (header 21:9, search results 3:2, universal
+/// 16:9), de and en: the brand block of the feature graphic inside the art
+/// safe area, real game screens (the store scenes at iPhone 6.9" size) as
+/// tilted cards in the auxiliary area. RGB PNGs without alpha in
+/// `<out>/creative/<lang>/<format>.png`, plus `<format>-safezones.png` with
+/// the safe area drawn in (for review, not for upload).
+void _creativeAssets(String? out) {
+  const phoneSize = Size(440, 956), phoneDpr = 3.0;
+  final scenes = _storeScenes();
+  // The 1024 px marketing icon (the bundled asset has 384 px only).
+  const iconFile = 'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png';
+
+  Widget card(ui.Image image, double height) {
+    final width = height * image.width / image.height;
+    final radius = BorderRadius.circular(height * 0.035);
+    return Container(
+      width: width,
+      height: height,
+      foregroundDecoration: BoxDecoration(
+        borderRadius: radius,
+        border: Border.all(color: const Color(0xFFFFF8EC), width: height * 0.006),
+      ),
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [BoxShadow(color: const Color(0x73000000), blurRadius: height * 0.035, offset: Offset(0, height * 0.012))],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: RawImage(image: image, width: width, height: height, fit: BoxFit.cover, filterQuality: FilterQuality.high),
+      ),
+    );
+  }
+
+  group('appstore creative', () {
+    setUp(_storeReset);
+    for (final (lang, subtitle) in _storeSubtitles) {
+      testWidgets(lang, skip: out == null, (tester) async {
+        final locale = Locale(lang);
+        // The game screens, rendered once.
+        final shots = <String, ui.Image>{};
+        final wanted = {for (final cards in _creativeCards.values) for (final c in cards) c.$1};
+        for (final name in wanted) {
+          await _storeView(tester, phoneSize, phoneDpr);
+          final cleanup = await scenes[name]!(tester, locale);
+          await precacheShownImages(tester);
+          await tester.pump(cleanup == null ? const Duration(seconds: 2) : const Duration(milliseconds: 300));
+          await tester.pump();
+          final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
+          shots[name] = (await tester.runAsync(() => ro.toImage(pixelRatio: phoneDpr)))!;
+          await cleanup?.call();
+        }
+        await tester.pumpWidget(const SizedBox());
+        final icon = (await tester.runAsync(() async {
+          final codec = await ui.instantiateImageCodec(File(iconFile).readAsBytesSync());
+          return (await codec.getNextFrame()).image;
+        }))!;
+
+        for (final MapEntry(key: format, value: (size, safe, brand, stacked)) in _creativeFormats.entries) {
+          for (final guides in [false, true]) {
+            tester.view.physicalSize = size;
+            tester.view.devicePixelRatio = 1;
+            debugDisableShadows = false;
+            await tester.pumpWidget(RepaintBoundary(
+              key: _boundary,
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: DecoratedBox(
+                  decoration: _storeTable,
+                  child: Stack(
+                    children: [
+                      for (final (scene, centre, height, degrees) in _creativeCards[format]!)
+                        Positioned(
+                          left: centre.dx - height * shots[scene]!.width / shots[scene]!.height / 2,
+                          top: centre.dy - height / 2,
+                          child: Transform.rotate(angle: degrees * pi / 180, child: card(shots[scene]!, height)),
+                        ),
+                      Positioned.fromRect(
+                        rect: brand,
+                        child: FittedBox(
+                          child: _storeBrand(subtitle, RawImage(image: icon, filterQuality: FilterQuality.high),
+                              stacked: stacked),
+                        ),
+                      ),
+                      if (guides) Positioned.fill(child: CustomPaint(painter: _SafeAreaPainter(safe))),
+                    ],
+                  ),
+                ),
+              ),
+            ));
+            await tester.pump();
+            await _writeCanvas(tester, '$out/creative/$lang/$format${guides ? '-safezones' : ''}.png', size);
+            debugDisableShadows = true;
+          }
+        }
+        for (final image in [...shots.values, icon]) {
+          image.dispose();
+        }
+      });
+    }
+  });
+}
+
+/// The review overlay of a creative asset: the auxiliary area dimmed, the
+/// art safe area outlined and labelled with its size.
+class _SafeAreaPainter extends CustomPainter {
+  _SafeAreaPainter(this.safe);
+
+  final Rect safe;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outside = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size)
+      ..addRect(safe);
+    canvas.drawPath(outside, Paint()..color = const Color(0x8C000000));
+    final stroke = size.shortestSide / 200;
+    canvas.drawRect(
+        safe,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..color = const Color(0xFF00E5FF));
+    final label = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        text: 'Art safe area ${safe.width.round()} × ${safe.height.round()} at '
+            '(${safe.left.round()}, ${safe.top.round()}) · canvas ${size.width.round()} × ${size.height.round()}'
+            ' · dimmed: auxiliary art, may be cropped',
+        style: TextStyle(fontFamily: 'Roboto', fontSize: size.shortestSide / 45, color: const Color(0xFF00E5FF)),
+      ),
+    )..layout(maxWidth: size.width - 40 * stroke);
+    final at = Offset(10 * stroke, size.height - label.height - 10 * stroke);
+    canvas.drawRRect(RRect.fromRectAndRadius((at & label.size).inflate(3 * stroke), Radius.circular(3 * stroke)),
+        Paint()..color = const Color(0xE6000000));
+    label.paint(canvas, at);
+  }
+
+  @override
+  bool shouldRepaint(_SafeAreaPainter old) => old.safe != safe;
 }
 
 /// An RGB PNG (colour type 2, no alpha) of [rgba]; pixels are composited on

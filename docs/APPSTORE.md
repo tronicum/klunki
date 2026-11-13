@@ -7,12 +7,13 @@ language, English the second localization. Game names stay generic: no brand nam
 ## Contents
 
 1. [Screenshots](#screenshots)
-2. [Store texts (German)](#store-texts-german)
-3. [Store texts (English)](#store-texts-english)
-4. [Category, age rating, contact](#category-age-rating-contact)
-5. [App Privacy](#app-privacy)
-6. [Version and build number](#version-and-build-number)
-7. [Open points before submitting](#open-points-before-submitting)
+2. [Creative assets (header, search results)](#creative-assets-header-search-results)
+3. [Store texts (German)](#store-texts-german)
+4. [Store texts (English)](#store-texts-english)
+5. [Category, age rating, contact](#category-age-rating-contact)
+6. [App Privacy](#app-privacy)
+7. [Version and build number](#version-and-build-number)
+8. [Open points before submitting](#open-points-before-submitting)
 
 ## Screenshots
 
@@ -79,6 +80,70 @@ in this order.
 
 Dropped in the November 2026 refresh (to make room for the new games): the Quartett card gallery, GoStrategy and
 Mühle. Their scenes are still in the history of `screenshots_test.dart` if they are wanted back.
+
+## Creative assets (header, search results)
+
+Optional images (or videos) that iOS 27 / iPadOS 27 and later show as the product page header, in search
+results and when the app is featured. They are separate from the screenshots; without a search results asset
+the App Store keeps showing In-App Events, previews and screenshots there.
+
+Sources (checked 2026-11-13):
+- Apple, "Creative assets specifications",
+  <https://developer.apple.com/help/app-store-connect/reference/app-information/creative-assets-specifications/>
+- Apple, "App Store asset best practices", <https://developer.apple.com/app-store/asset-best-practices/>
+- Apple, "Manage your App Store assets",
+  <https://developer.apple.com/help/app-store-connect/manage-app-information/manage-your-app-store-assets>
+
+| File | Placement | Aspect | Size (px) | Art safe area (px) | Formats |
+|---|---|---|---|---|---|
+| `universal.png` | header **and** search results | 16:9 | 5244 × 2950 | 1402 × 962 at (1921, 660) | `.png` only |
+| `header.png` | product page header | 21:9 | 3840 × 1646 | 1646 × 661 at (1097, 493) | `.jpeg`, `.jpg`, `.png` |
+| `search.png` | search results | 3:2 | min 1920 × 1280, max 3840 × 2560 | 2168 × 1030 at (836, 765) (at the max size) | `.jpeg`, `.jpg`, `.png` |
+
+- **No alpha channel or transparency.**
+- Either one universal asset for both placements ("Use header asset in search results", only offered for a
+  universal asset) or a dedicated asset per placement.
+- **Art safe area**: key art ("key characters and primary talent") goes inside it, it is never cropped. The rest
+  of the canvas is the **auxiliary art area**: background art that runs to the edge and is cropped on some
+  devices and orientations. Keep the focal point centred. Note the universal safe area sits in the upper part
+  (its centre is 334 px above the canvas centre).
+- **Text**: allowed, but short ("a short phrase that enhances your visual rather than describes it"), legible,
+  and localized for every language the app supports. No prices or discounts, website URLs, copyright symbols,
+  logos of or references to other platforms or marketplaces, unverifiable claims, Apple awards (Editor's
+  Choice, App of the Day ...). Everything must suit a 4+ rating, whatever the app's rating.
+- Header: "a single, clear idea", not cluttered. Search results: "state the obvious", show real UI or gameplay.
+- **Localization**: images can be localized like other metadata ("Be sure to localize for all languages your
+  app supports"); the App Store Connect preview shows them per language, device and orientation.
+- Videos (not made): same sizes, 30 or 60 fps, 5 to 30 s, looping, muted by default.
+- Upload: App Store Connect, version page, Product Page Information, tab "Header and Search Results", or in the
+  Asset Library as a standalone submission (reviewed against the latest app version). App Review guideline 2.3
+  (Accurate Metadata) applies.
+- **Not specified by Apple's pages**: where exactly the system draws the app icon, name and Get button over the
+  image, colour profile, file size limit. Apple's templates (Figma, Photoshop, Pixelmator, Sketch, linked from
+  the best practices page) show the safe areas; we did not download them. Check the result with the Preview in
+  App Store Connect before submitting.
+
+### Generating them
+
+Group `appstore creative` in `klunki/test/screenshots/screenshots_test.dart` (skipped without
+`KLUNKI_APPSTORE`):
+
+```bash
+cd klunki
+KLUNKI_APPSTORE=../build/store-shots/appstore flutter test test/screenshots --plain-name "appstore creative"
+```
+
+Output: `<dir>/creative/{de,en}/{header,search,universal}.png` (RGB, no alpha, exact sizes) plus
+`*-safezones.png` with the auxiliary area dimmed and the art safe area outlined (for review only, do not upload).
+
+Look: the Play feature graphic's brand block (app icon, "Klunki", "Brett-, Karten- & Würfelspiele" / "Board,
+card & dice games", the menu's game pictures) on the Spieltisch amber, scaled into the art safe area (in the
+universal image stacked: icon above the text, since its safe area is narrow); real game screens (the store
+scenes 02, 03, 06 and 08 at iPhone 6.9" size, rendered by the test) as tilted cards in the auxiliary area:
+Baulöwe with the deed card and Quartett on the left, Schach and Mäxchen on the right. The game screens are
+background art that may be cropped; nothing important depends on them. The calm amber below the brand in
+the universal image is left free on purpose (the safe area sits high there, presumably because the system
+draws its own elements lower down).
 
 ## Store texts (German)
 
