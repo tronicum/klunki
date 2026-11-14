@@ -4792,4 +4792,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get savesAskBody =>
       'Continue, or start a new game? A new game replaces the unfinished one with its first move.';
+
+  @override
+  String get shellResultShowBoard => 'Look at the board';
+
+  @override
+  String get shellResultBoardNote => 'This is how the game ended.';
+
+  @override
+  String get shellResultShowResult => 'Show the result';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Last words',
+      one: 'Last word',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$_temp0: $player lays $words for $_temp1';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => 'In the end, everyone passed.';
 }

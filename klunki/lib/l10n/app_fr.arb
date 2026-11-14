@@ -1197,5 +1197,10 @@
   "savesEmpty": "Aucune partie en cours.",
   "savesHint": "Klunki garde la dernière partie commencée de chaque jeu, jusqu’à ce qu’elle soit finie ou arrêtée. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.",
   "savesAskTitle": "Partie commencée",
-  "savesAskBody": "Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup."
+  "savesAskBody": "Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup.",
+  "shellResultShowBoard": "Voir le plateau",
+  "shellResultBoardNote": "Voici la fin de la partie.",
+  "shellResultShowResult": "Voir le résultat",
+  "wordtilesResultLastWord": "{count, plural, one{Dernier mot} other{Derniers mots}} : {player} pose {words} pour {score, plural, one{{score} point} other{{score} points}}",
+  "wordtilesResultAllPassed": "À la fin, tout le monde a passé."
 }

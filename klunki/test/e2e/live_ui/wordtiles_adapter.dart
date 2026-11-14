@@ -598,3 +598,32 @@ class WordTilesNetAdapter extends WordTilesDictionaryAdapter {
     return m;
   }
 }
+
+/// KLD-094: on [d] (game over, result dialog up) the summary's first line
+/// names the end of [engine]'s game (the last word after a player went out,
+/// "Am Ende haben alle gepasst." after passes only), and "Brett ansehen"
+/// closes the dialog for the final board with the bar, whose "Ergebnis
+/// anzeigen" brings it back.
+Future<void> checkResultBoardView(WidgetTester tester, UiDevice d, WordTilesGame engine) async {
+  final line = d.on(find.byKey(const Key('wordtiles-result-last')));
+  if (engine.seatResult.code == GameEndReason.wordtilesPlayedOut.code) {
+    final last = engine.turns.lastWhere((t) => t.action == 'place' && !t.withdrawn);
+    final text = tester.widget<Text>(line).data!;
+    expect(text, startsWith(last.words.length == 1 ? 'Letztes Wort: ' : 'Letzte Wörter: '), reason: d.name);
+    expect(text, contains(' legt ${last.words.join(', ')} für ${last.score} Punkt'), reason: d.name);
+  } else if (line.evaluate().isNotEmpty) {
+    expect(tester.widget<Text>(line).data, 'Am Ende haben alle gepasst.', reason: d.name);
+  }
+  Future<void> settle(bool Function() done, String what) async {
+    for (var i = 0; i < 40 && !done(); i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(done(), isTrue, reason: '${d.name}: $what');
+  }
+
+  await d.tapKey(tester, const Key('result-show-board'));
+  await settle(() => !d.resultShown() && d.hasKey(const Key('result-board-bar')), 'the final board with the bar');
+  await d.tapKey(tester, const Key('result-show-result'));
+  await settle(() => d.resultShown() && !d.hasKey(const Key('result-board-bar')), 'the result again');
+}
+

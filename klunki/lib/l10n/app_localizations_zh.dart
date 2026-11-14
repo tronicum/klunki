@@ -4533,4 +4533,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get savesAskBody => '继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。';
+
+  @override
+  String get shellResultShowBoard => '查看棋盘';
+
+  @override
+  String get shellResultBoardNote => '这就是终局。';
+
+  @override
+  String get shellResultShowResult => '查看结果';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '');
+    return '最后一步：$player 摆出 $words，$score 分$_temp0';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => '最后大家都过了本轮。';
 }

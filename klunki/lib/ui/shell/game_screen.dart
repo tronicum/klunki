@@ -21,6 +21,7 @@ import '../rules/rules_screen.dart';
 import 'confirm_move.dart';
 import 'handover_cover.dart';
 import 'player_labels.dart';
+import 'result_board_view.dart';
 
 export 'player_labels.dart' show PlayerLabels, PlayerLabelsScope;
 
@@ -129,7 +130,9 @@ class ShellStatus {
 /// * a [HandoverCover] over the body while the controller needs a handover
 ///   (the cover offers "Zug zurücknehmen" too, so the player who just moved can
 ///   take the move back before passing the device, without seeing secrets),
-/// * a result dialog ("Nochmal" / "Menü") once the game is over.
+/// * a result dialog ("Nochmal" / "Menü") once the game is over; in a board
+///   game also "Brett ansehen" (KLD-094, [resultBoardGames]): the final board
+///   with a bar "Ergebnis anzeigen" ([ResultBoardBar]) that reopens it.
 ///
 /// Players are named through the nearest [PlayerLabelsScope] (KLD-056,
 /// KLD-103): the regional default names ("Anna" / "Ben") unless the players
@@ -200,6 +203,10 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   ShellStatus? _statusOverride;
   bool _resultShown = false;
   bool _resultHeld = false;
+
+  /// The result dialog was closed with "Brett ansehen" (KLD-094): the final
+  /// board shows with [ResultBoardBar] over it.
+  bool _boardView = false;
   late GameTransport _transport;
 
   /// The open "are you sure?" dialog (resign or leave, KLD-099), closed when
@@ -303,6 +310,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
       _statusOverride = null;
       _resultShown = false;
       _resultHeld = false;
+      _boardView = false;
       _countGame();
     }
   }
@@ -326,6 +334,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     });
     if (!controller.game.isOver) {
       _resultShown = false;
+      _boardView = false;
     } else {
       _closeConfirm();
       _maybeShowResult();
@@ -421,6 +430,13 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     if (nav.canPop()) nav.pop();
   }
 
+  /// "Ergebnis anzeigen" on the final board (KLD-094): the dialog again.
+  void _reopenResult() {
+    if (!controller.game.isOver) return;
+    setState(() => _boardView = false);
+    _showResult();
+  }
+
   Future<void> _showResult() async {
     final r = controller.game.result;
     final l10n = AppLocalizations.of(context);
@@ -435,7 +451,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     final reason = resigner != null && labels.isLocal(resigner)
         ? l10n.engineReasonCommonYouResigned
         : localizedResultReason(l10n, r, playerLabel: (p) => labels.label(context, l10n, p));
-    final again = await showDialog<bool>(
+    final showBoard = resultBoardGames.contains(controller.spec.id);
+    final choice = await showDialog<ResultChoice>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
@@ -463,7 +480,7 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                 ),
               ),
         title: Text(headline),
-        content: widget.resultDetail == null
+        content: widget.resultDetail == null && !showBoard
             ? (reason.isEmpty ? null : Text(reason, key: const Key('result-reason')))
             : SingleChildScrollView(
                 child: Column(
@@ -471,22 +488,34 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (reason.isNotEmpty) Text(reason, key: const Key('result-reason')),
-                    if (reason.isNotEmpty) const SizedBox(height: 12),
-                    PlayerLabelsScope(labels: labels, child: Builder(builder: widget.resultDetail!)),
+                    if (reason.isNotEmpty && widget.resultDetail != null) const SizedBox(height: 12),
+                    if (widget.resultDetail != null)
+                      PlayerLabelsScope(labels: labels, child: Builder(builder: widget.resultDetail!)),
+                    // KLD-094: under the summary, so "Menü" and "Nochmal"
+                    // keep their row.
+                    if (showBoard) ...[
+                      const SizedBox(height: 8),
+                      const ResultShowBoardButton(),
+                    ],
                   ],
                 ),
               ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
-          if (_canRestart) FilledButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.shellPlayAgain)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(ResultChoice.menu), child: Text(l10n.shellMenu)),
+          if (_canRestart)
+            FilledButton(
+                onPressed: () => Navigator.of(ctx).pop(ResultChoice.again), child: Text(l10n.shellPlayAgain)),
         ],
       ),
     );
     if (!mounted) return;
-    if (again == true) {
-      controller.restart(seed: newGameSeed());
-    } else {
-      Navigator.of(context).maybePop();
+    switch (choice) {
+      case ResultChoice.again:
+        controller.restart(seed: newGameSeed());
+      case ResultChoice.board:
+        setState(() => _boardView = true);
+      case ResultChoice.menu || null:
+        Navigator.of(context).maybePop();
     }
   }
 
@@ -764,6 +793,8 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
                                 ),
                               ),
                             ),
+                          // KLD-094: after "Brett ansehen", the way back to the result.
+                          if (_boardView && game.isOver) ResultBoardBar(onShowResult: _reopenResult),
                           Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
                           // Inside the cover: hidden while the device is
                           // passed on (KLD-117).

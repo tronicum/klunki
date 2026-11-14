@@ -15,6 +15,7 @@ import '../game_titles.dart';
 import '../seat_players_dialog.dart';
 import 'game_screen.dart';
 import 'handover_cover.dart';
+import 'result_board_view.dart';
 import 'seat_labels.dart';
 
 export 'seat_labels.dart';
@@ -41,7 +42,9 @@ export 'seat_labels.dart';
 ///   [GameShell]), and [UndoMoveButton] works inside the board;
 /// * the result dialog with the ranking: place, token, name and points
 ///   (`score<seat>` of [SeatResult.params]), shared places, seats that left
-///   last; "Nochmal" / "Menü".
+///   last; "Nochmal" / "Menü"; in a board game also "Brett ansehen"
+///   (KLD-094, [resultBoardGames]): the final board with a bar "Ergebnis
+///   anzeigen" ([ResultBoardBar]) that reopens the dialog.
 ///
 /// A game with hidden information (`GameSpec.hiddenInformation`, the word
 /// tile game for 3–4 players, KLD-125) gets the [HandoverCover] between
@@ -88,6 +91,10 @@ class SeatGameScreen extends StatefulWidget {
   /// More of the result dialog, under the ranking.
   final WidgetBuilder? resultDetail;
 
+  /// A line of the result dialog above the ranking, under the reason (the
+  /// word game's last word, KLD-094).
+  final WidgetBuilder? resultHeader;
+
   /// A small muted note after [seat]'s points in the ranking ("(−2)"), or
   /// null.
   final String? Function(BuildContext context, int seat)? rankingNote;
@@ -105,6 +112,7 @@ class SeatGameScreen extends StatefulWidget {
     this.handoverDetail,
     this.showStarter = true,
     this.resultDetail,
+    this.resultHeader,
     this.rankingNote,
   });
 
@@ -137,6 +145,10 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
   String? _hint;
   bool _resultShown = false;
   bool _resultHeld = false;
+
+  /// Closed with "Brett ansehen" (KLD-094): the final board with
+  /// [ResultBoardBar].
+  bool _boardView = false;
   bool _leaving = false;
   ModalRoute<Object?>? _confirmRoute;
   late GameTransport _transport;
@@ -207,6 +219,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
       _hint = null;
       _resultShown = false;
       _resultHeld = false;
+      _boardView = false;
       _countGame();
     }
   }
@@ -228,6 +241,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     });
     if (!_game.isOver) {
       _resultShown = false;
+      _boardView = false;
     } else {
       _closeConfirm();
       _maybeShowResult();
@@ -541,6 +555,13 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     return localizedEndReason(l10n, code, r.params);
   }
 
+  /// "Ergebnis anzeigen" on the final board (KLD-094): the dialog again.
+  void _reopenResult() {
+    if (!_game.isOver) return;
+    setState(() => _boardView = false);
+    _showResult();
+  }
+
   Future<void> _showResult() async {
     final r = seatResultOf(_game);
     final l10n = AppLocalizations.of(context);
@@ -548,7 +569,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     final local = SeatLabelsScope.of(context).local;
     final headline = w == null ? l10n.seatSharedFirst : w == local ? l10n.shellYouWin : l10n.shellWins(_name(w));
     final reason = _reason(l10n, r);
-    final again = await showDialog<bool>(
+    final choice = await showDialog<ResultChoice>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => SeatLabelsScope(
@@ -563,30 +584,43 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (reason.isNotEmpty) Text(reason, key: const Key('result-reason')),
+              if (widget.resultHeader != null) ...[
+                if (reason.isNotEmpty) const SizedBox(height: 8),
+                Builder(builder: widget.resultHeader!),
+              ],
               const SizedBox(height: 12),
               _ranking(ctx, r),
               if (widget.resultDetail != null) ...[
                 const SizedBox(height: 4),
                 Builder(builder: widget.resultDetail!),
               ],
+              // KLD-094: under the summary, so "Menü" and "Nochmal" keep
+              // their row.
+              if (resultBoardGames.contains(controller.spec.id)) ...[
+                const SizedBox(height: 8),
+                const ResultShowBoardButton(),
+              ],
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.shellMenu)),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(ResultChoice.menu), child: Text(l10n.shellMenu)),
             if (_canRestart)
               FilledButton(
                   key: const Key('result-again'),
-                  onPressed: () => Navigator.of(ctx).pop(true),
+                  onPressed: () => Navigator.of(ctx).pop(ResultChoice.again),
                   child: Text(l10n.shellPlayAgain)),
           ],
         ),
       ),
     );
     if (!mounted) return;
-    if (again == true) {
-      controller.restart(seed: newGameSeed());
-    } else {
-      Navigator.of(context).maybePop();
+    switch (choice) {
+      case ResultChoice.again:
+        controller.restart(seed: newGameSeed());
+      case ResultChoice.board:
+        setState(() => _boardView = true);
+      case ResultChoice.menu || null:
+        Navigator.of(context).maybePop();
     }
   }
 
@@ -749,6 +783,8 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                                 ),
                               ),
                             ),
+                          // KLD-094: after "Brett ansehen", the way back to the result.
+                          if (_boardView && over) ResultBoardBar(onShowResult: _reopenResult),
                           Expanded(child: Builder(builder: (ctx) => widget.boardBuilder(ctx, controller))),
                         ],
                       ),

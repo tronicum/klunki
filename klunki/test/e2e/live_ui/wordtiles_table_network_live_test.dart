@@ -240,6 +240,10 @@ void main() {
       expect(d.hasKey(const Key('net-verification-failed')), isFalse, reason: d.name);
       expect(d.hasKey(const Key('result-again')), isFalse, reason: '${d.name}: no "Nochmal" over the network');
     }
+    // KLD-094: a guest's summary names the end ("Letztes Wort: …"), and
+    // "Brett ansehen" shows the final board on that device only.
+    await checkResultBoardView(tester, devices[2], engine);
+    expect(devices[0].resultShown(), isTrue);
     debugPrint('wordtiles table: ${adapter.tapped}, ${host.moves.length} moves, ${engine.seatResult.code}, '
         'scores ${engine.scores}');
   }, timeout: liveUiTimeout);

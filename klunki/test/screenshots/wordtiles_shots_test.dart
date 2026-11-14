@@ -620,6 +620,87 @@ void main() {
       });
     }
   });
+
+  // KLD-094 (game end): the summary names the last move ("Letzte Wörter:
+  // Anna legt TEE, STERNE …"); "Brett ansehen" shows the final board with
+  // the last move marked and the bar "Ergebnis anzeigen". Two players on a
+  // small phone (de, en, ar), a tablet, and three players in the seat shell
+  // (`--plain-name kld094end`).
+  group('kld094end', () {
+    Future<void> endGame(WidgetTester tester, GameController c) async {
+      // HAUS (Anna), STERN (Ben), then Anna lays TEE (a blank E) under it,
+      // making STERNE too, and is out; Ben accepts.
+      await _submit(tester, c, [(7, 5, 'H', null), (7, 6, 'A', null), (7, 7, 'U', null), (7, 8, 'S', null)]);
+      await _submit(tester, c, [(8, 8, 'T', null), (9, 8, 'E', null), (10, 8, 'R', null), (11, 8, 'N', null)]);
+      await _submit(tester, c, [(12, 6, 'T', null), (12, 7, '?', 'E'), (12, 8, 'E', null)]);
+      final r = await c.submit(const {'action': 'accept'});
+      expect(r.isAccepted, isTrue, reason: '$r');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('result-dialog')), findsOneWidget);
+    }
+
+    Future<void> boardView(WidgetTester tester, String name) async {
+      await tester.tap(find.byKey(const Key('result-show-board')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld094end/$name-2-board');
+      await tester.tap(find.byKey(const Key('result-show-result')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('result-dialog')), findsOneWidget);
+    }
+
+    for (final (name, size, locale) in [
+      ('phone-de', const Size(375, 667), const Locale('de')),
+      ('phone-en', const Size(375, 667), const Locale('en')),
+      ('phone-ar', const Size(375, 667), const Locale('ar')),
+      ('ipad-landscape-de', padLandscape, const Locale('de')),
+    ]) {
+      testWidgets('2 players $name', skip: skip, (tester) async {
+        final c = await _pump(tester, size, locale: locale, appFonts: locale.languageCode == 'ar', racks: const [
+          ['H', 'A', 'U', 'S', 'T', 'E', '?'],
+          ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+        ]);
+        (c.game as WordTilesGame).debugSetup(racks: const [
+          ['H', 'A', 'U', 'S', 'T', 'E', '?'],
+          ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+        ], bag: const []);
+        await tester.pump();
+        await endGame(tester, c);
+        await _shot(tester, 'kld094end/$name-1-summary');
+        await boardView(tester, name);
+      });
+    }
+
+    testWidgets('3 players phone-de', skip: skip, (tester) async {
+      final c = await _pump(tester, const Size(375, 667),
+          config: const GameConfig('wordtiles', seed: 1, players: 3),
+          racks: const [
+            ['H', 'A', 'U', 'S', 'T', 'E', '?'],
+            ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+            ['L', 'A', 'M', 'P', 'E'],
+          ]);
+      (c.game as WordTilesGame).debugSetup(racks: const [
+        ['H', 'A', 'U', 'S', 'T', 'E', '?'],
+        ['T', 'E', 'R', 'N', 'O', 'D', 'I'],
+        ['L', 'A', 'M', 'P', 'E'],
+      ], bag: const []);
+      await tester.pump();
+      // HAUS (Anna), STERN (Ben), Cleo passes, Anna lays TEE and is out.
+      await _submit(tester, c, [(7, 5, 'H', null), (7, 6, 'A', null), (7, 7, 'U', null), (7, 8, 'S', null)]);
+      await _submit(tester, c, [(8, 8, 'T', null), (9, 8, 'E', null), (10, 8, 'R', null), (11, 8, 'N', null)]);
+      await c.submit(const {'action': 'pass'});
+      await tester.pump();
+      if (find.byKey(const Key('handover-continue')).evaluate().isNotEmpty) {
+        await _tap(tester, find.byKey(const Key('handover-continue')));
+      }
+      await _submit(tester, c, [(12, 6, 'T', null), (12, 7, '?', 'E'), (12, 8, 'E', null)]);
+      final r = await c.submit(const {'action': 'accept'});
+      expect(r.isAccepted, isTrue, reason: '$r');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('result-dialog')), findsOneWidget);
+      await _shot(tester, 'kld094end/seats3-phone-de-1-summary');
+      await boardView(tester, 'seats3-phone-de');
+    });
+  });
 }
 
 class _NeverBundle extends CachingAssetBundle {

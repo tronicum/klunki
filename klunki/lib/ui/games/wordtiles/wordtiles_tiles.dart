@@ -17,6 +17,9 @@ class WordTilesColors {
   /// placement and an open (challengeable) placement.
   final Color pending, select, lastMove, open;
 
+  /// The ring around the last placement on the final board (KLD-094).
+  final Color lastRing;
+
   const WordTilesColors({
     required this.board,
     required this.line,
@@ -33,6 +36,7 @@ class WordTilesColors {
     required this.select,
     required this.lastMove,
     required this.open,
+    required this.lastRing,
   });
 
   static const light = WordTilesColors(
@@ -51,6 +55,7 @@ class WordTilesColors {
     select: Color(0xFF1565C0),
     lastMove: Color(0xFFFFE9B0),
     open: Color(0xFFC62828),
+    lastRing: Color(0xFFC77B1E),
   );
 
   static const dark = WordTilesColors(
@@ -69,6 +74,7 @@ class WordTilesColors {
     select: Color(0xFF64B5F6),
     lastMove: Color(0xFFFFE3A0),
     open: Color(0xFFEF5350),
+    lastRing: Color(0xFFFFB74D),
   );
 
   static WordTilesColors of(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? dark : light;

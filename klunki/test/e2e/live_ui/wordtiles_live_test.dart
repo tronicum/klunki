@@ -109,6 +109,9 @@ void main() {
     }
     expect(verification.value, Verification.verified);
     expect(guest.hasKey(const Key('net-verification-failed')), isFalse);
+    // KLD-094: the guest's summary names the move that ended the game, and
+    // "Brett ansehen" shows the final board until "Ergebnis anzeigen".
+    await checkResultBoardView(tester, guest, hg);
     debugPrint('wordtiles network: ${adapter.tapped}, ${hc.moves.length} moves, ${hg.result.code}, scores ${hg.scores}');
   }, timeout: liveUiTimeout);
 

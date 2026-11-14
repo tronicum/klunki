@@ -1039,12 +1039,15 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     _zoomTo(_centreOf(focus), max(_zoomScale, 2));
   }
 
-  /// Squares of the last placement still on the board.
+  /// Squares of the last placement still on the board (a placement let
+  /// stand with "Trotzdem zulassen" has its tiles in the request).
   Set<int> _lastPlacement() {
+    var agreed = false;
     for (final m in controller.moves.reversed) {
       final a = m.move['action'];
       if (a == 'challenge' && m.event.payload is Map && (m.event.payload as Map)['withdrawn'] == true) return const {};
-      if (a != 'place') continue;
+      if (a == WordTilesGame.acceptAllow) agreed = true;
+      if (a != 'place' && !(agreed && a == WordTilesGame.requestAllow)) continue;
       final tiles = m.move['tiles'];
       if (tiles is! List) return const {};
       final out = <int>{};
@@ -1715,7 +1718,9 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
                     ? c.select
                     : open.contains(sq)
                         ? c.open
-                        : null,
+                        : game.isOver && last.contains(sq)
+                            ? c.lastRing
+                            : null,
               ),
             ),
           ),
@@ -1723,7 +1728,13 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
       );
     }
     if (tile != null) {
-      final ring = open.contains(sq) ? c.open : null;
+      // KLD-094: on the final board the last move stands out (the summary
+      // came right after it, "Brett ansehen").
+      final ring = open.contains(sq)
+          ? c.open
+          : game.isOver && last.contains(sq)
+              ? c.lastRing
+              : null;
       return SizedBox.square(
         key: key,
         dimension: cell,

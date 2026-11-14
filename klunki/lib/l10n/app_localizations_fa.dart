@@ -4704,4 +4704,32 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get savesAskBody =>
       'ادامهٔ بازی یا شروع یک بازی جدید؟ بازی جدید با اولین حرکت جای بازی نیمه‌تمام را می‌گیرد.';
+
+  @override
+  String get shellResultShowBoard => 'دیدن صفحه';
+
+  @override
+  String get shellResultBoardNote => 'بازی این‌طور تمام شد.';
+
+  @override
+  String get shellResultShowResult => 'دیدن نتیجه';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'آخرین واژه‌ها',
+      one: 'آخرین واژه',
+    );
+    return '$_temp0: $words از $player با $score امتیاز';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => 'در پایان همه پاس دادند.';
 }

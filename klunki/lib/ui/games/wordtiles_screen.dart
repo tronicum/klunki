@@ -39,6 +39,7 @@ class WordTilesScreen extends StatelessWidget {
         controller: controller,
         describeMove: describeWordTilesMove,
         handoverDetail: (context) => WordTilesLastTurn(controller: controller),
+        resultHeader: (context) => WordTilesEndLine(controller: controller),
         resultDetail: (context) => WordTilesResult(controller: controller, scores: false),
         rankingNote: (context, seat) => wordTilesRackNote(context, controller, seat),
         boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
@@ -69,6 +70,9 @@ class WordTilesScreen extends StatelessWidget {
 /// [scores] false (3–4 players, KLD-125): only the best word and the
 /// allowed words; the seat shell's ranking has the scores and the rack
 /// deduction ([wordTilesRackNote]).
+///
+/// 2 players: [WordTilesEndLine] (the last word) on top; 3–4 players have
+/// it above the ranking (`SeatGameScreen.resultHeader`).
 ///
 /// Keys: `wordtiles-result`, `wordtiles-result-score-<seat>`,
 /// `wordtiles-result-rack-<seat>`, `wordtiles-result-best`,
@@ -127,6 +131,11 @@ class WordTilesResult extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // KLD-094: the summary comes right after the last move; name it.
+        if (scores && WordTilesEndLine.textOf(context, game) != null) ...[
+          WordTilesEndLine(controller: controller),
+          const SizedBox(height: 8),
+        ],
         for (var s = 0; s < game.playerCount && scores; s++)
           Padding(
             key: Key('wordtiles-result-score-$s'),
@@ -177,6 +186,57 @@ class WordTilesResult extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// How the game ended, as the first line of the summary (KLD-094): the
+/// summary opens right after the last move, so the others never saw it.
+/// After a player went out: the words of that final placement (main word
+/// first), who laid them and the points of the move ("Letztes Wort: Anna
+/// legt KATZE für 24 Punkte"). After the scoreless turns, if all of them
+/// were passes: "Am Ende haben alle gepasst." Nothing after a resign or a
+/// scoreless end with exchanges (the reason line says enough).
+/// Key `wordtiles-result-last`.
+class WordTilesEndLine extends StatelessWidget {
+  final GameController controller;
+  const WordTilesEndLine({super.key, required this.controller});
+
+  /// The line for [game], or null when there is none.
+  static String? textOf(BuildContext context, WordTilesGame game) {
+    final l10n = AppLocalizations.of(context);
+    final turns = game.turns;
+    switch (game.playResult.code) {
+      case GameEndReason.wordtilesPlayedOut:
+        // The placement that emptied the rack; after it at most an
+        // "accept" or a failed challenge.
+        final last = turns.lastWhere((t) => t.action == 'place' && !t.withdrawn,
+            orElse: () => const WordTilesTurn(-1, ''));
+        if (last.seat < 0 || last.words.isEmpty) return null;
+        return l10n.wordtilesResultLastWord(last.words.length, wordTilesSeatName(context, game, last.seat),
+            wordList(context, last.words), last.score);
+      case GameEndReason.wordtilesScoreless:
+        final moves = [
+          for (final t in turns)
+            if (t.action != 'resign') t,
+        ];
+        if (moves.length < game.scorelessLimit) return null;
+        final tail = moves.sublist(moves.length - game.scorelessLimit);
+        return tail.every((t) => t.action == 'pass') ? l10n.wordtilesResultAllPassed : null;
+      default:
+        return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final game = controller.game;
+    final text = game is WordTilesGame ? textOf(context, game) : null;
+    if (text == null) return const SizedBox.shrink();
+    return Text(
+      text,
+      key: const Key('wordtiles-result-last'),
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
     );
   }
 }

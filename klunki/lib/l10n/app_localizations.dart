@@ -7299,6 +7299,41 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.'**
   String get savesAskBody;
+
+  /// KLD-094: button in the game-end result dialog of board games: closes the summary and shows the final board (same wording as propertyTradeShowBoard). shellResultShowResult brings the summary back.
+  ///
+  /// In de, this message translates to:
+  /// **'Brett ansehen'**
+  String get shellResultShowBoard;
+
+  /// KLD-094: text of the bar over the final board after shellResultShowBoard, next to the shellResultShowResult button.
+  ///
+  /// In de, this message translates to:
+  /// **'So endete das Spiel.'**
+  String get shellResultBoardNote;
+
+  /// KLD-094: button in the bar over the final board: opens the game-end summary again.
+  ///
+  /// In de, this message translates to:
+  /// **'Ergebnis anzeigen'**
+  String get shellResultShowResult;
+
+  /// KLD-094: word tiles result, first line: the words formed by the move that ended the game (main word first), who laid them and the points of the move. count = number of words, words = the words, comma-separated, player = who laid them, score = points of the move.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, one{Letztes Wort} other{Letzte Wörter}}: {player} legt {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}'**
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  );
+
+  /// KLD-094: word tiles result, first line when the game ended because nobody scored and every one of those last turns was a pass.
+  ///
+  /// In de, this message translates to:
+  /// **'Am Ende haben alle gepasst.'**
+  String get wordtilesResultAllPassed;
 }
 
 class _AppLocalizationsDelegate

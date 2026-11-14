@@ -4831,4 +4831,38 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get savesAskBody =>
       'Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup.';
+
+  @override
+  String get shellResultShowBoard => 'Voir le plateau';
+
+  @override
+  String get shellResultBoardNote => 'Voici la fin de la partie.';
+
+  @override
+  String get shellResultShowResult => 'Voir le résultat';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Derniers mots',
+      one: 'Dernier mot',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score points',
+      one: '$score point',
+    );
+    return '$_temp0 : $player pose $words pour $_temp1';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => 'À la fin, tout le monde a passé.';
 }

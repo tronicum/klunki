@@ -4834,4 +4834,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get savesAskBody =>
       'متابعة اللعب أم بدء لعبة جديدة؟ تحل اللعبة الجديدة محل اللعبة غير المنتهية بعد أول حركة.';
+
+  @override
+  String get shellResultShowBoard => 'عرض اللوحة';
+
+  @override
+  String get shellResultBoardNote => 'هكذا انتهت اللعبة.';
+
+  @override
+  String get shellResultShowResult => 'عرض النتيجة';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'آخر الكلمات',
+      one: 'آخر كلمة',
+    );
+    return '$_temp0: $words من $player مقابل $score نقطة';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => 'في النهاية مرّر الجميع الدور.';
 }

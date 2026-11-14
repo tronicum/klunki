@@ -8,6 +8,11 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt: the last word in the summary** (KLD-094): the end summary now starts with the move that ended the
+  game ("Letztes Wort: Anna legt KATZE für 24 Punkte", or "Am Ende haben alle gepasst."), so everyone sees it.
+- **"Brett ansehen" at the game end**: in the board games the result has a button that shows the final board (in
+  Wortgewandt with the last word marked); "Ergebnis anzeigen" brings the result back. On one device and over the
+  network.
 - **Später weiterspielen** (KLD-079): a game on one device is saved after every move and when the app goes to
   the background. The menu then shows "Weiterspielen" with the unfinished games (game, players, date, moves); tap
   one to go on where you stopped, or delete it. One save per game: a new game of the same kind replaces it after

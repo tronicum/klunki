@@ -784,6 +784,27 @@ Maintainer (2026-11-09): the end-of-game rack deduction becomes an option like "
   resting on the board still makes it a pinch. Browser check: the same sequences in headless Firefox (mouse and
   touch), a synthetic press without release, and a second touch resting on a rack letter during the drag.
 
+## Game end: the last word and "Brett ansehen": what was built
+
+Maintainer feedback: the summary opened right after the final move, so the others never saw the last word.
+
+- **The summary names the end** (`WordTilesEndLine`, key `wordtiles-result-last`), first line under the reason:
+  after a player went out "Letztes Wort: Anna legt KATZE für 24 Punkte" (all words of that placement, main word
+  first, "Letzte Wörter: …" for more than one; points of the move); after the scoreless turns, if all of them were
+  passes, "Am Ende haben alle gepasst."; nothing after a resign or a scoreless end with exchanges (the reason says
+  it). 2 players: on top of `WordTilesResult`; 3–4 players: above the ranking (new `SeatGameScreen.resultHeader`).
+- **"Brett ansehen"** in the result dialog (generic, `klunki/lib/ui/shell/result_board_view.dart`, both shells,
+  hot-seat and network): an outlined button under the summary ("Menü" / "Nochmal" keep their row). It closes the
+  dialog; a bar over the board "So endete das Spiel." with "Ergebnis anzeigen" reopens it. Only for board games
+  (`resultBoardGames`: Four in a Row, Mühle, Schiffe, GoStrategy, Schach, Wortgewandt, Baulöwe); card and dice games
+  keep the plain dialog. Same wording as Baulöwe's look at the board (KLD-060).
+- **The last move on the final board** gets an ochre ring (`WordTilesColors.lastRing`) on top of the existing
+  last-move tint; a placement let stand with "Trotzdem zulassen" is now marked too (its tiles come from the request).
+- Tests: `test/ui/games/wordtiles_end_test.dart` (2 players: last word, all passed, none after exchange/resign;
+  3 players in the seat shell; Four in a Row has the button, Quartett not); network 2 devices
+  (`wordtiles_live_test.dart`) and the 3-device table (`wordtiles_table_network_live_test.dart`) check the line and
+  the board view on a guest (`checkResultBoardView`). Screenshots: `--plain-name kld094end`.
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 Done since: on one device as KLD-125 (KLD-088 step 2), over the network as KLD-088 step 4 (protocol 4 tables,
 "Wie viele spielen mit?" on "Raum starten", lobby; see `docs/tasks/KLD-088-more-players.md`).

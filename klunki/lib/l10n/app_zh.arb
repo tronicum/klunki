@@ -1197,5 +1197,10 @@
   "savesEmpty": "没有未完成的游戏。",
   "savesHint": "Klunki 会为每种游戏保存最近一局未完成的游戏，直到它下完或被结束。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。",
   "savesAskTitle": "未完成的游戏",
-  "savesAskBody": "继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。"
+  "savesAskBody": "继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。",
+  "shellResultShowBoard": "查看棋盘",
+  "shellResultBoardNote": "这就是终局。",
+  "shellResultShowResult": "查看结果",
+  "wordtilesResultLastWord": "最后一步：{player} 摆出 {words}，{score} 分{count, plural, other{}}",
+  "wordtilesResultAllPassed": "最后大家都过了本轮。"
 }

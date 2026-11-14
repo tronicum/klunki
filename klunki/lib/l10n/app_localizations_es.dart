@@ -4822,4 +4822,38 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get savesAskBody =>
       '¿Seguir jugando o empezar una nueva partida? La nueva partida sustituye a la anterior tras la primera jugada.';
+
+  @override
+  String get shellResultShowBoard => 'Ver el tablero';
+
+  @override
+  String get shellResultBoardNote => 'Así terminó la partida.';
+
+  @override
+  String get shellResultShowResult => 'Ver el resultado';
+
+  @override
+  String wordtilesResultLastWord(
+    int count,
+    String player,
+    String words,
+    int score,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Últimas palabras',
+      one: 'Última palabra',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      score,
+      locale: localeName,
+      other: '$score puntos',
+      one: '$score punto',
+    );
+    return '$_temp0: $player pone $words por $_temp1';
+  }
+
+  @override
+  String get wordtilesResultAllPassed => 'Al final, todos pasaron.';
 }

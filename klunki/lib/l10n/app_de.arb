@@ -7025,5 +7025,39 @@
   "savesAskBody": "Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.",
   "@savesAskBody": {
     "description": "KLD-079: text of that question, under the saved players, date and moves. Buttons: savesTitle (continue) and shellNewGame (new game)."
+  },
+  "shellResultShowBoard": "Brett ansehen",
+  "@shellResultShowBoard": {
+    "description": "KLD-094: button in the game-end result dialog of board games: closes the summary and shows the final board (same wording as propertyTradeShowBoard). shellResultShowResult brings the summary back."
+  },
+  "shellResultBoardNote": "So endete das Spiel.",
+  "@shellResultBoardNote": {
+    "description": "KLD-094: text of the bar over the final board after shellResultShowBoard, next to the shellResultShowResult button."
+  },
+  "shellResultShowResult": "Ergebnis anzeigen",
+  "@shellResultShowResult": {
+    "description": "KLD-094: button in the bar over the final board: opens the game-end summary again."
+  },
+  "wordtilesResultLastWord": "{count, plural, one{Letztes Wort} other{Letzte Wörter}}: {player} legt {words} für {score, plural, one{{score} Punkt} other{{score} Punkte}}",
+  "@wordtilesResultLastWord": {
+    "description": "KLD-094: word tiles result, first line: the words formed by the move that ended the game (main word first), who laid them and the points of the move. count = number of words, words = the words, comma-separated, player = who laid them, score = points of the move.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "player": {
+        "type": "String"
+      },
+      "words": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "wordtilesResultAllPassed": "Am Ende haben alle gepasst.",
+  "@wordtilesResultAllPassed": {
+    "description": "KLD-094: word tiles result, first line when the game ended because nobody scored and every one of those last turns was a pass."
   }
 }

@@ -1196,5 +1196,10 @@
   "savesEmpty": "No unfinished games.",
   "savesHint": "Klunki remembers the last unfinished game of each kind until it is over or stopped. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.",
   "savesAskTitle": "Unfinished game",
-  "savesAskBody": "Continue, or start a new game? A new game replaces the unfinished one with its first move."
+  "savesAskBody": "Continue, or start a new game? A new game replaces the unfinished one with its first move.",
+  "shellResultShowBoard": "Look at the board",
+  "shellResultBoardNote": "This is how the game ended.",
+  "shellResultShowResult": "Show the result",
+  "wordtilesResultLastWord": "{count, plural, one{Last word} other{Last words}}: {player} lays {words} for {score, plural, one{{score} point} other{{score} points}}",
+  "wordtilesResultAllPassed": "In the end, everyone passed."
 }
