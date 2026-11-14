@@ -3,7 +3,17 @@ import 'package:klunki_engine/klunki_engine.dart';
 /// Protocol version carried as `v` in every message (and `protocol` in `hello`).
 /// 2 since KLD-064 (hidden information is redacted), 3 since KLD-085 (the
 /// `hello`s carry build fingerprints; see PROTOCOL.md).
+///
+/// Every two-player session speaks exactly this version, so builds before
+/// KLD-088 step 4 still play two-player games with this one.
 const int protocolVersion = 3;
+
+/// The protocol of a **table**: a session for 3–4 players, the host and up
+/// to three guests (KLD-088 step 4). A guest that can sit at a table says
+/// so in its (version 3) `hello` (`maxProtocol`); the host of a table then
+/// answers in this version and every later message of that connection
+/// carries `v: 4`. See PROTOCOL.md, "Tables".
+const int tableProtocolVersion = 4;
 
 /// Something that happened in a session. Host and guest share these types.
 sealed class NetEvent {
@@ -11,39 +21,108 @@ sealed class NetEvent {
 }
 
 /// The other side completed the handshake ([reconnect]: it was here before).
+///
+/// At a table (KLD-088) the host emits it per guest with the guest's [seat];
+/// a guest gets none (it learns who is there from [LobbyChanged]).
 class PeerConnected extends NetEvent {
   final String name;
   final bool reconnect;
-  const PeerConnected(this.name, {this.reconnect = false});
+
+  /// The guest's seat at a table (host side), else null.
+  final int? seat;
+  const PeerConnected(this.name, {this.reconnect = false, this.seat});
   @override
-  String toString() => 'PeerConnected($name, reconnect: $reconnect)';
+  String toString() => 'PeerConnected($name, reconnect: $reconnect${seat == null ? '' : ', seat $seat'})';
 }
 
 /// The connection to the other side ended (bye, socket closed, error, timeout).
+///
+/// At a table (KLD-088) the host emits it per guest with the guest's [seat];
+/// a guest emits it (without a seat) when its own connection to the host ends.
 class PeerDisconnected extends NetEvent {
   final String reason;
   final bool timedOut;
-  const PeerDisconnected(this.reason, {this.timedOut = false});
+
+  /// The guest's seat at a table (host side), else null.
+  final int? seat;
+  const PeerDisconnected(this.reason, {this.timedOut = false, this.seat});
   @override
-  String toString() => 'PeerDisconnected($reason, timedOut: $timedOut)';
+  String toString() => 'PeerDisconnected($reason, timedOut: $timedOut${seat == null ? '' : ', seat $seat'})';
+}
+
+/// One seat of a table (KLD-088): who sits there and whether that device is
+/// connected now. The host's seat (0) is always [here].
+class TableSeat {
+  /// The player's name (sanitised); null for a seat nobody took yet.
+  final String? name;
+
+  /// Connected now (the host: always).
+  final bool here;
+  const TableSeat(this.name, {this.here = false});
+
+  /// Nobody sits here yet.
+  bool get free => name == null;
+
+  Map<String, dynamic>? toJson() => name == null ? null : {'name': name, 'here': here};
+
+  @override
+  bool operator ==(Object other) => other is TableSeat && other.name == name && other.here == here;
+  @override
+  int get hashCode => Object.hash(name, here);
+  @override
+  String toString() => name == null ? 'free' : '$name${here ? '' : ' (away)'}';
+}
+
+/// A table (KLD-088): the seats changed (a guest sat down, left the lobby,
+/// went away or came back) or the game started. Host and guests.
+class LobbyChanged extends NetEvent {
+  /// Seat by seat, `0 … players-1` (seat 0 is the host).
+  final List<TableSeat> seats;
+
+  /// Every seat was taken once: the game runs (paused while a seat is away).
+  final bool started;
+  const LobbyChanged(this.seats, {required this.started});
+
+  /// Seats nobody took yet (before the start).
+  int get missing => seats.where((s) => s.free).length;
+
+  /// Every seat is taken and connected.
+  bool get complete => seats.every((s) => !s.free && s.here);
+  @override
+  String toString() => 'LobbyChanged($seats, started: $started)';
 }
 
 /// A move the host accepted; [index] is its position in the move log.
 ///
 /// On a guest of a hidden-information game [move] and [event] are redacted:
 /// what this player may know (KLD-064).
+///
+/// At a table (KLD-088) entries are by [seat] (`0 … players-1`); [player]
+/// exists only for seats 0 and 1.
 class MoveAccepted extends NetEvent {
   final int index;
-  final Player player;
+
+  /// The seat that made the move: the [Player]'s index in a two-player game.
+  final int seat;
   final Map<String, dynamic> move;
 
   /// What the engine reported for the move (as this side may see it); null
   /// only for entries built without an engine.
   final GameEvent? event;
-  const MoveAccepted(this.index, this.player, this.move, {this.event});
+  MoveAccepted(this.index, Player player, this.move, {this.event}) : seat = player.index;
+
+  /// An entry of a table (KLD-088), by seat.
+  const MoveAccepted.bySeat(this.index, this.seat, this.move, {this.event});
+
+  /// The player who moved; throws for seat 2+ (read [seat]).
+  Player get player => switch (seat) {
+        0 => Player.a,
+        1 => Player.b,
+        _ => throw StateError('seat $seat has no Player (KLD-088)'),
+      };
 
   @override
-  String toString() => 'MoveAccepted(#$index ${player.name} $move)';
+  String toString() => 'MoveAccepted(#$index ${seat < 2 ? player.name : 'seat $seat'} $move)';
 }
 
 /// The host refused a guest move; the game state did not change.

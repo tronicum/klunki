@@ -26,26 +26,59 @@ String commitment(String salt, String label, Object? value) =>
 String viewHash(Map<String, dynamic> view) => sha256Hex('klunki-view-v2\n${canonicalJson(view)}').substring(0, 32);
 
 /// One log entry as the remote (guest) player sees it.
+///
+/// At a table (KLD-088) the entry names its [seat] (`seat` on the wire)
+/// instead of a player, and [commit] covers any move whose redacted form
+/// differs from the real one for this viewer: a secret of the host or of
+/// another guest.
 class RedactedStep {
-  final Player player;
+  /// The seat that moved ([Player]'s index in a two-player game).
+  final int seat;
+
+  /// True for a table entry (written with `seat`, not `player`).
+  final bool bySeat;
   final Map<String, dynamic> move;
   final Map<String, dynamic> event;
   final String viewHash;
 
-  /// Set when [move] hides a secret of the host ([commitment] of the full
-  /// move under `move:<index>`).
+  /// Set when [move] hides a secret of another seat ([commitment] of the
+  /// full move under `move:<index>`).
   final String? commit;
 
-  const RedactedStep(this.player, this.move, this.event, this.viewHash, this.commit);
+  RedactedStep(Player player, this.move, this.event, this.viewHash, this.commit)
+      : seat = player.index,
+        bySeat = false;
 
-  Map<String, dynamic> toJson() =>
-      {'player': player.name, 'move': move, 'event': event, 'viewHash': viewHash, if (commit != null) 'commit': commit};
+  /// A table entry (KLD-088).
+  const RedactedStep.bySeat(this.seat, this.move, this.event, this.viewHash, this.commit) : bySeat = true;
 
-  factory RedactedStep.fromJson(Map<String, dynamic> j) {
+  /// The player who moved; throws for seat 2+.
+  Player get player => switch (seat) {
+        0 => Player.a,
+        1 => Player.b,
+        _ => throw StateError('seat $seat has no Player (KLD-088)'),
+      };
+
+  Map<String, dynamic> toJson() => {
+        if (bySeat) 'seat': seat else 'player': player.name,
+        'move': move,
+        'event': event,
+        'viewHash': viewHash,
+        if (commit != null) 'commit': commit,
+      };
+
+  /// [bySeat]: a table's entry (`seat` instead of `player`).
+  factory RedactedStep.fromJson(Map<String, dynamic> j, {bool bySeat = false}) {
     final commit = j['commit'];
     final hash = j['viewHash'];
     if (hash is! String || (commit != null && commit is! String)) {
       throw const ProtocolException('log entry needs "viewHash" (and a string "commit")');
+    }
+    if (bySeat) {
+      final seat = j['seat'];
+      if (seat is! int) throw const ProtocolException('log entry needs an int "seat"');
+      return RedactedStep.bySeat(
+          seat, j['move'] as Map<String, dynamic>, j['event'] as Map<String, dynamic>, hash, commit as String?);
     }
     return RedactedStep(playerFromName(j['player']), j['move'] as Map<String, dynamic>,
         j['event'] as Map<String, dynamic>, hash, commit as String?);
@@ -90,7 +123,8 @@ String? verifyRedactedGame({
   int lives = 3,
   bool maexchenDouble = true,
   bool maexchenUnlimited = false,
-  required Player me,
+  Player? me,
+  int? seat,
   required int seed,
   required String startViewHash,
   required List<RedactedStep> steps,
@@ -98,6 +132,9 @@ String? verifyRedactedGame({
   String? seedSalt,
   String? seedCommit,
 }) {
+  // A table (KLD-088): the viewer is a seat, every step names its seat.
+  if ((me == null) == (seat == null)) throw ArgumentError('give either me or seat');
+  final viewer = seat ?? me!.index;
   final id = config?.gameId ?? gameId;
   final spec = specById(id);
   final redaction = spec?.redaction;
@@ -139,11 +176,14 @@ String? verifyRedactedGame({
   } catch (e) {
     return 'cannot create the game: $e';
   }
-  if (viewHash(redaction.view(game, me)) != startViewHash) return 'the start position does not match';
+  if (seat != null && (game is! SeatGame || !redaction.seats)) return 'not a game for a table: $id';
+  final start = seat == null ? redaction.view(game, me!) : redaction.seatView(game, viewer);
+  if (viewHash(start) != startViewHash) return 'the start position does not match';
   for (var i = 0; i < steps.length; i++) {
     final step = steps[i];
-    final mover = game.playerOf(full[i]); // a resign names its player (KLD-065)
-    if (mover != step.player) return 'move $i was reported for the wrong player';
+    // A resign (and an answer) names its player or seat (KLD-065).
+    final mover = seat == null ? game.playerOf(full[i]).index : (game as SeatGame).seatOfMove(full[i]);
+    if (mover != step.seat) return 'move $i was reported for the wrong player';
     final GameEvent? event;
     try {
       event = game.applyMove(_copy(full[i]));
@@ -151,7 +191,9 @@ String? verifyRedactedGame({
       return 'move $i does not replay: $e';
     }
     if (event == null) return 'move $i is not legal on replay';
-    final expected = redaction.step(game, full[i], mover, event, me);
+    final expected = seat == null
+        ? redaction.step(game, full[i], Player.values[mover], event, me!)
+        : redaction.seatStep(game, full[i], mover, event, viewer);
     if (canonicalJson(expected['move']) != canonicalJson(step.move)) return 'move $i was reported differently';
     if (canonicalJson(expected['event']) != canonicalJson(step.event)) return 'the outcome of move $i was misreported';
     if (viewHash(expected['view'] as Map<String, dynamic>) != step.viewHash) {

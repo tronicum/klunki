@@ -13,6 +13,9 @@ export 'src/addresses.dart' show defaultTcpPort, defaultWebSocketPort, webSocket
 export 'src/events.dart'
     show
         protocolVersion,
+        tableProtocolVersion,
+        TableSeat,
+        LobbyChanged,
         NetEvent,
         PeerConnected,
         PeerDisconnected,

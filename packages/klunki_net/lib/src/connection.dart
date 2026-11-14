@@ -42,6 +42,28 @@ class Connection {
   final AwakeClock _silence;
   bool _closed = false;
 
+  /// The envelope version this side sends (`v`): [protocolVersion], or
+  /// [tableProtocolVersion] once a table handshake upgraded the connection
+  /// (KLD-088, [upgrade]).
+  int get version => _version;
+  int _version = protocolVersion;
+
+  /// Envelope versions accepted from the other side: [protocolVersion],
+  /// plus [tableProtocolVersion] for a guest that offered it and after an
+  /// [upgrade].
+  final Set<int> _accepts = {protocolVersion};
+
+  /// Also accept [tableProtocolVersion] from the other side (a guest that
+  /// offered it in its `hello` reads the host's answer in it).
+  void acceptTable() => _accepts.add(tableProtocolVersion);
+
+  /// Sends (and accepts) [tableProtocolVersion] from now on (KLD-088).
+  /// Messages of the other side still in flight in version 3 are read too.
+  void upgrade() {
+    _version = tableProtocolVersion;
+    _accepts.add(tableProtocolVersion);
+  }
+
   Connection(
     this.channel, {
     required Duration pingInterval,
@@ -66,7 +88,7 @@ class Connection {
   void send(String type, [Map<String, dynamic> fields = const {}]) {
     if (_closed) return;
     try {
-      channel.send(jsonEncode({'type': type, 'v': protocolVersion, ...fields}));
+      channel.send(jsonEncode({'type': type, 'v': _version, ...fields}));
     } catch (_) {
       _finish('write failed');
     }
@@ -142,7 +164,7 @@ class Connection {
       return fail('malformed input (expected an object with "type")');
     }
     final v = decoded['v'];
-    if (v != protocolVersion) {
+    if (!_accepts.contains(v)) {
       // KLD-085: an older or newer build. Its own `error` (e.g. an old host
       // refusing our version) is read, not answered.
       if (decoded['type'] == 'error') {

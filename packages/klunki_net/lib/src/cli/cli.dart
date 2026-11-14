@@ -623,8 +623,8 @@ class _Play {
         _out.writeln('Back in the room; the guest can rejoin.');
       case IncompatiblePeer(:final mismatch):
         _out.writeln('A guest was refused: ${mismatch.message}');
-      case MoveRejected():
-        break; // the guest's submit() reports it; the host has nothing to show
+      case MoveRejected() || LobbyChanged():
+        break; // the guest's submit() reports it; the CLI hosts no tables (KLD-088)
       case GameVerified() || VerificationFailed():
         if (_awaitingVerification) {
           _reportVerification();

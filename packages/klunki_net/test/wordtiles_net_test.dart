@@ -438,11 +438,14 @@ void main() {
     expect(configProblem(const GameConfig('wordtiles', tiles: 'xx'), wordList: false), isNotNull);
   });
 
-  test('a 3–4 player word tile game is one-device only for now (KLD-088): the host refuses it', () async {
+  test('3–4 players host a table (KLD-088 step 4, table_net_test.dart); not through a relay yet', () async {
     for (final n in [3, 4]) {
       final config = GameConfig('wordtiles', seed: 1, players: n);
       expect(configProblem(config), isNull);
-      await expectLater(KlunkiHost.start(config, wsPort: null), throwsArgumentError);
+      final host = await KlunkiHost.start(config, wsPort: null);
+      expect(host.table, isTrue);
+      await host.close();
+      await expectLater(KlunkiHost.startRelay(config, Uri.parse('ws://127.0.0.1:1/relay')), throwsArgumentError);
     }
   });
 }
