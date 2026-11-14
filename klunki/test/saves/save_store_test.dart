@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/game/game_controller.dart';
+import 'package:klunki/saves/autosave.dart';
 import 'package:klunki/saves/save_store.dart';
 import 'package:klunki/saves/saved_game.dart';
+import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +49,32 @@ void expectSameGame(HotSeatTransport a, HotSeatTransport b) {
   expect(_encode(b.game.history), _encode(a.game.history));
   expect(b.game.isOver, a.game.isOver);
   expect(_encode((b.game as dynamic).legalMoves), _encode((a.game as dynamic).legalMoves));
+}
+
+/// A transport that is not hot-seat (like a network table of KLD-088): the
+/// moves come through a hot-seat engine, but the autosave must not see a
+/// [HotSeatTransport].
+class _TableTransport implements GameTransport {
+  _TableTransport(GameConfig config) : inner = HotSeatTransport(config);
+
+  final HotSeatTransport inner;
+
+  @override
+  bool get fullInformation => false;
+  @override
+  GameConfig get config => inner.config;
+  @override
+  Set<Player> get localPlayers => {Player.a};
+  @override
+  Game get game => inner.game;
+  @override
+  List<AcceptedMove> get moves => inner.moves;
+  @override
+  Stream<AcceptedMove> get accepted => inner.accepted;
+  @override
+  Future<SubmitResult> submit(Map<String, dynamic> move) async => inner.submitSync(move);
+  @override
+  void dispose() => inner.dispose();
 }
 
 void main() {
@@ -147,5 +177,20 @@ void main() {
     final reloaded = await SaveStore.load();
     expect(reloaded.entries.map((e) => e.gameId), ['connect4', 'muehle']);
     expect(reloaded.entryFor('connect4')!.game!.config.seed, 2);
+  });
+
+  testWidgets('a network game (a Wortgewandt table of 3) is never saved', (tester) async {
+    final store = SaveStore.memory();
+    final transport = _TableTransport(const GameConfig('wordtiles', seed: 9, players: 3));
+    final controller = GameController(transport);
+    final autosave = GameAutosave(controller: controller, store: store, names: (n) => List.filled(n, null));
+    playRandom(transport.inner, 4, seed: 9);
+    await tester.pump();
+    autosave.saveNow();
+    autosave.didChangeAppLifecycleState(AppLifecycleState.paused);
+    expect(transport.moves, isNotEmpty);
+    autosave.dispose();
+    expect(store.isEmpty, isTrue);
+    controller.dispose();
   });
 }

@@ -200,7 +200,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('menu-maumau')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('menu-maumau-local')), findsOneWidget);
-      expect(find.byKey(const Key('menu-maumau-network')), findsNothing);
+      expect(find.byKey(const Key('menu-maumau-network')), findsOneWidget, reason: 'Mau-Mau plays over the network (KLD-118 step 3)');
       await _shot(tester, '01-menu-tile');
     });
 
