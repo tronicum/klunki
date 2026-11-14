@@ -1258,7 +1258,11 @@ class _Captured extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(color: chip.withValues(alpha: 0.85), borderRadius: BorderRadius.circular(8)),
-                  child: ClipRect(
+                  // Many captures on a narrow screen: shrink the row
+                  // instead of overflowing it.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
