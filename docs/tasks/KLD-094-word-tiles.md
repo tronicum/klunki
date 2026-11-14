@@ -785,6 +785,9 @@ Maintainer (2026-11-09): the end-of-game rack deduction becomes an option like "
   touch), a synthetic press without release, and a second touch resting on a rack letter during the drag.
 
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
+Done since: on one device as KLD-125 (KLD-088 step 2), over the network as KLD-088 step 4 (protocol 4 tables,
+"Wie viele spielen mit?" on "Raum starten", lobby; see `docs/tasks/KLD-088-more-players.md`).
+
 The engine is ready (seats 0–3, turn order, penalties, view per seat, tested with 3 seats). Everything around it
 assumes two:
 - **Engine interface:** `enum Player { a, b }`; `GameResult.winner` is one `Player`; `Game.currentPlayer`,

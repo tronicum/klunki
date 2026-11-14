@@ -8,6 +8,12 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt with 3 or 4 players over the network** (KLD-088): "Raum starten" asks "Wie viele spielen mit?"
+  (2, 3 or 4). Everyone who joins sees who is already in the room and how many are still missing; the game starts
+  on all devices once every seat is taken. Each phone shows only its own tiles and says "Du bist am Zug" on its
+  own turn. If someone's connection drops, the game pauses for everyone until that player is back; the person
+  who started the room can also let the game go on without them. Also through a relay server (the server must be
+  up to date). Two-player games stay compatible with older builds.
 - **Chess with a clock** (KLD-126): "Ohne Uhr", 5, 10, 15 minutes + 10 seconds per move, or 30 minutes, chosen
   in "Wer spielt?" or on "Raum starten". The running clock is highlighted and turns red in the last ten seconds;
   whoever runs out of time loses (a draw if the other has only the king left). A pause button stops both clocks
