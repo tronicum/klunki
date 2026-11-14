@@ -406,6 +406,10 @@
   "shellLeaveTitle": "离开对局？",
   "shellLeaveBody": "连接将断开，对局对双方都结束。",
   "shellLeave": "离开",
+  "shellPauseOrAbortBody": "暂停：Klunki 会保存这局游戏，之后可以在“继续游戏”里接着玩。结束：这局游戏就结束了，并会被删除。",
+  "shellPauseGame": "暂停游戏",
+  "shellAbortGame": "结束游戏",
+  "shellBackToGame": "返回游戏",
   "shellResignWho": "谁认输？对局立即结束，另一方获胜。",
   "shellResignPlayer": "{player} 认输",
   "engineReasonCommonResigned": "{player} 已认输",
@@ -1191,7 +1195,7 @@
   "savesDeleteTitle": "删除这局游戏？",
   "savesDeleteBody": "未完成的游戏“{game}”将被删除。",
   "savesEmpty": "没有未完成的游戏。",
-  "savesHint": "Klunki 会为每种游戏保存最近一局未完成的游戏。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。",
+  "savesHint": "Klunki 会为每种游戏保存最近一局未完成的游戏，直到它下完或被结束。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。",
   "savesAskTitle": "未完成的游戏",
   "savesAskBody": "继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。"
 }

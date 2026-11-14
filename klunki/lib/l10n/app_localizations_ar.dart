@@ -1613,6 +1613,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellLeave => 'مغادرة';
 
   @override
+  String get shellPauseOrAbortBody =>
+      'عند الإيقاف المؤقت يحفظ Klunki اللعبة، ويمكن متابعتها لاحقًا من «متابعة اللعب». عند الإنهاء تنتهي اللعبة وتُحذف.';
+
+  @override
+  String get shellPauseGame => 'إيقاف اللعبة مؤقتًا';
+
+  @override
+  String get shellAbortGame => 'إنهاء اللعبة';
+
+  @override
+  String get shellBackToGame => 'العودة إلى اللعبة';
+
+  @override
   String get shellResignWho =>
       'من يستسلم؟ تنتهي اللعبة الآن ويفوز الطرف الآخر.';
 
@@ -4813,7 +4826,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'يحفظ Klunki آخر لعبة غير منتهية من كل نوع. عند بدء اللعبة نفسها من جديد يسأل Klunki: متابعة اللعب أم لعبة جديدة؟ تحل اللعبة الجديدة محل القديمة بعد أول حركة.';
+      'يحفظ Klunki آخر لعبة غير منتهية من كل نوع حتى تنتهي أو يتم إنهاؤها. عند بدء اللعبة نفسها من جديد يسأل Klunki: متابعة اللعب أم لعبة جديدة؟ تحل اللعبة الجديدة محل القديمة بعد أول حركة.';
 
   @override
   String get savesAskTitle => 'لعبة غير منتهية';

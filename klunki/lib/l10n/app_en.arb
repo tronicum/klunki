@@ -405,6 +405,10 @@
   "shellLeaveTitle": "Leave the game?",
   "shellLeaveBody": "The connection will be closed and the game ends for both of you.",
   "shellLeave": "Leave",
+  "shellPauseOrAbortBody": "If you pause, Klunki remembers the game and you can go on later under “Continue”. If you stop, the game is over and gets deleted.",
+  "shellPauseGame": "Pause game",
+  "shellAbortGame": "Stop game",
+  "shellBackToGame": "Back to the game",
   "shellResignWho": "Who resigns? The game ends now and the other side wins.",
   "shellResignPlayer": "{player} resigns",
   "engineReasonCommonResigned": "{player} resigned",
@@ -1190,7 +1194,7 @@
   "savesDeleteTitle": "Delete game?",
   "savesDeleteBody": "The unfinished game “{game}” will be deleted.",
   "savesEmpty": "No unfinished games.",
-  "savesHint": "Klunki remembers the last unfinished game of each kind. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.",
+  "savesHint": "Klunki remembers the last unfinished game of each kind until it is over or stopped. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.",
   "savesAskTitle": "Unfinished game",
   "savesAskBody": "Continue, or start a new game? A new game replaces the unfinished one with its first move."
 }

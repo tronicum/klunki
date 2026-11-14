@@ -316,7 +316,10 @@ class _GameSessionState extends State<GameSession> {
 
   @override
   Widget build(BuildContext context) {
-    final screen = buildGameScreen(_controller);
+    final autosave = _autosave;
+    final game = buildGameScreen(_controller);
+    // Leaving a saved game asks "Spiel pausieren" or "Spiel abbrechen".
+    final screen = autosave == null ? game : GameSaveScope(autosave: autosave, child: game);
     final hotSeat = PlayerNameScope.maybeOf(context)?.hotSeat;
     if (hotSeat == null) return screen;
     // Hot-seat names (KLD-056, KLD-103); "Nochmal" keeps them (same store).

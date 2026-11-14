@@ -1588,6 +1588,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellLeave => 'Leave';
 
   @override
+  String get shellPauseOrAbortBody =>
+      'If you pause, Klunki remembers the game and you can go on later under “Continue”. If you stop, the game is over and gets deleted.';
+
+  @override
+  String get shellPauseGame => 'Pause game';
+
+  @override
+  String get shellAbortGame => 'Stop game';
+
+  @override
+  String get shellBackToGame => 'Back to the game';
+
+  @override
   String get shellResignWho =>
       'Who resigns? The game ends now and the other side wins.';
 
@@ -4771,7 +4784,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki remembers the last unfinished game of each kind. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.';
+      'Klunki remembers the last unfinished game of each kind until it is over or stopped. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.';
 
   @override
   String get savesAskTitle => 'Unfinished game';

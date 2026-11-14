@@ -37,6 +37,19 @@ Design decisions:
   first move). The list's footer now says: "Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du
   dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten
   Zug." Network games ("Mit anderen") never ask: they are not saved.
+- **Pause or abort** (maintainer, after testing on the iPhone: "das hat das Spiel-Abbrechen ausgehebelt"): with
+  the save, leaving a hot-seat game could no longer end it, it always came back under "Weiterspielen". Leaving a
+  running game that holds the save (from its first move on, or resumed) now asks **"Spiel verlassen?"** — "Beim
+  Pausieren merkt sich Klunki das Spiel. Später geht es unter „Weiterspielen“ weiter. Beim Abbrechen ist das Spiel
+  vorbei und wird gelöscht." — with **"Spiel pausieren"** (primary, keeps the save), **"Spiel abbrechen"** (red
+  outline, deletes the save, nothing is written when the screen closes) and **"Zurück zum Spiel"** (also back or a
+  tap outside; no plain "Abbrechen", it would read like "Spiel abbrechen"). The buttons stand one under the other,
+  full width. Both shells ask (`GameScreen`, the seat shell for 3–4 players), so every game does, also chess
+  behind the clock's pause cover, Baulöwe and Mäxchen; the shells get the autosave through `GameSaveScope`
+  (`GameSession`). No move yet (also after "Neues Spiel" in the game): leaves as before, an older save stays. A
+  finished game leaves without asking. Without a save store, and over the network, the KLD-099 dialog is
+  unchanged. Going to the background or the app being closed still saves (an implicit pause). The list's footer
+  now says the game is kept "bis es fertig ist oder abgebrochen wird".
 - "Weiterspielen" is both the menu card / dialog button and the Mäxchen refuse button ("Spiel beenden?"): fine
   (maintainer).
 - **When it saves:** after every accepted move and every undo, when the app goes to the background
@@ -77,8 +90,11 @@ over the same preferences, "Weiterspielen", play on; finished game and undo dele
 Wortgewandt for 3 resume behind the cover; Baulöwe for 3 in the seat shell with its names; app pause saves;
 outdated save; delete asks first; starting a saved game from the menu asks: cancel starts nothing, "Weiterspielen"
 resumes with the saved names (also as the last names, the store had others), "Neues Spiel" opens "Wer spielt?" with
-those names and replaces the save with the first move, an outdated save does not ask). Screenshots (with the
-question, `kld079-ask-*`): `KLUNKI_SHOTS=… flutter test test/screenshots --plain-name kld079`.
+those names and replaces the save with the first move, an outdated save does not ask), `klunki/test/saves/pause_or_abort_test.dart` (the leave dialog: wording, styles, stay;
+pause keeps the save and the card; abort removes it from the store and the preferences; no move yet does not ask;
+a finished game does not ask; Baulöwe for 3 and Mäxchen for 4 in the seat shell; chess behind the clock pause
+cover), `klunki/test/ui/shell/confirm_quit_test.dart` (every app game with a save asks from its first move, abort
+deletes). Screenshots (with the question, `kld079-ask-*`, and the leave dialog, `kld079-leave-*`): `KLUNKI_SHOTS=… flutter test test/screenshots --plain-name kld079`.
 
 ## Acceptance criteria
 - [x] **Hot-seat:**

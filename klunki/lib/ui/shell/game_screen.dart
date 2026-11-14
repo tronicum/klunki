@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:klunki/saves/autosave.dart';
+import 'package:klunki/ui/shell/pause_or_abort_dialog.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -361,7 +363,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
   /// Leaving asks first (KLD-099) while the game is running: always over the
   /// network (it ends the game for both devices), in hot-seat once the game
   /// is under way.
-  bool get _confirmLeave => !_leaving && !controller.game.isOver && (!_canRestart || _underway);
+  bool get _confirmLeave => !_leaving && !controller.game.isOver && (_saved != null || !_canRestart || _underway);
+
+  /// KLD-079: the running hot-seat game is saved; leaving asks "Spiel
+  /// pausieren" or "Spiel abbrechen" ([PauseOrAbortDialog]).
+  GameAutosave? get _saved {
+    final save = GameSaveScope.maybeOf(context);
+    return save != null && save.holdsSave ? save : null;
+  }
 
   /// A hot-seat game is under way once each side has moved, or after a few
   /// moves (some games let one side move several times in a row).
@@ -371,8 +380,21 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
     return moves.any((m) => m.player == Player.a) && moves.any((m) => m.player == Player.b);
   }
 
+  /// Leaving a saved hot-seat game (KLD-079): pause keeps the save for
+  /// "Weiterspielen", abort deletes it; null stays in the game.
+  Future<void> _pauseOrAbort() async {
+    final choice = await _confirm<LeaveChoice>((_) => const PauseOrAbortDialog());
+    if (choice == null || !mounted) return;
+    if (choice == LeaveChoice.abort) await _saved?.discard();
+    if (!mounted) return;
+    setState(() => _leaving = true);
+    final nav = Navigator.of(context);
+    if (nav.canPop()) nav.pop();
+  }
+
   /// Back button, system back, predictive back: "Spiel verlassen?" first.
   Future<void> _leave() async {
+    if (_saved != null) return _pauseOrAbort();
     final l10n = AppLocalizations.of(context);
     final ok = await _confirm<bool>(
       (ctx) => AlertDialog(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:klunki/saves/autosave.dart';
+import 'package:klunki/ui/shell/pause_or_abort_dialog.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
 
@@ -283,12 +285,32 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
   /// The game picked its first seat by chance (KLD-119 follow-up).
   bool get _randomStart => controller.config.randomStart;
 
-  bool get _confirmLeave => !_leaving && !_game.isOver && (!_canRestart || _underway);
+  bool get _confirmLeave => !_leaving && !_game.isOver && (_saved != null || !_canRestart || _underway);
+
+  /// KLD-079: the running hot-seat game is saved; leaving asks "Spiel
+  /// pausieren" or "Spiel abbrechen" ([PauseOrAbortDialog]).
+  GameAutosave? get _saved {
+    final save = GameSaveScope.maybeOf(context);
+    return save != null && save.holdsSave ? save : null;
+  }
 
   String _name(int seat) =>
       SeatLabelsScope.of(context).label(context, AppLocalizations.of(context), seat, count: seatCountOf(_game));
 
+  /// Leaving a saved hot-seat game (KLD-079): pause keeps the save for
+  /// "Weiterspielen", abort deletes it; null stays in the game.
+  Future<void> _pauseOrAbort() async {
+    final choice = await _confirm<LeaveChoice>((_) => const PauseOrAbortDialog());
+    if (choice == null || !mounted) return;
+    if (choice == LeaveChoice.abort) await _saved?.discard();
+    if (!mounted) return;
+    setState(() => _leaving = true);
+    final nav = Navigator.of(context);
+    if (nav.canPop()) nav.pop();
+  }
+
   Future<void> _leave() async {
+    if (_saved != null) return _pauseOrAbort();
     final l10n = AppLocalizations.of(context);
     final ok = await _confirm<bool>(
       (ctx) => AlertDialog(

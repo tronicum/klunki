@@ -406,6 +406,10 @@
   "shellLeaveTitle": "Quitter la partie ?",
   "shellLeaveBody": "La connexion sera coupée et la partie se termine pour vous deux.",
   "shellLeave": "Quitter",
+  "shellPauseOrAbortBody": "En pause, Klunki garde la partie : tu peux la reprendre plus tard dans « Continuer ». Si tu arrêtes, la partie est finie et effacée.",
+  "shellPauseGame": "Mettre en pause",
+  "shellAbortGame": "Arrêter la partie",
+  "shellBackToGame": "Retour à la partie",
   "shellResignWho": "Qui abandonne ? La partie se termine maintenant et l’autre camp gagne.",
   "shellResignPlayer": "{player} abandonne",
   "engineReasonCommonResigned": "{player} a abandonné",
@@ -1191,7 +1195,7 @@
   "savesDeleteTitle": "Supprimer la partie ?",
   "savesDeleteBody": "La partie en cours « {game} » sera supprimée.",
   "savesEmpty": "Aucune partie en cours.",
-  "savesHint": "Klunki garde la dernière partie commencée de chaque jeu. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.",
+  "savesHint": "Klunki garde la dernière partie commencée de chaque jeu, jusqu’à ce qu’elle soit finie ou arrêtée. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.",
   "savesAskTitle": "Partie commencée",
   "savesAskBody": "Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup."
 }

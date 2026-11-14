@@ -2370,7 +2370,7 @@
   },
   "shellLeaveTitle": "Spiel verlassen?",
   "@shellLeaveTitle": {
-    "description": "KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, or a hot-seat game under way)."
+    "description": "KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, a hot-seat game under way, or a saved hot-seat game with KLD-079 shellPauseGame / shellAbortGame)."
   },
   "shellLeaveBody": "Die Verbindung wird getrennt, das Spiel endet für beide.",
   "@shellLeaveBody": {
@@ -2379,6 +2379,22 @@
   "shellLeave": "Verlassen",
   "@shellLeave": {
     "description": "KLD-099 leave confirmation: the confirm button."
+  },
+  "shellPauseOrAbortBody": "Beim Pausieren merkt sich Klunki das Spiel. Später geht es unter „Weiterspielen“ weiter. Beim Abbrechen ist das Spiel vorbei und wird gelöscht.",
+  "@shellPauseOrAbortBody": {
+    "description": "KLD-079: text of the leave dialog (shellLeaveTitle) of a running, saved hot-seat game: what the two buttons shellPauseGame and shellAbortGame do. Names the menu card savesTitle (\"Weiterspielen\") in quotes. Plain, for kids."
+  },
+  "shellPauseGame": "Spiel pausieren",
+  "@shellPauseGame": {
+    "description": "KLD-079: leave dialog of a saved hot-seat game, primary button: leave and keep the game for \"Weiterspielen\"."
+  },
+  "shellAbortGame": "Spiel abbrechen",
+  "@shellAbortGame": {
+    "description": "KLD-079: leave dialog of a saved hot-seat game, destructive button: leave and delete the game."
+  },
+  "shellBackToGame": "Zurück zum Spiel",
+  "@shellBackToGame": {
+    "description": "KLD-079: leave dialog of a saved hot-seat game: close the dialog and stay in the game (not \"Abbrechen\": it would read like shellAbortGame)."
   },
   "shellResignWho": "Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.",
   "@shellResignWho": {
@@ -6998,9 +7014,9 @@
   "@savesEmpty": {
     "description": "KLD-079: the list of saved games is empty."
   },
-  "savesHint": "Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.",
+  "savesHint": "Klunki merkt sich von jedem Spiel das zuletzt angefangene, bis es fertig ist oder abgebrochen wird. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.",
   "@savesHint": {
-    "description": "KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move."
+    "description": "KLD-079: note under the list: one saved game per game, kept until it is finished or aborted (shellAbortGame); starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move."
   },
   "savesAskTitle": "Angefangenes Spiel",
   "@savesAskTitle": {

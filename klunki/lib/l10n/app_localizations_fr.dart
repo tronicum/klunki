@@ -1601,6 +1601,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get shellLeave => 'Quitter';
 
   @override
+  String get shellPauseOrAbortBody =>
+      'En pause, Klunki garde la partie : tu peux la reprendre plus tard dans « Continuer ». Si tu arrêtes, la partie est finie et effacée.';
+
+  @override
+  String get shellPauseGame => 'Mettre en pause';
+
+  @override
+  String get shellAbortGame => 'Arrêter la partie';
+
+  @override
+  String get shellBackToGame => 'Retour à la partie';
+
+  @override
   String get shellResignWho =>
       'Qui abandonne ? La partie se termine maintenant et l’autre camp gagne.';
 
@@ -4810,7 +4823,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki garde la dernière partie commencée de chaque jeu. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.';
+      'Klunki garde la dernière partie commencée de chaque jeu, jusqu’à ce qu’elle soit finie ou arrêtée. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.';
 
   @override
   String get savesAskTitle => 'Partie commencée';

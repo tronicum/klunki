@@ -1538,6 +1538,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellLeave => '离开';
 
   @override
+  String get shellPauseOrAbortBody =>
+      '暂停：Klunki 会保存这局游戏，之后可以在“继续游戏”里接着玩。结束：这局游戏就结束了，并会被删除。';
+
+  @override
+  String get shellPauseGame => '暂停游戏';
+
+  @override
+  String get shellAbortGame => '结束游戏';
+
+  @override
+  String get shellBackToGame => '返回游戏';
+
+  @override
   String get shellResignWho => '谁认输？对局立即结束，另一方获胜。';
 
   @override
@@ -4513,7 +4526,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki 会为每种游戏保存最近一局未完成的游戏。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。';
+      'Klunki 会为每种游戏保存最近一局未完成的游戏，直到它下完或被结束。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。';
 
   @override
   String get savesAskTitle => '未完成的游戏';

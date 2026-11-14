@@ -414,7 +414,8 @@ void main() {
     await _shot(tester, 'kld081-board-O-phone-light');
   });
 
-  // KLD-079: the menu's "Weiterspielen" card and the list of saved games.
+  // KLD-079: the menu's "Weiterspielen" card, the list of saved games and
+  // leaving a saved game (pause or abort).
   for (final (b, locale) in [
     (Brightness.light, 'de'),
     (Brightness.dark, 'de'),
@@ -445,6 +446,12 @@ void main() {
       await tester.tap(find.byKey(const Key('menu-chess-tile')));
       await tester.pumpAndSettle();
       await _shot(tester, 'kld079-ask-$tag');
+      // "Weiterspielen", then back: "Spiel pausieren" or "Spiel abbrechen".
+      await tester.tap(find.byKey(const Key('saves-ask-resume')));
+      await tester.pumpAndSettle();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld079-leave-$tag');
     });
   }
 

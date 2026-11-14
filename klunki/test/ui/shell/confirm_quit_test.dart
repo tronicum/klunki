@@ -2,10 +2,15 @@
 // game shell. Network: always while the game runs (it ends for both
 // devices); hot-seat: once the game is under way. The dialog closes itself
 // when the game ends underneath it (e.g. the opponent resigns).
+// KLD-079: a saved hot-seat game (the app's save store) asks "Spiel
+// pausieren" or "Spiel abbrechen" instead, from its first move on; without
+// a store (and over the network) the dialog stays as it was.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/saves/autosave.dart';
+import 'package:klunki/saves/save_store.dart';
 import 'package:klunki/transport/game_transport.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
@@ -62,14 +67,18 @@ class _DeviceTransport implements GameTransport {
 }
 
 /// Pushes the game screen over a home page, so back has somewhere to go.
-Future<void> _pushGame(WidgetTester tester, GameController c, {PlayerLabels labels = const PlayerLabels()}) async {
+Future<void> _pushGame(WidgetTester tester, GameController c,
+    {PlayerLabels labels = const PlayerLabels(), GameAutosave? autosave}) async {
   await tester.pumpWidget(localizedApp(Builder(
     builder: (context) => Scaffold(
       key: _home,
       body: Center(
         child: TextButton(
           onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
-            builder: (_) => PlayerLabelsScope(labels: labels, child: buildGameScreen(c)),
+            builder: (_) => PlayerLabelsScope(
+              labels: labels,
+              child: autosave == null ? buildGameScreen(c) : GameSaveScope(autosave: autosave, child: buildGameScreen(c)),
+            ),
           )),
           child: const Text('open'),
         ),
@@ -300,6 +309,45 @@ void main() {
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
         expect(find.byKey(_leaveDialog), findsOneWidget);
+      });
+    }
+  });
+
+  group('hot-seat with a save (KLD-079)', () {
+    for (final id in appGameSpecs.map((s) => s.id)) {
+      testWidgets('$id: back asks "Spiel pausieren" / "Spiel abbrechen"; abort deletes the save', (tester) async {
+        final c = GameController.hotSeat(GameConfig(id, seed: 1));
+        addTearDown(c.dispose);
+        final store = SaveStore.memory();
+        final autosave = GameAutosave(controller: c, store: store, names: (n) => List.filled(n, null));
+        addTearDown(autosave.dispose);
+        await _pushGame(tester, c, autosave: autosave);
+        // Untouched: nothing saved, back leaves without asking.
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(_leaveDialog), findsNothing);
+        expect(_onHome, isTrue);
+
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
+          await tester.tap(find.byKey(handoverContinue));
+          await tester.pump();
+        }
+        await playMove(tester);
+        expect(store.entryFor(id), isNotNull);
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        expect(find.byKey(_leaveDialog), findsOneWidget, reason: 'one move is saved: asks');
+        expect(find.text('Spiel pausieren'), findsOneWidget);
+        expect(find.text('Spiel abbrechen'), findsOneWidget);
+        expect(find.text('Zurück zum Spiel'), findsOneWidget);
+        await tester.tap(find.byKey(const Key('leave-abort')));
+        await tester.pumpAndSettle();
+        expect(_onHome, isTrue);
+        expect(store.entryFor(id), isNull);
+        autosave.saveNow();
+        expect(store.entryFor(id), isNull, reason: 'aborted: never saved again');
       });
     }
   });

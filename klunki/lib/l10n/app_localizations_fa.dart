@@ -1585,6 +1585,19 @@ class AppLocalizationsFa extends AppLocalizations {
   String get shellLeave => 'خروج';
 
   @override
+  String get shellPauseOrAbortBody =>
+      'با توقف موقت، Klunki بازی را نگه می‌دارد و بعداً می‌توانی از «ادامهٔ بازی» آن را ادامه بدهی. با پایان دادن، بازی تمام و پاک می‌شود.';
+
+  @override
+  String get shellPauseGame => 'توقف موقت بازی';
+
+  @override
+  String get shellAbortGame => 'پایان دادن به بازی';
+
+  @override
+  String get shellBackToGame => 'بازگشت به بازی';
+
+  @override
   String get shellResignWho =>
       'چه کسی تسلیم می‌شود؟ بازی همین حالا تمام می‌شود و طرف مقابل برنده می‌شود.';
 
@@ -4683,7 +4696,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki از هر نوع بازی، آخرین بازی نیمه‌تمام را نگه می‌دارد. اگر همان بازی را دوباره شروع کنی، Klunki می‌پرسد: ادامهٔ بازی یا بازی جدید؟ بازی جدید با اولین حرکت جای بازی قبلی را می‌گیرد.';
+      'Klunki از هر نوع بازی، آخرین بازی نیمه‌تمام را نگه می‌دارد تا وقتی تمام شود یا به آن پایان بدهی. اگر همان بازی را دوباره شروع کنی، Klunki می‌پرسد: ادامهٔ بازی یا بازی جدید؟ بازی جدید با اولین حرکت جای بازی قبلی را می‌گیرد.';
 
   @override
   String get savesAskTitle => 'بازی نیمه‌تمام';

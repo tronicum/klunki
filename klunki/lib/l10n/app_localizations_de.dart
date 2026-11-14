@@ -1591,6 +1591,19 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellLeave => 'Verlassen';
 
   @override
+  String get shellPauseOrAbortBody =>
+      'Beim Pausieren merkt sich Klunki das Spiel. Später geht es unter „Weiterspielen“ weiter. Beim Abbrechen ist das Spiel vorbei und wird gelöscht.';
+
+  @override
+  String get shellPauseGame => 'Spiel pausieren';
+
+  @override
+  String get shellAbortGame => 'Spiel abbrechen';
+
+  @override
+  String get shellBackToGame => 'Zurück zum Spiel';
+
+  @override
   String get shellResignWho =>
       'Wer gibt auf? Die Partie endet sofort, die andere Seite gewinnt.';
 
@@ -4789,7 +4802,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.';
+      'Klunki merkt sich von jedem Spiel das zuletzt angefangene, bis es fertig ist oder abgebrochen wird. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.';
 
   @override
   String get savesAskTitle => 'Angefangenes Spiel';

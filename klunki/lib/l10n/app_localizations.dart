@@ -2520,7 +2520,7 @@ abstract class AppLocalizations {
   /// **'Das Spiel endet für beide – {player} gewinnt.'**
   String shellResignBody(String player);
 
-  /// KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, or a hot-seat game under way).
+  /// KLD-099 leave confirmation: title of the dialog shown on back/leave while a game is running (network, a hot-seat game under way, or a saved hot-seat game with KLD-079 shellPauseGame / shellAbortGame).
   ///
   /// In de, this message translates to:
   /// **'Spiel verlassen?'**
@@ -2537,6 +2537,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Verlassen'**
   String get shellLeave;
+
+  /// KLD-079: text of the leave dialog (shellLeaveTitle) of a running, saved hot-seat game: what the two buttons shellPauseGame and shellAbortGame do. Names the menu card savesTitle ("Weiterspielen") in quotes. Plain, for kids.
+  ///
+  /// In de, this message translates to:
+  /// **'Beim Pausieren merkt sich Klunki das Spiel. Später geht es unter „Weiterspielen“ weiter. Beim Abbrechen ist das Spiel vorbei und wird gelöscht.'**
+  String get shellPauseOrAbortBody;
+
+  /// KLD-079: leave dialog of a saved hot-seat game, primary button: leave and keep the game for "Weiterspielen".
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel pausieren'**
+  String get shellPauseGame;
+
+  /// KLD-079: leave dialog of a saved hot-seat game, destructive button: leave and delete the game.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel abbrechen'**
+  String get shellAbortGame;
+
+  /// KLD-079: leave dialog of a saved hot-seat game: close the dialog and stay in the game (not "Abbrechen": it would read like shellAbortGame).
+  ///
+  /// In de, this message translates to:
+  /// **'Zurück zum Spiel'**
+  String get shellBackToGame;
 
   /// KLD-065 resign dialog (hot-seat): asks which of the two players gives up.
   ///
@@ -7258,10 +7282,10 @@ abstract class AppLocalizations {
   /// **'Keine angefangenen Spiele.'**
   String get savesEmpty;
 
-  /// KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move.
+  /// KLD-079: note under the list: one saved game per game, kept until it is finished or aborted (shellAbortGame); starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move.
   ///
   /// In de, this message translates to:
-  /// **'Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.'**
+  /// **'Klunki merkt sich von jedem Spiel das zuletzt angefangene, bis es fertig ist oder abgebrochen wird. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.'**
   String get savesHint;
 
   /// KLD-079: title of the question when a hot-seat game is started while one of the same kind is saved. Plain, for kids.

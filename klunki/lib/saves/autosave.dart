@@ -30,6 +30,9 @@ class GameAutosave with WidgetsBindingObserver {
   /// it): only then does its end delete the save.
   bool _owns;
 
+  /// "Spiel abbrechen" ([discard]): nothing is saved any more.
+  bool _discarded = false;
+
   GameAutosave({required this.controller, required this.store, required this.names, bool resumed = false})
       : _owns = resumed {
     _transport = controller.transport;
@@ -50,6 +53,7 @@ class GameAutosave with WidgetsBindingObserver {
     _count = n;
     if (undoneToStart && _owns) {
       store.remove(_gameId);
+      _owns = false;
       return;
     }
     saveNow();
@@ -62,6 +66,7 @@ class GameAutosave with WidgetsBindingObserver {
 
   /// Writes the current state now (or deletes the save of a finished game).
   void saveNow() {
+    if (_discarded) return;
     final t = controller.transport;
     if (t is! HotSeatTransport) return;
     if (controller.game.isOver) {
@@ -84,10 +89,44 @@ class GameAutosave with WidgetsBindingObserver {
     _owns = true;
   }
 
+  /// This game is in the save slot and still running: leaving it can pause
+  /// it (keep the save) or abort it ([discard]). False before the first move
+  /// of a new game, also after "Neues Spiel" in the game (leaving keeps the
+  /// save there is, as before).
+  bool get holdsSave => _owns && !_discarded && controller.moves.isNotEmpty && !controller.game.isOver;
+
+  /// "Spiel abbrechen": deletes this game's save and saves nothing more
+  /// (not even when the screen closes). An older save of the same game that
+  /// this game has not taken over yet stays.
+  Future<void> discard() async {
+    if (_discarded) return;
+    _discarded = true;
+    if (_owns) {
+      _owns = false;
+      await store.remove(_gameId);
+    }
+  }
+
   /// Saves a last time and stops listening (the game screen closes).
   void dispose() {
     saveNow();
     WidgetsBinding.instance.removeObserver(this);
     controller.removeListener(_changed);
   }
+}
+
+/// Hands the running game's [GameAutosave] to the game shells (KLD-079), so
+/// leaving a saved hot-seat game asks "Spiel pausieren" or "Spiel abbrechen".
+/// Not there for network games and without a save store.
+class GameSaveScope extends InheritedWidget {
+  final GameAutosave autosave;
+  const GameSaveScope({super.key, required this.autosave, required super.child});
+
+  /// The autosave above [context], without a dependency (the shells read it
+  /// when they decide how to leave).
+  static GameAutosave? maybeOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<GameSaveScope>()?.autosave;
+
+  @override
+  bool updateShouldNotify(GameSaveScope oldWidget) => !identical(autosave, oldWidget.autosave);
 }
