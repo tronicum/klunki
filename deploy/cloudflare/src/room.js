@@ -14,6 +14,11 @@
 // dropped without a clean close), the time it went away live in storage, so
 // they outlive the host's socket. The host comes back with
 // `?resume=CODE&key=KEY` within HOST_GRACE_SECONDS.
+//
+// KLD-088: a table room (`guests` 2–3 in storage and in every attachment)
+// holds several guest sockets, each with its `peer` number (the next one in
+// storage); their lines reach the host as `relay.from {peer, line}` and the
+// host answers with `relay.to {peer, line}`.
 
 import {
   closeGoingAway,
@@ -25,9 +30,12 @@ import {
   relayControl,
   relayError,
   relayKick,
+  relayFrom,
   relayLeft,
   relayPeer,
+  relayPeerField,
   relayRoom,
+  relayTo,
 } from './protocol.js';
 
 /** Defaults of the Dart relay (`RelayServer.start`). */
@@ -92,9 +100,9 @@ export class RelayRoom {
     return this.ctx.getWebSockets('host').find((ws) => ws.readyState === OPEN && !attachment(ws).gone) ?? null;
   }
 
-  /** The current guest socket, or null. */
-  guest() {
-    return this.ctx.getWebSockets('guest').find((ws) => ws.readyState === OPEN && !attachment(ws).gone) ?? null;
+  /** The current guest sockets. */
+  guests() {
+    return this.ctx.getWebSockets('guest').filter((ws) => ws.readyState === OPEN && !attachment(ws).gone);
   }
 
   /**
@@ -113,8 +121,10 @@ export class RelayRoom {
         return new Response(null, { status: 409 });
       }
       const key = newKey();
+      const guests = positive(request.headers.get('X-Klunki-Guests'), 1);
       await this.ctx.storage.put('key', key);
-      return this.attachHost(code, key);
+      await this.ctx.storage.put('guests', guests);
+      return this.attachHost(code, key, guests);
     }
     if (op === 'resume') {
       const key = await this.ctx.storage.get('key');
@@ -126,9 +136,9 @@ export class RelayRoom {
         send(old, relayControl(relayClosed, { reason: 'replaced by a new host connection' }));
         close(old, closeGoingAway);
       }
-      this.dropGuest();
+      this.dropGuests();
       await this.ctx.storage.delete('away');
-      return this.attachHost(code, key);
+      return this.attachHost(code, key, (await this.ctx.storage.get('guests')) ?? 1);
     }
     if (op === 'join') {
       const host = this.host();
@@ -136,23 +146,26 @@ export class RelayRoom {
         const away = await this.ctx.storage.get('away');
         return new Response(null, { status: away === undefined ? 404 : 423 });
       }
-      if (this.guest() !== null) return new Response(null, { status: 409 });
+      const guests = attachment(host).guests ?? 1;
+      if (this.guests().length >= guests) return new Response(null, { status: 409 });
+      const peer = (await this.ctx.storage.get('nextPeer')) ?? 1;
+      await this.ctx.storage.put('nextPeer', peer + 1);
       const [client, server] = Object.values(new WebSocketPair());
       this.ctx.acceptWebSocket(server, ['guest']);
-      server.serializeAttachment({ role: 'guest' });
+      server.serializeAttachment({ role: 'guest', peer, guests });
       this.touch(host);
-      send(host, relayControl(relayPeer));
+      send(host, guests > 1 ? relayControl(relayPeer, { [relayPeerField]: peer }) : relayControl(relayPeer));
       return new Response(null, { status: 101, webSocket: client });
     }
     return new Response(null, { status: 400 });
   }
 
-  /** The host's connection, new or coming back (KLD-120). */
-  async attachHost(code, key) {
+  /** The host's connection, new or coming back (KLD-120); `guests`: the room's size (KLD-088). */
+  async attachHost(code, key, guests) {
     const [client, server] = Object.values(new WebSocketPair());
     this.ctx.acceptWebSocket(server, ['host']);
-    server.serializeAttachment({ role: 'host', code, active: Date.now() });
-    send(server, relayControl(relayRoom, { code, key }));
+    server.serializeAttachment({ role: 'host', code, active: Date.now(), guests });
+    send(server, relayControl(relayRoom, guests > 1 ? { code, key, guests } : { code, key }));
     await this.ctx.storage.setAlarm(Date.now() + this.idleTimeoutMs);
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -196,13 +209,13 @@ export class RelayRoom {
 
   // ------------------------------------------------------------ forwarding
 
-  /** Checks one frame; returns the line to forward, or null after refusing. */
-  check(ws, frame) {
+  /** Checks one frame (against `limit`, default the line limit); returns the line to forward, or null after refusing. */
+  check(ws, frame, limit = this.maxLineLength) {
     if (typeof frame !== 'string') {
       this.violation(ws, 'binary frames are not relayed');
       return null;
     }
-    if (frame.length > this.maxLineLength) {
+    if (frame.length > limit) {
       this.violation(ws, `line too long (max ${this.maxLineLength} characters)`);
       return null;
     }
@@ -210,16 +223,31 @@ export class RelayRoom {
   }
 
   fromHost(host, frame) {
-    const line = this.check(host, frame);
+    const table = (attachment(host).guests ?? 1) > 1;
+    // A table room's lines are wrapped: room for the escaping of `line`.
+    const line = this.check(host, frame, table ? 2 * this.maxLineLength + 1024 : this.maxLineLength);
     if (line === null) return;
     this.touch(host);
     const control = parseRelayControl(line);
-    if (control !== null) {
-      if (control.t === relayKick) this.dropGuest();
-      return; // other control lines from the host are ignored
+    if (control === null) {
+      // The classic room forwards the line; a table room needs `relay.to`.
+      if (!table) for (const guest of this.guests()) send(guest, line);
+      return;
     }
-    const guest = this.guest();
-    if (guest !== null) send(guest, line);
+    const peer = control[relayPeerField];
+    const isPeer = Number.isInteger(peer);
+    if (control.t === relayKick && !table) {
+      this.dropGuests();
+    } else if (control.t === relayKick && isPeer) {
+      this.dropGuests(peer);
+    } else if (control.t === relayTo && table && isPeer) {
+      const inner = control.line;
+      if (typeof inner !== 'string' || inner.length > this.maxLineLength) {
+        return this.violation(host, `line too long (max ${this.maxLineLength} characters)`);
+      }
+      for (const guest of this.guests()) if (attachment(guest).peer === peer) send(guest, inner);
+    }
+    // other control lines from the host are ignored
   }
 
   fromGuest(ws, frame) {
@@ -231,7 +259,8 @@ export class RelayRoom {
     const host = this.host();
     if (host === null) return;
     this.touch(host);
-    send(host, line);
+    const a = attachment(ws);
+    send(host, (a.guests ?? 1) > 1 ? relayControl(relayFrom, { [relayPeerField]: a.peer, line }) : line);
   }
 
   /** Marks the room active (in the host's attachment: survives hibernation). */
@@ -253,12 +282,13 @@ export class RelayRoom {
     }
   }
 
-  /** The host asked to drop the guest; no `relay.left` follows. */
-  dropGuest() {
-    const guest = this.guest();
-    if (guest === null) return;
-    mark(guest, { gone: true });
-    close(guest, closeNormal);
+  /** Drops the guests (only guest `peer` when given); no `relay.left` follows. */
+  dropGuests(peer) {
+    for (const guest of this.guests()) {
+      if (peer !== undefined && attachment(guest).peer !== peer) continue;
+      mark(guest, { gone: true });
+      close(guest, closeNormal);
+    }
   }
 
   /**
@@ -276,17 +306,19 @@ export class RelayRoom {
       return this.shutDown(`host ${what === 'disconnected' ? 'left' : 'connection failed'}`);
     }
     mark(ws, { gone: true });
-    this.dropGuest();
+    this.dropGuests();
     const now = Date.now();
     await this.ctx.storage.put('away', now);
     await this.ctx.storage.setAlarm(now + this.hostGraceMs);
   }
 
   guestGone(ws, reason) {
-    if (attachment(ws).gone) return;
+    const a = attachment(ws);
+    if (a.gone) return;
     mark(ws, { gone: true });
     const host = this.host();
-    if (host !== null) send(host, relayControl(relayLeft, { reason }));
+    if (host === null) return;
+    send(host, relayControl(relayLeft, (a.guests ?? 1) > 1 ? { [relayPeerField]: a.peer, reason } : { reason }));
   }
 
   /**

@@ -31,7 +31,9 @@ import {
   relayErrorClubMissing,
   relayErrorClubWrong,
   relayErrorHostAway,
+  relayGuestsParam,
   relayKeyParam,
+  relayMaxGuests,
   relayPath,
   relayResumeParam,
 } from './protocol.js';
@@ -75,7 +77,7 @@ export function createRelay({ strikes = new ClubStrikes() } = {}) {
     return codes;
   }
 
-  function room(env, op, code, key) {
+  function room(env, op, code, key, guests) {
     const stub = env.ROOMS.get(env.ROOMS.idFromName(code));
     // A fixed internal URL: the club code in the client's URL never reaches
     // the room object.
@@ -85,6 +87,7 @@ export function createRelay({ strikes = new ClubStrikes() } = {}) {
         'X-Klunki-Op': op,
         'X-Klunki-Room': code,
         ...(key === undefined ? {} : { 'X-Klunki-Key': key }),
+        ...(guests === undefined ? {} : { 'X-Klunki-Guests': String(guests) }),
       },
     });
   }
@@ -123,8 +126,14 @@ export function createRelay({ strikes = new ClubStrikes() } = {}) {
       }
 
       if (query.has('create')) {
+        // KLD-088: a table room for up to `guests` guests (1 = the classic room).
+        const raw = query.get(relayGuestsParam);
+        const guests = raw === null ? 1 : /^[0-9]+$/.test(raw) ? Number(raw) : NaN;
+        if (!(guests >= 1 && guests <= relayMaxGuests)) {
+          return refuse(`bad request: guests must be 1 to ${relayMaxGuests}`);
+        }
         for (let i = 0; i < createAttempts; i++) {
-          const response = await room(env, 'create', newRoomCode());
+          const response = await room(env, 'create', newRoomCode(), undefined, guests);
           if (response.status === 101) return response;
         }
         return refuse('too many rooms, try again later');

@@ -196,10 +196,9 @@ class KlunkiHost {
     String? clubCode,
   }) async {
     _validateLog(config, moves, hostPlayer);
-    if (config.players != 2) {
-      throw ArgumentError.value(config.players, 'players', 'a table through a relay is not supported yet');
-    }
-    final relay = await RelayHostListener.connect(relayUrl, timeout: timeout, clubCode: clubCode);
+    // KLD-088: a table opens a table room (one slot per guest seat).
+    final relay = await RelayHostListener.connect(relayUrl,
+        timeout: timeout, clubCode: clubCode, guests: config.players > 2 ? config.players - 1 : null);
     return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout,
         createGame(config), compat ?? BuildCompat())
       .._listen(moves);

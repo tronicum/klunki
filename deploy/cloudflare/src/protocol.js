@@ -18,6 +18,14 @@ export const relayClosed = 'relay.closed';
 export const relayError = 'relay.error';
 export const relayKick = 'relay.kick';
 
+// KLD-088: table rooms for 2–3 guests (`?create&guests=N`); guest lines
+// travel wrapped (`relay.from` / `relay.to`), each guest named by `peer`.
+export const relayGuestsParam = 'guests';
+export const relayMaxGuests = 3;
+export const relayFrom = 'relay.from';
+export const relayTo = 'relay.to';
+export const relayPeerField = 'peer';
+
 export const relayClubParam = 'club';
 export const relayErrorClubMissing = 'club-missing';
 export const relayErrorClubWrong = 'club-wrong';

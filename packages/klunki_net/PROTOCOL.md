@@ -751,7 +751,7 @@ relay and a client, never forwarded.
 **Rules.**
 - **Codes:** 5 characters from `23456789ABCDEFGHJKMNPQRSTUVWXYZ` (no 0/O, 1/I/L;
   31^5 ≈ 28.6 million codes), random (`Random.secure`), unique among open rooms.
-- **One guest per room.** A second guest gets `relay.error "room CODE is full"`.
+- **One guest per room** (a table room: N, see "Table rooms"). A second guest gets `relay.error "room CODE is full"`.
   A guest whose connection silently died keeps its slot until the host session
   notices (keepalive timeout, 10 s) and kicks it, or the relay's WebSocket ping
   (every 20 s) detects it; then the guest can rejoin.
@@ -795,6 +795,40 @@ relay and a client, never forwarded.
   same vectors, `test/relay_vectors.json` (`relay_vectors_test.dart` here).
   The Worker's wrong-code limit counts per client address as Cloudflare
   reports it (`CF-Connecting-IP`), per isolate.
+
+### Table rooms (KLD-088 step 4): several guests
+
+A table (see "Tables") through a relay needs a room for up to three
+guests. The host asks for one with **`?create&guests=N`** (N = 2 or 3, the
+table's players minus one); `guests` must be 1–3 (`relay.error "bad
+request: guests must be 1 to 3"` otherwise; 1 or absent = the classic room
+above, unchanged). The relay repeats it in `relay.room {code, key, guests}`
+(also after `?resume`); a host that gets no `guests` back is on an older
+relay that would let only one guest in, and gives up (`NetException("relay:
+this relay cannot host a game for more than two players")`).
+
+Guests join as always (`?join=CODE`; the room is full with N guests). They
+see no difference: game lines reach them unwrapped. The host's side is
+wrapped, because one connection now carries several guests:
+
+| `t` | direction | fields | meaning |
+|---|---|---|---|
+| `relay.peer` | relay → host | `peer` | a guest joined; `peer` is its number in this room (1, 2, 3, …; never reused) |
+| `relay.from` | relay → host | `peer`, `line` | one game line from that guest, unchanged inside `line` |
+| `relay.to` | host → relay | `peer`, `line` | deliver `line` to that guest unchanged (dropped if that guest is gone) |
+| `relay.left` | relay → host | `peer`, `reason` | that guest's connection ended |
+| `relay.kick` | host → relay | `peer` | drop that guest (no `relay.left` follows) |
+
+In a table room the host's plain (unwrapped) lines and a `relay.kick`
+without `peer` are ignored. `line` is limited like a frame (256 Ki
+characters); the host's wrapped frames may be up to twice that plus 1 Ki
+(JSON escaping). Everything else (host away and back, idle expiry, club
+codes, a guest's control line refused) is as in a classic room; a host that
+comes back drops every guest, which rejoin with their tokens. The host
+session (`KlunkiHost.startRelay`) opens a table room by itself for a config
+with 3–4 players; each guest of the room is one connection to it. Both the
+Dart relay and the Worker (`deploy/cloudflare`) implement table rooms and
+share the vectors in `test/relay_vectors.json`.
 
 ### Club codes (KLD-112): a gated relay
 

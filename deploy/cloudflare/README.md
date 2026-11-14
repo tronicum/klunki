@@ -99,6 +99,11 @@ at any time, `RelayRoom` keeps no state in memory at all: host and guest are soc
 last activity and the "already gone" flag live in each socket's attachment. The tests evict every object after
 every step to prove it.
 
+**Table rooms (KLD-088).** A host of a game for 3–4 players opens a room with `?create&guests=N` (2 or 3): the room
+takes that many guests at once, each guest socket carries its `peer` number (the next one is in storage), and guest
+lines travel wrapped (`relay.from {peer, line}` to the host, `relay.to {peer, line}` from it), as in the Dart relay
+(PROTOCOL.md, "Table rooms"). A classic room (no `guests`) is unchanged.
+
 The KLD-051 note hoped to answer our keepalive pings with `setWebSocketAutoResponse` so that rooms could sleep
 during a game. That does **not** fit the protocol: `ping` / `pong` are **game messages between host and guest**
 (`{"type":"ping","v":3}`, PROTOCOL.md "Keepalive"), forwarded by the relay, and they are how each side notices

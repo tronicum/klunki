@@ -123,6 +123,7 @@ void main() {
           room = msg['code'] as String;
           key = msg['key'] as String?;
           expect(normalizeRoomCode(room), room, reason: at);
+          expect(msg['guests'], step['guests'], reason: '$at: table room size (KLD-088)');
         } else if (step['recv'] case final String who) {
           expect(jsonDecode(await peers[who]!.next(at)), fillJson(step['json']), reason: at);
         } else if (step['recvText'] case final String who) {

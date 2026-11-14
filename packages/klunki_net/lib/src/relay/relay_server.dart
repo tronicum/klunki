@@ -9,6 +9,11 @@ import 'relay_protocol.dart';
 /// host and one guest, plus optional static serving of the built PWA. Runs
 /// no game logic; see PROTOCOL.md, "Relay".
 ///
+/// - `GET /relay?create&guests=N` (N = 2–3, KLD-088): a **table room** for
+///   up to N guests at once. Guest lines reach the host wrapped as
+///   `relay.from {peer, line}`, the host answers with `relay.to {peer,
+///   line}`; `relay.peer`, `relay.left` and `relay.kick` name the `peer`.
+///
 /// - `GET /relay?create` (WebSocket): opens a room; the host gets
 ///   `relay.room {code}`, later `relay.peer` when a guest joined and
 ///   `relay.left` when that guest's connection ended (the room stays open,
@@ -161,7 +166,7 @@ class RelayServer {
       if (!await _clubAdmits(ws, request, query[relayClubParam])) return;
       if (_closed) return _refuse(ws, 'relay shutting down');
     }
-    if (query.containsKey('create')) return _create(ws);
+    if (query.containsKey('create')) return _create(ws, query[relayGuestsParam]);
     final join = query['join'];
     if (join != null) return _join(ws, join);
     final resume = query[relayResumeParam];
@@ -169,13 +174,18 @@ class RelayServer {
     _refuse(ws, 'bad request: use ?create or ?join=CODE');
   }
 
-  void _create(WebSocket ws) {
+  /// [guests]: the `guests` parameter of a table room (KLD-088), 1–3.
+  void _create(WebSocket ws, String? guests) {
+    final capacity = guests == null ? 1 : int.tryParse(guests);
+    if (capacity == null || capacity < 1 || capacity > relayMaxGuests) {
+      return _refuse(ws, 'bad request: guests must be 1 to $relayMaxGuests');
+    }
     if (_rooms.length >= maxRooms) return _refuse(ws, 'too many rooms, try again later');
     String code;
     do {
       code = newRoomCode(_random);
     } while (_rooms.containsKey(code));
-    final room = _rooms[code] = _Room(this, code, _newKey());
+    final room = _rooms[code] = _Room(this, code, _newKey(), capacity);
     room.attachHost(ws);
   }
 
@@ -188,7 +198,7 @@ class RelayServer {
     if (room.host == null) {
       return _refuse(ws, 'the host of room $code is away, try again in a moment', error: relayErrorHostAway);
     }
-    if (room.guest != null) return _refuse(ws, 'room $code is full');
+    if (room.full) return _refuse(ws, 'room $code is full');
     room.attachGuest(ws);
   }
 
@@ -339,22 +349,33 @@ class _Room {
   /// The secret that lets the host come back (KLD-120), sent with `relay.room`.
   final String key;
 
+  /// How many guests may be in the room at once: 1 for the classic room;
+  /// 2–3 for a table room (KLD-088), whose guest lines travel wrapped
+  /// (`relay.from` / `relay.to`, each guest named by its `peer` number).
+  final int capacity;
+
   /// The host's connection; null while the host is away (KLD-120).
   WebSocket? host;
-  WebSocket? guest;
+
+  /// The guests by peer number (at most [capacity]).
+  final Map<int, WebSocket> guests = {};
+  int _nextPeer = 1;
   final Stopwatch idle = Stopwatch()..start();
 
   /// Running while the host is away.
   Stopwatch? away;
   bool _closed = false;
 
-  _Room(this.server, this.code, this.key);
+  _Room(this.server, this.code, this.key, this.capacity);
+
+  bool get table => capacity > 1;
+  bool get full => guests.length >= capacity;
 
   void _log(String event) => server.log?.call('Room $code: $event');
 
   /// The host's connection: a new room, or the host coming back (KLD-120).
-  /// A connection the host still had is replaced, and a guest is dropped:
-  /// its session was with the host's old connection; it rejoins.
+  /// A connection the host still had is replaced, and the guests are
+  /// dropped: their sessions were with the host's old connection; they rejoin.
   void attachHost(WebSocket ws) {
     final old = host;
     final wasAway = away?.elapsed;
@@ -363,7 +384,7 @@ class _Room {
     } else if (old != null) {
       _log('host back (its old connection is replaced)');
     } else {
-      _log('opened');
+      _log(table ? 'opened for $capacity guests' : 'opened');
     }
     host = ws;
     away = null;
@@ -372,21 +393,23 @@ class _Room {
       RelayServer._send(old, relayControl(relayClosed, {'reason': 'replaced by a new host connection'}));
       RelayServer._close(old, WebSocketStatus.goingAway);
     }
-    _dropGuest();
+    _dropGuests();
     ws.done.catchError((_) {});
-    RelayServer._send(ws, relayControl(relayRoom, {'code': code, 'key': key}));
+    RelayServer._send(ws, relayControl(relayRoom, {'code': code, 'key': key, if (table) relayGuestsParam: capacity}));
     ws.listen((frame) => _fromHost(ws, frame),
         onDone: () => _hostGone(ws), onError: (_) => _hostGone(ws, failed: true));
   }
 
   void attachGuest(WebSocket ws) {
-    guest = ws;
-    _log('guest joined');
+    final peer = _nextPeer++;
+    guests[peer] = ws;
+    _log(table ? 'guest $peer joined' : 'guest joined');
     ws.done.catchError((_) {});
     idle.reset();
-    RelayServer._send(host!, relayControl(relayPeer));
-    ws.listen((frame) => _fromGuest(ws, frame),
-        onDone: () => _guestGone(ws, 'guest disconnected'), onError: (_) => _guestGone(ws, 'guest connection failed'));
+    RelayServer._send(host!, table ? relayControl(relayPeer, {relayPeerField: peer}) : relayControl(relayPeer));
+    ws.listen((frame) => _fromGuest(ws, peer, frame),
+        onDone: () => _guestGone(ws, peer, 'guest disconnected'),
+        onError: (_) => _guestGone(ws, peer, 'guest connection failed'));
   }
 
   /// The host's connection [ws] ended. A clean close (code 1000, or none)
@@ -404,16 +427,17 @@ class _Room {
     _log('host away ($how), the room waits ${server.hostGrace.inSeconds} s for it');
     host = null;
     away = Stopwatch()..start();
-    _dropGuest();
+    _dropGuests();
   }
 
-  /// Checks one frame; returns the line to forward, or null after refusing.
-  String? _check(WebSocket from, Object? frame) {
+  /// Checks one frame against [limit] (default: the relay's line limit);
+  /// returns the line to forward, or null after refusing.
+  String? _check(WebSocket from, Object? frame, {int? limit}) {
     if (frame is! String) {
       _violation(from, 'binary frames are not relayed');
       return null;
     }
-    if (frame.length > server.maxLineLength) {
+    if (frame.length > (limit ?? server.maxLineLength)) {
       _violation(from, 'line too long (max ${server.maxLineLength} characters)');
       return null;
     }
@@ -422,26 +446,43 @@ class _Room {
 
   void _fromHost(WebSocket ws, Object? frame) {
     if (_closed || !identical(ws, host)) return;
-    final line = _check(ws, frame);
+    // A table room's lines are wrapped: room for the escaping of `line`.
+    final line = _check(ws, frame, limit: table ? 2 * server.maxLineLength + 1024 : null);
     if (line == null) return;
     idle.reset();
     final control = parseRelayControl(line);
-    if (control != null) {
-      if (control['t'] == relayKick) _dropGuest();
-      return; // other control lines from the host are ignored
+    if (control == null) {
+      // The classic room forwards the line; a table room needs `relay.to`.
+      if (!table) guests.values.forEach((g) => RelayServer._send(g, line));
+      return;
     }
-    final g = guest;
-    if (g != null) RelayServer._send(g, line);
+    final peer = control[relayPeerField];
+    switch (control['t']) {
+      case relayKick when !table:
+        _dropGuests();
+      case relayKick when peer is int:
+        _dropGuest(peer);
+      case relayTo when table && peer is int:
+        final inner = control['line'];
+        if (inner is! String || inner.length > server.maxLineLength) {
+          return _violation(ws, 'line too long (max ${server.maxLineLength} characters)');
+        }
+        final g = guests[peer];
+        if (g != null) RelayServer._send(g, inner);
+      default:
+        break; // other control lines from the host are ignored
+    }
   }
 
-  void _fromGuest(WebSocket ws, Object? frame) {
-    if (_closed || !identical(ws, guest)) return;
+  void _fromGuest(WebSocket ws, int peer, Object? frame) {
+    if (_closed || !identical(ws, guests[peer])) return;
     final line = _check(ws, frame);
     if (line == null) return;
     if (parseRelayControl(line) != null) return _violation(ws, 'relay control messages are not allowed from a guest');
     idle.reset();
     final h = host;
-    if (h != null) RelayServer._send(h, line);
+    if (h == null) return;
+    RelayServer._send(h, table ? relayControl(relayFrom, {relayPeerField: peer, 'line': line}) : line);
   }
 
   /// A rule broken by [ws]: `relay.error`, then close. The host breaking a
@@ -451,42 +492,53 @@ class _Room {
     if (identical(ws, host)) {
       shutDown('host broke the relay rules');
     } else {
-      _guestGone(ws, message);
+      for (final MapEntry(key: peer, value: g) in guests.entries.toList()) {
+        if (identical(g, ws)) _guestGone(ws, peer, message);
+      }
       RelayServer._close(ws, WebSocketStatus.policyViolation);
     }
   }
 
-  /// Drops the guest without `relay.left`: the host asked for it
-  /// (`relay.kick`), or the host's connection changed (KLD-120).
-  void _dropGuest() {
-    final g = guest;
-    if (g == null) return;
-    guest = null;
-    RelayServer._close(g);
+  /// Drops guest [peer] without `relay.left`: the host asked for it
+  /// (`relay.kick`).
+  void _dropGuest(int peer) {
+    final g = guests.remove(peer);
+    if (g != null) RelayServer._close(g);
   }
 
-  void _guestGone(WebSocket ws, String reason) {
-    if (_closed || !identical(ws, guest)) return;
-    guest = null;
-    _log('guest gone ($reason, close code ${ws.closeCode})');
+  /// Drops every guest without `relay.left`: the host asked for it (a
+  /// classic room's `relay.kick`), or the host's connection changed (KLD-120).
+  void _dropGuests() {
+    for (final peer in guests.keys.toList()) {
+      _dropGuest(peer);
+    }
+  }
+
+  void _guestGone(WebSocket ws, int peer, String reason) {
+    if (_closed || !identical(ws, guests[peer])) return;
+    guests.remove(peer);
+    _log('guest${table ? ' $peer' : ''} gone ($reason, close code ${ws.closeCode})');
     final h = host;
-    if (h != null) RelayServer._send(h, relayControl(relayLeft, {'reason': reason}));
+    if (h != null) {
+      RelayServer._send(
+          h, relayControl(relayLeft, {if (table) relayPeerField: peer, 'reason': reason}));
+    }
   }
 
-  /// Closes the room: the guest and (if still there) the host get
-  /// `relay.closed {reason}`, then both connections are closed.
+  /// Closes the room: the guests and (if still there) the host get
+  /// `relay.closed {reason}`, then every connection is closed.
   void shutDown(String reason) {
     if (_closed) return;
     _closed = true;
     _log('closed: $reason');
     server._rooms.remove(code);
-    for (final ws in [host, guest]) {
+    for (final ws in [host, ...guests.values]) {
       if (ws == null) continue;
       RelayServer._send(ws, relayControl(relayClosed, {'reason': reason}));
       RelayServer._close(ws, WebSocketStatus.goingAway);
     }
     host = null;
-    guest = null;
+    guests.clear();
   }
 }
 

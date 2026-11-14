@@ -7,10 +7,12 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:klunki_net/klunki_net.dart';
+import 'package:klunki_net/relay_server.dart';
 import 'package:test/test.dart';
 
 import 'support.dart';
@@ -98,21 +100,33 @@ class _Table {
 }
 
 /// Starts a table of [players] and lets its guests join, alternating TCP
-/// and WebSocket.
-Future<_Table> _startTable(GameConfig config) async {
-  final host = await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+/// and WebSocket, or all through the relay at [relay].
+Future<_Table> _startTable(GameConfig config, {Uri? relay}) async {
+  final host = relay != null
+      ? await KlunkiHost.startRelay(config, relay, name: 'Anna', pingInterval: _ping, timeout: _timeout)
+      : await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
   final wire = _Wire()..attach(host);
   const names = ['Ben', 'Cleo', 'Dani'];
   final guests = <KlunkiGuest>[];
   for (var i = 0; i < config.players - 1; i++) {
-    guests.add(i.isEven
-        ? await KlunkiGuest.connect(loopback, host.port, name: names[i], pingInterval: _ping, timeout: _timeout)
-        : await KlunkiGuest.connectWebSocket(webSocketUri(loopback.address, host.wsPort!),
-            name: names[i], pingInterval: _ping, timeout: _timeout));
+    guests.add(relay != null
+        ? await KlunkiGuest.connectRelay(relay, host.roomCode!, name: names[i], pingInterval: _ping, timeout: _timeout)
+        : i.isEven
+            ? await KlunkiGuest.connect(loopback, host.port, name: names[i], pingInterval: _ping, timeout: _timeout)
+            : await KlunkiGuest.connectWebSocket(webSocketUri(loopback.address, host.wsPort!),
+                name: names[i], pingInterval: _ping, timeout: _timeout));
+    expect(guests.last.seat, i + 1);
   }
   final table = _Table(host, guests, wire);
   await until(() => host.started && guests.every((g) => g.started));
   return table;
+}
+
+/// A relay on loopback; closed after the test.
+Future<Uri> _relay() async {
+  final relay = await RelayServer.start(port: 0, address: loopback);
+  addTearDown(relay.close);
+  return Uri.parse('ws://${loopback.address}:${relay.port}/relay');
 }
 
 /// Placements that fit the board, whatever the words.
@@ -434,6 +448,55 @@ void main() {
     final welcome2 = await peer2.next('welcome');
     expect(welcome2['you'], 'b');
     expect(welcome2.containsKey('seat'), isFalse);
+  });
+
+  for (final players in [3, 4]) {
+    test('$players players through a relay (a table room): a whole game, every guest verifies', () async {
+      final url = await _relay();
+      final t = await _startTable(GameConfig('wordtiles', seed: 40 + players, players: players), relay: url);
+      addTearDown(t.close);
+      expect(t.host.roomCode, isNotNull);
+      // The room is full: a latecomer is refused by the relay already.
+      await expectLater(KlunkiGuest.connectRelay(url, t.host.roomCode!, name: 'Eve', timeout: _timeout),
+          throwsA(isA<NetException>().having((e) => e.message, 'message', contains('full'))));
+      await _playToEnd(t, 7 * players, calmAfter: 30);
+    });
+  }
+
+  test('through a relay a guest that drops pauses the table and rejoins its room seat', () async {
+    final url = await _relay();
+    final t = await _startTable(const GameConfig('wordtiles', seed: 4, players: 3), relay: url);
+    addTearDown(t.close);
+    expect(await t.play(0, const {'action': 'pass'}), isNull);
+    final ben = t.guests[0];
+    final token = ben.token;
+    await ben.close();
+    await until(() => t.host.paused && t.guests[1].paused);
+    final again = await KlunkiGuest.connectRelay(url, t.host.roomCode!,
+        name: 'Ben', token: token, pingInterval: _ping, timeout: _timeout);
+    t.guests[0] = again;
+    expect(again.seat, 1);
+    expect(again.moves.length, 1);
+    await until(() => !t.host.paused && !t.guests[1].paused);
+    expect(await t.play(1, const {'action': 'pass'}), isNull);
+  });
+
+  test('a relay without table rooms (older) refuses to host a table', () async {
+    // An old relay: answers ?create with relay.room but no `guests`.
+    final server = await HttpServer.bind(loopback, 0);
+    addTearDown(() => server.close(force: true));
+    final queries = <String>[];
+    server.listen((request) async {
+      queries.add(request.uri.query);
+      final ws = await WebSocketTransformer.upgrade(request);
+      ws.add(jsonEncode({'t': 'relay.room', 'code': 'K7Q2M', 'key': 'a' * 32}));
+      ws.listen((_) {}, onDone: () {});
+    });
+    final url = Uri.parse('ws://${loopback.address}:${server.port}/relay');
+    await expectLater(
+        KlunkiHost.startRelay(const GameConfig('wordtiles', players: 3), url, timeout: _timeout),
+        throwsA(isA<NetException>().having((e) => e.message, 'message', contains('more than two players'))));
+    expect(queries.single, 'create&guests=2');
   });
 
   test('a table needs a game that knows seats; the host is seat 0', () async {

@@ -1,5 +1,5 @@
 {
-  "about": "Relay protocol vectors (KLD-114). The Dart relay (test/relay_vectors_test.dart, real sockets) and the Cloudflare Worker port (deploy/cloudflare/test, fakes) both run every scenario and must agree. Steps: open a connection (query appended to /relay, {room} = the code from the last 'room' step, {roomLower} = the same in lower case); 'room' expects relay.room and keeps its code (and its host key as {key}, KLD-120); 'recv' expects one JSON message (compared as JSON), 'recvText' one exact line, 'recvFill' a line of N 'x'; 'send' a text line (or 'fill': N times 'x'), 'sendBinary' a binary frame; 'closed' expects no further message and the relay closing with 'code'; 'close' closes from the client side (with 'code': that close code, else a normal close). Limits are the defaults: 256 Ki characters per frame.",
+  "about": "Relay protocol vectors (KLD-114). The Dart relay (test/relay_vectors_test.dart, real sockets) and the Cloudflare Worker port (deploy/cloudflare/test, fakes) both run every scenario and must agree. Steps: open a connection (query appended to /relay, {room} = the code from the last 'room' step, {roomLower} = the same in lower case); 'room' expects relay.room and keeps its code (and its host key as {key}, KLD-120; with 'guests' also that table room size, KLD-088); 'recv' expects one JSON message (compared as JSON), 'recvText' one exact line, 'recvFill' a line of N 'x'; 'send' a text line (or 'fill': N times 'x'), 'sendBinary' a binary frame; 'closed' expects no further message and the relay closing with 'code'; 'close' closes from the client side (with 'code': that close code, else a normal close). Limits are the defaults: 256 Ki characters per frame.",
   "normalizeRoomCode": [
     ["K7Q2M", "K7Q2M"],
     ["k7q-2m", "K7Q2M"],
@@ -269,6 +269,73 @@
         {"recv": "h2", "json": {"t": "relay.peer"}},
         {"send": "h2", "text": "still the same room"},
         {"recvText": "g2", "text": "still the same room"}
+      ]
+    },
+    {
+      "name": "KLD-088: a table room for two guests wraps their lines, names them by peer, and is full at two",
+      "steps": [
+        {"open": "h", "query": "create&guests=2"},
+        {"room": "h", "guests": 2},
+        {"open": "g1", "query": "join={roomLower}"},
+        {"recv": "h", "json": {"t": "relay.peer", "peer": 1}},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer", "peer": 2}},
+        {"open": "g3", "query": "join={room}"},
+        {"recv": "g3", "json": {"t": "relay.error", "message": "room {room} is full"}},
+        {"closed": "g3", "code": 1008},
+        {"send": "g1", "text": "{\"type\":\"hello\",\"v\":3,\"maxProtocol\":4}"},
+        {"recv": "h", "json": {"t": "relay.from", "peer": 1, "line": "{\"type\":\"hello\",\"v\":3,\"maxProtocol\":4}"}},
+        {"send": "g2", "text": "not json at all"},
+        {"recv": "h", "json": {"t": "relay.from", "peer": 2, "line": "not json at all"}},
+        {"send": "h", "text": "{\"t\":\"relay.to\",\"peer\":2,\"line\":\"{\\\"type\\\":\\\"welcome\\\",  \\\"v\\\":4}\"}"},
+        {"recvText": "g2", "text": "{\"type\":\"welcome\",  \"v\":4}"},
+        {"send": "h", "text": "{\"type\":\"ping\",\"v\":4}"},
+        {"send": "h", "text": "{\"t\":\"relay.to\",\"peer\":1,\"line\":\"only for one\"}"},
+        {"recvText": "g1", "text": "only for one"},
+        {"close": "g1"},
+        {"recv": "h", "json": {"t": "relay.left", "peer": 1, "reason": "guest disconnected"}},
+        {"open": "g4", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer", "peer": 3}},
+        {"send": "h", "text": "{\"t\":\"relay.to\",\"peer\":2,\"line\":\"{\\\"type\\\":\\\"error\\\",\\\"v\\\":4,\\\"message\\\":\\\"session full\\\"}\"}"},
+        {"send": "h", "text": "{\"t\":\"relay.kick\",\"peer\":2}"},
+        {"recvText": "g2", "text": "{\"type\":\"error\",\"v\":4,\"message\":\"session full\"}"},
+        {"closed": "g2", "code": 1000},
+        {"send": "g4", "text": "{\"t\":\"relay.room\",\"code\":\"22222\"}"},
+        {"recv": "g4", "json": {"t": "relay.error", "message": "relay control messages are not allowed from a guest"}},
+        {"closed": "g4", "code": 1008},
+        {"recv": "h", "json": {"t": "relay.left", "peer": 3, "reason": "relay control messages are not allowed from a guest"}},
+        {"open": "g5", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer", "peer": 4}},
+        {"send": "g5", "text": "hi"},
+        {"recv": "h", "json": {"t": "relay.from", "peer": 4, "line": "hi"}}
+      ]
+    },
+    {
+      "name": "KLD-088: a table room comes back with its size; the host leaving closes it for every guest; a bad size is refused",
+      "steps": [
+        {"open": "h", "query": "create&guests=3"},
+        {"room": "h", "guests": 3},
+        {"open": "g1", "query": "join={room}"},
+        {"recv": "h", "json": {"t": "relay.peer", "peer": 1}},
+        {"close": "h", "code": 4000},
+        {"closed": "g1", "code": 1000},
+        {"open": "h2", "query": "resume={room}&key={key}"},
+        {"recv": "h2", "json": {"t": "relay.room", "code": "{room}", "key": "{key}", "guests": 3}},
+        {"open": "g2", "query": "join={room}"},
+        {"recv": "h2", "json": {"t": "relay.peer", "peer": 2}},
+        {"open": "g3", "query": "join={room}"},
+        {"recv": "h2", "json": {"t": "relay.peer", "peer": 3}},
+        {"close": "h2"},
+        {"recv": "g2", "json": {"t": "relay.closed", "reason": "host left"}},
+        {"closed": "g2", "code": 1001},
+        {"recv": "g3", "json": {"t": "relay.closed", "reason": "host left"}},
+        {"closed": "g3", "code": 1001},
+        {"open": "x", "query": "create&guests=4"},
+        {"recv": "x", "json": {"t": "relay.error", "message": "bad request: guests must be 1 to 3"}},
+        {"closed": "x", "code": 1008},
+        {"open": "y", "query": "create&guests=two"},
+        {"recv": "y", "json": {"t": "relay.error", "message": "bad request: guests must be 1 to 3"}},
+        {"closed": "y", "code": 1008}
       ]
     }
   ]
