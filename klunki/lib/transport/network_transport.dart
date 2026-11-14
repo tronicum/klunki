@@ -60,6 +60,15 @@ enum NetRole { host, guest }
 /// A chess game with a clock (KLD-126, [ClockedTransport]): [clock] is the
 /// host's authoritative clock on the host and the guest's local copy on the
 /// guest; the pause by agreement goes through [submit] like any move.
+///
+/// A table of 3–4 players (KLD-088 step 4, [table]): the host is seat 0, the
+/// guests sit at seats 1–3 ([seat], [seats]). The game starts when every
+/// seat is taken ([started]); a guest that is away pauses it ([paused]).
+/// [localPlayers] then has one placeholder entry (seats 2 and 3 have no
+/// [Player]); read [seat]. On the host [connection] is
+/// [NetConnectionState.connected] only while every seat is here
+/// ([NetConnectionState.connecting] before the start,
+/// [NetConnectionState.peerMissing] while a guest is away).
 class NetworkTransport implements GameTransport, ClockedTransport {
   final NetRole role;
   final KlunkiHost? _host;
@@ -92,7 +101,7 @@ class NetworkTransport implements GameTransport, ClockedTransport {
         reconnectFor = Duration.zero,
         _host = host,
         _guest = null,
-        _state = ValueNotifier(host.guestConnected ? NetConnectionState.connected : NetConnectionState.connecting),
+        _state = ValueNotifier(_hostState(host)),
         _peerName = host.guestName {
     _init(host.events);
   }
@@ -231,8 +240,33 @@ class NetworkTransport implements GameTransport, ClockedTransport {
   @override
   GameConfig get config => _host?.config ?? _guest!.config;
 
-  /// This device's player.
-  Player get me => _host?.me ?? _guest!.me;
+  /// This device's player. At a [table] seat 2 or 3 has no [Player]: a
+  /// placeholder ([Player.b]); read [seat].
+  Player get me => table ? (seat == 0 ? Player.a : Player.b) : _host?.me ?? _guest!.me;
+
+  /// This device's seat: [me]'s index, or its seat at a [table] (the host
+  /// is seat 0).
+  int get seat => _host != null ? _host.me.index : _guest!.seat;
+
+  /// A table of 3–4 players (KLD-088 step 4).
+  bool get table => _host?.table ?? _guest!.table;
+
+  /// A [table]'s seats (seat 0 is the host) with names and who is here;
+  /// empty for two players.
+  List<TableSeat> get seats => _host?.seats ?? _guest!.seats;
+
+  /// A [table]: every seat was taken, the game runs. Always true for two.
+  bool get started => _host?.started ?? _guest!.started;
+
+  /// A [table] waits for a guest that is away: nobody can move.
+  bool get paused => _host?.paused ?? _guest!.paused;
+
+  /// Host of a [table]: lets the guest at [seat], which is away, leave the
+  /// game (its resign; the others play on). False if not possible.
+  bool resignAwaySeat(int seat) {
+    final host = _host;
+    return host != null && host.resignAwaySeat(seat) == null;
+  }
 
   @override
   Set<Player> get localPlayers => {me};
@@ -253,8 +287,15 @@ class NetworkTransport implements GameTransport, ClockedTransport {
   Future<SubmitResult> submit(Map<String, dynamic> move) async {
     if (_disposed) return const SubmitResult.rejected(RejectReason.disconnected);
     if (game.isOver) return const SubmitResult.rejected(RejectReason.gameOver);
-    // Either player may resign at any time (KLD-065): [Game.playerOf].
-    if (game.playerOf(move) != me) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    // Either player may resign at any time (KLD-065): [Game.playerOf]; at a
+    // table the seat the move names ([SeatGame.seatOfMove]).
+    final g = game;
+    try {
+      final mover = table ? (g as SeatGame).seatOfMove(move) : g.playerOf(move).index;
+      if (mover != seat) return const SubmitResult.rejected(RejectReason.notYourTurn);
+    } catch (_) {
+      return const SubmitResult.rejected(RejectReason.illegal);
+    }
     try {
       jsonEncode(move); // a non-JSON move would break the guest's connection
     } on JsonUnsupportedObjectError {
@@ -287,7 +328,10 @@ class NetworkTransport implements GameTransport, ClockedTransport {
       return RejectReason.notYourTurn;
     }
     if (reason == 'game is over' || reason == 'time is up') return RejectReason.gameOver;
-    if (reason == 'not connected' || reason == 'disconnected') return RejectReason.disconnected;
+    // A table waits for a guest that is away (KLD-088).
+    if (reason == 'not connected' || reason == 'disconnected' || reason == 'waiting for players') {
+      return RejectReason.disconnected;
+    }
     return RejectReason.illegal; // 'illegal move', 'move is not JSON', anything else
   }
 
@@ -366,7 +410,20 @@ class NetworkTransport implements GameTransport, ClockedTransport {
   /// Fires on every [connection] change, when the room is lost
   /// ([roomLost]), when [verification] changes and when a guest is refused
   /// ([refusedGuest]); for UI that shows them.
-  late final Listenable changes = Listenable.merge([_state, _roomLost, _verification, _refusedGuest]);
+  late final Listenable changes = Listenable.merge([_state, _roomLost, _verification, _refusedGuest, _lobby]);
+
+  /// A [table]'s seats changed (someone sat down, left, went away or came
+  /// back, the game started): counts up. Also part of [changes].
+  ValueListenable<int> get lobby => _lobby;
+  final ValueNotifier<int> _lobby = ValueNotifier(0);
+
+  /// The host's [connection] at a table: connected only while every seat is
+  /// here.
+  static NetConnectionState _hostState(KlunkiHost host) {
+    if (!host.table) return host.guestConnected ? NetConnectionState.connected : NetConnectionState.connecting;
+    if (host.guestConnected) return NetConnectionState.connected;
+    return host.started ? NetConnectionState.peerMissing : NetConnectionState.connecting;
+  }
 
   /// Reason of the most recent disconnect, if any.
   String? get lastDisconnectReason => _lastDisconnectReason;
@@ -476,6 +533,14 @@ class NetworkTransport implements GameTransport, ClockedTransport {
   void _onNetEvent(NetEvent e) {
     if (_disposed) return;
     switch (e) {
+      case LobbyChanged():
+        _peerName = _host?.guestName ?? _peerName;
+        _lobby.value++;
+        if (_host != null) _setState(_hostState(_host));
+      case PeerConnected(seat: int()):
+        _refusedGuest.value = null; // a table's guest: [LobbyChanged] follows
+      case PeerDisconnected(seat: int(), :final reason):
+        _lastDisconnectReason = reason; // a table's guest away: [LobbyChanged] follows
       case PeerConnected(:final name):
         _peerName = name;
         _refusedGuest.value = null;
@@ -490,7 +555,12 @@ class NetworkTransport implements GameTransport, ClockedTransport {
       case RoomReconnecting():
         _setState(NetConnectionState.reconnecting);
       case RoomReconnected():
-        _setState(_host!.guestConnected ? NetConnectionState.connected : NetConnectionState.peerMissing);
+        final host = _host!;
+        _setState(host.table
+            ? _hostState(host)
+            : host.guestConnected
+                ? NetConnectionState.connected
+                : NetConnectionState.peerMissing);
       case MoveAccepted():
       case Resynced():
         _catchUp();
@@ -521,7 +591,9 @@ class NetworkTransport implements GameTransport, ClockedTransport {
       final event = net.event;
       if (event == null) throw StateError('accepted move #$index of $config has no event');
       final move = Map<String, dynamic>.unmodifiable(net.move);
-      final entry = AcceptedMove(index: index, player: net.player, move: move, event: event);
+      // A table's seats 2 and 3 have no Player (AcceptedMove: Player.a, read seat).
+      final entry = AcceptedMove(
+          index: index, player: net.seat < 2 ? net.player : Player.a, seat: net.seat, move: move, event: event);
       _moves.add(entry);
       _accepted.add(entry);
     }

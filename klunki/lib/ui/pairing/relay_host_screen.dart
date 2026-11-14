@@ -29,6 +29,7 @@ import 'relay_errors.dart';
 import 'relay_line.dart';
 import 'room_game_choice.dart';
 import 'room_join.dart';
+import 'table_lobby.dart';
 
 /// Hosts [config] through the relay at [relay] and completes once the relay
 /// assigned a room code.
@@ -103,6 +104,9 @@ class RelayHostScreen extends StatefulWidget {
   /// defaults.
   final RoomRules? initialRules;
 
+  /// Players already chosen (KLD-088 step 4, 2–4 for [tableGames]).
+  final int initialPlayers;
+
   const RelayHostScreen({
     super.key,
     this.hostTransport = platformRelayHost,
@@ -119,6 +123,7 @@ class RelayHostScreen extends StatefulWidget {
     this.initialWordTiles,
     this.initialChessColor,
     this.initialRules,
+    this.initialPlayers = 2,
   });
 
 
@@ -143,6 +148,10 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
 
   /// House rules (Mau-Mau, KLD-118 network step).
   late RoomRules _rules = widget.initialRules ?? const RoomRules();
+
+  /// Players at the table (KLD-088 step 4): 2–4 for [tableGames], else 2.
+  late int _playerCount = widget.initialPlayers;
+  int get _players => tableGames.contains(_gameId) ? _playerCount : 2;
   late final RelaySettings _settings = widget.relaySettings ?? RelaySettings.memory();
   bool _starting = false;
   String? _error;
@@ -223,7 +232,8 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         rackPenalty: words?.rest ?? true,
         chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a,
         // KLD-126: the clock chosen below (the last one on this device).
-        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null));
+        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null,
+        players: _players));
     NetworkTransport transport;
     try {
       transport = await widget.hostTransport(config, relay, name: playerName);
@@ -336,6 +346,16 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
             setState(() => _deck = d);
             _deckSettings.set(d);
           },
+        ),
+      ],
+      if (tableGames.contains(_gameId)) ...[
+        const SizedBox(height: 12),
+        RoomPlayerCountPicker(
+          key: const Key('relay-players'),
+          keyPrefix: 'relay-',
+          value: _playerCount,
+          enabled: !_starting,
+          onChanged: (n) => setState(() => _playerCount = n),
         ),
       ],
       if (_gameId == 'wordtiles') ...[
@@ -497,14 +517,18 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
             ),
           Text(l10n.relayWaitingHint, key: const Key('relay-host-hint'), textAlign: TextAlign.center),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-              const SizedBox(width: 12),
-              Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('relay-host-status'))),
-            ],
-          ),
+          // KLD-088 step 4: a table shows who sits down until every seat is taken.
+          if (t.table)
+            TableLobby(transport: t)
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: 12),
+                Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('relay-host-status'))),
+              ],
+            ),
           RefusedGuestNotice(transport: t),
           const SizedBox(height: 16),
           OutlinedButton(key: const Key('relay-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),

@@ -23,6 +23,10 @@ import 'relay_protocol.dart';
 /// relay without host keys (older), or one that no longer has the room,
 /// ends it as before: the [channels] stream errors with a [NetException]
 /// (then closes).
+///
+/// KLD-088: with [guests] (2–3) the listener opens a **table room**: every
+/// guest in it is its own [MessageChannel], its lines arrive wrapped
+/// (`relay.from {peer, line}`) and go out wrapped (`relay.to`).
 class RelayHostListener implements HostListener {
   /// The relay endpoint (`ws://host:port/relay`).
   final Uri relayUrl;
@@ -34,18 +38,22 @@ class RelayHostListener implements HostListener {
   /// connection dropped (KLD-120).
   final Duration reattachFor;
 
+  /// A table room's guest capacity (KLD-088), else null.
+  final int? guests;
+
   final Duration _timeout;
   final String? _clubCode;
   String? _key; // the room's host key from `relay.room` (KLD-120); null: an older relay
   _RelayLink _link;
   final _channels = StreamController<MessageChannel>();
   final _status = StreamController<NetEvent>.broadcast(sync: true);
-  _RelayPeerChannel? _current;
+  _RelayPeerChannel? _current; // the classic room's guest
+  final Map<int, _RelayPeerChannel> _peers = {}; // a table room's guests by peer number
   bool _closed = false;
   bool _reattaching = false;
   Completer<void>? _wake; // completes to skip the current backoff wait
 
-  RelayHostListener._(this.relayUrl, this._link, this._timeout, this._clubCode, this.reattachFor)
+  RelayHostListener._(this.relayUrl, this._link, this._timeout, this._clubCode, this.reattachFor, this.guests)
       : code = _link.code!,
         _key = _link.key {
     _link.attach(_onLine, _onRelayGone);
@@ -54,12 +62,21 @@ class RelayHostListener implements HostListener {
   /// Connects to [relayUrl], creates a room and completes with its code.
   /// Throws [NetException] if the relay cannot be reached or refuses.
   /// [clubCode]: the club code of a gated relay (KLD-112).
+  /// [guests]: open a table room for 2–3 guests (KLD-088); throws
+  /// [NetException] (`relay: this relay cannot host a game for more than
+  /// two players`) if the relay is too old for one.
   static Future<RelayHostListener> connect(Uri relayUrl,
       {Duration timeout = const Duration(seconds: 10),
       String? clubCode,
-      Duration reattachFor = const Duration(minutes: 5)}) async {
-    final link = await _RelayLink.open(relayCreateUri(relayUrl, clubCode: clubCode), timeout);
-    return RelayHostListener._(relayUrl, link, timeout, clubCode, reattachFor);
+      Duration reattachFor = const Duration(minutes: 5),
+      int? guests}) async {
+    final link = await _RelayLink.open(relayCreateUri(relayUrl, clubCode: clubCode, guests: guests), timeout);
+    if (guests != null && link.guests != guests) {
+      unawaited(link.sub.cancel());
+      await link.channel.close();
+      throw const NetException('relay: $relayNoTablesText');
+    }
+    return RelayHostListener._(relayUrl, link, timeout, clubCode, reattachFor, guests);
   }
 
   /// Relay rooms have no ports; always 0.
@@ -89,8 +106,7 @@ class RelayHostListener implements HostListener {
     if (_closed) return;
     _closed = true;
     _wake?.complete();
-    _current?._end();
-    _current = null;
+    _endPeers();
     await _link.sub.cancel();
     await _link.channel.close();
     if (!_channels.isClosed) await _channels.close();
@@ -112,12 +128,23 @@ class RelayHostListener implements HostListener {
     _comeBack('reconnecting after a pause', keepOld: true);
   }
 
+  /// Ends every guest channel (the room is gone, or the connection changed).
+  void _endPeers() {
+    _current?._end();
+    _current = null;
+    for (final p in _peers.values) {
+      p._end();
+    }
+    _peers.clear();
+  }
+
   void _onLine(String line) {
     final control = parseRelayControl(line);
     if (control == null) {
-      _current?._incoming.add(line);
+      if (guests == null) _current?._incoming.add(line); // a table room's lines come wrapped
       return;
     }
+    if (guests != null) return _onTableControl(control);
     switch (control['t']) {
       case relayPeer:
         _current?._end(); // cannot happen: the relay reports `left` first
@@ -135,6 +162,29 @@ class RelayHostListener implements HostListener {
     }
   }
 
+  /// A table room's control line: guests arrive, leave, and send lines by
+  /// their peer number.
+  void _onTableControl(Map<String, dynamic> control) {
+    final peer = control[relayPeerField];
+    switch (control['t']) {
+      case relayPeer when peer is int:
+        _peers.remove(peer)?._end();
+        final channel = _peers[peer] = _RelayPeerChannel(this, peer);
+        if (!_channels.isClosed) _channels.add(channel);
+      case relayLeft when peer is int:
+        _peers.remove(peer)?._end();
+      case relayFrom when peer is int:
+        final line = control['line'];
+        if (line is String) _peers[peer]?._incoming.add(line);
+      case relayClosed:
+        _fail('relay: ${control['reason'] ?? 'room closed'}');
+      case relayError:
+        _fail('relay: ${relayRefusalText(control, 'error')}');
+      default:
+        break; // forward compatible
+    }
+  }
+
   /// The relay connection ended without a word from the relay (network
   /// loss, the relay's ping went unanswered while the app was suspended).
   void _onRelayGone(String reason) {
@@ -147,8 +197,7 @@ class RelayHostListener implements HostListener {
   /// good (the room is gone), or [reattachFor] has passed.
   Future<void> _comeBack(String reason, {required bool keepOld}) async {
     _reattaching = true;
-    _current?._end();
-    _current = null;
+    _endPeers();
     final old = _link;
     unawaited(old.sub.cancel());
     // The old connection is closed only once the new one is in (or as
@@ -197,8 +246,7 @@ class RelayHostListener implements HostListener {
     if (_closed) return;
     _closed = true;
     _wake?.complete();
-    _current?._end();
-    _current = null;
+    _endPeers();
     _link.sub.cancel();
     _link.channel.close();
     if (!_channels.isClosed) {
@@ -218,6 +266,7 @@ class _RelayLink {
   late final StreamSubscription<String> sub;
   String? code;
   String? key;
+  int? guests; // a table room's capacity, as the relay repeated it (KLD-088)
   void Function(String line)? _onLine;
   void Function(String reason)? _onGone;
   final List<String> _early = [];
@@ -246,9 +295,11 @@ class _RelayLink {
       final code = control?['code'];
       if (control?['t'] == relayRoom && code is String) {
         final key = control!['key'];
+        final guests = control[relayGuestsParam];
         link
           ..code = code
-          ..key = key is String && key.isNotEmpty ? key : null;
+          ..key = key is String && key.isNotEmpty ? key : null
+          ..guests = guests is int ? guests : null;
         first.complete(link);
       } else if (control?['t'] == relayError) {
         fail('relay: ${relayRefusalText(control!, 'refused')}');
@@ -295,11 +346,15 @@ class _RelayLink {
 /// One guest connection inside a relay room.
 class _RelayPeerChannel implements MessageChannel {
   final RelayHostListener _listener;
+
+  /// The guest's number in a table room (KLD-088), else null.
+  final int? peer;
   final _incoming = StreamController<String>();
 
-  _RelayPeerChannel(this._listener);
+  _RelayPeerChannel(this._listener, [this.peer]);
 
-  bool get _active => identical(_listener._current, this) && !_listener._closed;
+  bool get _active =>
+      !_listener._closed && (peer == null ? identical(_listener._current, this) : identical(_listener._peers[peer], this));
 
   @override
   Stream<String> get messages => _incoming.stream;
@@ -310,16 +365,18 @@ class _RelayPeerChannel implements MessageChannel {
   @override
   void send(String message) {
     if (!_active) throw StateError('relay guest is gone');
-    _listener._link.channel.send(message);
+    final p = peer;
+    _listener._link.channel.send(p == null ? message : relayControl(relayTo, {relayPeerField: p, 'line': message}));
   }
 
   /// Asks the relay to drop this guest (after the lines sent so far).
   @override
   Future<void> close() async {
     if (_active) {
-      _listener._current = null;
+      final p = peer;
+      p == null ? _listener._current = null : _listener._peers.remove(p);
       try {
-        _listener._link.channel.send(relayControl(relayKick));
+        _listener._link.channel.send(relayControl(relayKick, {if (p != null) relayPeerField: p}));
       } catch (_) {}
     }
     _end();

@@ -816,6 +816,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingWaitingForGuest => '等待对方加入…';
 
   @override
+  String tableWaitingFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还在等待 $count 名玩家…',
+      one: '还在等待 1 名玩家…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tableSeatFree => '空位';
+
+  @override
+  String get tableSeatAway => '未连接';
+
+  @override
+  String tablePaused(String players) {
+    return '已暂停：等待 $players…';
+  }
+
+  @override
+  String tableLetLeave(String player) {
+    return '不等 $player，继续玩';
+  }
+
+  @override
+  String get tableLobbyTitle => '房间里的玩家';
+
+  @override
+  String get tableRelayTooOld => '这个服务器不支持两人以上的游戏。';
+
+  @override
   String get pairingCancel => '取消';
 
   @override

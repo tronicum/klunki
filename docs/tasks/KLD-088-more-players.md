@@ -5,7 +5,8 @@
 - **Milestone:** Long-term games
 - **Status:** IN_PROGRESS: step 1 ✅ (design + seat interface + Wortgewandt engine for 2–4 seats); the generic
   hot-seat seat shell ✅ via KLD-119 (Ausgewürfelt, 2–4 players, no secrets); step 2 ✅ via KLD-125 (Wortgewandt
-  for 3–4 on one device); next: step 3 (Baulöwe), step 4 (n-player network)
+  for 3–4 on one device); step 4 ✅ for Wortgewandt (3–4 players over the network: protocol 4 tables, lobby,
+  relay table rooms, app); next: step 3 (Baulöwe), Baulöwe over the network
 - **Depends on:** KLD-094 (Wortgewandt), KLD-060 (Baulöwe engine, the first n-seat engine), KLD-064 (redaction),
   KLD-085 (fingerprint), KLD-103 (player names)
 - **Touched paths (step 1):**
@@ -114,8 +115,8 @@ What needs to change (all keyed by seat instead of `Player`, 2-player paths unto
 - **Relay:** a relay room with more than one guest (the relay pairs one host with one guest today).
 - **Disconnects:** a missing guest pauses the game for everyone; after a timeout the host can let the seat
   leave (counts as resign).
-- Until then: `KlunkiHost.start` / `startRelay` refuse `players != 2`, a guest refuses such a `welcome`
-  (PROTOCOL.md).
+- Built in step 4 for Wortgewandt (see "Step 4" below; the protocol is not bumped for two players, a table
+  negotiates protocol 4).
 
 ### Which games
 | game | seats | notes |
@@ -194,10 +195,47 @@ no protocol bump (3–4 seats never go on the wire yet).
 - [x] Step 2: hot-seat 3–4 players for Wortgewandt through the real UI (live-UI game, screenshots, 7 locales):
       done as KLD-125 (`docs/tasks/KLD-125-wordtiles-four-players.md`).
 - [ ] Step 3: Baulöwe as `SeatGame` in the registry.
-- [ ] Step 4: n-player network (protocol bump, lobby, per-seat redaction and commitments).
+- [x] Step 4: n-player network (protocol 4 for tables, lobby, per-seat redaction and commitments, relay table
+      rooms) for Wortgewandt: real-socket games with 3 and 4 players, a peeking check, a live-UI game on three
+      devices, screenshots `kld088net`. Baulöwe over the network follows its step 3.
+
+## Step 4 (network for 3–4, Wortgewandt): what was built
+- **Protocol (PROTOCOL.md, "Tables"):** two-player sessions stay protocol 3 byte for byte, so old and new builds
+  still play together. A guest of this build says `maxProtocol: 4` in its v3 hello; a host with
+  `GameConfig.players > 2` answers with a v4 hello and talks v4 to it (`tableProtocolVersion`). An older guest
+  gets `incompatible protocol` (`protocol: 4`) instead of a game it cannot show.
+- **Seats:** the host is seat 0, guests sit at the first free seat in join order (`welcome.seat`, a rejoin token
+  per seat). A `lobby` message (`seats: [{name, here} | null]`, `started`) goes to everyone on every change. The
+  game starts by itself when every seat is taken; before that a guest that leaves frees its seat. `accepted`
+  carries `seat`.
+- **Away:** a guest that drops pauses the table (`waiting for players` for every move, the lobby says who is
+  away); it comes back with its token. The host can let it leave (`KlunkiHost.resignAwaySeat`, its seat
+  resigns, the others play on).
+- **Secrecy per seat:** `Redaction.seats`, `seatView`, `redactSeatMove`, `seatStep`: each guest gets its own
+  redacted step (another seat's exchange only as a count) and its own commitments (a fresh salt per viewer);
+  the `reveal` per guest is checked by `verifyRedactedGame(seat: …)`.
+- **Relay:** `?create&guests=N` (N = 2–3) opens a table room; guest lines reach the host as `relay.from {peer,
+  line}`, the host answers `relay.to {peer, line}`; `relay.peer`, `relay.left` and `relay.kick` name the peer.
+  A relay without table rooms answers without `guests` and the host says so ("Dieser Server kann keine Spiele
+  mit mehr als zwei Personen ausrichten."). Dart relay, Cloudflare Worker and `relay_vectors.json` agree.
+- **App:** "Raum starten" for Wortgewandt asks "Wie viele spielen mit?" 2 · 3 · 4 (also on the relay screen);
+  the host's waiting room and the guests' lobby list the seats ("Du: Anna", "Platz frei", "nicht verbunden")
+  and "Warte auf noch 1 Mitspieler…"; the game opens on every device once the table is full. Each device shows
+  the seat shell from its own seat without the handover cover: "Du bist am Zug" / "Cleo ist am Zug", only its
+  own rack, only its own seat can act or resign. The connection bar lists every seat; while someone is away a
+  banner says "Pause: Warte auf Cleo…" and the host gets "Ohne Cleo weiterspielen". 7 locales.
+- **Tests:** `packages/klunki_net/test/table_net_test.dart` (3 and 4 players to the end over TCP, WebSocket and
+  the relay, wire leak check per guest, lobby, pause and rejoin, letting a seat leave, a cheating host caught,
+  old guest and old relay refused, two players still v3);
+  `klunki/test/e2e/live_ui/wordtiles_table_network_live_test.dart` (3 devices through the real UI, a guest drops
+  mid-game and comes back, both guests verify); screenshots
+  `KLUNKI_SHOTS=… flutter test test/screenshots/wordtiles_table_shots_test.dart` (group `kld088net`).
+- **Not yet:** the host cannot reorder seats or start with fewer; a table cannot be resumed after the host app
+  quits (KLD-079); the browser (PWA) host flow offers 3–4 only through the relay screen.
 
 ## Open questions (🧑)
-1. **Team play 2 vs 2** (partners sit opposite, scores added)? Not planned; would be a config flag on top of seats.
+1. **Start of a table:** automatic when every seat is taken (built), or a "Los geht's" button for the host?
+2. **Team play 2 vs 2** (partners sit opposite, scores added)? Not planned; would be a config flag on top of seats.
 2. **Who starts:** always seat 0 (the first name), or a random seat (from the seed), or "draw a tile, closest to
    A starts" as at a real table?
 3. **Scoreless limit for 4:** 8 (everyone twice, implemented) or the plain 6?

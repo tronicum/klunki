@@ -34,6 +34,7 @@ import 'network_game_session.dart';
 import 'qr_scan_screen.dart';
 import 'qr_scanner_mobile.dart';
 import 'relay_host_screen.dart';
+import 'table_lobby.dart';
 import 'refused_guest_notice.dart';
 import 'relay_errors.dart';
 import 'relay_line.dart';
@@ -305,6 +306,10 @@ class _HostPanelState extends State<_HostPanel> {
   /// The host's colour in chess (KLD-059 step 4a); random by default.
   ChessColorChoice _chessColor = defaultChessColorChoice;
 
+  /// Players at the table (KLD-088 step 4): 2–4 for [tableGames], else 2.
+  int _playerCount = 2;
+  int get _players => tableGames.contains(_gameId) ? _playerCount : 2;
+
   /// House rules (Mau-Mau, KLD-118 network step), chosen by the host.
   RoomRules _rules = const RoomRules();
   bool _starting = false;
@@ -355,6 +360,7 @@ class _HostPanelState extends State<_HostPanel> {
           initialWordTiles: _gameId == 'wordtiles' ? _wordOptions : null,
           initialChessColor: _chessColor,
           initialRules: _rules,
+          initialPlayers: _players,
           fixedGame: widget.gameId != null,
           autoStart: true,
         ),
@@ -385,7 +391,8 @@ class _HostPanelState extends State<_HostPanel> {
         rackPenalty: words?.rest ?? true,
         chessWhite: _gameId == 'chess' ? _chessColor.whitePlayer(seed) : Player.a,
         // KLD-126: the clock chosen below (the last one on this device).
-        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null));
+        chessClock: _gameId == 'chess' ? ChessClockSettings.shared().control : null,
+        players: _players));
     final name = widget.deviceName();
     NetworkTransport transport;
     try {
@@ -511,6 +518,16 @@ class _HostPanelState extends State<_HostPanel> {
               setState(() => _deck = d);
               _deckSettings.set(d);
             },
+          ),
+        ],
+        if (tableGames.contains(_gameId)) ...[
+          const SizedBox(height: 12),
+          RoomPlayerCountPicker(
+            key: const Key('pair-players'),
+            keyPrefix: 'pair-',
+            value: _playerCount,
+            enabled: !_starting,
+            onChanged: (n) => setState(() => _playerCount = n),
           ),
         ],
         if (_gameId == 'wordtiles') ...[
@@ -646,15 +663,19 @@ class _HostPanelState extends State<_HostPanel> {
             child: Text(_advertiseError!, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
           ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-            const SizedBox(width: 12),
-            // Flexible: long translations wrap instead of overflowing (I18N-06).
-            Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
-          ],
-        ),
+        // KLD-088 step 4: a table shows who sits down until every seat is taken.
+        if (t.table)
+          TableLobby(transport: t)
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+              const SizedBox(width: 12),
+              // Flexible: long translations wrap instead of overflowing (I18N-06).
+              Flexible(child: Text(l10n.pairingWaitingForGuest, key: const Key('pair-host-status'))),
+            ],
+          ),
         RefusedGuestNotice(transport: t),
         const SizedBox(height: 16),
         OutlinedButton(key: const Key('pair-host-cancel'), onPressed: _cancel, child: Text(l10n.pairingCancel)),

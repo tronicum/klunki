@@ -1630,9 +1630,26 @@ class WordTilesRedaction extends Redaction {
   Game fromView(Map<String, dynamic> view) => WordTilesView.fromJson(view);
 
   @override
-  Map<String, dynamic> redactMove(Map<String, dynamic> move, Player mover, Player viewer) {
+  Map<String, dynamic> redactMove(Map<String, dynamic> move, Player mover, Player viewer) =>
+      redactSeatMove(move, WordTilesGame.seatOf(mover), WordTilesGame.seatOf(viewer));
+
+  /// Seats 0–3 (KLD-088 step 4: a table of 3–4 over the network).
+  @override
+  bool get seats => true;
+
+  @override
+  Map<String, dynamic> seatView(Game game, int viewer) => (game as WordTilesGame).seatViewJson(viewer);
+
+  /// Only the mover sees the tiles it exchanged; everyone else how many.
+  @override
+  Map<String, dynamic> redactSeatMove(Map<String, dynamic> move, int mover, int viewer) {
     final tiles = move['tiles'];
-    if (mover == viewer || move['action'] != 'exchange' || tiles is! List) return super.redactMove(move, mover, viewer);
+    if (mover == viewer || move['action'] != 'exchange' || tiles is! List) {
+      return jsonSafe(move) as Map<String, dynamic>;
+    }
     return {'action': 'exchange', 'count': tiles.length};
   }
+
+  @override
+  Object? redactSeatPayload(Object? payload, int mover, int viewer) => jsonSafe(payload);
 }

@@ -1,4 +1,4 @@
-# Klunki network protocol, version 3
+# Klunki network protocol, version 3 (two players) and 4 (tables of 3–4)
 
 Two devices, one connection (TCP or WebSocket). The **host** owns the
 authoritative engine and move log. For games without hidden information
@@ -13,6 +13,12 @@ Version 2 (KLD-064) added the hidden-information messages. Version 3
 disagree about a game (protocol, rules, Quartett deck data) refuse each
 other with a clear error instead of playing a diverging game. Version 1 and
 2 peers are refused (see "Build compatibility").
+
+Version 4 (KLD-088 step 4) adds **tables**: a game for 3–4 players, one host
+and up to three guests (see "Tables"). It is spoken only at a table: a
+two-player session is version 3 byte for byte (only the guest's `hello`
+gains the optional `maxProtocol`, which older hosts ignore), so builds
+before version 4 still play every two-player game with newer ones.
 
 ## Transports and framing
 The messages and rules below are identical on both transports; only the
@@ -57,7 +63,7 @@ compatible; a host without WebSocket support simply omits them.
 
 | type | direction | fields | meaning |
 |---|---|---|---|
-| `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility" |
+| `hello` | guest → host | `role: "guest"`, `name` (player name), `protocol: 3`, `maxProtocol?`, `token?`, `build`, `games` | first message on a connection; `token` only when rejoining; `build` and `games`: see "Build compatibility"; `maxProtocol: 4`: this guest can sit at a table (KLD-088, see "Tables"; ignored by a two-player host) |
 | `hello` | host → guest | `role: "host"`, `name` (player name), `protocol: 3`, `build`, `game`, `fingerprint` | reply to the guest's `hello`; `game` / `fingerprint`: the hosted game's key and fingerprint |
 | `welcome` | host → guest | `config` (`{game, seed, deck?, tiles?, dict?, joker?, white?}` = `GameConfig.toJson()`; `deck` = Quartett deck id, KLD-069, absent = cars; `tiles` (`de`/`en`) and `dict: true` = Wortgewandt tile set and word list, KLD-094; `joker: true` = Wortgewandt house rule "Joker tauschen", KLD-094 step 9; `rest: false` = Wortgewandt without "Restpunkte abziehen", KLD-094 step 10, absent = on; `white: "b"` = in chess B plays White, KLD-059 step 4a, absent = A), `you` (`"a"`/`"b"`), `moves` (array of move objects), `token`, `host` (host's player name) | snapshot: guest's player + full accepted log (games without hidden information) |
 | `welcome` (redacted) | host → guest | `config` (`{game, seed, deck?, tiles?, dict?}`; `{game, deck?, tiles?, dict?}` = `GameConfig.publicJson()` when the seed is secret: the options are public), `you`, `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log` (array of steps), `view` | snapshot of a hidden-information game, see "Hidden information" |
@@ -602,14 +608,99 @@ game the guest also checks what it can at once: each view must be its own
   "Akzeptieren") runs over the network unchanged: the next player answers
   on their own device.
 - The CLI (`klunki host wordtiles`) has no flags for `tiles` / `dict` yet.
-- **3–4 players (KLD-088 step 1): not on the wire yet.** `GameConfig` has a
-  `players` key (written only when not 2; absent = 2), but a session is host
-  + one guest: `KlunkiHost.start` / `startRelay` refuse a config with
-  `players` other than 2 (`ArgumentError`), and a guest refuses such a
-  `welcome` (an older guest would ignore the key and build a 2-player game).
-  The n-player protocol (lobby with seats, per-seat redaction and
-  commitments) is planned in `docs/tasks/KLD-088-more-players.md`; it will
-  bump `protocolVersion`.
+- **3–4 players: a table** (KLD-088 step 4), see "Tables" below. The
+  `players` key of the config (written only when not 2; absent = 2) tells
+  the guest; the views of a table carry `viewerSeat` (and `viewer` only for
+  seats 0 and 1) and `out` (the seats that left).
+
+## Tables (KLD-088 step 4): 3–4 players, protocol 4
+
+A **table** is a session for a config with `players` 3 or 4: the host is
+seat 0, up to three guests take seats 1, 2, 3, one device each. Only for
+games whose redaction knows seats (`Redaction.seats`: Wortgewandt); the host
+refuses anything else before it listens (`ArgumentError`), and the host of a
+table always plays seat 0 (A). A two-player session never uses any of this.
+
+**Handshake.** The guest's `hello` is the usual version 3 message plus
+`maxProtocol: 4`. The host of a table checks the build as always (KLD-085:
+`protocol: 3` and the fingerprint) and then:
+
+- a guest **without** `maxProtocol >= 4` (a build before KLD-088 step 4) is
+  refused with `error` `code: "incompatible-protocol"`, `protocol: 4`, in
+  the version 3 envelope the old guest reads ("the other device runs a newer
+  build", its app asks to update) → `IncompatiblePeer` on the host;
+- otherwise it seats the guest (below) and answers in **version 4**: from
+  its `hello` on every message to that guest carries `v: 4` (`hello` with
+  `protocol: 4`), and the guest answers in version 4 once it read that
+  `hello` (the host still reads version 3 lines that were already on their
+  way, e.g. a `ping`).
+
+**Seats.** A guest without a token (or with an unknown one) takes the first
+free seat, in join order. Every guest gets its own `token` in `welcome`
+(16 random bytes, compared in constant time as in KLD-071); with it the
+guest gets **its** seat back. The game **starts** when every seat was taken
+(automatically; `lobby.started`). Before the start a guest that leaves frees
+its seat (its token is forgotten; with it the guest just sits down again
+like a new one, possibly on another seat, which it accepts as long as no
+move was made). After the start a seat is reclaimed only with its token;
+anyone else gets `error "session full"`, also while the table is not full
+of connected guests.
+
+**Messages at a table** (all `v: 4`; `move`, `rejected`, `ping`/`pong`,
+`bye`, `error` as above):
+
+| type | direction | fields | meaning |
+|---|---|---|---|
+| `welcome` | host → guest | `config` (`publicJson`, with `players`), `seat` (1–3, instead of `you`), `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log`, `view` | as the redacted `welcome`, for this seat: `start` is the hash of this seat's start view, `log` this seat's steps `{seat, move, event, viewHash, commit?}` (`seat` instead of `player`), `view` this seat's view |
+| `lobby` | host → guest | `seats` (one entry per seat, index = seat: `{name, here}`, or `null` for a free seat; seat 0 is the host, always `here`), `started` | who sits where; sent to every guest after each change (a guest sits down, leaves, goes away, comes back) and right after each `welcome` |
+| `accepted` | host → guest | `index`, `seat` (the mover's seat, instead of `player`), `move`, `event`, `view`, `commit?` | as the redacted `accepted`, for this seat |
+| `reveal` | host → guest | `seed?`, `seedSalt?`, `secrets` | as above, with this seat's commitments |
+
+**Turns.** A move is the guest's when the engine's `seatOfMove` names its
+seat (the seat on turn, or the seat a resign or a "Trotzdem zulassen"
+answer names: `{action: resign, seat}`, `{action: acceptAllow, seat}`, …);
+otherwise `rejected "not your turn"`. Before the start and while the game
+is **paused** every move (the host's too) is `rejected "waiting for
+players"`.
+
+**Away and paused.** A guest whose connection ends after the start is
+*away*: its seat shows `here: false` in `lobby`, and the game is paused for
+everyone until it rejoins with its token (`welcome` brings its whole log
+again, as a two-player rejoin does). The host may instead let an away seat
+leave (`KlunkiHost.resignAwaySeat`): the host plays that seat's resign
+`{action: resign, seat}`, the seat is out (the engine skips it; it ranks
+behind the others), the others play on, and an away seat that is out no
+longer pauses anything. A seat that left can still rejoin with its token
+and watch.
+
+**Secrecy per seat.** The host keeps one redacted log per guest seat
+(`Redaction.seatStep(game, move, moverSeat, event, viewerSeat)`): the move
+and event as that seat may see them and that seat's view. A move whose
+redacted form for a viewer differs from the real move (a Wortgewandt
+`exchange` of any other seat, the host's or another guest's, reaches the
+viewer as `{action: exchange, count}`) gets a `commit` for that viewer, with
+a fresh salt **per viewer** (`move:<index>` label, as above). A guest's own
+moves are never committed to itself. At the end each guest gets its own
+`reveal` (the seed and its commitments) and checks the game from its seat
+(`verifyRedactedGame(seat: …)`: the seat of every step by `seatOfMove`, the
+start view and every view hash of that seat). So a guest never receives
+another guest's rack or exchanged tiles before the end, and a host that
+changes any seat's exchange afterwards fails the check of every other seat.
+Threat model as for two players: the host (referee) sees every rack.
+
+Example (3 players, Anna hosts, Ben joins first):
+
+```
+G→H {"type":"hello","v":3,"role":"guest","name":"Ben","protocol":3,"maxProtocol":4,"build":"…","games":{…}}
+H→G {"type":"hello","v":4,"role":"host","name":"Anna","protocol":4,"build":"…","game":"wordtiles","fingerprint":{…}}
+H→G {"type":"welcome","v":4,"config":{"game":"wordtiles","players":3},"seat":1,"token":"9f…","host":"Anna","redacted":true,"seedCommit":"…","start":"…","log":[],"view":{…,"viewerSeat":1,…}}
+H→G {"type":"lobby","v":4,"seats":[{"name":"Anna","here":true},{"name":"Ben","here":true},null],"started":false}
+…                         (Cleo joins: seat 2)
+H→G {"type":"lobby","v":4,"seats":[{"name":"Anna","here":true},{"name":"Ben","here":true},{"name":"Cleo","here":true}],"started":true}
+H→G {"type":"accepted","v":4,"index":0,"seat":0,"move":{"action":"exchange","count":3},"event":{…},"view":{…},"commit":"…"}
+G→H {"type":"move","v":4,"index":1,"move":{"action":"pass"}}
+H→G {"type":"accepted","v":4,"index":1,"seat":1,"move":{"action":"pass"},"event":{…},"view":{…}}
+```
 
 ## Relay (KLD-057a): browser vs browser
 
@@ -660,7 +751,7 @@ relay and a client, never forwarded.
 **Rules.**
 - **Codes:** 5 characters from `23456789ABCDEFGHJKMNPQRSTUVWXYZ` (no 0/O, 1/I/L;
   31^5 ≈ 28.6 million codes), random (`Random.secure`), unique among open rooms.
-- **One guest per room.** A second guest gets `relay.error "room CODE is full"`.
+- **One guest per room** (a table room: N, see "Table rooms"). A second guest gets `relay.error "room CODE is full"`.
   A guest whose connection silently died keeps its slot until the host session
   notices (keepalive timeout, 10 s) and kicks it, or the relay's WebSocket ping
   (every 20 s) detects it; then the guest can rejoin.
@@ -704,6 +795,40 @@ relay and a client, never forwarded.
   same vectors, `test/relay_vectors.json` (`relay_vectors_test.dart` here).
   The Worker's wrong-code limit counts per client address as Cloudflare
   reports it (`CF-Connecting-IP`), per isolate.
+
+### Table rooms (KLD-088 step 4): several guests
+
+A table (see "Tables") through a relay needs a room for up to three
+guests. The host asks for one with **`?create&guests=N`** (N = 2 or 3, the
+table's players minus one); `guests` must be 1–3 (`relay.error "bad
+request: guests must be 1 to 3"` otherwise; 1 or absent = the classic room
+above, unchanged). The relay repeats it in `relay.room {code, key, guests}`
+(also after `?resume`); a host that gets no `guests` back is on an older
+relay that would let only one guest in, and gives up (`NetException("relay:
+this relay cannot host a game for more than two players")`).
+
+Guests join as always (`?join=CODE`; the room is full with N guests). They
+see no difference: game lines reach them unwrapped. The host's side is
+wrapped, because one connection now carries several guests:
+
+| `t` | direction | fields | meaning |
+|---|---|---|---|
+| `relay.peer` | relay → host | `peer` | a guest joined; `peer` is its number in this room (1, 2, 3, …; never reused) |
+| `relay.from` | relay → host | `peer`, `line` | one game line from that guest, unchanged inside `line` |
+| `relay.to` | host → relay | `peer`, `line` | deliver `line` to that guest unchanged (dropped if that guest is gone) |
+| `relay.left` | relay → host | `peer`, `reason` | that guest's connection ended |
+| `relay.kick` | host → relay | `peer` | drop that guest (no `relay.left` follows) |
+
+In a table room the host's plain (unwrapped) lines and a `relay.kick`
+without `peer` are ignored. `line` is limited like a frame (256 Ki
+characters); the host's wrapped frames may be up to twice that plus 1 Ki
+(JSON escaping). Everything else (host away and back, idle expiry, club
+codes, a guest's control line refused) is as in a classic room; a host that
+comes back drops every guest, which rejoin with their tokens. The host
+session (`KlunkiHost.startRelay`) opens a table room by itself for a config
+with 3–4 players; each guest of the room is one connection to it. Both the
+Dart relay and the Worker (`deploy/cloudflare`) implement table rooms and
+share the vectors in `test/relay_vectors.json`.
 
 ### Club codes (KLD-112): a gated relay
 
@@ -799,7 +924,8 @@ open and ignores a club code.
   reach on the LAN; acceptable for the PoC (one guest, local network).
 - One guest per host, over either transport: a second guest gets
   `error "session full"` whether it comes over TCP or WebSocket. A joined
-  guest may rejoin over the other transport with its token.
+  guest may rejoin over the other transport with its token. A table (KLD-088)
+  has up to three guests, one per seat, under the same rules.
 - Browser ↔ browser play needs a relay (see "Relay"): a web page cannot
   listen for connections. The relay sees all messages in clear text (`ws://`)
   and does not authenticate anyone, but the host does: whoever knows the room

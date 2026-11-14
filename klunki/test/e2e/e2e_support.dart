@@ -131,6 +131,9 @@ class WifiProxy {
   int connections = 0;
   int chunks = 0;
 
+  /// New connections are dropped at once (the device is out of reach).
+  bool refuse = false;
+
   WifiProxy._(this._server, this.seed, this.minDelay, this.maxDelay);
 
   static Future<WifiProxy> start(
@@ -142,6 +145,10 @@ class WifiProxy {
     final proxy = WifiProxy._(await ServerSocket.bind(loopback, 0), seed, minDelay, maxDelay);
     proxy._server.listen((client) async {
       client.done.catchError((_) {});
+      if (proxy.refuse) {
+        client.destroy();
+        return;
+      }
       final Socket upstream;
       try {
         upstream = await Socket.connect(loopback, targetPort);

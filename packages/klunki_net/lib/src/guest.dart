@@ -27,6 +27,13 @@ import 'secrecy/secrecy.dart';
 /// Two transports, same protocol: [connect] (TCP, NDJSON; needs `dart:io`)
 /// and [connectWebSocket] (`ws://`, one message per text frame; works on the
 /// VM and in the browser). This file does not import `dart:io`.
+///
+/// A table (KLD-088 step 4, [table]): the host hosts a game for 3–4
+/// players. This guest offers [tableProtocolVersion] in its `hello`; the
+/// host gives it a [seat] (1–3) and its own redacted view, and tells every
+/// guest who sits where ([seats], [LobbyChanged]). Entries are by seat
+/// ([MoveAccepted.seat]); the end-of-game check replays the game from this
+/// seat's view.
 class KlunkiGuest {
   /// The host's address (for WebSocket: [webSocketUrl]'s host).
   final Object host;
@@ -57,8 +64,11 @@ class KlunkiGuest {
   final Map<int, List<Completer<String?>>> _waiting = {};
 
   late GameConfig _config;
-  late Player _me;
+  late int _seat;
   late Game _game;
+  bool _table = false; // the host hosts a table (KLD-088)
+  List<TableSeat> _seats = const [];
+  bool _started = false;
   bool _joined = false; // received a welcome at least once
   String? _token;
   String? _hostName;
@@ -178,8 +188,34 @@ class KlunkiGuest {
 
   GameConfig get config => _config;
 
-  /// The guest's player (chosen by the host).
-  Player get me => _me;
+  /// The guest's player (chosen by the host). At a [table] only for seat 1
+  /// (B); read [seat] there.
+  Player get me => switch (_seat) {
+        0 => Player.a,
+        1 => Player.b,
+        _ => throw StateError('seat $_seat has no Player (KLD-088)'),
+      };
+
+  /// This guest's seat: [me]'s index, or its seat at a [table] (1–3).
+  int get seat => _seat;
+
+  /// The host hosts a table of 3–4 players (KLD-088 step 4).
+  bool get table => _table;
+
+  /// A table's seats (seat 0 is the host) as the host last reported them;
+  /// empty for two players.
+  List<TableSeat> get seats => List.unmodifiable(_seats);
+
+  /// A table: every seat was taken, the game runs. Always true for two
+  /// players.
+  bool get started => !_table || _started;
+
+  /// A table whose game waits for a guest that is away.
+  bool get paused =>
+      _table && _started && !_game.isOver && [
+        for (var s = 1; s < _seats.length; s++)
+          if (!_seats[s].here && !(_game as SeatGame).isSeatOut(s)) s,
+      ].isNotEmpty;
 
   /// The local engine. A fresh instance after a reconnect ([Resynced]).
   /// For a [redacted] game: this player's read-only view, a fresh instance
@@ -230,7 +266,7 @@ class KlunkiGuest {
     _waiting.putIfAbsent(index, () => []).add(c);
     if (_redacted) _sent[index] = jsonSafe(move) as Map<String, dynamic>;
     final clock = _clock;
-    final think = clock != null && ChessGame.isBoardMove(move) && clock.running == _me
+    final think = clock != null && ChessGame.isBoardMove(move) && clock.running == me
         ? debugThink ?? clock.turnElapsed(clockNow())
         : null;
     conn.send('move', {'index': index, 'move': move, if (think != null) 'think': think});
@@ -307,10 +343,14 @@ class KlunkiGuest {
     );
     _conn = conn;
     _hostHello = null;
+    // KLD-088: this guest can sit at a table; the host of one answers in
+    // that protocol (a two-player host ignores the field).
+    conn.acceptTable();
     conn.send('hello', {
       'role': 'guest',
       'name': name,
       'protocol': protocolVersion,
+      'maxProtocol': tableProtocolVersion,
       if (_token != null) 'token': _token,
       'build': compat.build,
       'games': compat.gamesJson(),
@@ -327,7 +367,9 @@ class KlunkiGuest {
     switch (m['type']) {
       case 'hello':
         if (m['role'] != 'host') throw const ProtocolException('expected role "host"');
-        if (m['protocol'] != protocolVersion) {
+        if (m['protocol'] == tableProtocolVersion && m['v'] == tableProtocolVersion) {
+          conn.upgrade(); // a table (KLD-088): we answer in its version
+        } else if (m['protocol'] != protocolVersion) {
           final build = m['build'] is String ? m['build'] as String : null;
           final protocol = m['protocol'];
           return _incompatible(conn, welcome,
@@ -354,6 +396,8 @@ class KlunkiGuest {
         _redacted ? _onRedactedAccepted(conn, m) : _onAccepted(conn, m);
       case 'reveal' when _connected && _redacted:
         _onReveal(m);
+      case 'lobby' when _connected && _table:
+        _onLobby(m);
       case 'rejected' when _connected:
         final index = m['index'] as int, reason = m['reason'] as String? ?? 'rejected';
         _complete(index, reason);
@@ -404,17 +448,29 @@ class KlunkiGuest {
   /// Applies a snapshot; returns an error message on divergence.
   String? _onWelcome(Map<String, dynamic> m) {
     final config = GameConfig.fromJson(m['config'] as Map<String, dynamic>);
-    final me = playerFromName(m['you']);
+    // KLD-088: a table's host speaks the table protocol and gives a seat.
+    final table = _hostHello?['protocol'] == tableProtocolVersion;
+    final rawSeat = m['seat'];
+    if (table && (rawSeat is! int || rawSeat < 1 || rawSeat >= config.players)) {
+      throw const ProtocolException('welcome needs a "seat"');
+    }
+    final seat = table ? rawSeat as int : playerFromName(m['you']).index;
     final hostName = m['host'];
     if (hostName is String) _hostName = sanitizePlayerName(hostName);
     _token = m['token'] as String? ?? _token;
-    if (_joined && (config != _config || me != _me)) return 'reconnected to a different game';
+    // At a table a guest whose lobby seat was freed may sit down elsewhere
+    // as long as nothing was played.
+    final sameSeat = !_joined || seat == _seat || (table && _log.isEmpty);
+    if (_joined && (config != _config || !sameSeat)) return 'reconnected to a different game';
+    final rejoin = _joined && seat == _seat;
     // A word tile game's word list may still be loading: the guest creates
     // no engine for it now (it only needs the list to check its own words
     // and, at the end, to replay the game; KLD-094 step 6).
     final problem = configProblem(config, wordList: false);
     if (problem != null) return problem;
-    if (config.players != 2) return 'the host started a game for ${config.players} players';
+    if ((config.players != 2) != table) {
+      return table ? 'the host sent a table for 2 players' : 'the host started a game for ${config.players} players';
+    }
     final spec = specById(config.gameId)!;
     if (!spec.networkPlay) return '"${spec.id}" is not playable over the network yet';
     final redaction = spec.redaction;
@@ -422,21 +478,24 @@ class KlunkiGuest {
     if (redacted != (redaction != null)) {
       return redacted ? 'host redacted a game without hidden information' : 'host did not redact a hidden game';
     }
-    final (game, entries, error) = redaction == null ? _replaySnapshot(m, config) : _loadRedacted(m, redaction, me);
+    if (table && redaction?.seats != true) return '"${spec.id}" cannot be played by a table';
+    final (game, entries, error) =
+        redaction == null ? _replaySnapshot(m, config) : _loadRedacted(m, redaction, seat, table, rejoin);
     if (error != null) return error;
-    final known = _joined ? _log.length : 0;
+    final known = rejoin ? _log.length : 0;
     _config = config;
-    _me = me;
+    _seat = seat;
+    _table = table;
     _redacted = redacted;
     if (_verification == Verification.notNeeded && redacted) _verification = Verification.pending;
-    if (_hostName == null || _hostName!.isEmpty) _hostName = markOf(otherPlayer(me));
+    if (_hostName == null || _hostName!.isEmpty) _hostName = table ? 'P1' : markOf(otherPlayer(me));
     _game = game!;
     _log
       ..clear()
       ..addAll(entries!);
     if (_joined) {
       for (final e in entries.skip(known)) {
-        _complete(e.index, e.player == _me ? null : 'not your turn');
+        _complete(e.index, e.seat == _seat ? null : 'not your turn');
         _emit(e);
       }
       _emit(Resynced(entries.length));
@@ -467,14 +526,19 @@ class KlunkiGuest {
 
   /// A redacted snapshot (`log`, `view`, `start`, `seedCommit`): check it
   /// against what we already know and load the view.
-  (Game?, List<MoveAccepted>?, String?) _loadRedacted(Map<String, dynamic> m, Redaction redaction, Player me) {
-    final steps = [for (final x in m['log'] as List) RedactedStep.fromJson(x as Map<String, dynamic>)];
+  /// [seat]: whose view it must be; [table]: entries by seat; [rejoin]: the
+  /// same seat again, so what we know must be a prefix.
+  (Game?, List<MoveAccepted>?, String?) _loadRedacted(
+      Map<String, dynamic> m, Redaction redaction, int seat, bool table, bool rejoin) {
+    final steps = [
+      for (final x in m['log'] as List) RedactedStep.fromJson(x as Map<String, dynamic>, bySeat: table),
+    ];
     final start = m['start'];
     final seedCommit = m['seedCommit'];
     final view = m['view'];
     if (start is! String || view is! Map<String, dynamic>) throw const ProtocolException('welcome needs "start" and "view"');
     if (redaction.secretSeed && seedCommit is! String) throw const ProtocolException('welcome needs "seedCommit"');
-    if (_joined) {
+    if (rejoin) {
       if (start != _startViewHash || seedCommit != _seedCommit) return (null, null, 'diverged: the game start changed');
       if (steps.length < _steps.length ||
           Iterable<int>.generate(_steps.length).any((i) =>
@@ -485,7 +549,7 @@ class KlunkiGuest {
     if (viewHash(view) != (steps.isEmpty ? start : steps.last.viewHash)) {
       return (null, null, 'diverged: the view does not match the log');
     }
-    if (view['viewer'] != me.name) return (null, null, 'diverged: the view is not ours');
+    if (!_isOwnView(view, seat, table)) return (null, null, 'diverged: the view is not ours');
     final Game game;
     try {
       game = redaction.fromView(view);
@@ -501,10 +565,33 @@ class KlunkiGuest {
       game,
       [
         for (var i = 0; i < steps.length; i++)
-          MoveAccepted(i, steps[i].player, steps[i].move, event: eventFromJson(steps[i].event)),
+          MoveAccepted.bySeat(i, steps[i].seat, steps[i].move, event: eventFromJson(steps[i].event)),
       ],
       null
     );
+  }
+
+  /// Whether [view] is the view of [seat] (a table's views name the
+  /// `viewerSeat`, two-player views the `viewer`).
+  static bool _isOwnView(Map<String, dynamic> view, int seat, bool table) =>
+      table ? view['viewerSeat'] == seat : view['viewer'] == (seat == 0 ? 'a' : 'b');
+
+  /// `lobby` (a table, KLD-088): who sits where, whether the game started.
+  void _onLobby(Map<String, dynamic> m) {
+    final raw = m['seats'];
+    final started = m['started'];
+    if (raw is! List || raw.length != _config.players || started is! bool) {
+      throw const ProtocolException('lobby needs "seats" (one per player) and "started"');
+    }
+    _seats = [
+      for (final s in raw)
+        if (s is Map && s['name'] is String)
+          TableSeat(sanitizePlayerName(s['name'] as String), here: s['here'] == true)
+        else
+          const TableSeat(null),
+    ];
+    _started = started;
+    _emit(LobbyChanged(seats, started: started));
   }
 
   void _onAccepted(Connection conn, Map<String, dynamic> m) {
@@ -522,7 +609,7 @@ class KlunkiGuest {
     if (!_takeClock(m['clock'])) throw const ProtocolException('accepted without a valid "clock"');
     // The host's `timeout` for us (KLD-126) takes the index of a move we
     // may have sent too late: that one was not accepted.
-    if (player == _me) _complete(index, ChessGame.isTimeout(move) ? 'time is up' : null);
+    if (player == me) _complete(index, ChessGame.isTimeout(move) ? 'time is up' : null);
     _emit(entry);
     _clockChanged();
   }
@@ -531,7 +618,9 @@ class KlunkiGuest {
   /// our new view and (for a secret of the host) a commitment.
   void _onRedactedAccepted(Connection conn, Map<String, dynamic> m) {
     final index = m['index'] as int;
-    final player = playerFromName(m['player']);
+    final rawSeat = m['seat'];
+    if (_table && rawSeat is! int) throw const ProtocolException('accepted needs an int "seat"');
+    final seat = _table ? rawSeat as int : playerFromName(m['player']).index;
     final move = m['move'] as Map<String, dynamic>;
     final event = m['event'] as Map<String, dynamic>;
     final view = m['view'] as Map<String, dynamic>;
@@ -539,25 +628,28 @@ class KlunkiGuest {
     if (commit != null && commit is! String) throw const ProtocolException('"commit" must be a string');
     if (index < _log.length) return; // already applied (duplicate)
     if (index > _log.length) throw ProtocolException('gap: got move $index, have ${_log.length}');
-    if (player != _game.playerOf(move)) return _diverged(conn, 'diverged: move reported for the wrong player');
-    if (player == _me) {
+    final mover = _table ? (_game as SeatGame).seatOfMove(move) : _game.playerOf(move).index;
+    if (seat != mover) return _diverged(conn, 'diverged: move reported for the wrong player');
+    if (seat == _seat) {
       final sent = _sent.remove(index);
       if (commit != null || (sent != null && canonicalJson(sent) != canonicalJson(move))) {
         return _diverged(conn, 'diverged: the host changed our move');
       }
     }
-    if (view['viewer'] != _me.name) return _diverged(conn, 'diverged: the view is not ours');
+    if (!_isOwnView(view, _seat, _table)) return _diverged(conn, 'diverged: the view is not ours');
     final Game game;
     try {
       game = specById(_config.gameId)!.redaction!.fromView(view);
     } on BadViewException catch (e) {
       return _diverged(conn, 'bad view: ${e.message}');
     }
-    _steps.add(RedactedStep(player, move, event, viewHash(view), commit as String?));
+    _steps.add(_table
+        ? RedactedStep.bySeat(seat, move, event, viewHash(view), commit as String?)
+        : RedactedStep(Player.values[seat], move, event, viewHash(view), commit as String?));
     _game = game;
-    final entry = MoveAccepted(index, player, move, event: eventFromJson(event));
+    final entry = MoveAccepted.bySeat(index, seat, move, event: eventFromJson(event));
     _log.add(entry);
-    if (player == _me) _complete(index, null);
+    if (seat == _seat) _complete(index, null);
     _emit(entry);
   }
 
@@ -586,7 +678,8 @@ class KlunkiGuest {
         lives: _config.lives,
         maexchenDouble: _config.maexchenDouble,
         maexchenUnlimited: _config.maexchenUnlimited,
-        me: _me,
+        me: _table ? null : me,
+        seat: _table ? _seat : null,
         seed: secretSeed ? m['seed'] as int : _config.seed,
         seedSalt: secretSeed ? m['seedSalt'] as String : null,
         seedCommit: _seedCommit,

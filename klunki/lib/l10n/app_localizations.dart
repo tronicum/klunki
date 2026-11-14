@@ -1338,6 +1338,48 @@ abstract class AppLocalizations {
   /// **'Warte auf Mitspieler…'**
   String get pairingWaitingForGuest;
 
+  /// Room of 3–4 players (KLD-088): the lobby status while seats are still free.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{Warte auf noch einen Mitspieler…} other{Warte auf noch {count} Mitspieler…}}'**
+  String tableWaitingFor(int count);
+
+  /// Room of 3–4 players (KLD-088): a lobby row for a seat nobody has taken yet.
+  ///
+  /// In de, this message translates to:
+  /// **'Platz frei'**
+  String get tableSeatFree;
+
+  /// Room of 3–4 players (KLD-088): after a name, that player lost the connection.
+  ///
+  /// In de, this message translates to:
+  /// **'nicht verbunden'**
+  String get tableSeatAway;
+
+  /// Room of 3–4 players (KLD-088): the game waits for players that lost the connection; {players} lists their names.
+  ///
+  /// In de, this message translates to:
+  /// **'Pause: Warte auf {players}…'**
+  String tablePaused(String players);
+
+  /// Room of 3–4 players (KLD-088), host only: button that lets an away player leave the game; the others play on.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne {player} weiterspielen'**
+  String tableLetLeave(String player);
+
+  /// Room of 3–4 players (KLD-088): heading of the list of seats in the lobby.
+  ///
+  /// In de, this message translates to:
+  /// **'Mitspieler im Raum'**
+  String get tableLobbyTitle;
+
+  /// Room of 3–4 players (KLD-088): the internet server is too old for a room of more than two.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieser Server kann keine Spiele mit mehr als zwei Personen ausrichten.'**
+  String get tableRelayTooOld;
+
   /// Button: close the room / stop connecting.
   ///
   /// In de, this message translates to:

@@ -1288,6 +1288,49 @@
   "@pairingWaitingForGuest": {
     "description": "Room waiting screen: status while nobody has joined yet."
   },
+  "tableWaitingFor": "{count, plural, =1{Warte auf noch einen Mitspieler…} other{Warte auf noch {count} Mitspieler…}}",
+  "@tableWaitingFor": {
+    "description": "Room of 3–4 players (KLD-088): the lobby status while seats are still free.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tableSeatFree": "Platz frei",
+  "@tableSeatFree": {
+    "description": "Room of 3–4 players (KLD-088): a lobby row for a seat nobody has taken yet."
+  },
+  "tableSeatAway": "nicht verbunden",
+  "@tableSeatAway": {
+    "description": "Room of 3–4 players (KLD-088): after a name, that player lost the connection."
+  },
+  "tablePaused": "Pause: Warte auf {players}…",
+  "@tablePaused": {
+    "description": "Room of 3–4 players (KLD-088): the game waits for players that lost the connection; {players} lists their names.",
+    "placeholders": {
+      "players": {
+        "type": "String"
+      }
+    }
+  },
+  "tableLetLeave": "Ohne {player} weiterspielen",
+  "@tableLetLeave": {
+    "description": "Room of 3–4 players (KLD-088), host only: button that lets an away player leave the game; the others play on.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "tableLobbyTitle": "Mitspieler im Raum",
+  "@tableLobbyTitle": {
+    "description": "Room of 3–4 players (KLD-088): heading of the list of seats in the lobby."
+  },
+  "tableRelayTooOld": "Dieser Server kann keine Spiele mit mehr als zwei Personen ausrichten.",
+  "@tableRelayTooOld": {
+    "description": "Room of 3–4 players (KLD-088): the internet server is too old for a room of more than two."
+  },
   "pairingCancel": "Abbrechen",
   "@pairingCancel": {
     "description": "Button: close the room / stop connecting."

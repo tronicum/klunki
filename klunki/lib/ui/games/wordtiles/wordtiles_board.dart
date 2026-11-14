@@ -259,13 +259,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// device; in hot-seat the seat that acts (the player to move, or the
   /// player who answers an open "Trotzdem zulassen" request: they hold the
   /// device then, so the placer's rack must not show).
-  int get _seat {
-    final local = controller.transport.localPlayers;
-    return local.length == 1 ? WordTilesGame.seatOf(local.single) : game.actorSeat ?? game.currentSeat;
-  }
+  int get _seat => controller.localSeat ?? game.actorSeat ?? game.currentSeat;
 
-  /// One player per device (KLD-094 step 6), not hot-seat.
-  bool get _network => controller.transport.localPlayers.length == 1;
+  /// One player per device (KLD-094 step 6; a table of 3–4, KLD-088), not
+  /// hot-seat.
+  bool get _network => controller.localSeat != null;
 
   /// "Trotzdem zulassen" is agreed by the whole table at once (3–4 players
   /// on one device, KLD-125); with two the other player answers.
@@ -357,8 +355,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     final seat = game.allowRequestAnswerer;
     if (seat == null) return null;
     if (!_network) return controller.needsHandover ? null : seat;
-    final to = WordTilesGame.playerOfSeat(seat);
-    return to != null && controller.transport.localPlayers.contains(to) ? seat : null;
+    return seat == controller.localSeat ? seat : null;
   }
 
   int get _lastRequestIndex => controller.moves.lastIndexWhere((m) => m.move['action'] == WordTilesGame.requestAllow);

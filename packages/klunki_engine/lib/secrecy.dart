@@ -50,6 +50,40 @@ abstract class Redaction {
             winner: event.winner, draw: event.draw, payload: redactPayload(event.payload, mover, viewer))),
         'view': view(game, viewer),
       };
+
+  // --- by seat (KLD-088 step 4: a network table of 3–4 players) ---
+
+  /// Whether this redaction knows views and moves of seats 2+ (a game that
+  /// implements `SeatGame` for more than two seats and can be played by a
+  /// table over the network). The seat methods below then work for every
+  /// seat; otherwise only for seats 0 and 1 ([Player.a], [Player.b]).
+  bool get seats => false;
+
+  /// [view] for seat [viewer] (`0 … playerCount-1`).
+  Map<String, dynamic> seatView(Game game, int viewer) => view(game, _playerOfSeat(viewer));
+
+  /// [redactMove] by seat: [move] by seat [mover] as seat [viewer] may see it.
+  Map<String, dynamic> redactSeatMove(Map<String, dynamic> move, int mover, int viewer) =>
+      redactMove(move, _playerOfSeat(mover), _playerOfSeat(viewer));
+
+  /// [redactPayload] by seat.
+  Object? redactSeatPayload(Object? payload, int mover, int viewer) =>
+      redactPayload(payload, _playerOfSeat(mover), _playerOfSeat(viewer));
+
+  /// [step] by seat: `{move, event, view}` for seat [viewer] after seat
+  /// [mover] played [move] on [game].
+  Map<String, dynamic> seatStep(Game game, Map<String, dynamic> move, int mover, GameEvent event, int viewer) => {
+        'move': redactSeatMove(move, mover, viewer),
+        'event': eventToJson(GameEvent(
+            winner: event.winner, draw: event.draw, payload: redactSeatPayload(event.payload, mover, viewer))),
+        'view': seatView(game, viewer),
+      };
+
+  static Player _playerOfSeat(int seat) => switch (seat) {
+        0 => Player.a,
+        1 => Player.b,
+        _ => throw ArgumentError.value(seat, 'seat', 'this game has no seat views beyond two players'),
+      };
 }
 
 /// Thrown by [Redaction.fromView] for a view that does not fit the game.

@@ -849,6 +849,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pairingWaitingForGuest => 'Esperando al otro jugador…';
 
   @override
+  String tableWaitingFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Faltan $count jugadores más…',
+      one: 'Falta un jugador más…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tableSeatFree => 'Plaza libre';
+
+  @override
+  String get tableSeatAway => 'sin conexión';
+
+  @override
+  String tablePaused(String players) {
+    return 'Pausa: falta $players…';
+  }
+
+  @override
+  String tableLetLeave(String player) {
+    return 'Seguir sin $player';
+  }
+
+  @override
+  String get tableLobbyTitle => 'Jugadores en la sala';
+
+  @override
+  String get tableRelayTooOld =>
+      'Este servidor no admite partidas de más de dos jugadores.';
+
+  @override
   String get pairingCancel => 'Cancelar';
 
   @override

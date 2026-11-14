@@ -523,7 +523,8 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     final r = seatResultOf(_game);
     final l10n = AppLocalizations.of(context);
     final w = r.winner;
-    final headline = w == null ? l10n.seatSharedFirst : l10n.shellWins(_name(w));
+    final local = SeatLabelsScope.of(context).local;
+    final headline = w == null ? l10n.seatSharedFirst : w == local ? l10n.shellYouWin : l10n.shellWins(_name(w));
     final reason = _reason(l10n, r);
     final again = await showDialog<bool>(
       context: context,
@@ -568,11 +569,14 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
   }
 
   String _status(AppLocalizations l10n) {
+    // A network table (KLD-088): this device's seat is "Du".
+    final local = SeatLabelsScope.of(context).local;
     if (_game.isOver) {
       final w = seatResultOf(_game).winner;
-      return w == null ? l10n.seatSharedFirst : l10n.shellHasWon(_name(w));
+      return w == null ? l10n.seatSharedFirst : w == local ? l10n.shellYouHaveWon : l10n.shellHasWon(_name(w));
     }
-    return l10n.shellToMove(_name(actorSeatOf(_game)!));
+    final actor = actorSeatOf(_game)!;
+    return actor == local ? l10n.shellYourTurn : l10n.shellToMove(_name(actor));
   }
 
   /// [child] behind the [HandoverCover] in a game with hidden information.

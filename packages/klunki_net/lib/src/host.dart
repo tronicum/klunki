@@ -40,6 +40,18 @@ import 'secrecy/secrecy.dart';
 /// guest's own measured think time within [clockLagCreditMs] of what the
 /// host measured, sends the clock with every `accepted` and `welcome`, and
 /// plays the `timeout` move when a flag falls (PROTOCOL.md, "Chess clock").
+///
+/// A **table** (KLD-088 step 4, [table]): a config for 3–4 players. The host
+/// is seat 0 and up to three guests sit down in the order they join (seats
+/// 1, 2, 3); [seats] and [LobbyChanged] say who is there. The game starts
+/// when every seat is taken ([started]); before that a guest that leaves
+/// frees its seat. After the start a guest that is away pauses the game for
+/// everyone (every move is refused with `waiting for players`) until it
+/// rejoins with its token or the host lets it leave ([resignAwaySeat]).
+/// Every guest gets its own redacted steps, views and commitments (also to
+/// the other guests' secrets) and its own `reveal` at the end. A table
+/// speaks [tableProtocolVersion]; a guest that cannot is refused. Only for
+/// games whose redaction knows seats ([Redaction.seats]: Wortgewandt).
 class KlunkiHost {
   final GameConfig config;
   /// The host's player name, sanitised ([sanitizePlayerName]; the mark of
@@ -76,6 +88,11 @@ class KlunkiHost {
   final String _seedSalt = newSalt();
   Map<String, dynamic>? _lastGuestView; // the guest's view after the last move
 
+  // A table of 3–4 players only (KLD-088 step 4).
+  final List<_TableSeat> _table; // index = seat; empty for two players
+  final Map<Connection, int> _seatOf = {}; // connected guests (handshake done) by seat
+  bool _started = false;
+
   // Chess with a clock only (KLD-126).
   final ChessClock? _clock;
   final Stopwatch _watch = Stopwatch()..start();
@@ -96,13 +113,28 @@ class KlunkiHost {
   /// guest before it is sent. Lets tests play a cheating host.
   Map<String, dynamic>? Function(String type, Map<String, dynamic> fields)? debugRewriteOutgoing;
 
+  /// Test hook: sees every message to the guest at a table seat (KLD-088)
+  /// as it is sent (after [debugRewriteOutgoing]).
+  void Function(int seat, String type, Map<String, dynamic> fields)? debugTableOutgoing;
+
   KlunkiHost._(
       this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat,
       [this._address])
       : _redaction = specById(config.gameId)?.redaction,
-        _clock = config.gameId == 'chess' && config.chessClock != null ? ChessClock(config.chessClock!) : null {
+        _clock = config.gameId == 'chess' && config.chessClock != null ? ChessClock(config.chessClock!) : null,
+        _table = config.players > 2
+            ? [
+                for (var s = 0; s < config.players; s++)
+                  _TableSeat(viewHash(specById(config.gameId)!.redaction!.seatView(_game, s))),
+              ]
+            : const [] {
     final redaction = _redaction;
-    if (redaction != null) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
+    if (redaction != null && !table) _startViewHash = viewHash(redaction.view(_game, guestPlayer));
+    if (table) {
+      _table[0]
+        ..name = this.name
+        ..token = '';
+    }
   }
 
   /// Binds a TCP server on [port] and a WebSocket server on [wsPort] (0 =
@@ -121,7 +153,7 @@ class KlunkiHost {
     Duration timeout = const Duration(seconds: 10),
     BuildCompat? compat,
   }) async {
-    _validateLog(config, moves);
+    _validateLog(config, moves, hostPlayer);
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
     return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout,
         createGame(config), compat ?? BuildCompat(), address)
@@ -163,21 +195,31 @@ class KlunkiHost {
     BuildCompat? compat,
     String? clubCode,
   }) async {
-    _validateLog(config, moves);
-    final relay = await RelayHostListener.connect(relayUrl, timeout: timeout, clubCode: clubCode);
+    _validateLog(config, moves, hostPlayer);
+    // KLD-088: a table opens a table room (one slot per guest seat).
+    final relay = await RelayHostListener.connect(relayUrl,
+        timeout: timeout, clubCode: clubCode, guests: config.players > 2 ? config.players - 1 : null);
     return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout,
         createGame(config), compat ?? BuildCompat())
       .._listen(moves);
   }
 
   /// Throws [ArgumentError] (before anything is bound) if [moves] do not
-  /// replay for [config], or if [config] is for more than two players (the
-  /// session is host + one guest; 3–4 seats are one-device only until the
-  /// n-player protocol, KLD-088), or for a game without network play yet
-  /// ([GameSpec.networkPlay]: Baulöwe, KLD-060).
-  static void _validateLog(GameConfig config, List<Map<String, dynamic>> moves) {
+  /// replay for [config], or for a game without network play yet
+  /// ([GameSpec.networkPlay]: Baulöwe, KLD-060), or if [config] is for more
+  /// than two players and the game cannot be played by a table (KLD-088:
+  /// only games whose redaction knows seats, the host as seat 0 / A, no
+  /// resumed [moves]).
+  static void _validateLog(GameConfig config, List<Map<String, dynamic>> moves, Player hostPlayer) {
     if (config.players != 2) {
-      throw ArgumentError.value(config.players, 'players', 'network play is for 2 players (KLD-088)');
+      final spec = specById(config.gameId);
+      final problem = configProblem(config, wordList: false);
+      if (problem != null) throw ArgumentError.value(config.players, 'players', problem);
+      if (spec?.redaction?.seats != true) {
+        throw ArgumentError.value(config.players, 'players', '"${config.gameId}" is for 2 players over the network');
+      }
+      if (hostPlayer != Player.a) throw ArgumentError.value(hostPlayer, 'hostPlayer', 'the host of a table is seat 0');
+      if (moves.isNotEmpty) throw ArgumentError.value(moves, 'moves', 'a table cannot resume a game');
     }
     if (specById(config.gameId)?.networkPlay == false) {
       // Baulöwe (KLD-060): its seed decides dice and cards; not hosted
@@ -275,16 +317,45 @@ class KlunkiHost {
   Player get guestPlayer => otherPlayer(me);
   Game get game => _game;
 
+  /// A table of 3–4 players (KLD-088 step 4): `config.players > 2`.
+  bool get table => _table.isNotEmpty;
+
+  /// A table's seats (seat 0 = the host), else empty.
+  List<TableSeat> get seats => [
+        for (var s = 0; s < _table.length; s++) TableSeat(_table[s].name, here: s == 0 || _table[s].conn != null),
+      ];
+
+  /// A table: every seat was taken once, the game runs (paused while a
+  /// seat is away, [paused]). Always true for two players.
+  bool get started => !table || _started;
+
+  /// A table whose game started and waits for a guest that is away (not
+  /// one that left the game).
+  bool get paused => table && _started && !_game.isOver && _awaySeats.isNotEmpty;
+
+  /// The seats of guests that are away and still in the game.
+  List<int> get _awaySeats => [
+        for (var s = 1; s < _table.length; s++)
+          if (_table[s].conn == null && !(_game as SeatGame).isSeatOut(s)) s,
+      ];
+
   /// The accepted move log (full moves; for a hidden-information game the
   /// guest gets the redacted log instead).
   List<Map<String, dynamic>> get moves => [for (final a in _log) a.move];
 
   /// The accepted log with each move's [GameEvent].
   List<MoveAccepted> get entries => List.unmodifiable(_log);
-  bool get guestConnected => _guest != null;
+  /// A guest is connected; at a table: every guest seat is taken and
+  /// connected.
+  bool get guestConnected => table ? seats.every((s) => !s.free && s.here) : _guest != null;
   /// The guest's name from its `hello`, sanitised ([sanitizePlayerName];
-  /// the guest's mark if empty); null until a guest joined.
-  String? get guestName => _guestName;
+  /// the guest's mark if empty); null until a guest joined. At a table:
+  /// the names of the guests that sat down, joined with ", ".
+  String? get guestName => table
+      ? (_table.skip(1).any((s) => s.name != null)
+          ? [for (final s in _table.skip(1)) if (s.name != null) s.name].join(', ')
+          : null)
+      : _guestName;
 
   /// All session events, including [MoveAccepted] for both players' moves.
   Stream<NetEvent> get events => _events.stream;
@@ -294,7 +365,15 @@ class KlunkiHost {
 
   /// Plays [move] for the host. Returns null when accepted (and sent to the
   /// guest), otherwise the rejection reason; the state is then unchanged.
-  String? submitLocal(Map<String, dynamic> move) => _apply(me, move);
+  String? submitLocal(Map<String, dynamic> move) => table ? _applySeat(0, move) : _apply(me, move);
+
+  /// A table (KLD-088): lets the guest at [seat], which is away, leave the
+  /// game (its resign: the others play on, the pause ends). Returns null
+  /// when done, else why not.
+  String? resignAwaySeat(int seat) {
+    if (!table || !_awaySeats.contains(seat)) return 'seat $seat is not away';
+    return _applySeat(seat, {'action': 'resign', 'seat': seat}, force: true);
+  }
 
   /// The authoritative clock of a chess game with a clock (KLD-126), else
   /// null. Read it with [clockNow]; never change it.
@@ -315,6 +394,9 @@ class KlunkiHost {
     await _rebinding;
     await _statusSub?.cancel();
     _guest?.close(reason);
+    for (final c in _seatOf.keys.toList()) {
+      c.close(reason);
+    }
     for (final c in _pending.toList()) {
       c.close(reason);
     }
@@ -347,7 +429,7 @@ class KlunkiHost {
   }
 
   void _onMessage(Connection conn, Map<String, dynamic> m) {
-    if (conn != _guest) return _onHello(conn, m);
+    if (table ? !_seatOf.containsKey(conn) : conn != _guest) return _onHello(conn, m);
     switch (m['type']) {
       case 'move':
         return _onGuestMove(conn, m);
@@ -370,6 +452,7 @@ class KlunkiHost {
       final typed = raw is String ? sanitizePlayerName(raw) : '';
       return _refuse(conn, mismatch.withSides(peerName: typed.isEmpty ? null : typed));
     }
+    if (table) return _onTableHello(conn, m, raw is String ? raw : null);
     final token = m['token'];
     final reconnect = _token != null;
     // KLD-071: once a guest has joined, its seat is reclaimed only with the
@@ -465,13 +548,14 @@ class KlunkiHost {
     if (index is! int || move is! Map<String, dynamic>) {
       throw const ProtocolException('move needs an int "index" and an object "move"');
     }
+    final seat = table ? _seatOf[conn]! : guestPlayer.index;
     String? reason;
     if (index < _log.length) {
       final entry = _log[index];
-      if (entry.player == guestPlayer && jsonEncode(entry.move) == jsonEncode(move)) {
+      if (entry.seat == seat && jsonEncode(entry.move) == jsonEncode(move)) {
         // A resend: confirm again (redacted games keep only the latest view).
         if (_redaction == null || index == _log.length - 1) {
-          _send(conn, 'accepted', _fields(entry));
+          _send(conn, 'accepted', table ? _tableFields(seat, entry) : _fields(entry));
           return;
         }
       }
@@ -481,7 +565,9 @@ class KlunkiHost {
     } else {
       final think = m['think'];
       // KLD-126: time is up when the host's clock says so, never the guest.
-      reason = ChessGame.isTimeout(move)
+      reason = table
+          ? _applySeat(seat, move)
+          : ChessGame.isTimeout(move)
           ? 'only the host calls time'
           // KLD-121: over the network "Spiel beenden" needs the host's
           // agreement (`endRequest`), never the plain `end`.
@@ -627,7 +713,10 @@ class KlunkiHost {
   void _send(Connection conn, String type, Map<String, dynamic> fields) {
     final hook = debugRewriteOutgoing;
     final out = hook == null ? fields : hook(type, fields);
-    if (out != null) conn.send(type, out);
+    if (out == null) return;
+    final seat = _seatOf[conn];
+    if (seat != null) debugTableOutgoing?.call(seat, type, out);
+    conn.send(type, out);
   }
 
   void _onClosed(Connection conn, String reason, bool timedOut) {
@@ -638,10 +727,13 @@ class KlunkiHost {
     final mismatch = conn.versionMismatch
         ? protocolMismatch(conn.peerVersion, myBuild: compat.build)
         : mismatchFromError(conn.peerError, compat);
-    if (mismatch != null && (wasPending || conn == _guest)) {
-      _emit(IncompatiblePeer(
-          mismatch.withSides(myBuild: compat.build, myName: name, peerName: conn == _guest ? _guestName : null)));
+    final seat = _seatOf.remove(conn);
+    final seated = seat != null || conn == _guest;
+    if (mismatch != null && (wasPending || seated)) {
+      final peerName = seat != null ? _table[seat].name : (conn == _guest ? _guestName : null);
+      _emit(IncompatiblePeer(mismatch.withSides(myBuild: compat.build, myName: name, peerName: peerName)));
     }
+    if (seat != null) return _onSeatClosed(seat, conn, reason, timedOut);
     if (conn != _guest) return;
     _guest = null;
     // KLD-126: the clocks stand still while the guest is away.
@@ -656,6 +748,206 @@ class KlunkiHost {
     // dropped the quiet connection, tells the guest that the host is away.
     final server = _server;
     if (timedOut && !_closing && server is RelayHostListener) server.reattach();
+  }
+
+  // --- a table of 3–4 players (KLD-088 step 4) ---
+
+  /// A guest's `hello` at a table (its build already checked): it must
+  /// speak [tableProtocolVersion]; with a token it gets its seat back,
+  /// otherwise (before the start) the first free seat.
+  void _onTableHello(Connection conn, Map<String, dynamic> m, String? raw) {
+    final offered = m['maxProtocol'];
+    if (offered is! int || offered < tableProtocolVersion) {
+      final typed = raw == null ? '' : sanitizePlayerName(raw);
+      final mismatch = VersionMismatch(Incompatibility.protocol, PeerAge.older,
+          'a game for ${config.players} players needs protocol $tableProtocolVersion on every device',
+          peerBuild: m['build'] is String ? m['build'] as String : null);
+      _pending.remove(conn);
+      _helloDeadlines.remove(conn)?.cancel();
+      // The other side reads `protocol` to tell who is older: ours is the table's.
+      conn.fail(mismatch.message, {
+        ...mismatchErrorFields(mismatch, compat, key: compatKey(config), fingerprint: _fingerprint, name: name),
+        'protocol': tableProtocolVersion,
+      });
+      _emit(IncompatiblePeer(
+          mismatch.withSides(myBuild: compat.build, myName: name, peerName: typed.isEmpty ? null : typed)));
+      return;
+    }
+    final token = m['token'];
+    int? seat;
+    if (token is String && token.isNotEmpty) {
+      for (var s = 1; s < _table.length; s++) {
+        final t = _table[s].token;
+        if (t != null && _sameToken(token, t)) seat = s;
+      }
+    }
+    // KLD-071: after the start a seat is reclaimed only with its token;
+    // before it, a guest whose seat was freed sits down again like a new one.
+    if (seat == null && !_started) {
+      for (var s = 1; s < _table.length && seat == null; s++) {
+        if (_table[s].name == null) seat = s;
+      }
+    }
+    if (seat == null) return conn.fail('session full');
+    _pending.remove(conn);
+    _helloDeadlines.remove(conn)?.cancel();
+    final place = _table[seat];
+    final reconnect = place.token != null;
+    final old = place.conn;
+    place.conn = conn;
+    _seatOf[conn] = seat;
+    if (old != null) {
+      _seatOf.remove(old);
+      old.close('replaced by a new connection');
+    }
+    place.name = sanitizePlayerName(raw).isEmpty ? 'P${seat + 1}' : sanitizePlayerName(raw);
+    place.token ??= _newToken();
+    conn.upgrade();
+    _send(conn, 'hello', {
+      'role': 'host',
+      'name': name,
+      'protocol': tableProtocolVersion,
+      'build': compat.build,
+      'game': compatKey(config),
+      if (_fingerprint case final f?) 'fingerprint': f.toJson(),
+    });
+    final redaction = _redaction!;
+    _send(conn, 'welcome', {
+      'config': redaction.secretSeed ? config.publicJson() : config.toJson(),
+      'seat': seat,
+      'token': place.token,
+      'host': name,
+      'redacted': true,
+      if (redaction.secretSeed) 'seedCommit': commitment(_seedSalt, 'seed', config.seed),
+      'start': place.startHash,
+      'log': [for (final r in place.log) r.step.toJson()],
+      'view': redaction.seatView(_game, seat),
+    });
+    if (_game.isOver) _sendTableReveal(conn, seat);
+    if (!_started && _table.every((s) => s.name != null)) _started = true;
+    _emit(PeerConnected(place.name!, reconnect: reconnect, seat: seat));
+    _lobbyChanged();
+  }
+
+  /// The connection of the guest at [seat] ended.
+  void _onSeatClosed(int seat, Connection conn, String reason, bool timedOut) {
+    final place = _table[seat];
+    if (!identical(place.conn, conn)) return;
+    place.conn = null;
+    // Before the start the seat is free again (the guest may come back and
+    // sit down anew); after it the seat waits for its token.
+    if (!_started) {
+      place
+        ..name = null
+        ..token = null;
+    }
+    _emit(PeerDisconnected(reason, timedOut: timedOut, seat: seat));
+    _lobbyChanged();
+    // KLD-120: see [_onClosed].
+    final server = _server;
+    if (timedOut && !_closing && server is RelayHostListener) server.reattach();
+  }
+
+  /// Tells every guest (`lobby`) and the host's listeners ([LobbyChanged])
+  /// who sits where and whether the game started.
+  void _lobbyChanged() {
+    final seats = this.seats;
+    final fields = {
+      'seats': [for (final s in seats) s.toJson()],
+      'started': _started,
+    };
+    for (final MapEntry(key: conn, value: _) in _seatOf.entries.toList()) {
+      _send(conn, 'lobby', fields);
+    }
+    _emit(LobbyChanged(seats, started: _started));
+  }
+
+  /// Validates and applies [move] by [seat] at a table; null on success,
+  /// else the reason. [force]: the host lets an away seat leave
+  /// ([resignAwaySeat]) during the pause.
+  String? _applySeat(int seat, Map<String, dynamic> move, {bool force = false}) {
+    if (_game.isOver) return 'game is over';
+    if (!_started || (paused && !force)) return 'waiting for players';
+    final game = _game as SeatGame;
+    // The seat on turn, or the one a resign or an answer names.
+    final int by;
+    try {
+      by = game.seatOfMove(move);
+    } catch (_) {
+      return 'illegal move';
+    }
+    if (by != seat) return 'not your turn';
+    final String encoded;
+    try {
+      encoded = jsonEncode(move);
+    } on JsonUnsupportedObjectError {
+      return 'move is not JSON';
+    }
+    GameEvent? result;
+    try {
+      result = _game.applyMove(jsonDecode(encoded) as Map<String, dynamic>);
+    } catch (_) {
+      result = null; // e.g. a wrongly typed field; rebuild to be safe
+      _game = replay(config, moves)!;
+    }
+    if (result == null) return 'illegal move';
+    final entry = MoveAccepted.bySeat(_log.length, seat, jsonDecode(encoded) as Map<String, dynamic>, event: result);
+    _log.add(entry);
+    _clockLog.add(null);
+    final redaction = _redaction!;
+    for (var viewer = 1; viewer < _table.length; viewer++) {
+      _recordForSeat(redaction, viewer, entry, result);
+    }
+    for (final MapEntry(key: conn, value: viewer) in _seatOf.entries.toList()) {
+      _send(conn, 'accepted', _tableFields(viewer, entry));
+      if (_game.isOver) _sendTableReveal(conn, viewer);
+    }
+    _emit(entry);
+    return null;
+  }
+
+  /// The redacted step of [entry] for the guest at [viewer]; a move that
+  /// hides a secret of another seat (the host's or another guest's) gets a
+  /// fresh salt and a commitment, one per viewer.
+  void _recordForSeat(Redaction redaction, int viewer, MoveAccepted entry, GameEvent event) {
+    final step = redaction.seatStep(_game, entry.move, entry.seat, event, viewer);
+    final move = step['move'] as Map<String, dynamic>;
+    final view = step['view'] as Map<String, dynamic>;
+    final secret = entry.seat != viewer && canonicalJson(move) != canonicalJson(entry.move);
+    final salt = secret ? newSalt() : null;
+    final place = _table[viewer];
+    place.log.add(_GuestRecord(
+        RedactedStep.bySeat(entry.seat, move, step['event'] as Map<String, dynamic>, viewHash(view),
+            salt == null ? null : commitment(salt, 'move:${entry.index}', entry.move)),
+        salt));
+    place.lastView = view;
+  }
+
+  /// `accepted` at a table, for the guest at [viewer].
+  Map<String, dynamic> _tableFields(int viewer, MoveAccepted e) {
+    final place = _table[viewer];
+    final step = place.log[e.index].step;
+    return {
+      'index': e.index,
+      'seat': e.seat,
+      'move': step.move,
+      'event': step.event,
+      'view': place.lastView,
+      if (step.commit != null) 'commit': step.commit,
+    };
+  }
+
+  /// `reveal` at a table: the seed and every move committed to [viewer].
+  void _sendTableReveal(Connection conn, int viewer) {
+    final redaction = _redaction!;
+    final log = _table[viewer].log;
+    _send(conn, 'reveal', {
+      if (redaction.secretSeed) ...{'seed': config.seed, 'seedSalt': _seedSalt},
+      'secrets': [
+        for (var i = 0; i < log.length; i++)
+          if (log[i].salt != null) {'index': i, 'move': _log[i].move, 'salt': log[i].salt},
+      ],
+    });
   }
 
   void _emit(NetEvent e) {
@@ -692,6 +984,19 @@ class KlunkiHost {
     final r = Random.secure();
     return List.generate(16, (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
   }
+}
+
+/// One seat of a table (KLD-088): who sits there, its token and connection,
+/// and its redacted log (seat 0, the host, has none of its own).
+class _TableSeat {
+  /// Hash of this seat's view of the start position.
+  final String startHash;
+  String? name; // null: free
+  String? token; // null: free ('' for the host)
+  Connection? conn;
+  final List<_GuestRecord> log = [];
+  Map<String, dynamic>? lastView;
+  _TableSeat(this.startHash);
 }
 
 /// The guest's side of one log entry of a hidden-information game, plus the

@@ -58,6 +58,7 @@ async function run(scenario, { hibernate }) {
       room = msg.code;
       key = msg.key ?? null;
       assert.equal(normalizeRoomCode(room), room, at);
+      assert.equal(msg.guests, step.guests, `${at}: table room size (KLD-088)`);
     } else if (step.recv !== undefined) {
       assert.deepEqual(await peers.get(step.recv).nextJson(), fillJson(step.json), at);
     } else if (step.recvText !== undefined) {

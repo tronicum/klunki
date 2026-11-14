@@ -145,9 +145,13 @@ Uri? relayUriForPage(Uri page) {
 }
 
 /// The URL the host connects to: [relay] with `?create` (and
-/// `&club=CODE` when [clubCode] is set, KLD-112).
-Uri relayCreateUri(Uri relay, {String? clubCode}) => relay.replace(
-    query: clubCode == null ? 'create' : 'create&$relayClubParam=${Uri.encodeQueryComponent(clubCode)}');
+/// `&club=CODE` when [clubCode] is set, KLD-112; `&guests=N` for a table
+/// room, KLD-088).
+Uri relayCreateUri(Uri relay, {String? clubCode, int? guests}) => relay.replace(query: [
+      'create',
+      if (guests != null) '$relayGuestsParam=$guests',
+      if (clubCode != null) '$relayClubParam=${Uri.encodeQueryComponent(clubCode)}',
+    ].join('&'));
 
 /// The URL a guest connects to: [relay] with `?join=CODE` (and
 /// `&club=CODE` when [clubCode] is set, KLD-112).
@@ -208,3 +212,32 @@ String newClubCode([Random? random]) {
       List.generate(4, (_) => roomCodeAlphabet.codeUnitAt(r.nextInt(roomCodeAlphabet.length))));
   return '${group()}-${group()}';
 }
+
+// ---------------------------------------------- table rooms (KLD-088 step 4)
+
+/// Query parameter of a host that opens a **table room**: `?create&guests=N`
+/// with N = 2 or 3, the number of guests that may be in the room at once.
+/// Absent (or 1): the classic room for one guest, unchanged. A relay that
+/// knows table rooms repeats `guests` in `relay.room`; an older relay
+/// ignores the parameter and sends no `guests`, so the host knows it cannot
+/// host a table there.
+const String relayGuestsParam = 'guests';
+
+/// Most guests a table room takes (a table of 4).
+const int relayMaxGuests = 3;
+
+/// relay → host in a table room: one game line from guest `peer`
+/// (`{t: relay.from, peer, line}`). In a table room every guest line comes
+/// this way; `relay.peer` and `relay.left` name the `peer` too.
+const String relayFrom = 'relay.from';
+
+/// host → relay in a table room: deliver `line` to guest `peer`
+/// (`{t: relay.to, peer, line}`). `relay.kick {peer}` drops that guest.
+const String relayTo = 'relay.to';
+
+/// The field naming a guest in a table room (an int, unique in the room).
+const String relayPeerField = 'peer';
+
+/// The client-side text when a relay cannot open a table room (an older
+/// relay: no `guests` in its `relay.room`).
+const String relayNoTablesText = 'this relay cannot host a game for more than two players';

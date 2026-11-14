@@ -837,6 +837,40 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pairingWaitingForGuest => 'منتظر بازیکن دیگر…';
 
   @override
+  String tableWaitingFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'منتظر $count بازیکن دیگر…',
+      one: 'منتظر یک بازیکن دیگر…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tableSeatFree => 'جای خالی';
+
+  @override
+  String get tableSeatAway => 'وصل نیست';
+
+  @override
+  String tablePaused(String players) {
+    return 'مکث: منتظر $players…';
+  }
+
+  @override
+  String tableLetLeave(String player) {
+    return 'ادامهٔ بازی بدون $player';
+  }
+
+  @override
+  String get tableLobbyTitle => 'بازیکنان در اتاق';
+
+  @override
+  String get tableRelayTooOld =>
+      'این سرور بازی‌های بیش از دو نفر را پشتیبانی نمی‌کند.';
+
+  @override
   String get pairingCancel => 'لغو';
 
   @override
