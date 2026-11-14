@@ -25,6 +25,20 @@ Design decisions:
   so at most one per menu tile (12 today), small JSON. A new game of the same kind takes the slot over **with its
   first move**: opening a game and leaving it without a move keeps the old save. A finished game (win, draw, resign,
   time-out) deletes its save; undoing back to the start deletes it too. The list's footer says so in plain words.
+- **Ask instead of silently replacing** (maintainer, step 1 review): starting a hot-seat game ("Ein Gerät") of a
+  kind with a resumable save first asks **"Angefangenes Spiel"**: the game, the saved names, date and moves,
+  "Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug." with
+  **"Neues Spiel"** and **"Weiterspielen"**; back or a tap outside cancels (nothing starts). "Weiterspielen" resumes
+  the save exactly like the list does (on top of the menu, so back leads to the menu). "Neues Spiel" goes on to the
+  deck / options / "Wer spielt?" as before, and the save is still replaced **with the first move** (kept, not
+  replaced at once: it is the existing rule, needs no second code path, and backing out of a later dialog or leaving
+  the new game without a move cannot lose the old game). A save that **cannot be resumed** does not ask (there is
+  nothing to choose; it shows in the list as "Kann nicht fortgesetzt werden" and the new game replaces it with its
+  first move). The list's footer now says: "Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du
+  dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten
+  Zug." Network games ("Mit anderen") never ask: they are not saved.
+- "Weiterspielen" is both the menu card / dialog button and the Mäxchen refuse button ("Spiel beenden?"): fine
+  (maintainer).
 - **When it saves:** after every accepted move and every undo, when the app goes to the background
   (`AppLifecycleState.paused` / `hidden`) and when the game screen closes (back to the menu). Only
   `GameSession` (the hot-seat route) saves, through `GameAutosave`, and only with a `HotSeatTransport`: **network
@@ -36,7 +50,8 @@ Design decisions:
   stores); `fingerprint` is `fingerprintOf(config)` (rules version, deck/theme revision, content hash).
 - **Resume** replays the moves into a fresh engine (`HotSeatTransport(config, log: …)`, which submits every
   logged move; a refused move throws). The saved names go back into the hot-seat name stores (they are the last
-  names again, as if typed in "Wer spielt?"). A Wortgewandt game with "Wörterbuch prüfen" loads its word list first.
+  names again, as if typed in "Wer spielt?"; confirmed by the maintainer). A Wortgewandt game with "Wörterbuch
+  prüfen" loads its word list first.
 - **Cannot resume:** a save whose `rulesVersion` or fingerprint differs from this build, an unknown game, a newer
   format, damaged JSON or a log that no longer replays shows **"Kann nicht fortgesetzt werden"** (in the list and in
   a dialog on tap) with "Löschen"; nothing throws.
@@ -50,17 +65,20 @@ Design decisions:
   players sit down again; "Weiter" starts the clock of the player to move.
 - **Rename** is left out: the list already names the game, the players and the date, and with one save per game
   there is nothing to tell apart. Easy to add later if wanted.
-- **RNG:** the dice, deals and tile bags still come from `dart:math` `Random(seed)` (KLD-072 is not done). The
-  same build replays a save identically; a Dart SDK that changed `Random` would make a replay fail or differ. A
-  failed replay shows "Kann nicht fortgesetzt werden"; a replay that silently differs would deal other cards.
-  Bump the rules versions on an SDK update that changes `Random`, or finish KLD-072.
+- **RNG:** the dice, deals and tile bags come from the engine's own PRNG (`GameRandom`, KLD-072, done before the
+  first release with saves), so a save replays the same deal after an SDK update and on the web. The save format
+  records nothing extra: the rules versions bumped with KLD-072 (in the save and the fingerprint) already mark saves
+  of the earlier build as "Kann nicht fortgesetzt werden".
 
 Tests: `klunki/test/saves/save_store_test.dart` (round trip through the store for chess, Quartett, Mau-Mau,
 Wortgewandt 2 and 3 players, Baulöwe 3 players; chess clock resume and undo; outdated and damaged saves; one slot
 per game), `klunki/test/saves/resume_flow_test.dart` (through the real UI: play 4 Gewinnt, leave, restart the app
 over the same preferences, "Weiterspielen", play on; finished game and undo delete the save; Mau-Mau and
 Wortgewandt for 3 resume behind the cover; Baulöwe for 3 in the seat shell with its names; app pause saves;
-outdated save; delete asks first). Screenshots: `KLUNKI_SHOTS=… flutter test test/screenshots --plain-name kld079`.
+outdated save; delete asks first; starting a saved game from the menu asks: cancel starts nothing, "Weiterspielen"
+resumes with the saved names (also as the last names, the store had others), "Neues Spiel" opens "Wer spielt?" with
+those names and replaces the save with the first move, an outdated save does not ask). Screenshots (with the
+question, `kld079-ask-*`): `KLUNKI_SHOTS=… flutter test test/screenshots --plain-name kld079`.
 
 ## Acceptance criteria
 - [x] **Hot-seat:**
@@ -81,7 +99,7 @@ outdated save; delete asks first). Screenshots: `KLUNKI_SHOTS=… flutter test t
   fortgesetzt werden". Long network logs may still need files (`path_provider`, 🧑 OK) or IndexedDB.
 - [ ] **Engine gaps:**
   - [x] A `rulesVersion` per `GameSpec` (KLD-085).
-  - [ ] An engine-owned PRNG (KLD-072), so replays survive SDK updates.
+  - [x] An engine-owned PRNG (KLD-072), so replays survive SDK updates.
   - [ ] Optionally, a cheap snapshot for very long games (not needed so far: a 30-move Baulöwe replays instantly).
 
 ## Definition of done

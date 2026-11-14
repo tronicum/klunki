@@ -11,8 +11,14 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Später weiterspielen** (KLD-079): a game on one device is saved after every move and when the app goes to
   the background. The menu then shows "Weiterspielen" with the unfinished games (game, players, date, moves); tap
   one to go on where you stopped, or delete it. One save per game: a new game of the same kind replaces it after
-  its first move, a finished game removes it. Games with secrets start behind "Gib das Gerät an … weiter", a chess
-  clock starts paused. Network games are not saved yet.
+  its first move, a finished game removes it. Starting a game that is saved asks first ("Angefangenes Spiel":
+  "Weiterspielen" or "Neues Spiel"). Games with secrets start behind "Gib das Gerät an … weiter", a chess clock
+  starts paused. Network games are not saved yet.
+- **Fair and lasting deals** (KLD-072): cards, tiles and dice now come from Klunki's own random generator, the same
+  on phones and in the browser and after updates, so a saved game deals the same cards again. New games get much
+  longer random seeds, so a modified app can no longer work out the other player's cards. Deals change: older
+  builds cannot play Quartett, Schiffe versenken, GoStrategy, Wortgewandt, Mau-Mau, Mäxchen, Ausgewürfelt and
+  Baulöwe with this one.
 - **Chess with a clock** (KLD-126): "Ohne Uhr", 5, 10, 15 minutes + 10 seconds per move, or 30 minutes, chosen
   in "Wer spielt?" or on "Raum starten". The running clock is highlighted and turns red in the last ten seconds;
   whoever runs out of time loses (a draw if the other has only the king left). A pause button stops both clocks
