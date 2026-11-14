@@ -19,3 +19,4 @@ export 'registry.dart';
 export 'seats.dart';
 export 'compat.dart';
 export 'secrecy.dart';
+export 'prng.dart';

@@ -4711,4 +4711,69 @@ class AppLocalizationsAr extends AppLocalizations {
   String roomRuleOff(String rule) {
     return 'بدون $rule';
   }
+
+  @override
+  String get savesTitle => 'متابعة اللعب';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count لعبة غير منتهية',
+      many: '$count لعبة غير منتهية',
+      few: '$count ألعاب غير منتهية',
+      two: 'لعبتان غير منتهيتين',
+      one: 'لعبة واحدة غير منتهية',
+      zero: 'لا ألعاب غير منتهية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حركة',
+      many: '$count حركة',
+      few: '$count حركات',
+      two: 'حركتان',
+      one: 'حركة واحدة',
+      zero: 'لا حركات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => 'لا يمكن المتابعة';
+
+  @override
+  String get savesCannotResumeBody =>
+      'هذه اللعبة لا تناسب هذا الإصدار من Klunki. يمكن حذفها.';
+
+  @override
+  String get savesDelete => 'حذف';
+
+  @override
+  String get savesDeleteTitle => 'حذف اللعبة؟';
+
+  @override
+  String savesDeleteBody(String game) {
+    return 'سيتم حذف اللعبة غير المنتهية «$game».';
+  }
+
+  @override
+  String get savesEmpty => 'لا توجد ألعاب غير منتهية.';
+
+  @override
+  String get savesHint =>
+      'يحفظ Klunki آخر لعبة غير منتهية من كل نوع. عند بدء اللعبة نفسها من جديد يسأل Klunki: متابعة اللعب أم لعبة جديدة؟ تحل اللعبة الجديدة محل القديمة بعد أول حركة.';
+
+  @override
+  String get savesAskTitle => 'لعبة غير منتهية';
+
+  @override
+  String get savesAskBody =>
+      'متابعة اللعب أم بدء لعبة جديدة؟ تحل اللعبة الجديدة محل اللعبة غير المنتهية بعد أول حركة.';
 }

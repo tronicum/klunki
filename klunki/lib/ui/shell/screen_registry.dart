@@ -24,6 +24,11 @@ import '../games/maumau/maumau_options.dart';
 import '../games/maumau/maumau_screen.dart';
 import '../../profile/chess_clock_settings.dart';
 import '../../profile/player_name_controller.dart';
+import '../../profile/seat_names.dart';
+import '../../saves/autosave.dart';
+import '../../saves/save_store.dart';
+import '../../saves/saved_games_screen.dart' show askResumeOrNew, resumeSavedGame;
+import '../../transport/hot_seat_transport.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../seat_players_dialog.dart';
 import '../../profile/quartett_deck_settings.dart';
@@ -180,7 +185,19 @@ Future<void> openGame(BuildContext context, String gameId,
 /// ones or the default names (only with the app's [PlayerNameScope]).
 /// Cancelling any of them starts nothing. A Wortgewandt game with "Wörterbuch
 /// prüfen" loads its word list before the game opens.
+///
+/// KLD-079: when the app keeps a resumable save of [gameId], the menu asks
+/// first ("Angefangenes Spiel", [askResumeOrNew]): "Weiterspielen" resumes
+/// it, "Neues Spiel" goes on as above (the new game replaces the save with
+/// its first move, so backing out of a dialog keeps it). A save that cannot
+/// be resumed does not ask; the new game replaces it the same way.
 Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
+  final saved = SavedGamesScope.read(context)?.entryFor(gameId);
+  if (saved != null && saved.resumable) {
+    final resume = await askResumeOrNew(context, saved);
+    if (resume == null || !context.mounted) return;
+    if (resume) return resumeSavedGame(context, saved, replace: false);
+  }
   String? deck;
   if (specById(gameId)?.usesDeck == true) {
     deck = await showQuartettDeckPicker(context, settings: deckSettings);
@@ -252,19 +269,47 @@ Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeck
 }
 
 /// Owns a hot-seat [GameController] for [config] and shows its screen.
+///
+/// KLD-079: with the app's [SavedGamesScope] the game is saved as it goes
+/// ([GameAutosave]). [resumed] is the transport of a saved game rebuilt by
+/// "Weiterspielen": the game goes on from there, behind the handover cover
+/// for a game with hidden information.
 class GameSession extends StatefulWidget {
   final GameConfig config;
-  const GameSession({super.key, required this.config});
+  final HotSeatTransport? resumed;
+  const GameSession({super.key, required this.config, this.resumed});
 
   @override
   State<GameSession> createState() => _GameSessionState();
 }
 
 class _GameSessionState extends State<GameSession> {
-  late final GameController _controller = GameController.hotSeat(widget.config);
+  late final GameController _controller = widget.resumed == null
+      ? GameController.hotSeat(widget.config)
+      : GameController(widget.resumed!, covered: true);
+  GameAutosave? _autosave;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = context.getInheritedWidgetOfExactType<SavedGamesScope>()?.notifier;
+    if (store == null) return;
+    final two = context.getInheritedWidgetOfExactType<PlayerNameScope>()?.hotSeat;
+    _autosave = GameAutosave(
+      controller: _controller,
+      store: store,
+      resumed: widget.resumed != null,
+      names: (players) {
+        final names = two?.value;
+        final extra = ExtraSeatNames.shared();
+        return [names?.x, names?.o, for (var s = 2; s < players; s++) extra.nameOf(s)];
+      },
+    );
+  }
 
   @override
   void dispose() {
+    _autosave?.dispose();
     _controller.dispose();
     super.dispose();
   }

@@ -173,8 +173,9 @@ void main() {
   ]) {
     for (final MapEntry(key: transport, value: setup) in _transports.entries) {
       test('over $transport, $name: no hidden card reaches the guest; the guest verifies the game', () async {
-        // Two seeds per case: different deals, different moves.
-        for (final seed in [424242, 777001]) {
+        // Two seeds per case: different deals, different moves. Picked (KLD-072,
+        // engine PRNG) so that every case has a host draw and a "Mau!".
+        for (final seed in [424248, 777007]) {
           final config = GameConfig('maumau', seed: seed, mauMau: rules);
           final (host, guest, wire, close) = await setup(config);
           expect(guest.config, GameConfig('maumau', mauMau: rules), reason: 'the rules travel, the seed does not');

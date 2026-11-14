@@ -4675,4 +4675,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String roomRuleOff(String rule) {
     return 'without $rule';
   }
+
+  @override
+  String get savesTitle => 'Continue';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unfinished games',
+      one: '1 unfinished game',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count moves',
+      one: '1 move',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => 'Can’t be continued';
+
+  @override
+  String get savesCannotResumeBody =>
+      'This game doesn’t fit this version of Klunki. You can delete it.';
+
+  @override
+  String get savesDelete => 'Delete';
+
+  @override
+  String get savesDeleteTitle => 'Delete game?';
+
+  @override
+  String savesDeleteBody(String game) {
+    return 'The unfinished game “$game” will be deleted.';
+  }
+
+  @override
+  String get savesEmpty => 'No unfinished games.';
+
+  @override
+  String get savesHint =>
+      'Klunki remembers the last unfinished game of each kind. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.';
+
+  @override
+  String get savesAskTitle => 'Unfinished game';
+
+  @override
+  String get savesAskBody =>
+      'Continue, or start a new game? A new game replaces the unfinished one with its first move.';
 }

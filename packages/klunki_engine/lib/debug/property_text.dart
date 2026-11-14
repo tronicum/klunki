@@ -2,6 +2,7 @@ import 'dart:math';
 
 import '../game.dart';
 import '../property.dart';
+import '../prng.dart';
 import '../property_bot.dart';
 import 'text_game.dart';
 
@@ -21,7 +22,7 @@ class PropertyText {
 
   PropertyText({PropertyGame? game, int players = 3, int seed = 1, PropertyTheme? theme})
       : game = game ?? PropertyGame(playerCount: players, seed: seed, theme: theme),
-        _rng = Random(seed);
+        _rng = GameRandom(seed);
 
   static const String title = 'Baulöwe';
 

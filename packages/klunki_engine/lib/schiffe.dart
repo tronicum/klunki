@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'game.dart';
+import 'prng.dart';
 import 'secrecy.dart';
 
 part 'schiffe_view.dart';
@@ -286,7 +285,7 @@ class SchiffeGame extends Game {
     final side = _sides[_current]!;
     final start = side.ships.length;
     final layout = _generate(
-        fleet.sublist(start), Random(seed), _occupiedOf(side));
+        fleet.sublist(start), GameRandom(seed), _occupiedOf(side));
     if (layout == null) return null; // existing ships leave no room
     final player = _current;
     for (final p in layout) {
@@ -431,7 +430,7 @@ class SchiffeGame extends Game {
       if (p != null) _mark(occupied, p, true);
     }
     final missing = [for (var i = 0; i < fleet.length; i++) if (partial[i] == null) i];
-    final generated = _generate([for (final i in missing) fleet[i]], Random(seed), occupied);
+    final generated = _generate([for (final i in missing) fleet[i]], GameRandom(seed), occupied);
     if (generated == null) return null;
     final out = [...partial];
     for (var k = 0; k < missing.length; k++) {
@@ -445,7 +444,7 @@ class SchiffeGame extends Game {
   static List<ShipPlacement> randomLayout(int seed,
       {List<int> fleet = defaultFleet}) {
     final empty = List.generate(size, (_) => List.filled(size, false));
-    final layout = _generate(fleet, Random(seed), empty);
+    final layout = _generate(fleet, GameRandom(seed), empty);
     if (layout == null) {
       throw ArgumentError.value(fleet, 'fleet', 'does not fit on the board');
     }
@@ -456,7 +455,7 @@ class SchiffeGame extends Game {
   /// restarts first, then an exhaustive randomized backtracking search, so it
   /// succeeds whenever any valid layout exists. Deterministic for [rng].
   static List<ShipPlacement>? _generate(
-      List<int> lengths, Random rng, List<List<bool>> occupied) {
+      List<int> lengths, GameRandom rng, List<List<bool>> occupied) {
     for (var attempt = 0; attempt < 200; attempt++) {
       final occ = [for (final row in occupied) [...row]];
       final out = <ShipPlacement>[];
@@ -489,7 +488,7 @@ class SchiffeGame extends Game {
           for (var r = 0; r < size; r++)
             for (var c = 0; c < size; c++)
               ShipPlacement(length: lengths[i], row: r, col: c, horizontal: h),
-      ]..shuffle(rng);
+      ]..shuffleWith(rng);
       for (final p in candidates) {
         if (!_fits(occ, p)) continue;
         _mark(occ, p, true);

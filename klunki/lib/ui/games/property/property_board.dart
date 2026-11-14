@@ -1286,12 +1286,23 @@ class PropertyDeedCard extends StatelessWidget {
         decoration: hot
             ? BoxDecoration(color: seatColor(context, owner!).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(3))
             : null,
-        child: Row(children: [
-          if (hot) SizedBox(key: k('now'), width: 0),
-          Expanded(child: Text(left, maxLines: 1, overflow: TextOverflow.ellipsis, style: hot ? strong : body)),
-          SizedBox(width: compact ? 4 : 8),
-          Text(right, style: strong),
-        ]),
+        // The amount keeps its width; a long one ("Augensumme × 10" on a
+        // narrow card) shrinks instead of pushing the row over the edge.
+        child: LayoutBuilder(
+          builder: (context, box) => Row(children: [
+            if (hot) SizedBox(key: k('now'), width: 0),
+            Expanded(child: Text(left, maxLines: 1, overflow: TextOverflow.ellipsis, style: hot ? strong : body)),
+            SizedBox(width: compact ? 4 : 8),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: box.maxWidth * 0.6),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: Text(right, style: strong),
+              ),
+            ),
+          ]),
+        ),
       );
     }
 

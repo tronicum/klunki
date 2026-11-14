@@ -131,18 +131,24 @@ void main() {
     });
 
     test('a replayed game (exchanges included) ends in the same state', () {
-      final g = WordTilesGame(seed: 9);
-      final rng = Random(1);
-      while (!g.isOver) {
-        final legal = g.legalMoves;
-        g.applyMove(legal[rng.nextInt(legal.length)]);
+      // Random games until one has an exchange (the first seeds are enough);
+      // every one replays to the same state.
+      var exchanged = false;
+      for (var seed = 9; seed < 40 && !exchanged; seed++) {
+        final g = WordTilesGame(seed: seed);
+        final rng = Random(1);
+        while (!g.isOver) {
+          final legal = g.legalMoves;
+          g.applyMove(legal[rng.nextInt(legal.length)]);
+        }
+        final r = replay(GameConfig('wordtiles', seed: seed), g.history) as WordTilesGame;
+        expect(r.board, g.board);
+        expect(r.scores, g.scores);
+        expect(r.rackOf(0), g.rackOf(0));
+        expect(r.result.reason, g.result.reason);
+        exchanged = g.history.any((m) => m['action'] == 'exchange');
       }
-      final r = replay(const GameConfig('wordtiles', seed: 9), g.history) as WordTilesGame;
-      expect(r.board, g.board);
-      expect(r.scores, g.scores);
-      expect(r.rackOf(0), g.rackOf(0));
-      expect(r.result.reason, g.result.reason);
-      expect(g.history.any((m) => m['action'] == 'exchange'), isTrue);
+      expect(exchanged, isTrue);
     });
   });
 

@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'game.dart';
+import 'prng.dart';
 import 'secrecy.dart';
 
 part 'gostrategy_view.dart';
@@ -358,7 +357,7 @@ class GoStrategyGame extends Game {
   /// the front row, and only movable pieces in the front row (so the army
   /// can always move at the start).
   static List<GoPiece> randomSetup(int seed) {
-    final rng = Random(seed);
+    final rng = GameRandom(seed);
     final out = List<GoPiece?>.filled(piecesPerPlayer, null);
     final flagCol = rng.nextInt(size);
     out[30 + flagCol] = GoPiece.flag;
@@ -367,11 +366,11 @@ class GoStrategyGame extends Game {
       out[i] = GoPiece.bomb;
       bombs--;
     }
-    final free = [for (var i = size; i < piecesPerPlayer; i++) if (out[i] == null) i]..shuffle(rng);
+    final free = [for (var i = size; i < piecesPerPlayer; i++) if (out[i] == null) i]..shuffleWith(rng);
     for (var b = 0; b < bombs; b++) {
       out[free[b]] = GoPiece.bomb;
     }
-    final rest = [for (final p in army) if (p.movable) p]..shuffle(rng);
+    final rest = [for (final p in army) if (p.movable) p]..shuffleWith(rng);
     var k = 0;
     for (var i = 0; i < piecesPerPlayer; i++) {
       if (out[i] == null) out[i] = rest[k++];

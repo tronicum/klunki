@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'game.dart';
+import 'prng.dart';
 import 'seats.dart';
 import 'secrecy.dart';
 
@@ -613,7 +614,7 @@ class WordTilesGame extends Game implements SeatGame {
   final List<List<String>> _racks;
   final List<int> _scores;
   final List<int> _penalties;
-  final Random _rng;
+  final GameRandom _rng;
   int _seat = 0;
   int _scoreless = 0;
   _OpenPlacement? _open;
@@ -644,7 +645,7 @@ class WordTilesGame extends Game implements SeatGame {
         _racks = List.generate(playerCount, (_) => <String>[]),
         _scores = List.filled(playerCount, 0),
         _penalties = List.filled(playerCount, 0),
-        _rng = Random(seed) {
+        _rng = GameRandom(seed) {
     if (playerCount < 2 || playerCount > 4) throw ArgumentError.value(playerCount, 'playerCount', '2–4 seats');
     if (check == WordCheck.dictionary && validator == null) {
       throw ArgumentError('dictionary mode needs a validator');
@@ -668,7 +669,7 @@ class WordTilesGame extends Game implements SeatGame {
         _racks = List.generate(playerCount, (_) => <String>[]),
         _scores = List.filled(playerCount, 0),
         _penalties = List.filled(playerCount, 0),
-        _rng = Random(0);
+        _rng = GameRandom(0);
 
   /// Test and debug hook: replaces the racks (per seat), the bag (drawn
   /// from the end) and/or puts [board] tiles down, before the first move.

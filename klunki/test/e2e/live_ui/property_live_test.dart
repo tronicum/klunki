@@ -275,7 +275,7 @@ void main() {
     await _playGame(
         tester,
         const GameConfig('property',
-            seed: 7,
+            seed: 8, // a deal (KLD-072) where a trade gets accepted too
             property: PropertyOptions(rounds: 25, free: PropertyFreeSquare.pot, doubleStart: true, bankruptAuction: true)));
   });
 

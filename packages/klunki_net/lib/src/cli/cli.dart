@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:klunki_engine/debug.dart';
 import 'package:klunki_engine/klunki_engine.dart';
@@ -219,7 +218,7 @@ String _title(GameConfig config) {
 /// for chess the colours (`--color random`: decided by the seed, the config
 /// carries the result).
 GameConfig _config(_Args parsed) {
-  final seed = parsed.seed ?? Random().nextInt(1 << 30);
+  final seed = parsed.seed ?? secureSeed();
   final choice = ChessColorChoice.values.byName(parsed.color ?? 'white');
   return GameConfig(parsed.target, seed: seed, deck: parsed.deck, chessWhite: choice.whitePlayer(seed));
 }

@@ -1170,5 +1170,17 @@
   "maexchenEndWaiting": "已询问，由 {player} 决定。",
   "maexchenEndRefused": "{player} 想继续玩。",
   "maexchenMoveEndRequest": "想结束游戏",
-  "roomRuleOff": "取消：{rule}"
+  "roomRuleOff": "取消：{rule}",
+  "savesTitle": "继续游戏",
+  "savesMenuCount": "{count, plural, other{{count} 局未完成的游戏}}",
+  "savesMoveCount": "{count, plural, other{{count} 步}}",
+  "savesCannotResume": "无法继续",
+  "savesCannotResumeBody": "这局游戏与当前版本的 Klunki 不匹配。你可以删除它。",
+  "savesDelete": "删除",
+  "savesDeleteTitle": "删除这局游戏？",
+  "savesDeleteBody": "未完成的游戏“{game}”将被删除。",
+  "savesEmpty": "没有未完成的游戏。",
+  "savesHint": "Klunki 会为每种游戏保存最近一局未完成的游戏。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。",
+  "savesAskTitle": "未完成的游戏",
+  "savesAskBody": "继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。"
 }

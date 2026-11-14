@@ -672,7 +672,9 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final (host, guest) = (await tester.runAsync(() async {
-        final h = await NetworkTransport.host(const GameConfig('quartett-trumpf', seed: 5),
+        // Seed 1: the stat that wins the first trick ("kg") is not the first
+        // stat, which the host picks next (KLD-072 deals).
+        final h = await NetworkTransport.host(const GameConfig('quartett-trumpf', seed: 1),
             name: 'Anna', address: InternetAddress.loopbackIPv4, wsPort: null, pingInterval: ping, timeout: timeout);
         final g = await NetworkTransport.join(InternetAddress.loopbackIPv4, h.port!,
             name: 'Ben', pingInterval: ping, timeout: timeout);

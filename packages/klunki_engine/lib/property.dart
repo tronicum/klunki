@@ -15,7 +15,7 @@
 /// rules do not depend on it.
 ///
 /// Deterministic: the dice and the two shuffled card decks come from one
-/// `Random(seed)`, so `(playerCount, seed, maxRounds)` plus the move list is
+/// `GameRandom(seed)`, so `(playerCount, seed, maxRounds)` plus the move list is
 /// a full replay ([PropertyGame.replay]). Money, properties and held cards are
 /// public; the seed and the deck order are not (a guest must never get them:
 /// [PropertyGame.toJson] leaves both out).
@@ -43,6 +43,7 @@ library;
 import 'dart:math';
 
 import 'game.dart';
+import 'prng.dart';
 import 'property_theme.dart';
 import 'seats.dart';
 
@@ -343,8 +344,8 @@ class PropertyEvent extends GameEvent {
 /// Baulöwe for 2–6 seats. See the library docs.
 class PropertyGame extends Game implements SeatGame {
   /// Rules version (KLD-085), in the fingerprint since the registry entry
-  /// (`gameSpecs`, KLD-060 step 2).
-  static const int rulesVersion = 1;
+  /// (`gameSpecs`, KLD-060 step 2). 2 (KLD-072): the engine PRNG.
+  static const int rulesVersion = 2;
   static const int minPlayers = 2;
   static const int maxPlayers = 6;
   static const int startCash = 1500;
@@ -398,7 +399,7 @@ class PropertyGame extends Game implements SeatGame {
         _ => 0,
       };
 
-  final Random _rng;
+  final GameRandom _rng;
   List<PropertySquare> get _board => theme.squares;
   List<List<int>> get _groups => theme.groups;
 
@@ -462,7 +463,7 @@ class PropertyGame extends Game implements SeatGame {
       Map<PropertyDeck, List<String>> deckOrder = const {}})
       : theme = theme ?? PropertyTheme.berlin,
         freeSquareAmount = freeSquareAmount ?? defaultFreeSquareAmount(freeSquare),
-        _rng = Random(seed),
+        _rng = GameRandom(seed),
         _scriptedDice = List.of(dice),
         _seats = List.generate(playerCount.clamp(0, maxPlayers), (_) => PropertySeat(startCash)) {
     if (playerCount < minPlayers || playerCount > maxPlayers) {

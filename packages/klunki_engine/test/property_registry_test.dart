@@ -16,7 +16,7 @@ void main() {
       final spec = specById('property')!;
       expect(spec.title, 'Baulöwe');
       expect((spec.minPlayers, spec.maxPlayers), (2, 6));
-      expect(spec.rulesVersion, 1);
+      expect(spec.rulesVersion, 2); // 2: the engine PRNG (KLD-072)
       expect(spec.usesTheme, isTrue);
       expect(spec.networkPlay, isFalse);
       expect(spec.hiddenInformation, isFalse);

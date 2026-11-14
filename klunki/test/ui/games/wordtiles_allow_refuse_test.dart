@@ -35,7 +35,8 @@ Future<GameController> _start(WidgetTester tester, {int players = 2}) async {
   tester.view.physicalSize = const Size(1180, 820) * 2;
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final c = GameController.hotSeat(GameConfig('wordtiles', seed: 1, dictionary: true, players: players));
+  // Seed 18 deals H, S and A to Anna and no blank (KLD-072): undo replays the log from the dealt racks.
+  final c = GameController.hotSeat(GameConfig('wordtiles', seed: 18, dictionary: true, players: players));
   addTearDown(c.dispose);
   (c.game as WordTilesGame).debugSetup(racks: _racks.take(players).toList(), bag: List.filled(40, 'E'));
   await tester.pumpWidget(localizedApp(buildGameScreen(c)));

@@ -20,15 +20,15 @@ proposals WortSalat and KlunkerKombi are kept for future games.
 |---|---|---|
 | `connect4` | 4 Gewinnt | Four in a Row |
 | `muehle` | Mühle | Nine Men's Morris |
-| `quartett-trumpf` | Quartett (Trumpf) | hidden info, decks; rules version 2 (KLD-100 "≤3 cards: choose" house rule) |
-| `quartett-sets` | Quartett (Sets) | hidden info, decks |
-| `schiffe` | Schiffe versenken | hidden info; fleet of 6 ships |
-| `gostrategy` | GoStrategy | hidden ranks, capture the flag |
+| `quartett-trumpf` | Quartett (Trumpf) | hidden info, decks; rules version 3 (2: KLD-100 "≤3 cards: choose" house rule; 3: engine PRNG, KLD-072) |
+| `quartett-sets` | Quartett (Sets) | hidden info, decks; rules version 2 (engine PRNG) |
+| `schiffe` | Schiffe versenken | hidden info; fleet of 6 ships; rules version 2 (engine PRNG) |
+| `gostrategy` | GoStrategy | hidden ranks, capture the flag; rules version 2 (engine PRNG) |
 | `chess` | Schach | network: yes (KLD-059 step 3); the host chooses Weiß / Schwarz / Zufällig (step 4a, `GameConfig.chessWhite`, config key `white`); rules version 4: chess clock (KLD-126, `GameConfig.chessClock`, config key `clock`, e.g. `"900+10"`, only written with a clock) |
-| `wordtiles` | Wortgewandt | word tile game; hidden racks; rules version 5 (KLD-094 step 6: "Trotzdem zulassen" needs the other player; word list hashes in the fingerprint; step 9: house rule "Joker tauschen", `GameConfig.jokerSwap`, config key `joker`, off by default; step 10: "Restpunkte abziehen", `GameConfig.rackPenalty`, config key `rest: false` only when off); network (step 6); released in the app (step 7); word lists load on demand (not precached in the PWA), licences in `docs/legal/third-party-data.md` |
-| `maumau` | Mau-Mau | KLD-118; hidden hands; house rules in `GameConfig.mauMau` (config key `maumau`); network since step 3 (2 players; the host sets the house rules on "Raum starten"); 3–4 players later (KLD-088); rules version 1 |
-| `maexchen` | Mäxchen | KLD-121; dice bluffing game (en Mia); hidden dice; lives and house rule "Mäxchen doppelt" in `GameConfig.lives` / `maexchenDouble` (config keys `lives`, `maexDouble`); 2–4 players on one device (KLD-121 step 2, seat shell); rule variant "Unbegrenzte Leben" (`GameConfig.maexchenUnlimited`, config key `maexUnlimited`, off by default; ended by the players with the `end` move; over the network by agreement, `endRequest` / `endAgree` / `endRefuse`); network in the app since the network step (2 players; lives and house rules on "Raum starten"); rules version 3 |
-| `property` | Baulöwe | KLD-060; property-trading dice game (en Housing Corp); 2–6 players in the engine, 2–4 in the app (hot-seat only, `networkPlay: false`); themes Berlin / Fantasiestadt (`GameConfig.property`, fingerprint per theme); rules version 1; no trade screen yet |
+| `wordtiles` | Wortgewandt | word tile game; hidden racks; rules version 6 (6: engine PRNG, KLD-072; KLD-094 step 6: "Trotzdem zulassen" needs the other player; word list hashes in the fingerprint; step 9: house rule "Joker tauschen", `GameConfig.jokerSwap`, config key `joker`, off by default; step 10: "Restpunkte abziehen", `GameConfig.rackPenalty`, config key `rest: false` only when off); network (step 6); released in the app (step 7); word lists load on demand (not precached in the PWA), licences in `docs/legal/third-party-data.md` |
+| `maumau` | Mau-Mau | KLD-118; hidden hands; house rules in `GameConfig.mauMau` (config key `maumau`); network since step 3 (2 players; the host sets the house rules on "Raum starten"); 3–4 players later (KLD-088); rules version 2 (engine PRNG) |
+| `maexchen` | Mäxchen | KLD-121; dice bluffing game (en Mia); hidden dice; lives and house rule "Mäxchen doppelt" in `GameConfig.lives` / `maexchenDouble` (config keys `lives`, `maexDouble`); 2–4 players on one device (KLD-121 step 2, seat shell); rule variant "Unbegrenzte Leben" (`GameConfig.maexchenUnlimited`, config key `maexUnlimited`, off by default; ended by the players with the `end` move; over the network by agreement, `endRequest` / `endAgree` / `endRefuse`); network in the app since the network step (2 players; lives and house rules on "Raum starten"); rules version 4 (engine PRNG) |
+| `property` | Baulöwe | KLD-060; property-trading dice game (en Housing Corp); 2–6 players in the engine, 2–4 in the app (hot-seat only, `networkPlay: false`); themes Berlin / Fantasiestadt (`GameConfig.property`, fingerprint per theme); rules version 2 (engine PRNG); no trade screen yet |
 
 **Generic names only.** Never use publisher or brand names for games, in code, ARB strings, docs, store
 texts or commit messages (say "Four in a Row", "Sink the Fleet", "word tile game"). Real vehicle names on
@@ -42,7 +42,8 @@ There is **no `pubspec.yaml` in the repo root**: run `dart`/`flutter` inside the
   `muehle.dart`, `quartett.dart` + `quartett_decks.dart`, `schiffe.dart`, `gostrategy.dart`, `chess.dart`,
   `word_tiles.dart`), the registry (`GameConfig`, `GameSpec`, `replay`), hidden-information redaction
   (`secrecy.dart`, `*_view.dart`), build compatibility fingerprints (`compat.dart`), a text debug console
-  (`bin/klunki.dart`, `lib/debug/`). Engines are deterministic: config + seed + move list = full replay.
+  (`bin/klunki.dart`, `lib/debug/`). Engines are deterministic: config + seed + move list = full replay. Randomness only from the engine PRNG
+  `GameRandom` (`prng.dart`, KLD-072), never `dart:math` `Random(seed)`; fresh seeds from `secureSeed()`.
 - `packages/klunki_net/` – pure Dart networking: host-authoritative NDJSON over TCP and WebSocket, guest,
   relay server (also serves the PWA), rejoin tokens, commitments for hidden info (`lib/src/secrecy/`),
   protocol/build compat check (`lib/src/compat.dart`, `protocolVersion`), CLI (`bin/klunki.dart`).

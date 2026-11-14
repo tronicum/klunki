@@ -1170,5 +1170,17 @@
   "maexchenEndWaiting": "Demande envoyée – décision : {player}.",
   "maexchenEndRefused": "{player} veut continuer à jouer.",
   "maexchenMoveEndRequest": "demande la fin de la partie",
-  "roomRuleOff": "sans {rule}"
+  "roomRuleOff": "sans {rule}",
+  "savesTitle": "Continuer",
+  "savesMenuCount": "{count, plural, one{{count} partie en cours} many{{count} de parties en cours} other{{count} parties en cours}}",
+  "savesMoveCount": "{count, plural, one{{count} coup} many{{count} de coups} other{{count} coups}}",
+  "savesCannotResume": "Impossible de continuer",
+  "savesCannotResumeBody": "Cette partie ne correspond pas à cette version de Klunki. Tu peux la supprimer.",
+  "savesDelete": "Supprimer",
+  "savesDeleteTitle": "Supprimer la partie ?",
+  "savesDeleteBody": "La partie en cours « {game} » sera supprimée.",
+  "savesEmpty": "Aucune partie en cours.",
+  "savesHint": "Klunki garde la dernière partie commencée de chaque jeu. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.",
+  "savesAskTitle": "Partie commencée",
+  "savesAskBody": "Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup."
 }

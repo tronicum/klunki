@@ -42,7 +42,8 @@ Future<GameController> _start(
   tester.view.padding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
   tester.view.viewPadding = FakeViewPadding(top: safe.$1, bottom: safe.$2);
   addTearDown(tester.view.reset);
-  final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
+  // Seed 18: no blank on the first racks (a blank asks for its letter; KLD-072 deals).
+  final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 18));
   addTearDown(c.dispose);
   await tester.pumpWidget(localizedApp(PlayerLabelsScope(labels: labels, child: buildGameScreen(c)), locale: locale));
   await tester.pump();

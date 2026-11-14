@@ -196,7 +196,7 @@ void main() {
     final spec = specById('wordtiles')!;
     expect(spec.redaction, isA<WordTilesRedaction>());
     expect(spec.redaction!.secretSeed, isTrue);
-    expect(fingerprintOf(const GameConfig('wordtiles'))!.rules, 5);
+    expect(fingerprintOf(const GameConfig('wordtiles'))!.rules, greaterThanOrEqualTo(5)); // 6: engine PRNG (KLD-072)
     expect(WordTilesGame.gameplayData().last, everyElement(contains('sha256:')));
   });
 

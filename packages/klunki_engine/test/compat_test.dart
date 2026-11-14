@@ -7,30 +7,33 @@ void main() {
   // play this game together: intended only together with a rules or deck
   // change (bump GameSpec.rulesVersion / QuartettDeck.revision too). Print
   // the current values with `dart run tool/print_fingerprints.dart`.
+  // KLD-072: every game with a seed or a random setup moved to the engine PRNG
+  // (rules +1: Quartett, Schiffe, GoStrategy, Wortgewandt, Mau-Mau, Mäxchen,
+  // Ausgewürfelt, Baulöwe).
   const golden = {
     'connect4': (1, 1, '282ff8588e55894fee40310288ba4cd3'),
     'muehle': (1, 1, '11dc77e785302ff02798301f8c3e6ca2'),
-    'quartett-trumpf/cars': (2, 1, '378d71ae1272e96537ba43c00efe4312'),
-    'quartett-trumpf/trains': (2, 2, '27d8444e107ce25df18d9dcff7083ea7'),
-    'quartett-trumpf/rockets': (2, 2, 'fcbe8f667602a34eba264ab20115b388'),
-    'quartett-trumpf/planes': (2, 2, '1e09887644babc40be5c137ef613d1cf'),
-    'quartett-sets/cars': (1, 1, '9929298ad7256ca5d6a59621440e6709'),
-    'quartett-sets/trains': (1, 2, 'b5a57d4235755cb6e9482c01b516c22c'),
-    'quartett-sets/rockets': (1, 2, '6f2b13617f2f9f61c7c306f4ce7cb278'),
-    'quartett-sets/planes': (1, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
-    'schiffe': (1, 1, '372bb8310b020f23ee9328eb838c0a4c'),
-    'gostrategy': (1, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
+    'quartett-trumpf/cars': (3, 1, '378d71ae1272e96537ba43c00efe4312'),
+    'quartett-trumpf/trains': (3, 2, '27d8444e107ce25df18d9dcff7083ea7'),
+    'quartett-trumpf/rockets': (3, 2, 'fcbe8f667602a34eba264ab20115b388'),
+    'quartett-trumpf/planes': (3, 2, '1e09887644babc40be5c137ef613d1cf'),
+    'quartett-sets/cars': (2, 1, '9929298ad7256ca5d6a59621440e6709'),
+    'quartett-sets/trains': (2, 2, 'b5a57d4235755cb6e9482c01b516c22c'),
+    'quartett-sets/rockets': (2, 2, '6f2b13617f2f9f61c7c306f4ce7cb278'),
+    'quartett-sets/planes': (2, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
+    'schiffe': (2, 1, '372bb8310b020f23ee9328eb838c0a4c'),
+    'gostrategy': (2, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).
     'chess': (4, 1, '5f2d81a850dc003d33424219c180126a'),
-    'wordtiles': (5, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
-    'maumau': (1, 1, '70ca586971256574b6ae28af6fdb38b4'),
+    'wordtiles': (6, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
+    'maumau': (2, 1, '70ca586971256574b6ae28af6fdb38b4'),
     // Rules 2 (KLD-121 step 2): 2–4 seats and "Unbegrenzte Leben"; rules 3:
     // "Spiel beenden" over the network by agreement.
-    'maexchen': (3, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
-    'dicesheet': (1, 1, 'efb31c5c6fa32b9e12e025988708b559'),
+    'maexchen': (4, 1, '2bdb761a0b8eb3f4ea54c9156bfda505'),
+    'dicesheet': (2, 1, 'efb31c5c6fa32b9e12e025988708b559'),
     // KLD-060: Baulöwe, keyed by board theme (revision = theme revision).
-    'property/berlin': (1, 3, '9f4b3eec2e6d9b0890c6f560ebfc184f'),
-    'property/fantasie': (1, 2, '3664969ad91efaf5af4b4128233f0866'),
+    'property/berlin': (2, 3, '9f4b3eec2e6d9b0890c6f560ebfc184f'),
+    'property/fantasie': (2, 2, '3664969ad91efaf5af4b4128233f0866'),
   };
 
   test('golden fingerprint per game and deck', () {

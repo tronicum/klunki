@@ -7137,6 +7137,78 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'ohne {rule}'**
   String roomRuleOff(String rule);
+
+  /// KLD-079: menu card and screen title: resume a paused hot-seat game. Plain, for kids.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen'**
+  String get savesTitle;
+
+  /// KLD-079: subtitle of the menu card: how many paused games there are.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 angefangenes Spiel} other{{count} angefangene Spiele}}'**
+  String savesMenuCount(int count);
+
+  /// KLD-079: a saved game in the list: how many moves were played.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Zug} other{{count} Züge}}'**
+  String savesMoveCount(int count);
+
+  /// KLD-079: a saved game this build cannot replay (other rules version or broken data).
+  ///
+  /// In de, this message translates to:
+  /// **'Kann nicht fortgesetzt werden'**
+  String get savesCannotResume;
+
+  /// KLD-079: dialog text when a saved game cannot be resumed; it can be deleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Spiel passt nicht zu dieser Version von Klunki. Du kannst es löschen.'**
+  String get savesCannotResumeBody;
+
+  /// KLD-079: button / tooltip: delete a saved game.
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get savesDelete;
+
+  /// KLD-079: title of the question before a saved game is deleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel löschen?'**
+  String get savesDeleteTitle;
+
+  /// KLD-079: text of the delete question; {game} is the game title.
+  ///
+  /// In de, this message translates to:
+  /// **'Das angefangene Spiel „{game}“ wird gelöscht.'**
+  String savesDeleteBody(String game);
+
+  /// KLD-079: the list of saved games is empty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine angefangenen Spiele.'**
+  String get savesEmpty;
+
+  /// KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move.
+  ///
+  /// In de, this message translates to:
+  /// **'Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.'**
+  String get savesHint;
+
+  /// KLD-079: title of the question when a hot-seat game is started while one of the same kind is saved. Plain, for kids.
+  ///
+  /// In de, this message translates to:
+  /// **'Angefangenes Spiel'**
+  String get savesAskTitle;
+
+  /// KLD-079: text of that question, under the saved players, date and moves. Buttons: savesTitle (continue) and shellNewGame (new game).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.'**
+  String get savesAskBody;
 }
 
 class _AppLocalizationsDelegate

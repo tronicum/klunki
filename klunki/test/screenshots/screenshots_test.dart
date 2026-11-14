@@ -41,6 +41,9 @@ import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/profile/shake_settings.dart';
 import 'package:klunki/profile/undo_settings.dart';
+import 'package:klunki/saves/save_store.dart';
+import 'package:klunki/saves/saved_game.dart';
+import 'package:klunki/ui/shell/legal_move_board.dart' show legalMovesOf;
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/fake_discovery.dart';
@@ -410,6 +413,40 @@ void main() {
     await tester.pump();
     await _shot(tester, 'kld081-board-O-phone-light');
   });
+
+  // KLD-079: the menu's "Weiterspielen" card and the list of saved games.
+  for (final (b, locale) in [
+    (Brightness.light, 'de'),
+    (Brightness.dark, 'de'),
+    (Brightness.light, 'en'),
+    (Brightness.light, 'ar'),
+  ]) {
+    testWidgets('kld079 saves ${b.name} $locale', skip: skip != null, (tester) async {
+      await _setup(tester, phone, b);
+      final store = await _kld079Store();
+      await tester.pumpWidget(_wrap(KlunkiApp(
+          localeController: LocaleController.memory(Locale(locale)), savedGames: store)));
+      final tag = '${b.name}-$locale';
+      await _shot(tester, 'kld079-menu-$tag');
+      await tester.tap(find.byKey(const Key('menu-saved-games')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld079-list-$tag');
+      if (b == Brightness.light && locale == 'de') {
+        await tester.tap(find.byKey(const Key('saved-muehle')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld079-cannot-resume-$tag');
+      }
+      // Starting chess from the menu while one is saved: "Angefangenes Spiel".
+      await tester.pumpWidget(_wrap(KlunkiApp(
+          key: UniqueKey(), localeController: LocaleController.memory(Locale(locale)), savedGames: store)));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('menu-chess-tile')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('menu-chess-tile')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld079-ask-$tag');
+    });
+  }
 
   // KLD-069: a card of every deck, the card gallery and the deck picker,
   // phone light and dark.
@@ -1743,4 +1780,28 @@ int _crc32(List<int> bytes) {
     c = _crcTable[(c ^ x) & 0xFF] ^ (c >> 8);
   }
   return c ^ 0xFFFFFFFF;
+}
+
+/// KLD-079: a few saved games (chess, Baulöwe for 3, Wortgewandt) and one
+/// from an older build, in an in-memory store.
+Future<SaveStore> _kld079Store() async {
+  final store = SaveStore.memory();
+  var hour = 18;
+  for (final (config, n, names) in [
+    (const GameConfig('wordtiles', seed: 9), 4, <String?>['Lena', 'Max']),
+    (const GameConfig('property', seed: 5, players: 3), 30, <String?>['Mia', null, 'Ole']),
+    (const GameConfig('chess', seed: 1), 14, <String?>['Mia', 'Opa']),
+  ]) {
+    final t = HotSeatTransport(config);
+    for (var i = 0; i < n && !t.game.isOver; i++) {
+      t.submitSync(legalMovesOf(t.game).firstWhere((m) => m['action'] != 'resign'));
+    }
+    await store.save(SavedGame.now(config, [for (final m in t.moves) m.move],
+        names: names, savedAt: DateTime(2026, 11, 14, hour++, 30)));
+  }
+  final old = SavedGame.now(const GameConfig('muehle'), [
+    {'action': 'place', 'to': 0}
+  ], savedAt: DateTime(2026, 10, 3, 17, 5));
+  await store.save(SavedGame.tryParse({...old.toJson(), 'rulesVersion': 0})!);
+  return store;
 }

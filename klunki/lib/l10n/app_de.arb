@@ -6887,5 +6887,68 @@
         "type": "String"
       }
     }
+  },
+  "savesTitle": "Weiterspielen",
+  "@savesTitle": {
+    "description": "KLD-079: menu card and screen title: resume a paused hot-seat game. Plain, for kids."
+  },
+  "savesMenuCount": "{count, plural, =1{1 angefangenes Spiel} other{{count} angefangene Spiele}}",
+  "@savesMenuCount": {
+    "description": "KLD-079: subtitle of the menu card: how many paused games there are.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "savesMoveCount": "{count, plural, =1{1 Zug} other{{count} Züge}}",
+  "@savesMoveCount": {
+    "description": "KLD-079: a saved game in the list: how many moves were played.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "savesCannotResume": "Kann nicht fortgesetzt werden",
+  "@savesCannotResume": {
+    "description": "KLD-079: a saved game this build cannot replay (other rules version or broken data)."
+  },
+  "savesCannotResumeBody": "Dieses Spiel passt nicht zu dieser Version von Klunki. Du kannst es löschen.",
+  "@savesCannotResumeBody": {
+    "description": "KLD-079: dialog text when a saved game cannot be resumed; it can be deleted."
+  },
+  "savesDelete": "Löschen",
+  "@savesDelete": {
+    "description": "KLD-079: button / tooltip: delete a saved game."
+  },
+  "savesDeleteTitle": "Spiel löschen?",
+  "@savesDeleteTitle": {
+    "description": "KLD-079: title of the question before a saved game is deleted."
+  },
+  "savesDeleteBody": "Das angefangene Spiel „{game}“ wird gelöscht.",
+  "@savesDeleteBody": {
+    "description": "KLD-079: text of the delete question; {game} is the game title.",
+    "placeholders": {
+      "game": {
+        "type": "String"
+      }
+    }
+  },
+  "savesEmpty": "Keine angefangenen Spiele.",
+  "@savesEmpty": {
+    "description": "KLD-079: the list of saved games is empty."
+  },
+  "savesHint": "Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.",
+  "@savesHint": {
+    "description": "KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move."
+  },
+  "savesAskTitle": "Angefangenes Spiel",
+  "@savesAskTitle": {
+    "description": "KLD-079: title of the question when a hot-seat game is started while one of the same kind is saved. Plain, for kids."
+  },
+  "savesAskBody": "Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.",
+  "@savesAskBody": {
+    "description": "KLD-079: text of that question, under the saved players, date and moves. Buttons: savesTitle (continue) and shellNewGame (new game)."
   }
 }
