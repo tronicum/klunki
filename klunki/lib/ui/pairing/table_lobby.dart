@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_net/klunki_net.dart' show TableSeat;
 
+import '../../app/theme.dart';
 import '../../transport/network_transport.dart';
 import '../ltr.dart';
 import '../shell/seat_labels.dart';
@@ -53,12 +54,16 @@ class RoomPlayerCountPicker extends StatelessWidget {
 
 /// The names of a table's seats for the game shell; this device's seat is
 /// [SeatLabels.local] ("Du bist am Zug").
-SeatLabels tableSeatLabels(NetworkTransport t) => SeatLabels([for (final s in t.seats) s.name], t.seat);
+/// While the table waits for someone who is away, [SeatLabels.paused].
+SeatLabels tableSeatLabels(NetworkTransport t) =>
+    SeatLabels([for (final s in t.seats) s.name], t.seat, t.paused);
 
 /// A table's lobby (KLD-088 step 4): every seat with its token and name
 /// ("Du: Anna" for this device, "Platz frei", "nicht verbunden") and, until
-/// every seat is taken, "Warte auf noch 2 Mitspieler…". Rebuilds with the
-/// transport. Keys `table-lobby`, `table-seat-<n>`, `table-waiting`.
+/// every seat is taken, "Warte auf noch 2 Mitspieler…". Once it is full,
+/// "Alle sind da!" and the host's countdown 5 … 1 above the seats
+/// ([TableCountdown]). Rebuilds with the transport. Keys `table-lobby`,
+/// `table-seat-<n>`, `table-waiting`.
 class TableLobby extends StatelessWidget {
   final NetworkTransport transport;
   const TableLobby({super.key, required this.transport});
@@ -77,6 +82,10 @@ class TableLobby extends StatelessWidget {
           key: const Key('table-lobby'),
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (t.countdown case final n? when !t.started) ...[
+              TableCountdown(count: n),
+              const SizedBox(height: 16),
+            ],
             Text(l10n.tableLobbyTitle, style: theme.textTheme.titleSmall),
             const SizedBox(height: 4),
             for (var i = 0; i < seats.length; i++) _row(context, l10n, theme, i, seats[i]),
@@ -126,6 +135,69 @@ class TableLobby extends StatelessWidget {
             const SizedBox(width: 8),
             Text(l10n.tableSeatAway, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error)),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// "Alle sind da!" and the number of the countdown to the start of a table
+/// (KLD-088), big and round in the room's colour; the number pops in at
+/// every step. Keys `table-countdown`, `table-countdown-number`.
+class TableCountdown extends StatelessWidget {
+  /// The steps left, 5 … 1, as the host counts.
+  final int count;
+  const TableCountdown({super.key, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final still = reduceMotion(context);
+    return Semantics(
+      key: const Key('table-countdown'),
+      liveRegion: true,
+      label: '${l10n.tableAllHere} ${l10n.tableStartsIn} $count',
+      excludeSemantics: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.tableAllHere,
+            key: const Key('table-all-here'),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, color: scheme.primary),
+          ),
+          const SizedBox(height: 4),
+          Text(l10n.tableStartsIn, textAlign: TextAlign.center, style: theme.textTheme.bodyLarge),
+          const SizedBox(height: 12),
+          Center(
+            child: AnimatedSwitcher(
+              duration: still ? Duration.zero : const Duration(milliseconds: 300),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
+                child: FadeTransition(opacity: animation, child: child),
+              ),
+              child: Container(
+                key: ValueKey(count),
+                width: 112,
+                height: 112,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+                child: Text(
+                  '$count',
+                  key: const Key('table-countdown-number'),
+                  textDirection: TextDirection.ltr,
+                  style: theme.textTheme.displayLarge?.copyWith(
+                    color: scheme.onPrimary,
+                    fontWeight: FontWeight.w800,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );

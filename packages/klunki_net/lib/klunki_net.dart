@@ -19,6 +19,7 @@ export 'src/events.dart'
     show
         protocolVersion,
         tableProtocolVersion,
+        tableCountdownSteps,
         TableSeat,
         LobbyChanged,
         NetEvent,

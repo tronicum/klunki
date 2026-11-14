@@ -743,6 +743,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairingDeviceNameHelper => '对方会看到这个名字';
 
   @override
+  String get pairingDeviceNameHelperTable => '其他玩家会看到这个名字';
+
+  @override
   String get playerNameTitle => '你叫什么名字？';
 
   @override
@@ -844,6 +847,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tableLobbyTitle => '房间里的玩家';
+
+  @override
+  String get tableAllHere => '大家都到齐了！';
+
+  @override
+  String get tableStartsIn => '游戏马上开始…';
+
+  @override
+  String get seatPausedStatus => '暂停';
 
   @override
   String get tableRelayTooOld => '这个服务器不支持两人以上的游戏。';

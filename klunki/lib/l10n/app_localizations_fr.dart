@@ -775,6 +775,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'C’est ainsi que l’autre joueur te voit';
 
   @override
+  String get pairingDeviceNameHelperTable =>
+      'C’est ainsi que les autres joueurs te voient';
+
+  @override
   String get playerNameTitle => 'Comment tu t’appelles ?';
 
   @override
@@ -878,6 +882,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tableLobbyTitle => 'Joueurs présents';
+
+  @override
+  String get tableAllHere => 'Tout le monde est là !';
+
+  @override
+  String get tableStartsIn => 'La partie commence dans…';
+
+  @override
+  String get seatPausedStatus => 'Pause';
 
   @override
   String get tableRelayTooOld =>

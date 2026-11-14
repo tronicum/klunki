@@ -638,11 +638,18 @@ table always plays seat 0 (A). A two-player session never uses any of this.
 **Seats.** A guest without a token (or with an unknown one) takes the first
 free seat, in join order. Every guest gets its own `token` in `welcome`
 (16 random bytes, compared in constant time as in KLD-071); with it the
-guest gets **its** seat back. The game **starts** when every seat was taken
-(automatically; `lobby.started`). Before the start a guest that leaves frees
-its seat (its token is forgotten; with it the guest just sits down again
-like a new one, possibly on another seat, which it accepts as long as no
-move was made). After the start a seat is reclaimed only with its token;
+guest gets **its** seat back. When every seat is taken the host **counts
+down** (KLD-088): five steps, one per second, each sent to every guest as
+`lobby` with `countdown` (5, 4, 3, 2, 1); one step after `countdown: 1` the
+game **starts** (`lobby` with `started: true` and no `countdown`). The
+host's timer alone decides: a guest shows the number it last got and waits
+for `started`, so no clocks need to agree and a late message only shows a
+step late. Before the start a guest that leaves frees its seat and
+**stops** the countdown (the next `lobby` has a free seat and no
+`countdown`); once the table is full again the countdown starts again at 5.
+A guest whose seat was freed has its token forgotten; with it the guest
+just sits down again like a new one, possibly on another seat, which it
+accepts as long as no move was made. After the start a seat is reclaimed only with its token;
 anyone else gets `error "session full"`, also while the table is not full
 of connected guests.
 
@@ -652,7 +659,7 @@ of connected guests.
 | type | direction | fields | meaning |
 |---|---|---|---|
 | `welcome` | host → guest | `config` (`publicJson`, with `players`), `seat` (1–3, instead of `you`), `token`, `host`, `redacted: true`, `seedCommit?`, `start`, `log`, `view` | as the redacted `welcome`, for this seat: `start` is the hash of this seat's start view, `log` this seat's steps `{seat, move, event, viewHash, commit?}` (`seat` instead of `player`), `view` this seat's view |
-| `lobby` | host → guest | `seats` (one entry per seat, index = seat: `{name, here}`, or `null` for a free seat; seat 0 is the host, always `here`), `started` | who sits where; sent to every guest after each change (a guest sits down, leaves, goes away, comes back) and right after each `welcome` |
+| `lobby` | host → guest | `seats` (one entry per seat, index = seat: `{name, here}`, or `null` for a free seat; seat 0 is the host, always `here`), `started`, `countdown?` | who sits where; sent to every guest after each change (a guest sits down, leaves, goes away, comes back), right after each `welcome` and at every step of the countdown; `countdown` (an int, 5 … 1; a guest refuses anything outside 1–60) only while a full table counts down to the start |
 | `accepted` | host → guest | `index`, `seat` (the mover's seat, instead of `player`), `move`, `event`, `view`, `commit?` | as the redacted `accepted`, for this seat |
 | `reveal` | host → guest | `seed?`, `seedSalt?`, `secrets` | as above, with this seat's commitments |
 
@@ -695,7 +702,9 @@ G→H {"type":"hello","v":3,"role":"guest","name":"Ben","protocol":3,"maxProtoco
 H→G {"type":"hello","v":4,"role":"host","name":"Anna","protocol":4,"build":"…","game":"wordtiles","fingerprint":{…}}
 H→G {"type":"welcome","v":4,"config":{"game":"wordtiles","players":3},"seat":1,"token":"9f…","host":"Anna","redacted":true,"seedCommit":"…","start":"…","log":[],"view":{…,"viewerSeat":1,…}}
 H→G {"type":"lobby","v":4,"seats":[{"name":"Anna","here":true},{"name":"Ben","here":true},null],"started":false}
-…                         (Cleo joins: seat 2)
+…                         (Cleo joins: seat 2, the table is full)
+H→G {"type":"lobby","v":4,"seats":[{"name":"Anna","here":true},{"name":"Ben","here":true},{"name":"Cleo","here":true}],"started":false,"countdown":5}
+…                         (a second each: countdown 4, 3, 2, 1)
 H→G {"type":"lobby","v":4,"seats":[{"name":"Anna","here":true},{"name":"Ben","here":true},{"name":"Cleo","here":true}],"started":true}
 H→G {"type":"accepted","v":4,"index":0,"seat":0,"move":{"action":"exchange","count":3},"event":{…},"view":{…},"commit":"…"}
 G→H {"type":"move","v":4,"index":1,"move":{"action":"pass"}}

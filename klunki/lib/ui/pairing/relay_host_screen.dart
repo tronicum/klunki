@@ -266,6 +266,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
   void _onChange() {
     final t = _transport;
     if (t == null || _handedOver || !mounted) return;
+    if (t.table) setState(() {}); // KLD-088: the countdown replaces the room code
     final lost = t.roomLost;
     if (lost != null) {
       final text = relayErrorText(context, lost, relay: _relayUsed);
@@ -274,6 +275,8 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
       return;
     }
     if (t.connection.value != NetConnectionState.connected) return;
+    // KLD-088: a full table counts down here first (see PairingScreen).
+    if (t.table && !t.started) return;
     _handedOver = true;
     _teardown();
     Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => NetworkGameSession(transport: t)));
@@ -324,7 +327,7 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
         ),
         const SizedBox(height: 16),
       ],
-      playerNameField(key: const Key('relay-host-name'), enabled: !_starting),
+      playerNameField(key: const Key('relay-host-name'), enabled: !_starting, table: _players > 2),
       const SizedBox(height: 16),
       RoomGameChoice(
         gameId: _gameId,
@@ -470,52 +473,55 @@ class _RelayHostScreenState extends State<RelayHostScreen> with PlayerNameField 
           if (roomRulesSummary(l10n, t.config) case final rules?)
             Text(rules,
                 key: const Key('relay-host-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
-          const SizedBox(height: 16),
-          Text(l10n.relayRoomCode, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              formatRoomCode(code),
-              key: const Key('relay-room-code'),
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 6,
-                color: theme.colorScheme.primary,
-                fontFeatures: const [FontFeature.tabularFigures()],
+          // A full table counting down (KLD-088) needs no room code.
+          if (t.countdown == null) ...[
+            const SizedBox(height: 16),
+            Text(l10n.relayRoomCode, style: theme.textTheme.labelLarge, textAlign: TextAlign.center),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                formatRoomCode(code),
+                key: const Key('relay-room-code'),
+                textDirection: TextDirection.ltr,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.displayMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 6,
+                  color: theme.colorScheme.primary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: KlunkiQrCode(key: const Key('relay-qr'), data: link, size: 180, semanticLabel: link),
-          ),
-          const SizedBox(height: 8),
-          ListTile(
-            dense: true,
-            leading: const Icon(Icons.link),
-            title: SelectableText(
-              link,
-              key: const Key('relay-link'),
-              textDirection: TextDirection.ltr,
-              style: theme.textTheme.bodySmall,
+            const SizedBox(height: 16),
+            Center(
+              child: KlunkiQrCode(key: const Key('relay-qr'), data: link, size: 180, semanticLabel: link),
             ),
-            trailing: IconButton(
-              key: const Key('relay-link-copy'),
-              icon: const Icon(Icons.copy),
-              tooltip: l10n.pairingCopyLink,
-              onPressed: () => _copyLink(link),
+            const SizedBox(height: 8),
+            ListTile(
+              dense: true,
+              leading: const Icon(Icons.link),
+              title: SelectableText(
+                link,
+                key: const Key('relay-link'),
+                textDirection: TextDirection.ltr,
+                style: theme.textTheme.bodySmall,
+              ),
+              trailing: IconButton(
+                key: const Key('relay-link-copy'),
+                icon: const Icon(Icons.copy),
+                tooltip: l10n.pairingCopyLink,
+                onPressed: () => _copyLink(link),
+              ),
             ),
-          ),
-          if (loopback != null)
-            LoopbackHint(
-              key: const Key('relay-host-loopback'),
-              host: loopback,
-              // Natively there is no page to reopen: just the short warning.
-              short: !_isWebPage(widget.pageUrl),
-            ),
-          Text(l10n.relayWaitingHint, key: const Key('relay-host-hint'), textAlign: TextAlign.center),
+            if (loopback != null)
+              LoopbackHint(
+                key: const Key('relay-host-loopback'),
+                host: loopback,
+                // Natively there is no page to reopen: just the short warning.
+                short: !_isWebPage(widget.pageUrl),
+              ),
+            Text(l10n.relayWaitingHint, key: const Key('relay-host-hint'), textAlign: TextAlign.center),
+          ],
           const SizedBox(height: 16),
           // KLD-088 step 4: a table shows who sits down until every seat is taken.
           if (t.table)

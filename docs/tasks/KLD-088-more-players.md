@@ -205,9 +205,9 @@ no protocol bump (3–4 seats never go on the wire yet).
   `GameConfig.players > 2` answers with a v4 hello and talks v4 to it (`tableProtocolVersion`). An older guest
   gets `incompatible protocol` (`protocol: 4`) instead of a game it cannot show.
 - **Seats:** the host is seat 0, guests sit at the first free seat in join order (`welcome.seat`, a rejoin token
-  per seat). A `lobby` message (`seats: [{name, here} | null]`, `started`) goes to everyone on every change. The
-  game starts by itself when every seat is taken; before that a guest that leaves frees its seat. `accepted`
-  carries `seat`.
+  per seat). A `lobby` message (`seats: [{name, here} | null]`, `started`, `countdown?`) goes to everyone on every
+  change. When every seat is taken the host counts down (see "Countdown" below), then the game starts by itself;
+  before that a guest that leaves frees its seat. `accepted` carries `seat`.
 - **Away:** a guest that drops pauses the table (`waiting for players` for every move, the lobby says who is
   away); it comes back with its token. The host can let it leave (`KlunkiHost.resignAwaySeat`, its seat
   resigns, the others play on).
@@ -230,11 +230,30 @@ no protocol bump (3–4 seats never go on the wire yet).
   `klunki/test/e2e/live_ui/wordtiles_table_network_live_test.dart` (3 devices through the real UI, a guest drops
   mid-game and comes back, both guests verify); screenshots
   `KLUNKI_SHOTS=… flutter test test/screenshots/wordtiles_table_shots_test.dart` (group `kld088net`).
+- **Countdown (follow-up, maintainer wish 2026-11-14):** once every seat is taken every device shows "Alle sind
+  da!" and a big 5, 4, 3, 2, 1, then the game starts. The host's timer decides alone: it sends a `lobby` with
+  `countdown: 5` when the table fills and one per second after that (4 … 1), then `started: true`; guests show
+  the number they last got, so no clocks have to agree. A guest that leaves during the countdown frees its seat
+  and stops it (the lobby says "Warte auf noch 1 Mitspieler…" again); when the table is full again it starts
+  over at 5. No move is accepted before the start. The host stays on "Raum starten" during the countdown (the
+  QR code / room code is hidden while it runs and comes back if someone leaves) and opens the game with the
+  start. `KlunkiHost.start/startRelay(countdownTick:)` (1 s; tests use 5 ms or step it with
+  `debugAdvanceCountdown`). The table protocol is unreleased, so no version bump; two players unchanged.
+- **Pause pill:** while the table is paused the status pill says "Pause" (pause icon, no seat colour) instead
+  of "Cleo ist am Zug" (`SeatLabels.paused`).
+- **Room setup:** with 3–4 players the name hint reads "So sehen dich deine Mitspieler" (2: unchanged).
+- **Tests (follow-up):** `table_net_test.dart` (countdown 5 … 1 on the wire and on every guest, no move before
+  the start, a leave stops it and the next guest restarts it at 5); `klunki/test/ui/pairing/table_countdown_test.dart`
+  (guest lobby countdown, leave and restart; the host counts down in the room without QR code and then opens
+  the game; the plural name hint; the "Pause" pill); the live-UI table test checks the countdown on all three
+  devices and the "Pause" pill; screenshots `kld088net` gained `05-host-countdown`, `06-guest-countdown`, and
+  the paused shots show the pill.
 - **Not yet:** the host cannot reorder seats or start with fewer; a table cannot be resumed after the host app
   quits (KLD-079); the browser (PWA) host flow offers 3–4 only through the relay screen.
 
 ## Open questions (🧑)
-1. **Start of a table:** automatic when every seat is taken (built), or a "Los geht's" button for the host?
+1. ✅ **Start of a table:** automatic when every seat is taken, after a 5-second countdown on every device
+   (maintainer, 2026-11-14).
 2. **Team play 2 vs 2** (partners sit opposite, scores added)? Not planned; would be a config flag on top of seats.
 2. **Who starts:** always seat 0 (the first name), or a random seat (from the seed), or "draw a tile, closest to
    A starts" as at a real table?

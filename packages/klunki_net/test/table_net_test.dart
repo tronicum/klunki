@@ -20,6 +20,9 @@ import 'support.dart';
 const _ping = Duration(milliseconds: 50);
 const _timeout = Duration(seconds: 3);
 
+/// The countdown before a full table starts, fast (5 steps of it).
+const _tick = Duration(milliseconds: 5);
+
 /// A word list that knows nothing: every placement needs "Trotzdem zulassen".
 class _NoWords extends WordValidator {
   @override
@@ -103,8 +106,10 @@ class _Table {
 /// and WebSocket, or all through the relay at [relay].
 Future<_Table> _startTable(GameConfig config, {Uri? relay}) async {
   final host = relay != null
-      ? await KlunkiHost.startRelay(config, relay, name: 'Anna', pingInterval: _ping, timeout: _timeout)
-      : await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+      ? await KlunkiHost.startRelay(config, relay,
+          name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick)
+      : await KlunkiHost.start(config,
+          address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
   final wire = _Wire()..attach(host);
   const names = ['Ben', 'Cleo', 'Dani'];
   final guests = <KlunkiGuest>[];
@@ -218,7 +223,7 @@ void main() {
     test('$players players: lobby, a whole game, every rack stays on its device, every guest verifies', () async {
       final config = GameConfig('wordtiles', seed: 11 + players, players: players);
       final host = await KlunkiHost.start(config,
-          address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+          address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
       final wire = _Wire()..attach(host);
       final lobby = <LobbyChanged>[];
       host.events.listen((e) {
@@ -253,6 +258,9 @@ void main() {
       expect([for (final s in ben.seats) s.name], ['Anna', ...names.take(players - 1)]);
       expect(lobby.last.started, isTrue);
       expect(lobby.last.complete, isTrue);
+      // The full table counted down 5, 4, 3, 2, 1 before it started.
+      expect([for (final e in lobby) if (e.countdown != null) e.countdown], [5, 4, 3, 2, 1]);
+      expect(lobby.where((e) => e.countdown != null).every((e) => !e.started && e.complete), isTrue);
       // A latecomer finds the table full.
       await expectLater(KlunkiGuest.connect(loopback, host.port, name: 'Eve', timeout: _timeout),
           throwsA(isA<NetException>()));
@@ -306,7 +314,8 @@ void main() {
 
   test('a guest that is away pauses everyone; it rejoins with its token, or the host lets it leave', () async {
     const config = GameConfig('wordtiles', seed: 3, players: 3);
-    final host = await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+    final host = await KlunkiHost.start(config,
+        address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
     final proxy = await Proxy.start(host.port);
     addTearDown(proxy.close);
     final ben = await KlunkiGuest.connect(loopback, host.port, name: 'Ben', pingInterval: _ping, timeout: _timeout);
@@ -354,7 +363,8 @@ void main() {
 
   test('in the lobby a guest that leaves frees its seat; the next one sits there', () async {
     const config = GameConfig('wordtiles', seed: 1, players: 4);
-    final host = await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+    final host = await KlunkiHost.start(config,
+        address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
     addTearDown(host.close);
     final ben = await KlunkiGuest.connect(loopback, host.port, name: 'Ben', pingInterval: _ping, timeout: _timeout);
     final cleo = await KlunkiGuest.connect(loopback, host.port, name: 'Cleo', pingInterval: _ping, timeout: _timeout);
@@ -372,6 +382,73 @@ void main() {
     expect(eve.seat, 3);
     await until(() => host.started && cleo.started);
     expect([for (final s in host.seats) s.name], ['Anna', 'Dani', 'Cleo', 'Eve']);
+  });
+
+  test('a full table counts down on every device; no move before the start', () async {
+    const config = GameConfig('wordtiles', seed: 6, players: 3);
+    final host = await KlunkiHost.start(config,
+        address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
+    addTearDown(host.close);
+    final onWire = <int, List<Object?>>{};
+    host.debugTableOutgoing = (seat, type, fields) {
+      if (type == 'lobby') onWire.putIfAbsent(seat, () => []).add(fields['countdown']);
+    };
+    final refusedDuring = <String?>[];
+    host.events.listen((e) {
+      if (e is LobbyChanged && e.countdown != null) refusedDuring.add(host.submitLocal(const {'action': 'pass'}));
+    });
+    final ben = await KlunkiGuest.connect(loopback, host.port, name: 'Ben', pingInterval: _ping, timeout: _timeout);
+    addTearDown(ben.close);
+    final benSaw = <int?>[];
+    ben.events.listen((e) {
+      if (e is LobbyChanged) benSaw.add(e.countdown);
+    });
+    final cleo = await KlunkiGuest.connectWebSocket(webSocketUri(loopback.address, host.wsPort!),
+        name: 'Cleo', pingInterval: _ping, timeout: _timeout);
+    addTearDown(cleo.close);
+    await until(() => host.started && ben.started && cleo.started);
+    expect(refusedDuring, List.filled(5, 'waiting for players'), reason: 'the game starts after the countdown');
+    expect(benSaw.whereType<int>(), [5, 4, 3, 2, 1], reason: 'the guest shows what the host counts');
+    expect(benSaw.last, isNull);
+    for (final seat in [1, 2]) {
+      expect(onWire[seat]!.whereType<int>(), [5, 4, 3, 2, 1], reason: 'seat $seat');
+      expect(onWire[seat]!.last, isNull, reason: 'started: no countdown');
+    }
+    expect([host.countdown, ben.countdown, cleo.countdown], [null, null, null]);
+    expect(host.submitLocal(const {'action': 'pass'}), isNull);
+  });
+
+  test('a guest that leaves during the countdown stops it; the next one to sit down starts it again', () async {
+    const config = GameConfig('wordtiles', seed: 6, players: 3);
+    // A tick that never comes during the test: the countdown stands at 5.
+    final host = await KlunkiHost.start(config,
+        address: loopback,
+        name: 'Anna',
+        pingInterval: _ping,
+        timeout: _timeout,
+        countdownTick: const Duration(hours: 1));
+    addTearDown(host.close);
+    final ben = await KlunkiGuest.connect(loopback, host.port, name: 'Ben', pingInterval: _ping, timeout: _timeout);
+    addTearDown(ben.close);
+    expect(host.countdown, isNull, reason: 'one seat is free');
+    final cleo = await KlunkiGuest.connect(loopback, host.port, name: 'Cleo', pingInterval: _ping, timeout: _timeout);
+    await until(() => host.countdown == 5 && ben.countdown == 5 && cleo.countdown == 5);
+    expect(host.started, isFalse);
+    expect(await ben.submit(const {'action': 'pass'}), 'waiting for players');
+
+    // Cleo leaves: the countdown stops everywhere, the lobby waits for one.
+    await cleo.close();
+    await until(() => host.seats[2].free && ben.seats[2].free);
+    expect(host.countdown, isNull);
+    expect(ben.countdown, isNull);
+    expect(ben.started, isFalse);
+
+    // Cleo comes back (her seat was freed: she sits down anew): from 5 again.
+    final again = await KlunkiGuest.connect(loopback, host.port, name: 'Cleo', pingInterval: _ping, timeout: _timeout);
+    addTearDown(again.close);
+    expect(again.seat, 2);
+    await until(() => host.countdown == 5 && ben.countdown == 5 && again.countdown == 5);
+    expect(host.started, isFalse);
   });
 
   test('a cheating host: a guest exchange changed after the fact fails the check of the others', () async {
@@ -392,7 +469,8 @@ void main() {
 
   test('a guest without the table protocol (an older build) is refused with incompatible-protocol', () async {
     const config = GameConfig('wordtiles', seed: 2, players: 3);
-    final host = await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+    final host = await KlunkiHost.start(config,
+        address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
     addTearDown(host.close);
     final refused = <IncompatiblePeer>[];
     host.events.listen((e) {
@@ -412,7 +490,8 @@ void main() {
 
   test('the wire of a table speaks protocol 4 after the hello; a two-player session stays at 3', () async {
     const config = GameConfig('wordtiles', seed: 2, players: 3);
-    final host = await KlunkiHost.start(config, address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout);
+    final host = await KlunkiHost.start(config,
+        address: loopback, name: 'Anna', pingInterval: _ping, timeout: _timeout, countdownTick: _tick);
     addTearDown(host.close);
     final peer = await RawPeer.connect(host.port);
     addTearDown(peer.destroy);

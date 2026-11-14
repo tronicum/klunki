@@ -2,8 +2,10 @@
 // over the network, three phones side by side (host Anna through the real
 // "Raum starten" screen, guests Ben and Cleo, real NetworkTransports on
 // 127.0.0.1): the player count in the room setup, the lobby on the host and
-// on a guest, the game in the middle from each device's own seat, and the
-// pause while a guest is away. Skipped unless KLUNKI_SHOTS=<output dir>:
+// on a guest, the countdown once the table is full ("Alle sind da!" 3, the
+// host's steps taken by the test), the game in the middle from each device's
+// own seat, and the pause while a guest is away ("Pause" in the status
+// pill). Skipped unless KLUNKI_SHOTS=<output dir>:
 //
 //   KLUNKI_SHOTS=/tmp/kld088net flutter test test/screenshots/wordtiles_table_shots_test.dart
 //   KLUNKI_SHOTS=/tmp/kld088net flutter test test/screenshots --plain-name kld088net
@@ -136,7 +138,14 @@ void main() {
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     final created = CreatedTransports();
-    final deps = testDeps(discovery: FakeDiscovery(), created: created, name: 'Anna');
+    final deps = testDeps(
+      discovery: FakeDiscovery(),
+      created: created,
+      name: 'Anna',
+      // The countdown waits for the test's steps (debugAdvanceCountdown).
+      hostTransport: (config, {required name, required port, required wsPort}) => loopbackHost(created, config,
+          name: name, port: port, wsPort: wsPort, countdownTick: const Duration(hours: 1)),
+    );
     final names = PlayerNameController.memory(name: 'Anna');
     final guests = <NetworkTransport?>[null, null];
     WifiProxy? proxy;
@@ -194,6 +203,23 @@ void main() {
     guests[1] = await tester.runAsync(() => NetworkTransport.join(InternetAddress.loopbackIPv4, proxy!.port,
         name: 'Cleo', pingInterval: _ping, timeout: _timeout));
     await show();
+    // Everyone is here: the host counts down 5, 4, 3, … on every device.
+    String? number(int d) {
+      final f = _on(d, find.byKey(const Key('table-countdown-number')));
+      return f.evaluate().isEmpty ? null : (f.evaluate().last.widget as Text).data;
+    }
+
+    await pumpUntil(tester, () => [0, 1, 2].every((d) => number(d) == '5'), what: 'the countdown');
+    for (var i = 0; i < 2; i++) {
+      await tester.runAsync(() async => host.debugAdvanceCountdown());
+    }
+    await pumpUntil(tester, () => [0, 1, 2].every((d) => number(d) == '3'), what: 'countdown 3');
+    await tester.ensureVisible(_on(0, find.byKey(const Key('table-countdown'))));
+    await _shot(tester, 0, '05-host-countdown');
+    await _shot(tester, 1, '06-guest-countdown');
+    for (var i = 0; i < 3; i++) {
+      await tester.runAsync(() async => host.debugAdvanceCountdown());
+    }
     await pumpUntil(tester, () => [0, 1, 2].every((d) => _has(d, find.byType(SeatGameScreen))), what: 'the game');
 
     // A few turns: Anna lays, Ben accepts and lays, Cleo accepts.
@@ -232,9 +258,9 @@ void main() {
     await act(lay);
     await act(accept);
     expect(engine.actorSeat, 2);
-    await _shot(tester, 2, '05-cleo-her-turn');
-    await _shot(tester, 1, '06-ben-mid-game');
-    await _shot(tester, 0, '07-anna-mid-game');
+    await _shot(tester, 2, '07-cleo-her-turn');
+    await _shot(tester, 1, '08-ben-mid-game');
+    await _shot(tester, 0, '09-anna-mid-game');
 
     // Cleo's connection breaks: the table pauses.
     proxy!.refuse = true;
@@ -242,7 +268,7 @@ void main() {
     await pumpUntil(tester, () => host.paused && _has(0, find.byKey(const Key('table-let-leave-2'))),
         what: 'the pause');
     await pumpUntil(tester, () => _has(1, find.byKey(const Key('net-banner'))), what: 'Ben sees the pause');
-    await _shot(tester, 0, '08-host-paused');
-    await _shot(tester, 1, '09-guest-paused');
+    await _shot(tester, 0, '10-host-paused');
+    await _shot(tester, 1, '11-guest-paused');
   });
 }

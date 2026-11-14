@@ -43,9 +43,11 @@ import 'secrecy/secrecy.dart';
 ///
 /// A **table** (KLD-088 step 4, [table]): a config for 3–4 players. The host
 /// is seat 0 and up to three guests sit down in the order they join (seats
-/// 1, 2, 3); [seats] and [LobbyChanged] say who is there. The game starts
-/// when every seat is taken ([started]); before that a guest that leaves
-/// frees its seat. After the start a guest that is away pauses the game for
+/// 1, 2, 3); [seats] and [LobbyChanged] say who is there. When every seat
+/// is taken the host counts down ([countdown]: 5, 4, 3, 2, 1, one step per
+/// `countdownTick` of [start], a second; each sent as `lobby`), then the game starts
+/// ([started]); before that a guest that leaves frees its seat and stops
+/// the countdown. After the start a guest that is away pauses the game for
 /// everyone (every move is refused with `waiting for players`) until it
 /// rejoins with its token or the host lets it leave ([resignAwaySeat]).
 /// Every guest gets its own redacted steps, views and commitments (also to
@@ -92,6 +94,9 @@ class KlunkiHost {
   final List<_TableSeat> _table; // index = seat; empty for two players
   final Map<Connection, int> _seatOf = {}; // connected guests (handshake done) by seat
   bool _started = false;
+  final Duration _countdownTick;
+  int? _countdown; // steps left while the full table counts down to the start
+  Timer? _countdownTimer;
 
   // Chess with a clock only (KLD-126).
   final ChessClock? _clock;
@@ -119,6 +124,7 @@ class KlunkiHost {
 
   KlunkiHost._(
       this.config, this.name, this.me, this._server, this._pingInterval, this._timeout, this._game, this.compat,
+      this._countdownTick,
       [this._address])
       : _redaction = specById(config.gameId)?.redaction,
         _clock = config.gameId == 'chess' && config.chessClock != null ? ChessClock(config.chessClock!) : null,
@@ -152,11 +158,12 @@ class KlunkiHost {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
     BuildCompat? compat,
+    Duration countdownTick = const Duration(seconds: 1),
   }) async {
     _validateLog(config, moves, hostPlayer);
     final server = await bindHostListener(address: address, port: port, wsPort: wsPort);
     return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, server, pingInterval, timeout,
-        createGame(config), compat ?? BuildCompat(), address)
+        createGame(config), compat ?? BuildCompat(), countdownTick, address)
       .._listen(moves);
   }
 
@@ -194,13 +201,14 @@ class KlunkiHost {
     Duration timeout = const Duration(seconds: 10),
     BuildCompat? compat,
     String? clubCode,
+    Duration countdownTick = const Duration(seconds: 1),
   }) async {
     _validateLog(config, moves, hostPlayer);
     // KLD-088: a table opens a table room (one slot per guest seat).
     final relay = await RelayHostListener.connect(relayUrl,
         timeout: timeout, clubCode: clubCode, guests: config.players > 2 ? config.players - 1 : null);
     return KlunkiHost._(config, playerNameOr(name, hostPlayer), hostPlayer, relay, pingInterval, timeout,
-        createGame(config), compat ?? BuildCompat())
+        createGame(config), compat ?? BuildCompat(), countdownTick)
       .._listen(moves);
   }
 
@@ -329,6 +337,10 @@ class KlunkiHost {
   /// seat is away, [paused]). Always true for two players.
   bool get started => !table || _started;
 
+  /// A table whose seats are all taken counts down to the start: the steps
+  /// left ([tableCountdownSteps] … 1); null otherwise (also once started).
+  int? get countdown => _countdown;
+
   /// A table whose game started and waits for a guest that is away (not
   /// one that left the game).
   bool get paused => table && _started && !_game.isOver && _awaySeats.isNotEmpty;
@@ -391,6 +403,7 @@ class KlunkiHost {
   Future<void> close({String reason = 'host closed the game'}) async {
     _closing = true;
     _flagTimer?.cancel();
+    _countdownTimer?.cancel();
     await _rebinding;
     await _statusSub?.cancel();
     _guest?.close(reason);
@@ -824,8 +837,11 @@ class KlunkiHost {
       'view': redaction.seatView(_game, seat),
     });
     if (_game.isOver) _sendTableReveal(conn, seat);
-    if (!_started && _table.every((s) => s.name != null)) _started = true;
     _emit(PeerConnected(place.name!, reconnect: reconnect, seat: seat));
+    if (!_started && _countdown == null && _table.every((s) => s.name != null)) {
+      _countdown = tableCountdownSteps;
+      _scheduleCountdown();
+    }
     _lobbyChanged();
   }
 
@@ -840,6 +856,9 @@ class KlunkiHost {
       place
         ..name = null
         ..token = null;
+      // The table is no longer full: no start until it is again.
+      _countdownTimer?.cancel();
+      _countdown = null;
     }
     _emit(PeerDisconnected(reason, timedOut: timedOut, seat: seat));
     _lobbyChanged();
@@ -848,18 +867,44 @@ class KlunkiHost {
     if (timedOut && !_closing && server is RelayHostListener) server.reattach();
   }
 
+  /// The next step of the countdown to the start (the host's timer alone
+  /// decides; guests show the steps it sends). After 1 the game starts.
+  void _scheduleCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer(_countdownTick, _countdownStep);
+  }
+
+  void _countdownStep() {
+    final left = _countdown;
+    if (left == null || _closing || _started) return;
+    if (left > 1) {
+      _countdown = left - 1;
+      _scheduleCountdown();
+    } else {
+      _countdownTimer?.cancel();
+      _countdown = null;
+      _started = true;
+    }
+    _lobbyChanged();
+  }
+
+  /// Test hook (screenshots, widget tests): takes the next countdown step
+  /// now instead of after the tick. Nothing while no countdown runs.
+  void debugAdvanceCountdown() => _countdownStep();
+
   /// Tells every guest (`lobby`) and the host's listeners ([LobbyChanged])
-  /// who sits where and whether the game started.
+  /// who sits where, the countdown and whether the game started.
   void _lobbyChanged() {
     final seats = this.seats;
     final fields = {
       'seats': [for (final s in seats) s.toJson()],
       'started': _started,
+      if (_countdown != null) 'countdown': _countdown,
     };
     for (final MapEntry(key: conn, value: _) in _seatOf.entries.toList()) {
       _send(conn, 'lobby', fields);
     }
-    _emit(LobbyChanged(seats, started: _started));
+    _emit(LobbyChanged(seats, started: _started, countdown: _countdown));
   }
 
   /// Validates and applies [move] by [seat] at a table; null on success,

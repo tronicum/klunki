@@ -69,6 +69,7 @@ class KlunkiGuest {
   bool _table = false; // the host hosts a table (KLD-088)
   List<TableSeat> _seats = const [];
   bool _started = false;
+  int? _countdown;
   bool _joined = false; // received a welcome at least once
   String? _token;
   String? _hostName;
@@ -209,6 +210,10 @@ class KlunkiGuest {
   /// A table: every seat was taken, the game runs. Always true for two
   /// players.
   bool get started => !_table || _started;
+
+  /// A table whose seats are all taken: the host counts down to the start,
+  /// these are the steps left as it last sent them (5 … 1); null otherwise.
+  int? get countdown => _countdown;
 
   /// A table whose game waits for a guest that is away.
   bool get paused =>
@@ -580,8 +585,12 @@ class KlunkiGuest {
   void _onLobby(Map<String, dynamic> m) {
     final raw = m['seats'];
     final started = m['started'];
+    final countdown = m['countdown'];
     if (raw is! List || raw.length != _config.players || started is! bool) {
       throw const ProtocolException('lobby needs "seats" (one per player) and "started"');
+    }
+    if (countdown != null && (countdown is! int || countdown < 1 || countdown > 60)) {
+      throw const ProtocolException('lobby "countdown" must be 1–60');
     }
     _seats = [
       for (final s in raw)
@@ -591,7 +600,8 @@ class KlunkiGuest {
           const TableSeat(null),
     ];
     _started = started;
-    _emit(LobbyChanged(seats, started: started));
+    _countdown = started ? null : countdown as int?;
+    _emit(LobbyChanged(seats, started: started, countdown: _countdown));
   }
 
   void _onAccepted(Connection conn, Map<String, dynamic> m) {
@@ -725,6 +735,7 @@ class KlunkiGuest {
     if (conn != _conn) return;
     final wasConnected = _connected;
     _connected = false;
+    _countdown = null; // the host stops it when a seat leaves before the start
     for (final list in _waiting.values) {
       for (final c in list) {
         c.complete('disconnected');

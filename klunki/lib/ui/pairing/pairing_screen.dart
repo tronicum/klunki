@@ -206,6 +206,9 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
 
   String get _deviceName => playerName;
 
+  /// Players of the room being set up (KLD-088: 3–4 at a table).
+  int _roomPlayers = 2;
+
   /// Replaces the pairing route by the game.
   void _openGame(NetworkTransport transport) {
     Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
@@ -232,7 +235,7 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                playerNameField(key: const Key('pair-name')),
+                playerNameField(key: const Key('pair-name'), table: start && _roomPlayers > 2),
                 const SizedBox(height: 16),
                 if (start)
                   _HostPanel(
@@ -243,6 +246,7 @@ class _PairingScreenState extends State<PairingScreen> with PlayerNameField {
                     nameController: widget.nameController,
                     gameId: widget.gameId,
                     onConnected: _openGame,
+                    onPlayersChanged: (n) => setState(() => _roomPlayers = n),
                   )
                 else
                   _JoinPanel(
@@ -274,6 +278,9 @@ class _HostPanel extends StatefulWidget {
   final String? gameId;
   final void Function(NetworkTransport) onConnected;
 
+  /// The player count of the room changed (KLD-088: the name field's hint).
+  final ValueChanged<int> onPlayersChanged;
+
   const _HostPanel({
     super.key,
     required this.deps,
@@ -282,6 +289,7 @@ class _HostPanel extends StatefulWidget {
     required this.nameController,
     required this.gameId,
     required this.onConnected,
+    required this.onPlayersChanged,
   });
 
   @override
@@ -334,7 +342,7 @@ class _HostPanelState extends State<_HostPanel> {
   void _teardown() {
     final t = _transport;
     _transport = null;
-    t?.connection.removeListener(_onConnection);
+    t?.changes.removeListener(_onConnection);
     if (_advertised) {
       _advertised = false;
       widget.discovery?.stopAdvertising();
@@ -422,7 +430,7 @@ class _HostPanelState extends State<_HostPanel> {
       _qrIndex = 0;
       _starting = false;
     });
-    transport.connection.addListener(_onConnection);
+    transport.changes.addListener(_onConnection); // a table: also the countdown
 
     final discovery = widget.discovery;
     if (discovery != null) {
@@ -466,6 +474,9 @@ class _HostPanelState extends State<_HostPanel> {
     final t = _transport;
     if (t == null || _handedOver || !mounted) return;
     if (t.connection.value != NetConnectionState.connected) return;
+    // KLD-088: a full table counts down here first (a guest that leaves
+    // meanwhile frees a seat, and the QR code is still on screen).
+    if (t.table && !t.started) return;
     _handedOver = true;
     _teardown();
     widget.onConnected(t);
@@ -489,7 +500,10 @@ class _HostPanelState extends State<_HostPanel> {
   @override
   Widget build(BuildContext context) {
     final t = _transport;
-    return t == null ? _setup(context) : _waiting(context, t);
+    if (t == null) return _setup(context);
+    // A table (KLD-088): the countdown replaces the QR code while it runs.
+    if (!t.table) return _waiting(context, t);
+    return ListenableBuilder(listenable: t.changes, builder: (context, _) => _waiting(context, t));
   }
 
   Widget _setup(BuildContext context) {
@@ -503,7 +517,10 @@ class _HostPanelState extends State<_HostPanel> {
           fixed: widget.gameId != null,
           enabled: !_starting,
           keyPrefix: 'pair-game-',
-          onChanged: (id) => setState(() => _gameId = id),
+          onChanged: (id) {
+            setState(() => _gameId = id);
+            widget.onPlayersChanged(_players);
+          },
         ),
         if (_hostDeck != null) ...[
           const SizedBox(height: 8),
@@ -527,7 +544,10 @@ class _HostPanelState extends State<_HostPanel> {
             keyPrefix: 'pair-',
             value: _playerCount,
             enabled: !_starting,
-            onChanged: (n) => setState(() => _playerCount = n),
+            onChanged: (n) {
+              setState(() => _playerCount = n);
+              widget.onPlayersChanged(_players);
+            },
           ),
         ],
         if (_gameId == 'wordtiles') ...[
@@ -640,28 +660,31 @@ class _HostPanelState extends State<_HostPanel> {
         if (roomRulesSummary(l10n, t.config) case final rules?)
           Text(rules,
               key: const Key('pair-hosting-options'), textAlign: TextAlign.center, style: theme.textTheme.bodyMedium),
-        const SizedBox(height: 12),
-        if (payload != null)
-          Center(
-            child: JoinQrCode(
-              key: const Key('pair-qr'),
-              payload: payload,
-              size: 200,
+        // A full table counting down (KLD-088) needs no QR code.
+        if (t.countdown == null) ...[
+          const SizedBox(height: 12),
+          if (payload != null)
+            Center(
+              child: JoinQrCode(
+                key: const Key('pair-qr'),
+                payload: payload,
+                size: 200,
+              ),
+            )
+          else
+            Text(
+              l10n.pairingNoAddress(port),
+              key: const Key('pair-no-address'),
+              textAlign: TextAlign.center,
             ),
-          )
-        else
-          Text(
-            l10n.pairingNoAddress(port),
-            key: const Key('pair-no-address'),
-            textAlign: TextAlign.center,
-          ),
-        const SizedBox(height: 12),
-        Text(l10n.roomDirectWaitingHint, key: const Key('pair-host-hint'), textAlign: TextAlign.center),
-        if (_advertiseError != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(_advertiseError!, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
-          ),
+          const SizedBox(height: 12),
+          Text(l10n.roomDirectWaitingHint, key: const Key('pair-host-hint'), textAlign: TextAlign.center),
+          if (_advertiseError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(_advertiseError!, textAlign: TextAlign.center, style: theme.textTheme.bodySmall),
+            ),
+        ],
         const SizedBox(height: 16),
         // KLD-088 step 4: a table shows who sits down until every seat is taken.
         if (t.table)

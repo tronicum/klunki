@@ -20,9 +20,11 @@ short German summary ("Kurz") for the store notes and the testers.
   builds cannot play Quartett, Schiffe versenken, GoStrategy, Wortgewandt, Mau-Mau, Mäxchen, Ausgewürfelt and
   Baulöwe with this one.
 - **Wortgewandt with 3 or 4 players over the network** (KLD-088): "Raum starten" asks "Wie viele spielen mit?"
-  (2, 3 or 4). Everyone who joins sees who is already in the room and how many are still missing; the game starts
-  on all devices once every seat is taken. Each phone shows only its own tiles and says "Du bist am Zug" on its
-  own turn. If someone's connection drops, the game pauses for everyone until that player is back; the person
+  (2, 3 or 4; the name hint then reads "So sehen dich deine Mitspieler"). Everyone who joins sees who is already
+  in the room and how many are still missing; once every seat is taken all devices show "Alle sind da!" and count
+  down 5, 4, 3, 2, 1 together (the host's count decides; if someone leaves meanwhile the room waits again), then
+  the game starts. Each phone shows only its own tiles and says "Du bist am Zug" on its own turn. If someone's
+  connection drops, the game pauses for everyone ("Pause" above the board) until that player is back; the person
   who started the room can also let the game go on without them. Also through a relay server (the server must be
   up to date). Two-player games keep the old network protocol.
 - **Chess with a clock** (KLD-126): "Ohne Uhr", 5, 10, 15 minutes + 10 seconds per move, or 30 minutes, chosen

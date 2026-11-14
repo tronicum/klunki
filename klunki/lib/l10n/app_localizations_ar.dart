@@ -798,6 +798,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingDeviceNameHelper => 'هكذا يراك اللاعب الآخر';
 
   @override
+  String get pairingDeviceNameHelperTable => 'هكذا يراك اللاعبون الآخرون';
+
+  @override
   String get playerNameTitle => 'ما اسمك؟';
 
   @override
@@ -900,6 +903,15 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tableLobbyTitle => 'اللاعبون في الغرفة';
+
+  @override
+  String get tableAllHere => 'الجميع هنا!';
+
+  @override
+  String get tableStartsIn => 'تبدأ اللعبة بعد…';
+
+  @override
+  String get seatPausedStatus => 'إيقاف مؤقت';
 
   @override
   String get tableRelayTooOld => 'هذا الخادم لا يدعم الألعاب لأكثر من لاعبَين.';

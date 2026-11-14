@@ -15,6 +15,11 @@ const int protocolVersion = 3;
 /// carries `v: 4`. See PROTOCOL.md, "Tables".
 const int tableProtocolVersion = 4;
 
+/// A table (KLD-088): once every seat is taken the host counts down this
+/// many steps (one per second by default) before the game starts; each step
+/// goes to every guest as `lobby.countdown`. See PROTOCOL.md, "Tables".
+const int tableCountdownSteps = 5;
+
 /// Something that happened in a session. Host and guest share these types.
 sealed class NetEvent {
   const NetEvent();
@@ -81,7 +86,11 @@ class LobbyChanged extends NetEvent {
 
   /// Every seat was taken once: the game runs (paused while a seat is away).
   final bool started;
-  const LobbyChanged(this.seats, {required this.started});
+
+  /// Every seat is taken and the host counts down to the start: the steps
+  /// left (5, 4, 3, 2, 1, [tableCountdownSteps]); null otherwise.
+  final int? countdown;
+  const LobbyChanged(this.seats, {required this.started, this.countdown});
 
   /// Seats nobody took yet (before the start).
   int get missing => seats.where((s) => s.free).length;
@@ -89,7 +98,7 @@ class LobbyChanged extends NetEvent {
   /// Every seat is taken and connected.
   bool get complete => seats.every((s) => !s.free && s.here);
   @override
-  String toString() => 'LobbyChanged($seats, started: $started)';
+  String toString() => 'LobbyChanged($seats, started: $started${countdown == null ? '' : ', countdown $countdown'})';
 }
 
 /// A move the host accepted; [index] is its position in the move log.

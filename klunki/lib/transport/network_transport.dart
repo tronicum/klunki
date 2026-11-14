@@ -127,6 +127,7 @@ class NetworkTransport implements GameTransport, ClockedTransport {
     Object? address,
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
+    Duration countdownTick = const Duration(seconds: 1),
   }) async {
     final host = await KlunkiHost.start(config,
         port: port,
@@ -135,7 +136,8 @@ class NetworkTransport implements GameTransport, ClockedTransport {
         address: address,
         pingInterval: pingInterval,
         timeout: timeout,
-        compat: appBuildCompat());
+        compat: appBuildCompat(),
+        countdownTick: countdownTick);
     return NetworkTransport._host(host);
   }
 
@@ -185,9 +187,15 @@ class NetworkTransport implements GameTransport, ClockedTransport {
     Duration pingInterval = const Duration(seconds: 2),
     Duration timeout = const Duration(seconds: 10),
     String? clubCode,
+    Duration countdownTick = const Duration(seconds: 1),
   }) async {
     final host = await KlunkiHost.startRelay(config, relayUrl,
-        name: name, pingInterval: pingInterval, timeout: timeout, compat: appBuildCompat(), clubCode: clubCode);
+        name: name,
+        pingInterval: pingInterval,
+        timeout: timeout,
+        compat: appBuildCompat(),
+        clubCode: clubCode,
+        countdownTick: countdownTick);
     return NetworkTransport._host(host);
   }
 
@@ -260,6 +268,17 @@ class NetworkTransport implements GameTransport, ClockedTransport {
 
   /// A [table] waits for a guest that is away: nobody can move.
   bool get paused => _host?.paused ?? _guest!.paused;
+
+  /// A [table] whose seats are all taken counts down to the start (the
+  /// host decides): the steps left, 5 … 1; null otherwise.
+  int? get countdown {
+    final host = _host;
+    return host != null ? host.countdown : _guest!.countdown;
+  }
+
+  /// Test hook: the host of a [table] takes the next countdown step now.
+  @visibleForTesting
+  void debugAdvanceCountdown() => _host?.debugAdvanceCountdown();
 
   /// Host of a [table]: lets the guest at [seat], which is away, leave the
   /// game (its resign; the others play on). False if not possible.

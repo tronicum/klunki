@@ -1173,6 +1173,10 @@
   "@pairingDeviceNameHelper": {
     "description": "Helper text below the device name field."
   },
+  "pairingDeviceNameHelperTable": "So sehen dich deine Mitspieler",
+  "@pairingDeviceNameHelperTable": {
+    "description": "Helper text below the device name field when a room for 3–4 players is being set up (KLD-088): the other players (plural) see this name."
+  },
   "playerNameTitle": "Wie heißt du?",
   "@playerNameTitle": {
     "description": "Title of the player name dialog (first visit of \"play over Wi-Fi\", or the menu person button)."
@@ -1326,6 +1330,18 @@
   "tableLobbyTitle": "Mitspieler im Raum",
   "@tableLobbyTitle": {
     "description": "Room of 3–4 players (KLD-088): heading of the list of seats in the lobby."
+  },
+  "tableAllHere": "Alle sind da!",
+  "@tableAllHere": {
+    "description": "Room of 3–4 players (KLD-088): every seat is taken; heading above the big countdown number (5, 4, 3, 2, 1) before the game starts on every device."
+  },
+  "tableStartsIn": "Gleich geht’s los…",
+  "@tableStartsIn": {
+    "description": "Room of 3–4 players (KLD-088): line under tableAllHere, right above the big countdown number (5 … 1); the number follows below, not in this text."
+  },
+  "seatPausedStatus": "Pause",
+  "@seatPausedStatus": {
+    "description": "Network game of 3–4 players (KLD-088): the status pill above the board while the game waits for a player who lost the connection (instead of \"X ist am Zug\"). One short word."
   },
   "tableRelayTooOld": "Dieser Server kann keine Spiele mit mehr als zwei Personen ausrichten.",
   "@tableRelayTooOld": {

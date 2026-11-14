@@ -762,6 +762,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get pairingDeviceNameHelper => 'بازیکن دیگر تو را با این نام می‌بیند';
 
   @override
+  String get pairingDeviceNameHelperTable =>
+      'بازیکنان دیگر تو را با این نام می‌بینند';
+
+  @override
   String get playerNameTitle => 'اسمت چیست؟';
 
   @override
@@ -865,6 +869,15 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get tableLobbyTitle => 'بازیکنان در اتاق';
+
+  @override
+  String get tableAllHere => 'همه آمده‌اند!';
+
+  @override
+  String get tableStartsIn => 'بازی به‌زودی شروع می‌شود…';
+
+  @override
+  String get seatPausedStatus => 'مکث';
 
   @override
   String get tableRelayTooOld =>

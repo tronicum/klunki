@@ -4,12 +4,15 @@
 // Wi-Fi latency proxy), each in its own NetworkGameSession over real sockets.
 //
 // Before the game: every device shows the lobby (who sits where, "Warte auf
-// noch 1 Mitspieler…") and the game starts on all three once the last guest
-// sat down. During the game, after every step: each device names the seat to
+// noch 1 Mitspieler…"); once the last guest sat down all three show "Alle
+// sind da!" and the host's countdown (5 … 1; the test takes the host's steps
+// itself, so no frame can be missed under load), then the game starts on
+// all three. During the game, after every step: each device names the seat to
 // move ("Du bist am Zug" on its own turn), holds the same number of moves,
 // shows only its own rack (never another seat's tiles) and lets only its own
-// seat act. Midway Cleo's connection drops: everyone sees the pause, nobody
-// can move, Cleo comes back by herself and the game goes on. At the end
+// seat act. Midway Cleo's connection drops: everyone sees the pause ("Pause"
+// in the status pill), nobody can move, Cleo comes back by herself and the
+// game goes on. At the end
 // every device shows the result and both guests verified the host's reveal.
 //
 //   cd klunki && flutter test test/e2e/live_ui/wordtiles_table_network_live_test.dart
@@ -67,7 +70,11 @@ void main() {
 
     final (host, proxy) = (await tester.runAsync(() async {
       final h = await NetworkTransport.host(config,
-          name: 'Anna', address: loopback, pingInterval: pingInterval, timeout: widgetNetTimeout);
+          name: 'Anna',
+          address: loopback,
+          pingInterval: pingInterval,
+          timeout: widgetNetTimeout,
+          countdownTick: const Duration(hours: 1)); // stepped below
       final p = await WifiProxy.start(h.port!, seed: config.seed);
       return (h, p);
     }))!;
@@ -150,6 +157,23 @@ void main() {
     guests.add(cleo);
     transports[2] = cleo;
     await show();
+    String? number(UiDevice d) {
+      final f = d.on(find.byKey(const Key('table-countdown-number')));
+      return f.evaluate().isEmpty ? null : (f.evaluate().last.widget as Text).data;
+    }
+
+    // "Alle sind da!" and the host's countdown on every device.
+    for (final n in [5, 4, 3, 2, 1]) {
+      if (n < 5) await tester.runAsync(() async => host.debugAdvanceCountdown());
+      await until(() => devices.every((d) => number(d) == '$n'), 'countdown $n everywhere');
+      for (final d in devices) {
+        expect(d.has(find.text(deL10n.tableAllHere)), isTrue, reason: d.name);
+        expect(d.has(find.byType(SeatGameScreen)), isFalse, reason: '${d.name}: no game during the countdown');
+      }
+    }
+    expect((await tester.runAsync(() => host.submit(const {'action': 'pass'})))!.isAccepted, isFalse,
+        reason: 'no move before the start');
+    await tester.runAsync(() async => host.debugAdvanceCountdown());
     await until(() => devices.every((d) => d.has(find.byType(SeatGameScreen))), 'the game starts everywhere');
     expect([for (final t in transports) t!.seat], [0, 1, 2]);
 
@@ -186,6 +210,9 @@ void main() {
         await until(() => host.paused && devices[0].hasKey(const Key('net-banner')), 'the host sees the pause');
         expect(devices[0].has(find.text(deL10n.tablePaused('Cleo'))), isTrue);
         await until(() => devices[1].has(find.text(deL10n.tablePaused('Cleo'))), 'Ben sees the pause too');
+        for (final d in devices.take(2)) {
+          expect(textOf(d, const Key('shell-status')), deL10n.seatPausedStatus, reason: '${d.name}: nobody\'s turn');
+        }
         expect(devices[0].hasKey(const Key('table-let-leave-2')), isTrue, reason: 'the host may let Cleo leave');
         expect(devices[0].controller(tester).canAct, isFalse, reason: 'nobody moves while Cleo is away');
         expect((await tester.runAsync(() => host.submit(const {'action': 'pass'})))!.isAccepted, isFalse);

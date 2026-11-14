@@ -1212,6 +1212,12 @@ abstract class AppLocalizations {
   /// **'So sieht dich dein Mitspieler'**
   String get pairingDeviceNameHelper;
 
+  /// Helper text below the device name field when a room for 3–4 players is being set up (KLD-088): the other players (plural) see this name.
+  ///
+  /// In de, this message translates to:
+  /// **'So sehen dich deine Mitspieler'**
+  String get pairingDeviceNameHelperTable;
+
   /// Title of the player name dialog (first visit of "play over Wi-Fi", or the menu person button).
   ///
   /// In de, this message translates to:
@@ -1373,6 +1379,24 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Mitspieler im Raum'**
   String get tableLobbyTitle;
+
+  /// Room of 3–4 players (KLD-088): every seat is taken; heading above the big countdown number (5, 4, 3, 2, 1) before the game starts on every device.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle sind da!'**
+  String get tableAllHere;
+
+  /// Room of 3–4 players (KLD-088): line under tableAllHere, right above the big countdown number (5 … 1); the number follows below, not in this text.
+  ///
+  /// In de, this message translates to:
+  /// **'Gleich geht’s los…'**
+  String get tableStartsIn;
+
+  /// Network game of 3–4 players (KLD-088): the status pill above the board while the game waits for a player who lost the connection (instead of "X ist am Zug"). One short word.
+  ///
+  /// In de, this message translates to:
+  /// **'Pause'**
+  String get seatPausedStatus;
 
   /// Room of 3–4 players (KLD-088): the internet server is too old for a room of more than two.
   ///

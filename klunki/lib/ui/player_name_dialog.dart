@@ -442,8 +442,10 @@ mixin PlayerNameField<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  /// The "Dein Name" text field.
-  Widget playerNameField({required Key key, bool enabled = true, TextInputAction? textInputAction}) {
+  /// The "Dein Name" text field. [table]: a room for 3–4 players (KLD-088),
+  /// the helper says "So sehen dich deine Mitspieler".
+  Widget playerNameField(
+      {required Key key, bool enabled = true, TextInputAction? textInputAction, bool table = false}) {
     final l10n = AppLocalizations.of(context);
     return TextField(
       key: key,
@@ -452,7 +454,7 @@ mixin PlayerNameField<T extends StatefulWidget> on State<T> {
       inputFormatters: playerNameInputFormatters,
       decoration: InputDecoration(
         labelText: l10n.playerNameLabel,
-        helperText: l10n.pairingDeviceNameHelper,
+        helperText: table ? l10n.pairingDeviceNameHelperTable : l10n.pairingDeviceNameHelper,
         border: const OutlineInputBorder(),
       ),
       textInputAction: textInputAction ?? TextInputAction.done,

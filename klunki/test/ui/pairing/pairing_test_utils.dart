@@ -88,7 +88,7 @@ Future<NetworkTransport> relayJoin(CreatedTransports created, Uri relay, String 
 
 /// Host on 127.0.0.1 (TCP and WebSocket ports as asked), created in the root zone.
 Future<NetworkTransport> loopbackHost(CreatedTransports created, GameConfig config,
-    {required String name, required int port, int wsPort = 0}) {
+    {required String name, required int port, int wsPort = 0, Duration countdownTick = const Duration(seconds: 1)}) {
   created.hostPorts.add(port);
   created.hostWsPorts.add(wsPort);
   return Zone.root.run(() async {
@@ -98,7 +98,8 @@ Future<NetworkTransport> loopbackHost(CreatedTransports created, GameConfig conf
         wsPort: wsPort,
         address: InternetAddress.loopbackIPv4,
         pingInterval: pingInterval,
-        timeout: netTimeout);
+        timeout: netTimeout,
+        countdownTick: countdownTick);
     created.hosts.add(t);
     return t;
   });

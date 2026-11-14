@@ -20,7 +20,11 @@ class SeatLabels {
   /// The seat this device plays at a network table (KLD-088): the shell
   /// says "Du bist am Zug" / "Du gewinnst!" for it. Null on one device.
   final int? local;
-  const SeatLabels([this.names = const [], this.local]);
+
+  /// A network table waits for a player who is away (KLD-088): nobody's
+  /// turn, the status pill says "Pause".
+  final bool paused;
+  const SeatLabels([this.names = const [], this.local, this.paused = false]);
 
   static const SeatLabels defaults = SeatLabels();
 
@@ -44,10 +48,11 @@ class SeatLabels {
   }
 
   @override
-  bool operator ==(Object other) => other is SeatLabels && listEquals(other.names, names) && other.local == local;
+  bool operator ==(Object other) =>
+      other is SeatLabels && listEquals(other.names, names) && other.local == local && other.paused == paused;
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(names), local);
+  int get hashCode => Object.hash(Object.hashAll(names), local, paused);
 }
 
 /// The regional default name of [seat]: `playerDefaultNameA` … `D`.

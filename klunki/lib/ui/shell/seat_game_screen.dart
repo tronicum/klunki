@@ -575,6 +575,8 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
       final w = seatResultOf(_game).winner;
       return w == null ? l10n.seatSharedFirst : w == local ? l10n.shellYouHaveWon : l10n.shellHasWon(_name(w));
     }
+    // KLD-088: a network table waiting for someone who is away.
+    if (SeatLabelsScope.of(context).paused) return l10n.seatPausedStatus;
     final actor = actorSeatOf(_game)!;
     return actor == local ? l10n.shellYourTurn : l10n.shellToMove(_name(actor));
   }
@@ -590,7 +592,13 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
     final accent = KlunkiPalette.of(context).accent(controller.spec.id);
     final game = _game;
     final over = game.isOver;
-    final seat = over ? seatResultOf(game).winner : actorSeatOf(game);
+    // KLD-088: a paused network table is nobody's turn (no seat colour).
+    final paused = !over && SeatLabelsScope.of(context).paused;
+    final seat = over
+        ? seatResultOf(game).winner
+        : paused
+            ? null
+            : actorSeatOf(game);
     final color = seat == null ? Colors.transparent : seatColor(context, seat);
     return GameShellScope(
       shell: this,
@@ -677,7 +685,7 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
                               spacing: 8,
                               runSpacing: 4,
                               children: [
-                                _SeatPill(seat: seat, won: over, status: _status(l10n)),
+                                _SeatPill(seat: seat, won: over, paused: paused, status: _status(l10n)),
                                 if (_rulesIntro && !over) RulesIntroLine(onTap: _openRules),
                               ],
                             ),
@@ -740,8 +748,11 @@ class _SeatGameScreenState extends State<SeatGameScreen> implements GameShell {
 class _SeatPill extends StatelessWidget {
   final int? seat;
   final bool won;
+
+  /// A network table waits for someone who is away (KLD-088).
+  final bool paused;
   final String status;
-  const _SeatPill({required this.seat, required this.won, required this.status});
+  const _SeatPill({required this.seat, required this.won, required this.status, this.paused = false});
 
   @override
   Widget build(BuildContext context) {
@@ -755,6 +766,10 @@ class _SeatPill extends StatelessWidget {
       fill = Color.alphaBlend(palette.trophy.withValues(alpha: 0.14), palette.card);
       ink = theme.colorScheme.onSurface;
       border = palette.trophy;
+    } else if (paused) {
+      fill = theme.colorScheme.surfaceContainerHighest;
+      ink = theme.colorScheme.onSurface;
+      border = theme.colorScheme.outline;
     } else {
       final c = seatColor(context, s ?? 0);
       fill = c;
@@ -774,7 +789,12 @@ class _SeatPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (s != null) SeatToken(seat: s, size: 26) else Icon(Icons.handshake_outlined, size: 24, color: ink),
+          if (paused)
+            Icon(Icons.pause_circle_outline, key: const Key('shell-paused'), size: 24, color: ink)
+          else if (s != null)
+            SeatToken(seat: s, size: 26)
+          else
+            Icon(Icons.handshake_outlined, size: 24, color: ink),
           const SizedBox(width: 8),
           if (won) ...[
             Icon(Icons.emoji_events, size: 20, color: palette.trophy),
