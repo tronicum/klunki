@@ -4441,6 +4441,10 @@ class AppLocalizationsEs extends AppLocalizations {
       '«Terminar la partida» está en el menú de los tres puntos.';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      'En dos dispositivos, primero se pregunta al otro dispositivo. Solo «Terminar» allí acaba la partida; con «Seguir jugando», continúa.';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place: saca dobles, paga o usa una carta.';
   }

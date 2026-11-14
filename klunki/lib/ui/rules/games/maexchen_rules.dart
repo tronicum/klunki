@@ -33,7 +33,7 @@ GameRules maexchenRules(BuildContext context, AppLocalizations l10n, GameConfig 
         HouseRule(
           id: 'unlimited',
           title: l10n.maexchenOptionUnlimited,
-          text: '${l10n.maexchenOptionUnlimitedExplain} ${l10n.rulesMaexchenEndHow}',
+          text: '${l10n.maexchenOptionUnlimitedExplain} ${l10n.rulesMaexchenEndHow} ${l10n.rulesMaexchenEndNetwork}',
           on: config.maexchenUnlimited,
           lead: const Icon(Icons.all_inclusive, size: 26),
         ),

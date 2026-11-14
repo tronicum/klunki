@@ -6761,6 +6761,12 @@ abstract class AppLocalizations {
   /// **'„Spiel beenden“ steht im Menü mit den drei Punkten.'**
   String get rulesMaexchenEndHow;
 
+  /// Rules page (Mäxchen, "Unbegrenzte Leben"), after rulesMaexchenEndHow: on two devices (network game) "Spiel beenden" only asks; the game ends when the other device answers "Beenden" (maexchenEndGameConfirm), "Weiterspielen" (maexchenEndContinue) lets it go on.
+  ///
+  /// In de, this message translates to:
+  /// **'Spielt ihr auf zwei Geräten, fragt das andere Gerät zuerst nach. Erst mit „Beenden“ dort ist das Spiel aus, mit „Weiterspielen“ geht es weiter.'**
+  String get rulesMaexchenEndNetwork;
+
   /// KLD-060: like propertyInPause, with the theme's own phrase for the pause square (verb included, in the theme's language, German: "steht im Stau auf der A100"); used only when the UI language is the theme's.
   ///
   /// In de, this message translates to:

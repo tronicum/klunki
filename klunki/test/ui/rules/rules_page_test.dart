@@ -163,6 +163,12 @@ void main() {
       expect(_key('rules-maexchen-order'), findsOneWidget);
     });
 
+    testWidgets('Mäxchen: "Unbegrenzte Leben" says how a game on two devices ends', (tester) async {
+      await _pumpGame(tester, const GameConfig('maexchen', seed: 3, maexchenUnlimited: true));
+      await _tap(tester, 'shell-rules');
+      expect(find.textContaining(deL10n.rulesMaexchenEndNetwork), findsOneWidget);
+    });
+
     testWidgets('Mäxchen: the defaults, 3 lives and "Mäxchen doppelt"', (tester) async {
       await _pumpGame(tester, const GameConfig('maexchen', seed: 3));
       await _tap(tester, 'shell-rules');

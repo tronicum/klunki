@@ -4443,6 +4443,10 @@ class AppLocalizationsAr extends AppLocalizations {
       '«إنهاء اللعبة» في القائمة ذات النقاط الثلاث.';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      'عند اللعب على جهازين، يُسأل الجهاز الآخر أولًا. لا تنتهي اللعبة إلا باختيار «إنهاء» هناك، ومع «مواصلة اللعب» تستمر.';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place: زوج متطابق أو دفع أو بطاقة مجانية.';
   }
