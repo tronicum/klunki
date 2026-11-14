@@ -1202,5 +1202,9 @@
   "shellResultBoardNote": "Así terminó la partida.",
   "shellResultShowResult": "Ver el resultado",
   "wordtilesResultLastWord": "{count, plural, one{Última palabra} other{Últimas palabras}}: {player} pone {words} por {score, plural, one{{score} punto} other{{score} puntos}}",
-  "wordtilesResultAllPassed": "Al final, todos pasaron."
+  "wordtilesResultAllPassed": "Al final, todos pasaron.",
+  "shellUndoConfirmTitle": "¿Quieres deshacer la jugada?",
+  "shellUndoConfirmYes": "Deshacer",
+  "shellUndoConfirmKeep": "No",
+  "wordtilesUndoConfirmBody": "Las fichas de la última jugada vuelven y las fichas nuevas vuelven a la bolsa."
 }

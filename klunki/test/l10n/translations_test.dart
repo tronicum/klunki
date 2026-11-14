@@ -64,6 +64,8 @@ const sameAsEnglish = {
   '{minutes} min',
   '{minutes} min + {seconds} s',
   'Pause',
+  // KLD-094: the undo question's "No" (Spanish spells it the same).
+  'No',
 };
 
 Map<String, dynamic> _arb(String locale) =>

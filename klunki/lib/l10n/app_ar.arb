@@ -1202,5 +1202,9 @@
   "shellResultBoardNote": "هكذا انتهت اللعبة.",
   "shellResultShowResult": "عرض النتيجة",
   "wordtilesResultLastWord": "{count, plural, one{آخر كلمة} other{آخر الكلمات}}: {words} من {player} مقابل {score} نقطة",
-  "wordtilesResultAllPassed": "في النهاية مرّر الجميع الدور."
+  "wordtilesResultAllPassed": "في النهاية مرّر الجميع الدور.",
+  "shellUndoConfirmTitle": "هل تريد التراجع عن الحركة؟",
+  "shellUndoConfirmYes": "تراجع",
+  "shellUndoConfirmKeep": "لا",
+  "wordtilesUndoConfirmBody": "تعود حروف الحركة الأخيرة، وتعود الحروف المسحوبة حديثًا إلى الكيس."
 }

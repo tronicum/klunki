@@ -1202,5 +1202,9 @@
   "shellResultBoardNote": "بازی این‌طور تمام شد.",
   "shellResultShowResult": "دیدن نتیجه",
   "wordtilesResultLastWord": "{count, plural, one{آخرین واژه} other{آخرین واژه‌ها}}: {words} از {player} با {score} امتیاز",
-  "wordtilesResultAllPassed": "در پایان همه پاس دادند."
+  "wordtilesResultAllPassed": "در پایان همه پاس دادند.",
+  "shellUndoConfirmTitle": "می‌خواهی حرکت را برگردانی؟",
+  "shellUndoConfirmYes": "برگرداندن",
+  "shellUndoConfirmKeep": "نه",
+  "wordtilesUndoConfirmBody": "کاشی‌های حرکت آخر برمی‌گردند و کاشی‌های تازه‌برداشته به کیسه برمی‌گردند."
 }

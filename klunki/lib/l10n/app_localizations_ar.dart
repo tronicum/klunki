@@ -4862,4 +4862,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'في النهاية مرّر الجميع الدور.';
+
+  @override
+  String get shellUndoConfirmTitle => 'هل تريد التراجع عن الحركة؟';
+
+  @override
+  String get shellUndoConfirmYes => 'تراجع';
+
+  @override
+  String get shellUndoConfirmKeep => 'لا';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'تعود حروف الحركة الأخيرة، وتعود الحروف المسحوبة حديثًا إلى الكيس.';
 }

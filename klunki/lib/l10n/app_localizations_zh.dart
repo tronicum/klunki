@@ -4556,4 +4556,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => '最后大家都过了本轮。';
+
+  @override
+  String get shellUndoConfirmTitle => '要悔棋吗？';
+
+  @override
+  String get shellUndoConfirmYes => '悔棋';
+
+  @override
+  String get shellUndoConfirmKeep => '不';
+
+  @override
+  String get wordtilesUndoConfirmBody => '上一步的牌会回来，新取的牌放回牌堆。';
 }

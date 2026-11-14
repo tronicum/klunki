@@ -7334,6 +7334,30 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Am Ende haben alle gepasst.'**
   String get wordtilesResultAllPassed;
+
+  /// KLD-094: title of the dialog after tapping the take-back button (shellTakeBack) in Wortgewandt (hot-seat): asks before the last move is taken back. Plain, for kids; the device may be shared, but the maintainer chose the "du" question.
+  ///
+  /// In de, this message translates to:
+  /// **'Möchtest du den Zug zurücknehmen?'**
+  String get shellUndoConfirmTitle;
+
+  /// KLD-094: confirm button of shellUndoConfirmTitle: takes the last move back. Short verb.
+  ///
+  /// In de, this message translates to:
+  /// **'Zurücknehmen'**
+  String get shellUndoConfirmYes;
+
+  /// KLD-094: stay button of shellUndoConfirmTitle: keeps the move, the game goes on. A plain "no" (not "Abbrechen", which the app uses for ending a game).
+  ///
+  /// In de, this message translates to:
+  /// **'Nein'**
+  String get shellUndoConfirmKeep;
+
+  /// KLD-094: text of the take-back question (shellUndoConfirmTitle) in Wortgewandt, shown when the last move laid a word or swapped tiles: what happens: the tiles of the last move come back (to the rack of the player who laid or swapped them), tiles drawn after it go back into the bag.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.'**
+  String get wordtilesUndoConfirmBody;
 }
 
 class _AppLocalizationsDelegate

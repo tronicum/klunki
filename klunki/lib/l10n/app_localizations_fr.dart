@@ -4865,4 +4865,17 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'À la fin, tout le monde a passé.';
+
+  @override
+  String get shellUndoConfirmTitle => 'Veux-tu reprendre le coup ?';
+
+  @override
+  String get shellUndoConfirmYes => 'Reprendre';
+
+  @override
+  String get shellUndoConfirmKeep => 'Non';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'Les lettres du dernier coup reviennent, les lettres piochées retournent dans le sac.';
 }

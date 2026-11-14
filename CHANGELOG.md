@@ -8,6 +8,8 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt: "Zug zurücknehmen" asks first** (KLD-094): "Möchtest du den Zug zurücknehmen?" with
+  "Zurücknehmen" or "Nein", so a slip of the finger does not throw away a word. Other games take back at once.
 - **Wortgewandt: the last word in the summary** (KLD-094): the end summary now starts with the move that ended the
   game ("Letztes Wort: Anna legt KATZE für 24 Punkte", or "Am Ende haben alle gepasst."), so everyone sees it.
 - **"Brett ansehen" at the game end**: in the board games the result has a button that shows the final board (in

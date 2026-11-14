@@ -4826,4 +4826,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'In the end, everyone passed.';
+
+  @override
+  String get shellUndoConfirmTitle => 'Do you want to take back the move?';
+
+  @override
+  String get shellUndoConfirmYes => 'Take back';
+
+  @override
+  String get shellUndoConfirmKeep => 'No';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'The tiles of the last move come back, newly drawn tiles go back into the bag.';
 }

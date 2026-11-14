@@ -834,8 +834,14 @@ class _GameScreenState extends State<GameScreen> implements GameShell {
 /// the board unless the board shows it in its own control row
 /// ([GameScreen.boardPlacesUndo]). Key `shell-undo` on the button.
 /// Hidden when "Zug zurücknehmen erlauben" is off for the game
-/// ([UndoSettings]).
+/// ([UndoSettings]). In the games of [confirmGames] (Wortgewandt) a tap
+/// asks first ("Möchtest du den Zug zurücknehmen?", confirm key
+/// `undo-confirm`, stay key `undo-keep`): a word game move is a lot of
+/// thinking to lose by a slip of the finger (KLD-094).
 class UndoMoveButton extends StatelessWidget {
+  /// The games whose take-back asks first; every other game undoes at once.
+  static const Set<String> confirmGames = {'wordtiles'};
+
   /// Compact by default; a board row of denser buttons passes its own
   /// density, so the row keeps its height.
   final VisualDensity visualDensity;
@@ -890,7 +896,11 @@ class _UndoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (controller.transport is! HotSeatTransport) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
-    final onPressed = controller.canUndo ? controller.undo : null;
+    final onPressed = !controller.canUndo
+        ? null
+        : UndoMoveButton.confirmGames.contains(controller.spec.id)
+            ? () => _confirmUndo(context)
+            : controller.undo;
     if (iconOnly) {
       return IconButton(
         key: const Key('shell-undo'),
@@ -911,6 +921,41 @@ class _UndoButton extends StatelessWidget {
         onPressed: onPressed,
       ),
     );
+  }
+
+  /// "Möchtest du den Zug zurücknehmen?" (KLD-094); takes the move back only
+  /// on "Zurücknehmen" and only if it still can (the game may have moved on).
+  Future<void> _confirmUndo(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    // What happens, where it is simple to say: a laid word or a swap goes
+    // back to the rack and the tiles drawn after it into the bag. (Taking
+    // back a pass or an answer to "Trotzdem zulassen" needs no line.)
+    final last = controller.moves.isEmpty ? null : controller.moves.last.move['action'];
+    final body = switch ((controller.spec.id, last)) {
+      ('wordtiles', 'place' || 'exchange') => l10n.wordtilesUndoConfirmBody,
+      _ => null,
+    };
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        key: const Key('undo-dialog'),
+        title: Text(l10n.shellUndoConfirmTitle),
+        content: body == null ? null : Text(body),
+        actions: [
+          TextButton(
+            key: const Key('undo-keep'),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.shellUndoConfirmKeep),
+          ),
+          FilledButton(
+            key: const Key('undo-confirm'),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(l10n.shellUndoConfirmYes),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && controller.canUndo) controller.undo();
   }
 }
 

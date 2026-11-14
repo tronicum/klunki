@@ -7059,5 +7059,21 @@
   "wordtilesResultAllPassed": "Am Ende haben alle gepasst.",
   "@wordtilesResultAllPassed": {
     "description": "KLD-094: word tiles result, first line when the game ended because nobody scored and every one of those last turns was a pass."
+  },
+  "shellUndoConfirmTitle": "Möchtest du den Zug zurücknehmen?",
+  "@shellUndoConfirmTitle": {
+    "description": "KLD-094: title of the dialog after tapping the take-back button (shellTakeBack) in Wortgewandt (hot-seat): asks before the last move is taken back. Plain, for kids; the device may be shared, but the maintainer chose the \"du\" question."
+  },
+  "shellUndoConfirmYes": "Zurücknehmen",
+  "@shellUndoConfirmYes": {
+    "description": "KLD-094: confirm button of shellUndoConfirmTitle: takes the last move back. Short verb."
+  },
+  "shellUndoConfirmKeep": "Nein",
+  "@shellUndoConfirmKeep": {
+    "description": "KLD-094: stay button of shellUndoConfirmTitle: keeps the move, the game goes on. A plain \"no\" (not \"Abbrechen\", which the app uses for ending a game)."
+  },
+  "wordtilesUndoConfirmBody": "Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.",
+  "@wordtilesUndoConfirmBody": {
+    "description": "KLD-094: text of the take-back question (shellUndoConfirmTitle) in Wortgewandt, shown when the last move laid a word or swapped tiles: what happens: the tiles of the last move come back (to the rack of the player who laid or swapped them), tiles drawn after it go back into the bag."
   }
 }

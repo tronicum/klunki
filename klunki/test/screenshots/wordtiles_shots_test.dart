@@ -701,6 +701,41 @@ void main() {
       await boardView(tester, 'seats3-phone-de');
     });
   });
+
+  // "Zug zurücknehmen" asks first in Wortgewandt (KLD-094): on the board
+  // (the ↶ icon on a phone, the label on a tablet) and on the cover.
+  group('kld094undo', () {
+    for (final (name, size, locale) in [
+      ('phone-de', const Size(375, 667), const Locale('de')),
+      ('phone-en', const Size(375, 667), const Locale('en')),
+      ('phone-ar', const Size(375, 667), const Locale('ar')),
+      ('ipad-landscape-de', padLandscape, const Locale('de')),
+    ]) {
+      testWidgets('undo $name', skip: skip, (tester) async {
+        final c = await _pump(tester, size, locale: locale, appFonts: locale.languageCode == 'ar');
+        await _midGame(tester, c);
+        await tester.ensureVisible(find.byKey(const Key('shell-undo')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('shell-undo')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('undo-dialog')), findsOneWidget);
+        await _shot(tester, 'kld094undo/$name-1-board');
+        // "Nein" (an undo would replay from the seed, not the shot's racks).
+        await tester.tap(find.byKey(const Key('undo-keep')));
+        await tester.pumpAndSettle();
+        expect(c.moves, hasLength(3));
+        // Ben passes; on the cover he may take the pass back (no extra line).
+        await c.submit(const {'action': 'pass'});
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('shell-undo')));
+        await tester.pumpAndSettle();
+        await _shot(tester, 'kld094undo/$name-2-cover');
+        await tester.tap(find.byKey(const Key('undo-keep')));
+        await tester.pumpAndSettle();
+        expect(c.moves, hasLength(4));
+      });
+    }
+  });
 }
 
 class _NeverBundle extends CachingAssetBundle {

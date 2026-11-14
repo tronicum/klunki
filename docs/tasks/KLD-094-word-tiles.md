@@ -805,6 +805,25 @@ Maintainer feedback: the summary opened right after the final move, so the other
   (`wordtiles_live_test.dart`) and the 3-device table (`wordtiles_table_network_live_test.dart`) check the line and
   the board view on a guest (`checkResultBoardView`). Screenshots: `--plain-name kld094end`.
 
+## "Zug zurücknehmen" asks first: what was built
+
+Maintainer wish: a slip of the finger on ↶ should not throw away a word. In Wortgewandt the take-back button now
+asks "Möchtest du den Zug zurücknehmen?" with "Zurücknehmen" (key `undo-confirm`) and "Nein" (`undo-keep`; not
+"Abbrechen", which the app uses for ending a game); tapping outside also keeps the move. After a laid word or a
+swap one more line says what happens: "Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den
+Beutel." (no line for a pass or an answer to "Trotzdem zulassen", where it would not be true).
+
+- In the shared `UndoMoveButton` (`klunki/lib/ui/shell/game_screen.dart`): `UndoMoveButton.confirmGames` =
+  `{'wordtiles'}`, so every place that shows the button asks: the 2-player board (label, or the ↶ icon on a small
+  phone), the handover cover, the 3–4 seat shell's cover. Other games still undo at once. The button keeps the key
+  `shell-undo`; the dialog has `undo-dialog`.
+- Strings `shellUndoConfirmTitle`, `shellUndoConfirmYes`, `shellUndoConfirmKeep`, `wordtilesUndoConfirmBody` in
+  all 7 locales.
+- Tests: `test/ui/shell/undo_move_button_test.dart` (confirm takes the move back, "Nein" and a tap outside keep
+  it, the line only after a swap/word, 4 Gewinnt instant; the per-game loop confirms for Wortgewandt);
+  `wordtiles_seats_test.dart` and `wordtiles_allow_refuse_test.dart` confirm through an `_undo` helper.
+  Screenshots: `--plain-name kld094undo` (board and cover; phone de/en/ar, iPad).
+
 ## 3–4 players on one device (assessment; engine part done in KLD-088 step 1, UI next)
 Done since: on one device as KLD-125 (KLD-088 step 2), over the network as KLD-088 step 4 (protocol 4 tables,
 "Wie viele spielen mit?" on "Raum starten", lobby; see `docs/tasks/KLD-088-more-players.md`).

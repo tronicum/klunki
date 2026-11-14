@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/app/klunki_app.dart';
+import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
@@ -29,6 +30,15 @@ void main() {
   });
 
   const undo = Key('shell-undo');
+  const undoDialog = Key('undo-dialog');
+
+  /// Answers Wortgewandt's "Möchtest du den Zug zurücknehmen?" (KLD-094).
+  Future<void> confirmUndo(WidgetTester tester) async {
+    await tester.pumpAndSettle();
+    expect(find.byKey(undoDialog), findsOneWidget);
+    await tester.tap(find.byKey(const Key('undo-confirm')));
+    await tester.pumpAndSettle();
+  }
   // The label, or just the ↶ icon where a row is full (e.g. Ausgewürfelt
   // with the "Tipp" button on a phone).
   ({VoidCallback? onPressed}) button(WidgetTester tester) => switch (tester.widget(find.byKey(undo))) {
@@ -113,6 +123,13 @@ void main() {
       await tester.pump();
       await tester.tap(find.byKey(undo));
       await tester.pump();
+      // Wortgewandt asks first (KLD-094); every other game undoes at once.
+      if (UndoMoveButton.confirmGames.contains(id)) {
+        expect(c.moves, hasLength(1));
+        await confirmUndo(tester);
+      } else {
+        expect(find.byKey(undoDialog), findsNothing);
+      }
       expect(c.moves, hasLength(left));
     });
   }
@@ -181,7 +198,84 @@ void main() {
     }
     await tester.tap(icon);
     await tester.pump();
+    await confirmUndo(tester);
     expect(c.moves, isEmpty);
+  });
+
+  group('Wortgewandt asks before taking a move back (KLD-094)', () {
+    Future<GameController> laid(WidgetTester tester, Map<String, dynamic> move) async {
+      final c = await pumpGame(tester, 'wordtiles');
+      await c.submit(move);
+      await tester.pump();
+      if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
+        await tester.tap(find.byKey(handoverContinue));
+        await tester.pump();
+      }
+      expect(c.moves, hasLength(1));
+      await tester.ensureVisible(find.byKey(undo));
+      await tester.pumpAndSettle();
+      return c;
+    }
+
+    Map<String, dynamic> swap(GameController c) =>
+        {'action': 'exchange', 'tiles': [(c.game as WordTilesGame).rackOf(0).first]};
+
+    testWidgets('"Zurücknehmen" takes the move back', (tester) async {
+      final c = await pumpGame(tester, 'wordtiles');
+      await c.submit(swap(c));
+      await tester.pump();
+      if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
+        await tester.tap(find.byKey(handoverContinue));
+        await tester.pump();
+      }
+      await tester.ensureVisible(find.byKey(undo));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(undo));
+      await tester.pumpAndSettle();
+      expect(find.text('Möchtest du den Zug zurücknehmen?'), findsOneWidget);
+      // A swap: what happens is said.
+      expect(find.text('Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.'),
+          findsOneWidget);
+      expect(find.text('Nein'), findsOneWidget);
+      expect(c.moves, hasLength(1), reason: 'nothing happens before the answer');
+      await tester.tap(find.byKey(const Key('undo-confirm')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(undoDialog), findsNothing);
+      expect(c.moves, isEmpty);
+    });
+
+    testWidgets('"Nein" keeps the move; a pass gets the question without the extra line', (tester) async {
+      final c = await laid(tester, {'action': 'pass'});
+      await tester.tap(find.byKey(undo));
+      await tester.pumpAndSettle();
+      expect(find.text('Möchtest du den Zug zurücknehmen?'), findsOneWidget);
+      expect(find.textContaining('Beutel'), findsNothing);
+      await tester.tap(find.byKey(const Key('undo-keep')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(undoDialog), findsNothing);
+      expect(c.moves, hasLength(1));
+      expect(button(tester).onPressed, isNotNull, reason: 'can still be taken back later');
+    });
+
+    testWidgets('a tap outside the question keeps the move', (tester) async {
+      final c = await laid(tester, {'action': 'pass'});
+      await tester.tap(find.byKey(undo));
+      await tester.pumpAndSettle();
+      expect(find.byKey(undoDialog), findsOneWidget);
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
+      expect(find.byKey(undoDialog), findsNothing);
+      expect(c.moves, hasLength(1));
+    });
+
+    testWidgets('4 Gewinnt still takes the move back at once', (tester) async {
+      final c = await pumpGame(tester, 'connect4');
+      await playMove(tester);
+      await tester.tap(find.byKey(undo));
+      await tester.pump();
+      expect(find.byKey(undoDialog), findsNothing);
+      expect(c.moves, isEmpty);
+    });
   });
 
   group('"Zug zurücknehmen erlauben" (KLD-117 follow-up)', () {

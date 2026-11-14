@@ -37,6 +37,13 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
   await _pump(tester);
 }
 
+/// "Zug zurücknehmen", then "Zurücknehmen" in the question (KLD-094).
+Future<void> _undo(WidgetTester tester) async {
+  await _tap(tester, _key('shell-undo'));
+  expect(_key('undo-dialog'), findsOneWidget);
+  await _tap(tester, _key('undo-confirm'));
+}
+
 String _text(WidgetTester tester, Finder f) => tester.widget<Text>(f).data!;
 
 const _racks = [
@@ -114,7 +121,7 @@ void main() {
     final c = await _start(tester, players: 3);
     await _pass(tester);
     expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
-    await _tap(tester, _key('shell-undo'));
+    await _undo(tester);
     await tester.pumpAndSettle();
     expect(c.moves, isEmpty);
     // The turn went back to Anna: her cover (Ben may have seen nothing).

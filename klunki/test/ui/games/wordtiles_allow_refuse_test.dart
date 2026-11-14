@@ -49,6 +49,13 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
   await tester.pumpAndSettle();
 }
 
+/// "Zug zurücknehmen", then "Zurücknehmen" in the question (KLD-094).
+Future<void> _undo(WidgetTester tester) async {
+  await _tap(tester, _key('shell-undo'));
+  expect(_key('undo-dialog'), findsOneWidget);
+  await _tap(tester, _key('undo-confirm'));
+}
+
 /// Anna lays "HSA" (not in the list) and asks "Trotzdem zulassen".
 Future<void> _askHsa(WidgetTester tester) async {
   for (final (i, col) in [(0, 7), (3, 8), (1, 9)]) {
@@ -135,7 +142,7 @@ void main() {
   testWidgets('2 players: "Zug zurücknehmen" on Ben\'s cover takes the request back to Anna', (tester) async {
     final c = await _start(tester);
     await _askHsa(tester);
-    await _tap(tester, _key('shell-undo'));
+    await _undo(tester);
     expect(c.moves, isEmpty);
     expect(_key('wordtiles-allow-dialog'), findsNothing);
     expect(find.text('Gib das Gerät an Anna weiter'), findsOneWidget);
@@ -165,7 +172,7 @@ void main() {
     // Ben disagrees after all: "Zug zurücknehmen" on the cover opens the
     // request again; the cover still goes to Ben (before the fix it named
     // Anna, and stayed up after the refusal), then he answers.
-    await _tap(tester, _key('shell-undo'));
+    await _undo(tester);
     expect(c.moves, hasLength(1));
     expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
     expect(find.text('Anna möchte „HSA“ zulassen (6 Punkte).'), findsOneWidget);
@@ -194,7 +201,7 @@ void main() {
     await _tap(tester, find.byKey(_continue));
     await _tap(tester, _key('wordtiles-allow-accept'));
     // Ben has the device; he takes his agreement back and refuses.
-    await _tap(tester, _key('shell-undo'));
+    await _undo(tester);
     expect(find.byKey(_continue), findsNothing);
     expect(_key('wordtiles-allow-dialog'), findsOneWidget);
     await _tap(tester, _key('wordtiles-allow-decline'));

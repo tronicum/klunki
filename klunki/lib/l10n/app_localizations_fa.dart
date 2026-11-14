@@ -4732,4 +4732,17 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'در پایان همه پاس دادند.';
+
+  @override
+  String get shellUndoConfirmTitle => 'می‌خواهی حرکت را برگردانی؟';
+
+  @override
+  String get shellUndoConfirmYes => 'برگرداندن';
+
+  @override
+  String get shellUndoConfirmKeep => 'نه';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'کاشی‌های حرکت آخر برمی‌گردند و کاشی‌های تازه‌برداشته به کیسه برمی‌گردند.';
 }

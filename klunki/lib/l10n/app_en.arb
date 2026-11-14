@@ -1201,5 +1201,9 @@
   "shellResultBoardNote": "This is how the game ended.",
   "shellResultShowResult": "Show the result",
   "wordtilesResultLastWord": "{count, plural, one{Last word} other{Last words}}: {player} lays {words} for {score, plural, one{{score} point} other{{score} points}}",
-  "wordtilesResultAllPassed": "In the end, everyone passed."
+  "wordtilesResultAllPassed": "In the end, everyone passed.",
+  "shellUndoConfirmTitle": "Do you want to take back the move?",
+  "shellUndoConfirmYes": "Take back",
+  "shellUndoConfirmKeep": "No",
+  "wordtilesUndoConfirmBody": "The tiles of the last move come back, newly drawn tiles go back into the bag."
 }

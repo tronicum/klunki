@@ -1202,5 +1202,9 @@
   "shellResultBoardNote": "这就是终局。",
   "shellResultShowResult": "查看结果",
   "wordtilesResultLastWord": "最后一步：{player} 摆出 {words}，{score} 分{count, plural, other{}}",
-  "wordtilesResultAllPassed": "最后大家都过了本轮。"
+  "wordtilesResultAllPassed": "最后大家都过了本轮。",
+  "shellUndoConfirmTitle": "要悔棋吗？",
+  "shellUndoConfirmYes": "悔棋",
+  "shellUndoConfirmKeep": "不",
+  "wordtilesUndoConfirmBody": "上一步的牌会回来，新取的牌放回牌堆。"
 }

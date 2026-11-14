@@ -4844,4 +4844,17 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'Am Ende haben alle gepasst.';
+
+  @override
+  String get shellUndoConfirmTitle => 'Möchtest du den Zug zurücknehmen?';
+
+  @override
+  String get shellUndoConfirmYes => 'Zurücknehmen';
+
+  @override
+  String get shellUndoConfirmKeep => 'Nein';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.';
 }

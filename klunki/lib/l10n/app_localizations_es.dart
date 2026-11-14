@@ -4856,4 +4856,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesResultAllPassed => 'Al final, todos pasaron.';
+
+  @override
+  String get shellUndoConfirmTitle => '¿Quieres deshacer la jugada?';
+
+  @override
+  String get shellUndoConfirmYes => 'Deshacer';
+
+  @override
+  String get shellUndoConfirmKeep => 'No';
+
+  @override
+  String get wordtilesUndoConfirmBody =>
+      'Las fichas de la última jugada vuelven y las fichas nuevas vuelven a la bolsa.';
 }

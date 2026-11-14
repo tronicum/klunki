@@ -1202,5 +1202,9 @@
   "shellResultBoardNote": "Voici la fin de la partie.",
   "shellResultShowResult": "Voir le résultat",
   "wordtilesResultLastWord": "{count, plural, one{Dernier mot} other{Derniers mots}} : {player} pose {words} pour {score, plural, one{{score} point} other{{score} points}}",
-  "wordtilesResultAllPassed": "À la fin, tout le monde a passé."
+  "wordtilesResultAllPassed": "À la fin, tout le monde a passé.",
+  "shellUndoConfirmTitle": "Veux-tu reprendre le coup ?",
+  "shellUndoConfirmYes": "Reprendre",
+  "shellUndoConfirmKeep": "Non",
+  "wordtilesUndoConfirmBody": "Les lettres du dernier coup reviennent, les lettres piochées retournent dans le sac."
 }
