@@ -6935,8 +6935,16 @@
   "@savesEmpty": {
     "description": "KLD-079: the list of saved games is empty."
   },
-  "savesHint": "Klunki merkt sich bei jedem Spiel das zuletzt angefangene. Ein neues Spiel derselben Art ersetzt es nach dem ersten Zug.",
+  "savesHint": "Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.",
   "@savesHint": {
-    "description": "KLD-079: note under the list: one saved game per game, replaced by a new game of the same kind after its first move."
+    "description": "KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move."
+  },
+  "savesAskTitle": "Angefangenes Spiel",
+  "@savesAskTitle": {
+    "description": "KLD-079: title of the question when a hot-seat game is started while one of the same kind is saved. Plain, for kids."
+  },
+  "savesAskBody": "Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.",
+  "@savesAskBody": {
+    "description": "KLD-079: text of that question, under the saved players, date and moves. Buttons: savesTitle (continue) and shellNewGame (new game)."
   }
 }

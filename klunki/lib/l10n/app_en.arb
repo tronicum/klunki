@@ -1178,5 +1178,7 @@
   "savesDeleteTitle": "Delete game?",
   "savesDeleteBody": "The unfinished game “{game}” will be deleted.",
   "savesEmpty": "No unfinished games.",
-  "savesHint": "Klunki remembers the last unfinished game of each kind. A new game of the same kind replaces it after the first move."
+  "savesHint": "Klunki remembers the last unfinished game of each kind. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.",
+  "savesAskTitle": "Unfinished game",
+  "savesAskBody": "Continue, or start a new game? A new game replaces the unfinished one with its first move."
 }

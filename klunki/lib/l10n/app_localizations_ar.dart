@@ -4764,5 +4764,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'يحفظ Klunki آخر لعبة غير منتهية من كل نوع. تحل محلها لعبة جديدة من النوع نفسه بعد أول حركة.';
+      'يحفظ Klunki آخر لعبة غير منتهية من كل نوع. عند بدء اللعبة نفسها من جديد يسأل Klunki: متابعة اللعب أم لعبة جديدة؟ تحل اللعبة الجديدة محل القديمة بعد أول حركة.';
+
+  @override
+  String get savesAskTitle => 'لعبة غير منتهية';
+
+  @override
+  String get savesAskBody =>
+      'متابعة اللعب أم بدء لعبة جديدة؟ تحل اللعبة الجديدة محل اللعبة غير المنتهية بعد أول حركة.';
 }

@@ -4739,5 +4739,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki merkt sich bei jedem Spiel das zuletzt angefangene. Ein neues Spiel derselben Art ersetzt es nach dem ersten Zug.';
+      'Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.';
+
+  @override
+  String get savesAskTitle => 'Angefangenes Spiel';
+
+  @override
+  String get savesAskBody =>
+      'Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.';
 }

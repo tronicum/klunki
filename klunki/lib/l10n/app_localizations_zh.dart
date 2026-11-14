@@ -4463,5 +4463,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get savesEmpty => '没有未完成的游戏。';
 
   @override
-  String get savesHint => 'Klunki 会为每种游戏保存最近一局未完成的游戏。同一种游戏开始新的一局后，走出第一步时会替换它。';
+  String get savesHint =>
+      'Klunki 会为每种游戏保存最近一局未完成的游戏。再次开始同一种游戏时，Klunki 会问你：继续游戏还是开始新游戏？新的一局走出第一步时会替换它。';
+
+  @override
+  String get savesAskTitle => '未完成的游戏';
+
+  @override
+  String get savesAskBody => '继续游戏还是开始新游戏？新的一局走出第一步时会替换未完成的这一局。';
 }

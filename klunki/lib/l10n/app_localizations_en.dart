@@ -4720,5 +4720,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki remembers the last unfinished game of each kind. A new game of the same kind replaces it after the first move.';
+      'Klunki remembers the last unfinished game of each kind. When you start the same game again, Klunki asks: continue or new game? A new game replaces the old one with its first move.';
+
+  @override
+  String get savesAskTitle => 'Unfinished game';
+
+  @override
+  String get savesAskBody =>
+      'Continue, or start a new game? A new game replaces the unfinished one with its first move.';
 }

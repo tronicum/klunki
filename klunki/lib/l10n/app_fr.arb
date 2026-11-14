@@ -1179,5 +1179,7 @@
   "savesDeleteTitle": "Supprimer la partie ?",
   "savesDeleteBody": "La partie en cours « {game} » sera supprimée.",
   "savesEmpty": "Aucune partie en cours.",
-  "savesHint": "Klunki garde la dernière partie commencée de chaque jeu. Une nouvelle partie du même jeu la remplace dès le premier coup."
+  "savesHint": "Klunki garde la dernière partie commencée de chaque jeu. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.",
+  "savesAskTitle": "Partie commencée",
+  "savesAskBody": "Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup."
 }

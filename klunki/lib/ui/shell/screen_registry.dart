@@ -27,6 +27,7 @@ import '../../profile/player_name_controller.dart';
 import '../../profile/seat_names.dart';
 import '../../saves/autosave.dart';
 import '../../saves/save_store.dart';
+import '../../saves/saved_games_screen.dart' show askResumeOrNew, resumeSavedGame;
 import '../../transport/hot_seat_transport.dart';
 import '../player_name_dialog.dart' show showHotSeatNamesDialog;
 import '../seat_players_dialog.dart';
@@ -184,7 +185,19 @@ Future<void> openGame(BuildContext context, String gameId,
 /// ones or the default names (only with the app's [PlayerNameScope]).
 /// Cancelling any of them starts nothing. A Wortgewandt game with "Wörterbuch
 /// prüfen" loads its word list before the game opens.
+///
+/// KLD-079: when the app keeps a resumable save of [gameId], the menu asks
+/// first ("Angefangenes Spiel", [askResumeOrNew]): "Weiterspielen" resumes
+/// it, "Neues Spiel" goes on as above (the new game replaces the save with
+/// its first move, so backing out of a dialog keeps it). A save that cannot
+/// be resumed does not ask; the new game replaces it the same way.
 Future<void> openGameFromMenu(BuildContext context, String gameId, {QuartettDeckSettings? deckSettings}) async {
+  final saved = SavedGamesScope.read(context)?.entryFor(gameId);
+  if (saved != null && saved.resumable) {
+    final resume = await askResumeOrNew(context, saved);
+    if (resume == null || !context.mounted) return;
+    if (resume) return resumeSavedGame(context, saved, replace: false);
+  }
   String? deck;
   if (specById(gameId)?.usesDeck == true) {
     deck = await showQuartettDeckPicker(context, settings: deckSettings);

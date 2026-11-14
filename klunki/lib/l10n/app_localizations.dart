@@ -7186,11 +7186,23 @@ abstract class AppLocalizations {
   /// **'Keine angefangenen Spiele.'**
   String get savesEmpty;
 
-  /// KLD-079: note under the list: one saved game per game, replaced by a new game of the same kind after its first move.
+  /// KLD-079: note under the list: one saved game per game; starting the same game again asks first (continue or new game), and a new game replaces the old save with its first move.
   ///
   /// In de, this message translates to:
-  /// **'Klunki merkt sich bei jedem Spiel das zuletzt angefangene. Ein neues Spiel derselben Art ersetzt es nach dem ersten Zug.'**
+  /// **'Klunki merkt sich von jedem Spiel das zuletzt angefangene. Startest du dasselbe Spiel neu, fragt Klunki: weiterspielen oder neues Spiel? Ein neues Spiel ersetzt das alte beim ersten Zug.'**
   String get savesHint;
+
+  /// KLD-079: title of the question when a hot-seat game is started while one of the same kind is saved. Plain, for kids.
+  ///
+  /// In de, this message translates to:
+  /// **'Angefangenes Spiel'**
+  String get savesAskTitle;
+
+  /// KLD-079: text of that question, under the saved players, date and moves. Buttons: savesTitle (continue) and shellNewGame (new game).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen oder ein neues Spiel anfangen? Ein neues Spiel ersetzt das angefangene beim ersten Zug.'**
+  String get savesAskBody;
 }
 
 class _AppLocalizationsDelegate

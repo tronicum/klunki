@@ -85,6 +85,78 @@ void main() {
     expect(find.byKey(const Key('menu-connect4-tile')), findsOneWidget);
   });
 
+  testWidgets('starting a game with a save asks: "Weiterspielen" restores it and its names, "Neues Spiel" replaces it',
+      (tester) async {
+    final save = SavedGame.now(const GameConfig('connect4'), [
+      {'col': 3},
+      {'col': 4},
+      {'col': 3},
+    ], names: [
+      'Mia',
+      'Leo'
+    ]);
+    final prefs = await _prefs({'${SaveStore.prefsPrefix}connect4': jsonEncode(save.toJson())});
+    final store = await SaveStore.load(prefs: prefs);
+    final names = HotSeatNamesController.memory(const HotSeatNames(x: 'Tom', o: 'Lea'));
+    await tester.pumpWidget(_app(store, names: names));
+
+    // Cancel (a tap outside): nothing starts, the save stays.
+    await tester.tap(find.byKey(const Key('menu-connect4-tile')));
+    await tester.pumpAndSettle();
+    final dialog = find.byKey(const Key('saves-ask-dialog'));
+    expect(dialog, findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text('Angefangenes Spiel')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text('Mia · Leo')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.textContaining('3 Züge')), findsOneWidget);
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
+    expect(dialog, findsNothing);
+    expect(find.byType(GameScreen), findsNothing);
+    expect(find.byKey(const Key('hot-seat-names-ok')), findsNothing);
+
+    // "Weiterspielen": the saved game with the saved names, which are the
+    // last names again (the store had others).
+    await tester.tap(find.byKey(const Key('menu-connect4-tile')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('saves-ask-resume')));
+    await tester.pumpAndSettle();
+    expect(find.byType(GameScreen), findsOneWidget);
+    expect([for (final m in controllerOf(tester).moves) m.move], save.moves);
+    expect(_status(tester), 'Leo ist am Zug');
+    expect(names.value, const HotSeatNames(x: 'Mia', o: 'Leo'));
+    await _back(tester);
+    expect(find.byKey(const Key('menu-connect4-tile')), findsOneWidget, reason: 'back leads to the menu');
+
+    // "Neues Spiel": "Wer spielt?" with the last (restored) names, a fresh
+    // game; the old save stays until the first move, then the new one
+    // takes its place.
+    await tester.tap(find.byKey(const Key('menu-connect4-tile')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('saves-ask-new')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('hot-seat-names-ok')), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Mia'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Leo'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('hot-seat-names-ok')));
+    await tester.pumpAndSettle();
+    expect(controllerOf(tester).moves, isEmpty);
+    expect(store.entryFor('connect4')!.game!.moves, hasLength(3), reason: 'replaced only by the first move');
+    await tester.tap(find.byKey(const Key('c4-column-0')));
+    await tester.pumpAndSettle();
+    expect(store.entryFor('connect4')!.game!.moves, [
+      {'col': 0}
+    ]);
+    await _back(tester);
+
+    // A save that cannot be resumed does not ask.
+    await store.save(SavedGame.tryParse({...save.toJson(), 'rulesVersion': 99})!);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('menu-connect4-tile')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('saves-ask-dialog')), findsNothing);
+    expect(find.byKey(const Key('hot-seat-names-ok')), findsOneWidget);
+  });
+
   testWidgets('a finished game deletes its save; undo to the start too', (tester) async {
     final prefs = await _prefs({});
     final store = await SaveStore.load(prefs: prefs);

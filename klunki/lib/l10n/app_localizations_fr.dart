@@ -4759,5 +4759,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki garde la dernière partie commencée de chaque jeu. Une nouvelle partie du même jeu la remplace dès le premier coup.';
+      'Klunki garde la dernière partie commencée de chaque jeu. Si tu relances le même jeu, Klunki demande : continuer ou nouvelle partie ? Une nouvelle partie remplace l’ancienne dès le premier coup.';
+
+  @override
+  String get savesAskTitle => 'Partie commencée';
+
+  @override
+  String get savesAskBody =>
+      'Continuer ou commencer une nouvelle partie ? La nouvelle partie remplace l’ancienne dès le premier coup.';
 }

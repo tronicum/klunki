@@ -436,6 +436,15 @@ void main() {
         await tester.pumpAndSettle();
         await _shot(tester, 'kld079-cannot-resume-$tag');
       }
+      // Starting chess from the menu while one is saved: "Angefangenes Spiel".
+      await tester.pumpWidget(_wrap(KlunkiApp(
+          key: UniqueKey(), localeController: LocaleController.memory(Locale(locale)), savedGames: store)));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('menu-chess-tile')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('menu-chess-tile')));
+      await tester.pumpAndSettle();
+      await _shot(tester, 'kld079-ask-$tag');
     });
   }
 

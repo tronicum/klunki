@@ -4751,5 +4751,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get savesHint =>
-      'Klunki guarda la última partida empezada de cada juego. Una partida nueva del mismo juego la sustituye tras la primera jugada.';
+      'Klunki guarda la última partida empezada de cada juego. Si vuelves a empezar el mismo juego, Klunki pregunta: ¿seguir jugando o nueva partida? La nueva partida sustituye a la anterior tras la primera jugada.';
+
+  @override
+  String get savesAskTitle => 'Partida empezada';
+
+  @override
+  String get savesAskBody =>
+      '¿Seguir jugando o empezar una nueva partida? La nueva partida sustituye a la anterior tras la primera jugada.';
 }

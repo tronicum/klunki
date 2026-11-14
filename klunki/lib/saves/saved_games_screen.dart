@@ -204,13 +204,57 @@ Future<void> confirmDeleteSave(BuildContext context, String gameId) async {
   if (yes == true) await store.remove(gameId);
 }
 
+/// "Angefangenes Spiel" (KLD-079): asked when a hot-seat game is started
+/// from the menu while a resumable save of the same game exists. Shows the
+/// saved players, date and moves; true = "Weiterspielen", false = "Neues
+/// Spiel", null = cancelled (back or a tap outside).
+Future<bool?> askResumeOrNew(BuildContext context, SaveEntry entry) {
+  final game = entry.game!;
+  return showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final l10n = AppLocalizations.of(context);
+      final theme = Theme.of(context);
+      return AlertDialog(
+        key: const Key('saves-ask-dialog'),
+        title: Text(l10n.savesAskTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(savedGameTitle(l10n, entry.gameId), style: theme.textTheme.titleMedium),
+            Text(savedGamePlayers(l10n, game), key: const Key('saves-ask-players')),
+            Text('${savedGameDate(context, game.savedAt)} · ${l10n.savesMoveCount(game.moves.length)}',
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 16),
+            Text(l10n.savesAskBody),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: const Key('saves-ask-new'),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.shellNewGame),
+          ),
+          FilledButton(
+            key: const Key('saves-ask-resume'),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.savesTitle),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 /// Resumes [entry]: rebuilds the game by replaying its moves into a fresh
 /// engine ([HotSeatTransport] with `log`), puts the saved names back into
-/// the hot-seat name stores and replaces the current screen with the
-/// game's ([GameSession] with `resumed`). A save that is outdated or does
-/// not replay shows "Kann nicht fortgesetzt werden" and offers to delete it;
-/// nothing throws.
-Future<void> resumeSavedGame(BuildContext context, SaveEntry entry) async {
+/// the hot-seat name stores and shows the game's screen ([GameSession] with
+/// `resumed`), in place of the current screen ([replace], the list) or on
+/// top of it (the menu's question, [askResumeOrNew]). A save that is
+/// outdated or does not replay shows "Kann nicht fortgesetzt werden" and
+/// offers to delete it; nothing throws.
+Future<void> resumeSavedGame(BuildContext context, SaveEntry entry, {bool replace = true}) async {
   final game = entry.game;
   if (game == null || !entry.resumable) return _cannotResume(context, entry.gameId);
   final config = game.config;
@@ -248,9 +292,9 @@ Future<void> resumeSavedGame(BuildContext context, SaveEntry entry) async {
     return;
   }
   final resumed = transport;
-  await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-    builder: (_) => GameSession(config: config, resumed: resumed),
-  ));
+  final route = MaterialPageRoute<void>(builder: (_) => GameSession(config: config, resumed: resumed));
+  final navigator = Navigator.of(context);
+  await (replace ? navigator.pushReplacement(route) : navigator.push(route));
 }
 
 Future<void> _cannotResume(BuildContext context, String gameId) async {
