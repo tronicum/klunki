@@ -1146,18 +1146,23 @@ class GoFightCard extends StatelessWidget {
         children: [
           Text(l10n.goFightBy(labels.label(context, l10n, fight.attackerPlayer)), style: theme.textTheme.labelLarge),
           SizedBox(height: compact ? 6 : 10),
-          LtrBoard(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                piece(fight.attackerPlayer, fight.attacker, fight.attackerFalls),
-                Padding(
-                  padding: EdgeInsets.only(top: size * 0.3),
-                  child: Icon(Icons.bolt, size: size * 0.45, color: theme.colorScheme.error),
-                ),
-                piece(fight.defenderPlayer, fight.defender, fight.defenderFalls),
-              ],
+          // Two pieces with their names need about 285 px; over a small
+          // board (a 360 px phone) the pair shrinks instead of overflowing.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: LtrBoard(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  piece(fight.attackerPlayer, fight.attacker, fight.attackerFalls),
+                  Padding(
+                    padding: EdgeInsets.only(top: size * 0.3),
+                    child: Icon(Icons.bolt, size: size * 0.45, color: theme.colorScheme.error),
+                  ),
+                  piece(fight.defenderPlayer, fight.defender, fight.defenderFalls),
+                ],
+              ),
             ),
           ),
           SizedBox(height: compact ? 6 : 10),

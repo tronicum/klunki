@@ -185,7 +185,8 @@ void main() {
         expect((welcome['config'] as Map).containsKey('seed'), isFalse);
         expect(welcome['seedCommit'], isA<String>());
         checkGuest();
-        await _playOut(t, Random(4), check: checkGuest, every: id == 'quartett-trumpf' ? 1 : 10);
+        // Random(5): moves that reach the Trumpf "choose" (KLD-100) with this deal (KLD-072 engine PRNG).
+        await _playOut(t, Random(5), check: checkGuest, every: id == 'quartett-trumpf' ? 1 : 10);
         expect(t.guest.verification, Verification.verified);
         expect(t.reveal!['seed'], 123456);
         if (id == 'quartett-trumpf') {
@@ -254,8 +255,20 @@ void main() {
       for (var i = 0; i < 6; i++) {
         await _step(t, rng);
       }
-      // The guest has fired a few shots; now the host moves its fleet.
-      expect(t.host.debugReplaceMove(0, {'action': 'autoplace', 'seed': 77}), isTrue);
+      // The guest has fired a few shots; now the host moves its fleet, to a
+      // layout that answers those shots the same way (the turn order stays
+      // as the guest knows it, KLD-072 changed the layouts): only the
+      // commitment can catch it.
+      List<String> answers(int seed) {
+        final g = createGame(const GameConfig('schiffe'));
+        return [
+          for (final (i, m) in t.host.moves.indexed)
+            jsonEncode(g.applyMove(i == 0 ? {'action': 'autoplace', 'seed': seed} : m)?.payload),
+        ].skip(2).toList();
+      }
+      final now = answers(1);
+      final swap = [for (var s = 77; s < 5000; s++) s].firstWhere((s) => _listEq(answers(s), now));
+      expect(t.host.debugReplaceMove(0, {'action': 'autoplace', 'seed': swap}), isTrue);
       await _playOut(t, rng);
       expect(t.guest.verification, Verification.failed);
       expect(t.guest.verificationError, contains('commitment'));
@@ -403,3 +416,6 @@ Future<void> _playOut(_Tapped t, Random rng, {void Function()? check, int every 
   expect(t.guest.verification, isNot(Verification.pending));
   check?.call();
 }
+
+bool _listEq(List<String> a, List<String> b) =>
+    a.length == b.length && [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((x) => x);

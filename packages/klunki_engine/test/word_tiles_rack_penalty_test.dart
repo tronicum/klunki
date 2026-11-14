@@ -27,8 +27,8 @@ void main() {
       expect((createGame(plain) as WordTilesGame).rackPenalty, isTrue);
     });
 
-    test('rules version 5', () {
-      expect(specById('wordtiles')!.rulesVersion, 5);
+    test('rules version 5 or later', () {
+      expect(specById('wordtiles')!.rulesVersion, greaterThanOrEqualTo(5)); // 6: the engine PRNG (KLD-072)
     });
 
     for (final rest in [true, false]) {

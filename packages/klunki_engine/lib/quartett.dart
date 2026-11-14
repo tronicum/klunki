@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'prng.dart';
 import 'secrecy.dart';
 
 part 'quartett_decks.dart';
@@ -208,7 +209,7 @@ class QuartettGame extends Game {
       : deck = deck ?? QuartettDeck.cars,
         assert(handSize >= 1 && handSize <= 16) {
     final cards = List<Card>.of(this.deck.cards);
-    final rnd = Random(seed);
+    final rnd = GameRandom(seed);
     for (var i = cards.length - 1; i > 0; i--) {
       final j = rnd.nextInt(i + 1);
       final t = cards[i];

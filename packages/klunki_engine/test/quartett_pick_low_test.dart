@@ -106,9 +106,10 @@ void main() {
     });
 
     test('the rule bumps the Trumpf rules version (old builds refuse new ones)', () {
-      expect(specById('quartett-trumpf')!.rulesVersion, 2);
-      expect(fingerprintOf(const GameConfig('quartett-trumpf'))!.rules, 2);
-      expect(specById('quartett-sets')!.rulesVersion, 1);
+      // 2 with the rule; 3 (and Sets 2) with the engine PRNG (KLD-072).
+      expect(specById('quartett-trumpf')!.rulesVersion, 3);
+      expect(fingerprintOf(const GameConfig('quartett-trumpf'))!.rules, 3);
+      expect(specById('quartett-sets')!.rulesVersion, 2);
     });
   });
 

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -46,8 +44,8 @@ String playerName(BuildContext context, Player p) =>
     PlayerLabelsScope.of(context).label(context, AppLocalizations.of(context), p);
 
 /// A fresh random seed for a new game (seeded games reshuffle, the others
-/// ignore it).
-int newGameSeed() => Random().nextInt(1 << 31);
+/// ignore it): 53 bits from `Random.secure` ([secureSeed], KLD-072).
+int newGameSeed() => secureSeed();
 
 /// What a board gets from the surrounding [GameScreen] via [GameScreen.of].
 abstract interface class GameShell {

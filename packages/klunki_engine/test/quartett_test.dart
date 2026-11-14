@@ -188,9 +188,10 @@ void main() {
       expect(g.stackSize(Player.a) + g.stackSize(Player.b), 32);
     });
 
-    test('loss by empty stack (seed 2, greedy picks -> A wins in 16 tricks)',
+    // The seeds below were picked for their deal (KLD-072: engine PRNG).
+    test('loss by empty stack (seed 4, greedy picks -> A wins in 16 tricks)',
         () {
-      final g = QuartettGame(QuartettMode.trumpf, seed: 2);
+      final g = QuartettGame(QuartettMode.trumpf, seed: 4);
       while (!g.isOver) {
         g.applyMove(pick(greedyStat(g)));
       }
@@ -204,8 +205,8 @@ void main() {
       expect(g.legalMoves, isEmpty);
     });
 
-    test('trick limit: seed 1 always "ps" -> draw 16:16 after 200 tricks', () {
-      final g = QuartettGame(QuartettMode.trumpf, seed: 1);
+    test('trick limit: seed 56 always "ps" -> draw 16:16 after 200 tricks', () {
+      final g = QuartettGame(QuartettMode.trumpf, seed: 56);
       while (!g.isOver) {
         g.applyMove(pick('ps'));
       }
@@ -216,8 +217,8 @@ void main() {
 expect(g.result.params, {'a': 16, 'b': 16});
     });
 
-    test('trick limit: seed 8 always "ps" -> A wins on cards', () {
-      final g = QuartettGame(QuartettMode.trumpf, seed: 8);
+    test('trick limit: seed 10 always "ps" -> A wins on cards', () {
+      final g = QuartettGame(QuartettMode.trumpf, seed: 10);
       while (!g.isOver) {
         g.applyMove(pick('ps'));
       }
@@ -248,8 +249,8 @@ expect(g.result.params, {'a': 16, 'b': 16});
 
   group('sets', () {
     test('hit moves the card, asker continues, quartet laid down', () {
-      // Seed 0: A holds B2,B3,B4 — B has B1.
-      final g = QuartettGame(QuartettMode.sets, seed: 0);
+      // Seed 131: A holds B2,B3,B4 — B has B1.
+      final g = QuartettGame(QuartettMode.sets, seed: 131);
       expect(ids(g.handOf(Player.a)), containsAll(['B2', 'B3', 'B4']));
       expect(ids(g.handOf(Player.b)), contains('B1'));
       final e = g.applyMove(ask('B1'))!;
@@ -268,8 +269,8 @@ expect(g.result.params, {'a': 16, 'b': 16});
     });
 
     test('hit without completing a set', () {
-      // Seed 0: A holds only A2 of set A.
-      final g = QuartettGame(QuartettMode.sets, seed: 0);
+      // Seed 131: A holds only A4 of set A, B has A1.
+      final g = QuartettGame(QuartettMode.sets, seed: 131);
       final e = g.applyMove(ask('A1'))!;
       expect((e.payload as Map)['hit'], isTrue);
       expect((e.payload as Map)['quartet'], isNull);
@@ -288,12 +289,12 @@ expect(g.result.params, {'a': 16, 'b': 16});
     });
 
     test('quartets dealt directly are laid down at the start', () {
-      // Seed 4: A was dealt all of set D; seed 1: B was dealt G and H.
-      final g = QuartettGame(QuartettMode.sets, seed: 4);
-      expect(g.quartetsOf(Player.a), ['D']);
+      // Seed 2: A was dealt all of set B; seed 24: B was dealt C and D.
+      final g = QuartettGame(QuartettMode.sets, seed: 2);
+      expect(g.quartetsOf(Player.a), ['B']);
       expect(g.handOf(Player.a).length, 12);
-      final g1 = QuartettGame(QuartettMode.sets, seed: 1);
-      expect(g1.quartetsOf(Player.b), containsAll(['G', 'H']));
+      final g1 = QuartettGame(QuartettMode.sets, seed: 24);
+      expect(g1.quartetsOf(Player.b), containsAll(['C', 'D']));
       expect(g1.handOf(Player.b).length, 8);
     });
 

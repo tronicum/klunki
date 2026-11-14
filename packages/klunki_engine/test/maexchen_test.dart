@@ -394,8 +394,9 @@ void main() {
       final spec = specById('maexchen')!;
       expect(spec.hiddenInformation, isTrue);
       expect(spec.redaction!.secretSeed, isTrue);
-      // Rules 2 (KLD-121 step 2): 2–4 seats, "Unbegrenzte Leben"; 3: ending by agreement.
-      expect(spec.rulesVersion, 3);
+      // Rules 2 (KLD-121 step 2): 2–4 seats, "Unbegrenzte Leben"; 3: ending by agreement;
+      // 4: the engine PRNG (KLD-072).
+      expect(spec.rulesVersion, 4);
       expect(spec.maxPlayers, 4);
     });
   });

@@ -1,6 +1,5 @@
-import 'dart:math';
-
 import 'game.dart';
+import 'prng.dart';
 import 'secrecy.dart';
 
 part 'mau_mau_view.dart';
@@ -8,7 +7,7 @@ part 'mau_mau_view.dart';
 /// Mau-Mau (KLD-118): the traditional shedding card game for two players
 /// with a 32-card deck (7 to ace in four suits).
 ///
-/// Deal (from the seed): the deck is shuffled with `Random(seed)`, each
+/// Deal (from the seed): the deck is shuffled with `GameRandom(seed)`, each
 /// player gets [MauMauGame.handSize] (5) cards, alternating A, B, A, …; the
 /// next card is turned face up as the start of the discard pile, the rest is
 /// the face-down draw pile. Player A starts. The start card has no effect
@@ -67,7 +66,7 @@ class MauMauGame extends Game {
   final int seed;
   final MauMauRules rules;
 
-  final Random _rng;
+  final GameRandom _rng;
   final Map<Player, List<MauMauCard>> _hands = {Player.a: [], Player.b: []};
 
   /// Face down, last = top.
@@ -86,7 +85,7 @@ class MauMauGame extends Game {
   Player? _winner;
   final List<Map<String, dynamic>> _history = [];
 
-  MauMauGame({this.seed = 0, this.rules = const MauMauRules()}) : _rng = Random(seed) {
+  MauMauGame({this.seed = 0, this.rules = const MauMauRules()}) : _rng = GameRandom(seed) {
     final cards = List<MauMauCard>.of(MauMauCard.deck);
     for (var i = cards.length - 1; i > 0; i--) {
       final j = _rng.nextInt(i + 1);
@@ -105,7 +104,7 @@ class MauMauGame extends Game {
   /// Empty game for [MauMauView].
   MauMauGame._empty(this.rules)
       : seed = 0,
-        _rng = Random(0);
+        _rng = GameRandom(0);
 
   @override
   Player get currentPlayer => _current;

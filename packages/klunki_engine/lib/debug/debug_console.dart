@@ -9,6 +9,7 @@ import '../mau_mau.dart';
 import '../maexchen.dart';
 import '../muehle.dart';
 import '../property.dart';
+import '../prng.dart';
 import '../quartett.dart';
 import '../schiffe.dart';
 import '../word_tiles.dart';
@@ -80,7 +81,7 @@ class DebugConsole {
   /// games ignore it. Throws [ArgumentError] for an unknown deck.
   DebugConsole([String gameId = 'connect4', int seed = 1, String? deck])
       : _current = _make(gameId, deck),
-        _rng = Random(seed);
+        _rng = GameRandom(seed);
 
   /// A fresh text game of [gameId], with [deck] for the Quartett games.
   static TextGame _make(String gameId, String? deck) {
@@ -182,7 +183,7 @@ class DebugConsole {
   /// one, otherwise [TextGame.autoMove] from a fixed seed.
   String demo(String gameId, {int seed = 7}) {
     final t = games[gameId]!();
-    final rng = Random(seed);
+    final rng = GameRandom(seed);
     final script = t.demoScript;
     final b = StringBuffer()
       ..writeln('═' * 60)

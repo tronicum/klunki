@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'prng.dart';
 import 'seats.dart';
 import 'secrecy.dart';
 
@@ -139,7 +140,7 @@ class MaexchenRoundEnd {
 /// others play on. Two seats are the game as before (same moves, rolls,
 /// events and views), the network session is 2-player.
 ///
-/// Deterministic: the dice come from `Random(seed)`, two draws per `roll`,
+/// Deterministic: the dice come from `GameRandom(seed)`, two draws per `roll`,
 /// so config + seed + moves is a full replay. The seed is secret over the
 /// network ([MaexchenRedaction.secretSeed]): it decides every roll.
 class MaexchenGame extends Game implements SeatGame {
@@ -197,7 +198,7 @@ class MaexchenGame extends Game implements SeatGame {
   @override
   final int playerCount;
 
-  final Random _rng;
+  final GameRandom _rng;
   final List<int> _lives;
 
   /// Lives lost per seat (all of them, also below 0 lives).
@@ -240,7 +241,7 @@ class MaexchenGame extends Game implements SeatGame {
       this.maexchenDouble = true,
       this.unlimitedLives = false,
       this.playerCount = 2})
-      : _rng = Random(seed),
+      : _rng = GameRandom(seed),
         _lives = List.filled(playerCount < 0 ? 0 : playerCount, startLives),
         _lost = List.filled(playerCount < 0 ? 0 : playerCount, 0) {
     if (playerCount < 2 || playerCount > maxPlayers) {

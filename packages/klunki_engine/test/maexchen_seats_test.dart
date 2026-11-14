@@ -216,7 +216,9 @@ void main() {
     /// Every move, event and both views of random 2-seat games, hashed.
     /// The value was taken before KLD-121 step 2 (and compared byte for
     /// byte over 300 seeds × lives 1/3/5 × "Mäxchen doppelt" on/off): two
-    /// seats deal, play and show exactly as rules 1 did.
+    /// seats deal, play and show exactly as rules 1 did. Retaken for rules 4
+    /// (KLD-072): the dice come from the engine PRNG now (and so do the
+    /// picks here, so the value no longer depends on the SDK).
     String transcript() {
       final out = StringBuffer();
       for (var seed = 0; seed < 30; seed++) {
@@ -225,7 +227,7 @@ void main() {
             final cfg = GameConfig('maexchen', seed: seed, lives: lives, maexchenDouble: dbl);
             out.writeln(jsonEncode(cfg.toJson()));
             final g = createGame(cfg) as MaexchenGame;
-            final pick = Random(seed * 7 + lives);
+            final pick = GameRandom(seed * 7 + lives);
             var n = 0;
             while (!g.isOver && n < 400) {
               final legal = g.legalMoves;
@@ -394,4 +396,4 @@ void main() {
   });
 }
 
-const _twoSeatTranscript = 'b344b32d80c6155b0181bf3c5359636083dc843a2b32891893443f092de0de13';
+const _twoSeatTranscript = '86d8d79b36873d02bd318ae6d20f02efa4074602218d3370046e4582e79d4b3b';

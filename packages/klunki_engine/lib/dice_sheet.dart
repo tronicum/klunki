@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'game.dart';
+import 'prng.dart';
 import 'seats.dart';
 
 /// The 13 boxes of the score sheet, upper section first. [id] is the name
@@ -69,12 +70,12 @@ enum DiceBox {
 ///   straight, and there is no extra bonus.
 /// * Who starts: seat 0, unless [randomStart] (JSON `start: random` in the
 ///   config, KLD-119 follow-up): then the seed draws the starting seat (the
-///   first number of `Random(seed)`, before any dice). Then clockwise.
+///   first number of `GameRandom(seed)`, before any dice). Then clockwise.
 /// * Resign: two seats use the common resign (the other seat wins). With
 ///   3–4 seats `{'action': 'resign', 'seat': n}` lets seat `n` leave at any
 ///   time; the others play on, the last one in wins (`common.resigned`).
 ///
-/// Deterministic: the dice come from `Random(seed)`. Every `roll` draws all
+/// Deterministic: the dice come from `GameRandom(seed)`. Every `roll` draws all
 /// five values and uses only those of the positions rolled, so the draws
 /// never depend on what was kept: "Zug zurücknehmen" plus another choice could
 /// not fish for better dice. A roll is final anyway in the app ([isRoll] is
@@ -111,7 +112,7 @@ class DiceSheetGame extends Game implements SeatGame {
   /// The seat that started.
   late final int startSeat;
 
-  final Random _rng;
+  final GameRandom _rng;
   int _seat = 0;
   List<int> _dice = const [];
   int _rolls = 0;
@@ -124,7 +125,7 @@ class DiceSheetGame extends Game implements SeatGame {
   final List<Map<String, dynamic>> _history = [];
 
   DiceSheetGame({int seed = 0, this.playerCount = 2, this.extraFives = false, this.randomStart = false})
-      : _rng = Random(seed),
+      : _rng = GameRandom(seed),
         _sheets = [for (var s = 0; s < playerCount; s++) <DiceBox, int>{}],
         _extraBonus = List.filled(playerCount, 0) {
     if (playerCount < 2 || playerCount > 4) throw ArgumentError.value(playerCount, 'playerCount', 'must be 2..4');

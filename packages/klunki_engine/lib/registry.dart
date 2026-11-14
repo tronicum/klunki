@@ -302,17 +302,21 @@ final List<GameSpec> gameSpecs = [
   GameSpec('muehle', 'Mühle', (_, __) => MuehleGame()),
   // Rules 2 (KLD-100): the "3 or fewer cards: choose" house rule
   // (`choose` moves, GameConfig.pickLowCards).
+  // Rules 3 (KLD-072): the engine-owned PRNG (prng.dart) instead of
+  // dart:math Random, so another deal from the same seed (all seeded games).
   GameSpec('quartett-trumpf', 'Quartett (Trumpf)',
       (c, d) => QuartettGame(QuartettMode.trumpf, seed: c.seed, deck: d, pickLowCards: c.pickLowCards),
-      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true, rulesVersion: 2),
+      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true, rulesVersion: 3),
   // 8 cards each plus a draw pile: with all 32 dealt every ask would hit.
   GameSpec(
       'quartett-sets', 'Quartett (Sets)', (c, d) => QuartettGame(QuartettMode.sets, seed: c.seed, handSize: 8, deck: d),
-      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true),
+      hiddenInformation: true, redaction: const QuartettRedaction(), usesDeck: true, rulesVersion: 2),
+  // Rules 2 (KLD-072, also below): the engine PRNG; `autoplace` and
+  // `autosetup` place differently for the same seed.
   GameSpec('schiffe', 'Schiffe versenken', (_, __) => SchiffeGame(),
-      hiddenInformation: true, redaction: const SchiffeRedaction()),
+      hiddenInformation: true, redaction: const SchiffeRedaction(), rulesVersion: 2),
   GameSpec('gostrategy', 'GoStrategy', (_, __) => GoStrategyGame(),
-      hiddenInformation: true, redaction: const GoStrategyRedaction()),
+      hiddenInformation: true, redaction: const GoStrategyRedaction(), rulesVersion: 2),
   // KLD-059: hot-seat in the app since step 2, network play since step 3.
   // Rules 2 (step 3): the draw offer moves (`offerDraw`, `acceptDraw`,
   // `declineDraw`). Rules 3 (step 4a): the colours per player
@@ -337,12 +341,14 @@ final List<GameSpec> gameSpecs = [
   // `joker`; `swaps` on `place` / `requestAllow`, the view's `jokerSwap`).
   // Rules 5 (step 10): "Restpunkte abziehen" can be turned off
   // (GameConfig.rackPenalty, JSON `rest: false`; the view's `rackPenalty`).
+  // Rules 6 (KLD-072): the engine PRNG, another tile bag from the same seed.
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 5, maxPlayers: 4),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 6, maxPlayers: 4),
   // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2), over the
   // network since step 3; house rules in GameConfig.mauMau (JSON `maumau`).
+  // Rules 2 (KLD-072): the engine PRNG, another deal from the same seed.
   GameSpec('maumau', 'Mau-Mau', (c, _) => MauMauGame(seed: c.seed, rules: c.mauMau),
-      hiddenInformation: true, redaction: const MauMauRedaction()),
+      hiddenInformation: true, redaction: const MauMauRedaction(), rulesVersion: 2),
   // KLD-121: the dice bluffing game, hot-seat in the app and (network step,
   // 2 players) over the network. Lives and the "Mäxchen doppelt" house rule in the
   // config (`lives`, `maexDouble`). Rules 2 (step 2): 2–4 seats on one
@@ -351,7 +357,8 @@ final List<GameSpec> gameSpecs = [
   // `unlimited` / `lost`): an older build would play such a game with lives.
   // Rules 3 (KLD-121, network decisions 2026-11-12): "Spiel beenden" over the
   // network needs the other player's agreement (`endRequest` / `endAgree` /
-  // `endRefuse`, the view's `endRequest`).
+  // `endRefuse`, the view's `endRequest`). Rules 4 (KLD-072): the engine
+  // PRNG, other dice from the same seed.
   GameSpec(
       'maexchen',
       'Mäxchen',
@@ -364,24 +371,27 @@ final List<GameSpec> gameSpecs = [
       hiddenInformation: true,
       redaction: const MaexchenRedaction(),
       undoBarrier: MaexchenGame.endsRound,
-      rulesVersion: 3,
+      rulesVersion: 4,
       maxPlayers: MaexchenGame.maxPlayers),
   // KLD-119: Ausgewürfelt, the five-dice score-sheet game, 2–4 seats on one
   // device (the app offers it hot-seat only, `hotSeatOnlyGames`; the network
   // session is 2-player). House rule "Extra-Fünfer" in the config
   // (`extraFives`), random start (`start`). A roll is final for hot-seat "Zug zurücknehmen".
+  // Rules 2 (KLD-072): the engine PRNG, other dice from the same seed.
   GameSpec(
       'dicesheet',
       'Ausgewürfelt',
       (c, _) =>
           DiceSheetGame(seed: c.seed, playerCount: c.players, extraFives: c.extraFives, randomStart: c.randomStart),
       maxPlayers: 4,
+      rulesVersion: 2,
       undoBarrier: DiceSheetGame.isRoll),
   // KLD-060: Baulöwe, the property-trading dice game for 2–6 seats (the app
   // offers 2–4 on one device, step 3). Rules 1: the engine of step 1 with
   // the board theme, round limit and house rules in the config
   // (GameConfig.property). Not over the network yet (`networkPlay`). A
   // roll is final for hot-seat "Zug zurücknehmen" (dice and cards seen).
+  // Rules 2 (KLD-072): the engine PRNG, other dice and card order.
   GameSpec('property', 'Baulöwe', (c, _) => c.property.create(playerCount: c.players, seed: c.seed),
       maxPlayers: PropertyGame.maxPlayers,
       rulesVersion: PropertyGame.rulesVersion,
