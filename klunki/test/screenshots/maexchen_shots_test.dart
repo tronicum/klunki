@@ -180,7 +180,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('menu-maexchen')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('menu-maexchen-local')), findsOneWidget);
-      expect(find.byKey(const Key('menu-maexchen-network')), findsNothing);
+      expect(find.byKey(const Key('menu-maexchen-network')), findsOneWidget, reason: 'Mäxchen plays over the network (KLD-121 network decisions)');
       await _shot(tester, '1-menu-tile');
     });
 
