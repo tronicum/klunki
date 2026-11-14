@@ -6,6 +6,7 @@ import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/net/room_link.dart';
 import 'package:klunki/net/web_join_target.dart';
 import 'package:klunki/profile/player_name_controller.dart';
+import 'package:klunki/saves/save_store.dart';
 import 'package:klunki/ui/menu_screen.dart';
 import 'package:klunki/ui/pairing/web_join_screen.dart' show WebJoinDeps;
 
@@ -26,6 +27,7 @@ class KlunkiApp extends StatefulWidget {
     this.localeController,
     this.playerNameController,
     this.hotSeatNames,
+    this.savedGames,
     this.pageUrl,
     this.webJoinDeps,
   });
@@ -39,6 +41,10 @@ class KlunkiApp extends StatefulWidget {
 
   /// Last-used hot-seat names (KLD-056); in-memory and empty when omitted.
   final HotSeatNamesController? hotSeatNames;
+
+  /// The paused hot-seat games (KLD-079, loaded in `main()`). When omitted,
+  /// nothing is saved and the menu has no "Weiterspielen" (tests).
+  final SaveStore? savedGames;
   final Uri? pageUrl;
 
   /// Test hook for the `?join=` flow (default: the real WebSocket join).
@@ -59,6 +65,12 @@ class _KlunkiAppState extends State<KlunkiApp> {
 
   @override
   Widget build(BuildContext context) {
+    final saves = widget.savedGames;
+    final app = _app();
+    return saves == null ? app : SavedGamesScope(store: saves, child: app);
+  }
+
+  Widget _app() {
     return PlayerNameScope(
       controller: _playerName,
       hotSeat: _hotSeat,

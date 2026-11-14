@@ -4583,4 +4583,54 @@ class AppLocalizationsFa extends AppLocalizations {
   String roomRuleOff(String rule) {
     return 'بدون $rule';
   }
+
+  @override
+  String get savesTitle => 'ادامهٔ بازی';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بازی نیمه‌تمام',
+      one: 'یک بازی نیمه‌تمام',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count حرکت',
+      one: 'یک حرکت',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => 'ادامه ممکن نیست';
+
+  @override
+  String get savesCannotResumeBody =>
+      'این بازی با این نسخهٔ Klunki جور نیست. می‌توانی آن را پاک کنی.';
+
+  @override
+  String get savesDelete => 'پاک کردن';
+
+  @override
+  String get savesDeleteTitle => 'بازی پاک شود؟';
+
+  @override
+  String savesDeleteBody(String game) {
+    return 'بازی نیمه‌تمام «$game» پاک می‌شود.';
+  }
+
+  @override
+  String get savesEmpty => 'هیچ بازی نیمه‌تمامی نیست.';
+
+  @override
+  String get savesHint =>
+      'Klunki از هر نوع بازی، آخرین بازی نیمه‌تمام را نگه می‌دارد. بازی تازه از همان نوع، با اولین حرکت جای آن را می‌گیرد.';
 }

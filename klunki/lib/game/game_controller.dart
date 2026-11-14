@@ -21,10 +21,16 @@ class GameController extends ChangeNotifier {
   bool _disposed = false;
 
   /// [transportFactory] is used by [restart]; defaults to hot-seat.
-  GameController(GameTransport transport, {GameTransport Function(GameConfig)? transportFactory})
+  ///
+  /// [covered] (a resumed hot-seat game, KLD-079): a hidden-information game
+  /// already under way starts behind the handover cover, so whoever picks
+  /// the device up does not see the hand of the player to move.
+  GameController(GameTransport transport,
+      {GameTransport Function(GameConfig)? transportFactory, bool covered = false})
       : _transport = transport,
         _transportFactory = transportFactory ?? HotSeatTransport.new {
     _attach();
+    _needsHandover = covered && _sharedDeviceSecrets && !game.isOver && moves.isNotEmpty;
   }
 
   /// Convenience: a hot-seat game for [config].

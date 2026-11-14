@@ -1169,5 +1169,15 @@
   "maexchenEndWaiting": "Pedido enviado: decide {player}.",
   "maexchenEndRefused": "{player} quiere seguir jugando.",
   "maexchenMoveEndRequest": "pide terminar la partida",
-  "roomRuleOff": "sin {rule}"
+  "roomRuleOff": "sin {rule}",
+  "savesTitle": "Seguir jugando",
+  "savesMenuCount": "{count, plural, one{{count} partida sin terminar} many{{count} de partidas sin terminar} other{{count} partidas sin terminar}}",
+  "savesMoveCount": "{count, plural, one{{count} jugada} many{{count} de jugadas} other{{count} jugadas}}",
+  "savesCannotResume": "No se puede continuar",
+  "savesCannotResumeBody": "Esta partida no encaja con esta versión de Klunki. Puedes borrarla.",
+  "savesDelete": "Borrar",
+  "savesDeleteTitle": "¿Borrar la partida?",
+  "savesDeleteBody": "Se borrará la partida sin terminar «{game}».",
+  "savesEmpty": "No hay partidas sin terminar.",
+  "savesHint": "Klunki guarda la última partida empezada de cada juego. Una partida nueva del mismo juego la sustituye tras la primera jugada."
 }

@@ -7131,6 +7131,66 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'ohne {rule}'**
   String roomRuleOff(String rule);
+
+  /// KLD-079: menu card and screen title: resume a paused hot-seat game. Plain, for kids.
+  ///
+  /// In de, this message translates to:
+  /// **'Weiterspielen'**
+  String get savesTitle;
+
+  /// KLD-079: subtitle of the menu card: how many paused games there are.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 angefangenes Spiel} other{{count} angefangene Spiele}}'**
+  String savesMenuCount(int count);
+
+  /// KLD-079: a saved game in the list: how many moves were played.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Zug} other{{count} Züge}}'**
+  String savesMoveCount(int count);
+
+  /// KLD-079: a saved game this build cannot replay (other rules version or broken data).
+  ///
+  /// In de, this message translates to:
+  /// **'Kann nicht fortgesetzt werden'**
+  String get savesCannotResume;
+
+  /// KLD-079: dialog text when a saved game cannot be resumed; it can be deleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Dieses Spiel passt nicht zu dieser Version von Klunki. Du kannst es löschen.'**
+  String get savesCannotResumeBody;
+
+  /// KLD-079: button / tooltip: delete a saved game.
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get savesDelete;
+
+  /// KLD-079: title of the question before a saved game is deleted.
+  ///
+  /// In de, this message translates to:
+  /// **'Spiel löschen?'**
+  String get savesDeleteTitle;
+
+  /// KLD-079: text of the delete question; {game} is the game title.
+  ///
+  /// In de, this message translates to:
+  /// **'Das angefangene Spiel „{game}“ wird gelöscht.'**
+  String savesDeleteBody(String game);
+
+  /// KLD-079: the list of saved games is empty.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine angefangenen Spiele.'**
+  String get savesEmpty;
+
+  /// KLD-079: note under the list: one saved game per game, replaced by a new game of the same kind after its first move.
+  ///
+  /// In de, this message translates to:
+  /// **'Klunki merkt sich bei jedem Spiel das zuletzt angefangene. Ein neues Spiel derselben Art ersetzt es nach dem ersten Zug.'**
+  String get savesHint;
 }
 
 class _AppLocalizationsDelegate

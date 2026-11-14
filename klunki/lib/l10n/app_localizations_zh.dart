@@ -4418,4 +4418,50 @@ class AppLocalizationsZh extends AppLocalizations {
   String roomRuleOff(String rule) {
     return '取消：$rule';
   }
+
+  @override
+  String get savesTitle => '继续游戏';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 局未完成的游戏',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 步',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => '无法继续';
+
+  @override
+  String get savesCannotResumeBody => '这局游戏与当前版本的 Klunki 不匹配。你可以删除它。';
+
+  @override
+  String get savesDelete => '删除';
+
+  @override
+  String get savesDeleteTitle => '删除这局游戏？';
+
+  @override
+  String savesDeleteBody(String game) {
+    return '未完成的游戏“$game”将被删除。';
+  }
+
+  @override
+  String get savesEmpty => '没有未完成的游戏。';
+
+  @override
+  String get savesHint => 'Klunki 会为每种游戏保存最近一局未完成的游戏。同一种游戏开始新的一局后，走出第一步时会替换它。';
 }

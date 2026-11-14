@@ -4690,4 +4690,54 @@ class AppLocalizationsDe extends AppLocalizations {
   String roomRuleOff(String rule) {
     return 'ohne $rule';
   }
+
+  @override
+  String get savesTitle => 'Weiterspielen';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count angefangene Spiele',
+      one: '1 angefangenes Spiel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Züge',
+      one: '1 Zug',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => 'Kann nicht fortgesetzt werden';
+
+  @override
+  String get savesCannotResumeBody =>
+      'Dieses Spiel passt nicht zu dieser Version von Klunki. Du kannst es löschen.';
+
+  @override
+  String get savesDelete => 'Löschen';
+
+  @override
+  String get savesDeleteTitle => 'Spiel löschen?';
+
+  @override
+  String savesDeleteBody(String game) {
+    return 'Das angefangene Spiel „$game“ wird gelöscht.';
+  }
+
+  @override
+  String get savesEmpty => 'Keine angefangenen Spiele.';
+
+  @override
+  String get savesHint =>
+      'Klunki merkt sich bei jedem Spiel das zuletzt angefangene. Ein neues Spiel derselben Art ersetzt es nach dem ersten Zug.';
 }

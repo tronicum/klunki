@@ -6,6 +6,7 @@ import 'package:klunki/app/web_channel.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/net/room_link.dart';
 import 'package:klunki/profile/relay_settings.dart';
+import 'package:klunki/saves/saved_games_screen.dart' show SavedGamesMenuCard;
 import 'package:klunki/ui/about_screen.dart';
 import 'package:klunki/ui/debug_console_screen.dart';
 import 'package:klunki/ui/game_titles.dart';
@@ -199,6 +200,8 @@ class _MenuScreenState extends State<MenuScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // KLD-079: "Weiterspielen", only while games are saved.
+                    const SavedGamesMenuCard(),
                     // KLD-097: a slim label like the network section's
                     // instead of a big headline.
                     _SectionLabel(icon: Icons.casino_outlined, text: l10n.menuChooseGame),

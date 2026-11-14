@@ -1169,5 +1169,15 @@
   "maexchenEndWaiting": "أُرسل الطلب – القرار للاعب {player}.",
   "maexchenEndRefused": "الرد من اللاعب {player}: مواصلة اللعب.",
   "maexchenMoveEndRequest": "طلب إنهاء اللعبة",
-  "roomRuleOff": "بدون {rule}"
+  "roomRuleOff": "بدون {rule}",
+  "savesTitle": "متابعة اللعب",
+  "savesMenuCount": "{count, plural, zero{لا ألعاب غير منتهية} one{لعبة واحدة غير منتهية} two{لعبتان غير منتهيتين} few{{count} ألعاب غير منتهية} many{{count} لعبة غير منتهية} other{{count} لعبة غير منتهية}}",
+  "savesMoveCount": "{count, plural, zero{لا حركات} one{حركة واحدة} two{حركتان} few{{count} حركات} many{{count} حركة} other{{count} حركة}}",
+  "savesCannotResume": "لا يمكن المتابعة",
+  "savesCannotResumeBody": "هذه اللعبة لا تناسب هذا الإصدار من Klunki. يمكن حذفها.",
+  "savesDelete": "حذف",
+  "savesDeleteTitle": "حذف اللعبة؟",
+  "savesDeleteBody": "سيتم حذف اللعبة غير المنتهية «{game}».",
+  "savesEmpty": "لا توجد ألعاب غير منتهية.",
+  "savesHint": "يحفظ Klunki آخر لعبة غير منتهية من كل نوع. تحل محلها لعبة جديدة من النوع نفسه بعد أول حركة."
 }

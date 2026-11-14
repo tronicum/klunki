@@ -5,6 +5,7 @@ import 'package:klunki/app/third_party_licenses.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/seen_tips.dart';
+import 'package:klunki/saves/save_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,11 +16,13 @@ Future<void> main() async {
   final localeController = await LocaleController.load();
   final playerNameController = await PlayerNameController.load();
   final hotSeatNames = await HotSeatNamesController.load();
+  final savedGames = await SaveStore.load(); // KLD-079: paused hot-seat games
   runApp(
     KlunkiApp(
       localeController: localeController,
       playerNameController: playerNameController,
       hotSeatNames: hotSeatNames,
+      savedGames: savedGames,
     ),
   );
 }

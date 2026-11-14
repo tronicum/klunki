@@ -1168,5 +1168,15 @@
   "maexchenEndWaiting": "Asked – {player} decides.",
   "maexchenEndRefused": "{player} wants to keep playing.",
   "maexchenMoveEndRequest": "asks to end the game",
-  "roomRuleOff": "without {rule}"
+  "roomRuleOff": "without {rule}",
+  "savesTitle": "Continue",
+  "savesMenuCount": "{count, plural, =1{1 unfinished game} other{{count} unfinished games}}",
+  "savesMoveCount": "{count, plural, =1{1 move} other{{count} moves}}",
+  "savesCannotResume": "Can’t be continued",
+  "savesCannotResumeBody": "This game doesn’t fit this version of Klunki. You can delete it.",
+  "savesDelete": "Delete",
+  "savesDeleteTitle": "Delete game?",
+  "savesDeleteBody": "The unfinished game “{game}” will be deleted.",
+  "savesEmpty": "No unfinished games.",
+  "savesHint": "Klunki remembers the last unfinished game of each kind. A new game of the same kind replaces it after the first move."
 }

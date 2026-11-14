@@ -37,14 +37,39 @@ class HotSeatTransport implements GameTransport, ClockedTransport {
 
   /// [clockNow]: the clock's time in ms (default: a monotonic stopwatch;
   /// tests pass a fake).
-  HotSeatTransport(this.config, {int Function()? clockNow})
+  ///
+  /// Resuming a saved game (KLD-079): [log] is replayed first (throws
+  /// [StateError] when a move is refused: the save does not fit this
+  /// build). A chess clock then shows [resumeClock] (null: a fresh clock)
+  /// and starts paused, behind the pause cover, so nobody loses time while
+  /// the players sit down again; [resumeClockBefore] are the clocks before
+  /// each move for undo (any other length: the resumed clock for each).
+  HotSeatTransport(this.config,
+      {int Function()? clockNow,
+      Iterable<Map<String, dynamic>> log = const [],
+      ChessClockSnapshot? resumeClock,
+      List<ChessClockSnapshot> resumeClockBefore = const []})
       : _game = createGame(config),
         _now = clockNow ?? stopwatchClock() {
-    final control = config.gameId == 'chess' ? config.chessClock : null;
-    if (control != null) {
-      _clock = ChessClock(control)..start(_game.currentPlayer, _now());
-      _armFlag();
+    for (final m in log) {
+      if (!submitSync(m).isAccepted) throw StateError('move ${_moves.length} of the log was refused: $m');
     }
+    final control = config.gameId == 'chess' ? config.chessClock : null;
+    if (control == null) return;
+    final now = _now();
+    final clock = _moves.isEmpty || resumeClock == null
+        ? (ChessClock(control)..start(_game.currentPlayer, now))
+        : ChessClock.fromSnapshot(control, resumeClock, now);
+    _clock = clock;
+    if (_moves.isNotEmpty) {
+      _clockPaused = true;
+      clock.setPaused(true, now);
+      _clockBefore.addAll(resumeClockBefore.length == _moves.length
+          ? resumeClockBefore
+          : List.filled(_moves.length, clock.snapshot(now)));
+    }
+    if (_game.isOver) clock.stop(now);
+    _armFlag();
   }
 
   @override
@@ -55,6 +80,10 @@ class HotSeatTransport implements GameTransport, ClockedTransport {
 
   @override
   Listenable get clockChanges => _clockChanges;
+
+  /// The clock before each accepted move (parallel to [moves], empty without
+  /// a clock): what a save keeps for undo after resuming (KLD-079).
+  List<ChessClockSnapshot> get clockHistory => List.unmodifiable(_clockBefore);
 
   /// Whether the clocks stand still behind the pause cover.
   bool get clockPaused => _clockPaused;

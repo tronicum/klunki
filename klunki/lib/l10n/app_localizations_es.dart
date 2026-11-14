@@ -4700,4 +4700,56 @@ class AppLocalizationsEs extends AppLocalizations {
   String roomRuleOff(String rule) {
     return 'sin $rule';
   }
+
+  @override
+  String get savesTitle => 'Seguir jugando';
+
+  @override
+  String savesMenuCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count partidas sin terminar',
+      many: '$count de partidas sin terminar',
+      one: '$count partida sin terminar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String savesMoveCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jugadas',
+      many: '$count de jugadas',
+      one: '$count jugada',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get savesCannotResume => 'No se puede continuar';
+
+  @override
+  String get savesCannotResumeBody =>
+      'Esta partida no encaja con esta versión de Klunki. Puedes borrarla.';
+
+  @override
+  String get savesDelete => 'Borrar';
+
+  @override
+  String get savesDeleteTitle => '¿Borrar la partida?';
+
+  @override
+  String savesDeleteBody(String game) {
+    return 'Se borrará la partida sin terminar «$game».';
+  }
+
+  @override
+  String get savesEmpty => 'No hay partidas sin terminar.';
+
+  @override
+  String get savesHint =>
+      'Klunki guarda la última partida empezada de cada juego. Una partida nueva del mismo juego la sustituye tras la primera jugada.';
 }

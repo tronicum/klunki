@@ -1169,5 +1169,15 @@
   "maexchenEndWaiting": "درخواست فرستاده شد – تصمیم با {player} است.",
   "maexchenEndRefused": "{player} می‌خواهد بازی را ادامه دهد.",
   "maexchenMoveEndRequest": "می‌خواهد بازی را تمام کند",
-  "roomRuleOff": "بدون {rule}"
+  "roomRuleOff": "بدون {rule}",
+  "savesTitle": "ادامهٔ بازی",
+  "savesMenuCount": "{count, plural, =1{یک بازی نیمه‌تمام} other{{count} بازی نیمه‌تمام}}",
+  "savesMoveCount": "{count, plural, =1{یک حرکت} other{{count} حرکت}}",
+  "savesCannotResume": "ادامه ممکن نیست",
+  "savesCannotResumeBody": "این بازی با این نسخهٔ Klunki جور نیست. می‌توانی آن را پاک کنی.",
+  "savesDelete": "پاک کردن",
+  "savesDeleteTitle": "بازی پاک شود؟",
+  "savesDeleteBody": "بازی نیمه‌تمام «{game}» پاک می‌شود.",
+  "savesEmpty": "هیچ بازی نیمه‌تمامی نیست.",
+  "savesHint": "Klunki از هر نوع بازی، آخرین بازی نیمه‌تمام را نگه می‌دارد. بازی تازه از همان نوع، با اولین حرکت جای آن را می‌گیرد."
 }
