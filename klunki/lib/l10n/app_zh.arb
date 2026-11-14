@@ -1109,6 +1109,7 @@
   "rulesMaexchenPlayers": "两到四人用一台设备玩。骰盅按顺序传：你总是向下一位报数。没有命的人出局，轮到时跳过。",
   "rulesMaexchenGoalUnlimited": "尽量少输命。你们一直玩到结束游戏为止。",
   "rulesMaexchenEndHow": "“结束游戏”在三个点的菜单里。",
+  "rulesMaexchenEndNetwork": "在两台设备上玩时，会先询问另一台设备。只有在那里点“结束”，游戏才会结束；点“继续玩”就接着玩。",
   "propertyInPausePhrase": "{player} {place}：掷出对子、付钱或用免费卡。",
   "propertyEvToPausePhrase": "{player} 进入{place}",
   "propertyTrade": "交换",

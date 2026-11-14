@@ -4164,6 +4164,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get rulesMaexchenEndHow => '“结束游戏”在三个点的菜单里。';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      '在两台设备上玩时，会先询问另一台设备。只有在那里点“结束”，游戏才会结束；点“继续玩”就接着玩。';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place：掷出对子、付钱或用免费卡。';
   }

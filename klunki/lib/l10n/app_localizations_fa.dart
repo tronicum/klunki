@@ -4327,6 +4327,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get rulesMaexchenEndHow => '«پایان بازی» در منوی سه‌نقطه است.';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      'در بازی روی دو دستگاه، اول از دستگاه دیگر پرسیده می‌شود. بازی فقط با «تمام کن» در آنجا تمام می‌شود و با «ادامه بازی» ادامه پیدا می‌کند.';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place: جفت بینداز، پول بده یا کارت آزادی.';
   }

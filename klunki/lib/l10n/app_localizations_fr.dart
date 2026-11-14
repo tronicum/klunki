@@ -4448,6 +4448,10 @@ class AppLocalizationsFr extends AppLocalizations {
       '« Terminer la partie » se trouve dans le menu aux trois points.';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      'Sur deux appareils, l’autre appareil est d’abord consulté. Seul « Terminer » sur cet appareil met fin à la partie ; avec « Continuer », elle continue.';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place : faire un double, payer ou utiliser une carte.';
   }

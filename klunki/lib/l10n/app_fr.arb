@@ -1109,6 +1109,7 @@
   "rulesMaexchenPlayers": "À deux, trois ou quatre sur un appareil. Le gobelet fait le tour de la table : on annonce toujours à la personne suivante. Qui n’a plus de vies est hors jeu et on passe son tour.",
   "rulesMaexchenGoalUnlimited": "Perds le moins de vies possible. Vous jouez jusqu’à ce que vous arrêtiez la partie.",
   "rulesMaexchenEndHow": "« Terminer la partie » se trouve dans le menu aux trois points.",
+  "rulesMaexchenEndNetwork": "Sur deux appareils, l’autre appareil est d’abord consulté. Seul « Terminer » sur cet appareil met fin à la partie ; avec « Continuer », elle continue.",
   "propertyInPausePhrase": "{player} {place} : faire un double, payer ou utiliser une carte.",
   "propertyEvToPausePhrase": "Direction {place} pour {player}",
   "propertyTrade": "Échanger",

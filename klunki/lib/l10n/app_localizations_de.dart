@@ -4431,6 +4431,10 @@ class AppLocalizationsDe extends AppLocalizations {
       '„Spiel beenden“ steht im Menü mit den drei Punkten.';
 
   @override
+  String get rulesMaexchenEndNetwork =>
+      'Spielt ihr auf zwei Geräten, fragt das andere Gerät zuerst nach. Erst mit „Beenden“ dort ist das Spiel aus, mit „Weiterspielen“ geht es weiter.';
+
+  @override
   String propertyInPausePhrase(String player, String place) {
     return '$player $place: Pasch würfeln, zahlen oder Freikarte.';
   }
