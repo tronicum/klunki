@@ -17,10 +17,11 @@ import 'wordtiles/wordtiles_board.dart';
 /// network (KLD-094 step 6) each device shows its own rack from its view;
 /// "Trotzdem zulassen" asks the other device.
 ///
-/// 3–4 players (KLD-125, hot-seat only) play in the seat shell
-/// ([SeatGameScreen]) with its handover cover between every two players,
-/// the ranking with the rack deduction per seat and this game's summary
-/// under it; 2 players keep [GameScreen] (as over the network).
+/// 3–4 players (KLD-125) play in the seat shell ([SeatGameScreen]): on one
+/// device with its handover cover between every two players; at a network
+/// table (KLD-088 step 4) each device shows its own rack, without a cover.
+/// The ranking has the rack deduction per seat and this game's summary under
+/// it; 2 players keep [GameScreen] (also over the network).
 ///
 /// Contract (keep it): the public class name `WordTilesScreen` and the
 /// constructor `const WordTilesScreen({super.key, required this.controller})`.
@@ -34,16 +35,17 @@ class WordTilesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final game = controller.game;
     if (game is WordTilesGame && game.playerCount > 2) {
-      return SeatNamesBuilder(
-        child: SeatGameScreen(
-          controller: controller,
-          describeMove: describeWordTilesMove,
-          handoverDetail: (context) => WordTilesLastTurn(controller: controller),
-          resultDetail: (context) => WordTilesResult(controller: controller, scores: false),
-          rankingNote: (context, seat) => wordTilesRackNote(context, controller, seat),
-          boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
-        ),
+      final screen = SeatGameScreen(
+        controller: controller,
+        describeMove: describeWordTilesMove,
+        handoverDetail: (context) => WordTilesLastTurn(controller: controller),
+        resultDetail: (context) => WordTilesResult(controller: controller, scores: false),
+        rankingNote: (context, seat) => wordTilesRackNote(context, controller, seat),
+        boardBuilder: (context, controller) => WordTilesBoard(controller: controller),
       );
+      // A network table (KLD-088) names its seats from the room
+      // ([NetworkGameSession]); one device from the app's name stores.
+      return controller.localSeat != null ? screen : SeatNamesBuilder(child: screen);
     }
     return GameScreen(
       controller: controller,

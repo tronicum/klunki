@@ -16,7 +16,11 @@ import '../ltr.dart';
 class SeatLabels {
   /// Typed names per seat (null = the default name).
   final List<String?> names;
-  const SeatLabels([this.names = const []]);
+
+  /// The seat this device plays at a network table (KLD-088): the shell
+  /// says "Du bist am Zug" / "Du gewinnst!" for it. Null on one device.
+  final int? local;
+  const SeatLabels([this.names = const [], this.local]);
 
   static const SeatLabels defaults = SeatLabels();
 
@@ -40,10 +44,10 @@ class SeatLabels {
   }
 
   @override
-  bool operator ==(Object other) => other is SeatLabels && listEquals(other.names, names);
+  bool operator ==(Object other) => other is SeatLabels && listEquals(other.names, names) && other.local == local;
 
   @override
-  int get hashCode => Object.hashAll(names);
+  int get hashCode => Object.hash(Object.hashAll(names), local);
 }
 
 /// The regional default name of [seat]: `playerDefaultNameA` … `D`.

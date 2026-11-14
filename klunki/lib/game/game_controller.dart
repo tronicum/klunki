@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart';
 
 import '../transport/game_transport.dart';
 import '../transport/hot_seat_transport.dart';
+import '../transport/network_transport.dart';
 
 /// The one object a game screen talks to. Wraps a [GameTransport], mirrors
 /// its accepted moves and notifies listeners on every change.
@@ -44,12 +45,26 @@ class GameController extends ChangeNotifier {
 
   /// The player to move is local and the game is not over. Ignores
   /// [needsHandover]; the cover screen blocks input while that is set.
-  /// A game with more than two seats is played on one device only (every
-  /// seat is local, KLD-119).
+  /// A game with more than two seats on one device: every seat is local
+  /// (KLD-119); at a network table only [localSeat] (KLD-088), and nobody
+  /// while the table waits for a guest.
   bool get canAct {
     if (game.isOver) return false;
-    if (seatGame != null) return seatGame!.actorSeat != null;
+    final local = localSeat;
+    if (seatGame != null) {
+      if (local == null) return seatGame!.actorSeat != null;
+      final t = _transport;
+      return seatGame!.actorSeat == local && !(t is NetworkTransport && t.paused);
+    }
     return _transport.localPlayers.contains(game.currentPlayer);
+  }
+
+  /// The seat this device plays in a network game (the host's or the
+  /// guest's, also at a table of 3–4, KLD-088); null on one device, where
+  /// every seat is local.
+  int? get localSeat {
+    final t = _transport;
+    return t is NetworkTransport ? t.seat : null;
   }
 
   /// The game as a [SeatGame] when it has more than two seats (KLD-088,
@@ -66,7 +81,11 @@ class GameController extends ChangeNotifier {
   List<int> get canResignSeats {
     final g = seatGame;
     if (g == null || game.isOver) return const [];
-    return [for (var s = 0; s < g.playerCount; s++) if (!g.isSeatOut(s)) s];
+    final local = localSeat;
+    return [
+      for (var s = 0; s < g.playerCount; s++)
+        if (!g.isSeatOut(s) && (local == null || s == local)) s,
+    ];
   }
 
   /// Seat [seat] of a [seatGame] leaves; the others play on (a normal move,

@@ -10,6 +10,7 @@ import 'package:klunki_net/guest_web.dart'
         relayClubMissingText,
         relayClubWrongText,
         relayHostAwayText,
+        relayNoTablesText,
         versionDisplay;
 
 import '../../app/build_info.dart' show appBuildLabel;
@@ -53,6 +54,9 @@ enum RelayFailure {
 
   /// KLD-112: the relay does not accept the club code (unknown, revoked).
   clubWrong,
+
+  /// KLD-088 step 4: the relay is too old for a room of 3–4 players.
+  noTables,
 }
 
 String _text(Object error) => error is NetException ? error.message : '$error';
@@ -66,6 +70,7 @@ RelayFailure? classifyRelayError(Object error) {
   if (s == 'relay: $relayClubMissingText') return RelayFailure.clubMissing;
   if (s == 'relay: $relayClubWrongText') return RelayFailure.clubWrong;
   if (s == 'relay: $relayHostAwayText') return RelayFailure.hostAway;
+  if (s == 'relay: $relayNoTablesText') return RelayFailure.noTables;
   if (s.contains('no room with code')) return RelayFailure.unknownCode;
   if (s.contains('is full')) return RelayFailure.roomFull;
   if (s.contains('host left') || s.contains('host connection failed')) return RelayFailure.hostLeft;
@@ -151,5 +156,6 @@ String? relayErrorText(BuildContext context, Object error, {String? code, Uri? r
     RelayFailure.lost => l10n.relayErrorLost,
     RelayFailure.clubMissing => l10n.relayErrorClubMissing,
     RelayFailure.clubWrong => l10n.relayErrorClubWrong,
+    RelayFailure.noTables => l10n.tableRelayTooOld,
   };
 }

@@ -55,6 +55,7 @@ export 'src/relay/relay_protocol.dart'
         newClubCode,
         relayClubMissingText,
         relayClubWrongText,
-        relayHostAwayText;
+        relayHostAwayText,
+        relayNoTablesText;
 export 'src/names.dart' show maxPlayerNameLength, sanitizePlayerName, playerNameOr;
 export 'src/host.dart' show KlunkiHost;

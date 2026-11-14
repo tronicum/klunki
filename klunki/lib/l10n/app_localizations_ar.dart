@@ -872,6 +872,39 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingWaitingForGuest => 'بانتظار اللاعب الآخر…';
 
   @override
+  String tableWaitingFor(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'بانتظار $count لاعبين آخرين…',
+      one: 'بانتظار لاعب واحد آخر…',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tableSeatFree => 'مقعد شاغر';
+
+  @override
+  String get tableSeatAway => 'غير متصل';
+
+  @override
+  String tablePaused(String players) {
+    return 'إيقاف مؤقت: بانتظار $players…';
+  }
+
+  @override
+  String tableLetLeave(String player) {
+    return 'متابعة اللعب بدون $player';
+  }
+
+  @override
+  String get tableLobbyTitle => 'اللاعبون في الغرفة';
+
+  @override
+  String get tableRelayTooOld => 'هذا الخادم لا يدعم الألعاب لأكثر من لاعبَين.';
+
+  @override
   String get pairingCancel => 'إلغاء';
 
   @override
