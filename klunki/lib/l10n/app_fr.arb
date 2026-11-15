@@ -1254,5 +1254,19 @@
   "shellUndoConfirmTitle": "Veux-tu reprendre le coup ?",
   "shellUndoConfirmYes": "Reprendre",
   "shellUndoConfirmKeep": "Non",
-  "wordtilesUndoConfirmBody": "Les lettres du dernier coup reviennent, les lettres piochées retournent dans le sac."
+  "wordtilesUndoConfirmBody": "Les lettres du dernier coup reviennent, les lettres piochées retournent dans le sac.",
+  "quartettDeckMotorcycles": "Motos",
+  "quartettStatNm": "Couple",
+  "quartettStatRangeKmBike": "Auto\u00ADnomie",
+  "quartettStatValueEur": "Valeur",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "Sportives",
+  "quartettSetMotorcyclesB": "Roadsters",
+  "quartettSetMotorcyclesC": "Trails",
+  "quartettSetMotorcyclesD": "Customs",
+  "quartettSetMotorcyclesE": "Classiques",
+  "quartettSetMotorcyclesF": "Tout-terrain",
+  "quartettSetMotorcyclesG": "Scooters",
+  "quartettSetMotorcyclesH": "Électriques"
 }

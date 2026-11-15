@@ -94,6 +94,11 @@ String localizedSetName(AppLocalizations l10n, String set, [String deck = Quarte
         l10n.quartettSetAnimalsA, l10n.quartettSetAnimalsB, l10n.quartettSetAnimalsC, l10n.quartettSetAnimalsD,
         l10n.quartettSetAnimalsE, l10n.quartettSetAnimalsF, l10n.quartettSetAnimalsG, l10n.quartettSetAnimalsH,
       ],
+    'motorcycles' => [
+        l10n.quartettSetMotorcyclesA, l10n.quartettSetMotorcyclesB, l10n.quartettSetMotorcyclesC,
+        l10n.quartettSetMotorcyclesD, l10n.quartettSetMotorcyclesE, l10n.quartettSetMotorcyclesF,
+        l10n.quartettSetMotorcyclesG, l10n.quartettSetMotorcyclesH,
+      ],
     _ => null,
   };
   if (names != null && i >= 0) return names[i];
@@ -108,6 +113,7 @@ String localizedDeckName(AppLocalizations l10n, String deck) => switch (deck) {
       'rockets' => l10n.quartettDeckRockets,
       'planes' => l10n.quartettDeckPlanes,
       'animals' => l10n.quartettDeckAnimals,
+      'motorcycles' => l10n.quartettDeckMotorcycles,
       _ => QuartettDeck.byId(deck)?.name ?? deck,
     };
 
@@ -210,6 +216,10 @@ String localizedStatLabelHyphenated(AppLocalizations l10n, String statId) => swi
       'weightKg' => l10n.engineStatKg,
       'lifeYears' => l10n.quartettStatLifeYears,
       'gestationD' => l10n.quartettStatGestationD,
+      // KLD-129: motorcycles ("ps", "kmh" and "kg" as in the car deck).
+      'nm' => l10n.quartettStatNm,
+      'rangeKmBike' => l10n.quartettStatRangeKmBike,
+      'valueEur' => l10n.quartettStatValueEur,
       _ => _anyStat(statId)?.label ?? statId,
     };
 
@@ -226,6 +236,8 @@ String localizedStatUnit(AppLocalizations l10n, String statId) => switch (statId
       'weightKg' => l10n.engineUnitKg,
       'lifeYears' => l10n.quartettUnitYears,
       'gestationD' => l10n.quartettUnitDays,
+      'nm' => l10n.quartettUnitNm,
+      'valueEur' => l10n.quartettUnitEur,
       _ => _anyStat(statId)?.unit ?? '',
     };
 

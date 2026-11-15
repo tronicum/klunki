@@ -7267,5 +7267,61 @@
   "wordtilesUndoConfirmBody": "Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.",
   "@wordtilesUndoConfirmBody": {
     "description": "KLD-094: text of the take-back question (shellUndoConfirmTitle) in Wortgewandt, shown when the last move laid a word or swapped tiles: what happens: the tiles of the last move come back (to the rack of the player who laid or swapped them), tiles drawn after it go back into the bag."
+  },
+  "quartettDeckMotorcycles": "Motorräder",
+  "@quartettDeckMotorcycles": {
+    "description": "KLD-129 Quartett deck name: motorcycles."
+  },
+  "quartettStatNm": "Dreh\u00ADmoment",
+  "@quartettStatNm": {
+    "description": "KLD-129 Quartett stat label (motorcycles): peak engine torque in newton metres. Soft hyphens (U+00AD) mark where a narrow card may break the word."
+  },
+  "quartettStatRangeKmBike": "Reich\u00ADweite",
+  "@quartettStatRangeKmBike": {
+    "description": "KLD-129 Quartett stat label (motorcycles): how far the bike goes on a full tank or a full battery, in km. May be the same word as quartettStatRangeKm (planes). Soft hyphens (U+00AD) mark where a narrow card may break the word."
+  },
+  "quartettStatValueEur": "Wert",
+  "@quartettStatValueEur": {
+    "description": "KLD-129 Quartett stat label (motorcycles): the price of a new bike (German list price) or the collector value of a classic, in euros."
+  },
+  "quartettUnitNm": "Nm",
+  "@quartettUnitNm": {
+    "description": "KLD-129 unit after a torque, e.g. \"121 Nm\" (newton metres)."
+  },
+  "quartettUnitEur": "€",
+  "@quartettUnitEur": {
+    "description": "KLD-129 unit after a value in euros, e.g. \"34.800 €\"."
+  },
+  "quartettSetMotorcyclesA": "Supersportler",
+  "@quartettSetMotorcyclesA": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set A: Superbikes (sport bikes)."
+  },
+  "quartettSetMotorcyclesB": "Naked Bikes",
+  "@quartettSetMotorcyclesB": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set B: Naked bikes (street bikes without fairing)."
+  },
+  "quartettSetMotorcyclesC": "Reiseenduros",
+  "@quartettSetMotorcyclesC": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set C: Adventure bikes (touring enduros)."
+  },
+  "quartettSetMotorcyclesD": "Cruiser",
+  "@quartettSetMotorcyclesD": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set D: Cruisers."
+  },
+  "quartettSetMotorcyclesE": "Klassiker",
+  "@quartettSetMotorcyclesE": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set E: Classics (historic motorcycles)."
+  },
+  "quartettSetMotorcyclesF": "Gelände",
+  "@quartettSetMotorcyclesF": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set F: Off-road (road-legal enduro and trail bikes)."
+  },
+  "quartettSetMotorcyclesG": "Roller",
+  "@quartettSetMotorcyclesG": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set G: Scooters."
+  },
+  "quartettSetMotorcyclesH": "Elektro",
+  "@quartettSetMotorcyclesH": {
+    "description": "KLD-129 Quartett set name, motorcycle deck, set H: Electric motorcycles."
   }
 }

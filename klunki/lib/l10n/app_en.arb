@@ -1253,5 +1253,19 @@
   "shellUndoConfirmTitle": "Do you want to take back the move?",
   "shellUndoConfirmYes": "Take back",
   "shellUndoConfirmKeep": "No",
-  "wordtilesUndoConfirmBody": "The tiles of the last move come back, newly drawn tiles go back into the bag."
+  "wordtilesUndoConfirmBody": "The tiles of the last move come back, newly drawn tiles go back into the bag.",
+  "quartettDeckMotorcycles": "Motorbikes",
+  "quartettStatNm": "Torque",
+  "quartettStatRangeKmBike": "Range",
+  "quartettStatValueEur": "Value",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "Superbikes",
+  "quartettSetMotorcyclesB": "Naked bikes",
+  "quartettSetMotorcyclesC": "Adventure",
+  "quartettSetMotorcyclesD": "Cruisers",
+  "quartettSetMotorcyclesE": "Classics",
+  "quartettSetMotorcyclesF": "Off-road",
+  "quartettSetMotorcyclesG": "Scooters",
+  "quartettSetMotorcyclesH": "Electric"
 }

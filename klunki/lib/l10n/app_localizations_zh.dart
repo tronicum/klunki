@@ -4714,4 +4714,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wordtilesUndoConfirmBody => '上一步的牌会回来，新取的牌放回牌堆。';
+
+  @override
+  String get quartettDeckMotorcycles => '摩托车';
+
+  @override
+  String get quartettStatNm => '扭矩';
+
+  @override
+  String get quartettStatRangeKmBike => '续航';
+
+  @override
+  String get quartettStatValueEur => '价值';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => '超级跑车';
+
+  @override
+  String get quartettSetMotorcyclesB => '街车';
+
+  @override
+  String get quartettSetMotorcyclesC => '探险车';
+
+  @override
+  String get quartettSetMotorcyclesD => '巡航车';
+
+  @override
+  String get quartettSetMotorcyclesE => '经典车';
+
+  @override
+  String get quartettSetMotorcyclesF => '越野车';
+
+  @override
+  String get quartettSetMotorcyclesG => '踏板车';
+
+  @override
+  String get quartettSetMotorcyclesH => '电动车';
 }

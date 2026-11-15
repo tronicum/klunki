@@ -87,6 +87,9 @@ void main() {
   testWidgets('card gallery: the deck list has the link', (tester) async {
     await _phone(tester);
     await tester.pumpWidget(localizedApp(const QuartettGalleryScreen()));
+    // Below six decks (KLD-129) the lazy list builds the link only when scrolled to.
+    await tester.scrollUntilVisible(find.byKey(const Key('quartett-legal-link')), 200,
+        scrollable: find.byType(Scrollable).first);
     await _opensNotice(tester, find.byKey(const Key('quartett-legal-link')));
   });
 

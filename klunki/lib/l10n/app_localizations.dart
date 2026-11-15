@@ -7646,6 +7646,90 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.'**
   String get wordtilesUndoConfirmBody;
+
+  /// KLD-129 Quartett deck name: motorcycles.
+  ///
+  /// In de, this message translates to:
+  /// **'Motorräder'**
+  String get quartettDeckMotorcycles;
+
+  /// KLD-129 Quartett stat label (motorcycles): peak engine torque in newton metres. Soft hyphens (U+00AD) mark where a narrow card may break the word.
+  ///
+  /// In de, this message translates to:
+  /// **'Dreh­moment'**
+  String get quartettStatNm;
+
+  /// KLD-129 Quartett stat label (motorcycles): how far the bike goes on a full tank or a full battery, in km. May be the same word as quartettStatRangeKm (planes). Soft hyphens (U+00AD) mark where a narrow card may break the word.
+  ///
+  /// In de, this message translates to:
+  /// **'Reich­weite'**
+  String get quartettStatRangeKmBike;
+
+  /// KLD-129 Quartett stat label (motorcycles): the price of a new bike (German list price) or the collector value of a classic, in euros.
+  ///
+  /// In de, this message translates to:
+  /// **'Wert'**
+  String get quartettStatValueEur;
+
+  /// KLD-129 unit after a torque, e.g. "121 Nm" (newton metres).
+  ///
+  /// In de, this message translates to:
+  /// **'Nm'**
+  String get quartettUnitNm;
+
+  /// KLD-129 unit after a value in euros, e.g. "34.800 €".
+  ///
+  /// In de, this message translates to:
+  /// **'€'**
+  String get quartettUnitEur;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set A: Superbikes (sport bikes).
+  ///
+  /// In de, this message translates to:
+  /// **'Supersportler'**
+  String get quartettSetMotorcyclesA;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set B: Naked bikes (street bikes without fairing).
+  ///
+  /// In de, this message translates to:
+  /// **'Naked Bikes'**
+  String get quartettSetMotorcyclesB;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set C: Adventure bikes (touring enduros).
+  ///
+  /// In de, this message translates to:
+  /// **'Reiseenduros'**
+  String get quartettSetMotorcyclesC;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set D: Cruisers.
+  ///
+  /// In de, this message translates to:
+  /// **'Cruiser'**
+  String get quartettSetMotorcyclesD;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set E: Classics (historic motorcycles).
+  ///
+  /// In de, this message translates to:
+  /// **'Klassiker'**
+  String get quartettSetMotorcyclesE;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set F: Off-road (road-legal enduro and trail bikes).
+  ///
+  /// In de, this message translates to:
+  /// **'Gelände'**
+  String get quartettSetMotorcyclesF;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set G: Scooters.
+  ///
+  /// In de, this message translates to:
+  /// **'Roller'**
+  String get quartettSetMotorcyclesG;
+
+  /// KLD-129 Quartett set name, motorcycle deck, set H: Electric motorcycles.
+  ///
+  /// In de, this message translates to:
+  /// **'Elektro'**
+  String get quartettSetMotorcyclesH;
 }
 
 class _AppLocalizationsDelegate

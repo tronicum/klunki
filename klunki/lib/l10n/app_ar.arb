@@ -1254,5 +1254,19 @@
   "shellUndoConfirmTitle": "هل تريد التراجع عن الحركة؟",
   "shellUndoConfirmYes": "تراجع",
   "shellUndoConfirmKeep": "لا",
-  "wordtilesUndoConfirmBody": "تعود حروف الحركة الأخيرة، وتعود الحروف المسحوبة حديثًا إلى الكيس."
+  "wordtilesUndoConfirmBody": "تعود حروف الحركة الأخيرة، وتعود الحروف المسحوبة حديثًا إلى الكيس.",
+  "quartettDeckMotorcycles": "دراجات نارية",
+  "quartettStatNm": "عزم الدوران",
+  "quartettStatRangeKmBike": "المدى",
+  "quartettStatValueEur": "القيمة",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "دراجات رياضية",
+  "quartettSetMotorcyclesB": "دراجات الشوارع",
+  "quartettSetMotorcyclesC": "دراجات المغامرة",
+  "quartettSetMotorcyclesD": "دراجات كروزر",
+  "quartettSetMotorcyclesE": "كلاسيكيات",
+  "quartettSetMotorcyclesF": "الطرق الوعرة",
+  "quartettSetMotorcyclesG": "سكوترات",
+  "quartettSetMotorcyclesH": "كهربائية"
 }

@@ -4985,4 +4985,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get wordtilesUndoConfirmBody =>
       'The tiles of the last move come back, newly drawn tiles go back into the bag.';
+
+  @override
+  String get quartettDeckMotorcycles => 'Motorbikes';
+
+  @override
+  String get quartettStatNm => 'Torque';
+
+  @override
+  String get quartettStatRangeKmBike => 'Range';
+
+  @override
+  String get quartettStatValueEur => 'Value';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => 'Superbikes';
+
+  @override
+  String get quartettSetMotorcyclesB => 'Naked bikes';
+
+  @override
+  String get quartettSetMotorcyclesC => 'Adventure';
+
+  @override
+  String get quartettSetMotorcyclesD => 'Cruisers';
+
+  @override
+  String get quartettSetMotorcyclesE => 'Classics';
+
+  @override
+  String get quartettSetMotorcyclesF => 'Off-road';
+
+  @override
+  String get quartettSetMotorcyclesG => 'Scooters';
+
+  @override
+  String get quartettSetMotorcyclesH => 'Electric';
 }

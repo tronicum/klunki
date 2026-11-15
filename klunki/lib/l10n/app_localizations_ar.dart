@@ -5021,4 +5021,46 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get wordtilesUndoConfirmBody =>
       'تعود حروف الحركة الأخيرة، وتعود الحروف المسحوبة حديثًا إلى الكيس.';
+
+  @override
+  String get quartettDeckMotorcycles => 'دراجات نارية';
+
+  @override
+  String get quartettStatNm => 'عزم الدوران';
+
+  @override
+  String get quartettStatRangeKmBike => 'المدى';
+
+  @override
+  String get quartettStatValueEur => 'القيمة';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => 'دراجات رياضية';
+
+  @override
+  String get quartettSetMotorcyclesB => 'دراجات الشوارع';
+
+  @override
+  String get quartettSetMotorcyclesC => 'دراجات المغامرة';
+
+  @override
+  String get quartettSetMotorcyclesD => 'دراجات كروزر';
+
+  @override
+  String get quartettSetMotorcyclesE => 'كلاسيكيات';
+
+  @override
+  String get quartettSetMotorcyclesF => 'الطرق الوعرة';
+
+  @override
+  String get quartettSetMotorcyclesG => 'سكوترات';
+
+  @override
+  String get quartettSetMotorcyclesH => 'كهربائية';
 }

@@ -5015,4 +5015,46 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get wordtilesUndoConfirmBody =>
       'Las fichas de la última jugada vuelven y las fichas nuevas vuelven a la bolsa.';
+
+  @override
+  String get quartettDeckMotorcycles => 'Motos';
+
+  @override
+  String get quartettStatNm => 'Par motor';
+
+  @override
+  String get quartettStatRangeKmBike => 'Auto­nomía';
+
+  @override
+  String get quartettStatValueEur => 'Valor';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => 'Superdeportivas';
+
+  @override
+  String get quartettSetMotorcyclesB => 'Naked';
+
+  @override
+  String get quartettSetMotorcyclesC => 'Trail';
+
+  @override
+  String get quartettSetMotorcyclesD => 'Custom';
+
+  @override
+  String get quartettSetMotorcyclesE => 'Clásicas';
+
+  @override
+  String get quartettSetMotorcyclesF => 'Todoterreno';
+
+  @override
+  String get quartettSetMotorcyclesG => 'Escúteres';
+
+  @override
+  String get quartettSetMotorcyclesH => 'Eléctricas';
 }

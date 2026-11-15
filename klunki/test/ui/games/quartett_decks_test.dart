@@ -53,6 +53,7 @@ void main() {
       expect(find.text('Kartendeck wählen'), findsOneWidget);
       for (final (id, name) in [
         ('cars', 'Autos'), ('trains', 'Züge'), ('rockets', 'Raketen'), ('planes', 'Flugzeuge'), ('animals', 'Tiere'),
+        ('motorcycles', 'Motorräder'),
       ]) {
         final tile = find.byKey(Key('quartett-deck-$id'));
         expect(tile, findsOneWidget);
@@ -223,6 +224,43 @@ void main() {
         expect(deckGameplayData(deck).toString(), contains('Schwarze Mamba'));
         expect(deckGameplayData(deck).toString(), isNot(contains('Black mamba')));
         expect(fingerprintOf(const GameConfig('quartett-trumpf', deck: 'animals')), before);
+      });
+    });
+
+    group('motorcycles (KLD-129)', () {
+      final deck = QuartettDeck.motorcycles;
+
+      test('model names stay untranslated; new labels and units in every locale', () {
+        for (final c in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) {
+          final l10n = lookupAppLocalizations(Locale(c));
+          for (final card in deck.cards) {
+            expect(localizedCardName(l10n, card), card.name, reason: '$c ${card.id}');
+          }
+          for (final s in deck.stats) {
+            expect(localizedStatLabel(l10n, s.id), isNot(s.id), reason: '$c ${s.id}');
+          }
+          expect(localizedDeckName(l10n, deck.id), isNot(deck.id), reason: c);
+          final sets = {for (final set in deck.setNames.keys) localizedSetName(l10n, set, deck.id)};
+          expect(sets, hasLength(8), reason: c);
+        }
+        expect(localizedDeckName(enL10n, 'motorcycles'), 'Motorbikes');
+        expect(localizedStatLabel(deL10n, 'nm'), 'Drehmoment');
+        expect(localizedStatLabelHyphenated(deL10n, 'nm'), 'Dreh${softHyphen}moment');
+        expect(localizedStatLabel(enL10n, 'rangeKmBike'), 'Range');
+        expect(localizedStatLabel(enL10n, 'valueEur'), 'Value');
+        expect(localizedStatUnit(enL10n, 'ps'), 'hp');
+        expect(localizedSetName(deL10n, 'F', deck.id), 'Gelände');
+      });
+
+      test('values: whole numbers, grouped per locale, the euro after the number', () {
+        final value = deck.statById('valueEur')!;
+        expect(formatQuartettValue(value, 150000, locale: 'de', unit: localizedStatUnit(deL10n, 'valueEur')),
+            '150.000 €');
+        expect(formatQuartettValue(value, 34800, locale: 'en', unit: localizedStatUnit(enL10n, 'valueEur')),
+            '34,800 €');
+        expect(formatQuartettValue(deck.statById('ps')!, 9, locale: 'de', unit: 'PS'), '9 PS');
+        expect(formatQuartettValue(deck.statById('nm')!, 225, locale: 'de', unit: 'Nm'), '225 Nm');
+        expect(formatQuartettValue(deck.statById('rangeKmBike')!, 395, locale: 'de'), '395 km');
       });
     });
 
@@ -401,6 +439,9 @@ void main() {
       ('ar', const Size(360, 640), Brightness.light, 'animals'),
       ('fr', const Size(320, 640), Brightness.light, 'animals'),
       ('fa', const Size(360, 640), Brightness.dark, 'animals'),
+      // KLD-129: long model names ("Harley-Davidson Pan America 1250 Special"), six stats.
+      ('en', const Size(320, 640), Brightness.light, 'motorcycles'),
+      ('ar', const Size(360, 640), Brightness.light, 'motorcycles'),
     ]) {
       testWidgets('$code ${size.width.toInt()} $deckId: gallery, sets and full card render without overflow',
           (tester) async {

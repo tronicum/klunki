@@ -13,7 +13,8 @@ part of 'quartett.dart';
 ///
 /// The vehicle values are plausible, rounded figures from general knowledge,
 /// not verified data (`docs/tasks/KLD-069-quartett-decks.md`); the animal
-/// values are sourced (KLD-128). See the comment above each deck. To add a deck: build it with [QuartettDeck.build], add it
+/// and motorcycle values are sourced (KLD-128, KLD-129). See the comment
+/// above each deck. To add a deck: build it with [QuartettDeck.build], add it
 /// to [QuartettDeck.all], then add its set names (and any new stat labels) to
 /// the ARB files and a pictogram in the app.
 class QuartettDeck {
@@ -134,9 +135,10 @@ class QuartettDeck {
   static final QuartettDeck rockets = _rockets();
   static final QuartettDeck planes = _planes();
   static final QuartettDeck animals = _animals();
+  static final QuartettDeck motorcycles = _motorcycles();
 
   /// Every deck, in picker order.
-  static final List<QuartettDeck> all = List.unmodifiable([cars, trains, rockets, planes, animals]);
+  static final List<QuartettDeck> all = List.unmodifiable([cars, trains, rockets, planes, animals, motorcycles]);
 
   /// The deck with [id]; null if unknown. A null [id] is the default deck.
   static QuartettDeck? byId(String? id) {
@@ -523,5 +525,100 @@ QuartettDeck _animals() => QuartettDeck.build(
         ('H2', 'Komodowaran', [87, 2.4, 20, 30, 230]),
         ('H3', 'Aldabra-Riesenschildkröte', [117, 1.1, 0.3, 100, 240]),
         ('H4', 'Schwarze Mamba', [1.0, 2.5, 22.5, 10, 85]),
+      ],
+    );
+
+/// Motorcycles (KLD-129). Stand 2025/2026: prices and the classics' values
+/// are from 2025/2026 and age with every model year. Real model names, not
+/// translated (like the cars). Values are manufacturer figures, directly or
+/// as quoted by a press database (motorradundreisen.de, motorradonline.de,
+/// 1000ps.com, motofichas.com, cyclenews.com, bikez.net), or estimates; the
+/// task card `docs/tasks/KLD-129-quartett-motorcycles.md` has the source of
+/// every value.
+///
+/// * Leistung (PS): peak power, also for the electric bikes (Zero SR/F 83 kW
+///   → 113, LiveWire One 75 kW → 102 converted). BMW R 32: 8.5 PS, shown as 9
+///   (whole numbers, the maintainer's decision).
+/// * Höchstgeschwindigkeit: manufacturer figure where given (Africa Twin,
+///   Hayabusa (limited), R 32, Beta Alp, WR125R, Super Cub, Zero, Can-Am,
+///   LiveWire, Ninja e-1), else press values; Ninja H2R 400 is the unofficial
+///   record, Husqvarna 701 Enduro 165 an estimate (nowhere published).
+/// * Drehmoment (Nm): manufacturer or press figures; R 32 19 and Black Shadow
+///   71 are estimates from kW and engine speed.
+/// * Gewicht (kg, lower wins, the cars' `kg`): ready to ride with a (nearly)
+///   full tank; Panigale V4 S 199 (187 without fuel + 17 L), Multistrada V4 S
+///   246 (231 + 90 % of 22 L), 701 Enduro 162 (152 + tank) estimated; Beta Alp
+///   150 (1000ps.com, ready to ride; Beta: 140 dry).
+/// * Reichweite (km): petrol bikes tank (L) × 100 / consumption (L/100 km,
+///   type approval WMTC, Euro 5/5+, mostly via a database quoting the
+///   factory), rounded to 5 km; the Ninja H2R (no type approval) with the
+///   road H2's 8.5 L. Electric bikes the manufacturer's range: Can-Am Pulse
+///   130 and Ninja e-1 70 (72) WMTC, Zero SR/F 190 (188, highway), LiveWire
+///   One 155 (153, combined). Classics: consumption from period tests or user
+///   databases, estimates (R 32 ~3.5 L, CB750 34.3 US mpg, Z1 ~6.5 L, Black
+///   Shadow "about 50 mpg").
+/// * Wert (€): German list price (UVP) of the named model year without
+///   on-road costs where that can be told (Super Meteor, Vespa, Ninja e-1,
+///   WR125R and Beta only known with them), rounded to 100 €. Classics:
+///   typical collector value from auction results, rounded to 1000 €, always
+///   an estimate (R 32 150,000: Bonhams Paris 2023 143,750 €, Mecum 2026 about
+///   180,000 €; CB750 Four 12,000, die-cast K0; Z1 18,000; Black Shadow
+///   65,000; USD → EUR 0.86, GBP → EUR 1.17).
+QuartettDeck _motorcycles() => QuartettDeck.build(
+      id: 'motorcycles',
+      name: 'Motorräder',
+      stats: const [
+        QuartettStat(id: 'ps', label: 'Leistung', unit: 'PS'),
+        _kmh,
+        QuartettStat(id: 'nm', label: 'Drehmoment', unit: 'Nm'),
+        // The cars' weight: lower wins.
+        QuartettStat(id: 'kg', label: 'Gewicht', unit: 'kg', higherWins: false),
+        // Not the planes' `rangeKm` (one decimal, thousands of km).
+        QuartettStat(id: 'rangeKmBike', label: 'Reichweite', unit: 'km'),
+        QuartettStat(id: 'valueEur', label: 'Wert', unit: '€'),
+      ],
+      setNames: const {
+        'A': 'Supersportler',
+        'B': 'Naked Bikes',
+        'C': 'Reiseenduros',
+        'D': 'Cruiser',
+        'E': 'Klassiker',
+        'F': 'Gelände',
+        'G': 'Roller',
+        'H': 'Elektro',
+      },
+      rows: const [
+        ('A1', 'Ducati Panigale V4 S', [216, 299, 121, 199, 260, 34800]),
+        ('A2', 'BMW M 1000 RR', [218, 314, 113, 194, 255, 36300]),
+        ('A3', 'Suzuki Hayabusa', [190, 299, 150, 264, 300, 19400]),
+        ('A4', 'Kawasaki Ninja H2R', [310, 400, 165, 216, 200, 58000]),
+        ('B1', 'KTM 1390 Super Duke R Evo', [190, 250, 145, 212, 295, 23000]),
+        ('B2', 'Yamaha MT-09', [119, 215, 93, 193, 280, 11000]),
+        ('B3', 'Triumph Speed Triple 1200 RS', [183, 245, 128, 199, 280, 20000]),
+        ('B4', 'Aprilia Tuono V4 Factory', [180, 270, 121, 211, 250, 21000]),
+        ('C1', 'BMW R 1300 GS', [145, 225, 149, 237, 395, 19900]),
+        ('C2', 'Honda Africa Twin', [102, 199, 112, 231, 385, 16400]),
+        ('C3', 'Ducati Multistrada V4 S', [170, 240, 124, 246, 365, 25300]),
+        ('C4', 'Harley-Davidson Pan America 1250 Special', [152, 220, 125, 258, 385, 20900]),
+        ('D1', 'Harley-Davidson Fat Boy 117', [105, 190, 168, 315, 345, 27700]),
+        ('D2', 'Indian Chief Dark Horse', [88, 174, 156, 304, 280, 19400]),
+        ('D3', 'Triumph Rocket 3 Storm R', [182, 222, 225, 317, 275, 26200]),
+        ('D4', 'Royal Enfield Super Meteor 650', [47, 160, 52, 241, 365, 8100]),
+        ('E1', 'BMW R 32', [9, 95, 19, 122, 400, 150000]),
+        ('E2', 'Honda CB750 Four', [67, 200, 60, 233, 260, 12000]),
+        ('E3', 'Kawasaki Z1', [82, 210, 74, 246, 275, 18000]),
+        ('E4', 'Vincent Black Shadow', [56, 201, 71, 227, 285, 65000]),
+        ('F1', 'Husqvarna 701 Enduro', [79, 165, 73, 162, 310, 12500]),
+        ('F2', 'Suzuki DR-Z4S', [38, 139, 37, 151, 250, 9000]),
+        ('F3', 'Beta Alp 4.0', [35, 135, 28, 150, 315, 6100]),
+        ('F4', 'Yamaha WR125R', [15, 104, 11, 138, 350, 5000]),
+        ('G1', 'Vespa GTS 310', [25, 127, 29, 163, 265, 7300]),
+        ('G2', 'Honda Super Cub C125', [10, 95, 10, 111, 245, 4200]),
+        ('G3', 'Yamaha TMAX 560 Tech MAX', [48, 165, 55, 221, 315, 16100]),
+        ('G4', 'Kymco AK 575 Premium', [52, 160, 55, 238, 345, 12300]),
+        ('H1', 'Zero SR/F', [113, 200, 190, 227, 190, 23000]),
+        ('H2', 'Can-Am Pulse', [47, 129, 72, 177, 130, 12900]),
+        ('H3', 'LiveWire One', [102, 177, 114, 255, 155, 14800]),
+        ('H4', 'Kawasaki Ninja e-1', [12, 99, 40, 140, 70, 6600]),
       ],
     );

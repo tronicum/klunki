@@ -4891,4 +4891,46 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get wordtilesUndoConfirmBody =>
       'کاشی‌های حرکت آخر برمی‌گردند و کاشی‌های تازه‌برداشته به کیسه برمی‌گردند.';
+
+  @override
+  String get quartettDeckMotorcycles => 'موتورسیکلت‌ها';
+
+  @override
+  String get quartettStatNm => 'گشتاور';
+
+  @override
+  String get quartettStatRangeKmBike => 'برد';
+
+  @override
+  String get quartettStatValueEur => 'ارزش';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => 'اسپرت‌ها';
+
+  @override
+  String get quartettSetMotorcyclesB => 'خیابانی‌ها';
+
+  @override
+  String get quartettSetMotorcyclesC => 'ماجراجویی';
+
+  @override
+  String get quartettSetMotorcyclesD => 'کروزرها';
+
+  @override
+  String get quartettSetMotorcyclesE => 'کلاسیک‌ها';
+
+  @override
+  String get quartettSetMotorcyclesF => 'آفرود';
+
+  @override
+  String get quartettSetMotorcyclesG => 'اسکوترها';
+
+  @override
+  String get quartettSetMotorcyclesH => 'برقی‌ها';
 }

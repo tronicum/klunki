@@ -1254,5 +1254,19 @@
   "shellUndoConfirmTitle": "¿Quieres deshacer la jugada?",
   "shellUndoConfirmYes": "Deshacer",
   "shellUndoConfirmKeep": "No",
-  "wordtilesUndoConfirmBody": "Las fichas de la última jugada vuelven y las fichas nuevas vuelven a la bolsa."
+  "wordtilesUndoConfirmBody": "Las fichas de la última jugada vuelven y las fichas nuevas vuelven a la bolsa.",
+  "quartettDeckMotorcycles": "Motos",
+  "quartettStatNm": "Par motor",
+  "quartettStatRangeKmBike": "Auto\u00ADnomía",
+  "quartettStatValueEur": "Valor",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "Superdeportivas",
+  "quartettSetMotorcyclesB": "Naked",
+  "quartettSetMotorcyclesC": "Trail",
+  "quartettSetMotorcyclesD": "Custom",
+  "quartettSetMotorcyclesE": "Clásicas",
+  "quartettSetMotorcyclesF": "Todoterreno",
+  "quartettSetMotorcyclesG": "Escúteres",
+  "quartettSetMotorcyclesH": "Eléctricas"
 }

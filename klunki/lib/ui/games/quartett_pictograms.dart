@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// Drawn pictograms of the Quartett decks (KLD-069): a car, a high-speed
-/// train, a rocket, a plane and an elephant (KLD-128), side view. No
+/// train, a rocket, a plane, an elephant (KLD-128) and a motorcycle
+/// (KLD-129), side view. No
 /// downloaded images or logos: plain shapes, coloured per set by the caller.
 ///
 /// Drawn in a 100 × 60 box, scaled to fit the canvas and centred. [color]
@@ -31,6 +32,8 @@ class QuartettPictogram extends CustomPainter {
         _plane(canvas, body, fine);
       case 'animals':
         _elephant(canvas, body, fine);
+      case 'motorcycles':
+        _motorcycle(canvas, body, fine);
       default:
         _car(canvas, body, fine);
     }
@@ -215,6 +218,51 @@ class QuartettPictogram extends CustomPainter {
       ..quadraticBezierTo(89, 32, 86, 27)
       ..close();
     c.drawPath(tusk, fine);
+  }
+
+  /// Motorcycles (KLD-129): a road bike, side view, front wheel to the right.
+  void _motorcycle(Canvas c, Paint body, Paint fine) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    // Wheels: tyre, rim gap and hub.
+    for (final x in [20.0, 80.0]) {
+      c
+        ..drawCircle(Offset(x, 42), 14, body)
+        ..drawCircle(Offset(x, 42), 9, fine)
+        ..drawCircle(Offset(x, 42), 3.5, body);
+    }
+    // Swingarm to the rear hub, fork to the front hub, handlebar.
+    c
+      ..drawLine(const Offset(44, 36), const Offset(20, 42), stroke..strokeWidth = 4.5)
+      ..drawLine(const Offset(69, 17), const Offset(80, 42), stroke..strokeWidth = 4.5)
+      ..drawLine(const Offset(65, 11), const Offset(73, 13), stroke..strokeWidth = 3.5);
+    // Seat and tail, tank, engine down to the swingarm.
+    final frame = Path()
+      ..moveTo(8, 22)
+      ..quadraticBezierTo(9, 18, 15, 19)
+      ..lineTo(38, 21)
+      ..quadraticBezierTo(44, 13, 56, 13)
+      ..quadraticBezierTo(66, 13, 71, 20)
+      ..lineTo(64, 28)
+      ..lineTo(58, 40)
+      ..lineTo(40, 40)
+      ..lineTo(34, 30)
+      ..lineTo(14, 28)
+      ..quadraticBezierTo(8, 27, 8, 22)
+      ..close();
+    c.drawPath(frame, body);
+    // Engine block and seat line in the detail colour, the headlight.
+    final line = Paint()
+      ..color = detail
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round;
+    c
+      ..drawRRect(RRect.fromLTRBR(42, 29, 56, 37, const Radius.circular(2)), fine)
+      ..drawLine(const Offset(16, 23), const Offset(36, 24.5), line)
+      ..drawCircle(const Offset(74, 21), 3.5, body)
+      ..drawCircle(const Offset(75, 21), 1.6, fine);
   }
 
   @override

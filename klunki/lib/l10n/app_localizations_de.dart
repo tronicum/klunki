@@ -5003,4 +5003,46 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get wordtilesUndoConfirmBody =>
       'Die Steine vom letzten Zug kommen zurück, neu gezogene Steine wieder in den Beutel.';
+
+  @override
+  String get quartettDeckMotorcycles => 'Motorräder';
+
+  @override
+  String get quartettStatNm => 'Dreh­moment';
+
+  @override
+  String get quartettStatRangeKmBike => 'Reich­weite';
+
+  @override
+  String get quartettStatValueEur => 'Wert';
+
+  @override
+  String get quartettUnitNm => 'Nm';
+
+  @override
+  String get quartettUnitEur => '€';
+
+  @override
+  String get quartettSetMotorcyclesA => 'Supersportler';
+
+  @override
+  String get quartettSetMotorcyclesB => 'Naked Bikes';
+
+  @override
+  String get quartettSetMotorcyclesC => 'Reiseenduros';
+
+  @override
+  String get quartettSetMotorcyclesD => 'Cruiser';
+
+  @override
+  String get quartettSetMotorcyclesE => 'Klassiker';
+
+  @override
+  String get quartettSetMotorcyclesF => 'Gelände';
+
+  @override
+  String get quartettSetMotorcyclesG => 'Roller';
+
+  @override
+  String get quartettSetMotorcyclesH => 'Elektro';
 }

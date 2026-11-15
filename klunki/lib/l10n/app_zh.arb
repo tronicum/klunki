@@ -1254,5 +1254,19 @@
   "shellUndoConfirmTitle": "要悔棋吗？",
   "shellUndoConfirmYes": "悔棋",
   "shellUndoConfirmKeep": "不",
-  "wordtilesUndoConfirmBody": "上一步的牌会回来，新取的牌放回牌堆。"
+  "wordtilesUndoConfirmBody": "上一步的牌会回来，新取的牌放回牌堆。",
+  "quartettDeckMotorcycles": "摩托车",
+  "quartettStatNm": "扭矩",
+  "quartettStatRangeKmBike": "续航",
+  "quartettStatValueEur": "价值",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "超级跑车",
+  "quartettSetMotorcyclesB": "街车",
+  "quartettSetMotorcyclesC": "探险车",
+  "quartettSetMotorcyclesD": "巡航车",
+  "quartettSetMotorcyclesE": "经典车",
+  "quartettSetMotorcyclesF": "越野车",
+  "quartettSetMotorcyclesG": "踏板车",
+  "quartettSetMotorcyclesH": "电动车"
 }

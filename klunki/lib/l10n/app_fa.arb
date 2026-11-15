@@ -1254,5 +1254,19 @@
   "shellUndoConfirmTitle": "می‌خواهی حرکت را برگردانی؟",
   "shellUndoConfirmYes": "برگرداندن",
   "shellUndoConfirmKeep": "نه",
-  "wordtilesUndoConfirmBody": "کاشی‌های حرکت آخر برمی‌گردند و کاشی‌های تازه‌برداشته به کیسه برمی‌گردند."
+  "wordtilesUndoConfirmBody": "کاشی‌های حرکت آخر برمی‌گردند و کاشی‌های تازه‌برداشته به کیسه برمی‌گردند.",
+  "quartettDeckMotorcycles": "موتورسیکلت‌ها",
+  "quartettStatNm": "گشتاور",
+  "quartettStatRangeKmBike": "برد",
+  "quartettStatValueEur": "ارزش",
+  "quartettUnitNm": "Nm",
+  "quartettUnitEur": "€",
+  "quartettSetMotorcyclesA": "اسپرت‌ها",
+  "quartettSetMotorcyclesB": "خیابانی‌ها",
+  "quartettSetMotorcyclesC": "ماجراجویی",
+  "quartettSetMotorcyclesD": "کروزرها",
+  "quartettSetMotorcyclesE": "کلاسیک‌ها",
+  "quartettSetMotorcyclesF": "آفرود",
+  "quartettSetMotorcyclesG": "اسکوترها",
+  "quartettSetMotorcyclesH": "برقی‌ها"
 }

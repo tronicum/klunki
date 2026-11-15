@@ -7,9 +7,10 @@ import 'package:test/test.dart';
 
 /// KLD-069: themed Quartett decks.
 void main() {
-  test('the registry: cars (default), trains, rockets, planes, animals', () {
-    expect([for (final d in QuartettDeck.all) d.id], ['cars', 'trains', 'rockets', 'planes', 'animals']);
+  test('the registry: cars (default), trains, rockets, planes, animals, motorcycles', () {
+    expect([for (final d in QuartettDeck.all) d.id], ['cars', 'trains', 'rockets', 'planes', 'animals', 'motorcycles']);
     expect(QuartettDeck.byId('animals'), same(QuartettDeck.animals));
+    expect(QuartettDeck.byId('motorcycles'), same(QuartettDeck.motorcycles));
     expect(QuartettDeck.byId(null), same(QuartettDeck.cars));
     expect(QuartettDeck.byId('trains'), same(QuartettDeck.trains));
     expect(QuartettDeck.byId('nope'), isNull);
@@ -116,6 +117,34 @@ void main() {
       expect(kmh.formatValue(deck.cardById('H4')!.stats['kmh']!), '22.5 km/h');
       expect(kmh.formatValue(deck.cardById('A1')!.stats['kmh']!), '104 km/h');
       expect(deck.statById('weightKg')!.formatValue(136000), '136000 kg');
+    });
+
+    test('tie rates (printed for the task card)', () {
+      for (final s in deck.stats) {
+        final values = deck.cards.map((c) => c.stats[s.id]).toSet().length;
+        // ignore: avoid_print
+        print('${s.id}: ${(deck.tieRate(s.id) * 100).toStringAsFixed(2)} % ties, $values values');
+        expect(deck.tieRate(s.id), lessThan(0.03), reason: s.id);
+      }
+    });
+  });
+
+  group('motorcycles (KLD-129)', () {
+    final deck = QuartettDeck.motorcycles;
+
+    test('stats, sets and cards: weight wins low like the cars, whole numbers', () {
+      expect(deck.name, 'Motorräder');
+      expect(deck.revision, 1);
+      expect([for (final s in deck.stats) s.id], ['ps', 'kmh', 'nm', 'kg', 'rangeKmBike', 'valueEur']);
+      expect([for (final s in deck.stats) if (!s.higherWins) s.id], ['kg']);
+      expect(deck.stats.every((s) => s.decimals == 0), isTrue);
+      expect(deck.statById('kg')!.higherWins, QuartettDeck.cars.statById('kg')!.higherWins);
+      expect(deck.setNames['F'], 'Gelände');
+      // The R 32's 8.5 PS show as 9 (the maintainer's decision).
+      expect(deck.cardById('E1')!.stats,
+          {'ps': 9, 'kmh': 95, 'nm': 19, 'kg': 122, 'rangeKmBike': 400, 'valueEur': 150000});
+      expect(deck.cardById('A4')!.name, 'Kawasaki Ninja H2R');
+      expect(deck.statById('valueEur')!.formatValue(150000), '150000 €');
     });
 
     test('tie rates (printed for the task card)', () {
