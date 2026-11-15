@@ -21,6 +21,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/l10n/locale_controller.dart';
 import 'package:klunki/profile/quartett_deck_settings.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
+import 'package:klunki/ui/games/quartett_pictograms.dart';
 import 'package:klunki/ui/shell/game_screen.dart' show PlayerLabels, PlayerLabelsScope;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -181,6 +182,60 @@ void main() {
       await _shot(tester, 'kld128-6-trumpf-compare-$l-$tag');
     });
   }
+
+  // The 8 set pictograms large on their set colours, plus the deck pictogram
+  // (card back, picker) and the header size of a full card for scale.
+  testWidgets('kld128 pictograms', skip: skip, (tester) async {
+    _size(tester, const Size(700, 640));
+    await tester.pumpWidget(_themed(Builder(builder: (context) {
+      final palette = KlunkiPalette.of(context).quartett;
+      Widget tile(String label, String? set, Color bg, double w) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: w,
+                height: w * 0.6,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(10)),
+                child: CustomPaint(painter: QuartettPictogram('animals', set: set, color: Colors.white, detail: bg)),
+              ),
+              const SizedBox(height: 4),
+              Text(label, style: const TextStyle(fontSize: 13)),
+            ],
+          );
+      final deck = QuartettDeck.animals;
+      return Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(spacing: 16, runSpacing: 12, children: [
+                for (final s in deck.setNames.keys) tile('$s ${deck.setNames[s]}', s, palette.set(s), 150),
+                tile('Deck (Rückseite, Auswahl)', null, palette.set('D'), 150),
+              ]),
+              const SizedBox(height: 16),
+              const Text('Kartenkopf-Größe (52 × 36):', style: TextStyle(fontSize: 13)),
+              const SizedBox(height: 6),
+              Wrap(spacing: 10, children: [
+                for (final s in deck.setNames.keys)
+                  Container(
+                    width: 52,
+                    height: 36,
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                    child: CustomPaint(
+                        painter: QuartettPictogram('animals', set: s, color: palette.set(s), detail: Colors.white)),
+                  ),
+              ]),
+            ],
+          ),
+        ),
+      );
+    }), const Locale('de')));
+    await tester.pumpAndSettle();
+    await _shot(tester, 'kld128-0-pictograms');
+  });
 
   testWidgets('kld128 sets de', skip: skip, (tester) async {
     _size(tester, const Size(390, 844));

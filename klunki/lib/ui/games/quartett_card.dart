@@ -269,7 +269,7 @@ class QuartettCard extends StatelessWidget {
                     decoration: BoxDecoration(color: onColor, borderRadius: BorderRadius.circular(6)),
                     child: CustomPaint(
                       key: Key('quartett-pictogram-${c.deck}'),
-                      painter: QuartettPictogram(c.deck, color: color, detail: onColor),
+                      painter: QuartettPictogram(c.deck, set: c.set, color: color, detail: onColor),
                     ),
                   ),
                 ),
