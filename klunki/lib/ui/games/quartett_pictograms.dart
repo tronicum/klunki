@@ -473,14 +473,16 @@ class QuartettPictogram extends CustomPainter {
   }
 
   /// Animals F (Haie): a shark's dorsal fin cutting through the waves,
-  /// swimming to the left: a slightly convex leading edge rising to a tip
-  /// that points back, and a concave trailing edge dropping steeply.
+  /// swimming to the left: a broad base, a convex leading edge rising to a
+  /// rounded tip that points back, and a concave trailing edge dropping
+  /// steeply.
   void _sharkFin(Canvas c, Paint body, Paint fine) {
     c.drawPath(
         Path()
-          ..moveTo(22, 42)
-          ..cubicTo(36, 36, 52, 20, 70, 4)
-          ..quadraticBezierTo(56, 24, 61, 42)
+          ..moveTo(24, 42)
+          ..cubicTo(30, 28, 42, 13, 55, 9)
+          ..quadraticBezierTo(60, 7.5, 59.5, 12)
+          ..quadraticBezierTo(54, 27, 65, 42)
           ..close(),
         body);
     final wave = _stroke(4, color);
