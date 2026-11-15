@@ -25,8 +25,12 @@ String quartettScreenTitle(BuildContext context, GameController controller) {
   return '${localizedGameTitle(l10n, spec.id, fallback: spec.title)} · ${localizedDeckName(l10n, deck)}';
 }
 
-/// The set whose colour stands for [deck] on its preview card.
-String _previewSet(QuartettDeck deck) => 'ACEG'[QuartettDeck.all.indexOf(deck).clamp(0, 3)];
+/// The set whose colour stands for [deck] on its preview card: red cars,
+/// brown trains, green rockets, teal planes, orange animals (KLD-128). A
+/// further deck needs its own letter here.
+const _previewSets = 'ACEGD';
+String _previewSet(QuartettDeck deck) =>
+    _previewSets[QuartettDeck.all.indexOf(deck).clamp(0, _previewSets.length - 1)];
 
 /// A small card standing for a whole deck: the deck's pictogram on a set
 /// colour, like the top of a card. Decorative (no semantics).
@@ -125,7 +129,7 @@ class QuartettDeckChooser extends StatelessWidget {
                 onTap: enabled ? () => onChanged(deck.id) : null,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 3),
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 6, 12, 6),
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 12, 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
@@ -136,7 +140,8 @@ class QuartettDeckChooser extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      QuartettDeckPreview(deck: deck, width: 36),
+                      // KLD-128: a little flatter, so 5 decks and "Spielen" fit a 640 px phone.
+                      QuartettDeckPreview(deck: deck, width: 32),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(

@@ -5,6 +5,7 @@ import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki_engine/klunki_engine.dart' as qe show Card, QuartettDeck;
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
+import '../engine_l10n.dart' show localizedCardName;
 import 'quartett_media_data.dart';
 
 /// Photos and Wikipedia links of the Quartett cards (KLD-082).
@@ -265,7 +266,7 @@ class QuartettImageCreditsScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          title: Text('${card.id} ${card.name}'),
+                          title: Text('${card.id} ${localizedCardName(l10n, card)}'),
                           subtitle: Text(quartettCreditLine(l10n, img)),
                           trailing: Icon(Icons.info_outline, color: theme.colorScheme.onSurfaceVariant),
                           onTap: () => showQuartettPhotoCredit(context, img),

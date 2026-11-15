@@ -166,7 +166,9 @@ requires < 3 % per stat for every deck.
    `quartettStat*` keys to all 7 ARB files (de with descriptions), run
    `flutter gen-l10n`, map them in `engine_l10n.dart`
    (`localizedDeckName`, `localizedSetName`, `localizedStatLabel`); new zh
-   characters: `python3 -I tool/update_web_fonts.py subset`.
+   characters: `python3 -I tool/update_web_fonts.py subset`. Card names that
+   are words, not brands (animals, KLD-128), get one key per card (`quartettAnimalA1` …) and
+   a case in `localizedCardName`; long names carry soft hyphens.
 4. Draw a pictogram in `QuartettPictogram` (100 × 60 box) and give the deck a
    preview colour (`_previewSet` in `quartett_deck_picker.dart`).
 5. `flutter test` (the deck tests loop over `QuartettDeck.all`).

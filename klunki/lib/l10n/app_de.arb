@@ -2671,6 +2671,186 @@
   "@quartettUnitBuilt": {
     "description": "KLD-082 unit after the number built, short (de \"Stk.\" = pieces), e.g. \"11.000 Stk.\"."
   },
+  "quartettDeckAnimals": "Tiere",
+  "@quartettDeckAnimals": {
+    "description": "KLD-128 Quartett deck name: animals."
+  },
+  "quartettStatLifeYears": "Lebens\u00ADerwartung",
+  "@quartettStatLifeYears": {
+    "description": "KLD-128 Quartett stat label (animals): typical lifespan of an adult animal in years. Soft hyphens (U+00AD) mark where a narrow card may break the word."
+  },
+  "quartettStatGestationD": "Trag\u00ADzeit / Brut\u00ADzeit",
+  "@quartettStatGestationD": {
+    "description": "KLD-128 Quartett stat label (animals): days from mating to birth (mammals, sharks) or the incubation of the egg (birds, reptiles). Keep the spaces around the slash: a card breaks a label only at spaces and soft hyphens (U+00AD)."
+  },
+  "quartettUnitYears": "Jahre",
+  "@quartettUnitYears": {
+    "description": "KLD-128 unit after a lifespan, e.g. \"14 Jahre\"."
+  },
+  "quartettUnitDays": "Tage",
+  "@quartettUnitDays": {
+    "description": "KLD-128 unit after a gestation or incubation time, e.g. \"245 Tage\"."
+  },
+  "quartettSetAnimalsA": "Raubkatzen",
+  "@quartettSetAnimalsA": {
+    "description": "KLD-128 Quartett set name, animal deck, set A: Big cats."
+  },
+  "quartettSetAnimalsB": "Bären",
+  "@quartettSetAnimalsB": {
+    "description": "KLD-128 Quartett set name, animal deck, set B: Bears."
+  },
+  "quartettSetAnimalsC": "Affen",
+  "@quartettSetAnimalsC": {
+    "description": "KLD-128 Quartett set name, animal deck, set C: Great apes."
+  },
+  "quartettSetAnimalsD": "Savanne",
+  "@quartettSetAnimalsD": {
+    "description": "KLD-128 Quartett set name, animal deck, set D: Savannah animals."
+  },
+  "quartettSetAnimalsE": "Wale & Delfine",
+  "@quartettSetAnimalsE": {
+    "description": "KLD-128 Quartett set name, animal deck, set E: Whales and dolphins."
+  },
+  "quartettSetAnimalsF": "Haie",
+  "@quartettSetAnimalsF": {
+    "description": "KLD-128 Quartett set name, animal deck, set F: Sharks."
+  },
+  "quartettSetAnimalsG": "Vögel",
+  "@quartettSetAnimalsG": {
+    "description": "KLD-128 Quartett set name, animal deck, set G: Birds."
+  },
+  "quartettSetAnimalsH": "Reptilien",
+  "@quartettSetAnimalsH": {
+    "description": "KLD-128 Quartett set name, animal deck, set H: Reptiles."
+  },
+  "quartettAnimalA1": "Gepard",
+  "@quartettAnimalA1": {
+    "description": "KLD-128 Quartett card name, animal deck, card A1: Cheetah (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalA2": "Löwe",
+  "@quartettAnimalA2": {
+    "description": "KLD-128 Quartett card name, animal deck, card A2: Lion (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalA3": "Tiger",
+  "@quartettAnimalA3": {
+    "description": "KLD-128 Quartett card name, animal deck, card A3: Tiger (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalA4": "Leopard",
+  "@quartettAnimalA4": {
+    "description": "KLD-128 Quartett card name, animal deck, card A4: Leopard (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalB1": "Eisbär",
+  "@quartettAnimalB1": {
+    "description": "KLD-128 Quartett card name, animal deck, card B1: Polar bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalB2": "Braun\u00ADbär",
+  "@quartettAnimalB2": {
+    "description": "KLD-128 Quartett card name, animal deck, card B2: Brown bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalB3": "Großer Panda",
+  "@quartettAnimalB3": {
+    "description": "KLD-128 Quartett card name, animal deck, card B3: Giant panda (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalB4": "Malaien\u00ADbär",
+  "@quartettAnimalB4": {
+    "description": "KLD-128 Quartett card name, animal deck, card B4: Sun bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalC1": "Gorilla",
+  "@quartettAnimalC1": {
+    "description": "KLD-128 Quartett card name, animal deck, card C1: Gorilla (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalC2": "Orang-Utan",
+  "@quartettAnimalC2": {
+    "description": "KLD-128 Quartett card name, animal deck, card C2: Orangutan (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalC3": "Schim\u00ADpanse",
+  "@quartettAnimalC3": {
+    "description": "KLD-128 Quartett card name, animal deck, card C3: Chimpanzee (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalC4": "Weiß\u00ADhand\u00ADgibbon",
+  "@quartettAnimalC4": {
+    "description": "KLD-128 Quartett card name, animal deck, card C4: Lar gibbon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalD1": "Afrikanischer Elefant",
+  "@quartettAnimalD1": {
+    "description": "KLD-128 Quartett card name, animal deck, card D1: African elephant (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalD2": "Giraffe",
+  "@quartettAnimalD2": {
+    "description": "KLD-128 Quartett card name, animal deck, card D2: Giraffe (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalD3": "Fluss\u00ADpferd",
+  "@quartettAnimalD3": {
+    "description": "KLD-128 Quartett card name, animal deck, card D3: Hippopotamus (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalD4": "Breit\u00ADmaul\u00ADnas\u00ADhorn",
+  "@quartettAnimalD4": {
+    "description": "KLD-128 Quartett card name, animal deck, card D4: White rhino (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalE1": "Blauwal",
+  "@quartettAnimalE1": {
+    "description": "KLD-128 Quartett card name, animal deck, card E1: Blue whale (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalE2": "Grönland\u00ADwal",
+  "@quartettAnimalE2": {
+    "description": "KLD-128 Quartett card name, animal deck, card E2: Bowhead whale (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalE3": "Orca",
+  "@quartettAnimalE3": {
+    "description": "KLD-128 Quartett card name, animal deck, card E3: Orca (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalE4": "Großer Tümmler",
+  "@quartettAnimalE4": {
+    "description": "KLD-128 Quartett card name, animal deck, card E4: Bottlenose dolphin (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalF1": "Weißer Hai",
+  "@quartettAnimalF1": {
+    "description": "KLD-128 Quartett card name, animal deck, card F1: Great white shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalF2": "Tiger\u00ADhai",
+  "@quartettAnimalF2": {
+    "description": "KLD-128 Quartett card name, animal deck, card F2: Tiger shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalF3": "Blauhai",
+  "@quartettAnimalF3": {
+    "description": "KLD-128 Quartett card name, animal deck, card F3: Blue shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalF4": "Kurz\u00ADflossen-Mako",
+  "@quartettAnimalF4": {
+    "description": "KLD-128 Quartett card name, animal deck, card F4: Shortfin mako (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalG1": "Strauß",
+  "@quartettAnimalG1": {
+    "description": "KLD-128 Quartett card name, animal deck, card G1: Ostrich (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalG2": "Wander\u00ADfalke",
+  "@quartettAnimalG2": {
+    "description": "KLD-128 Quartett card name, animal deck, card G2: Peregrine falcon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalG3": "Kaiser\u00ADpinguin",
+  "@quartettAnimalG3": {
+    "description": "KLD-128 Quartett card name, animal deck, card G3: Emperor penguin (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalG4": "Wander\u00ADalbatros",
+  "@quartettAnimalG4": {
+    "description": "KLD-128 Quartett card name, animal deck, card G4: Wandering albatross (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalH1": "Leisten\u00ADkrokodil",
+  "@quartettAnimalH1": {
+    "description": "KLD-128 Quartett card name, animal deck, card H1: Saltwater crocodile (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalH2": "Komodo\u00ADwaran",
+  "@quartettAnimalH2": {
+    "description": "KLD-128 Quartett card name, animal deck, card H2: Komodo dragon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalH3": "Aldabra-Riesen\u00ADschildkröte",
+  "@quartettAnimalH3": {
+    "description": "KLD-128 Quartett card name, animal deck, card H3: Aldabra giant tortoise (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
+  "quartettAnimalH4": "Schwarze Mamba",
+  "@quartettAnimalH4": {
+    "description": "KLD-128 Quartett card name, animal deck, card H4: Black mamba (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name)."
+  },
   "quartettPhotoCredit": "Foto: {author}, {license}",
   "@quartettPhotoCredit": {
     "description": "KLD-082 credit line of a card photo; author = photographer/author from Wikimedia Commons, license = licence short name (e.g. \"CC BY-SA 4.0\"), both untranslated.",

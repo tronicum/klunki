@@ -1788,6 +1788,141 @@ class AppLocalizationsFa extends AppLocalizations {
   String get quartettUnitBuilt => 'عدد';
 
   @override
+  String get quartettDeckAnimals => 'حیوانات';
+
+  @override
+  String get quartettStatLifeYears => 'طول عمر';
+
+  @override
+  String get quartettStatGestationD => 'بارداری / جوجه‌کشی';
+
+  @override
+  String get quartettUnitYears => 'سال';
+
+  @override
+  String get quartettUnitDays => 'روز';
+
+  @override
+  String get quartettSetAnimalsA => 'گربه‌سانان بزرگ';
+
+  @override
+  String get quartettSetAnimalsB => 'خرس‌ها';
+
+  @override
+  String get quartettSetAnimalsC => 'میمون‌های انسان‌نما';
+
+  @override
+  String get quartettSetAnimalsD => 'ساوانا';
+
+  @override
+  String get quartettSetAnimalsE => 'نهنگ‌ها و دلفین‌ها';
+
+  @override
+  String get quartettSetAnimalsF => 'کوسه‌ها';
+
+  @override
+  String get quartettSetAnimalsG => 'پرندگان';
+
+  @override
+  String get quartettSetAnimalsH => 'خزندگان';
+
+  @override
+  String get quartettAnimalA1 => 'یوزپلنگ';
+
+  @override
+  String get quartettAnimalA2 => 'شیر';
+
+  @override
+  String get quartettAnimalA3 => 'ببر';
+
+  @override
+  String get quartettAnimalA4 => 'پلنگ';
+
+  @override
+  String get quartettAnimalB1 => 'خرس قطبی';
+
+  @override
+  String get quartettAnimalB2 => 'خرس قهوه‌ای';
+
+  @override
+  String get quartettAnimalB3 => 'پاندای غول‌پیکر';
+
+  @override
+  String get quartettAnimalB4 => 'خرس مالایی';
+
+  @override
+  String get quartettAnimalC1 => 'گوریل';
+
+  @override
+  String get quartettAnimalC2 => 'اورانگوتان';
+
+  @override
+  String get quartettAnimalC3 => 'شامپانزه';
+
+  @override
+  String get quartettAnimalC4 => 'گیبون دست‌سفید';
+
+  @override
+  String get quartettAnimalD1 => 'فیل آفریقایی';
+
+  @override
+  String get quartettAnimalD2 => 'زرافه';
+
+  @override
+  String get quartettAnimalD3 => 'اسب آبی';
+
+  @override
+  String get quartettAnimalD4 => 'کرگدن سفید';
+
+  @override
+  String get quartettAnimalE1 => 'نهنگ آبی';
+
+  @override
+  String get quartettAnimalE2 => 'نهنگ گرینلندی';
+
+  @override
+  String get quartettAnimalE3 => 'نهنگ قاتل';
+
+  @override
+  String get quartettAnimalE4 => 'دلفین بینی‌بطری';
+
+  @override
+  String get quartettAnimalF1 => 'کوسه سفید بزرگ';
+
+  @override
+  String get quartettAnimalF2 => 'کوسه ببری';
+
+  @override
+  String get quartettAnimalF3 => 'کوسه آبی';
+
+  @override
+  String get quartettAnimalF4 => 'کوسه ماکو';
+
+  @override
+  String get quartettAnimalG1 => 'شترمرغ';
+
+  @override
+  String get quartettAnimalG2 => 'شاهین';
+
+  @override
+  String get quartettAnimalG3 => 'پنگوئن امپراتور';
+
+  @override
+  String get quartettAnimalG4 => 'آلباتروس سرگردان';
+
+  @override
+  String get quartettAnimalH1 => 'تمساح آب شور';
+
+  @override
+  String get quartettAnimalH2 => 'اژدهای کومودو';
+
+  @override
+  String get quartettAnimalH3 => 'لاک‌پشت غول‌پیکر آلدابرا';
+
+  @override
+  String get quartettAnimalH4 => 'مامبای سیاه';
+
+  @override
   String quartettPhotoCredit(String author, String license) {
     return 'عکس: $author، $license';
   }

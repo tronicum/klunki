@@ -90,6 +90,36 @@ Color quartettOutcomeColor(QuartettOutcome o, [QuartettPalette? palette]) {
   };
 }
 
+/// The shown name of [card] ([localizedCardName]). A translated name with
+/// soft hyphens (the long animal names, KLD-128: "Wander-/albatros") breaks
+/// only between words or there, with a visible hyphen, never in the middle
+/// of a word; vehicle names keep the plain text that wraps between words and
+/// ends in "…".
+///
+/// [intrinsic]: inside an `IntrinsicHeight` (the gallery grid), which
+/// [HyphenatedLabel] cannot measure: plain text that keeps the soft hyphens
+/// as break chances (Flutter breaks there, without drawing a hyphen).
+class QuartettCardName extends StatelessWidget {
+  final qe.Card card;
+  final TextStyle? style;
+  final int maxLines;
+  final bool intrinsic;
+  const QuartettCardName({super.key, required this.card, this.style, this.maxLines = 2, this.intrinsic = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = localizedCardNameHyphenated(AppLocalizations.of(context), card);
+    if (name.contains(softHyphen) && !intrinsic) {
+      return HyphenatedLabel(name, style: style, maxLines: maxLines, minScale: 0.7);
+    }
+    return Text(name,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+        semanticsLabel: name.replaceAll(softHyphen, ''));
+  }
+}
+
 /// A Quartett card, face-up ([QuartettCard.new]) or face-down
 /// ([QuartettCard.back]).
 ///
@@ -226,15 +256,7 @@ class QuartettCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: text.labelMedium?.copyWith(color: onColor.withValues(alpha: 0.85)),
                         ),
-                      Text(
-                        c.name,
-                        maxLines: compact ? 1 : 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: (compact ? text.labelLarge : (dense ? text.titleSmall : text.titleMedium))?.copyWith(
-                          color: onColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      _name(context, c, text, onColor),
                     ],
                   ),
                 ),
@@ -275,6 +297,16 @@ class QuartettCard extends StatelessWidget {
       ),
     );
   }
+
+  /// The card name in the header ([QuartettCardName]).
+  Widget _name(BuildContext context, qe.Card c, TextTheme text, Color onColor) => QuartettCardName(
+        card: c,
+        maxLines: compact ? 1 : 2,
+        style: (compact ? text.labelLarge : (dense ? text.titleSmall : text.titleMedium))?.copyWith(
+          color: onColor,
+          fontWeight: FontWeight.w600,
+        ),
+      );
 
   Widget _statRow(BuildContext context, qe.Card c, qe.QuartettStat s, Color setColor) {
     final theme = Theme.of(context);

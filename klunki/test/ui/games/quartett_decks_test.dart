@@ -51,7 +51,9 @@ void main() {
 
       expect(find.byKey(const Key('quartett-deck-picker')), findsOneWidget);
       expect(find.text('Kartendeck wählen'), findsOneWidget);
-      for (final (id, name) in [('cars', 'Autos'), ('trains', 'Züge'), ('rockets', 'Raketen'), ('planes', 'Flugzeuge')]) {
+      for (final (id, name) in [
+        ('cars', 'Autos'), ('trains', 'Züge'), ('rockets', 'Raketen'), ('planes', 'Flugzeuge'), ('animals', 'Tiere'),
+      ]) {
         final tile = find.byKey(Key('quartett-deck-$id'));
         expect(tile, findsOneWidget);
         expect(find.descendant(of: tile, matching: find.text(name)), findsOneWidget);
@@ -141,7 +143,7 @@ void main() {
             locale: Locale(l10n.localeName),
             Scaffold(body: SingleChildScrollView(child: SizedBox(width: 340, child: QuartettCard(card: card)))),
           ));
-          expect(find.text(card.name), findsOneWidget);
+          expect(find.text(localizedCardName(l10n, card)), findsOneWidget);
           expect(find.text(localizedSetName(l10n, 'C', deck.id)), findsOneWidget);
           expect(find.byKey(Key('quartett-pictogram-${deck.id}')), findsOneWidget);
           for (final s in deck.stats) {
@@ -180,6 +182,48 @@ void main() {
       }
       expect(localizedSetName(enL10n, 'G', 'trains'), 'Steam legends');
       expect(localizedStatLabel(enL10n, 'thrustKn'), 'Liftoff thrust');
+    });
+
+    group('animals (KLD-128): translated card names', () {
+      final deck = QuartettDeck.animals;
+      final locales = [for (final c in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) lookupAppLocalizations(Locale(c))];
+
+      test('every card has a name in every locale, distinct within the deck; German = the engine name', () {
+        for (final l10n in locales) {
+          final names = {for (final c in deck.cards) localizedCardName(l10n, c)};
+          expect(names, hasLength(32), reason: l10n.localeName);
+          expect(names.every((n) => n.trim().isNotEmpty && !n.contains(softHyphen)), isTrue);
+        }
+        for (final c in deck.cards) {
+          expect(localizedCardName(deL10n, c), c.name, reason: c.id);
+        }
+        expect(localizedCardName(enL10n, deck.cardById('H4')!), 'Black mamba');
+        expect(localizedCardName(lookupAppLocalizations(const Locale('ar')), deck.cardById('D2')!), 'زرافة');
+        // The vehicle decks keep their real names in every locale.
+        final porsche = QuartettDeck.cars.cardById('A1')!;
+        expect(localizedCardName(enL10n, porsche), porsche.name);
+      });
+
+      test('units and labels: "Jahre" / "Tage" translated, weight wins high under its own id', () {
+        expect(localizedStatUnit(enL10n, 'lifeYears'), 'years');
+        expect(localizedStatUnit(enL10n, 'gestationD'), 'days');
+        expect(localizedStatLabel(deL10n, 'gestationD'), 'Tragzeit / Brutzeit');
+        expect(localizedStatLabelHyphenated(deL10n, 'gestationD'), 'Trag${softHyphen}zeit / Brut${softHyphen}zeit');
+        expect(localizedStatLabel(enL10n, 'weightKg'), localizedStatLabel(enL10n, 'kg'));
+        final kmh = deck.statById('kmh')!;
+        expect(formatQuartettValue(kmh, 0.3, locale: 'de'), '0,3 km/h');
+        expect(formatQuartettValue(kmh, 104, locale: 'de'), '104 km/h');
+        expect(formatQuartettValue(deck.statById('weightKg')!, 136000, locale: 'de'), '136.000 kg');
+      });
+
+      test('display names never reach the game: the fingerprint and the views use the engine data', () {
+        final before = fingerprintOf(const GameConfig('quartett-trumpf', deck: 'animals'));
+        // The fingerprint hashes the engine's (German) names; nothing in it
+        // depends on the app's locale.
+        expect(deckGameplayData(deck).toString(), contains('Schwarze Mamba'));
+        expect(deckGameplayData(deck).toString(), isNot(contains('Black mamba')));
+        expect(fingerprintOf(const GameConfig('quartett-trumpf', deck: 'animals')), before);
+      });
     });
 
     test('launch counts have no unit; values use Western digits', () {
@@ -349,23 +393,31 @@ void main() {
       expect(find.byKey(const Key('gallery-full-F3')), findsOneWidget);
     });
 
-    for (final (code, size, brightness) in [
-      ('ar', const Size(360, 640), Brightness.light),
-      ('zh', const Size(390, 844), Brightness.dark),
-      ('en', const Size(1180, 820), Brightness.light),
+    for (final (code, size, brightness, deckId) in [
+      ('ar', const Size(360, 640), Brightness.light, 'planes'),
+      ('zh', const Size(390, 844), Brightness.dark, 'planes'),
+      ('en', const Size(1180, 820), Brightness.light, 'planes'),
+      // KLD-128: translated animal names, the longest labels in fr and fa.
+      ('ar', const Size(360, 640), Brightness.light, 'animals'),
+      ('fr', const Size(320, 640), Brightness.light, 'animals'),
+      ('fa', const Size(360, 640), Brightness.dark, 'animals'),
     ]) {
-      testWidgets('$code ${size.width.toInt()}: gallery, sets and full card render without overflow', (tester) async {
+      testWidgets('$code ${size.width.toInt()} $deckId: gallery, sets and full card render without overflow',
+          (tester) async {
         await _phone(tester, size);
         tester.platformDispatcher.platformBrightnessTestValue = brightness;
         addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
         await tester.pumpWidget(localizedApp(const QuartettGalleryScreen(), locale: Locale(code)));
         await tester.pumpAndSettle();
-        await tester.tap(find.byKey(const Key('gallery-deck-planes')));
+        await tester.scrollUntilVisible(find.byKey(Key('gallery-deck-$deckId')), 200,
+            scrollable: find.byType(Scrollable).first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(Key('gallery-deck-$deckId')));
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('gallery-card-A1')));
         await tester.pumpAndSettle();
         // RTL: swiping towards the reading direction's end goes forward.
-        await tester.fling(find.byKey(const Key('gallery-pager')), Offset(code == 'ar' ? 300 : -300, 0), 1000);
+        await tester.fling(find.byKey(const Key('gallery-pager')), Offset(code == 'ar' || code == 'fa' ? 300 : -300, 0), 1000);
         await tester.pumpAndSettle();
         expect(find.byKey(const Key('gallery-full-A2')), findsOneWidget);
         expect(tester.takeException(), isNull);

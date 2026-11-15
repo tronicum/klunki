@@ -1816,6 +1816,141 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quartettUnitBuilt => 'وحدة';
 
   @override
+  String get quartettDeckAnimals => 'حيوانات';
+
+  @override
+  String get quartettStatLifeYears => 'متوسط العمر';
+
+  @override
+  String get quartettStatGestationD => 'الحمل / الحضانة';
+
+  @override
+  String get quartettUnitYears => 'سنة';
+
+  @override
+  String get quartettUnitDays => 'يومًا';
+
+  @override
+  String get quartettSetAnimalsA => 'قطط كبيرة';
+
+  @override
+  String get quartettSetAnimalsB => 'دببة';
+
+  @override
+  String get quartettSetAnimalsC => 'قردة عليا';
+
+  @override
+  String get quartettSetAnimalsD => 'السافانا';
+
+  @override
+  String get quartettSetAnimalsE => 'حيتان ودلافين';
+
+  @override
+  String get quartettSetAnimalsF => 'أسماك القرش';
+
+  @override
+  String get quartettSetAnimalsG => 'طيور';
+
+  @override
+  String get quartettSetAnimalsH => 'زواحف';
+
+  @override
+  String get quartettAnimalA1 => 'فهد صياد';
+
+  @override
+  String get quartettAnimalA2 => 'أسد';
+
+  @override
+  String get quartettAnimalA3 => 'نمر';
+
+  @override
+  String get quartettAnimalA4 => 'نمر أرقط';
+
+  @override
+  String get quartettAnimalB1 => 'دب قطبي';
+
+  @override
+  String get quartettAnimalB2 => 'دب بني';
+
+  @override
+  String get quartettAnimalB3 => 'باندا عملاق';
+
+  @override
+  String get quartettAnimalB4 => 'دب الشمس';
+
+  @override
+  String get quartettAnimalC1 => 'غوريلا';
+
+  @override
+  String get quartettAnimalC2 => 'إنسان الغاب';
+
+  @override
+  String get quartettAnimalC3 => 'شمبانزي';
+
+  @override
+  String get quartettAnimalC4 => 'غيبون أبيض اليدين';
+
+  @override
+  String get quartettAnimalD1 => 'فيل أفريقي';
+
+  @override
+  String get quartettAnimalD2 => 'زرافة';
+
+  @override
+  String get quartettAnimalD3 => 'فرس النهر';
+
+  @override
+  String get quartettAnimalD4 => 'وحيد القرن الأبيض';
+
+  @override
+  String get quartettAnimalE1 => 'حوت أزرق';
+
+  @override
+  String get quartettAnimalE2 => 'حوت مقوس الرأس';
+
+  @override
+  String get quartettAnimalE3 => 'حوت قاتل';
+
+  @override
+  String get quartettAnimalE4 => 'دلفين قاروري الأنف';
+
+  @override
+  String get quartettAnimalF1 => 'قرش أبيض كبير';
+
+  @override
+  String get quartettAnimalF2 => 'قرش النمر';
+
+  @override
+  String get quartettAnimalF3 => 'قرش أزرق';
+
+  @override
+  String get quartettAnimalF4 => 'قرش ماكو';
+
+  @override
+  String get quartettAnimalG1 => 'نعامة';
+
+  @override
+  String get quartettAnimalG2 => 'شاهين';
+
+  @override
+  String get quartettAnimalG3 => 'بطريق إمبراطور';
+
+  @override
+  String get quartettAnimalG4 => 'قطرس جوال';
+
+  @override
+  String get quartettAnimalH1 => 'تمساح المياه المالحة';
+
+  @override
+  String get quartettAnimalH2 => 'تنين كومودو';
+
+  @override
+  String get quartettAnimalH3 => 'سلحفاة ألدابرا العملاقة';
+
+  @override
+  String get quartettAnimalH4 => 'مامبا سوداء';
+
+  @override
   String quartettPhotoCredit(String author, String license) {
     return 'صورة: $author، $license';
   }

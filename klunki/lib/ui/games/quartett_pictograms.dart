@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Drawn pictograms of the Quartett decks (KLD-069): a car, a high-speed
-/// train, a rocket and a plane, side view, facing the reading end. No
+/// train, a rocket, a plane and an elephant (KLD-128), side view. No
 /// downloaded images or logos: plain shapes, coloured per set by the caller.
 ///
 /// Drawn in a 100 × 60 box, scaled to fit the canvas and centred. [color]
@@ -29,6 +29,8 @@ class QuartettPictogram extends CustomPainter {
         _rocket(canvas, body, fine);
       case 'planes':
         _plane(canvas, body, fine);
+      case 'animals':
+        _elephant(canvas, body, fine);
       default:
         _car(canvas, body, fine);
     }
@@ -166,6 +168,53 @@ class QuartettPictogram extends CustomPainter {
       ..lineTo(86, 31)
       ..close();
     c.drawPath(cockpit, fine);
+  }
+
+  /// Animals (KLD-128): an elephant, side view, trunk to the right.
+  void _elephant(Canvas c, Paint body, Paint fine) {
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    // Tail with a tuft.
+    c
+      ..drawLine(const Offset(13, 22), const Offset(7, 36), stroke..strokeWidth = 2)
+      ..drawCircle(const Offset(7, 37), 2.2, body);
+    // Back, belly and legs.
+    c.drawRRect(RRect.fromLTRBR(11, 11, 72, 42, const Radius.circular(15)), body);
+    for (final x in [15.0, 29.0, 46.0, 60.0]) {
+      c.drawRRect(RRect.fromLTRBR(x, 32, x + 11, 56, const Radius.circular(2.5)), body);
+    }
+    // Head and trunk, curling forward at the tip.
+    c.drawCircle(const Offset(76, 21), 13.5, body);
+    final trunk = Path()
+      ..moveTo(84, 25)
+      ..cubicTo(94, 30, 93, 44, 92, 50)
+      ..quadraticBezierTo(92, 55, 97, 53);
+    c.drawPath(trunk, stroke..strokeWidth = 7);
+    // Ear (outlined in the detail colour), eye and tusk.
+    final ear = Path()
+      ..moveTo(70, 10)
+      ..quadraticBezierTo(55, 10, 57, 24)
+      ..quadraticBezierTo(59, 36, 71, 32)
+      ..quadraticBezierTo(74, 20, 70, 10)
+      ..close();
+    c
+      ..drawPath(ear, body)
+      ..drawPath(
+          ear,
+          Paint()
+            ..color = detail
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.6)
+      ..drawCircle(const Offset(82, 17), 1.8, fine);
+    final tusk = Path()
+      ..moveTo(83, 29)
+      ..quadraticBezierTo(88, 36, 96, 34)
+      ..lineTo(95, 31.5)
+      ..quadraticBezierTo(89, 32, 86, 27)
+      ..close();
+    c.drawPath(tusk, fine);
   }
 
   @override

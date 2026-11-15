@@ -7,8 +7,9 @@ import 'package:test/test.dart';
 
 /// KLD-069: themed Quartett decks.
 void main() {
-  test('the registry: cars (default), trains, rockets, planes', () {
-    expect([for (final d in QuartettDeck.all) d.id], ['cars', 'trains', 'rockets', 'planes']);
+  test('the registry: cars (default), trains, rockets, planes, animals', () {
+    expect([for (final d in QuartettDeck.all) d.id], ['cars', 'trains', 'rockets', 'planes', 'animals']);
+    expect(QuartettDeck.byId('animals'), same(QuartettDeck.animals));
     expect(QuartettDeck.byId(null), same(QuartettDeck.cars));
     expect(QuartettDeck.byId('trains'), same(QuartettDeck.trains));
     expect(QuartettDeck.byId('nope'), isNull);
@@ -92,6 +93,40 @@ void main() {
       });
     });
   }
+
+  group('animals (KLD-128)', () {
+    final deck = QuartettDeck.animals;
+
+    test('stats, sets and the swapped cards (Leopard, Blauhai, Schwarze Mamba)', () {
+      expect(deck.name, 'Tiere');
+      expect(deck.revision, 1);
+      expect([for (final s in deck.stats) s.id], ['weightKg', 'lengthM', 'kmh', 'lifeYears', 'gestationD']);
+      expect(deck.stats.every((s) => s.higherWins), isTrue, reason: 'no stat wins low');
+      expect(deck.statById('gestationD')!.label, 'Tragzeit / Brutzeit');
+      expect(deck.setNames['H'], 'Reptilien');
+      expect(deck.cardById('A4')!.name, 'Leopard');
+      expect(deck.cardById('F3')!.name, 'Blauhai');
+      expect(deck.cardById('H4')!.name, 'Schwarze Mamba');
+      expect(deck.cardById('H4')!.stats, {'weightKg': 1.0, 'lengthM': 2.5, 'kmh': 22.5, 'lifeYears': 10, 'gestationD': 85});
+    });
+
+    test('km/h with one decimal only where needed: "0.3", "22.5", "104"', () {
+      final kmh = deck.statById('kmh')!;
+      expect(kmh.formatValue(deck.cardById('H3')!.stats['kmh']!), '0.3 km/h');
+      expect(kmh.formatValue(deck.cardById('H4')!.stats['kmh']!), '22.5 km/h');
+      expect(kmh.formatValue(deck.cardById('A1')!.stats['kmh']!), '104 km/h');
+      expect(deck.statById('weightKg')!.formatValue(136000), '136000 kg');
+    });
+
+    test('tie rates (printed for the task card)', () {
+      for (final s in deck.stats) {
+        final values = deck.cards.map((c) => c.stats[s.id]).toSet().length;
+        // ignore: avoid_print
+        print('${s.id}: ${(deck.tieRate(s.id) * 100).toStringAsFixed(2)} % ties, $values values');
+        expect(deck.tieRate(s.id), lessThan(0.03), reason: s.id);
+      }
+    });
+  });
 
   group('GameConfig.deck', () {
     test('round-trips through JSON; old configs without it get the car deck', () {

@@ -239,6 +239,9 @@ Future<void> walkGame(WidgetTester tester, Audit audit, String id) async {
     audit.check(tester, '$id deck picker');
     await tester.tap(find.byKey(Key('quartett-deck-$deck')));
     await tester.pump();
+    // The sheet scrolls on a small phone (5 decks since KLD-128).
+    await tester.ensureVisible(find.byKey(const Key('quartett-deck-play')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('quartett-deck-play')));
     await tester.pumpAndSettle();
   }

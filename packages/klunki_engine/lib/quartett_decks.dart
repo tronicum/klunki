@@ -5,12 +5,15 @@ part of 'quartett.dart';
 ///
 /// [id] is stable (network config, preferences, l10n keys); [name] and
 /// [setNames] are the engine's German texts for the CLI and the debug
-/// console (the app localizes them by [id] and set letter). Card names are
-/// real vehicle names and stay untranslated.
+/// console (the app localizes them by [id] and set letter). Card names of
+/// the vehicle decks are real vehicle names and stay untranslated; the app
+/// translates the animal names by deck and card id (KLD-128). The engine's
+/// German card name is gameplay data (compat fingerprint) and never depends
+/// on the display language.
 ///
-/// The values are plausible, rounded figures from general knowledge, not
-/// verified data; see `docs/tasks/KLD-069-quartett-decks.md` and the comment
-/// above each deck. To add a deck: build it with [QuartettDeck.build], add it
+/// The vehicle values are plausible, rounded figures from general knowledge,
+/// not verified data (`docs/tasks/KLD-069-quartett-decks.md`); the animal
+/// values are sourced (KLD-128). See the comment above each deck. To add a deck: build it with [QuartettDeck.build], add it
 /// to [QuartettDeck.all], then add its set names (and any new stat labels) to
 /// the ARB files and a pictogram in the app.
 class QuartettDeck {
@@ -130,9 +133,10 @@ class QuartettDeck {
   static final QuartettDeck trains = _trains();
   static final QuartettDeck rockets = _rockets();
   static final QuartettDeck planes = _planes();
+  static final QuartettDeck animals = _animals();
 
   /// Every deck, in picker order.
-  static final List<QuartettDeck> all = List.unmodifiable([cars, trains, rockets, planes]);
+  static final List<QuartettDeck> all = List.unmodifiable([cars, trains, rockets, planes, animals]);
 
   /// The deck with [id]; null if unknown. A null [id] is the default deck.
   static QuartettDeck? byId(String? id) {
@@ -416,5 +420,108 @@ QuartettDeck _planes() => QuartettDeck.build(
         ('H2', 'Hughes H-4 Hercules', [351, 4800, 66.6, 97.5, 180, 1]),
         ('H3', 'Stratolaunch Roc', [304, 3700, 72.5, 117, 590, 1]),
         ('H4', 'Rutan Voyager', [196, 42212, 8.9, 33.8, 4.4, 1]),
+      ],
+    );
+
+/// Animals (KLD-128). Unlike the vehicle decks the values are sourced, and
+/// cautious where the sources disagree; the task card
+/// `docs/tasks/KLD-128-quartett-animals.md` has the table with a source per
+/// value.
+///
+/// * Gewicht: mean adult body mass of both sexes from AnAge (Human Ageing
+///   Genomic Resources, genomics.senescence.info/species/entry.php?species=
+///   Genus_species). Black mamba: AnAge's 30.8 kg is a data error; the
+///   measured mean of seven snakes, 1.0 kg (Branch, Haagner & Shine 1995, in
+///   en.wikipedia.org/wiki/Black_mamba), is used instead.
+/// * Länge: head to tail tip, mean of both sexes (standing height for the
+///   apes, ostrich and penguin, shell length for the tortoise), from Animal
+///   Diversity Web (animaldiversity.org/accounts/Genus_species/), the
+///   Smithsonian National Zoo or Wikipedia with a primary source. Elephant
+///   8.0 m counts trunk and tail (de.wikipedia "Afrikanischer Elefant").
+///   Black mamba 2.5: ADW, average length 2.2–2.7 m.
+/// * Höchstgeschwindigkeit: the highest value a reliable source gives as
+///   measured or as a firm figure; for a span without a measurement the
+///   cautious lower end. Measured or from a reference book: cheetah 104
+///   (Sharp 1997), lion 74 (GPS collars, 2018), tiger 56 (Schaller 1967),
+///   leopard 58 (Sunquist & Sunquist), polar bear 40, brown bear 48
+///   (Yellowstone), elephant 24, giraffe 60 (Schaller 1976), hippo 30, rhino
+///   40, blue whale 48 (ADW), bowhead 23 (Ford & Reeves 2008, satellite
+///   tags), orca 56 and bottlenose dolphin 35 (Fish & Fisher), great white 24,
+///   ostrich 70 (Davies 2002), peregrine 290 (ADW, dive), emperor penguin 20
+///   (ADW), saltwater crocodile 29 (NT Government), Komodo dragon 20 (Burnie
+///   & Wilson 2001), black mamba 22.5 (22.53 km/h, Spawls, Howell, Drewes &
+///   Ashe 2017, A Field Guide to the Reptiles of East Africa, 2nd ed.; in
+///   en.wikipedia.org/wiki/Fastest_animals). Popular figures only, cautious
+///   lower end: giant panda 32, sun bear 30, gorilla 32, orangutan 5,
+///   chimpanzee 35, gibbon 55, tiger shark 32 (ADW data field), blue shark 39
+///   (ReefQuest), mako 50, wandering albatross 135 (Barwell 2013), Aldabra
+///   giant tortoise 0.3. One decimal for the tortoise and the mamba; every
+///   other value is whole.
+/// * Lebenserwartung: typical lifespan of an adult, in the wild where known
+///   (ADW, Smithsonian, Wikipedia with a primary source), else in human care
+///   (sun bear 20; black mamba 10: ADW, mean of females in captivity 10.1
+///   years, Max Planck Institute for Demographic Research). Spans are
+///   averaged. Bowhead whale and Aldabra tortoise 100 are cautious lower
+///   bounds ("over 100" at NOAA and the Smithsonian).
+/// * Tragzeit / Brutzeit: mating to birth for mammals and live-bearing sharks,
+///   incubation of the egg for birds and egg-laying reptiles (AnAge; ADW or
+///   Wikipedia where AnAge has none); months × 30.4, rounded to 5 days.
+///   Black mamba 85: AnAge 85, ADW 80–90.
+QuartettDeck _animals() => QuartettDeck.build(
+      id: 'animals',
+      name: 'Tiere',
+      stats: const [
+        // Not `kg` of the cars: that one wins low.
+        QuartettStat(id: 'weightKg', label: 'Gewicht', unit: 'kg', decimals: 1),
+        _lengthM,
+        // The same stat as _kmh (id, label, unit, direction) with one decimal,
+        // for the tortoise (0.3 km/h) and the mamba (22.5 km/h).
+        QuartettStat(id: 'kmh', label: 'Höchstgeschwindigkeit', unit: 'km/h', decimals: 1),
+        QuartettStat(id: 'lifeYears', label: 'Lebenserwartung', unit: 'Jahre'),
+        QuartettStat(id: 'gestationD', label: 'Tragzeit / Brutzeit', unit: 'Tage'),
+      ],
+      setNames: const {
+        'A': 'Raubkatzen',
+        'B': 'Bären',
+        'C': 'Affen',
+        'D': 'Savanne',
+        'E': 'Wale & Delfine',
+        'F': 'Haie',
+        'G': 'Vögel',
+        'H': 'Reptilien',
+      },
+      rows: const [
+        ('A1', 'Gepard', [54, 2.0, 104, 9, 88]),
+        ('A2', 'Löwe', [175, 2.7, 74, 14, 109]),
+        ('A3', 'Tiger', [120, 3.0, 56, 9, 105]),
+        ('A4', 'Leopard', [54, 2.2, 58, 15, 97]),
+        ('B1', 'Eisbär', [475, 2.1, 40, 28, 245]),
+        ('B2', 'Braunbär', [278, 2.0, 48, 25, 225]),
+        ('B3', 'Großer Panda', [118, 1.6, 32, 13, 130]),
+        ('B4', 'Malaienbär', [46, 1.4, 30, 20, 95]),
+        ('C1', 'Gorilla', [140, 1.5, 32, 38, 256]),
+        ('C2', 'Orang-Utan', [64, 1.3, 5, 40, 249]),
+        ('C3', 'Schimpanse', [45, 1.5, 35, 33, 229]),
+        ('C4', 'Weißhandgibbon', [6.8, 0.5, 55, 30, 217]),
+        ('D1', 'Afrikanischer Elefant', [4800, 8.0, 24, 65, 670]),
+        ('D2', 'Giraffe', [800, 5.2, 60, 13, 457]),
+        ('D3', 'Flusspferd', [3750, 3.6, 30, 45, 234]),
+        ('D4', 'Breitmaulnashorn', [2175, 4.2, 40, 41, 515]),
+        ('E1', 'Blauwal', [136000, 26.0, 48, 85, 350]),
+        ('E2', 'Grönlandwal', [100000, 16.0, 23, 100, 396]),
+        ('E3', 'Orca', [3988, 7.5, 56, 50, 435]),
+        ('E4', 'Großer Tümmler', [200, 3.1, 35, 25, 365]),
+        ('F1', 'Weißer Hai', [1870, 4.2, 24, 30, 365]),
+        ('F2', 'Tigerhai', [444, 3.8, 32, 27, 440]),
+        ('F3', 'Blauhai', [113, 2.5, 39, 16, 320]),
+        ('F4', 'Kurzflossen-Mako', [278, 3.5, 50, 31, 500]),
+        ('G1', 'Strauß', [111, 2.1, 70, 35, 40]),
+        ('G2', 'Wanderfalke', [0.8, 0.5, 290, 13, 30]),
+        ('G3', 'Kaiserpinguin', [30, 1.2, 20, 20, 65]),
+        ('G4', 'Wanderalbatros', [7.0, 1.2, 135, 35, 78]),
+        ('H1', 'Leistenkrokodil', [200, 3.6, 29, 70, 90]),
+        ('H2', 'Komodowaran', [87, 2.4, 20, 30, 230]),
+        ('H3', 'Aldabra-Riesenschildkröte', [117, 1.1, 0.3, 100, 240]),
+        ('H4', 'Schwarze Mamba', [1.0, 2.5, 22.5, 10, 85]),
       ],
     );

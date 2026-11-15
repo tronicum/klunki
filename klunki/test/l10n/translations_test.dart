@@ -66,6 +66,10 @@ const sameAsEnglish = {
   'Pause',
   // KLD-094: the undo question's "No" (Spanish spells it the same).
   'No',
+  // KLD-128: animal names and a set spelled the same in French / Spanish.
+  'Lion',
+  'Orca',
+  'Reptiles',
 };
 
 Map<String, dynamic> _arb(String locale) =>

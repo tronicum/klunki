@@ -21,6 +21,9 @@ void main() {
     'quartett-sets/trains': (2, 2, 'b5a57d4235755cb6e9482c01b516c22c'),
     'quartett-sets/rockets': (2, 2, '6f2b13617f2f9f61c7c306f4ce7cb278'),
     'quartett-sets/planes': (2, 2, 'a3abec801f5a7a83862d97aad08e7ee4'),
+    // KLD-128: the animal deck (a new key; the other decks are unchanged).
+    'quartett-trumpf/animals': (3, 1, 'a0666990df1bfd774cf35988b068dc19'),
+    'quartett-sets/animals': (2, 1, 'db4b4d798fe84244ee21605d11dc565d'),
     'schiffe': (2, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (2, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).

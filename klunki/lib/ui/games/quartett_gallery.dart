@@ -155,7 +155,7 @@ class QuartettDeckGalleryScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     child: Text('${i + 1}'),
                   ),
-                  title: Text(card.name),
+                  title: Text(localizedCardName(l10n, card)),
                   subtitle: Text(localizedSetName(l10n, card.set, deck.id)),
                   trailing: Text(
                     formatQuartettValue(
@@ -297,7 +297,7 @@ class QuartettMiniCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final p = KlunkiPalette.of(context).quartett;
     final color = p.set(card.set);
-    final label = l10n.quartettCardSemantics(card.id, card.name, localizedSetName(l10n, card.set, card.deck));
+    final label = l10n.quartettCardSemantics(card.id, localizedCardName(l10n, card), localizedSetName(l10n, card.set, card.deck));
     return Semantics(
       key: Key('gallery-card-${card.id}'),
       button: true,
@@ -352,10 +352,9 @@ class QuartettMiniCard extends StatelessWidget {
                 QuartettCardPhoto(key: Key('gallery-photo-${card.id}'), credit: img, height: 72),
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-                child: Text(
-                  card.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: QuartettCardName(
+                  card: card,
+                  intrinsic: true,
                   style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -452,7 +451,8 @@ class _QuartettCardPagerScreenState extends State<QuartettCardPagerScreen> {
                             children: [
                               Icon(icon, size: 16, color: muted),
                               const SizedBox(width: 2),
-                              Text(text, style: theme.textTheme.bodySmall?.copyWith(color: muted)),
+                              // Flexible: a long legend (fr at 320 px) wraps instead of overflowing.
+                              Flexible(child: Text(text, style: theme.textTheme.bodySmall?.copyWith(color: muted))),
                             ],
                           ),
                       ],

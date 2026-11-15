@@ -1740,6 +1740,141 @@ class AppLocalizationsZh extends AppLocalizations {
   String get quartettUnitBuilt => '台';
 
   @override
+  String get quartettDeckAnimals => '动物';
+
+  @override
+  String get quartettStatLifeYears => '寿命';
+
+  @override
+  String get quartettStatGestationD => '孕期 / 孵化期';
+
+  @override
+  String get quartettUnitYears => '年';
+
+  @override
+  String get quartettUnitDays => '天';
+
+  @override
+  String get quartettSetAnimalsA => '大型猫科动物';
+
+  @override
+  String get quartettSetAnimalsB => '熊';
+
+  @override
+  String get quartettSetAnimalsC => '猿类';
+
+  @override
+  String get quartettSetAnimalsD => '热带草原';
+
+  @override
+  String get quartettSetAnimalsE => '鲸与海豚';
+
+  @override
+  String get quartettSetAnimalsF => '鲨鱼';
+
+  @override
+  String get quartettSetAnimalsG => '鸟类';
+
+  @override
+  String get quartettSetAnimalsH => '爬行动物';
+
+  @override
+  String get quartettAnimalA1 => '猎豹';
+
+  @override
+  String get quartettAnimalA2 => '狮子';
+
+  @override
+  String get quartettAnimalA3 => '老虎';
+
+  @override
+  String get quartettAnimalA4 => '花豹';
+
+  @override
+  String get quartettAnimalB1 => '北极熊';
+
+  @override
+  String get quartettAnimalB2 => '棕熊';
+
+  @override
+  String get quartettAnimalB3 => '大熊猫';
+
+  @override
+  String get quartettAnimalB4 => '马来熊';
+
+  @override
+  String get quartettAnimalC1 => '大猩猩';
+
+  @override
+  String get quartettAnimalC2 => '红毛猩猩';
+
+  @override
+  String get quartettAnimalC3 => '黑猩猩';
+
+  @override
+  String get quartettAnimalC4 => '白掌长臂猿';
+
+  @override
+  String get quartettAnimalD1 => '非洲象';
+
+  @override
+  String get quartettAnimalD2 => '长颈鹿';
+
+  @override
+  String get quartettAnimalD3 => '河马';
+
+  @override
+  String get quartettAnimalD4 => '白犀牛';
+
+  @override
+  String get quartettAnimalE1 => '蓝鲸';
+
+  @override
+  String get quartettAnimalE2 => '弓头鲸';
+
+  @override
+  String get quartettAnimalE3 => '虎鲸';
+
+  @override
+  String get quartettAnimalE4 => '宽吻海豚';
+
+  @override
+  String get quartettAnimalF1 => '大白鲨';
+
+  @override
+  String get quartettAnimalF2 => '鼬鲨';
+
+  @override
+  String get quartettAnimalF3 => '大青鲨';
+
+  @override
+  String get quartettAnimalF4 => '尖吻鲭鲨';
+
+  @override
+  String get quartettAnimalG1 => '鸵鸟';
+
+  @override
+  String get quartettAnimalG2 => '游隼';
+
+  @override
+  String get quartettAnimalG3 => '帝企鹅';
+
+  @override
+  String get quartettAnimalG4 => '漂泊信天翁';
+
+  @override
+  String get quartettAnimalH1 => '湾鳄';
+
+  @override
+  String get quartettAnimalH2 => '科莫多巨蜥';
+
+  @override
+  String get quartettAnimalH3 => '亚达伯拉象龟';
+
+  @override
+  String get quartettAnimalH4 => '黑曼巴蛇';
+
+  @override
   String quartettPhotoCredit(String author, String license) {
     return '照片：$author，$license';
   }

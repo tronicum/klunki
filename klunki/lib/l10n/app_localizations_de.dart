@@ -1794,6 +1794,141 @@ class AppLocalizationsDe extends AppLocalizations {
   String get quartettUnitBuilt => 'Stk.';
 
   @override
+  String get quartettDeckAnimals => 'Tiere';
+
+  @override
+  String get quartettStatLifeYears => 'Lebens­erwartung';
+
+  @override
+  String get quartettStatGestationD => 'Trag­zeit / Brut­zeit';
+
+  @override
+  String get quartettUnitYears => 'Jahre';
+
+  @override
+  String get quartettUnitDays => 'Tage';
+
+  @override
+  String get quartettSetAnimalsA => 'Raubkatzen';
+
+  @override
+  String get quartettSetAnimalsB => 'Bären';
+
+  @override
+  String get quartettSetAnimalsC => 'Affen';
+
+  @override
+  String get quartettSetAnimalsD => 'Savanne';
+
+  @override
+  String get quartettSetAnimalsE => 'Wale & Delfine';
+
+  @override
+  String get quartettSetAnimalsF => 'Haie';
+
+  @override
+  String get quartettSetAnimalsG => 'Vögel';
+
+  @override
+  String get quartettSetAnimalsH => 'Reptilien';
+
+  @override
+  String get quartettAnimalA1 => 'Gepard';
+
+  @override
+  String get quartettAnimalA2 => 'Löwe';
+
+  @override
+  String get quartettAnimalA3 => 'Tiger';
+
+  @override
+  String get quartettAnimalA4 => 'Leopard';
+
+  @override
+  String get quartettAnimalB1 => 'Eisbär';
+
+  @override
+  String get quartettAnimalB2 => 'Braun­bär';
+
+  @override
+  String get quartettAnimalB3 => 'Großer Panda';
+
+  @override
+  String get quartettAnimalB4 => 'Malaien­bär';
+
+  @override
+  String get quartettAnimalC1 => 'Gorilla';
+
+  @override
+  String get quartettAnimalC2 => 'Orang-Utan';
+
+  @override
+  String get quartettAnimalC3 => 'Schim­panse';
+
+  @override
+  String get quartettAnimalC4 => 'Weiß­hand­gibbon';
+
+  @override
+  String get quartettAnimalD1 => 'Afrikanischer Elefant';
+
+  @override
+  String get quartettAnimalD2 => 'Giraffe';
+
+  @override
+  String get quartettAnimalD3 => 'Fluss­pferd';
+
+  @override
+  String get quartettAnimalD4 => 'Breit­maul­nas­horn';
+
+  @override
+  String get quartettAnimalE1 => 'Blauwal';
+
+  @override
+  String get quartettAnimalE2 => 'Grönland­wal';
+
+  @override
+  String get quartettAnimalE3 => 'Orca';
+
+  @override
+  String get quartettAnimalE4 => 'Großer Tümmler';
+
+  @override
+  String get quartettAnimalF1 => 'Weißer Hai';
+
+  @override
+  String get quartettAnimalF2 => 'Tiger­hai';
+
+  @override
+  String get quartettAnimalF3 => 'Blauhai';
+
+  @override
+  String get quartettAnimalF4 => 'Kurz­flossen-Mako';
+
+  @override
+  String get quartettAnimalG1 => 'Strauß';
+
+  @override
+  String get quartettAnimalG2 => 'Wander­falke';
+
+  @override
+  String get quartettAnimalG3 => 'Kaiser­pinguin';
+
+  @override
+  String get quartettAnimalG4 => 'Wander­albatros';
+
+  @override
+  String get quartettAnimalH1 => 'Leisten­krokodil';
+
+  @override
+  String get quartettAnimalH2 => 'Komodo­waran';
+
+  @override
+  String get quartettAnimalH3 => 'Aldabra-Riesen­schildkröte';
+
+  @override
+  String get quartettAnimalH4 => 'Schwarze Mamba';
+
+  @override
   String quartettPhotoCredit(String author, String license) {
     return 'Foto: $author, $license';
   }

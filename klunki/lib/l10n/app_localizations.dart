@@ -2916,6 +2916,276 @@ abstract class AppLocalizations {
   /// **'Stk.'**
   String get quartettUnitBuilt;
 
+  /// KLD-128 Quartett deck name: animals.
+  ///
+  /// In de, this message translates to:
+  /// **'Tiere'**
+  String get quartettDeckAnimals;
+
+  /// KLD-128 Quartett stat label (animals): typical lifespan of an adult animal in years. Soft hyphens (U+00AD) mark where a narrow card may break the word.
+  ///
+  /// In de, this message translates to:
+  /// **'Lebens­erwartung'**
+  String get quartettStatLifeYears;
+
+  /// KLD-128 Quartett stat label (animals): days from mating to birth (mammals, sharks) or the incubation of the egg (birds, reptiles). Keep the spaces around the slash: a card breaks a label only at spaces and soft hyphens (U+00AD).
+  ///
+  /// In de, this message translates to:
+  /// **'Trag­zeit / Brut­zeit'**
+  String get quartettStatGestationD;
+
+  /// KLD-128 unit after a lifespan, e.g. "14 Jahre".
+  ///
+  /// In de, this message translates to:
+  /// **'Jahre'**
+  String get quartettUnitYears;
+
+  /// KLD-128 unit after a gestation or incubation time, e.g. "245 Tage".
+  ///
+  /// In de, this message translates to:
+  /// **'Tage'**
+  String get quartettUnitDays;
+
+  /// KLD-128 Quartett set name, animal deck, set A: Big cats.
+  ///
+  /// In de, this message translates to:
+  /// **'Raubkatzen'**
+  String get quartettSetAnimalsA;
+
+  /// KLD-128 Quartett set name, animal deck, set B: Bears.
+  ///
+  /// In de, this message translates to:
+  /// **'Bären'**
+  String get quartettSetAnimalsB;
+
+  /// KLD-128 Quartett set name, animal deck, set C: Great apes.
+  ///
+  /// In de, this message translates to:
+  /// **'Affen'**
+  String get quartettSetAnimalsC;
+
+  /// KLD-128 Quartett set name, animal deck, set D: Savannah animals.
+  ///
+  /// In de, this message translates to:
+  /// **'Savanne'**
+  String get quartettSetAnimalsD;
+
+  /// KLD-128 Quartett set name, animal deck, set E: Whales and dolphins.
+  ///
+  /// In de, this message translates to:
+  /// **'Wale & Delfine'**
+  String get quartettSetAnimalsE;
+
+  /// KLD-128 Quartett set name, animal deck, set F: Sharks.
+  ///
+  /// In de, this message translates to:
+  /// **'Haie'**
+  String get quartettSetAnimalsF;
+
+  /// KLD-128 Quartett set name, animal deck, set G: Birds.
+  ///
+  /// In de, this message translates to:
+  /// **'Vögel'**
+  String get quartettSetAnimalsG;
+
+  /// KLD-128 Quartett set name, animal deck, set H: Reptiles.
+  ///
+  /// In de, this message translates to:
+  /// **'Reptilien'**
+  String get quartettSetAnimalsH;
+
+  /// KLD-128 Quartett card name, animal deck, card A1: Cheetah (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Gepard'**
+  String get quartettAnimalA1;
+
+  /// KLD-128 Quartett card name, animal deck, card A2: Lion (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Löwe'**
+  String get quartettAnimalA2;
+
+  /// KLD-128 Quartett card name, animal deck, card A3: Tiger (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Tiger'**
+  String get quartettAnimalA3;
+
+  /// KLD-128 Quartett card name, animal deck, card A4: Leopard (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Leopard'**
+  String get quartettAnimalA4;
+
+  /// KLD-128 Quartett card name, animal deck, card B1: Polar bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Eisbär'**
+  String get quartettAnimalB1;
+
+  /// KLD-128 Quartett card name, animal deck, card B2: Brown bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Braun­bär'**
+  String get quartettAnimalB2;
+
+  /// KLD-128 Quartett card name, animal deck, card B3: Giant panda (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Großer Panda'**
+  String get quartettAnimalB3;
+
+  /// KLD-128 Quartett card name, animal deck, card B4: Sun bear (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Malaien­bär'**
+  String get quartettAnimalB4;
+
+  /// KLD-128 Quartett card name, animal deck, card C1: Gorilla (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Gorilla'**
+  String get quartettAnimalC1;
+
+  /// KLD-128 Quartett card name, animal deck, card C2: Orangutan (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Orang-Utan'**
+  String get quartettAnimalC2;
+
+  /// KLD-128 Quartett card name, animal deck, card C3: Chimpanzee (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Schim­panse'**
+  String get quartettAnimalC3;
+
+  /// KLD-128 Quartett card name, animal deck, card C4: Lar gibbon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Weiß­hand­gibbon'**
+  String get quartettAnimalC4;
+
+  /// KLD-128 Quartett card name, animal deck, card D1: African elephant (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Afrikanischer Elefant'**
+  String get quartettAnimalD1;
+
+  /// KLD-128 Quartett card name, animal deck, card D2: Giraffe (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Giraffe'**
+  String get quartettAnimalD2;
+
+  /// KLD-128 Quartett card name, animal deck, card D3: Hippopotamus (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Fluss­pferd'**
+  String get quartettAnimalD3;
+
+  /// KLD-128 Quartett card name, animal deck, card D4: White rhino (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Breit­maul­nas­horn'**
+  String get quartettAnimalD4;
+
+  /// KLD-128 Quartett card name, animal deck, card E1: Blue whale (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Blauwal'**
+  String get quartettAnimalE1;
+
+  /// KLD-128 Quartett card name, animal deck, card E2: Bowhead whale (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Grönland­wal'**
+  String get quartettAnimalE2;
+
+  /// KLD-128 Quartett card name, animal deck, card E3: Orca (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Orca'**
+  String get quartettAnimalE3;
+
+  /// KLD-128 Quartett card name, animal deck, card E4: Bottlenose dolphin (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Großer Tümmler'**
+  String get quartettAnimalE4;
+
+  /// KLD-128 Quartett card name, animal deck, card F1: Great white shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Weißer Hai'**
+  String get quartettAnimalF1;
+
+  /// KLD-128 Quartett card name, animal deck, card F2: Tiger shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Tiger­hai'**
+  String get quartettAnimalF2;
+
+  /// KLD-128 Quartett card name, animal deck, card F3: Blue shark (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Blauhai'**
+  String get quartettAnimalF3;
+
+  /// KLD-128 Quartett card name, animal deck, card F4: Shortfin mako (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Kurz­flossen-Mako'**
+  String get quartettAnimalF4;
+
+  /// KLD-128 Quartett card name, animal deck, card G1: Ostrich (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Strauß'**
+  String get quartettAnimalG1;
+
+  /// KLD-128 Quartett card name, animal deck, card G2: Peregrine falcon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Wander­falke'**
+  String get quartettAnimalG2;
+
+  /// KLD-128 Quartett card name, animal deck, card G3: Emperor penguin (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Kaiser­pinguin'**
+  String get quartettAnimalG3;
+
+  /// KLD-128 Quartett card name, animal deck, card G4: Wandering albatross (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Wander­albatros'**
+  String get quartettAnimalG4;
+
+  /// KLD-128 Quartett card name, animal deck, card H1: Saltwater crocodile (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Leisten­krokodil'**
+  String get quartettAnimalH1;
+
+  /// KLD-128 Quartett card name, animal deck, card H2: Komodo dragon (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Komodo­waran'**
+  String get quartettAnimalH2;
+
+  /// KLD-128 Quartett card name, animal deck, card H3: Aldabra giant tortoise (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Aldabra-Riesen­schildkröte'**
+  String get quartettAnimalH3;
+
+  /// KLD-128 Quartett card name, animal deck, card H4: Black mamba (the common name of the animal; soft hyphens U+00AD mark where a narrow card may break a long name).
+  ///
+  /// In de, this message translates to:
+  /// **'Schwarze Mamba'**
+  String get quartettAnimalH4;
+
   /// KLD-082 credit line of a card photo; author = photographer/author from Wikimedia Commons, license = licence short name (e.g. "CC BY-SA 4.0"), both untranslated.
   ///
   /// In de, this message translates to:

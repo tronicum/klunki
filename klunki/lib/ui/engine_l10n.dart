@@ -7,8 +7,8 @@ import 'shell/player_labels.dart';
 ///
 /// The engine keeps its own English / German texts for the CLI, the debug
 /// console and the network log; the app maps the engine's stable ids to
-/// [AppLocalizations] here. Car names on Quartett cards are content and are
-/// not translated.
+/// [AppLocalizations] here. Vehicle names on Quartett cards are content and
+/// are not translated; animal names are ([localizedCardName], KLD-128).
 
 /// Localized text for a [GameEndReason] with its [params] (see the enum docs).
 /// [playerLabel] names a player for reasons about one (resign: "Anna hat
@@ -90,6 +90,10 @@ String localizedSetName(AppLocalizations l10n, String set, [String deck = Quarte
         l10n.quartettSetPlanesA, l10n.quartettSetPlanesB, l10n.quartettSetPlanesC, l10n.quartettSetPlanesD,
         l10n.quartettSetPlanesE, l10n.quartettSetPlanesF, l10n.quartettSetPlanesG, l10n.quartettSetPlanesH,
       ],
+    'animals' => [
+        l10n.quartettSetAnimalsA, l10n.quartettSetAnimalsB, l10n.quartettSetAnimalsC, l10n.quartettSetAnimalsD,
+        l10n.quartettSetAnimalsE, l10n.quartettSetAnimalsF, l10n.quartettSetAnimalsG, l10n.quartettSetAnimalsH,
+      ],
     _ => null,
   };
   if (names != null && i >= 0) return names[i];
@@ -103,7 +107,61 @@ String localizedDeckName(AppLocalizations l10n, String deck) => switch (deck) {
       'trains' => l10n.quartettDeckTrains,
       'rockets' => l10n.quartettDeckRockets,
       'planes' => l10n.quartettDeckPlanes,
+      'animals' => l10n.quartettDeckAnimals,
       _ => QuartettDeck.byId(deck)?.name ?? deck,
+    };
+
+/// The name of a Quartett [card] as shown (KLD-128): animal names are
+/// translated, the vehicle decks keep the engine's name (real model names).
+/// Display only: the engine's German [Card.name] stays the card's name in
+/// the game, the network and the compat fingerprint (the German ARB names
+/// equal the engine's names, a test checks it). Plain text: the soft
+/// hyphens of the ARB are removed (running text, semantics, tests).
+String localizedCardName(AppLocalizations l10n, Card card) =>
+    localizedCardNameHyphenated(l10n, card).replaceAll(softHyphen, '');
+
+/// [localizedCardName] with the soft hyphens ([softHyphen]) of the ARB, where
+/// a narrow card may break a long name ("Wander-albatros", see
+/// `HyphenatedLabel`).
+String localizedCardNameHyphenated(AppLocalizations l10n, Card card) => switch (card.deck) {
+      'animals' => _animalName(l10n, card.id) ?? card.name,
+      _ => card.name,
+    };
+
+String? _animalName(AppLocalizations l10n, String id) => switch (id) {
+      'A1' => l10n.quartettAnimalA1,
+      'A2' => l10n.quartettAnimalA2,
+      'A3' => l10n.quartettAnimalA3,
+      'A4' => l10n.quartettAnimalA4,
+      'B1' => l10n.quartettAnimalB1,
+      'B2' => l10n.quartettAnimalB2,
+      'B3' => l10n.quartettAnimalB3,
+      'B4' => l10n.quartettAnimalB4,
+      'C1' => l10n.quartettAnimalC1,
+      'C2' => l10n.quartettAnimalC2,
+      'C3' => l10n.quartettAnimalC3,
+      'C4' => l10n.quartettAnimalC4,
+      'D1' => l10n.quartettAnimalD1,
+      'D2' => l10n.quartettAnimalD2,
+      'D3' => l10n.quartettAnimalD3,
+      'D4' => l10n.quartettAnimalD4,
+      'E1' => l10n.quartettAnimalE1,
+      'E2' => l10n.quartettAnimalE2,
+      'E3' => l10n.quartettAnimalE3,
+      'E4' => l10n.quartettAnimalE4,
+      'F1' => l10n.quartettAnimalF1,
+      'F2' => l10n.quartettAnimalF2,
+      'F3' => l10n.quartettAnimalF3,
+      'F4' => l10n.quartettAnimalF4,
+      'G1' => l10n.quartettAnimalG1,
+      'G2' => l10n.quartettAnimalG2,
+      'G3' => l10n.quartettAnimalG3,
+      'G4' => l10n.quartettAnimalG4,
+      'H1' => l10n.quartettAnimalH1,
+      'H2' => l10n.quartettAnimalH2,
+      'H3' => l10n.quartettAnimalH3,
+      'H4' => l10n.quartettAnimalH4,
+      _ => null,
     };
 
 /// The engine's stat with [statId] in any deck (a stat id means the same in
@@ -148,6 +206,10 @@ String localizedStatLabelHyphenated(AppLocalizations l10n, String statId) => swi
       'rangeKm' => l10n.quartettStatRangeKm,
       'wingspanM' => l10n.quartettStatWingspanM,
       'mtowT' => l10n.quartettStatMtowT,
+      // KLD-128: animal weight wins high (unlike the cars' `kg`), same word.
+      'weightKg' => l10n.engineStatKg,
+      'lifeYears' => l10n.quartettStatLifeYears,
+      'gestationD' => l10n.quartettStatGestationD,
       _ => _anyStat(statId)?.label ?? statId,
     };
 
@@ -161,6 +223,9 @@ String localizedStatUnit(AppLocalizations l10n, String statId) => switch (statId
       'kg' => l10n.engineUnitKg,
       'sec0to100' => l10n.engineUnitSec,
       'built' => l10n.quartettUnitBuilt,
+      'weightKg' => l10n.engineUnitKg,
+      'lifeYears' => l10n.quartettUnitYears,
+      'gestationD' => l10n.quartettUnitDays,
       _ => _anyStat(statId)?.unit ?? '',
     };
 
