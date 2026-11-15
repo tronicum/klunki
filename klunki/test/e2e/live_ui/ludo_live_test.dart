@@ -95,6 +95,7 @@ Future<void> _playGame(WidgetTester tester, GameConfig config, {int maxTaps = 40
       final seat = g.currentSeat;
       final from = g.progressOf(seat, pawn);
       await _tap(tester, 'ludo-pawn-$seat-$pawn');
+      expect(c.moves.last.move, LudoGame.pawnMove(pawn), reason: 'the tapped pawn moved');
       final p = c.moves.last.event.payload as Map;
       if (from == LudoGame.house) seen.add('out');
       if (p['captured'] != null) seen.add('capture');

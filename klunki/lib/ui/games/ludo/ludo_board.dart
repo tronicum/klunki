@@ -86,6 +86,7 @@ class _LudoBoardState extends State<LudoBoard> {
   @override
   void initState() {
     super.initState();
+    _rolls = _rollCount;
     controller.addListener(_onChange);
   }
 
@@ -104,8 +105,28 @@ class _LudoBoardState extends State<LudoBoard> {
     super.dispose();
   }
 
+  /// Rolls seen so far; a new one tumbles the die ([LudoTumblingDie]).
+  int _rolls = 0;
+
+  /// The die is tumbling: the hint keeps its old text and no pawn glows
+  /// until it lands, so the result is not told before the die shows it.
+  bool _tumbling = false;
+  String? _shownHint;
+
+  int get _rollCount => controller.moves.where((m) => m.move['action'] == 'roll').length;
+
   void _onChange() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    final rolls = _rollCount;
+    setState(() {
+      if (rolls > _rolls && !MediaQuery.disableAnimationsOf(context)) _tumbling = true;
+      if (rolls < _rolls) _tumbling = false;
+      _rolls = rolls;
+    });
+  }
+
+  void _landed() {
+    if (mounted && _tumbling) setState(() => _tumbling = false);
   }
 
   bool get _canRoll => controller.canAct && game.mustRoll;
@@ -123,7 +144,7 @@ class _LudoBoardState extends State<LudoBoard> {
   }
 
   void _move(int pawn) {
-    if (!controller.canAct || !game.movablePawns.contains(pawn)) return;
+    if (_tumbling || !controller.canAct || !game.movablePawns.contains(pawn)) return;
     HapticFeedback.selectionClick();
     controller.submit(LudoGame.pawnMove(pawn));
   }
@@ -174,7 +195,8 @@ class _LudoBoardState extends State<LudoBoard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    GameScreen.of(context).setHint(_hint(context, l10n));
+    if (!_tumbling) _shownHint = _hint(context, l10n);
+    GameScreen.of(context).setHint(_shownHint);
     return ShakeToRoll(
       enabled: _canRoll,
       onShake: () => _roll(shaken: true),
@@ -203,11 +225,10 @@ class _LudoBoardState extends State<LudoBoard> {
     final g = game;
     final colors = ludoCornerColors(context, g.playerCount);
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final movable = controller.canAct ? g.movablePawns.toSet() : const <int>{};
+    final movable = controller.canAct && !_tumbling ? g.movablePawns.toSet() : const <int>{};
     return LayoutBuilder(builder: (context, box) {
       final side = box.biggest.shortestSide;
       final cell = side / LudoGrid.size;
-      final r = cell * 0.36;
       return SizedBox.square(
         key: const Key('ludo-board'),
         dimension: side,
@@ -221,7 +242,7 @@ class _LudoBoardState extends State<LudoBoard> {
                   () {
                     final (cx, cy) = LudoGrid.cellOf(g, s, i);
                     final active = s == g.currentSeat && movable.contains(i);
-                    final size = active ? r * 2.5 : r * 2;
+                    final size = active ? cell * 1.22 : cell * 1.06;
                     return AnimatedPositioned(
                       key: ValueKey('ludo-pos-$s-$i'),
                       duration: const Duration(milliseconds: 260),
@@ -230,13 +251,18 @@ class _LudoBoardState extends State<LudoBoard> {
                       top: (cy + 0.5) * cell - size / 2,
                       width: size,
                       height: size,
-                      child: LudoPawn(
-                        key: Key('ludo-pawn-$s-$i'),
-                        seat: s,
-                        color: seatColor(context, s),
-                        active: active,
-                        label: l10n.ludoPawn(_name(context, l10n, s)),
-                        onTap: active ? () => _move(i) : null,
+                      child: LudoPawnMotion(
+                        cell: (cx, cy),
+                        home: g.progressOf(s, i) == LudoGame.house,
+                        cellSize: cell,
+                        child: LudoPawn(
+                          key: Key('ludo-pawn-$s-$i'),
+                          seat: s,
+                          color: seatColor(context, s),
+                          active: active,
+                          label: l10n.ludoPawn(_name(context, l10n, s)),
+                          onTap: active ? () => _move(i) : null,
+                        ),
                       ),
                     );
                   }(),
@@ -253,26 +279,20 @@ class _LudoBoardState extends State<LudoBoard> {
     final rollSeat = g.die != null ? g.currentSeat : (g.lastRoll?.seat ?? g.currentSeat);
     final canRoll = _canRoll;
     final color = seatColor(context, canRoll ? g.currentSeat : rollSeat);
-    final die = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      transitionBuilder: (child, a) => RotationTransition(
-        turns: Tween<double>(begin: -0.15, end: 0).animate(a),
-        child: ScaleTransition(scale: a, child: child),
-      ),
-      child: SizedBox.square(
-        key: ValueKey('ludo-die-face-${controller.moves.length}'),
-        dimension: 54,
-        child: CustomPaint(painter: _DiePainter(value)),
-      ),
-    );
+    // Every roll (a tap or a shake) tumbles the die once (rolls are never
+    // taken back, so the count only grows; a restart starts at 0 again).
+    final die =
+        LudoTumblingDie(key: const Key('ludo-die-face'), value: value, roll: _rolls, size: 54, onLanded: _landed);
     final button = Material(
       color: canRoll ? color.withValues(alpha: 0.16) : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: canRoll ? color : theme.colorScheme.outlineVariant, width: canRoll ? 3 : 1.5),
       ),
-      clipBehavior: Clip.antiAlias,
+      // The die hops out of the button.
+      clipBehavior: Clip.none,
       child: InkWell(
+        customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         key: const Key('ludo-die'),
         onTap: canRoll ? _roll : null,
         child: Semantics(
@@ -318,6 +338,90 @@ class _LudoBoardState extends State<LudoBoard> {
   }
 }
 
+/// The die of the control row (KLD-131 step 2): it shows [value] and
+/// tumbles once whenever [roll] (the number of rolls so far) grows, like a
+/// real throw: it turns over more than one axis with a little perspective,
+/// shows quickly changing faces, hops twice and settles on [value]. With
+/// "reduce motion" ([MediaQuery.disableAnimationsOf]) it just shows the
+/// new face.
+class LudoTumblingDie extends StatefulWidget {
+  final int value;
+  final int roll;
+  final double size;
+
+  /// Called when a tumble has landed.
+  final VoidCallback? onLanded;
+  const LudoTumblingDie({super.key, required this.value, required this.roll, this.size = 54, this.onLanded});
+
+  /// How long a tumble takes.
+  static const Duration duration = Duration(milliseconds: 780);
+
+  @override
+  State<LudoTumblingDie> createState() => _LudoTumblingDieState();
+}
+
+class _LudoTumblingDieState extends State<LudoTumblingDie> with SingleTickerProviderStateMixin {
+  late final AnimationController _anim = AnimationController(vsync: this, duration: LudoTumblingDie.duration)
+    ..addStatusListener((s) {
+      if (s == AnimationStatus.completed) widget.onLanded?.call();
+    });
+
+  @override
+  void didUpdateWidget(LudoTumblingDie old) {
+    super.didUpdateWidget(old);
+    if (widget.roll > old.roll && !MediaQuery.disableAnimationsOf(context)) _anim.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _anim,
+        builder: (context, _) {
+          final t = _anim.value;
+          final face = SizedBox.square(dimension: widget.size, child: CustomPaint(painter: _DiePainter(_faceAt(t))));
+          if (!_anim.isAnimating) return face;
+          return Transform(alignment: Alignment.center, transform: ludoTumble(t, widget.size, widget.roll), child: face);
+        },
+      );
+
+  /// The face shown at [t]: a new one every few frames, the result for
+  /// the last quarter (it lands on it).
+  int _faceAt(double t) {
+    if (!_anim.isAnimating || t >= 0.72) return widget.value;
+    final step = (t * 16).floor();
+    final f = (widget.roll * 5 + step * 7 + step * step) % 6 + 1;
+    return f == widget.value && step > 8 ? f % 6 + 1 : f;
+  }
+}
+
+/// The tumble of the die at [t] (0–1) of a throw: two decaying hops, turns
+/// over the X and Y axes (and a little Z) slowing down to rest, a slight
+/// squash on each landing, seen with some perspective. [roll] varies the
+/// direction from throw to throw.
+Matrix4 ludoTumble(double t, double size, int roll) {
+  final rest = 1 - Curves.easeOutCubic.transform(t);
+  final dir = roll.isEven ? 1.0 : -1.0;
+  // Two hops: a high one, a low one, then still.
+  final hop = t < 0.55
+      ? sin(pi * t / 0.55) * size * 0.55
+      : t < 0.85
+          ? sin(pi * (t - 0.55) / 0.3) * size * 0.16
+          : 0.0;
+  final land = (t - 0.55).abs() < 0.06 || t > 0.94 ? 0.9 : 1.0;
+  return Matrix4.identity()
+    ..setEntry(3, 2, 0.003)
+    ..translateByDouble(0, -hop, 0, 1)
+    ..scaleByDouble(2 - land, land, 1, 1)
+    ..rotateX(rest * pi * 3.1 * dir)
+    ..rotateY(rest * pi * 2.2)
+    ..rotateZ(rest * pi * 0.9 * dir);
+}
+
 class _DiePainter extends CustomPainter {
   final int value;
   const _DiePainter(this.value);
@@ -329,9 +433,64 @@ class _DiePainter extends CustomPainter {
   bool shouldRepaint(_DiePainter old) => old.value != value;
 }
 
-/// One pawn: a round piece in the seat's colour with the seat number (told
-/// apart without colour too, like [SeatToken]); a pawn that may move now
-/// is bigger and glows.
+/// Moves a pawn's look when its [cell] changes (KLD-131 step 2): a small hop
+/// on an ordinary move; a pawn sent [home] spins and shrinks on its way back
+/// to the house. Nothing with "reduce motion".
+class LudoPawnMotion extends StatefulWidget {
+  final (int, int) cell;
+  final bool home;
+  final double cellSize;
+  final Widget child;
+  const LudoPawnMotion({super.key, required this.cell, required this.home, required this.cellSize, required this.child});
+
+  @override
+  State<LudoPawnMotion> createState() => _LudoPawnMotionState();
+}
+
+class _LudoPawnMotionState extends State<LudoPawnMotion> with SingleTickerProviderStateMixin {
+  late final AnimationController _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 380));
+  bool _sentHome = false;
+
+  @override
+  void didUpdateWidget(LudoPawnMotion old) {
+    super.didUpdateWidget(old);
+    if (old.cell != widget.cell && !MediaQuery.disableAnimationsOf(context)) {
+      _sentHome = widget.home && !old.home;
+      _anim.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _anim.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _anim,
+        child: widget.child,
+        builder: (context, child) {
+          if (!_anim.isAnimating) return child!;
+          final t = _anim.value;
+          final arc = sin(pi * t);
+          final m = _sentHome
+              ? (Matrix4.identity()
+                ..rotateZ(2 * pi * t)
+                ..scaleByDouble(1 - 0.45 * arc, 1 - 0.45 * arc, 1, 1))
+              : (Matrix4.identity()
+                ..translateByDouble(0, -arc * widget.cellSize * 0.45, 0, 1)
+                ..scaleByDouble(1 + 0.12 * arc, 1 + 0.12 * arc, 1, 1));
+          return Transform(alignment: Alignment.center, transform: m, child: child);
+        },
+      );
+}
+
+/// One pawn (KLD-131 step 2): the classic board-game piece seen from a
+/// little above, a round foot, a waisted body and a ball for a head, shaded
+/// and glossy in the seat's colour with a dark outline and a soft shadow;
+/// the seat number small on the body (told apart without colour too, like
+/// [SeatToken]). A pawn that may move now is bigger and glows.
 class LudoPawn extends StatelessWidget {
   final int seat;
   final Color color;
@@ -343,7 +502,8 @@ class LudoPawn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glow = Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFFFFC233);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final glow = dark ? Colors.white : const Color(0xFFFFC233);
     return Semantics(
       button: onTap != null,
       label: label,
@@ -351,33 +511,106 @@ class LudoPawn extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: LayoutBuilder(builder: (context, box) {
-          final d = box.biggest.shortestSide;
-          return Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                center: const Alignment(-0.35, -0.4),
-                colors: [Color.lerp(color, Colors.white, 0.45)!, color, Color.lerp(color, Colors.black, 0.35)!],
-                stops: const [0, 0.55, 1],
-              ),
-              border: Border.all(color: active ? glow : Colors.black45, width: active ? max(2.5, d * 0.1) : max(1, d * 0.06)),
-              boxShadow: [
-                if (active) BoxShadow(color: glow.withValues(alpha: 0.85), blurRadius: d * 0.35, spreadRadius: d * 0.06),
-                const BoxShadow(color: Color(0x55000000), blurRadius: 2, offset: Offset(0.5, 1.5)),
-              ],
-            ),
-            child: Text(
-              '${seat + 1}',
-              textDirection: TextDirection.ltr,
-              style: TextStyle(color: inkOn(color), fontSize: d * 0.42, fontWeight: FontWeight.w800, height: 1),
-            ),
-          );
-        }),
+        child: CustomPaint(
+          painter: LudoPawnPainter(
+              color: color,
+              number: seat + 1,
+              glow: active ? glow : null,
+              dark: dark,
+              textStyle: Theme.of(context).textTheme.labelLarge),
+        ),
       ),
     );
   }
+}
+
+/// Paints a pawn into its square (see [LudoPawn]); [glow] draws the halo
+/// of a movable pawn.
+class LudoPawnPainter extends CustomPainter {
+  final Color color;
+  final int number;
+  final Color? glow;
+  final bool dark;
+
+  /// The text style of the number (the app's font).
+  final TextStyle? textStyle;
+  const LudoPawnPainter({required this.color, required this.number, this.glow, this.dark = false, this.textStyle});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final d = size.shortestSide;
+    final o = Offset((size.width - d) / 2, (size.height - d) / 2);
+    Offset at(double x, double y) => o + Offset(x * d, y * d);
+    final outline = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = max(1.0, d * 0.035)
+      ..color = Color.lerp(color, Colors.black, dark ? 0.7 : 0.6)!;
+    if (glow != null) {
+      canvas.drawCircle(at(0.5, 0.56), d * 0.5,
+          Paint()
+            ..color = glow!.withValues(alpha: 0.9)
+            ..maskFilter = MaskFilter.blur(BlurStyle.normal, d * 0.1));
+      // A bright ring on the board around the foot.
+      canvas.drawOval(
+          Rect.fromCenter(center: at(0.5, 0.8), width: d * 0.9, height: d * 0.36),
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = max(2.0, d * 0.06)
+            ..color = glow!);
+    }
+    // The shadow on the board.
+    canvas.drawOval(Rect.fromCenter(center: at(0.53, 0.88), width: d * 0.7, height: d * 0.18),
+        Paint()
+          ..color = const Color(0x66000000)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, d * 0.04));
+    final light = Color.lerp(color, Colors.white, 0.55)!;
+    final deep = Color.lerp(color, Colors.black, 0.4)!;
+    Paint shade(Rect r) => Paint()
+      ..shader = RadialGradient(
+        center: const Alignment(-0.45, -0.55),
+        radius: 1.1,
+        colors: [light, color, deep],
+        stops: const [0, 0.5, 1],
+      ).createShader(r);
+    // The foot.
+    final foot = Rect.fromCenter(center: at(0.5, 0.79), width: d * 0.72, height: d * 0.24);
+    canvas.drawOval(foot, shade(foot.inflate(d * 0.1)));
+    canvas.drawOval(foot, outline);
+    // The body: waisted sides from the foot up to the neck.
+    final body = Path()
+      ..moveTo(at(0.22, 0.78).dx, at(0.22, 0.78).dy)
+      ..quadraticBezierTo(at(0.4, 0.66).dx, at(0.4, 0.66).dy, at(0.39, 0.42).dx, at(0.39, 0.42).dy)
+      ..lineTo(at(0.61, 0.42).dx, at(0.61, 0.42).dy)
+      ..quadraticBezierTo(at(0.6, 0.66).dx, at(0.6, 0.66).dy, at(0.78, 0.78).dx, at(0.78, 0.78).dy)
+      ..arcToPoint(at(0.22, 0.78), radius: Radius.elliptical(d * 0.36, d * 0.12))
+      ..close();
+    final bodyRect = Rect.fromLTRB(o.dx + d * 0.2, o.dy + d * 0.38, o.dx + d * 0.8, o.dy + d * 0.92);
+    canvas.drawPath(body, shade(bodyRect));
+    canvas.drawPath(body, outline);
+    // The collar and the head.
+    final collar = Rect.fromCenter(center: at(0.5, 0.42), width: d * 0.38, height: d * 0.1);
+    canvas.drawOval(collar, shade(collar.inflate(d * 0.1)));
+    canvas.drawOval(collar, outline);
+    final head = Rect.fromCircle(center: at(0.5, 0.25), radius: d * 0.18);
+    canvas.drawOval(head, shade(head));
+    canvas.drawOval(head, outline);
+    // Gloss on the head.
+    canvas.drawOval(Rect.fromCenter(center: at(0.44, 0.19), width: d * 0.12, height: d * 0.08),
+        Paint()..color = Colors.white.withValues(alpha: 0.7));
+    // The seat number, small on the body.
+    final tp = TextPainter(
+      text: TextSpan(
+          text: '$number',
+          style: (textStyle ?? const TextStyle())
+              .copyWith(color: inkOn(color), fontSize: d * 0.2, fontWeight: FontWeight.w800, height: 1)),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, at(0.5, 0.66) - Offset(tp.width / 2, tp.height / 2));
+  }
+
+  @override
+  bool shouldRepaint(LudoPawnPainter old) =>
+      old.color != color || old.number != number || old.glow != glow || old.dark != dark || old.textStyle != textStyle;
 }
 
 /// The board without the pawns: the cross of fields, the houses, start
@@ -488,16 +721,10 @@ class LudoIllustration extends CustomPainter {
     LudoBoardPainter(colors: _colors, dark: palette.background.computeLuminance() < 0.2).paint(canvas, Size.square(b));
     final cell = b / LudoGrid.size;
     void pawn((int, int) c, Color color) {
-      final p = Offset((c.$1 + 0.5) * cell, (c.$2 + 0.5) * cell);
-      canvas.drawCircle(p.translate(0.6, 1.2), cell * 0.44, Paint()..color = const Color(0x55000000));
-      canvas.drawCircle(p, cell * 0.44, Paint()..color = color);
-      canvas.drawCircle(
-          p,
-          cell * 0.44,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = max(1, cell * 0.08)
-            ..color = Colors.black45);
+      canvas.save();
+      canvas.translate(c.$1 * cell - cell * 0.1, c.$2 * cell - cell * 0.25);
+      LudoPawnPainter(color: color, number: _colors.indexOf(color) + 1).paint(canvas, Size.square(cell * 1.2));
+      canvas.restore();
     }
 
     pawn(LudoGrid.track[3], _colors[0]);

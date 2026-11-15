@@ -23,7 +23,9 @@ import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/menu_screen.dart' show MenuScreen, menuShowsDebugConsole;
+import 'package:klunki/ui/games/ludo/ludo_board.dart';
 import 'package:klunki/ui/rules/rules_screen.dart';
+import 'package:klunki/ui/shell/seat_labels.dart' show seatColor;
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki_engine/debug.dart' show LudoText;
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -57,15 +59,17 @@ Future<void> _loadFonts() async {
   if (icons.existsSync()) await family('MaterialIcons', [icons.path]);
 }
 
-Future<void> _shot(WidgetTester tester, String name) async {
+Future<void> _shot(WidgetTester tester, String name, {String dir = 'kld131', bool settle = true}) async {
   debugDisableShadows = false;
-  await tester.pump(const Duration(milliseconds: 500));
-  await tester.pump();
+  if (settle) {
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+  }
   final ro = tester.renderObject<RenderRepaintBoundary>(find.byKey(_boundary));
   await tester.runAsync(() async {
     final ui.Image img = await ro.toImage(pixelRatio: 2);
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
-    final f = File('$_out/kld131/$name.png');
+    final f = File('$_out/$dir/$name.png');
     f.parent.createSync(recursive: true);
     f.writeAsBytesSync(data!.buffer.asUint8List());
   });
@@ -223,6 +227,56 @@ void main() {
           scrollable: find.byType(Scrollable).first);
       await tester.pumpAndSettle();
       await _shot(tester, '12-rules-house-rules');
+    });
+  });
+
+  // Step 2 (maintainer feedback on the iPhone): the new pawns and the die's
+  // tumble.
+  group('kld131-step2', () {
+    const dir = 'kld131-step2';
+    for (final b in Brightness.values) {
+      testWidgets('board with pawns, ${b.name}', skip: skip, (tester) async {
+        final c = await _game(tester, brightness: b);
+        await _botUntil(tester, c, _midGame(captures: 4, moves: 200));
+        await _shot(tester, 'board-${b.name}', dir: dir);
+      });
+
+      testWidgets('pawns close up, ${b.name}', skip: skip, (tester) async {
+        await _pumpApp(
+            tester,
+            Scaffold(
+              body: Center(
+                child: Builder(
+                  builder: (context) => Column(mainAxisSize: MainAxisSize.min, children: [
+                    for (final active in [false, true])
+                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        for (var s = 0; s < 4; s++)
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: SizedBox.square(
+                                dimension: 72,
+                                child: LudoPawn(seat: s, color: seatColor(context, s), label: '', active: active)),
+                          ),
+                      ]),
+                  ]),
+                ),
+              ),
+            ),
+            brightness: b);
+        await _shot(tester, 'pawns-${b.name}', dir: dir);
+      });
+    }
+
+    testWidgets('the die tumbling', skip: skip, (tester) async {
+      await _game(tester);
+      await tester.tap(find.byKey(const Key('ludo-die')));
+      await tester.pump();
+      for (var i = 1; i <= 6; i++) {
+        await tester.pump(const Duration(milliseconds: 110));
+        await _shot(tester, 'die-frame-$i', dir: dir, settle: false);
+      }
+      await tester.pumpAndSettle();
+      await _shot(tester, 'die-landed', dir: dir);
     });
   });
 }
