@@ -5,6 +5,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 
 import '../../app/theme.dart';
 import '../engine_l10n.dart';
+import '../quartett_legal_screen.dart' show QuartettLegalLink;
 import 'quartett_card.dart';
 import 'quartett_deck_picker.dart' show QuartettDeckPreview;
 import 'quartett_media.dart';
@@ -98,6 +99,8 @@ class QuartettGalleryScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                // KLD-127: the trademark notice, small, under the decks.
+                const QuartettLegalLink(),
               ],
             ),
           ),
@@ -243,6 +246,8 @@ class QuartettDeckGalleryScreen extends StatelessWidget {
                             QuartettMiniCard(card: card, onTap: () => _open(context, card)),
                         ]),
                       ],
+                      const SizedBox(height: 12),
+                      const QuartettLegalLink(),
                     ],
                   ),
                 );

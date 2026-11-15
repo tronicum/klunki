@@ -1776,6 +1776,19 @@ class AppLocalizationsZh extends AppLocalizations {
       '照片来自维基共享资源，采用自由许可证。它们已包含在应用中；只有链接需要联网。';
 
   @override
+  String get quartettLegalTitle => '权属提示';
+
+  @override
+  String get quartettLegalTrademarks =>
+      '卡牌上的制造方和款式名称仅用于识别。它们可能是其各自所有者受保护的标识。Klunki 与这些制造方没有任何关系，也没有得到它们的支持。';
+
+  @override
+  String get quartettLegalPhotos => '卡牌上的照片来自维基共享资源，采用自由许可证。拍摄者列在图片来源列表中。';
+
+  @override
+  String get quartettLegalDrawings => '名称旁边和卡牌背面的小图是 Klunki 自己做的，不是制造方的标识。';
+
+  @override
   String get quartettLinkFailed => '无法打开链接。';
 
   @override

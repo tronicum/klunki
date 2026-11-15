@@ -1840,6 +1840,21 @@ class AppLocalizationsEs extends AppLocalizations {
       'Las fotos proceden de Wikimedia Commons y tienen licencias libres. Están incluidas en la app; solo los enlaces necesitan internet.';
 
   @override
+  String get quartettLegalTitle => 'Información legal';
+
+  @override
+  String get quartettLegalTrademarks =>
+      'Los nombres de fabricantes y productos en las cartas solo sirven para identificarlos. Pueden ser marcas de sus respectivos propietarios. Klunki no tiene ninguna relación con estos fabricantes y no cuenta con su apoyo.';
+
+  @override
+  String get quartettLegalPhotos =>
+      'Las fotos de las cartas proceden de Wikimedia Commons y tienen licencias libres. Quién las hizo aparece en los créditos de las imágenes.';
+
+  @override
+  String get quartettLegalDrawings =>
+      'Los dibujos pequeños junto al nombre y en el reverso de las cartas los ha hecho Klunki. No son logotipos de fabricantes.';
+
+  @override
   String get quartettLinkFailed => 'No se pudo abrir el enlace.';
 
   @override

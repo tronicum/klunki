@@ -184,6 +184,10 @@ short German summary ("Kurz") for the store notes and the testers.
   default); the relay start shows "Host grace: …", which tells a current relay from one built before KLD-120.
 
 ### App
+- **"Rechtliche Hinweise" for the Quartett cards** (KLD-127): a short page says that the names of manufacturers
+  and products on the cards only identify them and may be trademarks, and that Klunki has no connection with
+  them; also where the photos come from. Linked under the deck choice and the card gallery, in the game's "⋮"
+  menu and on "Über Klunki".
 - The app icon fills its square on the home screen: a larger pocket and a bolder "Klunki" on the patch.
 - Every game tile in the menu and every rules page shows how many can play, as on a board-game box: a
   small people icon with "2", or "2–4" for Ausgewürfelt (KLD-124).

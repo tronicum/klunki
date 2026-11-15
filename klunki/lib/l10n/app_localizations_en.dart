@@ -1828,6 +1828,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'The photos come from Wikimedia Commons and are under free licences. They are part of the app; only the links need the internet.';
 
   @override
+  String get quartettLegalTitle => 'Legal notes';
+
+  @override
+  String get quartettLegalTrademarks =>
+      'Names of manufacturers and products on the cards are only used to say what is shown. They may be trademarks of their owners. Klunki is not connected with these manufacturers and is not endorsed by them.';
+
+  @override
+  String get quartettLegalPhotos =>
+      'The photos on the cards come from Wikimedia Commons and are under free licences. Who took them is listed in the image credits.';
+
+  @override
+  String get quartettLegalDrawings =>
+      'Klunki drew the small pictures next to the name and on the back of the cards itself. They are not manufacturers\' logos.';
+
+  @override
   String get quartettLinkFailed => 'The link could not be opened.';
 
   @override

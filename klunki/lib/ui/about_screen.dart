@@ -7,6 +7,7 @@ import 'package:klunki/app/web_channel.dart';
 import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/ui/help_screen.dart';
 import 'package:klunki/ui/ltr.dart';
+import 'package:klunki/ui/quartett_legal_screen.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 
 // "Über Klunki" (KLD-102): version, privacy policy, Impressum, support,
@@ -168,6 +169,15 @@ class AboutScreen extends StatelessWidget {
                     onTap: () => Navigator.of(context)
                         .push(MaterialPageRoute<void>(builder: (_) => LegalTextScreen(page))),
                   ),
+                // KLD-127: the trademark notice of the Quartett cards.
+                ListTile(
+                  key: const Key('about-quartett-legal'),
+                  leading: const Icon(Icons.copyright_outlined),
+                  title: Text(l10n.quartettLegalTitle),
+                  subtitle: Text(l10n.quartettGalleryTitle, style: TextStyle(color: muted)),
+                  trailing: const Icon(Icons.chevron_right, size: 20),
+                  onTap: () => openQuartettLegalNotice(context),
+                ),
                 link(const Key('about-support'), Icons.help_outline, l10n.aboutSupport,
                     sitePageUri(SitePage.support, lang)),
                 const Divider(),

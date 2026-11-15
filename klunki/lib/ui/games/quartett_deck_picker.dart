@@ -7,6 +7,7 @@ import '../../game/game_controller.dart';
 import '../../profile/quartett_deck_settings.dart';
 import '../engine_l10n.dart';
 import '../game_titles.dart';
+import '../quartett_legal_screen.dart' show QuartettLegalLink;
 import 'quartett_gallery.dart';
 import 'quartett_pictograms.dart';
 
@@ -234,6 +235,9 @@ class _DeckPickerSheetState extends State<_DeckPickerSheet> {
                     ),
                   ],
                 ),
+                // KLD-127: the trademark notice, small, under the buttons.
+                const SizedBox(height: 4),
+                const QuartettLegalLink(),
               ],
             ),
           ),

@@ -1824,6 +1824,21 @@ class AppLocalizationsFa extends AppLocalizations {
       'عکس‌ها از ویکی‌مدیا کامنز هستند و مجوز آزاد دارند. آن‌ها در برنامه گنجانده شده‌اند؛ فقط پیوندها به اینترنت نیاز دارند.';
 
   @override
+  String get quartettLegalTitle => 'نکات حقوقی';
+
+  @override
+  String get quartettLegalTrademarks =>
+      'نام سازندگان و محصولات روی کارت‌ها فقط برای نام‌بردن است. ممکن است این نام‌ها علامت تجاری صاحبانشان باشند. Klunki هیچ ارتباطی با این سازندگان ندارد و از سوی آن‌ها پشتیبانی نمی‌شود.';
+
+  @override
+  String get quartettLegalPhotos =>
+      'عکس‌های روی کارت‌ها از ویکی‌مدیا کامنز هستند و مجوز آزاد دارند. نام عکاسان در منابع تصاویر آمده است.';
+
+  @override
+  String get quartettLegalDrawings =>
+      'تصویرهای کوچک کنار نام و پشت کارت‌ها را خود Klunki کشیده است. این‌ها نشان سازندگان نیستند.';
+
+  @override
   String get quartettLinkFailed => 'پیوند باز نشد.';
 
   @override

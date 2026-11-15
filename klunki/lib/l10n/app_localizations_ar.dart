@@ -1852,6 +1852,21 @@ class AppLocalizationsAr extends AppLocalizations {
       'الصور مأخوذة من ويكيميديا كومنز وتخضع لتراخيص حرة. وهي مضمنة في التطبيق؛ الروابط فقط تحتاج إلى الإنترنت.';
 
   @override
+  String get quartettLegalTitle => 'ملاحظات قانونية';
+
+  @override
+  String get quartettLegalTrademarks =>
+      'أسماء الشركات المصنّعة والمنتجات على البطاقات هي للتعريف فقط. وقد تكون علامات تجارية لأصحابها. تطبيق Klunki غير مرتبط بهذه الشركات المصنّعة ولا يحظى بدعمها.';
+
+  @override
+  String get quartettLegalPhotos =>
+      'الصور على البطاقات مأخوذة من ويكيميديا كومنز وتخضع لتراخيص حرة. أسماء المصوّرين موجودة في مصادر الصور.';
+
+  @override
+  String get quartettLegalDrawings =>
+      'الرسوم الصغيرة بجانب الاسم وعلى ظهر البطاقات من رسم Klunki نفسه، وليست شعارات لشركات مصنّعة.';
+
+  @override
   String get quartettLinkFailed => 'تعذر فتح الرابط.';
 
   @override

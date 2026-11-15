@@ -7,6 +7,7 @@ import 'package:klunki_engine/klunki_engine.dart' as qe show Card;
 import '../../game/game_controller.dart';
 import '../../transport/game_transport.dart';
 import '../../app/theme.dart';
+import '../quartett_legal_screen.dart' show quartettLegalMenuEntry;
 import '../shell/game_screen.dart';
 import 'quartett_card.dart';
 import 'quartett_deck_picker.dart' show quartettScreenTitle;
@@ -147,6 +148,7 @@ class QuartettTrumpfScreen extends StatelessWidget {
       controller: controller,
       describeMove: describeMove,
       title: quartettScreenTitle(context, controller),
+      menuEntries: [quartettLegalMenuEntry(context)],
       handoverDetail: _handoverReason,
       boardBuilder: (context, controller) => _QuartettTrumpfBoard(controller: controller),
     );

@@ -2982,6 +2982,30 @@ abstract class AppLocalizations {
   /// **'Die Fotos stammen von Wikimedia Commons und stehen unter freien Lizenzen. Sie sind in der App enthalten; nur die Links brauchen Internet.'**
   String get quartettImageCreditsIntro;
 
+  /// KLD-127: title of the legal notice page of the Quartett cards and the small link to it (deck picker, card gallery, game menu, About screen). Plain words, not "Impressum".
+  ///
+  /// In de, this message translates to:
+  /// **'Rechtliche Hinweise'**
+  String get quartettLegalTitle;
+
+  /// KLD-127: the trademark notice: names of manufacturers and products on the cards only identify them, may be trademarks of their owners, Klunki has no connection with them and is not endorsed by them. Generic (any deck), plain words.
+  ///
+  /// In de, this message translates to:
+  /// **'Namen von Herstellern und Produkten auf den Karten dienen nur zur Bezeichnung. Sie können Marken ihrer jeweiligen Inhaber sein. Klunki steht in keiner Verbindung zu diesen Herstellern und wird nicht von ihnen unterstützt.'**
+  String get quartettLegalTrademarks;
+
+  /// KLD-127: the card photos come from Wikimedia Commons under free licences; the photographers are named in the image credits (quartettImageCreditsTitle, linked below).
+  ///
+  /// In de, this message translates to:
+  /// **'Die Fotos auf den Karten stammen von Wikimedia Commons und stehen unter freien Lizenzen. Wer sie aufgenommen hat, steht in den Bildnachweisen.'**
+  String get quartettLegalPhotos;
+
+  /// KLD-127: the small pictures next to the card name and on the card back are drawn by Klunki itself, they are not manufacturer logos.
+  ///
+  /// In de, this message translates to:
+  /// **'Die kleinen Bilder neben dem Namen und auf der Rückseite der Karten hat Klunki selbst gezeichnet. Es sind keine Logos von Herstellern.'**
+  String get quartettLegalDrawings;
+
   /// KLD-082 snack bar when a web link could not be opened.
   ///
   /// In de, this message translates to:
