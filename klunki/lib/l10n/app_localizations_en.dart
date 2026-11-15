@@ -2314,7 +2314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'Every word laid is looked up. If one is missing, you decide together: take it back or allow it anyway.';
+      'Every word laid is looked up. If one is missing: take it back or allow it anyway – whoever plays next decides.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2342,10 +2342,6 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'You can take the tiles back. If you both agree it counts anyway, allow it.';
 
   @override
   String get wordtilesUnknownWithdraw => 'Take back';
@@ -2454,7 +2450,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'With “Check the dictionary” every word is looked up when laid. If one is missing, take the tiles back or allow it together: “Allow anyway”. Allowed words appear in the history.';
+      'With “Check the dictionary” every word is looked up when laid. If one is missing, take the tiles back or ask with “Allow anyway”: whoever plays next decides. Allowed words appear in the history.';
 
   @override
   String get wordtilesHelpChallenge =>

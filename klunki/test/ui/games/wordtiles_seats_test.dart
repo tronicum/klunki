@@ -1,7 +1,7 @@
 // KLD-125: Wortgewandt for 3–4 players on one device. The seat shell with
 // the handover cover between every two players (racks are secret), the
 // score row with four seats on a small phone (right to left too), "Trotzdem
-// zulassen" agreed by the table (logged as the next player's answer), the
+// zulassen" answered by the next player after the handover, the
 // ranking with the rack deduction, the start from the menu with the player
 // count, and two players staying on the two-player screen.
 import 'package:flutter/material.dart';
@@ -204,7 +204,7 @@ void main() {
     expect(find.text('aufgegeben'), findsNWidgets(2));
   });
 
-  testWidgets('dictionary, 3 players: "Trotzdem zulassen" is agreed by the table, logged as the next player',
+  testWidgets('dictionary, 3 players: "Trotzdem zulassen" asks the next player, as with two (KLD-125, 2026-11-15)',
       (tester) async {
     await tester.runAsync(() => WordListLoader.ensure('de'));
     addTearDown(WordListLoader.reset);
@@ -217,17 +217,21 @@ void main() {
     await _tap(tester, _key('wordtiles-play'));
     await tester.pumpAndSettle();
     expect(_key('wordtiles-unknown'), findsOneWidget);
-    expect(find.text('Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.'),
-        findsOneWidget);
+    expect(find.text('Du kannst die Steine zurücknehmen oder Ben fragen, ob es trotzdem zählt.'), findsOneWidget);
     await _tap(tester, _key('wordtiles-unknown-allow'));
     await tester.pumpAndSettle();
     final g = _game(c);
+    // Only the request: Ben answers once he holds the device.
+    expect([for (final m in c.moves) (m.move['action'], m.seat)], [(WordTilesGame.requestAllow, 0)]);
+    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
+    expect(_key('wordtiles-allow-dialog'), findsNothing, reason: 'not over the cover');
+    await _tap(tester, find.byKey(handoverContinue));
+    await _tap(tester, _key('wordtiles-allow-accept'));
     expect([for (final m in c.moves) (m.move['action'], m.seat)],
         [(WordTilesGame.requestAllow, 0), (WordTilesGame.acceptAllow, 1)]);
     expect(g.turns.single.allowed, ['HSA']);
     expect(g.currentSeat, 1);
-    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
-    expect(_key('wordtiles-allow-dialog'), findsNothing, reason: 'no second question in hot-seat');
+    expect(find.byKey(handoverContinue), findsNothing, reason: 'Ben holds the device already');
   });
 
   for (final (n, seat) in [(4, true), (2, false)]) {

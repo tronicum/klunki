@@ -2307,7 +2307,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'يُبحث عن كل كلمة توضع. إن لم تكن في القاموس تقرّرون معًا: سحبها أو قبولها رغم ذلك.';
+      'يُبحث عن كل كلمة توضع. إن لم تكن في القاموس: سحبها أو قبولها رغم ذلك، والقرار لمن عليه الدور التالي.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2334,10 +2334,6 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'يمكنكم سحب الحروف. إن اتفقتم على أنها تُحسب رغم ذلك فاقبلوها.';
 
   @override
   String get wordtilesUnknownWithdraw => 'سحب';
@@ -2440,7 +2436,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'مع «التحقق من القاموس» يُبحث عن كل كلمة عند وضعها. إن لم تكن فيه، اسحبوا الحروف أو اقبلوها معًا: «اقبل رغم ذلك». تظهر الكلمات المقبولة في السجل.';
+      'مع «التحقق من القاموس» يُبحث عن كل كلمة عند وضعها. إن لم تكن فيه، اسحبوا الحروف أو اطلبوا «اقبل رغم ذلك»، والقرار لمن عليه الدور التالي. تظهر الكلمات المقبولة في السجل.';
 
   @override
   String get wordtilesHelpChallenge =>

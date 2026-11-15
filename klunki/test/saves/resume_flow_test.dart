@@ -8,6 +8,7 @@ import 'package:klunki/profile/player_name_controller.dart';
 import 'package:klunki/saves/save_store.dart';
 import 'package:klunki/saves/saved_game.dart';
 import 'package:klunki/transport/hot_seat_transport.dart';
+import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
 import 'package:klunki/ui/shell/game_screen.dart';
 import 'package:klunki/ui/shell/legal_move_board.dart';
 import 'package:klunki/ui/shell/seat_game_screen.dart';
@@ -234,6 +235,48 @@ void main() {
       expect(find.byKey(const Key('handover-cover')), id == 'wordtiles' ? findsOneWidget : findsNothing);
       await _back(tester);
     }
+  });
+
+  testWidgets('Wortgewandt for 3 with an open "Trotzdem zulassen" resumes behind the cover for the next player '
+      '(KLD-125), who then answers', (tester) async {
+    await tester.runAsync(() => WordListLoader.ensure('de'));
+    addTearDown(WordListLoader.reset);
+    const config = GameConfig('wordtiles', seed: 18, dictionary: true, players: 3);
+    final t = HotSeatTransport(config);
+    final g = t.game as WordTilesGame;
+    // Two rack tiles side by side in the centre that form no word.
+    final rack = g.rackOf(0);
+    late List<PlacedTile> placed;
+    late List<String> unknown;
+    search:
+    for (var i = 0; i < rack.length; i++) {
+      for (var j = 0; j < rack.length; j++) {
+        if (i == j || rack[i] == TileSet.blank || rack[j] == TileSet.blank) continue;
+        placed = [PlacedTile(7, 7, rack[i]), PlacedTile(7, 8, rack[j])];
+        unknown = g.unknownWords(WordTilesGame.placeMove(placed));
+        if (unknown.isNotEmpty) break search;
+      }
+    }
+    expect(unknown, isNotEmpty);
+    t.submitSync(g.requestAllowMoveFor(0, placed, unknown));
+    expect(g.allowRequestAnswerer, 1);
+    final save = SavedGame.now(config, [for (final m in t.moves) m.move], names: ['Mia', null, 'Ole']);
+    final prefs = await _prefs({'${SaveStore.prefsPrefix}wordtiles': jsonEncode(save.toJson())});
+    await tester.pumpWidget(_app(await SaveStore.load(prefs: prefs)));
+    await tester.tap(find.byKey(const Key('menu-saved-games')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('saved-wordtiles')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('handover-cover')), findsOneWidget);
+    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
+    expect(find.byKey(const Key('wordtiles-allow-dialog')), findsNothing, reason: 'not over the cover');
+    await tester.tap(find.byKey(const Key('handover-continue')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('wordtiles-allow-dialog')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('wordtiles-allow-decline')));
+    await tester.pumpAndSettle();
+    expect(find.text('Gib das Gerät an Mia weiter'), findsOneWidget);
+    expect(controllerOf(tester).moves.last.seat, 1);
   });
 
   testWidgets('the app going to the background saves the chess clock', (tester) async {

@@ -3722,7 +3722,7 @@ abstract class AppLocalizations {
   /// Word tiles start options: what the dictionary check does (shown while it is on).
   ///
   /// In de, this message translates to:
-  /// **'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.'**
+  /// **'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin: zurücknehmen oder trotzdem zulassen – das entscheidet, wer als Nächstes dran ist.'**
   String get wordtilesOptionDictionaryOn;
 
   /// Word tiles start options: how words are judged without the dictionary (shown while it is off).
@@ -3760,12 +3760,6 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, =1{„{words}“ steht nicht im Wörterbuch.} other{„{words}“ stehen nicht im Wörterbuch.}}'**
   String wordtilesUnknownBody(String words, int count);
-
-  /// Word tiles: the joint decision after an unknown word (both players are at the device).
-  ///
-  /// In de, this message translates to:
-  /// **'Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.'**
-  String get wordtilesUnknownAsk;
 
   /// Word tiles: unknown word notice, the tiles go back to the rack and the turn goes on.
   ///
@@ -3932,7 +3926,7 @@ abstract class AppLocalizations {
   /// Word tiles rules sheet: the dictionary check and "Trotzdem zulassen" (keep the button names in quotes as in wordtilesOptionDictionary / wordtilesUnknownAllow).
   ///
   /// In de, this message translates to:
-  /// **'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.'**
+  /// **'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nimmst du die Steine zurück oder fragst mit „Trotzdem zulassen“: Wer als Nächstes dran ist, entscheidet. Zugelassene Wörter stehen im Verlauf.'**
   String get wordtilesHelpDictionary;
 
   /// Word tiles rules sheet: challenging without the dictionary.
@@ -4115,7 +4109,7 @@ abstract class AppLocalizations {
   /// **'{move} (Joker getauscht)'**
   String wordtilesMoveJoker(String move);
 
-  /// KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): "Trotzdem zulassen" sends a request to the other player ({player}).
+  /// KLD-094 step 6: the unknown-word notice: "Trotzdem zulassen" asks the next player ({player}): over the network, or after the handover on one device (2–4 players, KLD-125).
   ///
   /// In de, this message translates to:
   /// **'Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.'**

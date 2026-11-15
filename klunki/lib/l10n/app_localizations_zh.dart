@@ -2217,7 +2217,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesOptionDictionary => '查字典';
 
   @override
-  String get wordtilesOptionDictionaryOn => '每组字出牌后查字典。字典里没有时，你们来定：取回或仍然接受。';
+  String get wordtilesOptionDictionaryOn =>
+      '每组字出牌后查字典。字典里没有时：取回，或者仍然接受——由下一位玩家决定。';
 
   @override
   String get wordtilesOptionDictionaryOff => '没有字典时以你们为准：可以否认一组字。';
@@ -2243,9 +2244,6 @@ class AppLocalizationsZh extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk => '可以取回这些牌。如果你们都同意仍然算数，就接受。';
 
   @override
   String get wordtilesUnknownWithdraw => '取回';
@@ -2343,7 +2341,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      '选了“查字典”时，每组字出牌后查字典。字典里没有时，你们取回这些牌，或都同意后选“仍然接受”。接受的字会记在记录里。';
+      '选了“查字典”时，每组字出牌后查字典。字典里没有时，取回这些牌，或选“仍然接受”，由下一位玩家决定。接受的字会记在记录里。';
 
   @override
   String get wordtilesHelpChallenge => '没有字典时可以否认上一组字：这些牌被取回，不得分。';

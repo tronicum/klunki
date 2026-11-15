@@ -2334,7 +2334,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'Chaque mot posé est vérifié. S’il n’y est pas, vous décidez ensemble : le reprendre ou l’accepter quand même.';
+      'Chaque mot posé est vérifié. S’il n’y est pas : le reprendre ou l’accepter quand même – c’est la personne qui joue ensuite qui décide.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2363,10 +2363,6 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'Vous pouvez reprendre les lettres. Si vous êtes d’accord pour qu’il compte quand même, acceptez-le.';
 
   @override
   String get wordtilesUnknownWithdraw => 'Reprendre';
@@ -2476,7 +2472,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'Avec « Vérifier dans le dictionnaire », chaque mot est vérifié à la pose. S’il manque, reprenez les lettres ou acceptez-le ensemble : « Accepter quand même ». Les mots acceptés figurent dans l’historique.';
+      'Avec « Vérifier dans le dictionnaire », chaque mot est vérifié à la pose. S’il manque, reprenez les lettres ou demandez avec « Accepter quand même » : la personne qui joue ensuite décide. Les mots acceptés figurent dans l’historique.';
 
   @override
   String get wordtilesHelpChallenge =>

@@ -2322,7 +2322,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.';
+      'Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin: zurücknehmen oder trotzdem zulassen – das entscheidet, wer als Nächstes dran ist.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2351,10 +2351,6 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.';
 
   @override
   String get wordtilesUnknownWithdraw => 'Zurücknehmen';
@@ -2464,7 +2460,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.';
+      'Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nimmst du die Steine zurück oder fragst mit „Trotzdem zulassen“: Wer als Nächstes dran ist, entscheidet. Zugelassene Wörter stehen im Verlauf.';
 
   @override
   String get wordtilesHelpChallenge =>

@@ -6,13 +6,16 @@
 // so after the refusal the device seemed stuck on the cover. Now the request
 // hands the device to the player who answers (cover, then the answer dialog
 // over their own rack), a refusal hands it back to the placer (tiles on the
-// rack, still their turn), an agreement lets the answerer play on.
+// rack, still their turn), an agreement lets the answerer play on. With 3–4
+// at one device the same, the next seat still in answers (KLD-125, the
+// maintainer on 2026-11-15; before, the table agreed together at once).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/game/game_controller.dart';
 import 'package:klunki/profile/seat_names.dart';
 import 'package:klunki/profile/seen_tips.dart';
 import 'package:klunki/ui/games/wordtiles/word_list_loader.dart';
+import 'package:klunki/ui/games/wordtiles/wordtiles_board.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
 import 'package:klunki/ui/shell/seat_game_screen.dart';
 import 'package:klunki_engine/klunki_engine.dart' hide Card;
@@ -152,45 +155,97 @@ void main() {
     _expectRack((c.game as WordTilesGame).rackOf(0));
   });
 
-  testWidgets('3 players: the table agrees at once; the next player can still refuse from the cover (undo), '
-      'then the device goes back to Anna', (tester) async {
+  testWidgets('3 players: Ben (the next player) gets the device behind the cover, agrees and plays on',
+      (tester) async {
     final c = await _start(tester, players: 3);
+    final g = c.game as WordTilesGame;
     expect(find.byType(SeatGameScreen), findsOneWidget);
+    // As with two (maintainer, 2026-11-15): the next player is asked.
+    await _askHsa(tester);
+    expect([for (final m in c.moves) (m.move['action'], m.seat)], [(WordTilesGame.requestAllow, 0)]);
+    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
+    expect(find.text('Anna möchte „HSA“ zulassen (6 Punkte).'), findsOneWidget);
+    expect(tester.widget<SeatToken>(_key('handover-seat')).seat, 1);
+    expect(_key('wordtiles-allow-dialog'), findsNothing, reason: 'not over the cover');
+    await _tap(tester, find.byKey(_continue));
+    expect(_key('wordtiles-allow-dialog'), findsOneWidget);
+    expect(find.text('Anna möchte „HSA“ zulassen – einverstanden?'), findsOneWidget);
+    _expectRack(_racks[1]);
+    expect(find.text('Ben ist am Zug'), findsOneWidget, reason: 'the seat pill names who acts');
+    expect(tester.widget<SeatToken>(find.descendant(of: _key('shell-turn'), matching: find.byType(SeatToken))).seat, 1);
+    await _tap(tester, _key('wordtiles-allow-accept'));
+    expect([for (final m in c.moves) (m.move['action'], m.seat)],
+        [(WordTilesGame.requestAllow, 0), (WordTilesGame.acceptAllow, 1)]);
+    // Ben holds the device already: his turn, no cover.
+    expect(find.byKey(_continue), findsNothing);
+    expect(find.text('Ben ist am Zug'), findsOneWidget);
+    expect(g.currentSeat, 1);
+    expect(g.scoreOf(0), 6);
+    _expectRack(_racks[1]);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('3 players: Ben refuses; the device goes back to Anna, tiles on her rack', (tester) async {
+    final c = await _start(tester, players: 3);
+    final g = c.game as WordTilesGame;
+    await _askHsa(tester);
+    await _tap(tester, find.byKey(_continue));
+    await _tap(tester, _key('wordtiles-allow-decline'));
+    expect([for (final m in c.moves) (m.move['action'], m.seat)],
+        [(WordTilesGame.requestAllow, 0), (WordTilesGame.declineAllow, 1)]);
+    expect(find.text('Gib das Gerät an Anna weiter'), findsOneWidget);
+    expect(tester.widget<SeatToken>(_key('handover-seat')).seat, 0);
+    await _tap(tester, find.byKey(_continue));
+    expect(find.byKey(_continue), findsNothing);
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
+    expect(find.text('Ben lehnt „HSA“ ab.'), findsOneWidget);
+    expect(g.currentSeat, 0);
+    _expectRack(_racks[0]);
+    expect(g.tileAt(7, 7), isNull);
+    await _askAgainRefused(tester);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('3 players, Ben resigned: Anna\'s request goes to the next seat still in (seat 3)', (tester) async {
+    final c = await _start(tester, players: 3);
+    final g = c.game as WordTilesGame;
+    await tester.runAsync(() => c.resignSeat(1));
+    await tester.pumpAndSettle();
+    expect(g.isSeatOut(1), isTrue);
+    expect(g.currentSeat, 0);
+    final third = wordTilesSeatName(tester.element(find.byType(SeatGameScreen)), g, 2);
     for (final (i, col) in [(0, 7), (3, 8), (1, 9)]) {
       await _tap(tester, _key('wordtiles-rack-$i'));
       await _tap(tester, _key('wordtiles-sq-7-$col'));
     }
     await _tap(tester, _key('wordtiles-play'));
-    // 3–4 at one device decide together (maintainer, KLD-125).
-    expect(find.text('Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.'),
-        findsOneWidget);
+    expect(find.text('Du kannst die Steine zurücknehmen oder $third fragen, ob es trotzdem zählt.'), findsOneWidget);
     await _tap(tester, _key('wordtiles-unknown-allow'));
-    expect([for (final m in c.moves) (m.move['action'], m.seat)],
-        [(WordTilesGame.requestAllow, 0), (WordTilesGame.acceptAllow, 1)]);
-    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
-    expect(_key('wordtiles-allow-dialog'), findsNothing);
-    // Ben disagrees after all: "Zug zurücknehmen" on the cover opens the
-    // request again; the cover still goes to Ben (before the fix it named
-    // Anna, and stayed up after the refusal), then he answers.
-    await _undo(tester);
-    expect(c.moves, hasLength(1));
-    expect(find.text('Gib das Gerät an Ben weiter'), findsOneWidget);
-    expect(find.text('Anna möchte „HSA“ zulassen (6 Punkte).'), findsOneWidget);
-    expect(_key('wordtiles-allow-dialog'), findsNothing, reason: 'not over the cover');
+    expect(g.allowRequestAnswerer, 2);
+    expect(find.text('Gib das Gerät an $third weiter'), findsOneWidget);
+    expect(tester.widget<SeatToken>(_key('handover-seat')).seat, 2);
     await _tap(tester, find.byKey(_continue));
     expect(_key('wordtiles-allow-dialog'), findsOneWidget);
-    // Ben's own rack (undo replays from the seed: the dealt rack).
-    _expectRack((c.game as WordTilesGame).rackOf(1));
-    expect(find.text('Ben ist am Zug'), findsOneWidget, reason: 'the seat pill names who acts');
-    expect(tester.widget<SeatToken>(find.descendant(of: _key('shell-turn'), matching: find.byType(SeatToken))).seat, 1);
+    _expectRack(_racks[2]);
     await _tap(tester, _key('wordtiles-allow-decline'));
-    expect([for (final m in c.moves) (m.move['action'], m.seat)],
-        [(WordTilesGame.requestAllow, 0), (WordTilesGame.declineAllow, 1)]);
+    expect(c.moves.last.seat, 2);
     expect(find.text('Gib das Gerät an Anna weiter'), findsOneWidget);
     await _tap(tester, find.byKey(_continue));
-    expect(find.byKey(_continue), findsNothing);
     expect(find.text('Anna ist am Zug'), findsOneWidget);
-    expect((c.game as WordTilesGame).currentSeat, 0);
+    _expectRack(_racks[0]);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('3 players: "Zug zurücknehmen" on Ben\'s request cover takes the request back to Anna',
+      (tester) async {
+    final c = await _start(tester, players: 3);
+    await _askHsa(tester);
+    await _undo(tester);
+    expect(c.moves, isEmpty);
+    expect(_key('wordtiles-allow-dialog'), findsNothing);
+    expect(find.text('Gib das Gerät an Anna weiter'), findsOneWidget);
+    await _tap(tester, find.byKey(_continue));
+    expect(find.text('Anna ist am Zug'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -3400,7 +3400,7 @@
   "@wordtilesOptionDictionary": {
     "description": "Word tiles start options: switch to check every laid word against the bundled word list."
   },
-  "wordtilesOptionDictionaryOn": "Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin, entscheidet ihr gemeinsam: zurücknehmen oder trotzdem zulassen.",
+  "wordtilesOptionDictionaryOn": "Jedes gelegte Wort wird nachgeschlagen. Steht eins nicht drin: zurücknehmen oder trotzdem zulassen – das entscheidet, wer als Nächstes dran ist.",
   "@wordtilesOptionDictionaryOn": {
     "description": "Word tiles start options: what the dictionary check does (shown while it is on)."
   },
@@ -3435,10 +3435,6 @@
         "type": "int"
       }
     }
-  },
-  "wordtilesUnknownAsk": "Ihr könnt die Steine zurücknehmen. Seid ihr euch einig, dass es trotzdem zählt, lasst es zu.",
-  "@wordtilesUnknownAsk": {
-    "description": "Word tiles: the joint decision after an unknown word (both players are at the device)."
   },
   "wordtilesUnknownWithdraw": "Zurücknehmen",
   "@wordtilesUnknownWithdraw": {
@@ -3593,7 +3589,7 @@
       }
     }
   },
-  "wordtilesHelpDictionary": "Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nehmt ihr die Steine zurück oder lasst es gemeinsam zu: „Trotzdem zulassen“. Zugelassene Wörter stehen im Verlauf.",
+  "wordtilesHelpDictionary": "Mit „Wörterbuch prüfen“ wird jedes Wort beim Legen nachgeschlagen. Steht eins nicht drin, nimmst du die Steine zurück oder fragst mit „Trotzdem zulassen“: Wer als Nächstes dran ist, entscheidet. Zugelassene Wörter stehen im Verlauf.",
   "@wordtilesHelpDictionary": {
     "description": "Word tiles rules sheet: the dictionary check and \"Trotzdem zulassen\" (keep the button names in quotes as in wordtilesOptionDictionary / wordtilesUnknownAllow)."
   },
@@ -3800,7 +3796,7 @@
   },
   "wordtilesUnknownAskNet": "Du kannst die Steine zurücknehmen oder {player} fragen, ob es trotzdem zählt.",
   "@wordtilesUnknownAskNet": {
-    "description": "KLD-094 step 6: the unknown-word notice over the network (instead of wordtilesUnknownAsk): \"Trotzdem zulassen\" sends a request to the other player ({player}).",
+    "description": "KLD-094 step 6: the unknown-word notice: \"Trotzdem zulassen\" asks the next player ({player}): over the network, or after the handover on one device (2–4 players, KLD-125).",
     "placeholders": {
       "player": {
         "type": "String"

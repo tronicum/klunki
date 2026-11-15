@@ -504,8 +504,8 @@ class WordTilesDictionaryAdapter extends WordTilesAdapter {
         expect(d.on(find.byKey(const Key('wordtiles-unknown'))), findsOneWidget, reason: '${d.name}: $odd');
         await d.tapKey(tester, const Key('wordtiles-unknown-allow'));
         await settle(tester, d);
-        // KLD-094 step 6: a request to the other player (in hot-seat their
-        // agreement follows at once).
+        // KLD-094 step 6: a request to the next player (in hot-seat the
+        // device goes to them behind the cover; they answer next step).
         return {
           'action': WordTilesGame.requestAllow,
           'player': WordTilesGame.playerOfSeat(g.currentSeat)?.name ?? '${g.currentSeat}',

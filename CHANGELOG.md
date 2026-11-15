@@ -8,6 +8,9 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Wortgewandt with 3–4 on one device: "Trotzdem zulassen" asks the next player** (KLD-125): as with two, the
+  device goes to whoever plays next ("Gib das Gerät an Cleo weiter"), who agrees or refuses; a refusal hands it
+  back. Before, the whole table had to agree at once ("Seid ihr euch einig …").
 - **Wortgewandt: "Zug zurücknehmen" asks first** (KLD-094): "Möchtest du den Zug zurücknehmen?" with
   "Zurücknehmen" or "Nein", so a slip of the finger does not throw away a word. Other games take back at once.
 - **Wortgewandt: the last word in the summary** (KLD-094): the end summary now starts with the move that ended the

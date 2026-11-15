@@ -3,6 +3,9 @@
 // seats), the handover cover, the result with the ranking, on a phone in
 // German (light); plus an iPhone SE, Arabic (right to left) and dark mode
 // for the checks. The German word list makes the bot lay real words.
+// "Trotzdem zulassen" with 3 players (2026-11-15): the unknown-word notice
+// naming the next player, the cover handing the device to them, their
+// answer dialog.
 // Skipped unless KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/shots flutter test test/screenshots/wordtiles_seats_shots_test.dart --plain-name kld125
@@ -110,8 +113,11 @@ Future<void> _pumpApp(WidgetTester tester, Widget home,
 }
 
 Future<GameController> _game(WidgetTester tester,
-    {Locale locale = const Locale('de'), Brightness brightness = Brightness.light, Size size = _phone}) async {
-  final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 5, players: 4, dictionary: true));
+    {Locale locale = const Locale('de'),
+    Brightness brightness = Brightness.light,
+    Size size = _phone,
+    int players = 4}) async {
+  final c = GameController.hotSeat(GameConfig('wordtiles', seed: 5, players: players, dictionary: true));
   addTearDown(c.dispose);
   await _pumpApp(tester, buildGameScreen(c), locale: locale, brightness: brightness, size: size);
   return c;
@@ -182,6 +188,47 @@ void main() {
         await _bot(tester, c, 400);
         expect(c.game.isOver, isTrue);
         await _shot(tester, '05-result-$name');
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    for (final (name, size, locale) in [
+      ('phone', _phone, const Locale('de')),
+      ('se-ar', _se, const Locale('ar')),
+    ]) {
+      testWidgets('3 players $name: "Trotzdem zulassen" asks the next player', skip: skip, (tester) async {
+        await tester.runAsync(() => WordListLoader.ensure('de'));
+        addTearDown(WordListLoader.reset);
+        final c = await _game(tester, locale: locale, size: size, players: 3);
+        final g = c.game as WordTilesGame;
+        // Two rack tiles through the centre that form no word.
+        final rack = g.rackOf(0);
+        (int, int)? pair;
+        for (var i = 0; i < rack.length && pair == null; i++) {
+          for (var j = 0; j < rack.length && pair == null; j++) {
+            if (i == j || rack[i] == TileSet.blank || rack[j] == TileSet.blank) continue;
+            final m = WordTilesGame.placeMove([PlacedTile(7, 7, rack[i]), PlacedTile(7, 8, rack[j])]);
+            if (g.unknownWords(m).isNotEmpty) pair = (i, j);
+          }
+        }
+        final (i, j) = pair!;
+        for (final (r, col) in [(i, 7), (j, 8)]) {
+          await tester.tap(find.byKey(Key('wordtiles-rack-$r')));
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(Key('wordtiles-sq-7-$col')));
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(find.byKey(const Key('wordtiles-play')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('wordtiles-unknown')), findsOneWidget);
+        await _shot(tester, '06-unknown-3-$name');
+        await tester.tap(find.byKey(const Key('wordtiles-unknown-allow')));
+        await tester.pumpAndSettle();
+        expect(g.allowRequestAnswerer, 1);
+        await _shot(tester, '07-allow-cover-3-$name');
+        await _continue(tester);
+        expect(find.byKey(const Key('wordtiles-allow-dialog')), findsOneWidget);
+        await _shot(tester, '08-allow-answer-3-$name');
         expect(tester.takeException(), isNull);
       });
     }

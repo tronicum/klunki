@@ -50,8 +50,8 @@ import 'wordtiles_tiles.dart';
 ///   the network (KLD-094 step 6) the other device shows
 ///   `wordtiles-allow-dialog` while the placer waits; in hot-seat with two
 ///   the device is handed over (cover) and the other player answers in the
-///   same dialog, a refusal hands it back; 3–4 at one device agree together,
-///   at once (KLD-125)).
+///   same dialog, a refusal hands it back; with 3–4 at one device the same,
+///   the next player still in answers (KLD-125, maintainer 2026-11-15)).
 ///   The history says "zugelassen: …". No challenges then.
 /// * **Bänkchen** (the bench, KLD-094 step 4): [benchRows] private practice
 ///   rows of [benchSlots] slots below the actions (KLD-094 step 8). Open from
@@ -264,10 +264,6 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
   /// One player per device (KLD-094 step 6; a table of 3–4, KLD-088), not
   /// hot-seat.
   bool get _network => controller.localSeat != null;
-
-  /// "Trotzdem zulassen" is agreed by the whole table at once (3–4 players
-  /// on one device, KLD-125); with two the other player answers.
-  bool get _tableAgrees => !_network && game.playerCount > 2;
 
   /// The seat after [_seat] still in the game (the other player with two).
   int get _nextSeat {
@@ -843,21 +839,17 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     // network their device shows the request; with two in hot-seat the
     // device is handed over to them (the cover, as for a turn) and they
     // answer in the same dialog; a refusal hands it back to the placer,
-    // tiles on the rack. With 3–4 at one device (KLD-125, maintainer) the
-    // table agrees together here: the agreement follows at once, logged
-    // as the next player's (the next seat still in).
+    // tiles on the rack. With 3–4 at one device the same: the next player
+    // still in answers (KLD-125; the maintainer, 2026-11-15: when the
+    // device goes round, not everybody looks at it at the same time).
     setState(() => _busy = true);
     final r = await controller.submit(game.requestAllowMoveFor(_seat, placed, unknown, swaps: swaps));
-    final answerer = game.allowRequestAnswerer;
-    if (r.isAccepted && _tableAgrees && mounted && answerer != null) {
-      await controller.submit(game.acceptAllowMoveFor(answerer));
-    }
     if (!r.isAccepted && mounted) setState(() => _busy = false);
   }
 
   /// "„XYZ“ steht nicht im Wörterbuch." – "Zurücknehmen" (false) or
-  /// "Trotzdem zulassen" (true). Hot-seat: one joint decision, both players
-  /// are at the device. Network (KLD-094 step 6): it asks the other player.
+  /// "Trotzdem zulassen" (true): it asks the next player (the other one with
+  /// two; KLD-094 step 6, KLD-125), over the network or after the handover.
   /// [canAsk] false (the other player already declined these words this
   /// turn): only "Zurücknehmen".
   Future<bool> _askUnknown(List<String> words, {bool canAsk = true}) async {
@@ -876,13 +868,10 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
             Text(l10n.wordtilesUnknownBody(wordList(ctx, words), words.length),
                 style: Theme.of(ctx).textTheme.bodyLarge),
             const SizedBox(height: 12),
-            // Two players: the other one is asked (after the handover in
-            // hot-seat); 3–4 at one device decide together.
+            // The next player is asked (after the handover in hot-seat).
             Text(!canAsk
                 ? l10n.wordtilesUnknownDeclinedBefore(_nameOfSeat(otherSeat))
-                : _tableAgrees
-                    ? l10n.wordtilesUnknownAsk
-                    : l10n.wordtilesUnknownAskNet(_nameOfSeat(otherSeat))),
+                : l10n.wordtilesUnknownAskNet(_nameOfSeat(otherSeat))),
           ],
         ),
         actions: [

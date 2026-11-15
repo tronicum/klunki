@@ -34,12 +34,16 @@ two players; 2 players play as before (the two-player screen, network included).
 - **Score row:** token (seat colour and number), name and score per seat; when four names do not fit (every
   phone), tokens and scores only (the pill names the player to move; the semantics label keeps the names);
   scaled down only if even that does not fit. The rack deduction "(−7)" next to the score at the end.
-- **"Trotzdem zulassen" (word list on), hot-seat with 3–4:** the whole table decides together at the device
-  (the dialog says "Seid ihr euch einig …"; maintainer, 2026-11-09: keep it); the engine logs the agreement as the
-  answer of the **next player still in** (`requestAllowMoveFor(seat)` + `acceptAllowMoveFor(allowRequestAnswerer)`,
-  the engine's rule from KLD-088 step 1). The next player can still refuse: "Zug zurücknehmen" on their cover
-  opens the request again, they get the device and the answer dialog over their own rack; a refusal hands the
-  device back to the placer.
+- **"Trotzdem zulassen" (word list on), hot-seat with 3–4: exactly as with 2 players** (maintainer, 2026-11-15,
+  replacing the table agreement of 2026-11-09, see decision 1). The **next player still in** answers
+  (`allowRequestAnswerer`, the engine's rule from KLD-088 step 1; a seat that resigned is skipped): the
+  unknown-word notice says "Du kannst die Steine zurücknehmen oder Cleo fragen, ob es trotzdem zählt.", the request
+  hands the device to them (cover "Gib das Gerät an Cleo weiter" with their seat token and "Anna möchte „HSA“
+  zulassen (6 Punkte)."), they answer in the answer dialog over their own rack; agreeing lets them play on without
+  another cover, refusing hands the device back to the placer (tiles on the rack, the same words cannot be asked
+  again this turn). "Zug zurücknehmen" on the request cover takes the request back; a saved game with an open
+  request resumes behind the cover for the answerer. The key `wordtilesUnknownAsk` ("Seid ihr euch einig …") is
+  gone; the dictionary option and rules texts no longer say "gemeinsam" but that whoever plays next decides.
 - **Fix (bug from the maintainer, 2 players, also on main):** "Trotzdem zulassen" used to be agreed at once in
   hot-seat; the only way to refuse was "Zug zurücknehmen" on the other player's cover, and then the cover named the
   placer while the other player had to answer (`GameController` followed `currentPlayer`, not the player who has
@@ -82,16 +86,23 @@ JSON as before (`players` is written only when not 2). 2-player network compatib
 - [x] 7 locales (4 new keys), no rules-version change, network stays 2-player.
 
 ## Tests
-- `klunki/test/ui/games/wordtiles_allow_refuse_test.dart` (5): 2 players refuse / agree after the handover,
-  undo on the request cover, the old undo-after-agreement path, 3 players table agreement and refusal via undo.
+- `klunki/test/ui/games/wordtiles_allow_refuse_test.dart` (8): 2 players refuse / agree after the handover,
+  undo on the request cover, the old undo-after-agreement path; 3 players: the next player agrees after the cover
+  and plays on, refuses (back to the placer), the request skips a resigned seat, undo on the request cover.
+- `klunki/test/saves/resume_flow_test.dart`: a 3-player save with an open request resumes behind the answerer's
+  cover.
 - `klunki/test/ui/games/wordtiles_seats_test.dart` (11): cover before every seat, undo on the cover, four seats in
   one row (SE, 320 px, ar), scoreless end with the ranking and rack notes, resign by seat, allow by the table,
-  menu start with 4 and 2 players, config JSON.
-- `klunki/test/e2e/live_ui/wordtiles_seats_live_test.dart` (2 whole games).
-- Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_seats_shots_test.dart --plain-name kld125`.
+  menu start with 4 and 2 players, config JSON (the allow case: the next player answers after the handover).
+- `klunki/test/e2e/live_ui/wordtiles_seats_live_test.dart` (2 whole games; the 3-player game asks twice, the next
+  player refuses the first request and agrees to the second).
+- Screenshots: `KLUNKI_SHOTS=<dir> flutter test test/screenshots/wordtiles_seats_shots_test.dart --plain-name kld125`
+  (`06-unknown-3-*`, `07-allow-cover-3-*`, `08-allow-answer-3-*`: "Trotzdem zulassen" with 3, phone de and SE ar).
 
 ## Decisions (maintainer, 2026-11-09)
-1. "Trotzdem zulassen" with 3–4: the table agrees together (kept).
+1. "Trotzdem zulassen" with 3–4: the table agrees together (kept). **Changed 2026-11-15:** exactly as with 2 players,
+   the next player still in gets the device and answers. Reason (maintainer, after a 3-player game on an iPad on
+   the sofa): "in der Regel schauen nicht alle gleichzeitig auf das iPad, wenn man es rumgibt".
 2. Score row with 4 on a phone: tokens and scores only (kept).
 3. Rack deduction in the ranking: no line under the name; small and muted next to the points, "164 Punkte (−2)"
    ("(+8)" for the player who went out), as the score row; one line on an iPhone SE, left to right in ar/fa

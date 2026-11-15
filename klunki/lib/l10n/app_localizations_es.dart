@@ -2328,7 +2328,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'Cada palabra colocada se busca. Si falta alguna, decidís juntos: retirarla o permitirla igualmente.';
+      'Cada palabra colocada se busca. Si falta alguna: retirarla o permitirla igualmente; decide quien juega después.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2356,10 +2356,6 @@ class AppLocalizationsEs extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'Podéis retirar las fichas. Si estáis de acuerdo en que cuenta igualmente, permitidlo.';
 
   @override
   String get wordtilesUnknownWithdraw => 'Retirar';
@@ -2468,7 +2464,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'Con «Comprobar en el diccionario» cada palabra se busca al colocarla. Si falta, retirad las fichas o permitidla juntos: «Permitir igualmente». Las palabras permitidas aparecen en el historial.';
+      'Con «Comprobar en el diccionario» cada palabra se busca al colocarla. Si falta, retirad las fichas o pedid «Permitir igualmente»: decide quien juega después. Las palabras permitidas aparecen en el historial.';
 
   @override
   String get wordtilesHelpChallenge =>

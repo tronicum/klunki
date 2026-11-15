@@ -5,8 +5,9 @@
 // tile, then square), sometimes swaps, passes, parks tiles on the Bänkchen,
 // answers or challenges the open placement (the adapter of the two-player
 // live test, wordtiles_adapter.dart). The 3-player game uses the German word
-// list with one "Trotzdem zulassen" (agreed by the table, logged as the next
-// player's answer); the 4-player game runs on an iPhone SE (the board
+// list with "Trotzdem zulassen" asked twice (KLD-125, 2026-11-15: as with two
+// players, the device goes to the next player behind the cover, who refuses
+// the first and agrees to the second); the 4-player game runs on an iPhone SE (the board
 // auto-zooms, four seats in the score row).
 //
 // Checks after every step: the status pill names the seat to move, the
@@ -88,11 +89,21 @@ Future<GameController> _play(WidgetTester tester, WordTilesAdapter adapter, Game
       turnSeat = seat;
       continue;
     }
-    // A new seat to move always came through a cover.
-    expect(game.currentSeat, turnSeat, reason: 'seat ${game.currentSeat} plays without a cover\n${log.join('\n')}');
-    expect(_textOf(tester, const Key('shell-status')), deL10n.shellToMove(_names[game.currentSeat]));
-    // The latest turn is on screen: the last-turn line or the banner.
-    if (game.turns.isNotEmpty) {
+    // A new seat to act (the answerer of an open "Trotzdem zulassen" too)
+    // always came through a cover.
+    final actor = game.actorSeat!;
+    expect(actor, turnSeat, reason: 'seat $actor acts without a cover\n${log.join('\n')}');
+    expect(_textOf(tester, const Key('shell-status')), deL10n.shellToMove(_names[actor]));
+    final request = game.allowRequest;
+    final lastAction = c.moves.isEmpty ? null : c.moves.last.move['action'];
+    if (request != null) {
+      // The answerer sees the request line (and the answer dialog).
+      expect(find.byKey(const Key('wordtiles-allow-line')), findsOneWidget);
+      expect(actor, game.allowRequestAnswerer);
+    } else if (lastAction == WordTilesGame.declineAllow) {
+      expect(find.byKey(const Key('wordtiles-allow-declined')), findsOneWidget);
+    } else if (game.turns.isNotEmpty) {
+      // The latest turn is on screen: the last-turn line or the banner.
       final t = game.turns.last;
       final line = _textOf(tester, const Key('wordtiles-last-turn'));
       if (line != null) {
@@ -109,7 +120,7 @@ Future<GameController> _play(WidgetTester tester, WordTilesAdapter adapter, Game
     }
     final m = await adapter.play(tester, d, rng);
     if (m == null) fail('nothing to do at step $step\n${log.join('\n')}');
-    log.add('${_names[game.currentSeat]} taps ${m['action']}');
+    log.add('${_names[actor]} taps ${m['action']}');
     await tester.pumpAndSettle();
   }
   final game = c.game as WordTilesGame;
@@ -176,17 +187,23 @@ void main() {
     tester.view.physicalSize = const Size(1180, 820) * 2;
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final adapter = WordTilesDictionaryAdapter();
+    // The first request is refused, the second agreed (the next player answers).
+    final adapter = WordTilesDictionaryAdapter(requests: 2, refusals: 1);
     final c = await _play(
         tester, adapter, const GameConfig('wordtiles', seed: 3, players: 3, dictionary: true), Random(3));
     final g = c.game as WordTilesGame;
-    expect(adapter.tapped['allow'], 1, reason: '${adapter.tapped}');
+    expect(adapter.tapped['allow'], 2, reason: '${adapter.tapped}');
+    expect(adapter.tapped['refuse'], 1, reason: '${adapter.tapped}');
+    expect(adapter.tapped['agree'], 1, reason: '${adapter.tapped}');
     expect(adapter.tapped['place'] ?? 0, greaterThan(5), reason: '${adapter.tapped}');
-    // "Trotzdem zulassen": seat 0 asked, the next seat (1) answered for the table.
-    final ask = c.moves.indexWhere((m) => m.move['action'] == WordTilesGame.requestAllow);
-    expect(c.moves[ask].seat, 0);
-    expect(c.moves[ask + 1].move['action'], WordTilesGame.acceptAllow);
-    expect(c.moves[ask + 1].seat, 1);
+    // "Trotzdem zulassen": seat 0 asked twice, the next seat (1) answered
+    // after the handover: refused, then agreed.
+    expect([for (final m in c.moves.take(4)) (m.move['action'], m.seat)], [
+      (WordTilesGame.requestAllow, 0),
+      (WordTilesGame.declineAllow, 1),
+      (WordTilesGame.requestAllow, 0),
+      (WordTilesGame.acceptAllow, 1),
+    ]);
     expect(g.turns.expand((t) => t.allowed), isNotEmpty);
     _checkResult(tester, c);
     debugPrint('wordtiles 3 players: ${adapter.tapped}, ${c.moves.length} moves, ${g.seatResult.code}, '

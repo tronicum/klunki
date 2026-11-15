@@ -2278,7 +2278,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesOptionDictionaryOn =>
-      'هر واژه‌ای که گذاشته شود در واژه‌نامه جست‌وجو می‌شود. اگر نبود، با هم تصمیم می‌گیرید: پس گرفتن یا پذیرفتن به‌هرحال.';
+      'هر واژه‌ای که گذاشته شود در واژه‌نامه جست‌وجو می‌شود. اگر نبود: پس گرفتن یا پذیرفتن به‌هرحال؛ تصمیم با بازیکن بعدی است.';
 
   @override
   String get wordtilesOptionDictionaryOff =>
@@ -2305,10 +2305,6 @@ class AppLocalizationsFa extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get wordtilesUnknownAsk =>
-      'می‌توانید حرف‌ها را پس بگیرید. اگر هر دو موافقید که به‌هرحال حساب شود، بپذیرید.';
 
   @override
   String get wordtilesUnknownWithdraw => 'پس گرفتن';
@@ -2412,7 +2408,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get wordtilesHelpDictionary =>
-      'با «بررسی با واژه‌نامه» هر واژه هنگام گذاشتن جست‌وجو می‌شود. اگر نبود، کاشی‌ها را پس بگیرید یا با هم بپذیرید: «به‌هرحال بپذیر». واژه‌های پذیرفته‌شده در تاریخچه می‌آیند.';
+      'با «بررسی با واژه‌نامه» هر واژه هنگام گذاشتن جست‌وجو می‌شود. اگر نبود، کاشی‌ها را پس بگیرید یا «به‌هرحال بپذیر» را بزنید؛ تصمیم با بازیکن بعدی است. واژه‌های پذیرفته‌شده در تاریخچه می‌آیند.';
 
   @override
   String get wordtilesHelpChallenge =>
