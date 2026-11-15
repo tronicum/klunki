@@ -8,6 +8,8 @@ short German summary ("Kurz") for the store notes and the testers.
 ## [Unreleased]
 
 ### Games
+- **Quartett: electric cars show "–" for Hubraum** instead of "0 cm³", on the card, in the gallery and in the
+  comparison. Display only: the value is still 0, so an electric car still loses on Hubraum.
 - **Wortgewandt with 3–4 on one device: "Trotzdem zulassen" asks the next player** (KLD-125): as with two, the
   device goes to whoever plays next ("Gib das Gerät an Cleo weiter"), who agrees or refuses; a refusal hands it
   back. Before, the whole table had to agree at once ("Seid ihr euch einig …").

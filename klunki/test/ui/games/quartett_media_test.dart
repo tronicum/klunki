@@ -536,9 +536,14 @@ void _widgetTests() {
                   .toList();
               final value = texts.firstWhere((t) => t != localizedStatLabel(l10n, s.id));
               final where = '${deck.id} ${card.id} ${s.id}: "$value"';
+              final v = card.stats[s.id]!;
+              // An electric car's Hubraum is a bare dash, no "0 cm³".
+              if (s.zeroAsDash && v == 0) {
+                expect(value, '–', reason: where);
+                continue;
+              }
               expect(value, matches(RegExp(r'^[0-9]')), reason: where);
               expect(value, isNot(contains(RegExp(r'[٠-٩۰-۹]'))), reason: where);
-              final v = card.stats[s.id]!;
               // Values from 1000 on are grouped (KLD-110: "4.000 Stk." in de,
               // "4,000" in en and fa): drop the group separator, then no ",0".
               final group = locale.languageCode == 'de' ? '.' : ',';

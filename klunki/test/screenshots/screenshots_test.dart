@@ -705,6 +705,39 @@ void main() {
     }
   });
 
+  // Electric cars: Hubraum "–" instead of "0 cm³" (display only): the full
+  // card in the gallery, the cars deck gallery and a Trumpf comparison.
+  group('dash', () {
+    testWidgets('dash electric car in the gallery', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final d = QuartettDeck.cars;
+      await tester.pumpWidget(_wrap(_themed(
+          QuartettCardPagerScreen(deck: d, initialIndex: d.cards.indexOf(d.cardById('G1')!)))));
+      await _shot(tester, 'dash-gallery-card-G1-phone-light');
+      await tester.pumpWidget(_wrap(_themed(QuartettDeckGalleryScreen(deck: d))));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('gallery-card-G1')));
+      await _shot(tester, 'dash-deck-gallery-cars-phone-light');
+    });
+    testWidgets('dash Trumpf comparison on Hubraum', skip: skip != null, (tester) async {
+      await _setup(tester, phone, Brightness.light);
+      final (seed, stat) = _qtOpening((s, va, vb) => s.id == 'ccm' && va == 0 && vb > 0);
+      final c = GameController.hotSeat(GameConfig('quartett-trumpf', seed: seed));
+      addTearDown(c.dispose);
+      await tester.pumpWidget(_wrap(_themed(buildGameScreen(c))));
+      await tester.pump();
+      await _precachePhotos(tester);
+      await tester.ensureVisible(find.byKey(Key('qt-stat-$stat')));
+      await tester.pump();
+      await _shot(tester, 'dash-trumpf-card-phone-light', settle: const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(Key('qt-stat-$stat')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('qt-reveal-a')));
+      await tester.pump();
+      await _shot(tester, 'dash-trumpf-reveal-phone-light', settle: const Duration(milliseconds: 300));
+    });
+  });
+
   // KLD-099: resign and leave confirmations in a running network game.
   group('kld099', () {
     for (final (locale, b) in [

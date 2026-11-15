@@ -10,7 +10,7 @@ String _deckSuffix(QuartettGame g) => g.deck.id == QuartettDeck.defaultId ? '' :
 /// The player named by a payload key `a` / `b` (KLD-103: Anna / Ben).
 String _player(String key) => playerNameOf(key == 'a' ? Player.a : Player.b);
 
-String _value(QuartettStat s, num v) => s.unit.isEmpty ? s.formatNumber(v) : '${s.formatNumber(v)} ${s.unit}';
+String _value(QuartettStat s, num v) => s.formatValue(v);
 
 /// Quartett (Trumpf): the Trumpf mode that compares stats. Shows only the
 /// card of the player to move: the top card, or (KLD-100,

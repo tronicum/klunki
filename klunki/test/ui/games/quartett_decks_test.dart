@@ -3,6 +3,7 @@
 // deck choice when hosting over a relay.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:klunki/l10n/app_localizations.dart';
 import 'package:klunki/profile/quartett_deck_settings.dart';
 import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
@@ -187,6 +188,33 @@ void main() {
       final len = QuartettDeck.trains.statById('lengthM')!;
       expect(formatQuartettValue(len, 200.8, locale: 'de'), '200,8 m');
       expect(formatQuartettValue(len, 200.8, locale: 'fa'), '200.8 m');
+    });
+
+    testWidgets('an electric car shows "–" for Hubraum, not "0 cm³"; a combustion car keeps its cm³', (tester) async {
+      final cars = QuartettDeck.cars;
+      final ccm = cars.statById('ccm')!;
+      final electric = cars.cardById('G1')!, combustion = cars.cardById('H1')!;
+      expect(electric.stats['ccm'], 0);
+      for (final l10n in [deL10n, enL10n, lookupAppLocalizations(const Locale('fr'))]) {
+        for (final (card, expected) in [(electric, '–'), (combustion, null)]) {
+          await tester.pumpWidget(localizedApp(
+            locale: Locale(l10n.localeName),
+            Scaffold(body: SingleChildScrollView(child: SizedBox(width: 340, child: QuartettCard(card: card)))),
+          ));
+          final value = formatQuartettValue(ccm, card.stats['ccm']!,
+              locale: l10n.localeName, unit: localizedStatUnit(l10n, 'ccm'));
+          if (expected != null) expect(value, expected);
+          expect(find.text(value), findsOneWidget, reason: '${l10n.localeName} ${card.id}');
+          expect(find.textContaining(RegExp(r'^0\s')), findsNothing, reason: '${l10n.localeName} ${card.id}');
+        }
+      }
+      expect(formatQuartettValue(ccm, 1998), '1.998 cm³');
+      expect(formatQuartettValue(ccm, 1998, locale: 'en', unit: localizedStatUnit(enL10n, 'ccm')),
+          '1,998 ${localizedStatUnit(enL10n, 'ccm')}');
+      // Display only: the value stays 0 and still loses on Hubraum.
+      expect(ccm.beats(1998, 0), isTrue);
+      // Only the Hubraum dashes its zero; any other 0 still prints as a number.
+      expect(formatQuartettValue(QuartettDeck.rockets.statById('flights')!, 0, unit: ''), '0');
     });
   });
 

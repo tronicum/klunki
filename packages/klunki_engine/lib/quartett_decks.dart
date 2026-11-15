@@ -156,14 +156,14 @@ const _lengthM = QuartettStat(id: 'lengthM', label: 'Länge', unit: 'm', decimal
 const _built = QuartettStat(id: 'built', label: 'Gebaut', unit: 'Stk.');
 
 /// Cars: the original KLD-024 deck. Values: manufacturer figures as commonly
-/// quoted, rounded; electric cars have 0 cm³.
+/// quoted, rounded; electric cars have 0 cm³ (shown as "–").
 QuartettDeck _cars() => QuartettDeck.build(
       id: 'cars',
       name: 'Autos',
       stats: const [
         QuartettStat(id: 'ps', label: 'Leistung', unit: 'PS'),
         _kmh,
-        QuartettStat(id: 'ccm', label: 'Hubraum', unit: 'cm³'),
+        QuartettStat(id: 'ccm', label: 'Hubraum', unit: 'cm³', zeroAsDash: true),
         QuartettStat(id: 'kg', label: 'Gewicht', unit: 'kg', higherWins: false),
         QuartettStat(id: 'sec0to100', label: '0–100 km/h', unit: 's', higherWins: false, decimals: 1, fixedDecimals: true),
       ],

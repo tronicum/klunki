@@ -48,6 +48,12 @@ class QuartettStat {
   /// "99%" in en).
   bool get isPercent => unit == '%';
 
+  /// Display only: a value of 0 shows as a dash "–", no number and no unit
+  /// (electric cars and bikes have no Hubraum: "–", not "0 cm³"). The value
+  /// stays 0 and compares as 0 (an electric car loses on Hubraum); the flag is
+  /// presentation, so it is not part of the compat fingerprint.
+  final bool zeroAsDash;
+
   const QuartettStat(
       {required this.id,
       required this.label,
@@ -55,7 +61,8 @@ class QuartettStat {
       this.higherWins = true,
       this.decimals = 0,
       this.fixedDecimals = false,
-      this.isYear = false})
+      this.isYear = false,
+      this.zeroAsDash = false})
       : assert(!isYear || decimals == 0),
         assert(decimals >= 0 && decimals <= 3);
 
@@ -71,6 +78,13 @@ class QuartettStat {
       t = t.substring(0, t.length - 1);
     }
     return t.endsWith('.') ? t.substring(0, t.length - 1) : t;
+  }
+
+  /// [v] with unit for plain text (CLI, data), "–" for a [zeroAsDash] zero.
+  /// The app formats per locale instead (`formatQuartettValue`).
+  String formatValue(num v) {
+    if (zeroAsDash && v == 0) return '–';
+    return unit.isEmpty ? formatNumber(v) : '${formatNumber(v)} $unit';
   }
 
   /// Whether [x] beats [y] for this stat.

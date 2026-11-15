@@ -148,6 +148,21 @@ void main() {
   });
 
   group('number format per stat (KLD-082: no "1999,0")', () {
+    test('Hubraum 0 (electric cars) prints as "–", display only; other zeros stay numbers', () {
+      final ccm = QuartettDeck.cars.statById('ccm')!;
+      expect(ccm.zeroAsDash, isTrue);
+      expect(ccm.formatValue(0), '–');
+      expect(ccm.formatValue(0.0), '–');
+      expect(ccm.formatValue(1998), '1998 cm³');
+      expect(ccm.beats(0, 1998), isFalse, reason: 'the value stays 0 and loses');
+      expect(QuartettDeck.rockets.statById('flights')!.formatValue(0), '0');
+      for (final deck in QuartettDeck.all) {
+        for (final s in deck.stats) {
+          if (s.id != 'ccm') expect(s.zeroAsDash, isFalse, reason: '${deck.id} ${s.id}');
+        }
+      }
+    });
+
     test('years and whole numbers print as integers, also from a double (the web runtime)', () {
       for (final deck in QuartettDeck.all) {
         for (final s in deck.stats) {

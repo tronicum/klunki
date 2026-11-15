@@ -45,8 +45,10 @@ qe.QuartettDeck quartettDeckOf(qe.Card card) => qe.QuartettDeck.byId(card.deck) 
 /// and fa, "35 100 kN" with a narrow no-break space (U+202F) in fr; es groups
 /// from five digits on, as CLDR and the RAE do ("1640 kg", "10.000 kN").
 /// Percentages use the locale's percent format ("99 %" in de, "99%" in en;
-/// the [unit] is ignored for them).
+/// the [unit] is ignored for them). A 0 of a [qe.QuartettStat.zeroAsDash]
+/// stat is a bare dash "–", no number, no unit (an electric car's Hubraum).
 String formatQuartettValue(qe.QuartettStat stat, num value, {String locale = 'de', String? unit}) {
+  if (stat.zeroAsDash && value == 0) return '–';
   // Western digits only: fall back to English for e.g. fa (I18N-04).
   final loc = NumberFormat.decimalPattern(locale).symbols.ZERO_DIGIT == '0' ? locale : 'en';
   // The engine rounds to the stat's decimals (plain ASCII, never grouped).
