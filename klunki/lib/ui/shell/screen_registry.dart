@@ -9,6 +9,7 @@ import '../games/connect4_screen.dart';
 import '../games/dicesheet/dicesheet_options.dart';
 import '../games/dicesheet/dicesheet_screen.dart';
 import '../games/gostrategy_screen.dart';
+import '../games/ludo/ludo_screen.dart';
 import '../games/maexchen/maexchen_options.dart';
 import '../games/maexchen/maexchen_screen.dart';
 import '../games/muehle_screen.dart';
@@ -53,6 +54,7 @@ final Map<String, GameScreenBuilder> gameScreens = {
   'maexchen': (c) => MaexchenScreen(controller: c),
   'dicesheet': (c) => DiceSheetScreen(controller: c),
   'property': (c) => PropertyScreen(controller: c),
+  'ludo': (c) => LudoScreen(controller: c),
 };
 
 /// Games with a screen that are not in the app yet (`GameSpec.appReady`
@@ -70,12 +72,14 @@ const Set<String> previewGames = {};
 /// Ausgewürfelt (KLD-119) is for 2–4 players
 /// at one table; the network session is 2-player. Baulöwe (KLD-060) is
 /// one device only until its n-player network step (`GameSpec.networkPlay`).
-const Set<String> hotSeatOnlyGames = {'dicesheet', 'property'};
+/// Rauswurf (KLD-131) too, until its network step.
+const Set<String> hotSeatOnlyGames = {'dicesheet', 'property', 'ludo'};
 
 /// Games played in the seat shell for 2–4 players on one device (KLD-119,
 /// `SeatGameScreen`): the menu asks "Wer spielt?" with the player count.
 /// Baulöwe (KLD-060) too: 2–4 on one device (the engine has 6 seats).
-const Set<String> seatGames = {'dicesheet', 'property'};
+/// Rauswurf (KLD-131): 2–4 on one device.
+const Set<String> seatGames = {'dicesheet', 'property', 'ludo'};
 
 /// The most seats the one-device seat shell offers (names, colours and
 /// "Wer spielt?" are made for 4, KLD-119).

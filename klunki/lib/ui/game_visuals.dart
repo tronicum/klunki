@@ -7,6 +7,7 @@ import 'game_illustrations.dart';
 import 'games/chess/chess_pieces.dart';
 import 'games/connect4/connect4_board.dart' show Connect4Piece;
 import 'games/dicesheet/dicesheet_illustration.dart';
+import 'games/ludo/ludo_board.dart' show LudoIllustration;
 import 'games/maumau/maumau_cards.dart' show MauMauIllustration;
 import 'games/maexchen/maexchen_dice.dart' show MaexchenIllustration;
 import 'games/property/property_illustration.dart';
@@ -109,6 +110,10 @@ final Map<String, GameVisuals> gameVisuals = {
   'property': GameVisuals(
     illustration: PropertyIllustration.new,
     description: (l) => l.menuDescProperty,
+  ),
+  'ludo': GameVisuals(
+    illustration: LudoIllustration.new,
+    description: (l) => l.menuDescLudo,
   ),
 };
 

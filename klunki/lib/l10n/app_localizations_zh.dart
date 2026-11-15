@@ -4756,4 +4756,136 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => '电动车';
+
+  @override
+  String get menuGameLudo => '飞行棋';
+
+  @override
+  String get menuDescLudo => '掷骰子、走棋、把棋子送回家：谁先让四颗棋子都到终点？';
+
+  @override
+  String get engineReasonLudoAllHome => '四颗棋子都到终点了';
+
+  @override
+  String get ludoRoll => '掷骰子';
+
+  @override
+  String ludoPawn(String player) {
+    return '棋子：$player';
+  }
+
+  @override
+  String get ludoHintRoll => '点一下骰子。';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return '你需要掷出 6。你有 $tries 次机会。';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: '还有 $tries 次机会。',
+    );
+    return '没有 6。$_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => '掷出 6！再掷一次。';
+
+  @override
+  String ludoHintMove(int value) {
+    return '你掷出了 $value。点一颗发光的棋子。';
+  }
+
+  @override
+  String get ludoHintMustCapture => '你必须把一颗棋子送回家。';
+
+  @override
+  String get ludoHintBringOut => '掷出 6 时，一颗棋子从家里出来。';
+
+  @override
+  String get ludoHintClearStart => '先让起点上的棋子走开。';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return '$player 掷出了 $value：没有可走的棋。';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return '送回家！$player 的一颗棋子回到家里。';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return '掷出 $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return '掷出 $value，没有可走的棋';
+  }
+
+  @override
+  String get ludoMoveOut => '让一颗棋子出发';
+
+  @override
+  String ludoMoveStep(int steps) {
+    String _temp0 = intl.Intl.pluralLogic(
+      steps,
+      locale: localeName,
+      other: '走 $steps 格',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ludoMoveHome => '让一颗棋子进入终点';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return '把 $player 的一颗棋子送回家';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count 颗到终点';
+  }
+
+  @override
+  String get rulesLudoGoal => '把四颗棋子都走到终点。谁先做到谁就赢。\n其他人按到终点的棋子数排名。';
+
+  @override
+  String get rulesLudoTurn =>
+      '2 到 4 人在一台设备上轮流玩。\n点一下骰子。然后点一颗发光的棋子：骰子是几，它就走几格。\n掷出 6 时，一颗棋子从家里走到你的起点。\n走到别人的棋子上，就把它送回家。\n不能走到自己的棋子上。可以跳过棋子，但在终点通道里不行。\n进终点需要正好的点数。';
+
+  @override
+  String get rulesLudoSpecial => '掷出就算数。“悔棋”只收回走棋，前提是还没有再掷骰子。\n认输的人出局。其他人继续玩。';
+
+  @override
+  String get ludoRuleTries => '掷 6 有 3 次机会';
+
+  @override
+  String get rulesLudoTries => '如果没有 6 就没有棋子能走（都在家里或在终点里走不动），你最多可以掷三次。';
+
+  @override
+  String get ludoRuleCapture => '必须吃子';
+
+  @override
+  String get rulesLudoCapture => '如果你能把一颗棋子送回家，就必须这样做。这时只有能这样做的棋子会发光。';
+
+  @override
+  String get ludoRuleStart => '让出起点';
+
+  @override
+  String get rulesLudoStart => '只要家里还有棋子在等，起点上的棋子必须先走开。';
+
+  @override
+  String get ludoRuleSix => '6 = 再掷一次';
+
+  @override
+  String get rulesLudoSix => '掷出 6 后可以再掷一次。';
 }

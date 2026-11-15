@@ -5066,4 +5066,145 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'Électriques';
+
+  @override
+  String get menuGameLudo => 'Petits chevaux';
+
+  @override
+  String get menuDescLudo =>
+      'Lancer, avancer, renvoyer : qui rentre ses quatre pions en premier ?';
+
+  @override
+  String get engineReasonLudoAllHome => 'Les quatre pions sont arrivés';
+
+  @override
+  String get ludoRoll => 'Lancer';
+
+  @override
+  String ludoPawn(String player) {
+    return 'Pion : $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'Touche le dé.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'Il te faut un 6. Tu as $tries essais.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: 'Encore $tries essais.',
+      one: 'Encore un essai.',
+    );
+    return 'Pas de 6. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => 'Un 6 ! Tu rejoues.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'Tu as fait $value. Touche un pion qui brille.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'Tu dois renvoyer un pion à la maison.';
+
+  @override
+  String get ludoHintBringOut => 'Avec un 6, un pion sort de la maison.';
+
+  @override
+  String get ludoHintClearStart =>
+      'D’abord, le pion doit quitter la case de départ.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return '$player a fait $value : aucun coup possible.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return 'Renvoyé ! Un pion appartenant à $player retourne à la maison.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'fait $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'fait $value, aucun coup';
+  }
+
+  @override
+  String get ludoMoveOut => 'sort un pion';
+
+  @override
+  String ludoMoveStep(int steps) {
+    String _temp0 = intl.Intl.pluralLogic(
+      steps,
+      locale: localeName,
+      other: 'avance de $steps cases',
+      one: 'avance d’une case',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ludoMoveHome => 'rentre un pion à l’arrivée';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'renvoie à la maison un pion appartenant à $player';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count à l’arrivée';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'Amène tes quatre pions à l’arrivée. Le premier qui y arrive gagne.\nLes autres sont classés selon leurs pions arrivés.';
+
+  @override
+  String get rulesLudoTurn =>
+      'De 2 à 4 sur un appareil, chacun son tour.\nTouche le dé. Puis touche un pion qui brille : il avance d’autant de cases que le dé indique.\nAvec un 6, un pion sort de la maison sur ta case de départ.\nSi tu tombes sur le pion de quelqu’un d’autre, il retourne à sa maison.\nTu ne peux pas aller sur ton propre pion. Tu peux sauter par-dessus les pions, sauf dans le chemin d’arrivée.\nPour entrer à l’arrivée, il faut le nombre exact.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'Un lancer compte tout de suite. « Reprendre » n’annule que le déplacement du pion, jusqu’au prochain lancer.\nQui abandonne est éliminé. Les autres continuent.';
+
+  @override
+  String get ludoRuleTries => '3 essais pour un 6';
+
+  @override
+  String get rulesLudoTries =>
+      'Si aucun pion ne peut avancer sans un 6 (tous à la maison ou bloqués à l’arrivée), tu peux lancer jusqu’à trois fois.';
+
+  @override
+  String get ludoRuleCapture => 'Prise obligatoire';
+
+  @override
+  String get rulesLudoCapture =>
+      'Si tu peux renvoyer un pion à la maison, tu dois le faire. Seuls les pions qui le peuvent brillent alors.';
+
+  @override
+  String get ludoRuleStart => 'Libérer la case de départ';
+
+  @override
+  String get rulesLudoStart =>
+      'Tant que des pions attendent à la maison, un pion sur ta case de départ doit d’abord avancer.';
+
+  @override
+  String get ludoRuleSix => '6 = on rejoue';
+
+  @override
+  String get rulesLudoSix => 'Après un 6, tu rejoues.';
 }

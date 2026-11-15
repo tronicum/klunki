@@ -5027,4 +5027,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'Electric';
+
+  @override
+  String get menuGameLudo => 'Ludo';
+
+  @override
+  String get menuDescLudo =>
+      'Roll, race, send pawns home: who gets all four in first?';
+
+  @override
+  String get engineReasonLudoAllHome => 'All four pawns are home';
+
+  @override
+  String get ludoRoll => 'Roll';
+
+  @override
+  String ludoPawn(String player) {
+    return 'Pawn: $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'Tap the die.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'You need a 6. You have $tries tries.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: '$tries more tries.',
+      one: 'One more try.',
+    );
+    return 'No 6. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => 'A 6! Roll again.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'You rolled $value. Tap a glowing pawn.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'You must send a pawn home.';
+
+  @override
+  String get ludoHintBringOut => 'With a 6 a pawn comes out of the house.';
+
+  @override
+  String get ludoHintClearStart => 'First the pawn must leave the start field.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return '$player rolled $value: no move possible.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return 'Sent home! A pawn belonging to $player goes back to the house.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'rolls $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'rolls $value, no move';
+  }
+
+  @override
+  String get ludoMoveOut => 'brings a pawn into play';
+
+  @override
+  String ludoMoveStep(int steps) {
+    String _temp0 = intl.Intl.pluralLogic(
+      steps,
+      locale: localeName,
+      other: 'moves $steps fields',
+      one: 'moves 1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ludoMoveHome => 'moves a pawn into the finish';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'sends home a pawn belonging to $player';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count home';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'Bring all four pawns into your finish lane. Whoever does it first wins.\nThe others are ranked by their pawns in the finish.';
+
+  @override
+  String get rulesLudoTurn =>
+      '2 to 4 play on one device, taking turns.\nTap the die. Then tap a glowing pawn: it moves as many fields as the die shows.\nWith a 6 a pawn comes out of the house onto your start field.\nLand on someone else\'s pawn and it is sent home: back to its house.\nYou may not land on your own pawn. You may jump over pawns, but not in the finish lane.\nTo get into the finish you need the exact number.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'A roll counts at once. “Take back” only takes back the pawn move, until the next roll.\nWhoever resigns is out. The others play on.';
+
+  @override
+  String get ludoRuleTries => '3 tries for a 6';
+
+  @override
+  String get rulesLudoTries =>
+      'If no pawn can move without a 6 (all in the house or stuck in the finish), you may roll up to three times.';
+
+  @override
+  String get ludoRuleCapture => 'Must capture';
+
+  @override
+  String get rulesLudoCapture =>
+      'If you can send a pawn home, you must. Then only the pawns that can do it glow.';
+
+  @override
+  String get ludoRuleStart => 'Clear the start field';
+
+  @override
+  String get rulesLudoStart =>
+      'While pawns are still waiting in the house, a pawn on your start field must move on first.';
+
+  @override
+  String get ludoRuleSix => '6 = roll again';
+
+  @override
+  String get rulesLudoSix => 'After a 6 you may roll again.';
 }

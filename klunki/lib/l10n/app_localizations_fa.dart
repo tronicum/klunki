@@ -4933,4 +4933,137 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'برقی‌ها';
+
+  @override
+  String get menuGameLudo => 'لودو';
+
+  @override
+  String get menuDescLudo =>
+      'تاس بینداز، جلو برو، مهره‌ها را به خانه برگردان: چه کسی اول هر چهار مهره را به مقصد می‌رساند؟';
+
+  @override
+  String get engineReasonLudoAllHome => 'هر چهار مهره به مقصد رسیدند';
+
+  @override
+  String get ludoRoll => 'بینداز';
+
+  @override
+  String ludoPawn(String player) {
+    return 'مهرهٔ $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'روی تاس بزن.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'به 6 نیاز داری. $tries بار فرصت داری.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: '$tries فرصت دیگر.',
+    );
+    return '6 نیامد. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => '6 آمد! دوباره بینداز.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'تاس: $value. روی یک مهرهٔ درخشان بزن.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'باید یک مهره را به خانه برگردانی.';
+
+  @override
+  String get ludoHintBringOut => 'با 6 یک مهره از خانه بیرون می‌آید.';
+
+  @override
+  String get ludoHintClearStart => 'اول باید مهره از خانهٔ شروع برود.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return 'تاس $player: $value، حرکتی ممکن نیست.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return 'برگشت به خانه! یک مهرهٔ $player به خانه برمی‌گردد.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'تاس: $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'تاس: $value، بدون حرکت';
+  }
+
+  @override
+  String get ludoMoveOut => 'یک مهره وارد بازی شد';
+
+  @override
+  String ludoMoveStep(int steps) {
+    return '$steps خانه جلو';
+  }
+
+  @override
+  String get ludoMoveHome => 'یک مهره به مقصد رسید';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'مهرهٔ $player به خانه برگشت';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count در مقصد';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'هر چهار مهره‌ات را به مقصد برسان. هر کس اول برساند برنده است.\nبقیه بر اساس تعداد مهره‌هایشان در مقصد رتبه می‌گیرند.';
+
+  @override
+  String get rulesLudoTurn =>
+      '2 تا 4 نفر روی یک دستگاه به نوبت بازی می‌کنند.\nروی تاس بزن. بعد روی یک مهرهٔ درخشان بزن: به اندازهٔ عدد تاس جلو می‌رود.\nبا 6 یک مهره از خانه به خانهٔ شروع تو می‌آید.\nاگر روی مهرهٔ کس دیگری بنشینی، آن مهره به خانه‌اش برمی‌گردد.\nروی مهرهٔ خودت نمی‌توانی بروی. می‌توانی از روی مهره‌ها بپری، ولی نه در راه مقصد.\nبرای رسیدن به مقصد عدد دقیق لازم است.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'هر انداختن بی‌درنگ حساب می‌شود. «برگشت» فقط حرکت مهره را برمی‌گرداند، تا پیش از انداختن بعدی.\nهر کس تسلیم شود بیرون می‌رود. بقیه ادامه می‌دهند.';
+
+  @override
+  String get ludoRuleTries => '3 فرصت برای 6';
+
+  @override
+  String get rulesLudoTries =>
+      'اگر هیچ مهره‌ای بدون 6 نتواند حرکت کند (همه در خانه یا گیر کرده در مقصد)، تا سه بار می‌توانی تاس بیندازی.';
+
+  @override
+  String get ludoRuleCapture => 'زدن اجباری';
+
+  @override
+  String get rulesLudoCapture =>
+      'اگر بتوانی مهره‌ای را به خانه برگردانی، باید این کار را بکنی. آن وقت فقط مهره‌هایی که می‌توانند، می‌درخشند.';
+
+  @override
+  String get ludoRuleStart => 'خالی کردن خانهٔ شروع';
+
+  @override
+  String get rulesLudoStart =>
+      'تا وقتی مهره‌هایی در خانه منتظرند، مهره‌ای که روی خانهٔ شروع است باید اول حرکت کند.';
+
+  @override
+  String get ludoRuleSix => '6 = دوباره بینداز';
+
+  @override
+  String get rulesLudoSix => 'بعد از 6 دوباره تاس می‌اندازی.';
 }

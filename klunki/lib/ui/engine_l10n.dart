@@ -58,6 +58,7 @@ String localizedEndReason(AppLocalizations l10n, GameEndReason code,
     GameEndReason.dicesheetAllFilled => l10n.engineReasonDicesheetAllFilled,
     GameEndReason.propertyLastSolvent => l10n.engineReasonPropertyLastSolvent,
     GameEndReason.propertyRoundLimit => l10n.engineReasonPropertyRoundLimit(p('rounds')),
+    GameEndReason.ludoAllHome => l10n.engineReasonLudoAllHome,
   };
 }
 

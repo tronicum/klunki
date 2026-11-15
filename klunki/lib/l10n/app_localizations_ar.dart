@@ -5063,4 +5063,137 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'كهربائية';
+
+  @override
+  String get menuGameLudo => 'لودو';
+
+  @override
+  String get menuDescLudo =>
+      'ارمِ النرد وتقدّم وأعِد القطع إلى البيت: من يُدخل قطعه الأربع أولًا؟';
+
+  @override
+  String get engineReasonLudoAllHome => 'القطع الأربع كلها في الهدف';
+
+  @override
+  String get ludoRoll => 'ارمِ';
+
+  @override
+  String ludoPawn(String player) {
+    return 'قطعة $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'المس النرد.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'تحتاج إلى 6. عدد المحاولات: $tries.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: 'المحاولات الباقية: $tries.',
+    );
+    return 'لا 6. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => '6! ارمِ مرة أخرى.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'الرمية: $value. المس قطعة مضيئة.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'يجب أن تعيد قطعة إلى البيت.';
+
+  @override
+  String get ludoHintBringOut => 'مع الـ6 تخرج قطعة من البيت.';
+
+  @override
+  String get ludoHintClearStart => 'أولًا يجب أن تغادر القطعة خانة البداية.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return 'رمية $player: $value، لا حركة ممكنة.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return 'إلى البيت! تعود قطعة من قطع $player إلى البيت.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'رمية: $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'رمية: $value، بلا حركة';
+  }
+
+  @override
+  String get ludoMoveOut => 'إخراج قطعة إلى اللعب';
+
+  @override
+  String ludoMoveStep(int steps) {
+    return 'التقدّم: $steps';
+  }
+
+  @override
+  String get ludoMoveHome => 'إدخال قطعة إلى الهدف';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'إعادة قطعة من قطع $player إلى البيت';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return 'في الهدف: $count';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'أوصل قطعك الأربع إلى الهدف. من يفعل ذلك أولًا يفوز.\nيُرتَّب الآخرون حسب عدد قطعهم في الهدف.';
+
+  @override
+  String get rulesLudoTurn =>
+      'يلعب من 2 إلى 4 على جهاز واحد بالتناوب.\nالمس النرد. ثم المس قطعة مضيئة: تتقدّم بعدد الخانات الذي يُظهره النرد.\nمع الـ6 تخرج قطعة من البيت إلى خانة البداية.\nإذا وقفت على قطعة شخص آخر تعود تلك القطعة إلى بيتها.\nلا يمكنك الوقوف على قطعتك. يمكنك القفز فوق القطع، إلا في ممر الهدف.\nللدخول إلى الهدف تحتاج إلى الرقم المضبوط.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'الرمية تُحسب فورًا. «تراجع» يسترجع تحريك القطعة فقط، قبل الرمية التالية.\nمن يستسلم يخرج من اللعبة. ويواصل الآخرون اللعب.';
+
+  @override
+  String get ludoRuleTries => '3 محاولات للـ6';
+
+  @override
+  String get rulesLudoTries =>
+      'إذا لم تستطع أي قطعة التحرك دون 6 (كلها في البيت أو عالقة في الهدف)، يمكنك الرمي حتى ثلاث مرات.';
+
+  @override
+  String get ludoRuleCapture => 'الإعادة إلزامية';
+
+  @override
+  String get rulesLudoCapture =>
+      'إذا أمكنك إعادة قطعة إلى البيت فيجب أن تفعل. عندها تضيء فقط القطع التي تستطيع ذلك.';
+
+  @override
+  String get ludoRuleStart => 'إخلاء خانة البداية';
+
+  @override
+  String get rulesLudoStart =>
+      'ما دامت قطع تنتظر في البيت، يجب أن تتحرك القطعة التي على خانة البداية أولًا.';
+
+  @override
+  String get ludoRuleSix => '6 = ارمِ مرة أخرى';
+
+  @override
+  String get rulesLudoSix => 'بعد الـ6 يمكنك الرمي مرة أخرى.';
 }

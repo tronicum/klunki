@@ -7323,5 +7323,195 @@
   "quartettSetMotorcyclesH": "Elektro",
   "@quartettSetMotorcyclesH": {
     "description": "KLD-129 Quartett set name, motorcycle deck, set H: Electric motorcycles."
+  },
+  "menuGameLudo": "Rauswurf",
+  "@menuGameLudo": {
+    "description": "KLD-131: title of the cross-and-circle race game with four pawns per player (maintainer: \"Rauswurf\"; en \"Ludo\"). Generic names only, never the brand name of the German original."
+  },
+  "menuDescLudo": "Würfeln, ziehen, rauswerfen: Wer hat zuerst alle vier im Ziel?",
+  "@menuDescLudo": {
+    "description": "KLD-131: one-line menu description of Rauswurf."
+  },
+  "engineReasonLudoAllHome": "Alle vier Figuren sind im Ziel",
+  "@engineReasonLudoAllHome": {
+    "description": "KLD-131: why Rauswurf ended: the winner has all four pawns in the finish lane."
+  },
+  "ludoRoll": "Würfeln",
+  "@ludoRoll": {
+    "description": "KLD-131: label of the die button (roll the die)."
+  },
+  "ludoPawn": "Figur von {player}",
+  "@ludoPawn": {
+    "description": "KLD-131: screen reader label of a pawn; {player} is the name of the player it belongs to.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "ludoHintRoll": "Tippe auf den Würfel.",
+  "@ludoHintRoll": {
+    "description": "KLD-131: hint line: the player to move rolls by tapping the die."
+  },
+  "ludoHintNeedSix": "Du brauchst eine 6. Du hast {tries} Versuche.",
+  "@ludoHintNeedSix": {
+    "description": "KLD-131: hint line: no pawn can move without a 6; {tries} (3) tries for a 6.",
+    "placeholders": {
+      "tries": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoHintTriesLeft": "Keine 6. {tries, plural, =1{Noch ein Versuch.} other{Noch {tries} Versuche.}}",
+  "@ludoHintTriesLeft": {
+    "description": "KLD-131: hint line after a failed try for a 6; {tries} tries left.",
+    "placeholders": {
+      "tries": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoHintSixAgain": "Eine 6! Du darfst nochmal würfeln.",
+  "@ludoHintSixAgain": {
+    "description": "KLD-131: hint line: a 6 was rolled, the same player rolls again."
+  },
+  "ludoHintMove": "Du hast eine {value}. Tippe auf eine leuchtende Figur.",
+  "@ludoHintMove": {
+    "description": "KLD-131: hint line: the die shows {value}; tap one of the highlighted pawns.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoHintMustCapture": "Schlagzwang: Du musst rauswerfen.",
+  "@ludoHintMustCapture": {
+    "description": "KLD-131: hint line, house rule \"Schlagzwang\": only the pawns that capture are highlighted."
+  },
+  "ludoHintBringOut": "Mit der 6 kommt eine Figur aus dem Haus.",
+  "@ludoHintBringOut": {
+    "description": "KLD-131: hint line: a 6 must bring a pawn out of the house."
+  },
+  "ludoHintClearStart": "Erst muss die Figur vom Startfeld weg.",
+  "@ludoHintClearStart": {
+    "description": "KLD-131: hint line, house rule \"Startfeld räumen\": the pawn on the start field must move first."
+  },
+  "ludoHintNoMove": "{player} hat eine {value}: kein Zug möglich.",
+  "@ludoHintNoMove": {
+    "description": "KLD-131: hint line: {player} rolled {value} and could not move; the turn passed.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      },
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoHintCaptured": "Rauswurf! Eine Figur von {player} muss zurück ins Haus.",
+  "@ludoHintCaptured": {
+    "description": "KLD-131: hint line: a pawn of {player} was captured and goes back to its house.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "ludoMoveRoll": "würfelt {value}",
+  "@ludoMoveRoll": {
+    "description": "KLD-131: move history: a roll (after the player name).",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoMoveRollNoMove": "würfelt {value}, kein Zug",
+  "@ludoMoveRollNoMove": {
+    "description": "KLD-131: move history: a roll without a possible move.",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoMoveOut": "bringt eine Figur ins Spiel",
+  "@ludoMoveOut": {
+    "description": "KLD-131: move history: a 6 brought a pawn out of the house."
+  },
+  "ludoMoveStep": "{steps, plural, =1{zieht 1 Feld} other{zieht {steps} Felder}}",
+  "@ludoMoveStep": {
+    "description": "KLD-131: move history: a pawn moved {steps} fields.",
+    "placeholders": {
+      "steps": {
+        "type": "int"
+      }
+    }
+  },
+  "ludoMoveHome": "zieht eine Figur ins Ziel",
+  "@ludoMoveHome": {
+    "description": "KLD-131: move history: a pawn moved into the finish lane."
+  },
+  "ludoMoveCapture": "wirft eine Figur von {player} raus",
+  "@ludoMoveCapture": {
+    "description": "KLD-131: move history, after a step: the move sent a pawn of {player} home.",
+    "placeholders": {
+      "player": {
+        "type": "String"
+      }
+    }
+  },
+  "ludoResultHome": "{count} im Ziel",
+  "@ludoResultHome": {
+    "description": "KLD-131: result ranking: {count} pawns in the finish lane.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "rulesLudoGoal": "Bring alle vier Figuren ins Ziel. Wer das zuerst schafft, gewinnt.\nDie anderen kommen nach ihren Figuren im Ziel auf die Plätze.",
+  "@rulesLudoGoal": {
+    "description": "KLD-131: Rauswurf rules, goal (lines separated by \\n)."
+  },
+  "rulesLudoTurn": "2 bis 4 spielen an einem Gerät, reihum.\nTippe auf den Würfel. Dann tippst du auf eine leuchtende Figur: Sie zieht so viele Felder weiter, wie der Würfel zeigt.\nMit einer 6 kommt eine Figur aus dem Haus auf dein Startfeld.\nLandest du auf einer fremden Figur, fliegt sie raus: zurück in ihr Haus.\nAuf eine eigene Figur darfst du nicht ziehen. Über Figuren springen geht, nur im Ziel nicht.\nIns Ziel brauchst du die genaue Zahl.",
+  "@rulesLudoTurn": {
+    "description": "KLD-131: Rauswurf rules, a turn (lines separated by \\n)."
+  },
+  "rulesLudoSpecial": "Ein Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur das Ziehen zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.",
+  "@rulesLudoSpecial": {
+    "description": "KLD-131: Rauswurf rules, special rules (lines separated by \\n); quotes the label of the take-back button."
+  },
+  "ludoRuleTries": "3 Versuche für eine 6",
+  "@ludoRuleTries": {
+    "description": "KLD-131: title of the house rule \"three tries for a 6\"."
+  },
+  "rulesLudoTries": "Kann keine Figur ohne 6 ziehen (alle im Haus oder im Ziel fest), darfst du bis zu dreimal würfeln.",
+  "@rulesLudoTries": {
+    "description": "KLD-131: rules text of the house rule \"three tries for a 6\"."
+  },
+  "ludoRuleCapture": "Schlagzwang",
+  "@ludoRuleCapture": {
+    "description": "KLD-131: title of the house rule \"Schlagzwang\" (a capture must be made)."
+  },
+  "rulesLudoCapture": "Kannst du eine Figur rauswerfen, musst du das tun. Dann leuchten nur die Figuren, die rauswerfen können.",
+  "@rulesLudoCapture": {
+    "description": "KLD-131: rules text of the house rule \"Schlagzwang\"."
+  },
+  "ludoRuleStart": "Startfeld räumen",
+  "@ludoRuleStart": {
+    "description": "KLD-131: title of the house rule \"Startfeld räumen\" (clear the start field)."
+  },
+  "rulesLudoStart": "Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen.",
+  "@rulesLudoStart": {
+    "description": "KLD-131: rules text of the house rule \"Startfeld räumen\"."
+  },
+  "ludoRuleSix": "6 = nochmal würfeln",
+  "@ludoRuleSix": {
+    "description": "KLD-131: title of the house rule \"a 6 rolls again\"."
+  },
+  "rulesLudoSix": "Nach einer 6 darfst du nochmal würfeln.",
+  "@rulesLudoSix": {
+    "description": "KLD-131: rules text of the house rule \"a 6 rolls again\"."
   }
 }

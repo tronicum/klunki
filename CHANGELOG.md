@@ -7,6 +7,13 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+### Games
+- **New game "Rauswurf"** (en "Ludo", KLD-131, step 1): the classic race game with four pawns each for 2–4
+  players on one device. Tap the die, then a glowing pawn; a 6 brings a pawn out and rolls again, landing on
+  someone else's pawn sends it back to its house. The table rules are on: three tries for a 6 while nothing
+  can move, "Schlagzwang" (a capture must be made), "Startfeld räumen". Board drawn in code, rules page,
+  7 languages. Not over the network yet.
+
 ## [1.1.1] – 2026-11-15 (TestFlight)
 
 Kurz: Zwei neue Quartett-Decks, Tiere und Motorräder. Wortgewandt jetzt auch zu dritt oder viert über das

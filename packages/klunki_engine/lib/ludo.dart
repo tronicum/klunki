@@ -60,7 +60,7 @@ class LudoRules {
 }
 
 /// A pawn that a move sends home: its seat and pawn number.
-typedef LudoPawn = ({int seat, int pawn});
+typedef LudoPawnRef = ({int seat, int pawn});
 
 /// One possible pawn move for the die on the table.
 class LudoMoveOption {
@@ -71,7 +71,7 @@ class LudoMoveOption {
   final int to;
 
   /// The pawn of another seat this move sends home, or null.
-  final LudoPawn? captures;
+  final LudoPawnRef? captures;
   const LudoMoveOption(this.pawn, this.from, this.to, this.captures);
 }
 
@@ -185,7 +185,7 @@ class LudoGame extends Game implements SeatGame {
   int houseCount(int seat) => _pos[seat].where((p) => p == house).length;
 
   /// The pawn of a seat still in on track field [field], or null.
-  LudoPawn? pawnOnField(int field) {
+  LudoPawnRef? pawnOnField(int field) {
     for (var s = 0; s < playerCount; s++) {
       if (isSeatOut(s)) continue;
       for (var i = 0; i < pawns; i++) {
@@ -281,7 +281,7 @@ class LudoGame extends Game implements SeatGame {
             LudoMoveOption(i, _pos[seat][i], t, t < laneStart ? _victim(seat, t) : null),
       ];
 
-  LudoPawn? _victim(int seat, int progress) {
+  LudoPawnRef? _victim(int seat, int progress) {
     final hit = pawnOnField(trackFieldOf(seat, progress));
     return hit == null || hit.seat == seat ? null : hit;
   }

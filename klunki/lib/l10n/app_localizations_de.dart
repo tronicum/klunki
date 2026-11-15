@@ -5045,4 +5045,144 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'Elektro';
+
+  @override
+  String get menuGameLudo => 'Rauswurf';
+
+  @override
+  String get menuDescLudo =>
+      'Würfeln, ziehen, rauswerfen: Wer hat zuerst alle vier im Ziel?';
+
+  @override
+  String get engineReasonLudoAllHome => 'Alle vier Figuren sind im Ziel';
+
+  @override
+  String get ludoRoll => 'Würfeln';
+
+  @override
+  String ludoPawn(String player) {
+    return 'Figur von $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'Tippe auf den Würfel.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'Du brauchst eine 6. Du hast $tries Versuche.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: 'Noch $tries Versuche.',
+      one: 'Noch ein Versuch.',
+    );
+    return 'Keine 6. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => 'Eine 6! Du darfst nochmal würfeln.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'Du hast eine $value. Tippe auf eine leuchtende Figur.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'Schlagzwang: Du musst rauswerfen.';
+
+  @override
+  String get ludoHintBringOut => 'Mit der 6 kommt eine Figur aus dem Haus.';
+
+  @override
+  String get ludoHintClearStart => 'Erst muss die Figur vom Startfeld weg.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return '$player hat eine $value: kein Zug möglich.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return 'Rauswurf! Eine Figur von $player muss zurück ins Haus.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'würfelt $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'würfelt $value, kein Zug';
+  }
+
+  @override
+  String get ludoMoveOut => 'bringt eine Figur ins Spiel';
+
+  @override
+  String ludoMoveStep(int steps) {
+    String _temp0 = intl.Intl.pluralLogic(
+      steps,
+      locale: localeName,
+      other: 'zieht $steps Felder',
+      one: 'zieht 1 Feld',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ludoMoveHome => 'zieht eine Figur ins Ziel';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'wirft eine Figur von $player raus';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count im Ziel';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'Bring alle vier Figuren ins Ziel. Wer das zuerst schafft, gewinnt.\nDie anderen kommen nach ihren Figuren im Ziel auf die Plätze.';
+
+  @override
+  String get rulesLudoTurn =>
+      '2 bis 4 spielen an einem Gerät, reihum.\nTippe auf den Würfel. Dann tippst du auf eine leuchtende Figur: Sie zieht so viele Felder weiter, wie der Würfel zeigt.\nMit einer 6 kommt eine Figur aus dem Haus auf dein Startfeld.\nLandest du auf einer fremden Figur, fliegt sie raus: zurück in ihr Haus.\nAuf eine eigene Figur darfst du nicht ziehen. Über Figuren springen geht, nur im Ziel nicht.\nIns Ziel brauchst du die genaue Zahl.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'Ein Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur das Ziehen zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.';
+
+  @override
+  String get ludoRuleTries => '3 Versuche für eine 6';
+
+  @override
+  String get rulesLudoTries =>
+      'Kann keine Figur ohne 6 ziehen (alle im Haus oder im Ziel fest), darfst du bis zu dreimal würfeln.';
+
+  @override
+  String get ludoRuleCapture => 'Schlagzwang';
+
+  @override
+  String get rulesLudoCapture =>
+      'Kannst du eine Figur rauswerfen, musst du das tun. Dann leuchten nur die Figuren, die rauswerfen können.';
+
+  @override
+  String get ludoRuleStart => 'Startfeld räumen';
+
+  @override
+  String get rulesLudoStart =>
+      'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen.';
+
+  @override
+  String get ludoRuleSix => '6 = nochmal würfeln';
+
+  @override
+  String get rulesLudoSix => 'Nach einer 6 darfst du nochmal würfeln.';
 }
