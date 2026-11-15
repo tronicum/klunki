@@ -1281,7 +1281,7 @@
   "ludoHintMove": "你掷出了 {value}。点一颗发光的棋子。",
   "ludoHintMustCapture": "你必须把一颗棋子送回家。",
   "ludoHintBringOut": "掷出 6 时，一颗棋子从家里出来。",
-  "ludoHintClearStart": "先让起点上的棋子走开。",
+  "ludoHintClearStart": "先要让出起点。",
   "ludoHintNoMove": "{player} 掷出了 {value}：没有可走的棋。",
   "ludoHintCaptured": "送回家！{player} 的一颗棋子回到家里。",
   "ludoMoveRoll": "掷出 {value}",
@@ -1299,7 +1299,7 @@
   "ludoRuleCapture": "必须吃子",
   "rulesLudoCapture": "如果你能把一颗棋子送回家，就必须这样做。这时只有能这样做的棋子会发光。",
   "ludoRuleStart": "让出起点",
-  "rulesLudoStart": "只要家里还有棋子在等，起点上的棋子必须先走开。",
+  "rulesLudoStart": "只要家里还有棋子在等，起点上的棋子必须先走开。如果它要走到的格子上是自己的棋子，就先走那颗棋子。",
   "ludoRuleSix": "6 = 再掷一次",
   "rulesLudoSix": "掷出 6 后可以再掷一次。"
 }

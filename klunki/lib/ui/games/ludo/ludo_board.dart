@@ -151,7 +151,7 @@ class _LudoBoardState extends State<LudoBoard> {
       final options = g.options;
       if (die == 6 && options.every((o) => o.from == LudoGame.house)) {
         parts.add(l10n.ludoHintBringOut);
-      } else if (g.rules.clearStart && g.houseCount(g.currentSeat) > 0 && options.every((o) => o.from == 0)) {
+      } else if (g.startClearing != null) {
         parts.add(l10n.ludoHintClearStart);
       } else if (g.rules.mustCapture && options.every((o) => o.captures != null)) {
         parts.add(l10n.ludoHintMustCapture);

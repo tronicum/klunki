@@ -1281,7 +1281,7 @@
   "ludoHintMove": "Has sacado {value}. Toca una ficha que brilla.",
   "ludoHintMustCapture": "Tienes que comer una ficha.",
   "ludoHintBringOut": "Con un 6 sale una ficha de casa.",
-  "ludoHintClearStart": "Primero la ficha tiene que dejar la salida.",
+  "ludoHintClearStart": "Primero hay que dejar libre la salida.",
   "ludoHintNoMove": "{player} ha sacado {value}: no hay jugada.",
   "ludoHintCaptured": "¡Comida! Una ficha de {player} vuelve a casa.",
   "ludoMoveRoll": "saca {value}",
@@ -1299,7 +1299,7 @@
   "ludoRuleCapture": "Comer obligatorio",
   "rulesLudoCapture": "Si puedes comer una ficha, tienes que hacerlo. Entonces solo brillan las fichas que pueden comer.",
   "ludoRuleStart": "Dejar libre la salida",
-  "rulesLudoStart": "Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero.",
+  "rulesLudoStart": "Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero. Si una ficha tuya le cierra el paso, esa ficha tiene que moverse primero.",
   "ludoRuleSix": "6 = vuelves a tirar",
   "rulesLudoSix": "Después de un 6 vuelves a tirar."
 }

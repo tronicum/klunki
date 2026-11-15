@@ -5110,8 +5110,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ludoHintBringOut => 'Con un 6 sale una ficha de casa.';
 
   @override
-  String get ludoHintClearStart =>
-      'Primero la ficha tiene que dejar la salida.';
+  String get ludoHintClearStart => 'Primero hay que dejar libre la salida.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5191,7 +5190,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero.';
+      'Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero. Si una ficha tuya le cierra el paso, esa ficha tiene que moverse primero.';
 
   @override
   String get ludoRuleSix => '6 = vuelves a tirar';

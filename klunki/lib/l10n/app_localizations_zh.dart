@@ -4807,7 +4807,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ludoHintBringOut => '掷出 6 时，一颗棋子从家里出来。';
 
   @override
-  String get ludoHintClearStart => '先让起点上的棋子走开。';
+  String get ludoHintClearStart => '先要让出起点。';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -4881,7 +4881,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ludoRuleStart => '让出起点';
 
   @override
-  String get rulesLudoStart => '只要家里还有棋子在等，起点上的棋子必须先走开。';
+  String get rulesLudoStart =>
+      '只要家里还有棋子在等，起点上的棋子必须先走开。如果它要走到的格子上是自己的棋子，就先走那颗棋子。';
 
   @override
   String get ludoRuleSix => '6 = 再掷一次';

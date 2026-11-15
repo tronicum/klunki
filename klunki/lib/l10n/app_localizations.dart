@@ -7803,10 +7803,10 @@ abstract class AppLocalizations {
   /// **'Mit der 6 kommt eine Figur aus dem Haus.'**
   String get ludoHintBringOut;
 
-  /// KLD-131: hint line, house rule "Startfeld räumen": the pawn on the start field must move first.
+  /// KLD-131: hint line, house rule "Startfeld räumen": the pawn on the start field (or the own pawn blocking it) must move first.
   ///
   /// In de, this message translates to:
-  /// **'Erst muss die Figur vom Startfeld weg.'**
+  /// **'Erst muss das Startfeld frei werden.'**
   String get ludoHintClearStart;
 
   /// KLD-131: hint line: {player} rolled {value} and could not move; the turn passed.
@@ -7914,7 +7914,7 @@ abstract class AppLocalizations {
   /// KLD-131: rules text of the house rule "Startfeld räumen".
   ///
   /// In de, this message translates to:
-  /// **'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen.'**
+  /// **'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen. Steht dort eine eigene Figur im Weg, muss zuerst diese ziehen.'**
   String get rulesLudoStart;
 
   /// KLD-131: title of the house rule "a 6 rolls again".

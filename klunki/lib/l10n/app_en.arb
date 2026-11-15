@@ -1280,7 +1280,7 @@
   "ludoHintMove": "You rolled {value}. Tap a glowing pawn.",
   "ludoHintMustCapture": "You must send a pawn home.",
   "ludoHintBringOut": "With a 6 a pawn comes out of the house.",
-  "ludoHintClearStart": "First the pawn must leave the start field.",
+  "ludoHintClearStart": "First the start field must be cleared.",
   "ludoHintNoMove": "{player} rolled {value}: no move possible.",
   "ludoHintCaptured": "Sent home! A pawn belonging to {player} goes back to the house.",
   "ludoMoveRoll": "rolls {value}",
@@ -1298,7 +1298,7 @@
   "ludoRuleCapture": "Must capture",
   "rulesLudoCapture": "If you can send a pawn home, you must. Then only the pawns that can do it glow.",
   "ludoRuleStart": "Clear the start field",
-  "rulesLudoStart": "While pawns are still waiting in the house, a pawn on your start field must move on first.",
+  "rulesLudoStart": "While pawns are still waiting in the house, a pawn on your start field must move on first. If one of your own pawns is in its way, that pawn must move first.",
   "ludoRuleSix": "6 = roll again",
   "rulesLudoSix": "After a 6 you may roll again."
 }

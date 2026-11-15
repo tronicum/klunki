@@ -1281,7 +1281,7 @@
   "ludoHintMove": "Tu as fait {value}. Touche un pion qui brille.",
   "ludoHintMustCapture": "Tu dois renvoyer un pion à la maison.",
   "ludoHintBringOut": "Avec un 6, un pion sort de la maison.",
-  "ludoHintClearStart": "D’abord, le pion doit quitter la case de départ.",
+  "ludoHintClearStart": "D’abord, la case de départ doit être libérée.",
   "ludoHintNoMove": "{player} a fait {value} : aucun coup possible.",
   "ludoHintCaptured": "Renvoyé ! Un pion appartenant à {player} retourne à la maison.",
   "ludoMoveRoll": "fait {value}",
@@ -1299,7 +1299,7 @@
   "ludoRuleCapture": "Prise obligatoire",
   "rulesLudoCapture": "Si tu peux renvoyer un pion à la maison, tu dois le faire. Seuls les pions qui le peuvent brillent alors.",
   "ludoRuleStart": "Libérer la case de départ",
-  "rulesLudoStart": "Tant que des pions attendent à la maison, un pion sur ta case de départ doit d’abord avancer.",
+  "rulesLudoStart": "Tant que des pions attendent à la maison, un pion sur ta case de départ doit d’abord avancer. Si un de tes pions lui bloque le chemin, c’est ce pion qui doit avancer d’abord.",
   "ludoRuleSix": "6 = on rejoue",
   "rulesLudoSix": "Après un 6, tu rejoues."
 }

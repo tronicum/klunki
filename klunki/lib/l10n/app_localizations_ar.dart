@@ -5115,7 +5115,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ludoHintBringOut => 'مع الـ6 تخرج قطعة من البيت.';
 
   @override
-  String get ludoHintClearStart => 'أولًا يجب أن تغادر القطعة خانة البداية.';
+  String get ludoHintClearStart => 'أولًا يجب إخلاء خانة البداية.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5189,7 +5189,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'ما دامت قطع تنتظر في البيت، يجب أن تتحرك القطعة التي على خانة البداية أولًا.';
+      'ما دامت قطع تنتظر في البيت، يجب أن تتحرك القطعة التي على خانة البداية أولًا. إذا سدّت إحدى قطعك طريقها، فعلى تلك القطعة أن تتحرك أولًا.';
 
   @override
   String get ludoRuleSix => '6 = ارمِ مرة أخرى';

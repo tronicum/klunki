@@ -97,7 +97,9 @@ class LudoMoveOption {
 ///   finish lane needs the exact number.
 /// * House rules ([LudoRules], all on): three tries for a 6 while nothing
 ///   can move without one; Schlagzwang; Startfeld räumen; a 6 rolls again
-///   (also a 6 that cannot be moved).
+///   (also a 6 that cannot be moved). Startfeld räumen uses the classic
+///   blocker rule: if the start pawn's target holds an own pawn, that pawn
+///   must move instead (along the chain, see [startClearing]).
 /// * The order of the move filters: Startfeld räumen, then bringing out on
 ///   a 6 (both leave only one kind of move), then Schlagzwang among what is
 ///   left.
@@ -293,8 +295,8 @@ class LudoGame extends Game implements SeatGame {
     if (options.isEmpty) return options;
     final waiting = houseCount(seat) > 0;
     if (rules.clearStart && waiting) {
-      final leave = options.where((o) => o.from == 0).toList();
-      if (leave.isNotEmpty) return leave;
+      final clear = _startChain(seat, value, options);
+      if (clear != null) return [clear];
     }
     if (value == 6 && waiting) {
       final out = options.where((o) => o.from == house).toList();
@@ -305,6 +307,33 @@ class LudoGame extends Game implements SeatGame {
       if (hits.isNotEmpty) return hits;
     }
     return options;
+  }
+
+  /// "Startfeld räumen" with the classic blocker rule: the pawn on the own
+  /// start field must move; if its target holds an own pawn, that pawn must
+  /// move instead, and so on along the chain. The first pawn of the chain
+  /// that can move ([options], unfiltered) is the only legal move; null if
+  /// no pawn is on the start field or nobody in the chain can move (then
+  /// the normal moves apply).
+  LudoMoveOption? _startChain(int seat, int value, List<LudoMoveOption> options) {
+    var p = 0;
+    while (_ownAt(seat, p)) {
+      final pawn = _pos[seat].indexOf(p);
+      final o = options.where((o) => o.pawn == pawn).firstOrNull;
+      if (o != null) return o;
+      final t = p + value;
+      if (t >= laneStart || !_ownAt(seat, t)) return null;
+      p = t;
+    }
+    return null;
+  }
+
+  /// The move "Startfeld räumen" forces now (the start pawn or a blocker in
+  /// its chain), or null.
+  LudoMoveOption? get startClearing {
+    final d = _die;
+    if (d == null || isOver || !rules.clearStart || houseCount(_seat) == 0) return null;
+    return _startChain(_seat, d, _candidates(_seat, d));
   }
 
   /// The moves for the die on the table (empty while the seat must roll).

@@ -168,10 +168,49 @@ void main() {
       expect(g.movablePawns, [0, 1]);
     });
 
-    test('the start pawn blocked by an own pawn: the others may move', () {
-      final g = setup([[0, 3, h, h], [h, h, h, h]], rolls: [3]);
+    test('the start pawn blocked by an own pawn: that blocker must move', () {
+      final g = setup([[0, 3, 15, h], [h, h, h, h]], rolls: [3]);
       roll(g);
       expect(g.movablePawns, [1]);
+      expect(g.startClearing?.pawn, 1);
+      expect(g.applyMove(LudoGame.pawnMove(2)), isNull);
+    });
+
+    test('a chain of two blockers: the last one in the chain moves', () {
+      final g = setup([[0, 3, 6, h], [h, h, h, h]], rolls: [3]);
+      roll(g);
+      expect(g.movablePawns, [2]);
+      move(g, 2);
+      expect(g.pawnsOf(0), [0, 3, 9, h]);
+    });
+
+    test('with a 6: the start field is held, so its chain moves instead of bringing out', () {
+      final g = setup([[0, 6, h, h], [h, h, h, h]], rolls: [6]);
+      roll(g);
+      expect(g.movablePawns, [1]);
+    });
+
+    test('the chain comes before Schlagzwang', () {
+      // Seat 1 at progress 3 is track field 23: pawn 2 (20) could capture it.
+      final g = setup([[0, 3, 20, h], [3, h, h, h]], rolls: [3]);
+      roll(g);
+      expect(g.movablePawns, [1]);
+    });
+
+    test('nobody on the start field: no chain, the normal moves', () {
+      final g = setup([[3, 6, h, h], [h, h, h, h]], rolls: [3]);
+      roll(g);
+      expect(g.startClearing, isNull);
+      expect(g.movablePawns, [1]);
+      // A fully blocked chain cannot happen: with a pawn in the house at
+      // most three own pawns form it, the last one ends on field 18 at the
+      // most and always has a free field ahead.
+    });
+
+    test('off: no blocker rule either', () {
+      final g = setup([[0, 3, 15, h], [h, h, h, h]], rolls: [3], rules: const LudoRules(clearStart: false));
+      roll(g);
+      expect(g.movablePawns, [1, 2]);
     });
 
     test('off: any pawn may move', () {

@@ -7392,9 +7392,9 @@
   "@ludoHintBringOut": {
     "description": "KLD-131: hint line: a 6 must bring a pawn out of the house."
   },
-  "ludoHintClearStart": "Erst muss die Figur vom Startfeld weg.",
+  "ludoHintClearStart": "Erst muss das Startfeld frei werden.",
   "@ludoHintClearStart": {
-    "description": "KLD-131: hint line, house rule \"Startfeld räumen\": the pawn on the start field must move first."
+    "description": "KLD-131: hint line, house rule \"Startfeld räumen\": the pawn on the start field (or the own pawn blocking it) must move first."
   },
   "ludoHintNoMove": "{player} hat eine {value}: kein Zug möglich.",
   "@ludoHintNoMove": {
@@ -7502,7 +7502,7 @@
   "@ludoRuleStart": {
     "description": "KLD-131: title of the house rule \"Startfeld räumen\" (clear the start field)."
   },
-  "rulesLudoStart": "Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen.",
+  "rulesLudoStart": "Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen. Steht dort eine eigene Figur im Weg, muss zuerst diese ziehen.",
   "@rulesLudoStart": {
     "description": "KLD-131: rules text of the house rule \"Startfeld räumen\"."
   },

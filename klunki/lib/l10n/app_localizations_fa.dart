@@ -4985,7 +4985,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get ludoHintBringOut => 'با 6 یک مهره از خانه بیرون می‌آید.';
 
   @override
-  String get ludoHintClearStart => 'اول باید مهره از خانهٔ شروع برود.';
+  String get ludoHintClearStart => 'اول باید خانهٔ شروع خالی شود.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5059,7 +5059,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'تا وقتی مهره‌هایی در خانه منتظرند، مهره‌ای که روی خانهٔ شروع است باید اول حرکت کند.';
+      'تا وقتی مهره‌هایی در خانه منتظرند، مهره‌ای که روی خانهٔ شروع است باید اول حرکت کند. اگر یکی از مهره‌های خودت جلویش را گرفته باشد، اول همان مهره باید حرکت کند.';
 
   @override
   String get ludoRuleSix => '6 = دوباره بینداز';

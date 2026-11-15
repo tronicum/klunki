@@ -5080,7 +5080,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ludoHintBringOut => 'With a 6 a pawn comes out of the house.';
 
   @override
-  String get ludoHintClearStart => 'First the pawn must leave the start field.';
+  String get ludoHintClearStart => 'First the start field must be cleared.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5160,7 +5160,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'While pawns are still waiting in the house, a pawn on your start field must move on first.';
+      'While pawns are still waiting in the house, a pawn on your start field must move on first. If one of your own pawns is in its way, that pawn must move first.';
 
   @override
   String get ludoRuleSix => '6 = roll again';

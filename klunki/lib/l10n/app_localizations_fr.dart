@@ -5120,7 +5120,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ludoHintClearStart =>
-      'D’abord, le pion doit quitter la case de départ.';
+      'D’abord, la case de départ doit être libérée.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5200,7 +5200,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'Tant que des pions attendent à la maison, un pion sur ta case de départ doit d’abord avancer.';
+      'Tant que des pions attendent à la maison, un pion sur ta case de départ doit d’abord avancer. Si un de tes pions lui bloque le chemin, c’est ce pion qui doit avancer d’abord.';
 
   @override
   String get ludoRuleSix => '6 = on rejoue';

@@ -38,21 +38,26 @@ the first with all four pawns in the finish lane wins. UX is iterated step by st
 - House rules (`GameConfig.ludo`, JSON key `ludo` with only the switches that differ; all on by default):
   `tries` – 3 tries for a 6 while no pawn can move without one (all in the house, or the rest stuck at the end
   of the finish lane); `capture` – Schlagzwang (a filter on the legal moves); `start` – Startfeld räumen (while
-  pawns wait in the house, the pawn on the start field must move first if it can); `six` – a 6 rolls again.
+  pawns wait in the house, the pawn on the start field must move first; if its target holds an own pawn, that
+  blocker must move, and so on along the chain; only if nobody in the chain can move do the normal moves
+  apply – with a pawn in the house the chain has at most three pawns and always ends with one that can move);
+  `six` – a 6 rolls again.
 - Filter order: Startfeld räumen, then "bring out on a 6", then Schlagzwang among what is left.
 - End: the first seat with all four pawns home wins; the others are ranked by pawns in the finish lane (equal
   counts share a place). Resign with 3–4: the seat's pawns leave the board, the others play on.
 - A roll is the hot-seat undo barrier (`LudoGame.isRoll`); a pawn move can be taken back until the next roll.
 - No hidden information; `networkPlay: false` for now.
 
-### Decisions made in step 1 (please confirm)
-- A 6 rolls again even when it cannot be moved (and after it brought a pawn out). No limit on 6s in a row.
+### Decisions made in step 1
+- ✅ confirmed (maintainer, 2026-11-15): A 6 rolls again even when it cannot be moved (and after it brought a
+  pawn out). No limit on 6s in a row.
 - After a winning move with a 6 the game ends (no extra roll).
-- A 6 that cannot bring a pawn out because the own pawn sits on the start field: the start pawn must move on
-  (Startfeld räumen) – if it is blocked by an own pawn, any other pawn may move (the classic "move the blocker"
-  rule is not enforced).
-- Bringing out and Startfeld räumen come before Schlagzwang (a capture elsewhere does not override them).
-- The game ends with the first winner (no playing on for places).
+- ✅ changed by the maintainer (2026-11-15) to the classic rule: a start pawn blocked by an own pawn makes the
+  blocker move (along the chain), under the `start` switch; still rules version 1 (never shipped), the
+  fingerprint is unchanged (the rule is code, not gameplay data).
+- ✅ confirmed: Startfeld räumen, then bringing out on a 6, then Schlagzwang (a capture elsewhere does not
+  override the first two).
+- ✅ confirmed: the game ends with the first winner (no playing on for places).
 - The die shows the last roll until the next one (also the previous player's roll at the start of a turn).
 
 ## Acceptance criteria

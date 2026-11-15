@@ -5098,7 +5098,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get ludoHintBringOut => 'Mit der 6 kommt eine Figur aus dem Haus.';
 
   @override
-  String get ludoHintClearStart => 'Erst muss die Figur vom Startfeld weg.';
+  String get ludoHintClearStart => 'Erst muss das Startfeld frei werden.';
 
   @override
   String ludoHintNoMove(String player, int value) {
@@ -5178,7 +5178,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get rulesLudoStart =>
-      'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen.';
+      'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen. Steht dort eine eigene Figur im Weg, muss zuerst diese ziehen.';
 
   @override
   String get ludoRuleSix => '6 = nochmal würfeln';
