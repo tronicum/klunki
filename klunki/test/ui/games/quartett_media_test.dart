@@ -159,6 +159,10 @@ void _mediaDataTests(String deckId) {
         final bytes = File('${dir.path}/$name').readAsBytesSync();
         expect(bytes.length, lessThanOrEqualTo(_maxBytesOf[deckId] ?? _maxBytes), reason: name);
         expect(bytes.sublist(0, 3), [0xFF, 0xD8, 0xFF], reason: '$name is a JPEG');
+        // The PWA check (tool/check_pwa_external_urls.py) refuses these hosts
+        // outside the link text; photo metadata (XMP credits) can carry them.
+        expect(latin1.decode(bytes), isNot(matches(RegExp(r'wikipedia\.org|wikimedia\.org|creativecommons\.org'))),
+            reason: '$name embeds a Wikipedia/Wikimedia/licence URL in its metadata');
       }
       final total = dir.listSync().whereType<File>().fold<int>(0, (sum, f) => sum + f.lengthSync());
       expect(total, lessThanOrEqualTo(_budgetOf[deckId] ?? 1200 * 1024),
