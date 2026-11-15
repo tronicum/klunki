@@ -23,6 +23,7 @@ library;
 import 'dart:convert';
 
 import 'dice_sheet.dart';
+import 'ludo.dart';
 import 'maexchen.dart';
 import 'property.dart';
 import 'quartett.dart';
@@ -93,7 +94,8 @@ GameFingerprint? fingerprintOf(GameConfig config) {
 /// a game without a deck). The word tile game adds its tile sets and premium
 /// layout ([WordTilesGame.gameplayData], KLD-094), Mäxchen its order of
 /// values ([MaexchenGame.ranking], KLD-121), Ausgewürfelt its boxes and
-/// scores ([DiceSheetGame.gameplayData], KLD-119), Baulöwe its board
+/// scores ([DiceSheetGame.gameplayData], KLD-119), Rauswurf its board size
+/// ([LudoGame.gameplayData], KLD-131), Baulöwe its board
 /// [theme]: id and [PropertyTheme.contentHash] (the whole theme JSON, texts
 /// included, KLD-060).
 String contentHash(String gameId, QuartettDeck? deck, {PropertyTheme? theme}) {
@@ -105,6 +107,7 @@ String contentHash(String gameId, QuartettDeck? deck, {PropertyTheme? theme}) {
     if (gameId == 'wordtiles') WordTilesGame.gameplayData(),
     if (gameId == 'maexchen') MaexchenGame.ranking,
     if (gameId == 'dicesheet') DiceSheetGame.gameplayData(),
+    if (gameId == 'ludo') LudoGame.gameplayData(),
   ]);
   return sha256Hex('klunki-content-v1\n$data').substring(0, 32);
 }

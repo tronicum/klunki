@@ -40,6 +40,8 @@ void main() {
     // KLD-060: Baulöwe, keyed by board theme (revision = theme revision).
     'property/berlin': (2, 3, '9f4b3eec2e6d9b0890c6f560ebfc184f'),
     'property/fantasie': (2, 2, '3664969ad91efaf5af4b4128233f0866'),
+    // KLD-131: Rauswurf (a new key).
+    'ludo': (1, 1, '2fe86e8133f14bf692a097e108fa1ffd'),
   };
 
   test('golden fingerprint per game and deck', () {
