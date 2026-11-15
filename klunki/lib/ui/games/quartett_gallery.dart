@@ -341,7 +341,7 @@ class QuartettMiniCard extends StatelessWidget {
                     Expanded(
                       child: SizedBox.expand(
                         child: CustomPaint(
-                          painter: QuartettPictogram(card.deck, color: Colors.white, detail: color),
+                          painter: QuartettPictogram(card.deck, set: card.set, color: Colors.white, detail: color),
                         ),
                       ),
                     ),

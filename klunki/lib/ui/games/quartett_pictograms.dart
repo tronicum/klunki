@@ -7,11 +7,27 @@ import 'package:flutter/material.dart';
 /// Drawn in a 100 × 60 box, scaled to fit the canvas and centred. [color]
 /// fills the body, [detail] the windows and wheel hubs (usually the
 /// background the pictogram sits on).
+///
+/// Per-set pictograms (KLD-128): a deck in [setPictogramDecks] draws one
+/// pictogram per set when [set] is given (the card header and the gallery
+/// grid pass the card's set): the animal deck shows a big cat, bear, ape,
+/// elephant, whale, shark fin, bird or crocodile. Without [set] (card back,
+/// deck picker, deck list), and for every other deck, the deck pictogram.
 class QuartettPictogram extends CustomPainter {
   final String deck;
+
+  /// The set letter `A`–`H` of the card shown; null = the deck pictogram.
+  final String? set;
   final Color color;
   final Color detail;
-  const QuartettPictogram(this.deck, {required this.color, required this.detail});
+  const QuartettPictogram(this.deck, {this.set, required this.color, required this.detail});
+
+  /// Decks with one pictogram per set; a new deck opts in here and in
+  /// [_setPictogram].
+  static const setPictogramDecks = {'animals'};
+
+  /// Whether this painter draws a set pictogram (not the deck pictogram).
+  bool get showsSet => set != null && setPictogramDecks.contains(deck);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -22,6 +38,36 @@ class QuartettPictogram extends CustomPainter {
       ..scale(scale);
     final body = Paint()..color = color;
     final fine = Paint()..color = detail;
+    if (showsSet) {
+      _setPictogram(canvas, body, fine);
+    } else {
+      _deckPictogram(canvas, body, fine);
+    }
+    canvas.restore();
+  }
+
+  void _setPictogram(Canvas c, Paint body, Paint fine) {
+    switch ((deck, set)) {
+      case ('animals', 'A'):
+        _bigCat(c, body, fine);
+      case ('animals', 'B'):
+        _bear(c, body, fine);
+      case ('animals', 'C'):
+        _ape(c, body, fine);
+      case ('animals', 'E'):
+        _whale(c, body, fine);
+      case ('animals', 'F'):
+        _sharkFin(c, body, fine);
+      case ('animals', 'G'):
+        _bird(c, body, fine);
+      case ('animals', 'H'):
+        _crocodile(c, body, fine);
+      default: // animals D (Savanne): the elephant; an unknown set: the deck.
+        _deckPictogram(c, body, fine);
+    }
+  }
+
+  void _deckPictogram(Canvas canvas, Paint body, Paint fine) {
     switch (deck) {
       case 'trains':
         _train(canvas, body, fine);
@@ -34,7 +80,6 @@ class QuartettPictogram extends CustomPainter {
       default:
         _car(canvas, body, fine);
     }
-    canvas.restore();
   }
 
   void _car(Canvas c, Paint body, Paint fine) {
@@ -217,6 +262,245 @@ class QuartettPictogram extends CustomPainter {
     c.drawPath(tusk, fine);
   }
 
+  Paint _stroke(double width, Color c) => Paint()
+    ..color = c
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = width
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round;
+
+  /// Animals A (Raubkatzen): a big cat's head, front view.
+  void _bigCat(Canvas c, Paint body, Paint fine) {
+    final ears = Path()
+      ..moveTo(31, 24)
+      ..lineTo(32, 5)
+      ..lineTo(47, 15)
+      ..close()
+      ..moveTo(69, 24)
+      ..lineTo(68, 5)
+      ..lineTo(53, 15)
+      ..close();
+    c
+      ..drawPath(ears, body)
+      ..drawPath(
+          Path()
+            ..moveTo(35, 18)
+            ..lineTo(35.5, 11)
+            ..lineTo(41, 15)
+            ..close()
+            ..moveTo(65, 18)
+            ..lineTo(64.5, 11)
+            ..lineTo(59, 15)
+            ..close(),
+          fine)
+      ..drawOval(const Rect.fromLTRB(27, 12, 73, 56), body);
+    // Eyes, nose and mouth.
+    for (final x in [41.0, 59.0]) {
+      c.drawOval(Rect.fromCenter(center: Offset(x, 30), width: 8, height: 5), fine);
+    }
+    c.drawPath(
+        Path()
+          ..moveTo(45.5, 39)
+          ..lineTo(54.5, 39)
+          ..lineTo(50, 44)
+          ..close(),
+        fine);
+    final mouth = _stroke(1.8, detail);
+    c
+      ..drawLine(const Offset(50, 44), const Offset(50, 47), mouth)
+      ..drawPath(
+          Path()
+            ..moveTo(44, 49)
+            ..quadraticBezierTo(50, 51, 50, 47)
+            ..quadraticBezierTo(50, 51, 56, 49),
+          mouth);
+  }
+
+  /// Animals B (Bären): a bear walking, side view, head to the right.
+  void _bear(Canvas c, Paint body, Paint fine) {
+    c
+      ..drawCircle(const Offset(13, 25), 3.5, body) // tail
+      ..drawRRect(RRect.fromLTRBR(13, 17, 76, 44, const Radius.circular(13)), body)
+      ..drawCircle(const Offset(56, 19), 10, body); // shoulder hump
+    for (final x in [16.0, 30.0, 50.0, 63.0]) {
+      c.drawRRect(RRect.fromLTRBR(x, 34, x + 11, 55, const Radius.circular(3)), body);
+    }
+    c
+      ..drawCircle(const Offset(79, 27), 11, body)
+      ..drawCircle(const Offset(73, 16), 4.5, body) // ear
+      ..drawRRect(RRect.fromLTRBR(82, 25, 97, 36, const Radius.circular(5)), body) // snout
+      ..drawCircle(const Offset(73, 16), 1.8, fine)
+      ..drawCircle(const Offset(81, 24), 1.7, fine) // eye
+      ..drawCircle(const Offset(95.5, 28.5), 2, fine); // nose
+  }
+
+  /// Animals C (Affen): an ape's face, front view.
+  void _ape(Canvas c, Paint body, Paint fine) {
+    for (final x in [29.0, 71.0]) {
+      c
+        ..drawCircle(Offset(x, 31), 8, body)
+        ..drawCircle(Offset(x, 31), 3.8, fine);
+    }
+    c.drawCircle(const Offset(50, 30), 21, body);
+    // The bare face: two eye patches over a muzzle.
+    c
+      ..drawCircle(const Offset(43.5, 27), 7.5, fine)
+      ..drawCircle(const Offset(56.5, 27), 7.5, fine)
+      ..drawOval(const Rect.fromLTRB(36, 29, 64, 49), fine)
+      ..drawCircle(const Offset(43.5, 26.5), 2.4, body)
+      ..drawCircle(const Offset(56.5, 26.5), 2.4, body)
+      ..drawCircle(const Offset(47.5, 36), 1.3, body)
+      ..drawCircle(const Offset(52.5, 36), 1.3, body)
+      ..drawPath(
+          Path()
+            ..moveTo(43, 42)
+            ..quadraticBezierTo(50, 46, 57, 42),
+          _stroke(1.8, color));
+  }
+
+  /// Animals E (Wale & Delfine): a whale with its spout, head to the right.
+  void _whale(Canvas c, Paint body, Paint fine) {
+    final p = Path()
+      ..moveTo(95, 32)
+      ..cubicTo(95, 17, 78, 14, 60, 16)
+      ..cubicTo(42, 18, 30, 27, 21, 31)
+      ..lineTo(8, 21)
+      ..lineTo(13, 34)
+      ..lineTo(7, 46)
+      ..lineTo(22, 37)
+      ..cubicTo(34, 45, 60, 49, 80, 45)
+      ..cubicTo(90, 43, 95, 39, 95, 32)
+      ..close();
+    c
+      ..drawPath(p, body)
+      ..drawPath(
+          Path()
+            ..moveTo(58, 44)
+            ..lineTo(50, 55)
+            ..lineTo(67, 46)
+            ..close(),
+          body)
+      ..drawCircle(const Offset(82, 29), 2.2, fine)
+      ..drawPath(
+          Path()
+            ..moveTo(94, 35)
+            ..quadraticBezierTo(86, 39, 75, 37),
+          _stroke(1.6, detail));
+    final spout = _stroke(2.6, color);
+    c
+      ..drawLine(const Offset(76, 12), const Offset(76, 6), spout)
+      ..drawPath(
+          Path()
+            ..moveTo(76, 7)
+            ..quadraticBezierTo(70, 1, 66, 5),
+          spout)
+      ..drawPath(
+          Path()
+            ..moveTo(76, 7)
+            ..quadraticBezierTo(82, 1, 86, 5),
+          spout);
+  }
+
+  /// Animals F (Haie): a shark fin cutting through the waves.
+  void _sharkFin(Canvas c, Paint body, Paint fine) {
+    c.drawPath(
+        Path()
+          ..moveTo(28, 42)
+          ..quadraticBezierTo(46, 32, 50, 5)
+          ..quadraticBezierTo(60, 30, 76, 42)
+          ..close(),
+        body);
+    final wave = _stroke(4, color);
+    for (final (y, shift) in [(44.0, 0.0), (54.0, 6.0)]) {
+      final p = Path()..moveTo(6 + shift, y);
+      for (var x = 6.0 + shift; x < 88; x += 14) {
+        p.quadraticBezierTo(x + 7, y - 5, x + 14, y);
+      }
+      c.drawPath(p, wave);
+    }
+  }
+
+  /// Animals G (Vögel): a bird with spread wings, front view.
+  void _bird(Canvas c, Paint body, Paint fine) {
+    final wing = Path()
+      ..moveTo(45, 25)
+      ..quadraticBezierTo(28, 10, 4, 12)
+      ..lineTo(11, 19)
+      ..lineTo(5, 23)
+      ..lineTo(14, 27)
+      ..lineTo(9, 32)
+      ..quadraticBezierTo(30, 35, 45, 38)
+      ..close();
+    c.drawPath(wing, body);
+    c
+      ..save()
+      ..translate(100, 0)
+      ..scale(-1, 1)
+      ..drawPath(wing, body)
+      ..restore();
+    c
+      ..drawOval(const Rect.fromLTRB(41, 21, 59, 47), body)
+      ..drawPath(
+          Path()
+            ..moveTo(44, 43)
+            ..lineTo(56, 43)
+            ..lineTo(61, 55)
+            ..lineTo(39, 55)
+            ..close(),
+          body)
+      ..drawCircle(const Offset(50, 16), 8, body)
+      ..drawCircle(const Offset(46.8, 14.5), 1.5, fine)
+      ..drawCircle(const Offset(53.2, 14.5), 1.5, fine)
+      ..drawPath(
+          Path()
+            ..moveTo(47.5, 18)
+            ..lineTo(52.5, 18)
+            ..lineTo(50, 23)
+            ..close(),
+          fine);
+  }
+
+  /// Animals H (Reptilien): a crocodile, side view, snout to the right.
+  void _crocodile(Canvas c, Paint body, Paint fine) {
+    final p = Path()
+      ..moveTo(2, 38)
+      ..quadraticBezierTo(16, 28, 32, 25)
+      ..lineTo(66, 24)
+      ..quadraticBezierTo(73, 22, 78, 26)
+      ..lineTo(95, 29)
+      ..quadraticBezierTo(99, 33, 96, 38)
+      ..lineTo(72, 40)
+      ..quadraticBezierTo(60, 44, 44, 44)
+      ..quadraticBezierTo(20, 44, 2, 38)
+      ..close();
+    // Legs, bent like a walking crocodile, with feet.
+    for (final x in [30.0, 58.0]) {
+      c
+        ..drawRRect(RRect.fromLTRBR(x, 38, x + 9, 52, const Radius.circular(3)), body)
+        ..drawRRect(RRect.fromLTRBR(x - 3, 48, x + 13, 53, const Radius.circular(2.5)), body);
+    }
+    c.drawPath(p, body);
+    // Ridges on the back.
+    final ridges = Path();
+    for (var x = 28.0; x <= 62; x += 8.5) {
+      ridges
+        ..moveTo(x, 25.6)
+        ..lineTo(x + 3.5, 19.5)
+        ..lineTo(x + 7, 25.2)
+        ..close();
+    }
+    c
+      ..drawPath(ridges, body)
+      ..drawCircle(const Offset(75, 23), 4.2, body)
+      ..drawCircle(const Offset(75.5, 22.5), 1.6, fine)
+      ..drawPath(
+          Path()
+            ..moveTo(72, 34.5)
+            ..lineTo(96, 33.5),
+          _stroke(1.4, detail));
+  }
+
   @override
-  bool shouldRepaint(QuartettPictogram old) => old.deck != deck || old.color != color || old.detail != detail;
+  bool shouldRepaint(QuartettPictogram old) =>
+      old.deck != deck || old.set != set || old.color != color || old.detail != detail;
 }

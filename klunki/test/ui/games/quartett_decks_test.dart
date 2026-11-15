@@ -1,6 +1,8 @@
 // KLD-069: themed Quartett decks in the app: the deck picker before a
 // hot-seat game, a card of every deck, the view-only card gallery and the
 // deck choice when hosting over a relay.
+import 'dart:ui' show PictureRecorder;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:klunki/l10n/app_localizations.dart';
@@ -9,6 +11,7 @@ import 'package:klunki/ui/engine_l10n.dart';
 import 'package:klunki/ui/games/quartett_card.dart';
 import 'package:klunki/ui/games/quartett_deck_picker.dart';
 import 'package:klunki/ui/games/quartett_gallery.dart';
+import 'package:klunki/ui/games/quartett_pictograms.dart';
 import 'package:klunki/ui/games/quartett_trumpf_screen.dart';
 import 'package:klunki/ui/pairing/relay_host_screen.dart';
 import 'package:klunki/ui/shell/screen_registry.dart';
@@ -131,6 +134,57 @@ void main() {
       await s.set('trains');
       expect(p.getString(QuartettDeckSettings.prefsKey), 'trains');
       expect(() => s.set('boats'), throwsArgumentError);
+    });
+  });
+
+  group('set pictograms (KLD-128)', () {
+    QuartettPictogram painterOf(WidgetTester tester, String deck) =>
+        tester.widget<CustomPaint>(find.byKey(Key('quartett-pictogram-$deck'))).painter! as QuartettPictogram;
+
+    testWidgets('animal cards show their set pictogram at every card size, LTR and RTL; other decks keep theirs',
+        (tester) async {
+      for (final locale in [const Locale('de'), const Locale('ar')]) {
+        for (final (compact, dense, width) in [(false, false, 340.0), (false, true, 180.0), (true, false, 150.0)]) {
+          for (final deck in QuartettDeck.all) {
+            for (final set in deck.setNames.keys) {
+              final card = deck.cardsOf(set).first;
+              await tester.pumpWidget(localizedApp(
+                locale: locale,
+                Scaffold(
+                  body: SingleChildScrollView(
+                    child: SizedBox(width: width, child: QuartettCard(card: card, compact: compact, dense: dense)),
+                  ),
+                ),
+              ));
+              final p = painterOf(tester, deck.id);
+              expect(p.set, set);
+              expect(p.showsSet, deck.id == 'animals', reason: '${deck.id} $set');
+              expect(tester.takeException(), isNull, reason: '${locale.languageCode} ${deck.id} $set $width');
+            }
+          }
+        }
+      }
+    });
+
+    testWidgets('the card back and the deck picker keep the deck pictogram (the elephant)', (tester) async {
+      await tester.pumpWidget(localizedApp(
+        Scaffold(body: Center(child: QuartettDeckPreview(deck: QuartettDeck.animals))),
+      ));
+      final preview = tester.widget<CustomPaint>(
+          find.descendant(of: find.byType(QuartettDeckPreview), matching: find.byType(CustomPaint)).last);
+      expect((preview.painter! as QuartettPictogram).showsSet, isFalse);
+      expect(const QuartettPictogram('animals', color: Colors.white, detail: Colors.black).showsSet, isFalse);
+      expect(const QuartettPictogram('cars', set: 'A', color: Colors.white, detail: Colors.black).showsSet, isFalse);
+      expect(QuartettPictogram.setPictogramDecks, {'animals'});
+    });
+
+    test('every set pictogram paints without errors', () {
+      for (final set in 'ABCDEFGH'.split('')) {
+        final recorder = PictureRecorder();
+        QuartettPictogram('animals', set: set, color: Colors.white, detail: Colors.black)
+            .paint(Canvas(recorder), const Size(100, 60));
+        recorder.endRecording().dispose();
+      }
     });
   });
 
