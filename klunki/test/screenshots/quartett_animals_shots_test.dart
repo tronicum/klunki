@@ -1,7 +1,7 @@
 // KLD-128 screenshots of the animal deck "Tiere": the deck picker with five
 // decks, the card gallery (decks and the animal sets), a full card, a Trumpf
-// comparison, and a card in en and ar (translated animal names). Without
-// photos the cards show the drawn elephant. Skipped unless
+// comparison, and a card in en and ar (translated animal names), with the
+// Commons photos. Skipped unless
 // KLUNKI_SHOTS=<output dir> is set:
 //
 //   KLUNKI_SHOTS=/tmp/tiere flutter test test/screenshots/quartett_animals_shots_test.dart

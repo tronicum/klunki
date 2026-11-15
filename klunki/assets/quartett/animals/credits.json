@@ -1,0 +1,614 @@
+{
+  "deck": "animals",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Gepard",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gepard",
+        "en": "https://en.wikipedia.org/wiki/Cheetah"
+      },
+      "image": {
+        "commonsTitle": "File:Male cheetah facing left in South Africa.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Male_cheetah_facing_left_in_South_Africa.jpg",
+        "author": "AfricanConservation",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Cheetah at Working with Wildlife, South Africa",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35957
+      }
+    },
+    "A2": {
+      "name": "Löwe",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/L%C3%B6we",
+        "en": "https://en.wikipedia.org/wiki/Lion"
+      },
+      "image": {
+        "commonsTitle": "File:020 The lion king Snyggve in the Serengeti National Park Photo by Giles Laurent.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:020_The_lion_king_Snyggve_in_the_Serengeti_National_Park_Photo_by_Giles_Laurent.jpg",
+        "author": "Giles Laurent",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Wild lion (Panthera leo) Snyggve (also known as Bob Junior), son of C-Boy, laying on a lava rock in the Serengeti National Park. Standing on top of the lava rock allows the lion to have a clear view of its territory.",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37861
+      }
+    },
+    "A3": {
+      "name": "Tiger",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Tiger",
+        "en": "https://en.wikipedia.org/wiki/Tiger"
+      },
+      "image": {
+        "commonsTitle": "File:Bengal tiger (Panthera tigris tigris) female 3 crop.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bengal_tiger_(Panthera_tigris_tigris)_female_3_crop.jpg",
+        "author": "Charles J. Sharp",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Bengal tiger (Panthera tigris tigris) female, Kanha National Park, India",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38164
+      }
+    },
+    "A4": {
+      "name": "Leopard",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Leopard",
+        "en": "https://en.wikipedia.org/wiki/Leopard"
+      },
+      "image": {
+        "commonsTitle": "File:African leopard male (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:African_leopard_male_(cropped).jpg",
+        "author": "Sumeet Moghe",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "African leopard male at Maasai Mara National Reserve",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39668
+      }
+    },
+    "B1": {
+      "name": "Eisbär",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Eisb%C3%A4r",
+        "en": "https://en.wikipedia.org/wiki/Polar_bear"
+      },
+      "image": {
+        "commonsTitle": "File:Polar Bear - Alaska (cropped).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Polar_Bear_-_Alaska_(cropped).jpg",
+        "author": "Alan Wilson",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Female polar bear (Ursus maritimus) near Kaktovik, Barter Island, Alaska.",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35148
+      }
+    },
+    "B2": {
+      "name": "Braunbär",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Braunb%C3%A4r",
+        "en": "https://en.wikipedia.org/wiki/Brown_bear"
+      },
+      "image": {
+        "commonsTitle": "File:2010-kodiak-bear-1.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg",
+        "author": "Yathin S Krishnappa",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Kodiak Bear (Ursus arctos middendorffi) in Kodiak National Wildlife Refuge, Alaska, United States.",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38763
+      }
+    },
+    "B3": {
+      "name": "Großer Panda",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gro%C3%9Fer_Panda",
+        "en": "https://en.wikipedia.org/wiki/Giant_panda"
+      },
+      "image": {
+        "commonsTitle": "File:Grosser Panda.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Grosser_Panda.JPG",
+        "author": "J. Patrick Fischer",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Giant Panda at Ocean Park Hong Kong",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34937
+      }
+    },
+    "B4": {
+      "name": "Malaienbär",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Malaienb%C3%A4r",
+        "en": "https://en.wikipedia.org/wiki/Sun_bear"
+      },
+      "image": {
+        "commonsTitle": "File:Sun-bear.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Sun-bear.jpg",
+        "author": "Rushenb",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Sun bear (Helarctos malayanus) in wild, Kaeng Krachan National Park, Thailand",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40105
+      }
+    },
+    "C1": {
+      "name": "Gorilla",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gorillas",
+        "en": "https://en.wikipedia.org/wiki/Gorilla"
+      },
+      "image": {
+        "commonsTitle": "File:Gorille des plaines de l'ouest à l'Espace Zoologique.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Gorille_des_plaines_de_l'ouest_%C3%A0_l'Espace_Zoologique.jpg",
+        "author": "Thurundir",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Western lowland gorilla at the Tam-Tam Zoological Park",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34295
+      }
+    },
+    "C2": {
+      "name": "Orang-Utan",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Borneo-Orang-Utan",
+        "en": "https://en.wikipedia.org/wiki/Bornean_orangutan"
+      },
+      "image": {
+        "commonsTitle": "File:Tanjung Puting30477.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Tanjung_Puting30477.jpg",
+        "author": "Nanosanchez",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Male of orangutan in Tanjung Puting National Park,Central Kalimantan, Borneo.",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33865
+      }
+    },
+    "C3": {
+      "name": "Schimpanse",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gemeiner_Schimpanse",
+        "en": "https://en.wikipedia.org/wiki/Chimpanzee"
+      },
+      "image": {
+        "commonsTitle": "File:015 Chimpanzee at Kibale forest National Park Photo by Giles Laurent.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:015_Chimpanzee_at_Kibale_forest_National_Park_Photo_by_Giles_Laurent.jpg",
+        "author": "Giles Laurent",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Chimpanzee at Kibale forest National Park",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39003
+      }
+    },
+    "C4": {
+      "name": "Weißhandgibbon",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wei%C3%9Fhandgibbon",
+        "en": "https://en.wikipedia.org/wiki/Lar_gibbon"
+      },
+      "image": {
+        "commonsTitle": "File:Hylobates lar pair of white and black 01.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Hylobates_lar_pair_of_white_and_black_01.jpg",
+        "author": "User:MatthiasKabel",
+        "license": "CC BY 2.5",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+        "shareAlike": false,
+        "description": "Pair of Lar Gibbons at Salzburg zoo",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39760
+      }
+    },
+    "D1": {
+      "name": "Afrikanischer Elefant",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Afrikanischer_Elefant",
+        "en": "https://en.wikipedia.org/wiki/African_bush_elephant"
+      },
+      "image": {
+        "commonsTitle": "File:178 Male African bush elephant in Etosha National Park Photo by Giles Laurent.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:178_Male_African_bush_elephant_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg",
+        "author": "Giles Laurent",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Male African bush elephant in Etosha National Park, Namibia",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36878
+      }
+    },
+    "D2": {
+      "name": "Giraffe",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Giraffen",
+        "en": "https://en.wikipedia.org/wiki/Giraffe"
+      },
+      "image": {
+        "commonsTitle": "File:Giraffen.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Giraffen.jpg",
+        "author": "John Walker",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A Giraffe mother and her calf in the South Luangwa National Park of eastern Zambia",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 32975
+      }
+    },
+    "D3": {
+      "name": "Flusspferd",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Flusspferd",
+        "en": "https://en.wikipedia.org/wiki/Hippopotamus"
+      },
+      "image": {
+        "commonsTitle": "File:Portrait Hippopotamus in the water.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Portrait_Hippopotamus_in_the_water.jpg",
+        "author": "Muhammad Mahdi Karim",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Portrait of a Hippopotamus in water in Saadani National Park",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35943
+      }
+    },
+    "D4": {
+      "name": "Breitmaulnashorn",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Breitmaulnashorn",
+        "en": "https://en.wikipedia.org/wiki/White_rhinoceros"
+      },
+      "image": {
+        "commonsTitle": "File:109 Male White rhinoceros walking in the Kalahari Desert of Namibia Photo by Giles Laurent.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:109_Male_White_rhinoceros_walking_in_the_Kalahari_Desert_of_Namibia_Photo_by_Giles_Laurent.jpg",
+        "author": "Giles Laurent",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Male White rhinoceros walking in the Kalahari Desert of Namibia",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35327
+      }
+    },
+    "E1": {
+      "name": "Blauwal",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Blauwal",
+        "en": "https://en.wikipedia.org/wiki/Blue_whale"
+      },
+      "image": {
+        "commonsTitle": "File:Anim1754 - Flickr - NOAA Photo Library.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Anim1754_-_Flickr_-_NOAA_Photo_Library.jpg",
+        "author": "NOAA Photo Library",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Balaenoptera musculus",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36132
+      }
+    },
+    "E2": {
+      "name": "Grönlandwal",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gr%C3%B6nlandwal",
+        "en": "https://en.wikipedia.org/wiki/Bowhead_whale"
+      },
+      "image": {
+        "commonsTitle": "File:Bowhead Whale NOAA.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bowhead_Whale_NOAA.jpg",
+        "author": "Vicki Beaver, Alaska Fisheries Science Center, NOAA FIsheries, Marine Mammal Permit#14245",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "A bowhead whale swims through blue water toward ice.",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35479
+      }
+    },
+    "E3": {
+      "name": "Orca",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Schwertwal",
+        "en": "https://en.wikipedia.org/wiki/Orca"
+      },
+      "image": {
+        "commonsTitle": "File:Killerwhales jumping.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Killerwhales_jumping.jpg",
+        "author": "Robert Pittman",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Two killer whales photographed off the south side of Unimak Island, eastern Aleutian Islands, Alaska",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35846
+      }
+    },
+    "E4": {
+      "name": "Großer Tümmler",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Gro%C3%9Fer_T%C3%BCmmler",
+        "en": "https://en.wikipedia.org/wiki/Common_bottlenose_dolphin"
+      },
+      "image": {
+        "commonsTitle": "File:Tursiops truncatus 01-cropped.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Tursiops_truncatus_01-cropped.jpg",
+        "author": "NASA",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Bottlenose Dolphin - Tursiops truncatus A dolphin surfs the wake of a research boat on the Banana River - near the Kennedy Space Center.",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40061
+      }
+    },
+    "F1": {
+      "name": "Weißer Hai",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wei%C3%9Fer_Hai",
+        "en": "https://en.wikipedia.org/wiki/Great_white_shark"
+      },
+      "image": {
+        "commonsTitle": "File:White shark.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:White_shark.jpg",
+        "author": "Pterantula (Terry Goss) at en.wikipedia",
+        "license": "CC BY 2.5",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+        "shareAlike": false,
+        "description": "Great white shark at Isla Guadalupe, Mexico, August 2006. Shot with Nikon D70s in Ikelite housing, in natural light. Animal estimated at 11-12 feet (3.3 to 3.6 m) in length, age unknown.",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40498
+      }
+    },
+    "F2": {
+      "name": "Tigerhai",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Tigerhai",
+        "en": "https://en.wikipedia.org/wiki/Tiger_shark"
+      },
+      "image": {
+        "commonsTitle": "File:Tiger shark.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Tiger_shark.jpg",
+        "author": "Albert kok",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Tiger shark, Bahamas",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36133
+      }
+    },
+    "F3": {
+      "name": "Blauhai",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Blauhai",
+        "en": "https://en.wikipedia.org/wiki/Blue_shark"
+      },
+      "image": {
+        "commonsTitle": "File:Tiburón azul (Prionace glauca), canal Fayal-Pico, islas Azores, Portugal, 2020-07-27, DD 31.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Tibur%C3%B3n_azul_(Prionace_glauca),_canal_Fayal-Pico,_islas_Azores,_Portugal,_2020-07-27,_DD_31.jpg",
+        "author": "Diego Delso",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Blue shark (Prionace glauca), Faial-Pico Channel, Azores Islands, Portugal. The blue shark is a species of requiem shark, in the family Carcharhinidae, that inhabits deep waters (images taken though between 5 and 10 meter below water) averaging around 3.1 m (10 ft) and preferring cooler waters. They",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38527
+      }
+    },
+    "F4": {
+      "name": "Kurzflossen-Mako",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kurzflossen-Mako",
+        "en": "https://en.wikipedia.org/wiki/Shortfin_mako_shark"
+      },
+      "image": {
+        "commonsTitle": "File:Shortfin mako (Isurus oxyrinchus).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Shortfin_mako_(Isurus_oxyrinchus).jpg",
+        "author": "Fábio Olmos",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "Photograph of a shortfin mako shark taken off the coast of Cabo San Lucas in March 2020.",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36439
+      }
+    },
+    "G1": {
+      "name": "Strauß",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Afrikanischer_Strau%C3%9F",
+        "en": "https://en.wikipedia.org/wiki/Common_ostrich"
+      },
+      "image": {
+        "commonsTitle": "File:Struthio camelus - Etosha 2014 (3).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Struthio_camelus_-_Etosha_2014_(3).jpg",
+        "author": "Yathin S Krishnappa",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Common ostrich male and females in Etosha National Park",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40187
+      }
+    },
+    "G2": {
+      "name": "Wanderfalke",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wanderfalke",
+        "en": "https://en.wikipedia.org/wiki/Peregrine_falcon"
+      },
+      "image": {
+        "commonsTitle": "File:Falco peregrinus m Humber Bay Park Toronto.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Falco_peregrinus_m_Humber_Bay_Park_Toronto.jpg",
+        "author": "Mykola Swarnyk",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Male peregrine falcon (Falco peregrinus) in Humber Bay Park West in Toronto",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40793
+      }
+    },
+    "G3": {
+      "name": "Kaiserpinguin",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kaiserpinguin",
+        "en": "https://en.wikipedia.org/wiki/Emperor_penguin"
+      },
+      "image": {
+        "commonsTitle": "File:Aptenodytes forsteri -Snow Hill Island, Antarctica -adults and juvenile-8.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Aptenodytes_forsteri_-Snow_Hill_Island,_Antarctica_-adults_and_juvenile-8.jpg",
+        "author": "Ian Duffy from UK",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Two adult Emperor Penguins with a juvenile on Snow Hill Island, Antarctica.",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37019
+      }
+    },
+    "G4": {
+      "name": "Wanderalbatros",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Wanderalbatros",
+        "en": "https://en.wikipedia.org/wiki/Snowy_albatross"
+      },
+      "image": {
+        "commonsTitle": "File:Diomedea exulans - SE Tasmania.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Diomedea_exulans_-_SE_Tasmania.jpg",
+        "author": "JJ Harrison (https://www.jjharrison.com.au/)",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Wandering Albatross (Diomedea exulans), East of the Tasman Peninsula, Tasmania, Australia.",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38898
+      }
+    },
+    "H1": {
+      "name": "Leistenkrokodil",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Leistenkrokodil",
+        "en": "https://en.wikipedia.org/wiki/Saltwater_crocodile"
+      },
+      "image": {
+        "commonsTitle": "File:SaltwaterCrocodile('Maximo').jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SaltwaterCrocodile('Maximo').jpg",
+        "author": "Obtained from Molly Ebersold of the St. Augustine Alligator Farm",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Saltwater Crocodile (Crocodylus porosus)This is Maximo, a 15'+ crocodile at the St. Augustine Alligator Farm.",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37105
+      }
+    },
+    "H2": {
+      "name": "Komodowaran",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Komodowaran",
+        "en": "https://en.wikipedia.org/wiki/Komodo_dragon"
+      },
+      "image": {
+        "commonsTitle": "File:202306 Varanus komodoensis.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:202306_Varanus_komodoensis.jpg",
+        "author": "James Jolokia (james1203)",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "Varanus komodoensis in Nusa Tenggara Timur, Indonesia",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38046
+      }
+    },
+    "H3": {
+      "name": "Aldabra-Riesenschildkröte",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Aldabra-Riesenschildkr%C3%B6te",
+        "en": "https://en.wikipedia.org/wiki/Aldabra_giant_tortoise"
+      },
+      "image": {
+        "commonsTitle": "File:Giant Tortoise.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Giant_Tortoise.JPG",
+        "author": "Yotcmdr",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "An Aldabra Giant Tortoise at Beauval Zoo, France.",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34191
+      }
+    },
+    "H4": {
+      "name": "Schwarze Mamba",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Schwarze_Mamba",
+        "en": "https://en.wikipedia.org/wiki/Black_mamba"
+      },
+      "image": {
+        "commonsTitle": "File:Dendroaspis polylepis (14).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Dendroaspis_polylepis_(14).jpg",
+        "author": "TimVickers",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Black mamba (Dendroaspis polylepis)",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38210
+      }
+    }
+  }
+}

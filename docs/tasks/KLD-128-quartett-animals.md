@@ -3,7 +3,7 @@
 - **ID:** `KLD-128`
 - **Title:** A fifth Quartett deck, "Tiere": 32 animals with sourced values and translated names
 - **Milestone:** M3
-- **Status:** DONE (photos and the Chinese font subset pending, see "Open")
+- **Status:** DONE (native-speaker review open)
 - **Depends on:** KLD-069 (decks), KLD-069b (more decks), KLD-082/084 (photo pipeline), KLD-085 (fingerprint),
   KLD-092 (hyphenated labels), KLD-110 (number grouping)
 - **Touched paths:**
@@ -42,8 +42,8 @@ Basis: the maintainer-approved proposal "Deck Tiere", revision 2 (2026-11-15), w
       "Wander-/albatros" on a 320 px phone, never "Wande/ralba…".
 - [x] Drawn pictogram (an elephant, side view) on every card without a photo; the deck picker gives the fifth deck
       its own preview colour (orange, set D).
-- [x] No photos yet: the cards show the pictogram exactly like the decks before KLD-082. The media list is
-      prepared in `klunki/tool/card_media/animals.json` (de/en Wikipedia article per animal).
+- [x] Photos from Wikimedia Commons for all 32 cards (free licences, credits, Wikipedia links), from
+      `klunki/tool/card_media/animals.json`; see "Photos and font". The pictogram stays in the header.
 - [x] Screenshots `kld128` (picker, gallery, full card, Trumpf comparison, en and ar cards).
 
 ## The cards
@@ -171,15 +171,23 @@ blanc", es "Hipo­pótamo"); the card breaks only there.
   phone; the l10n walk scrolls to "Spielen" like a user would.
 - **Gallery legend** "höher gewinnt / niedriger gewinnt" may wrap (it overflowed in fr at 320 px).
 
+## Photos and font (2026-11-15, with the maintainer's OK)
+- **Photos**: `python3 -I klunki/tool/fetch_card_media.py animals` (run by the main session): 32/32 cards with a
+  Commons photo, ~1.2 MB in `klunki/assets/quartett/animals/`, credits in `credits.json` and
+  `quartett_media_data.dart` (with the de/en Wikipedia links). Licences: CC BY-SA 3.0/4.0, CC BY 2.0/2.5/4.0 and
+  public domain (NOAA, NASA and others); no NC/ND/GFDL. D2 Giraffe: the en article's lead image is GFDL-only and
+  was skipped; the de article's public-domain photo ("Giraffen.jpg", John Walker, mother and calf in South Luangwa)
+  is used. Checked by eye: every photo shows the named species (the description on Commons names the species too),
+  nothing unsuitable for children. Weaker pictures that a later pass could swap: C2 Orang-Utan (narrow portrait, the
+  ape is small on the card) and H2 Komodowaran (the animal is small and far away). Credits are as Commons gives them
+  (e.g. "User:MatthiasKabel", "Obtained from Molly Ebersold of the St. Augustine Alligator Farm"); an `author`
+  override in `tool/card_media/animals.json` would tidy them on the next run.
+- **Chinese font subset**: `python3 -I tool/update_web_fonts.py subset` (main session) added the 60 new characters
+  (NotoSansSC now 867 code points); the glyph tests pass.
+
 ## Open
-- **Photos**: run `python3 -I klunki/tool/fetch_card_media.py animals` (needs the maintainer's OK for the
-  download), review licences and credits as in KLD-082/084, add `- assets/quartett/animals/` to `pubspec.yaml` and
-  `'animals'` to `_mediaDecks` in `test/ui/games/quartett_media_test.dart`. Until then no Wikipedia links either
-  (the generated `quartett_media_data.dart` has no `animals` entry).
-- **Chinese font subset**: 60 new characters (listed in the commit / report) need
-  `python3 -I tool/update_web_fonts.py subset` (internet); until then `test/l10n/glyph_coverage_test.dart` fails on
-  zh and the PWA falls back for these characters.
 - Native-speaker review of the animal names (fr, es, zh, ar, fa).
+- Optional: better photos for C2 and H2 (see above).
 
 ## Screenshots
 `KLUNKI_SHOTS=<dir> flutter test test/screenshots/quartett_animals_shots_test.dart` (group `kld128`): deck picker

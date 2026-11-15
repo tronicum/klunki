@@ -12,7 +12,8 @@ short German summary ("Kurz") for the store notes and the testers.
   Bären, Affen, Savanne, Wale & Delfine, Haie, Vögel, Reptilien), compared by Gewicht, Länge,
   Höchstgeschwindigkeit, Lebenserwartung and Tragzeit / Brutzeit. The values come from named sources (animal
   databases, zoos, Wikipedia with a source) and are rather low where the sources disagree. The animal names are
-  translated into every app language. The cards show a drawn elephant until photos are added.
+  translated into every app language. Every card has a photo from Wikimedia Commons (free licences, credits in
+  "Bildnachweise").
 - **Quartett: electric cars show "–" for Hubraum** instead of "0 cm³", on the card, in the gallery and in the
   comparison. Display only: the value is still 0, so an electric car still loses on Hubraum.
 - **Wortgewandt with 3–4 on one device: "Trotzdem zulassen" asks the next player** (KLD-125): as with two, the

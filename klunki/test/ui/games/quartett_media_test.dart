@@ -50,8 +50,8 @@ List<Uri> _fakeOpener({bool ok = true}) {
 }
 
 /// Decks whose photos and links have been collected (KLD-082 rockets,
-/// KLD-084 the others); every other deck keeps its pictograms.
-const _mediaDecks = ['rockets', 'planes', 'trains', 'cars'];
+/// KLD-084 the vehicle decks, KLD-128 the animals); every other deck keeps its pictograms.
+const _mediaDecks = ['rockets', 'planes', 'trains', 'cars', 'animals'];
 
 void main() {
   for (final deckId in _mediaDecks) {
@@ -387,15 +387,10 @@ void _widgetTests() {
       expect(find.byKey(const Key('quartett-photo-credit')), findsOneWidget);
     });
 
-    testWidgets('every deck gallery with photos has a Bildnachweise button that lists only that deck', (tester) async {
+    testWidgets('every deck gallery has a Bildnachweise button that lists only that deck', (tester) async {
       await _phone(tester);
       for (final deck in QuartettDeck.all) {
         await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: deck)));
-        if (!_mediaDecks.contains(deck.id)) {
-          // KLD-128: the animals have no photos yet, so no credits.
-          expect(find.byKey(const Key('gallery-image-credits')), findsNothing, reason: deck.id);
-          continue;
-        }
         expect(find.byKey(const Key('gallery-image-credits')), findsOneWidget, reason: deck.id);
         await tester.tap(find.byKey(const Key('gallery-image-credits')));
         await tester.pumpAndSettle();
