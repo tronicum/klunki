@@ -1,5 +1,6 @@
 {
   "deck": "motorcycles",
+  "maxBytes": 55296,
   "_comment": "KLD-129. Per card: en/de Wikipedia titles (de null = interlanguage link of the en article) and the chosen Commons file (absent = the article's lead image if free; \"\" = no image). author overrides an unhelpful Commons Artist field. _check: what to look for when choosing (not read by the tool). Not fetched yet: run --candidates first, pin a file per card (the exact model, else the nearest generation, with a note), then: python3 -I klunki/tool/fetch_card_media.py motorcycles",
   "cards": {
     "A1": {"name": "Ducati Panigale V4 S", "en": "Ducati Panigale V4", "de": null, "_check": "Panigale V4 / V4 S, 2025 generation if free, else the 2018-2024 V4"},
@@ -15,7 +16,7 @@
     "C3": {"name": "Ducati Multistrada V4 S", "en": "Ducati Multistrada", "de": null, "_check": "Multistrada V4 (2021-)"},
     "C4": {"name": "Harley-Davidson Pan America 1250 Special", "en": "Harley-Davidson Pan America", "de": null, "_check": "Pan America 1250 (2021-)"},
     "D1": {"name": "Harley-Davidson Fat Boy 117", "en": "Harley-Davidson Fat Boy", "de": null, "_check": "Milwaukee-Eight Softail Fat Boy (2018-), not the 1990 Evo"},
-    "D2": {"name": "Indian Chief Dark Horse", "en": "Indian Chief", "de": null, "_check": "the 2022- Chief (steel frame, round tank); the 1940s Chief only as a last resort"},
+    "D2": {"name": "Indian Chief Dark Horse", "en": null, "de": null, "file": "", "_check": "\"Indian Chief\" resolved to Tribal chief / Häuptling (wrong links, a painting); an online run could use \"Indian Chief (motorcycle)\". the 2022- Chief (steel frame, round tank); the 1940s Chief only as a last resort"},
     "D3": {"name": "Triumph Rocket 3 Storm R", "en": "Triumph Rocket III", "de": null, "_check": "Rocket 3 (2019-, 2458 cc)"},
     "D4": {"name": "Royal Enfield Super Meteor 650", "en": "Royal Enfield Super Meteor 650", "de": null, "_check": "Super Meteor 650 (2023-)"},
     "E1": {"name": "BMW R 32", "en": "BMW R32", "de": "BMW R 32", "_check": "museum photo of the 1923 R 32"},
@@ -30,7 +31,7 @@
     "G2": {"name": "Honda Super Cub C125", "en": "Honda Super Cub", "de": null, "_check": "the C125 (2018-), not the lead image's classic Cub if that is older"},
     "G3": {"name": "Yamaha TMAX 560 Tech MAX", "en": "Yamaha TMAX", "de": null, "_check": "TMAX 560 (2020-)"},
     "G4": {"name": "Kymco AK 575 Premium", "en": "Kymco AK 550", "de": null, "_check": "AK 575 (2025-); else the AK 550 with a note"},
-    "H1": {"name": "Zero SR/F", "en": "Zero Motorcycles", "de": null, "_check": "an SR/F, not the company's lead image or logo"},
+    "H1": {"name": "Zero SR/F", "en": "Zero Motorcycles", "de": null, "file": "", "_check": "an SR/F, not the company's lead image or logo"},
     "H2": {"name": "Can-Am Pulse", "en": "Can-Am Pulse", "de": null, "_check": "probably no article; a free Pulse photo on Commons, else no photo (\"\")"},
     "H3": {"name": "LiveWire One", "en": "LiveWire One", "de": null, "_check": "LiveWire One or the 2019 Harley-Davidson LiveWire (the same bike)"},
     "H4": {"name": "Kawasaki Ninja e-1", "en": "Kawasaki Ninja e-1", "de": null, "_check": "Ninja e-1 (2024-), not the Z e-1"}

@@ -1,0 +1,511 @@
+{
+  "deck": "motorcycles",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Ducati Panigale V4 S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ducati_Panigale_V4",
+        "en": "https://en.wikipedia.org/wiki/Ducati_Panigale_V4"
+      },
+      "image": {
+        "commonsTitle": "File:Ducati Panigale V4 - Tuning World Bodensee 2018, Friedrichshafen (OW1A0484).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ducati_Panigale_V4_-_Tuning_World_Bodensee_2018,_Friedrichshafen_(OW1A0484).jpg",
+        "author": "Matti Blume",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Tuning World Bodensee 2018",
+        "file": "A1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 53265
+      }
+    },
+    "A2": {
+      "name": "BMW M 1000 RR",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/BMW_S_1000_RR",
+        "en": "https://en.wikipedia.org/wiki/BMW_S1000RR"
+      },
+      "image": {
+        "commonsTitle": "File:BMW S 1000 RR - BMW M 1000 RR 50 Years M (22121615413).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:BMW_S_1000_RR_-_BMW_M_1000_RR_50_Years_M_(22121615413).jpg",
+        "author": "先従隗始",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "c/n unknown. On display at BMW Tokyo Bay, Aomi, Kōtō, Tokyo. 16th December 2022",
+        "file": "A2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 52080
+      }
+    },
+    "A3": {
+      "name": "Suzuki Hayabusa",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Suzuki_Hayabusa_1300",
+        "en": "https://en.wikipedia.org/wiki/Suzuki_Hayabusa"
+      },
+      "image": {
+        "commonsTitle": "File:SUZUKI Hayabusa 2007TMS.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SUZUKI_Hayabusa_2007TMS.jpg",
+        "author": "PekePON",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "SUZUKI Hayabusa 2008",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51466
+      }
+    },
+    "A4": {
+      "name": "Kawasaki Ninja H2R",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kawasaki_Ninja_H2",
+        "en": "https://en.wikipedia.org/wiki/Kawasaki_Ninja_H2"
+      },
+      "image": {
+        "commonsTitle": "File:Kawasaki Ninja H2.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Kawasaki_Ninja_H2.jpg",
+        "author": "Rikita",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Kawasaki Ninja H2 (2015)",
+        "file": "A4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 52065
+      }
+    },
+    "B1": {
+      "name": "KTM 1390 Super Duke R Evo",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/KTM_1290_Super_Duke_R"
+      },
+      "image": {
+        "commonsTitle": "File:KTM 1290 Super Duke R.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:KTM_1290_Super_Duke_R.jpg",
+        "author": "Cjp24",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "KTM 1290 Super Duke R.",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 47384
+      }
+    },
+    "B2": {
+      "name": "Yamaha MT-09",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Yamaha_MT-09",
+        "en": "https://en.wikipedia.org/wiki/Yamaha_MT-09"
+      },
+      "image": {
+        "commonsTitle": "File:2024 Yamaha MT-09 Y-AMT.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2024_Yamaha_MT-09_Y-AMT.jpg",
+        "author": "Chanokchon",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "2024 Yamaha MT-09 Y-AMT",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 48743
+      }
+    },
+    "B3": {
+      "name": "Triumph Speed Triple 1200 RS",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Triumph_Speed_Triple",
+        "en": "https://en.wikipedia.org/wiki/Triumph_Speed_Triple"
+      },
+      "image": {
+        "commonsTitle": "File:Triumph Speed Triple 1200 RX.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Triumph_Speed_Triple_1200_RX.jpg",
+        "author": "MotorideSA",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Triumph Speed Triple 1200 RX",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 53429
+      }
+    },
+    "B4": {
+      "name": "Aprilia Tuono V4 Factory",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Aprilia_Tuono",
+        "en": "https://en.wikipedia.org/wiki/Aprilia_Tuono"
+      },
+      "image": {
+        "commonsTitle": "File:Aprilia Tuono V4 Factory 2023.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Aprilia_Tuono_V4_Factory_2023.jpg",
+        "author": "DesmoV4",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Aprilia Tuono V4 Factory (2023)",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 46478
+      }
+    },
+    "C1": {
+      "name": "BMW R 1300 GS",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/BMW_R_1300_GS",
+        "en": "https://en.wikipedia.org/wiki/BMW_R1300GS"
+      },
+      "image": {
+        "commonsTitle": "File:BMW R1300 GS Option 719 Tramuntana.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:BMW_R1300_GS_Option_719_Tramuntana.jpg",
+        "author": "Corvettec6r",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "BMW R1300 GS Option 719 Tramuntana 2023 in Avellino",
+        "file": "C1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 49274
+      }
+    },
+    "C2": {
+      "name": "Honda Africa Twin",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Honda_Africa_Twin"
+      },
+      "image": {
+        "commonsTitle": "File:Honda Africatwin.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Honda_Africatwin.jpg",
+        "author": "Rikita",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Honda Africa Twin (1988)",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 49058
+      }
+    },
+    "C3": {
+      "name": "Ducati Multistrada V4 S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Ducati_Multistrada",
+        "en": "https://en.wikipedia.org/wiki/Ducati_Multistrada"
+      },
+      "image": {
+        "commonsTitle": "File:Ducati Multistrada-red.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Ducati_Multistrada-red.jpg",
+        "author": "Ramon FVelasquez",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Pinoy Siklo & Bro[1] Exhibit at - [2]SM City Baliwag - North Adventure Trail is an adventure tour Challenge the Limits from Baliuag, Bulacan[3] to Dingalan, Aurora[4], 139 kilometers. It is a gathering of joggers, motorcycles, bicycles, 4x4 SUV tourister and water sport enthusiasts, including an ove",
+        "file": "C3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51654
+      }
+    },
+    "C4": {
+      "name": "Harley-Davidson Pan America 1250 Special",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Harley-Davidson_Pan_America"
+      },
+      "image": {
+        "commonsTitle": "File:Hamburg Harley Days 2022 06.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Hamburg_Harley_Days_2022_06.jpg",
+        "author": "Frank Schwichtenberg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "´´´Pan America Special´´´auf den Hamburg Harley Days 2022",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51843
+      }
+    },
+    "D1": {
+      "name": "Harley-Davidson Fat Boy 117",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Harley-Davidson_Fat_Boy"
+      },
+      "image": {
+        "commonsTitle": "File:Harley Davidson Fat Boy 2018 FLFBS.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Harley_Davidson_Fat_Boy_2018_FLFBS.jpg",
+        "author": "Nitot",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Harley Davidson Fat Boy 2018 FLFBS 114 ci",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 53443
+      }
+    },
+    "D2": {
+      "name": "Indian Chief Dark Horse",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/H%C3%A4uptling",
+        "en": "https://en.wikipedia.org/wiki/Tribal_chief"
+      },
+      "image": {
+        "commonsTitle": "File:A Coolie Chieftain.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:A_Coolie_Chieftain.jpg",
+        "author": "Forbes, James, 1749-1819",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "shareAlike": false,
+        "description": "Oriental memoirs : selected and abridged from a series of familiar letters written during seventeen years residence in India : including observations on parts of Africa and South America, and a narrative of occurrences in four India voyages : illustrated by engravings from original drawings. Plate s",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 20060
+      }
+    },
+    "D3": {
+      "name": "Triumph Rocket 3 Storm R",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Triumph_Rocket_III",
+        "en": "https://en.wikipedia.org/wiki/Triumph_Rocket_III"
+      },
+      "image": {
+        "commonsTitle": "File:Rocket 3b.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Rocket_3b.JPG",
+        "author": "TR001",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Triumph Rocket III",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51531
+      }
+    },
+    "D4": {
+      "name": "Royal Enfield Super Meteor 650",
+      "wikipedia": {},
+      "image": null
+    },
+    "E1": {
+      "name": "BMW R 32",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/BMW_R_32",
+        "en": "https://en.wikipedia.org/wiki/BMW_R32"
+      },
+      "image": {
+        "commonsTitle": "File:BMW R32 vl TCE.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:BMW_R32_vl_TCE.jpg",
+        "author": "Stahlkocher",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "shareAlike": true,
+        "description": "BMW R32",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 50448
+      }
+    },
+    "E2": {
+      "name": "Honda CB750 Four",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Honda_CB_750_Four",
+        "en": "https://en.wikipedia.org/wiki/Honda_CB750_and_CR750"
+      },
+      "image": {
+        "commonsTitle": "File:Honda CB750.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Honda_CB750.JPG",
+        "author": "Original uploader was Slarty-bart-farst at en.wikipedia",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "shareAlike": true,
+        "description": "1969 Honda CB750 Picture taken in Stoke-on-Trent in 2006 by User:slarty-bart-farst Category:Images of Honda motorcycles",
+        "file": "E2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 44779
+      }
+    },
+    "E3": {
+      "name": "Kawasaki Z1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kawasaki_Z1",
+        "en": "https://en.wikipedia.org/wiki/Kawasaki_Z1"
+      },
+      "image": {
+        "commonsTitle": "File:KAWASAKI Z1.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:KAWASAKI_Z1.jpg",
+        "author": "Manju",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "shareAlike": true,
+        "description": "KAWASAKI Z1",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 46636
+      }
+    },
+    "E4": {
+      "name": "Vincent Black Shadow",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Vincent_Black_Shadow"
+      },
+      "image": {
+        "commonsTitle": "File:Vincent Series C Black Shadow 1950.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Vincent_Series_C_Black_Shadow_1950.jpg",
+        "author": "Piero at Dutch Wikipedia",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "shareAlike": true,
+        "description": "1950 Vincent Black Shadow.",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 53042
+      }
+    },
+    "F1": {
+      "name": "Husqvarna 701 Enduro",
+      "wikipedia": {},
+      "image": null
+    },
+    "F2": {
+      "name": "Suzuki DR-Z4S",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Suzuki_DR-Z_400",
+        "en": "https://en.wikipedia.org/wiki/Suzuki_DR-Z400"
+      },
+      "image": {
+        "commonsTitle": "File:2007 Suzuki DRZ-400SM.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2007_Suzuki_DRZ-400SM.jpg",
+        "author": "Yitzachmmeyer",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "A modified 2007 Suzuki DRZ-400SM Supermoto",
+        "file": "F2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 44912
+      }
+    },
+    "F3": {
+      "name": "Beta Alp 4.0",
+      "wikipedia": {},
+      "image": null
+    },
+    "F4": {
+      "name": "Yamaha WR125R",
+      "wikipedia": {},
+      "image": null
+    },
+    "G1": {
+      "name": "Vespa GTS 310",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Vespa_GTS",
+        "en": "https://en.wikipedia.org/wiki/Vespa_GTS"
+      },
+      "image": {
+        "commonsTitle": "File:Vespa GTV 310 2025.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Vespa_GTV_310_2025.jpg",
+        "author": "AVMOTO",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Vespa GTV 310 EICMA 2024",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51356
+      }
+    },
+    "G2": {
+      "name": "Honda Super Cub C125",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Honda_Super_Cub",
+        "en": "https://en.wikipedia.org/wiki/Honda_Super_Cub"
+      },
+      "image": {
+        "commonsTitle": "File:Honda super cub, 1st Gen. 1958, Left side.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Honda_super_cub,_1st_Gen._1958,_Left_side.jpg",
+        "author": "Mj-bird",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Honda Super Cub, 1st Generation (1958)",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 44445
+      }
+    },
+    "G3": {
+      "name": "Yamaha TMAX 560 Tech MAX",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Yamaha_TMAX",
+        "en": "https://en.wikipedia.org/wiki/Yamaha_TMAX"
+      },
+      "image": {
+        "commonsTitle": "File:TMAX500.JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:TMAX500.JPG",
+        "author": "Shohei ninomiya",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "ヤマハ・TMAX500",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 55151
+      }
+    },
+    "G4": {
+      "name": "Kymco AK 575 Premium",
+      "wikipedia": {},
+      "image": null
+    },
+    "H1": {
+      "name": "Zero SR/F",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Zero_Motorcycles",
+        "en": "https://en.wikipedia.org/wiki/Zero_Motorcycles"
+      },
+      "image": {
+        "commonsTitle": "File:2011 zero-xu.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:2011_zero-xu.jpg",
+        "author": "Muc10",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "Zero XU 2011 In Bay Area, California.",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 53165
+      }
+    },
+    "H2": {
+      "name": "Can-Am Pulse",
+      "wikipedia": {},
+      "image": null
+    },
+    "H3": {
+      "name": "LiveWire One",
+      "wikipedia": {},
+      "image": null
+    },
+    "H4": {
+      "name": "Kawasaki Ninja e-1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kawasaki_Ninja_e-1",
+        "en": "https://en.wikipedia.org/wiki/Kawasaki_e-1"
+      },
+      "image": {
+        "commonsTitle": "File:Hofhaltig 20250927 HOF9565 RAW-Export (cropped).png",
+        "source": "https://commons.wikimedia.org/wiki/File:Hofhaltig_20250927_HOF9565_RAW-Export_(cropped).png",
+        "author": "PantheraLeo1359531",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "View of Hofhaltig 2025. It was cloudy, but there were plenty of people in a good mood strolling around the market.",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 51715
+      }
+    }
+  }
+}

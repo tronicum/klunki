@@ -11,8 +11,8 @@ short German summary ("Kurz") for the store notes and the testers.
 - **Quartett: new deck "Motorräder"** (KLD-129): 32 motorcycles from the Vespa to the Ninja H2R in 8 sets
   (Supersportler, Naked Bikes, Reiseenduros, Cruiser, Klassiker, Gelände, Roller, Elektro), compared by Leistung,
   Höchstgeschwindigkeit, Drehmoment, Gewicht (lighter wins), Reichweite and Wert. Values from the manufacturers
-  and motorcycle press databases, prices as of 2025/2026; the classics' values are estimates from auctions. A
-  drawn motorcycle on every card until the photos follow.
+  and motorcycle press databases, prices as of 2025/2026; the classics' values are estimates from auctions. Most
+  cards have a photo from Wikimedia Commons (credits in "Bildnachweise"), the others a drawn motorcycle.
 - **Quartett: new deck "Tiere"** (KLD-128): 32 animals from the cheetah to the blue whale in 8 sets (Raubkatzen,
   Bären, Affen, Savanne, Wale & Delfine, Haie, Vögel, Reptilien), compared by Gewicht, Länge,
   Höchstgeschwindigkeit, Lebenserwartung and Tragzeit / Brutzeit. The values come from named sources (animal

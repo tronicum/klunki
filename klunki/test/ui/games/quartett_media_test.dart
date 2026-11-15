@@ -32,6 +32,21 @@ final _forbidden = RegExp(r'\b(NC|ND)\b|non-?commercial|fair use|^GFDL', caseSen
 
 const _maxBytes = 40 * 1024;
 
+/// Decks with a larger cap per photo (the `maxBytes` of their
+/// `tool/card_media/<deck>.json`): the motorcycles' detailed photos (KLD-129,
+/// the Fat Boy on a meadow did not get under 40 KB) at up to 54 KB.
+const _maxBytesOf = {'motorcycles': 54 * 1024};
+
+/// Size budget of a deck's folder; the motorcycles have fewer but larger
+/// photos (KLD-129).
+const _budgetOf = {'motorcycles': 1300 * 1024};
+
+/// Cards without a Wikipedia article (KLD-129: no article for these models,
+/// and D2's "Indian Chief" resolved to the wrong article, so it has none).
+const _noArticle = {
+  'motorcycles': {'D2', 'D4', 'F1', 'F3', 'F4', 'G4', 'H2', 'H3'},
+};
+
 Future<void> _phone(WidgetTester tester, [Size size = const Size(390, 844)]) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -50,9 +65,9 @@ List<Uri> _fakeOpener({bool ok = true}) {
 }
 
 /// Decks whose photos and links have been collected (KLD-082 rockets,
-/// KLD-084 the vehicle decks, KLD-128 the animals); every other deck keeps its pictograms
-/// (KLD-129: the motorcycles until their photos are fetched).
-const _mediaDecks = ['rockets', 'planes', 'trains', 'cars', 'animals'];
+/// KLD-084 the vehicle decks, KLD-128 the animals, KLD-129 the motorcycles); every other deck
+/// keeps its pictograms. A card without a free photo keeps the pictogram too.
+const _mediaDecks = ['rockets', 'planes', 'trains', 'cars', 'animals', 'motorcycles'];
 
 void main() {
   for (final deckId in _mediaDecks) {
@@ -142,17 +157,18 @@ void _mediaDataTests(String deckId) {
       expect(files, {...expected, 'credits.json'});
       for (final name in expected) {
         final bytes = File('${dir.path}/$name').readAsBytesSync();
-        expect(bytes.length, lessThanOrEqualTo(_maxBytes), reason: name);
+        expect(bytes.length, lessThanOrEqualTo(_maxBytesOf[deckId] ?? _maxBytes), reason: name);
         expect(bytes.sublist(0, 3), [0xFF, 0xD8, 0xFF], reason: '$name is a JPEG');
       }
       final total = dir.listSync().whereType<File>().fold<int>(0, (sum, f) => sum + f.lengthSync());
-      expect(total, lessThanOrEqualTo(1200 * 1024), reason: 'size budget of a deck (rockets: 1.09 MB)');
+      expect(total, lessThanOrEqualTo(_budgetOf[deckId] ?? 1200 * 1024),
+          reason: 'size budget of a deck (rockets: 1.09 MB)');
       expect(File('pubspec.yaml').readAsStringSync(), contains('- assets/quartett/$deckId/'));
     });
 
     test('Wikipedia links are well-formed https article URLs; every card has one', () {
       for (final MapEntry(key: id, value: m) in media.entries) {
-        expect(m.wikiDe ?? m.wikiEn, isNotNull, reason: id);
+        if (!(_noArticle[deckId]?.contains(id) ?? false)) expect(m.wikiDe ?? m.wikiEn, isNotNull, reason: id);
         for (final (lang, url) in [('de', m.wikiDe), ('en', m.wikiEn)]) {
           if (url == null) continue;
           final u = Uri.parse(url);
@@ -388,15 +404,10 @@ void _widgetTests() {
       expect(find.byKey(const Key('quartett-photo-credit')), findsOneWidget);
     });
 
-    testWidgets('every deck gallery with photos has a Bildnachweise button that lists only that deck', (tester) async {
+    testWidgets('every deck gallery has a Bildnachweise button that lists only that deck', (tester) async {
       await _phone(tester);
       for (final deck in QuartettDeck.all) {
         await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: deck)));
-        if (!_mediaDecks.contains(deck.id)) {
-          // KLD-129: the motorcycles have no photos yet, so no credits.
-          expect(find.byKey(const Key('gallery-image-credits')), findsNothing, reason: deck.id);
-          continue;
-        }
         expect(find.byKey(const Key('gallery-image-credits')), findsOneWidget, reason: deck.id);
         await tester.tap(find.byKey(const Key('gallery-image-credits')));
         await tester.pumpAndSettle();

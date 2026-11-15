@@ -3,7 +3,7 @@
 - **ID:** `KLD-129`
 - **Title:** A sixth Quartett deck, "Motorräder": 32 motorcycles with sourced values
 - **Milestone:** M3
-- **Status:** IN_PROGRESS (deck, texts and pictogram done; photos and the zh glyphs wait for the maintainer's OK)
+- **Status:** DONE (photos for 23 of 32 cards after the offline rebuild; better photos and a native-speaker review open)
 - **Depends on:** KLD-069 (decks), KLD-082/084 (photo pipeline), KLD-085 (fingerprint), KLD-092 (hyphenated
   labels), KLD-110 (number grouping), KLD-128 (fifth deck, picker room, `localizedCardName`)
 - **Touched paths:**
@@ -38,9 +38,9 @@ Real model names stay untranslated, like the cars; the legal notice of KLD-127 c
 - [x] Deck name, set names, the labels Drehmoment / Reichweite / Wert and the units Nm / € in all 7 locales.
 - [x] Drawn pictogram (a road bike, side view) on every card without a photo; the deck picker gives the sixth deck
       its own preview colour (purple, set B). Six decks and "Spielen" fit a 360×640 phone without scrolling.
-- [ ] Photos from Wikimedia Commons, from `klunki/tool/card_media/motorcycles.json` (needs the maintainer's OK).
-      Until then the gallery has no "Bildnachweise" for this deck (`quartett_media_test.dart` skips it).
-- [ ] zh web font subset: 10 new characters (needs `tool/update_web_fonts.py subset`, internet).
+- [x] Photos from Wikimedia Commons, from `klunki/tool/card_media/motorcycles.json` (with the maintainer's OK), for
+      the cards with a fitting free photo; the others keep the pictogram. See "Photos and font".
+- [x] zh web font subset: 10 new characters (`tool/update_web_fonts.py subset`, 880 code points).
 - [x] Screenshots `kld129` (picker, gallery, full cards, Trumpf comparison, Sets hand).
 
 ## The cards
@@ -264,24 +264,37 @@ line with "…"). en C is "Adventure", not "Adventure bikes", which was cut to "
 - **Pictogram:** a road bike, side view (two wheels with hubs, fork, handlebar, tank, seat, engine block,
   headlight) in the 100 × 60 box of the other pictograms.
 
-## Photos (open: needs the maintainer's OK)
-`klunki/tool/card_media/motorcycles.json` lists per card the en (and where known de) Wikipedia article and in
-`_check` what the photo must show (the exact model, else the nearest generation with a note). No Commons file is
-pinned yet: run `python3 -I klunki/tool/fetch_card_media.py motorcycles --candidates` first, pin a `file` where the
-lead image shows another model or generation (likely for A2, A4, B1, D1, D2, F2, G2, G4, H1), then run the fetch.
-Doubtful on Commons (proposal, section 6): Kymco AK 575, Indian Chief Dark Horse, Husqvarna 701, DR-Z4S, Beta Alp
-4.0, WR125R (2026), Can-Am Pulse, Ninja e-1, Rocket 3 Storm R, Super Duke R Evo; a card without a free photo keeps
-the pictogram (`"file": ""`). After the fetch: add `motorcycles` to `_mediaDecks` in `quartett_media_test.dart`,
-drop the skip in "every deck gallery with photos has a Bildnachweise button", and add
-`- assets/quartett/motorcycles/` to `pubspec.yaml`.
+## Photos and font (2026-11-15, with the maintainer's OK)
+- **Fetch** (`python3 -I klunki/tool/fetch_card_media.py motorcycles`, run by the main session): `"maxBytes": 55296`
+  in `motorcycles.json`, because the Fat Boy photo (a detailed meadow) did not get under 40 KB; the media test
+  allows 54 KB per photo and 1.3 MB for this deck. 25 lead images came back; no article or no free lead image for
+  D4 Super Meteor, F1 701 Enduro, F3 Beta Alp, F4 WR125R, G4 AK 575, H2 Pulse and H3 LiveWire One (pictogram, no
+  Wikipedia link; the media test lists these cards).
+- **Checked by eye** (every photo opened):
+  - **Wrong, set to `"file": ""`:** D2 ("Indian Chief" resolved to the article "Tribal chief": a 1700s
+    engraving of a chieftain; its links were wrong too, so `en` is null now) and H1 (a Zero XU, not the SR/F, with
+    a rider in focus). Needs the offline rebuild (`fetch_card_media.py motorcycles --offline`) to drop the two
+    files; until then credits.json still lists them.
+  - **Exact model and generation:** B2 MT-09 (2024), B4 Tuono V4 Factory (2023), C1 R 1300 GS, C4 Pan America
+    1250 (a fire-brigade bike with a blue light), D1 Fat Boy (2018, 114), E1 R 32, E2 CB750 Four, E3 Z1, E4 Black
+    Shadow Series C.
+  - **Right model line, earlier generation or sibling (weaker, worth a better file later):** A1 Panigale V4
+    Speciale 2018 (an Audi banner behind it), A2 S 1000 RR with M package (an M 1000 RR behind it), A3 Hayabusa
+    2nd generation, A4 Ninja H2 (road), B1 1290 Super Duke R (2014), B3 Speed Triple 1200 RX, C2 Africa Twin
+    XRV (1988, museum), C3 Multistrada 1200 (2010), D3 Rocket III (2004), F2 DR-Z400SM (supermoto, 2007), G1 Vespa
+    GTV 310 (2025, sibling; visitors in the background), G2 Super Cub (1958, the C125's model), G3 TMAX 500
+    (2001), H4 Z e-1 (the naked twin of the Ninja e-1).
+  - Licences: CC BY-SA 3.0/4.0, CC BY 4.0, CC0 and public domain; no NC/ND/GFDL.
+- **Chinese font subset** (`python3 -I tool/update_web_fonts.py subset`, main session): the 10 new characters
+  托扭探摩板矩越踏野险 (NotoSansSC 880 code points); the glyph tests pass.
 
-## Chinese font (open)
-The zh texts need 10 characters missing from the Noto Sans SC subset: 托扭探摩板矩越踏野险. Until
-`python3 -I tool/update_web_fonts.py subset` runs (internet), two glyph tests in `test/l10n/glyph_coverage_test.dart`
-fail.
+## Open
+- Better photos (pinned `file`s) for the weaker cards above, D2 and H1 ("Indian Chief (motorcycle)" as the en
+  article), and the cards without a photo.
+- Native-speaker review of the set names (fr, es, zh, ar, fa).
 
 ## Screenshots
 `KLUNKI_SHOTS=<dir> flutter test test/screenshots/quartett_motorcycles_shots_test.dart` (group `kld129`): deck
 picker (de 390×844; de and fr 360×640), gallery (decks, motorcycle sets in de/en/ar), full cards (C4 in de/en/ar,
 E1 de, A4 en, H1 ar), Trumpf table and comparison on Drehmoment (de/en/ar phone) and on Wert (de 320×640), Sets
-hand (de).
+hand (de). Taken before the offline rebuild, so D2 and H1 still show their old photos there.
