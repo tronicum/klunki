@@ -247,22 +247,8 @@
     },
     "D2": {
       "name": "Indian Chief Dark Horse",
-      "wikipedia": {
-        "de": "https://de.wikipedia.org/wiki/H%C3%A4uptling",
-        "en": "https://en.wikipedia.org/wiki/Tribal_chief"
-      },
-      "image": {
-        "commonsTitle": "File:A Coolie Chieftain.jpg",
-        "source": "https://commons.wikimedia.org/wiki/File:A_Coolie_Chieftain.jpg",
-        "author": "Forbes, James, 1749-1819",
-        "license": "Public domain",
-        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
-        "shareAlike": false,
-        "description": "Oriental memoirs : selected and abridged from a series of familiar letters written during seventeen years residence in India : including observations on parts of Africa and South America, and a narrative of occurrences in four India voyages : illustrated by engravings from original drawings. Plate s",
-        "file": "D2.jpg",
-        "modified": "resized (480 px, JPEG)",
-        "bytes": 20060
-      }
+      "wikipedia": {},
+      "image": null
     },
     "D3": {
       "name": "Triumph Rocket 3 Storm R",
@@ -465,18 +451,7 @@
         "de": "https://de.wikipedia.org/wiki/Zero_Motorcycles",
         "en": "https://en.wikipedia.org/wiki/Zero_Motorcycles"
       },
-      "image": {
-        "commonsTitle": "File:2011 zero-xu.jpg",
-        "source": "https://commons.wikimedia.org/wiki/File:2011_zero-xu.jpg",
-        "author": "Muc10",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
-        "shareAlike": true,
-        "description": "Zero XU 2011 In Bay Area, California.",
-        "file": "H1.jpg",
-        "modified": "resized (480 px, JPEG)",
-        "bytes": 53165
-      }
+      "image": null
     },
     "H2": {
       "name": "Can-Am Pulse",

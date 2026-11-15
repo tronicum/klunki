@@ -932,16 +932,6 @@ const Map<String, Map<String, QuartettCardMedia>> quartettMediaData = {
       ),
     ),
     'D2': QuartettCardMedia(
-      wikiDe: 'https://de.wikipedia.org/wiki/H%C3%A4uptling',
-      wikiEn: 'https://en.wikipedia.org/wiki/Tribal_chief',
-      image: QuartettImageCredit(
-        asset: 'assets/quartett/motorcycles/D2.jpg',
-        source: 'https://commons.wikimedia.org/wiki/File:A_Coolie_Chieftain.jpg',
-        author: 'Forbes, James, 1749-1819',
-        license: 'Public domain',
-        licenseUrl: 'https://creativecommons.org/publicdomain/mark/1.0/',
-        shareAlike: false,
-      ),
     ),
     'D3': QuartettCardMedia(
       wikiDe: 'https://de.wikipedia.org/wiki/Triumph_Rocket_III',
@@ -1063,14 +1053,6 @@ const Map<String, Map<String, QuartettCardMedia>> quartettMediaData = {
     'H1': QuartettCardMedia(
       wikiDe: 'https://de.wikipedia.org/wiki/Zero_Motorcycles',
       wikiEn: 'https://en.wikipedia.org/wiki/Zero_Motorcycles',
-      image: QuartettImageCredit(
-        asset: 'assets/quartett/motorcycles/H1.jpg',
-        source: 'https://commons.wikimedia.org/wiki/File:2011_zero-xu.jpg',
-        author: 'Muc10',
-        license: 'CC BY-SA 3.0',
-        licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0',
-        shareAlike: true,
-      ),
     ),
     'H2': QuartettCardMedia(
     ),
