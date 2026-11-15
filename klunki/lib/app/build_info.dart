@@ -15,7 +15,7 @@ import 'package:klunki_net/guest_web.dart' show BuildCompat, protocolVersion, ve
 
 /// `version:` of `pubspec.yaml`, mirrored (a test keeps them in sync): Dart
 /// code cannot read the pubspec without a plugin. Bump both together.
-const String appVersion = '1.1.0+1';
+const String appVersion = '1.1.1+1';
 
 /// [appVersion] without the build number: `1.1.0`.
 String get appVersionName => appVersion.split('+').first;

@@ -7,6 +7,11 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+## [1.1.1] – 2026-11-15 (TestFlight)
+
+Kurz: Zwei neue Quartett-Decks, Tiere und Motorräder. Wortgewandt jetzt auch zu dritt oder viert über das
+Netzwerk, angefangene Spiele lassen sich pausieren und später fortsetzen, dazu viele kleine Verbesserungen.
+
 ### Games
 - **Quartett: new deck "Motorräder"** (KLD-129): 32 motorcycles from the Vespa to the Ninja H2R in 8 sets
   (Supersportler, Naked Bikes, Reiseenduros, Cruiser, Klassiker, Gelände, Roller, Elektro), compared by Leistung,
@@ -250,5 +255,6 @@ Raumcode. Deutsch und sechs weitere Sprachen.
 - Web beta on GitHub Pages: plays on one device; network play there needs a secure (wss://) relay.
 - A landing page on GitHub Pages (games, FAQ, beta sign-up); the web app moved to `play/`.
 
-[Unreleased]: https://github.com/tronicum/klunki/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/tronicum/klunki/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/tronicum/klunki/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/tronicum/klunki/releases/tag/v1.1.0
