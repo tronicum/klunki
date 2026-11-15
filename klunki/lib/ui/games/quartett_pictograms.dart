@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 /// Drawn pictograms of the Quartett decks (KLD-069): a car, a high-speed
@@ -269,69 +271,90 @@ class QuartettPictogram extends CustomPainter {
     ..strokeCap = StrokeCap.round
     ..strokeJoin = StrokeJoin.round;
 
-  /// Animals A (Raubkatzen): a big cat's head, front view.
+  /// Animals A (Raubkatzen): a lion's head with its mane, front view.
   void _bigCat(Canvas c, Paint body, Paint fine) {
-    final ears = Path()
-      ..moveTo(31, 24)
-      ..lineTo(32, 5)
-      ..lineTo(47, 15)
-      ..close()
-      ..moveTo(69, 24)
-      ..lineTo(68, 5)
-      ..lineTo(53, 15)
-      ..close();
+    // The mane: a ring of rounded, shaggy tufts around the head.
+    const centre = Offset(50, 30);
+    const tufts = 13;
+    Offset at(double a, double r) => centre + Offset(math.cos(a) * r, math.sin(a) * r);
+    final mane = Path();
+    for (var i = 0; i < tufts; i++) {
+      final a0 = i * 2 * math.pi / tufts - math.pi / 2;
+      final a1 = (i + 1) * 2 * math.pi / tufts - math.pi / 2;
+      final p0 = at(a0, 21), tip = at(a0 + (a1 - a0) * 0.65, 28), p1 = at(a1, 21);
+      final ctl = at(a0 + (a1 - a0) * 0.2, 29);
+      if (i == 0) mane.moveTo(p0.dx, p0.dy);
+      mane
+        ..quadraticBezierTo(ctl.dx, ctl.dy, tip.dx, tip.dy)
+        ..lineTo(p1.dx, p1.dy);
+    }
     c
-      ..drawPath(ears, body)
-      ..drawPath(
-          Path()
-            ..moveTo(35, 18)
-            ..lineTo(35.5, 11)
-            ..lineTo(41, 15)
-            ..close()
-            ..moveTo(65, 18)
-            ..lineTo(64.5, 11)
-            ..lineTo(59, 15)
-            ..close(),
-          fine)
-      ..drawOval(const Rect.fromLTRB(27, 12, 73, 56), body);
-    // Eyes, nose and mouth.
-    for (final x in [41.0, 59.0]) {
-      c.drawOval(Rect.fromCenter(center: Offset(x, 30), width: 8, height: 5), fine);
+      ..drawPath(mane..close(), body)
+      ..drawCircle(centre, 21, body);
+    // Round ears in the mane, then a smaller face, set off by a thin gap.
+    for (final x in [40.0, 60.0]) {
+      c
+        ..drawCircle(Offset(x, 16), 5.5, fine)
+        ..drawCircle(Offset(x, 16), 4, body);
+    }
+    c
+      ..drawOval(const Rect.fromLTRB(36.5, 15.5, 63.5, 50.5), fine)
+      ..drawOval(const Rect.fromLTRB(38.5, 17.5, 61.5, 48.5), body);
+    // Eyes, a broad nose and the mouth.
+    for (final x in [44.0, 56.0]) {
+      c.drawOval(Rect.fromCenter(center: Offset(x, 27), width: 6, height: 4), fine);
     }
     c.drawPath(
         Path()
-          ..moveTo(45.5, 39)
-          ..lineTo(54.5, 39)
-          ..lineTo(50, 44)
+          ..moveTo(45, 35)
+          ..lineTo(55, 35)
+          ..lineTo(50, 41)
           ..close(),
         fine);
     final mouth = _stroke(1.8, detail);
     c
-      ..drawLine(const Offset(50, 44), const Offset(50, 47), mouth)
+      ..drawLine(const Offset(50, 41), const Offset(50, 44), mouth)
       ..drawPath(
           Path()
-            ..moveTo(44, 49)
-            ..quadraticBezierTo(50, 51, 50, 47)
-            ..quadraticBezierTo(50, 51, 56, 49),
+            ..moveTo(44, 45)
+            ..quadraticBezierTo(50, 48, 50, 44)
+            ..quadraticBezierTo(50, 48, 56, 45),
           mouth);
   }
 
   /// Animals B (Bären): a bear walking, side view, head to the right.
   void _bear(Canvas c, Paint body, Paint fine) {
+    // A rounded back with only a slight rise over the shoulders.
     c
-      ..drawCircle(const Offset(13, 25), 3.5, body) // tail
-      ..drawRRect(RRect.fromLTRBR(13, 17, 76, 44, const Radius.circular(13)), body)
-      ..drawCircle(const Offset(56, 19), 10, body); // shoulder hump
-    for (final x in [16.0, 30.0, 50.0, 63.0]) {
+      ..drawCircle(const Offset(14, 27), 3.5, body) // tail
+      ..drawPath(
+          Path()
+            ..moveTo(14, 36)
+            ..cubicTo(14, 25, 24, 21, 36, 21)
+            ..cubicTo(46, 21, 50, 17, 58, 17)
+            ..cubicTo(66, 17, 70, 22, 74, 27)
+            ..lineTo(74, 42)
+            ..lineTo(16, 42)
+            ..close(),
+          body);
+    for (final x in [16.0, 29.0, 49.0, 62.0]) {
       c.drawRRect(RRect.fromLTRBR(x, 34, x + 11, 55, const Radius.circular(3)), body);
     }
+    // The head, held a little low: round ears and a tapered snout.
     c
-      ..drawCircle(const Offset(79, 27), 11, body)
-      ..drawCircle(const Offset(73, 16), 4.5, body) // ear
-      ..drawRRect(RRect.fromLTRBR(82, 25, 97, 36, const Radius.circular(5)), body) // snout
-      ..drawCircle(const Offset(73, 16), 1.8, fine)
-      ..drawCircle(const Offset(81, 24), 1.7, fine) // eye
-      ..drawCircle(const Offset(95.5, 28.5), 2, fine); // nose
+      ..drawCircle(const Offset(79, 30), 9, body)
+      ..drawCircle(const Offset(75, 21), 4.5, body) // ear
+      ..drawPath(
+          Path()
+            ..moveTo(84, 25)
+            ..quadraticBezierTo(92, 27, 96, 30)
+            ..quadraticBezierTo(99, 33, 95, 36)
+            ..lineTo(84, 38)
+            ..close(),
+          body) // snout
+      ..drawCircle(const Offset(75, 21), 1.8, fine)
+      ..drawCircle(const Offset(81, 27), 1.7, fine) // eye
+      ..drawCircle(const Offset(96, 31.5), 2, fine); // nose
   }
 
   /// Animals C (Affen): an ape's face, front view.
@@ -401,13 +424,15 @@ class QuartettPictogram extends CustomPainter {
           spout);
   }
 
-  /// Animals F (Haie): a shark fin cutting through the waves.
+  /// Animals F (Haie): a shark's dorsal fin cutting through the waves,
+  /// swimming to the left: a slightly convex leading edge rising to a tip
+  /// that points back, and a concave trailing edge dropping steeply.
   void _sharkFin(Canvas c, Paint body, Paint fine) {
     c.drawPath(
         Path()
-          ..moveTo(28, 42)
-          ..quadraticBezierTo(46, 32, 50, 5)
-          ..quadraticBezierTo(60, 30, 76, 42)
+          ..moveTo(22, 42)
+          ..cubicTo(36, 36, 52, 20, 70, 4)
+          ..quadraticBezierTo(56, 24, 61, 42)
           ..close(),
         body);
     final wave = _stroke(4, color);
