@@ -232,6 +232,23 @@ void main() {
 
   // Step 2 (maintainer feedback on the iPhone): the new pawns and the die's
   // tumble.
+  // Step 3: the toned-down light parts of the pawns.
+  group('kld131-step3', () {
+    const dir = 'kld131-step3';
+    for (final b in Brightness.values) {
+      testWidgets('board with pawns, ${b.name}', skip: skip, (tester) async {
+        final c = await _game(tester, brightness: b);
+        await _botUntil(tester, c, _midGame(captures: 4, moves: 200));
+        await _shot(tester, 'board-${b.name}', dir: dir);
+      });
+
+      testWidgets('pawns close up, ${b.name}', skip: skip, (tester) async {
+        await _pumpPawns(tester, b);
+        await _shot(tester, 'pawns-${b.name}', dir: dir);
+      });
+    }
+  });
+
   group('kld131-step2', () {
     const dir = 'kld131-step2';
     for (final b in Brightness.values) {
@@ -242,27 +259,7 @@ void main() {
       });
 
       testWidgets('pawns close up, ${b.name}', skip: skip, (tester) async {
-        await _pumpApp(
-            tester,
-            Scaffold(
-              body: Center(
-                child: Builder(
-                  builder: (context) => Column(mainAxisSize: MainAxisSize.min, children: [
-                    for (final active in [false, true])
-                      Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        for (var s = 0; s < 4; s++)
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: SizedBox.square(
-                                dimension: 72,
-                                child: LudoPawn(seat: s, color: seatColor(context, s), label: '', active: active)),
-                          ),
-                      ]),
-                  ]),
-                ),
-              ),
-            ),
-            brightness: b);
+        await _pumpPawns(tester, b);
         await _shot(tester, 'pawns-${b.name}', dir: dir);
       });
     }
@@ -279,4 +276,29 @@ void main() {
       await _shot(tester, 'die-landed', dir: dir);
     });
   });
+}
+
+/// The four pawns, still and movable, big in the middle of the screen.
+Future<void> _pumpPawns(WidgetTester tester, Brightness b) async {
+  await _pumpApp(
+      tester,
+      Scaffold(
+        body: Center(
+          child: Builder(
+            builder: (context) => Column(mainAxisSize: MainAxisSize.min, children: [
+              for (final active in [false, true])
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  for (var s = 0; s < 4; s++)
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SizedBox.square(
+                          dimension: 72,
+                          child: LudoPawn(seat: s, color: seatColor(context, s), label: '', active: active)),
+                    ),
+                ]),
+            ]),
+          ),
+        ),
+      ),
+      brightness: b);
 }

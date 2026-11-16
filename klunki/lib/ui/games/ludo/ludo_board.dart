@@ -548,22 +548,25 @@ class LudoPawnPainter extends CustomPainter {
     if (glow != null) {
       canvas.drawCircle(at(0.5, 0.56), d * 0.5,
           Paint()
-            ..color = glow!.withValues(alpha: 0.9)
+            // The yellow glow (light mode) stays strong; the white one of
+            // dark mode is toned down (KLD-131 step 3: it read as a harsh
+            // white shadow on the iPhone).
+            ..color = glow!.withValues(alpha: dark ? 0.35 : 0.9)
             ..maskFilter = MaskFilter.blur(BlurStyle.normal, d * 0.1));
       // A bright ring on the board around the foot.
       canvas.drawOval(
           Rect.fromCenter(center: at(0.5, 0.8), width: d * 0.9, height: d * 0.36),
           Paint()
             ..style = PaintingStyle.stroke
-            ..strokeWidth = max(2.0, d * 0.06)
-            ..color = glow!);
+            ..strokeWidth = max(2.0, d * (dark ? 0.045 : 0.06))
+            ..color = glow!.withValues(alpha: dark ? 0.7 : 1));
     }
     // The shadow on the board.
     canvas.drawOval(Rect.fromCenter(center: at(0.53, 0.88), width: d * 0.7, height: d * 0.18),
         Paint()
           ..color = const Color(0x66000000)
           ..maskFilter = MaskFilter.blur(BlurStyle.normal, d * 0.04));
-    final light = Color.lerp(color, Colors.white, 0.55)!;
+    final light = Color.lerp(color, Colors.white, 0.3)!;
     final deep = Color.lerp(color, Colors.black, 0.4)!;
     Paint shade(Rect r) => Paint()
       ..shader = RadialGradient(
@@ -595,8 +598,10 @@ class LudoPawnPainter extends CustomPainter {
     canvas.drawOval(head, shade(head));
     canvas.drawOval(head, outline);
     // Gloss on the head.
-    canvas.drawOval(Rect.fromCenter(center: at(0.44, 0.19), width: d * 0.12, height: d * 0.08),
-        Paint()..color = Colors.white.withValues(alpha: 0.7));
+    canvas.drawOval(Rect.fromCenter(center: at(0.44, 0.19), width: d * 0.08, height: d * 0.05),
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.35)
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, d * 0.012));
     // The seat number, small on the body.
     final tp = TextPainter(
       text: TextSpan(
