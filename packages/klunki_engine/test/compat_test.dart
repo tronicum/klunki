@@ -31,7 +31,8 @@ void main() {
     'gostrategy': (2, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).
     'chess': (4, 1, '5f2d81a850dc003d33424219c180126a'),
-    'wordtiles': (6, 1, '9cf165a9d01bf6c5d92110e50aa45d69'),
+    // Rules 7 (KLD-132): more tile sets, per-set folding, right-to-left reading.
+    'wordtiles': (7, 1, '45ce9adbeef812978172c02dedeeded0'),
     'maumau': (2, 1, '70ca586971256574b6ae28af6fdb38b4'),
     // Rules 2 (KLD-121 step 2): 2–4 seats and "Unbegrenzte Leben"; rules 3:
     // "Spiel beenden" over the network by agreement.

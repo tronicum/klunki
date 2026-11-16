@@ -202,7 +202,8 @@ class BlankLetterDialog extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Directionality(
-              textDirection: TextDirection.ltr,
+              // In alphabet order, from the right for Arabic and Persian.
+              textDirection: tileSet.rtl ? TextDirection.rtl : TextDirection.ltr,
               child: Wrap(
                 spacing: 6,
                 runSpacing: 6,

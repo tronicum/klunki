@@ -150,8 +150,7 @@ void main() {
       await tester.tap(find.byKey(const Key('menu-wordtiles-tile')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('wordtiles-options')), findsOneWidget);
-      final seg = tester.widget<SegmentedButton<String>>(find.byType(SegmentedButton<String>));
-      expect(seg.selected, {'de'});
+      expect(_chosenTiles(tester), 'de');
       expect(tester.widget<SwitchListTile>(find.byKey(const Key('wordtiles-dict'))).value, isTrue);
       expect(_text(tester, const Key('wordtiles-dict-explain')), startsWith('Jedes gelegte Wort wird nachgeschlagen.'));
       await tester.tap(find.byKey(const Key('wordtiles-options-next')));
@@ -172,7 +171,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const Key('menu-wordtiles-tile')));
       await tester.tap(find.byKey(const Key('menu-wordtiles-tile')));
       await tester.pumpAndSettle();
-      expect(tester.widget<SegmentedButton<String>>(find.byType(SegmentedButton<String>)).selected, {'en'});
+      expect(_chosenTiles(tester), 'en');
       await tester.tap(find.byKey(const Key('wordtiles-tiles-de')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('wordtiles-dict')));
@@ -190,11 +189,12 @@ void main() {
       expect(_game(controllerOf(tester)).check, WordCheck.challenge);
     });
 
-    test('the default tile language follows the app language', () {
-      expect(defaultWordTilesTiles(const Locale('de')), 'de');
-      for (final l in ['en', 'fr', 'es', 'zh', 'ar', 'fa']) {
-        expect(defaultWordTilesTiles(Locale(l)), 'en');
+    test('the default tile language follows the app language (KLD-132; zh plays English tiles)', () {
+      for (final t in TileSet.all) {
+        expect(defaultWordTilesTiles(Locale(t.id)), t.id);
       }
+      expect(defaultWordTilesTiles(const Locale('zh')), 'en');
+      expect(defaultWordTilesTiles(const Locale('it')), 'en');
     });
   });
 
@@ -380,3 +380,13 @@ void main() {
     });
   });
 }
+
+/// The tile language chosen in the start dialog (KLD-132: a chip per language).
+String _chosenTiles(WidgetTester tester) => [
+      for (final t in TileSet.all)
+        if (tester
+            .widget<ChoiceChip>(
+                find.ancestor(of: find.byKey(Key('wordtiles-tiles-${t.id}')), matching: find.byType(ChoiceChip)))
+            .selected)
+          t.id,
+    ].single;

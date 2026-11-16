@@ -254,7 +254,7 @@ class WordLists {
 /// en.wikipedia.org/wiki/Letter_frequency. Both should be recalibrated
 /// against the approved word list (step 4).
 class TileSet {
-  /// Stable id (`de`, `en`), part of the game's view.
+  /// Stable id (`de`, `en`, `fr`, `es`, `ar`, `fa`), part of the game's view.
   final String id;
 
   /// Tiles per letter.
@@ -266,10 +266,30 @@ class TileSet {
   /// Number of blanks.
   final int blanks;
 
-  const TileSet(this.id, this.counts, this.points, {this.blanks = 2});
+  /// How [normalize] folds a word before it is upper-cased (KLD-132): a
+  /// character (either case) → its replacement; an empty replacement drops
+  /// the character (Arabic vowel marks, the Persian ZWNJ). Characters
+  /// without an entry stay. `klunki/tool/build_word_lists.py` folds the
+  /// word lists with the same tables.
+  final Map<String, String> fold;
+
+  /// The letters in alphabet order (blank picker, bag); null: by code point
+  /// (de, en: A–Z, then Ä Ö Ü).
+  final List<String>? alphabet;
+
+  /// Words across are read from right to left (Arabic, Persian; KLD-132):
+  /// the square furthest right holds the first letter. Down stays top to
+  /// bottom, and the board is the same grid in every language.
+  final bool rtl;
+
+  const TileSet(this.id, this.counts, this.points,
+      {this.blanks = 2, this.fold = const {}, this.alphabet, this.rtl = false});
 
   /// The tile that stands for a blank.
   static const String blank = '?';
+
+  /// `ß` is written `SS` (upper-case German, word games).
+  static const Map<String, String> _sharpS = {'ß': 'SS', 'ẞ': 'SS'};
 
   /// German: A–Z plus Ä Ö Ü as tiles of their own; no ß tile (ß is written
   /// SS, as in upper-case German and in word games).
@@ -281,7 +301,7 @@ class TileSet {
     'E': 1, 'N': 1, 'S': 1, 'I': 1, 'R': 1, 'A': 1, 'T': 1, 'D': 1, 'H': 1, 'U': 1, //
     'L': 2, 'C': 2, 'G': 2, 'M': 2, 'O': 2, 'B': 2, 'W': 2, 'F': 2, 'K': 3, 'Z': 3, //
     'P': 3, 'V': 3, 'Ü': 4, 'Ä': 4, 'Ö': 4, 'J': 5, 'Y': 8, 'X': 8, 'Q': 10,
-  });
+  }, fold: _sharpS);
 
   /// English: A–Z.
   static const TileSet english = TileSet('en', {
@@ -292,22 +312,37 @@ class TileSet {
     'E': 1, 'S': 1, 'I': 1, 'A': 1, 'R': 1, 'N': 1, 'T': 1, 'O': 1, 'L': 1, 'C': 2, //
     'D': 2, 'U': 2, 'G': 2, 'P': 3, 'M': 3, 'H': 3, 'B': 3, 'Y': 4, 'F': 4, 'V': 4, //
     'K': 4, 'W': 5, 'Z': 6, 'X': 8, 'J': 8, 'Q': 10,
-  });
+  }, fold: _sharpS);
 
   static const List<TileSet> all = [german, english];
 
   static TileSet? byId(Object? id) => all.where((t) => t.id == id).firstOrNull;
 
-  /// The letters, in a fixed order (alphabetical, umlauts last).
-  List<String> get letters => counts.keys.toList()..sort();
+  /// The letters, in a fixed order: [alphabet], else by code point
+  /// (alphabetical, umlauts last).
+  List<String> get letters => alphabet ?? (counts.keys.toList()..sort());
+
+  /// Whether the letters have a lower case (Latin). A view marks a blank on
+  /// the board by its lower-case letter; a set without case (Arabic,
+  /// Persian) lists the blanks' squares instead (`blanks` in the view).
+  bool get cased => counts.keys.every((l) => l.toLowerCase() != l);
 
   int get size => counts.values.fold(blanks, (a, b) => a + b);
 
   /// Points of [tile] (0 for a blank or an unknown tile).
   int pointsOf(String tile) => points[tile] ?? 0;
 
-  /// [word] as it would lie on the board: upper case, `ß` → `SS`.
-  String normalize(String word) => word.replaceAll('ß', 'SS').replaceAll('ẞ', 'SS').toUpperCase();
+  /// [word] as it would lie on the board: folded by [fold] (`ß` → `SS`,
+  /// `É` → `E`, Arabic vowel marks dropped …), then upper case.
+  String normalize(String word) {
+    if (fold.isEmpty) return word.toUpperCase();
+    final b = StringBuffer();
+    for (final r in word.runes) {
+      final c = String.fromCharCode(r);
+      b.write(fold[c] ?? c);
+    }
+    return b.toString().toUpperCase();
+  }
 
   /// Whether every letter of [word] (normalized) has a tile.
   bool canSpell(String word) => normalize(word).split('').every(counts.containsKey);
@@ -316,6 +351,16 @@ class TileSet {
   List<String> bag() => [
         for (final l in letters) ...List.filled(counts[l]!, l),
         ...List.filled(blanks, blank),
+      ];
+
+  /// The rules data of this set for the compat fingerprint (KLD-085):
+  /// letters with counts and points, blanks, the fold table and [rtl].
+  List<Object> gameplayData() => [
+        id,
+        [for (final l in letters) [l, counts[l], points[l]]],
+        blanks,
+        [for (final k in fold.keys.toList()..sort()) '$k>${fold[k]}'],
+        rtl,
       ];
 }
 
@@ -566,7 +611,7 @@ class WordTilesGame extends Game implements SeatGame {
   /// The rules data two builds must agree on (KLD-085 fingerprint): every
   /// tile set (letters, counts, points, blanks) and the premium layout.
   static List<Object> gameplayData() => [
-        for (final t in TileSet.all) [t.id, [for (final l in t.letters) [l, t.counts[l], t.points[l]]], t.blanks],
+        for (final t in TileSet.all) t.gameplayData(),
         [for (final p in _premiums) p.index].join(),
         rackSize,
         bingoBonus,
@@ -990,7 +1035,9 @@ class WordTilesGame extends Game implements SeatGame {
     // Words: the main word, then a cross word through every new tile.
     final words = <FormedWord>[];
     FormedWord? wordThrough(int r, int c, bool acr) {
-      final dr = acr ? 0 : 1, dc = acr ? 1 : 0;
+      // Across reads right to left in an rtl set (KLD-132): the word starts
+      // on its square furthest right.
+      final dr = acr ? 0 : 1, dc = acr ? (tileSet.rtl ? -1 : 1) : 0;
       var sr = r, sc = c;
       while (at(sr - dr, sc - dc) != null) {
         sr -= dr;
@@ -1580,6 +1627,12 @@ class WordTilesGame extends Game implements SeatGame {
       'board': [
         for (var r = 0; r < size; r++) [for (var c = 0; c < size; c++) _board[r * size + c]?.toString() ?? '.'].join(),
       ],
+      // A letter without case cannot show a blank in lower case (KLD-132).
+      if (!tileSet.cased && _board.any((t) => t?.blank ?? false))
+        'blanks': [
+          for (var i = 0; i < size * size; i++)
+            if (_board[i]?.blank ?? false) [i ~/ size, i % size],
+        ],
       'rack': List.of(_racks[v]),
       'racks': [for (final r in _racks) r.length],
       'bag': _bag.length,
