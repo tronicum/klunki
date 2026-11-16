@@ -5,6 +5,7 @@ import 'games/chess_rules.dart';
 import 'games/connect4_rules.dart';
 import 'games/dicesheet_rules.dart';
 import 'games/gostrategy_rules.dart';
+import 'games/ludo_rules.dart';
 import 'games/maexchen_rules.dart';
 import 'games/maumau_rules.dart';
 import 'games/muehle_rules.dart';
@@ -33,6 +34,7 @@ final Map<String, RulesBuilder> gameRules = {
   'maexchen': maexchenRules,
   'dicesheet': diceSheetRules,
   'property': propertyRules,
+  'ludo': ludoRules,
 };
 
 /// The config the rules page shows when opened from the menu: the

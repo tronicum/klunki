@@ -7730,6 +7730,204 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Elektro'**
   String get quartettSetMotorcyclesH;
+
+  /// KLD-131: title of the cross-and-circle race game with four pawns per player (maintainer: "Rauswurf"; en "Ludo"). Generic names only, never the brand name of the German original.
+  ///
+  /// In de, this message translates to:
+  /// **'Rauswurf'**
+  String get menuGameLudo;
+
+  /// KLD-131: one-line menu description of Rauswurf.
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln, ziehen, rauswerfen: Wer hat zuerst alle vier im Ziel?'**
+  String get menuDescLudo;
+
+  /// KLD-131: why Rauswurf ended: the winner has all four pawns in the finish lane.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle vier Figuren sind im Ziel'**
+  String get engineReasonLudoAllHome;
+
+  /// KLD-131: label of the die button (roll the die).
+  ///
+  /// In de, this message translates to:
+  /// **'Würfeln'**
+  String get ludoRoll;
+
+  /// KLD-131: screen reader label of a pawn; {player} is the name of the player it belongs to.
+  ///
+  /// In de, this message translates to:
+  /// **'Figur von {player}'**
+  String ludoPawn(String player);
+
+  /// KLD-131: hint line: the player to move rolls by tapping the die.
+  ///
+  /// In de, this message translates to:
+  /// **'Tippe auf den Würfel.'**
+  String get ludoHintRoll;
+
+  /// KLD-131: hint line: no pawn can move without a 6; {tries} (3) tries for a 6.
+  ///
+  /// In de, this message translates to:
+  /// **'Du brauchst eine 6. Du hast {tries} Versuche.'**
+  String ludoHintNeedSix(int tries);
+
+  /// KLD-131: hint line after a failed try for a 6; {tries} tries left.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine 6. {tries, plural, =1{Noch ein Versuch.} other{Noch {tries} Versuche.}}'**
+  String ludoHintTriesLeft(int tries);
+
+  /// KLD-131: hint line: a 6 was rolled, the same player rolls again.
+  ///
+  /// In de, this message translates to:
+  /// **'Eine 6! Du darfst nochmal würfeln.'**
+  String get ludoHintSixAgain;
+
+  /// KLD-131: hint line: the die shows {value}; tap one of the highlighted pawns.
+  ///
+  /// In de, this message translates to:
+  /// **'Du hast eine {value}. Tippe auf eine leuchtende Figur.'**
+  String ludoHintMove(int value);
+
+  /// KLD-131: hint line, house rule "Schlagzwang": only the pawns that capture are highlighted.
+  ///
+  /// In de, this message translates to:
+  /// **'Schlagzwang: Du musst rauswerfen.'**
+  String get ludoHintMustCapture;
+
+  /// KLD-131: hint line: a 6 must bring a pawn out of the house.
+  ///
+  /// In de, this message translates to:
+  /// **'Mit der 6 kommt eine Figur aus dem Haus.'**
+  String get ludoHintBringOut;
+
+  /// KLD-131: hint line, house rule "Startfeld räumen": the pawn on the start field (or the own pawn blocking it) must move first.
+  ///
+  /// In de, this message translates to:
+  /// **'Erst muss das Startfeld frei werden.'**
+  String get ludoHintClearStart;
+
+  /// KLD-131: hint line: {player} rolled {value} and could not move; the turn passed.
+  ///
+  /// In de, this message translates to:
+  /// **'{player} hat eine {value}: kein Zug möglich.'**
+  String ludoHintNoMove(String player, int value);
+
+  /// KLD-131: hint line: a pawn of {player} was captured and goes back to its house.
+  ///
+  /// In de, this message translates to:
+  /// **'Rauswurf! Eine Figur von {player} muss zurück ins Haus.'**
+  String ludoHintCaptured(String player);
+
+  /// KLD-131: move history: a roll (after the player name).
+  ///
+  /// In de, this message translates to:
+  /// **'würfelt {value}'**
+  String ludoMoveRoll(int value);
+
+  /// KLD-131: move history: a roll without a possible move.
+  ///
+  /// In de, this message translates to:
+  /// **'würfelt {value}, kein Zug'**
+  String ludoMoveRollNoMove(int value);
+
+  /// KLD-131: move history: a 6 brought a pawn out of the house.
+  ///
+  /// In de, this message translates to:
+  /// **'bringt eine Figur ins Spiel'**
+  String get ludoMoveOut;
+
+  /// KLD-131: move history: a pawn moved {steps} fields.
+  ///
+  /// In de, this message translates to:
+  /// **'{steps, plural, =1{zieht 1 Feld} other{zieht {steps} Felder}}'**
+  String ludoMoveStep(int steps);
+
+  /// KLD-131: move history: a pawn moved into the finish lane.
+  ///
+  /// In de, this message translates to:
+  /// **'zieht eine Figur ins Ziel'**
+  String get ludoMoveHome;
+
+  /// KLD-131: move history, after a step: the move sent a pawn of {player} home.
+  ///
+  /// In de, this message translates to:
+  /// **'wirft eine Figur von {player} raus'**
+  String ludoMoveCapture(String player);
+
+  /// KLD-131: result ranking: {count} pawns in the finish lane.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} im Ziel'**
+  String ludoResultHome(int count);
+
+  /// KLD-131: Rauswurf rules, goal (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'Bring alle vier Figuren ins Ziel. Wer das zuerst schafft, gewinnt.\nDie anderen kommen nach ihren Figuren im Ziel auf die Plätze.'**
+  String get rulesLudoGoal;
+
+  /// KLD-131: Rauswurf rules, a turn (lines separated by \n).
+  ///
+  /// In de, this message translates to:
+  /// **'2 bis 4 spielen an einem Gerät, reihum.\nTippe auf den Würfel. Dann tippst du auf eine leuchtende Figur: Sie zieht so viele Felder weiter, wie der Würfel zeigt.\nMit einer 6 kommt eine Figur aus dem Haus auf dein Startfeld.\nLandest du auf einer fremden Figur, fliegt sie raus: zurück in ihr Haus.\nAuf eine eigene Figur darfst du nicht ziehen. Über Figuren springen geht, nur im Ziel nicht.\nIns Ziel brauchst du die genaue Zahl.'**
+  String get rulesLudoTurn;
+
+  /// KLD-131: Rauswurf rules, special rules (lines separated by \n); quotes the label of the take-back button.
+  ///
+  /// In de, this message translates to:
+  /// **'Ein Wurf gilt sofort. „Zug zurücknehmen“ nimmt nur das Ziehen zurück, solange noch nicht weitergewürfelt wurde.\nWer aufgibt, ist raus. Die anderen spielen weiter.'**
+  String get rulesLudoSpecial;
+
+  /// KLD-131: title of the house rule "three tries for a 6".
+  ///
+  /// In de, this message translates to:
+  /// **'3 Versuche für eine 6'**
+  String get ludoRuleTries;
+
+  /// KLD-131: rules text of the house rule "three tries for a 6".
+  ///
+  /// In de, this message translates to:
+  /// **'Kann keine Figur ohne 6 ziehen (alle im Haus oder im Ziel fest), darfst du bis zu dreimal würfeln.'**
+  String get rulesLudoTries;
+
+  /// KLD-131: title of the house rule "Schlagzwang" (a capture must be made).
+  ///
+  /// In de, this message translates to:
+  /// **'Schlagzwang'**
+  String get ludoRuleCapture;
+
+  /// KLD-131: rules text of the house rule "Schlagzwang".
+  ///
+  /// In de, this message translates to:
+  /// **'Kannst du eine Figur rauswerfen, musst du das tun. Dann leuchten nur die Figuren, die rauswerfen können.'**
+  String get rulesLudoCapture;
+
+  /// KLD-131: title of the house rule "Startfeld räumen" (clear the start field).
+  ///
+  /// In de, this message translates to:
+  /// **'Startfeld räumen'**
+  String get ludoRuleStart;
+
+  /// KLD-131: rules text of the house rule "Startfeld räumen".
+  ///
+  /// In de, this message translates to:
+  /// **'Solange noch Figuren im Haus warten, muss eine Figur auf deinem Startfeld zuerst weiterziehen. Steht dort eine eigene Figur im Weg, muss zuerst diese ziehen.'**
+  String get rulesLudoStart;
+
+  /// KLD-131: title of the house rule "a 6 rolls again".
+  ///
+  /// In de, this message translates to:
+  /// **'6 = nochmal würfeln'**
+  String get ludoRuleSix;
+
+  /// KLD-131: rules text of the house rule "a 6 rolls again".
+  ///
+  /// In de, this message translates to:
+  /// **'Nach einer 6 darfst du nochmal würfeln.'**
+  String get rulesLudoSix;
 }
 
 class _AppLocalizationsDelegate

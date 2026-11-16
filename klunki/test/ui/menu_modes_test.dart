@@ -96,7 +96,9 @@ void main() {
     // KLD-119: Ausgewürfelt is for 2–4 players at one table.
     expect(_network('dicesheet'), findsNothing);
     expect(_network('property'), findsNothing);
-    expect(hotSeatOnlyGames, {'dicesheet', 'property'});
+    // KLD-131: Rauswurf on one device until its network step.
+    expect(_network('ludo'), findsNothing);
+    expect(hotSeatOnlyGames, {'dicesheet', 'property', 'ludo'});
   });
 
   testWidgets('no "Gerät weitergeben" claim and no eye-off badge on the tiles', (tester) async {

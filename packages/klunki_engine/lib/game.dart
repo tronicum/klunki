@@ -106,7 +106,12 @@ enum GameEndReason {
 
   /// Baulöwe: the optional round limit was reached; the richest wins (equal
   /// leaders share the place). params: `rounds`.
-  propertyRoundLimit('property.roundLimit');
+  propertyRoundLimit('property.roundLimit'),
+
+  /// Rauswurf (KLD-131): the winner has all four pawns in the finish lane.
+  /// params: `a`, `b` (pawns home of seats 0 and 1; the [SeatResult] has
+  /// `home0…home3`).
+  ludoAllHome('ludo.allHome');
 
   final String code;
   const GameEndReason(this.code);

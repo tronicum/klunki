@@ -15,3 +15,4 @@ export 'debug/mau_mau_text.dart';
 export 'debug/maexchen_text.dart';
 export 'debug/dice_sheet_text.dart';
 export 'debug/property_text.dart';
+export 'debug/ludo_text.dart';

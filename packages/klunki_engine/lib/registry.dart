@@ -4,6 +4,7 @@ import 'connect4.dart';
 import 'dice_sheet.dart';
 import 'game.dart';
 import 'gostrategy.dart';
+import 'ludo.dart';
 import 'mau_mau.dart';
 import 'maexchen.dart';
 import 'muehle.dart';
@@ -76,6 +77,10 @@ import 'word_tiles.dart';
 /// written only when on) lets the seed pick the starting seat
 /// ([DiceSheetGame.randomStart]). Other games ignore both.
 ///
+/// Rauswurf (KLD-131): [ludo] holds the house rules ([LudoRules], all on by
+/// default), JSON `ludo` with only the switches that differ from the
+/// defaults, written only when not the defaults. Other games ignore it.
+///
 /// Baulöwe (KLD-060 step 2): [property] holds its board theme, round limit
 /// and house rules ([PropertyOptions]); its keys (`theme`, `rounds`, `free`,
 /// `freeAmount`, `doubleStart`, `noRentInPause`, `bankruptAuction`) sit at
@@ -100,6 +105,7 @@ class GameConfig {
   final bool extraFives;
   final bool randomStart;
   final PropertyOptions property;
+  final LudoRules ludo;
   const GameConfig(this.gameId,
       {this.seed = 0,
       this.deck,
@@ -117,7 +123,8 @@ class GameConfig {
       this.maexchenUnlimited = false,
       this.extraFives = false,
       this.randomStart = false,
-      this.property = const PropertyOptions()});
+      this.property = const PropertyOptions(),
+      this.ludo = const LudoRules()});
 
   Map<String, dynamic> toJson() => {'game': gameId, 'seed': seed, ..._options};
 
@@ -142,6 +149,7 @@ class GameConfig {
         if (extraFives) 'extraFives': true,
         if (randomStart) 'start': 'random',
         ...property.toJson(),
+        if (!ludo.isDefault) 'ludo': ludo.toJson(),
       };
 
   factory GameConfig.fromJson(Map<String, dynamic> json) => GameConfig(json['game'] as String,
@@ -161,7 +169,8 @@ class GameConfig {
       maexchenUnlimited: json['maexUnlimited'] == true,
       extraFives: json['extraFives'] == true,
       randomStart: json['start'] == 'random',
-      property: PropertyOptions.fromJson(json));
+      property: PropertyOptions.fromJson(json),
+      ludo: LudoRules.fromJson(json['ludo']));
 
   GameConfig copyWith({int? seed, int? players}) => GameConfig(gameId,
       seed: seed ?? this.seed,
@@ -180,7 +189,8 @@ class GameConfig {
       maexchenUnlimited: maexchenUnlimited,
       extraFives: extraFives,
       randomStart: randomStart,
-      property: property);
+      property: property,
+      ludo: ludo);
 
   @override
   bool operator ==(Object other) =>
@@ -202,12 +212,13 @@ class GameConfig {
       other.maexchenUnlimited == maexchenUnlimited &&
       other.extraFives == extraFives &&
       other.randomStart == randomStart &&
-      other.property == property;
+      other.property == property &&
+      other.ludo == ludo;
 
   @override
   int get hashCode => Object.hash(gameId, seed, deck, pickLowCards, tiles, dictionary, jokerSwap, rackPenalty,
       chessWhite, chessClock, players, mauMau, lives, maexchenDouble, maexchenUnlimited, extraFives, randomStart,
-      property);
+      property, ludo);
 
   @override
   String toString() =>
@@ -218,7 +229,8 @@ class GameConfig {
       '${lives == 3 ? '' : ', lives: $lives'}${maexchenDouble ? '' : ', maexDouble: off'}'
       '${maexchenUnlimited ? ', maexUnlimited' : ''}'
       '${extraFives ? ', extraFives' : ''}${randomStart ? ', start: random' : ''}'
-      '${property.isDefault ? '' : ', property: ${property.toJson()}'})';
+      '${property.isDefault ? '' : ', property: ${property.toJson()}'}'
+      '${ludo.isDefault ? '' : ', ludo: ${ludo.toJson()}'})';
 }
 
 /// One playable game: stable [id] (shared with the debug console and the
@@ -398,6 +410,12 @@ final List<GameSpec> gameSpecs = [
       usesTheme: true,
       networkPlay: false,
       undoBarrier: PropertyGame.isUndoBarrier),
+  // KLD-131: Rauswurf, the cross-and-circle race game for 2–4 seats, on one
+  // device in the app (step 1; `networkPlay` false until a network step).
+  // House rules in the config (GameConfig.ludo, all on by default). A roll
+  // is final for hot-seat "Zug zurücknehmen" (the die was seen).
+  GameSpec('ludo', 'Rauswurf', (c, _) => LudoGame(seed: c.seed, playerCount: c.players, rules: c.ludo),
+      maxPlayers: LudoGame.maxPlayers, networkPlay: false, undoBarrier: LudoGame.isRoll),
 ];
 
 WordTilesGame _createWordTiles(GameConfig c, QuartettDeck _) {

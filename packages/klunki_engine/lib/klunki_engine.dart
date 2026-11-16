@@ -15,6 +15,7 @@ export 'dice_sheet.dart';
 export 'dice_sheet_advisor.dart';
 export 'property.dart';
 export 'property_bot.dart';
+export 'ludo.dart';
 export 'registry.dart';
 export 'seats.dart';
 export 'compat.dart';

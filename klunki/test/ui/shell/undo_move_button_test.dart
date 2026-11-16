@@ -56,6 +56,7 @@ void main() {
     'maexchen': Key('maexchen-controls'),
     'dicesheet': Key('dicesheet-controls'),
     'property': Key('property-controls'),
+    'ludo': Key('ludo-controls'),
   };
 
   for (final id in gameScreens.keys) {
@@ -94,6 +95,8 @@ void main() {
       }
 
       expect(button(tester).onPressed, isNull, reason: 'nothing to take back yet');
+      // KLD-131: a 6, so a pawn move follows the roll.
+      if (id == 'ludo') (c.game as LudoGame).debugScriptRolls([6]);
       await playMove(tester);
       if (find.byKey(handoverContinue).evaluate().isNotEmpty) {
         await tester.tap(find.byKey(handoverContinue));
@@ -107,6 +110,14 @@ void main() {
         expect(button(tester).onPressed, isNull);
         final g = c.game as PropertyGame;
         await c.submit(g.legalMoves.firstWhere((m) => m['action'] != 'roll'));
+        await tester.pump();
+        left = 1;
+      }
+      if (id == 'ludo') {
+        // KLD-131: a roll is final (the die was seen); the pawn move can be
+        // taken back.
+        expect(button(tester).onPressed, isNull);
+        await c.submit(LudoGame.pawnMove((c.game as LudoGame).movablePawns.first));
         await tester.pump();
         left = 1;
       }

@@ -5057,4 +5057,144 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'Eléctricas';
+
+  @override
+  String get menuGameLudo => 'Parchís';
+
+  @override
+  String get menuDescLudo =>
+      'Tira, avanza, come fichas: ¿quién lleva las cuatro a la meta primero?';
+
+  @override
+  String get engineReasonLudoAllHome => 'Las cuatro fichas están en la meta';
+
+  @override
+  String get ludoRoll => 'Tirar';
+
+  @override
+  String ludoPawn(String player) {
+    return 'Ficha: $player';
+  }
+
+  @override
+  String get ludoHintRoll => 'Toca el dado.';
+
+  @override
+  String ludoHintNeedSix(int tries) {
+    return 'Necesitas un 6. Tienes $tries intentos.';
+  }
+
+  @override
+  String ludoHintTriesLeft(int tries) {
+    String _temp0 = intl.Intl.pluralLogic(
+      tries,
+      locale: localeName,
+      other: 'Quedan $tries intentos.',
+      one: 'Queda un intento.',
+    );
+    return 'Sin 6. $_temp0';
+  }
+
+  @override
+  String get ludoHintSixAgain => '¡Un 6! Vuelves a tirar.';
+
+  @override
+  String ludoHintMove(int value) {
+    return 'Has sacado $value. Toca una ficha que brilla.';
+  }
+
+  @override
+  String get ludoHintMustCapture => 'Tienes que comer una ficha.';
+
+  @override
+  String get ludoHintBringOut => 'Con un 6 sale una ficha de casa.';
+
+  @override
+  String get ludoHintClearStart => 'Primero hay que dejar libre la salida.';
+
+  @override
+  String ludoHintNoMove(String player, int value) {
+    return '$player ha sacado $value: no hay jugada.';
+  }
+
+  @override
+  String ludoHintCaptured(String player) {
+    return '¡Comida! Una ficha de $player vuelve a casa.';
+  }
+
+  @override
+  String ludoMoveRoll(int value) {
+    return 'saca $value';
+  }
+
+  @override
+  String ludoMoveRollNoMove(int value) {
+    return 'saca $value, sin jugada';
+  }
+
+  @override
+  String get ludoMoveOut => 'saca una ficha';
+
+  @override
+  String ludoMoveStep(int steps) {
+    String _temp0 = intl.Intl.pluralLogic(
+      steps,
+      locale: localeName,
+      other: 'avanza $steps casillas',
+      one: 'avanza 1 casilla',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ludoMoveHome => 'mete una ficha en la meta';
+
+  @override
+  String ludoMoveCapture(String player) {
+    return 'se come una ficha de $player';
+  }
+
+  @override
+  String ludoResultHome(int count) {
+    return '$count en la meta';
+  }
+
+  @override
+  String get rulesLudoGoal =>
+      'Lleva tus cuatro fichas a la meta. Quien lo consiga primero gana.\nLos demás se ordenan por sus fichas en la meta.';
+
+  @override
+  String get rulesLudoTurn =>
+      'De 2 a 4 juegan en un dispositivo, por turnos.\nToca el dado. Luego toca una ficha que brilla: avanza tantas casillas como marca el dado.\nCon un 6 sale una ficha de casa a tu casilla de salida.\nSi caes en una ficha de otra persona, te la comes: vuelve a su casa.\nNo puedes caer en una ficha tuya. Puedes saltar fichas, pero no en el pasillo de la meta.\nPara entrar en la meta necesitas el número exacto.';
+
+  @override
+  String get rulesLudoSpecial =>
+      'Una tirada cuenta enseguida. «Deshacer» solo quita el movimiento de la ficha, hasta la siguiente tirada.\nQuien se rinde queda fuera. Los demás siguen jugando.';
+
+  @override
+  String get ludoRuleTries => '3 intentos para un 6';
+
+  @override
+  String get rulesLudoTries =>
+      'Si ninguna ficha puede moverse sin un 6 (todas en casa o atascadas en la meta), puedes tirar hasta tres veces.';
+
+  @override
+  String get ludoRuleCapture => 'Comer obligatorio';
+
+  @override
+  String get rulesLudoCapture =>
+      'Si puedes comer una ficha, tienes que hacerlo. Entonces solo brillan las fichas que pueden comer.';
+
+  @override
+  String get ludoRuleStart => 'Dejar libre la salida';
+
+  @override
+  String get rulesLudoStart =>
+      'Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero. Si una ficha tuya le cierra el paso, esa ficha tiene que moverse primero.';
+
+  @override
+  String get ludoRuleSix => '6 = vuelves a tirar';
+
+  @override
+  String get rulesLudoSix => 'Después de un 6 vuelves a tirar.';
 }
