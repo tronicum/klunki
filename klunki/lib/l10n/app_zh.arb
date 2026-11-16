@@ -1268,5 +1268,17 @@
   "quartettSetMotorcyclesE": "经典车",
   "quartettSetMotorcyclesF": "越野车",
   "quartettSetMotorcyclesG": "踏板车",
-  "quartettSetMotorcyclesH": "电动车"
+  "quartettSetMotorcyclesH": "电动车",
+  "quartettDeckSpecial": "特种车辆",
+  "quartettSetSpecialA": "消防",
+  "quartettSetSpecialB": "工地",
+  "quartettSetSpecialC": "起重机",
+  "quartettSetSpecialD": "农业",
+  "quartettSetSpecialE": "救援",
+  "quartettSetSpecialF": "机场",
+  "quartettSetSpecialG": "环卫",
+  "quartettSetSpecialH": "重型运输",
+  "quartettSpecialE1": "救护车 Sprinter",
+  "quartettSpecialE2": "急救医生车 Kodiaq",
+  "quartettSpecialE4": "救生船 Hermann Marwede"
 }

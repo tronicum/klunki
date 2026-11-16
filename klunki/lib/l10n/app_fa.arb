@@ -1268,5 +1268,17 @@
   "quartettSetMotorcyclesE": "کلاسیک‌ها",
   "quartettSetMotorcyclesF": "آفرود",
   "quartettSetMotorcyclesG": "اسکوترها",
-  "quartettSetMotorcyclesH": "برقی‌ها"
+  "quartettSetMotorcyclesH": "برقی‌ها",
+  "quartettDeckSpecial": "خودروهای ویژه",
+  "quartettSetSpecialA": "آتش‌نشانی",
+  "quartettSetSpecialB": "ساختمانی",
+  "quartettSetSpecialC": "جرثقیل‌ها",
+  "quartettSetSpecialD": "کشاورزی",
+  "quartettSetSpecialE": "امداد",
+  "quartettSetSpecialF": "فرودگاه",
+  "quartettSetSpecialG": "پاکبانی",
+  "quartettSetSpecialH": "حمل سنگین",
+  "quartettSpecialE1": "آمبولانس Sprinter",
+  "quartettSpecialE2": "خودروی پزشک Kodiaq",
+  "quartettSpecialE4": "قایق نجات Hermann Marwede"
 }

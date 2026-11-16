@@ -27,6 +27,9 @@ void main() {
     // KLD-129: the motorcycle deck (a new key; the other decks are unchanged).
     'quartett-trumpf/motorcycles': (3, 1, 'bf77621dd6cc02cf1354fc97fa3c054b'),
     'quartett-sets/motorcycles': (2, 1, '83edc4fccac415797e5482825a9a4ab4'),
+    // KLD-130: the special vehicle deck (a new key; the other decks are unchanged).
+    'quartett-trumpf/special': (3, 1, 'bfffc914107dbba224d4b32c3a3eea4e'),
+    'quartett-sets/special': (2, 1, 'ae25b59d29c99ab5323d8a69c5b28cd6'),
     'schiffe': (2, 1, '372bb8310b020f23ee9328eb838c0a4c'),
     'gostrategy': (2, 1, 'd1b9bdcaf3d263cb700033edd0c0cf3e'),
     // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).

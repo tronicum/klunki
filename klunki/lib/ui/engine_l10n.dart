@@ -99,6 +99,10 @@ String localizedSetName(AppLocalizations l10n, String set, [String deck = Quarte
         l10n.quartettSetMotorcyclesD, l10n.quartettSetMotorcyclesE, l10n.quartettSetMotorcyclesF,
         l10n.quartettSetMotorcyclesG, l10n.quartettSetMotorcyclesH,
       ],
+    'special' => [
+        l10n.quartettSetSpecialA, l10n.quartettSetSpecialB, l10n.quartettSetSpecialC, l10n.quartettSetSpecialD,
+        l10n.quartettSetSpecialE, l10n.quartettSetSpecialF, l10n.quartettSetSpecialG, l10n.quartettSetSpecialH,
+      ],
     _ => null,
   };
   if (names != null && i >= 0) return names[i];
@@ -114,11 +118,13 @@ String localizedDeckName(AppLocalizations l10n, String deck) => switch (deck) {
       'planes' => l10n.quartettDeckPlanes,
       'animals' => l10n.quartettDeckAnimals,
       'motorcycles' => l10n.quartettDeckMotorcycles,
+      'special' => l10n.quartettDeckSpecial,
       _ => QuartettDeck.byId(deck)?.name ?? deck,
     };
 
 /// The name of a Quartett [card] as shown (KLD-128): animal names are
-/// translated, the vehicle decks keep the engine's name (real model names).
+/// translated, the vehicle decks keep the engine's name (real model names),
+/// except the type word of three special vehicles (KLD-130).
 /// Display only: the engine's German [Card.name] stays the card's name in
 /// the game, the network and the compat fingerprint (the German ARB names
 /// equal the engine's names, a test checks it). Plain text: the soft
@@ -131,7 +137,18 @@ String localizedCardName(AppLocalizations l10n, Card card) =>
 /// `HyphenatedLabel`).
 String localizedCardNameHyphenated(AppLocalizations l10n, Card card) => switch (card.deck) {
       'animals' => _animalName(l10n, card.id) ?? card.name,
+      'special' => _specialVehicleName(l10n, card.id) ?? card.name,
       _ => card.name,
+    };
+
+/// KLD-130: the three rescue vehicles whose model name says little carry a
+/// translated type word ("Rettungswagen Sprinter"); the other special
+/// vehicles keep their model names.
+String? _specialVehicleName(AppLocalizations l10n, String id) => switch (id) {
+      'E1' => l10n.quartettSpecialE1,
+      'E2' => l10n.quartettSpecialE2,
+      'E4' => l10n.quartettSpecialE4,
+      _ => null,
     };
 
 String? _animalName(AppLocalizations l10n, String id) => switch (id) {

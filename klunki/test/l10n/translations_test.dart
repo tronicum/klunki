@@ -73,6 +73,8 @@ const sameAsEnglish = {
   // KLD-129: the torque unit (newton metres) and a French set name.
   'Nm',
   'Scooters',
+  // KLD-130: the ambulance card in French.
+  'Ambulance Sprinter',
 };
 
 Map<String, dynamic> _arb(String locale) =>

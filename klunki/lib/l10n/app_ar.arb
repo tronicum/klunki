@@ -1268,5 +1268,17 @@
   "quartettSetMotorcyclesE": "كلاسيكيات",
   "quartettSetMotorcyclesF": "الطرق الوعرة",
   "quartettSetMotorcyclesG": "سكوترات",
-  "quartettSetMotorcyclesH": "كهربائية"
+  "quartettSetMotorcyclesH": "كهربائية",
+  "quartettDeckSpecial": "مركبات خاصة",
+  "quartettSetSpecialA": "الإطفاء",
+  "quartettSetSpecialB": "البناء",
+  "quartettSetSpecialC": "الرافعات",
+  "quartettSetSpecialD": "الزراعة",
+  "quartettSetSpecialE": "الإنقاذ",
+  "quartettSetSpecialF": "المطار",
+  "quartettSetSpecialG": "النظافة",
+  "quartettSetSpecialH": "النقل الثقيل",
+  "quartettSpecialE1": "سيارة إسعاف Sprinter",
+  "quartettSpecialE2": "سيارة الطبيب Kodiaq",
+  "quartettSpecialE4": "قارب النجاة Hermann Marwede"
 }

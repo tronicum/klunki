@@ -27,8 +27,9 @@ String quartettScreenTitle(BuildContext context, GameController controller) {
 
 /// The set whose colour stands for [deck] on its preview card: red cars,
 /// brown trains, green rockets, teal planes, orange animals (KLD-128),
-/// purple motorcycles (KLD-129). A further deck needs its own letter here.
-const _previewSets = 'ACEGDB';
+/// purple motorcycles (KLD-129), blue special vehicles (KLD-130). A further
+/// deck needs its own letter here.
+const _previewSets = 'ACEGDBF';
 String _previewSet(QuartettDeck deck) =>
     _previewSets[QuartettDeck.all.indexOf(deck).clamp(0, _previewSets.length - 1)];
 

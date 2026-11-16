@@ -4933,4 +4933,40 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'برقی‌ها';
+
+  @override
+  String get quartettDeckSpecial => 'خودروهای ویژه';
+
+  @override
+  String get quartettSetSpecialA => 'آتش‌نشانی';
+
+  @override
+  String get quartettSetSpecialB => 'ساختمانی';
+
+  @override
+  String get quartettSetSpecialC => 'جرثقیل‌ها';
+
+  @override
+  String get quartettSetSpecialD => 'کشاورزی';
+
+  @override
+  String get quartettSetSpecialE => 'امداد';
+
+  @override
+  String get quartettSetSpecialF => 'فرودگاه';
+
+  @override
+  String get quartettSetSpecialG => 'پاکبانی';
+
+  @override
+  String get quartettSetSpecialH => 'حمل سنگین';
+
+  @override
+  String get quartettSpecialE1 => 'آمبولانس Sprinter';
+
+  @override
+  String get quartettSpecialE2 => 'خودروی پزشک Kodiaq';
+
+  @override
+  String get quartettSpecialE4 => 'قایق نجات Hermann Marwede';
 }

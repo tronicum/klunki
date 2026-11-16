@@ -1267,5 +1267,17 @@
   "quartettSetMotorcyclesE": "Classics",
   "quartettSetMotorcyclesF": "Off-road",
   "quartettSetMotorcyclesG": "Scooters",
-  "quartettSetMotorcyclesH": "Electric"
+  "quartettSetMotorcyclesH": "Electric",
+  "quartettDeckSpecial": "Special vehicles",
+  "quartettSetSpecialA": "Fire brigade",
+  "quartettSetSpecialB": "Construction",
+  "quartettSetSpecialC": "Cranes",
+  "quartettSetSpecialD": "Farming",
+  "quartettSetSpecialE": "Rescue",
+  "quartettSetSpecialF": "Airport",
+  "quartettSetSpecialG": "Street cleaning",
+  "quartettSetSpecialH": "Heavy haulage",
+  "quartettSpecialE1": "Ambulance Sprinter",
+  "quartettSpecialE2": "Emergency doctor car Kodiaq",
+  "quartettSpecialE4": "Lifeboat Hermann Marwede"
 }

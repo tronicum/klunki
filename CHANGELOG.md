@@ -7,6 +7,14 @@ short German summary ("Kurz") for the store notes and the testers.
 
 ## [Unreleased]
 
+### Games
+- **Quartett: new deck "Sonderfahrzeuge"** (KLD-130): 32 special vehicles from the firefighting robot to the
+  largest dump truck in 8 sets (Feuerwehr, Baustelle, Kräne, Landwirtschaft, Rettung, Flughafen, Stadtreinigung,
+  Schwertransport), compared by Leistung, Höchstgeschwindigkeit, Gewicht (lighter wins), Länge and Höhe. Values
+  from the manufacturers' data sheets, press and databases, as of 2025/2026; five top speeds are estimates (no
+  maker publishes one for fire engines, ambulances or heavy-haul tractors). A drawn fire engine on every card
+  until the photos follow.
+
 ## [1.1.1] – 2026-11-15 (TestFlight)
 
 Kurz: Zwei neue Quartett-Decks, Tiere und Motorräder. Wortgewandt jetzt auch zu dritt oder viert über das

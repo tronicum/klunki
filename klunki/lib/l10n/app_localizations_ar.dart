@@ -5063,4 +5063,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'كهربائية';
+
+  @override
+  String get quartettDeckSpecial => 'مركبات خاصة';
+
+  @override
+  String get quartettSetSpecialA => 'الإطفاء';
+
+  @override
+  String get quartettSetSpecialB => 'البناء';
+
+  @override
+  String get quartettSetSpecialC => 'الرافعات';
+
+  @override
+  String get quartettSetSpecialD => 'الزراعة';
+
+  @override
+  String get quartettSetSpecialE => 'الإنقاذ';
+
+  @override
+  String get quartettSetSpecialF => 'المطار';
+
+  @override
+  String get quartettSetSpecialG => 'النظافة';
+
+  @override
+  String get quartettSetSpecialH => 'النقل الثقيل';
+
+  @override
+  String get quartettSpecialE1 => 'سيارة إسعاف Sprinter';
+
+  @override
+  String get quartettSpecialE2 => 'سيارة الطبيب Kodiaq';
+
+  @override
+  String get quartettSpecialE4 => 'قارب النجاة Hermann Marwede';
 }

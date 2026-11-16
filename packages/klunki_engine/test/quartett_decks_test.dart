@@ -7,8 +7,10 @@ import 'package:test/test.dart';
 
 /// KLD-069: themed Quartett decks.
 void main() {
-  test('the registry: cars (default), trains, rockets, planes, animals, motorcycles', () {
-    expect([for (final d in QuartettDeck.all) d.id], ['cars', 'trains', 'rockets', 'planes', 'animals', 'motorcycles']);
+  test('the registry: cars (default), trains, rockets, planes, animals, motorcycles, special', () {
+    expect([for (final d in QuartettDeck.all) d.id],
+        ['cars', 'trains', 'rockets', 'planes', 'animals', 'motorcycles', 'special']);
+    expect(QuartettDeck.byId('special'), same(QuartettDeck.specialVehicles));
     expect(QuartettDeck.byId('animals'), same(QuartettDeck.animals));
     expect(QuartettDeck.byId('motorcycles'), same(QuartettDeck.motorcycles));
     expect(QuartettDeck.byId(null), same(QuartettDeck.cars));
@@ -153,6 +155,61 @@ void main() {
         // ignore: avoid_print
         print('${s.id}: ${(deck.tieRate(s.id) * 100).toStringAsFixed(2)} % ties, $values values');
         expect(deck.tieRate(s.id), lessThan(0.03), reason: s.id);
+      }
+    });
+  });
+
+  group('special vehicles (KLD-130)', () {
+    final deck = QuartettDeck.specialVehicles;
+
+    test('stats, sets and cards: weight wins low like the trains, height with two decimals', () {
+      expect(deck.name, 'Sonderfahrzeuge');
+      expect(deck.revision, 1);
+      expect([for (final s in deck.stats) s.id], ['ps', 'kmh', 'massT', 'lengthM', 'heightM']);
+      expect([
+        for (final s in deck.stats)
+          if (!s.higherWins) s.id
+      ], [
+        'massT'
+      ]);
+      expect(
+          {for (final s in deck.stats) s.id: s.decimals}, {'ps': 0, 'kmh': 0, 'massT': 1, 'lengthM': 1, 'heightM': 2});
+      expect(deck.statById('massT')!.higherWins, QuartettDeck.trains.statById('massT')!.higherWins);
+      expect(deck.setNames['E'], 'Rettung');
+      expect(deck.cardById('F4')!.stats, {'ps': 7, 'kmh': 4, 'massT': 2.1, 'lengthM': 2.6, 'heightM': 0.32});
+      expect(deck.cardById('E4')!.name, 'Seenotretter Hermann Marwede');
+      // Trailing zeros drop like in the other decks: "4 m", "3.92 m", "0.9 t".
+      expect(deck.statById('heightM')!.formatValue(4), '4 m');
+      expect(deck.statById('heightM')!.formatValue(3.92), '3.92 m');
+      expect(deck.statById('massT')!.formatValue(0.9), '0.9 t');
+    });
+
+    test('tie rates (printed for the task card)', () {
+      for (final s in deck.stats) {
+        final values = deck.cards.map((c) => c.stats[s.id]).toSet().length;
+        // ignore: avoid_print
+        print('${s.id}: ${(deck.tieRate(s.id) * 100).toStringAsFixed(2)} % ties, $values values');
+        expect(deck.tieRate(s.id), lessThan(0.03), reason: s.id);
+      }
+    });
+
+    test('balance: every set wins 40-65 % of the stat comparisons (printed for the task card)', () {
+      for (final set in deck.setNames.keys) {
+        var won = 0, played = 0;
+        for (final a in deck.cardsOf(set)) {
+          for (final b in deck.cards.where((c) => c != a)) {
+            for (final s in deck.stats) {
+              final x = a.stats[s.id]!, y = b.stats[s.id]!;
+              if (x == y) continue;
+              played++;
+              if ((x > y) == s.higherWins) won++;
+            }
+          }
+        }
+        final share = won / played;
+        // ignore: avoid_print
+        print('$set ${deck.setNames[set]}: ${(share * 100).toStringAsFixed(0)} %');
+        expect(share, inInclusiveRange(0.40, 0.65), reason: set);
       }
     });
   });

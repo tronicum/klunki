@@ -5027,4 +5027,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quartettSetMotorcyclesH => 'Electric';
+
+  @override
+  String get quartettDeckSpecial => 'Special vehicles';
+
+  @override
+  String get quartettSetSpecialA => 'Fire brigade';
+
+  @override
+  String get quartettSetSpecialB => 'Construction';
+
+  @override
+  String get quartettSetSpecialC => 'Cranes';
+
+  @override
+  String get quartettSetSpecialD => 'Farming';
+
+  @override
+  String get quartettSetSpecialE => 'Rescue';
+
+  @override
+  String get quartettSetSpecialF => 'Airport';
+
+  @override
+  String get quartettSetSpecialG => 'Street cleaning';
+
+  @override
+  String get quartettSetSpecialH => 'Heavy haulage';
+
+  @override
+  String get quartettSpecialE1 => 'Ambulance Sprinter';
+
+  @override
+  String get quartettSpecialE2 => 'Emergency doctor car Kodiaq';
+
+  @override
+  String get quartettSpecialE4 => 'Lifeboat Hermann Marwede';
 }

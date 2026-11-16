@@ -7,14 +7,15 @@ part of 'quartett.dart';
 /// [setNames] are the engine's German texts for the CLI and the debug
 /// console (the app localizes them by [id] and set letter). Card names of
 /// the vehicle decks are real vehicle names and stay untranslated; the app
-/// translates the animal names by deck and card id (KLD-128). The engine's
+/// translates the animal names by deck and card id (KLD-128) and the type
+/// word of three special vehicles (KLD-130). The engine's
 /// German card name is gameplay data (compat fingerprint) and never depends
 /// on the display language.
 ///
 /// The vehicle values are plausible, rounded figures from general knowledge,
 /// not verified data (`docs/tasks/KLD-069-quartett-decks.md`); the animal
-/// and motorcycle values are sourced (KLD-128, KLD-129). See the comment
-/// above each deck. To add a deck: build it with [QuartettDeck.build], add it
+/// motorcycle and special vehicle values are sourced (KLD-128, KLD-129,
+/// KLD-130). See the comment above each deck. To add a deck: build it with [QuartettDeck.build], add it
 /// to [QuartettDeck.all], then add its set names (and any new stat labels) to
 /// the ARB files and a pictogram in the app.
 class QuartettDeck {
@@ -136,9 +137,11 @@ class QuartettDeck {
   static final QuartettDeck planes = _planes();
   static final QuartettDeck animals = _animals();
   static final QuartettDeck motorcycles = _motorcycles();
+  static final QuartettDeck specialVehicles = _specialVehicles();
 
   /// Every deck, in picker order.
-  static final List<QuartettDeck> all = List.unmodifiable([cars, trains, rockets, planes, animals, motorcycles]);
+  static final List<QuartettDeck> all =
+      List.unmodifiable([cars, trains, rockets, planes, animals, motorcycles, specialVehicles]);
 
   /// The deck with [id]; null if unknown. A null [id] is the default deck.
   static QuartettDeck? byId(String? id) {
@@ -620,5 +623,95 @@ QuartettDeck _motorcycles() => QuartettDeck.build(
         ('H2', 'Can-Am Pulse', [47, 129, 72, 177, 130, 12900]),
         ('H3', 'LiveWire One', [102, 177, 114, 255, 155, 14800]),
         ('H4', 'Kawasaki Ninja e-1', [12, 99, 40, 140, 70, 6600]),
+      ],
+    );
+
+/// Special vehicles, "Sonderfahrzeuge" (KLD-130). Stand 2025/2026. Real
+/// model names, not translated (like the cars); only the three rescue cards
+/// without a telling model name carry a type word, which the app translates
+/// (E1 "Rettungswagen Sprinter", E2 "Notarztwagen Kodiaq", E4 "Seenotretter
+/// Hermann Marwede"). No military vehicles. Values are manufacturer figures
+/// (directly or via a database or dealer quoting the data sheet), press or
+/// database values, or estimates; the task card
+/// `docs/tasks/KLD-130-quartett-special-vehicles.md` has the source of every
+/// value.
+///
+/// * Leistung (PS): peak power, kW × 1.36 (also the electric drives); the
+///   crane's carrier engine only (LTM 11200), the H135 both engines' take-off
+///   power, the rescue cruiser all three engines.
+/// * Höchstgeschwindigkeit: no fire engine, box ambulance or heavy-haulage
+///   tractor has a published top speed. Five values are estimates: M32L-AS
+///   100 (tender spec, fire engines are exempt from the 90 km/h limiter), M64L
+///   90 and FH16 90 (the legal limiter), Rosenbauer RT 105 (the US sister
+///   model RTX), Sprinter ambulance 130 (a placeholder). SPMT 5 loaded;
+///   rescue cruiser 25 kn → 46; Mototok 1.05 m/s → 4.
+/// * Gewicht (t, lower wins like the trains): permissible gross weight for
+///   registered vehicles; loaded gross weight for dump trucks and the SPMT
+///   (two 6-axle modules with payload, an estimate, 715); operating weight for
+///   machines without a load (excavator, dozer, crane, tug, robot); maximum
+///   take-off weight for the helicopter; displacement for the ship.
+/// * Länge (m): in driving or transport position, without attachments (the
+///   combine without its header, the LTM 11200 without the boom that travels
+///   separately).
+/// * Höhe (m, two decimals: with one, the 4 m legal height limit gives 4 %
+///   ties): in driving position; eEconic as a chassis with cab, without the
+///   refuse body (2.85); the rescue cruiser's 17 measured on a side view
+///   (waterline to mast top, ±2 m), an estimate.
+QuartettDeck _specialVehicles() => QuartettDeck.build(
+      id: 'special',
+      name: 'Sonderfahrzeuge',
+      stats: const [
+        // The cars' and motorcycles' power.
+        QuartettStat(id: 'ps', label: 'Leistung', unit: 'PS'),
+        _kmh,
+        // The trains' weight (lower wins), here with one decimal.
+        QuartettStat(id: 'massT', label: 'Gewicht', unit: 't', higherWins: false, decimals: 1),
+        _lengthM,
+        // The rockets' height, here with two decimals.
+        QuartettStat(id: 'heightM', label: 'Höhe', unit: 'm', decimals: 2),
+      ],
+      setNames: const {
+        'A': 'Feuerwehr',
+        'B': 'Baustelle',
+        'C': 'Kräne',
+        'D': 'Landwirtschaft',
+        'E': 'Rettung',
+        'F': 'Flughafen',
+        'G': 'Stadtreinigung',
+        'H': 'Schwertransport',
+      },
+      rows: const [
+        ('A1', 'Magirus M32L-AS', [299, 100, 16.0, 10.2, 3.30]),
+        ('A2', 'Magirus M64L', [422, 90, 32.0, 12.0, 3.92]),
+        ('A3', 'Rosenbauer RT', [490, 105, 18.0, 7.6, 2.90]),
+        ('A4', 'Magirus Wolf R1', [20, 15, 0.9, 1.5, 1.30]),
+        ('B1', 'Caterpillar 320', [175, 6, 22.6, 9.5, 2.96]),
+        ('B2', 'JCB 3CX', [75, 40, 8.2, 5.6, 3.61]),
+        ('B3', 'Caterpillar D11', [862, 12, 106.8, 10.5, 4.72]),
+        ('B4', 'Volvo A60H', [639, 55, 98.8, 12.2, 3.85]),
+        ('C1', 'Liebherr LTM 11200-9.1', [687, 75, 108.0, 19.9, 4.00]),
+        ('C2', 'Liebherr LTM 1090-4.2', [449, 85, 48.0, 13.4, 4.00]),
+        ('C3', 'Tadano GR-1000XL-4', [284, 35, 53.2, 14.4, 3.81]),
+        ('C4', 'Liebherr MK 140', [544, 80, 60.0, 16.0, 4.00]),
+        ('D1', 'Fendt 1052 Vario', [520, 60, 18.0, 6.4, 3.55]),
+        ('D2', 'John Deere 9RX 830', [842, 40, 38.1, 8.9, 3.77]),
+        ('D3', 'Claas Lexion 8900', [790, 40, 22.4, 9.4, 4.00]),
+        ('D4', 'Fendt 211 Vario', [114, 40, 7.5, 4.1, 2.62]),
+        ('E1', 'Rettungswagen Sprinter', [190, 130, 5.0, 6.5, 2.98]),
+        ('E2', 'Notarztwagen Kodiaq', [193, 220, 2.3, 4.8, 1.68]),
+        ('E3', 'Airbus H135', [1284, 255, 3.0, 12.3, 3.90]),
+        ('E4', 'Seenotretter Hermann Marwede', [9250, 46, 404.0, 46.0, 17.00]),
+        ('F1', 'Rosenbauer Panther 8×8', [1450, 135, 52.0, 12.0, 4.00]),
+        ('F2', 'Goldhofer AST-1X', [707, 32, 31.0, 9.5, 2.21]),
+        ('F3', 'e.COBUS 3000', [218, 50, 20.4, 13.9, 3.10]),
+        ('F4', 'Mototok Twin 7500', [7, 4, 2.1, 2.6, 0.32]),
+        ('G1', 'Mercedes-Benz eEconic', [544, 89, 27.0, 8.5, 2.85]),
+        ('G2', 'Bucher CityCat 5006', [160, 80, 10.4, 5.0, 2.50]),
+        ('G3', 'Mercedes-Benz Unimog U 530', [299, 90, 16.5, 5.3, 2.92]),
+        ('G4', 'Goupil G4', [14, 50, 2.1, 3.6, 1.89]),
+        ('H1', 'Volvo FH16 780', [780, 90, 35.0, 7.4, 3.79]),
+        ('H2', 'Caterpillar 797F', [4057, 68, 623.7, 15.1, 7.71]),
+        ('H3', 'BelAZ 75710', [4660, 64, 810.0, 20.6, 8.16]),
+        ('H4', 'Scheuerle SPMT', [245, 5, 715.0, 16.8, 1.50]),
       ],
     );

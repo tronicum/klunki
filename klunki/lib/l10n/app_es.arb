@@ -1268,5 +1268,17 @@
   "quartettSetMotorcyclesE": "Clásicas",
   "quartettSetMotorcyclesF": "Todoterreno",
   "quartettSetMotorcyclesG": "Escúteres",
-  "quartettSetMotorcyclesH": "Eléctricas"
+  "quartettSetMotorcyclesH": "Eléctricas",
+  "quartettDeckSpecial": "Vehículos especiales",
+  "quartettSetSpecialA": "Bomberos",
+  "quartettSetSpecialB": "Obras",
+  "quartettSetSpecialC": "Grúas",
+  "quartettSetSpecialD": "Agricultura",
+  "quartettSetSpecialE": "Rescate",
+  "quartettSetSpecialF": "Aeropuerto",
+  "quartettSetSpecialG": "Limpieza urbana",
+  "quartettSetSpecialH": "Transporte pesado",
+  "quartettSpecialE1": "Ambulancia Sprinter",
+  "quartettSpecialE2": "Vehículo médico Kodiaq",
+  "quartettSpecialE4": "Bote salvavidas Hermann Marwede"
 }

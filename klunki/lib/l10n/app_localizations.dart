@@ -7730,6 +7730,78 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Elektro'**
   String get quartettSetMotorcyclesH;
+
+  /// KLD-130 Quartett deck name: special-purpose vehicles (fire engines, construction machines, cranes, farm machines, rescue vehicles, airport vehicles, street cleaning, heavy haulage).
+  ///
+  /// In de, this message translates to:
+  /// **'Sonderfahrzeuge'**
+  String get quartettDeckSpecial;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set A: Fire brigade (fire engines).
+  ///
+  /// In de, this message translates to:
+  /// **'Feuerwehr'**
+  String get quartettSetSpecialA;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set B: Construction site (construction machines).
+  ///
+  /// In de, this message translates to:
+  /// **'Baustelle'**
+  String get quartettSetSpecialB;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set C: Cranes (mobile cranes).
+  ///
+  /// In de, this message translates to:
+  /// **'Kräne'**
+  String get quartettSetSpecialC;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set D: Farming (tractors and a combine harvester).
+  ///
+  /// In de, this message translates to:
+  /// **'Landwirtschaft'**
+  String get quartettSetSpecialD;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set E: Rescue (ambulance, emergency doctor car, rescue helicopter, sea rescue cruiser).
+  ///
+  /// In de, this message translates to:
+  /// **'Rettung'**
+  String get quartettSetSpecialE;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set F: Airport (airport vehicles).
+  ///
+  /// In de, this message translates to:
+  /// **'Flughafen'**
+  String get quartettSetSpecialF;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set G: Street cleaning (refuse truck, street sweeper, municipal vehicles).
+  ///
+  /// In de, this message translates to:
+  /// **'Stadtreinigung'**
+  String get quartettSetSpecialG;
+
+  /// KLD-130 Quartett set name, special vehicle deck, set H: Heavy haulage (heavy-haul tractor, giant dump trucks, modular transporter).
+  ///
+  /// In de, this message translates to:
+  /// **'Schwertransport'**
+  String get quartettSetSpecialH;
+
+  /// KLD-130 Quartett card name, special vehicle deck, card E1: an ambulance (box body) on a Sprinter van. A type word plus the model name "Sprinter", which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word.
+  ///
+  /// In de, this message translates to:
+  /// **'Rettungs­wagen Sprinter'**
+  String get quartettSpecialE1;
+
+  /// KLD-130 Quartett card name, special vehicle deck, card E2: an emergency doctor car (a fast car that brings the emergency doctor) on a Kodiaq SUV. A type word plus the model name "Kodiaq", which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word.
+  ///
+  /// In de, this message translates to:
+  /// **'Not­arzt­wagen Kodiaq'**
+  String get quartettSpecialE2;
+
+  /// KLD-130 Quartett card name, special vehicle deck, card E4: the German sea rescue cruiser (lifeboat) "Hermann Marwede". A type word plus the ship's name, which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word.
+  ///
+  /// In de, this message translates to:
+  /// **'Seenot­retter Hermann Marwede'**
+  String get quartettSpecialE4;
 }
 
 class _AppLocalizationsDelegate
