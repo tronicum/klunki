@@ -2480,6 +2480,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wordtilesOptionTiles => 'Lettres';
 
   @override
+  String get wordtilesOptionRtl =>
+      'Les mots horizontaux se lisent de droite à gauche.';
+
+  @override
   String get wordtilesOptionDictionary => 'Vérifier dans le dictionnaire';
 
   @override

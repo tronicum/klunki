@@ -2362,6 +2362,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wordtilesOptionTiles => '字母';
 
   @override
+  String get wordtilesOptionRtl => '横向的词从右向左读。';
+
+  @override
   String get wordtilesOptionDictionary => '查字典';
 
   @override

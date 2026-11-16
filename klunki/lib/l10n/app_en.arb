@@ -649,6 +649,7 @@
   "wordtilesPremiumDoubleWord": "2W",
   "wordtilesPremiumTripleWord": "3W",
   "wordtilesOptionTiles": "Letters",
+  "wordtilesOptionRtl": "Words across are read from right to left.",
   "wordtilesOptionDictionary": "Check the dictionary",
   "wordtilesOptionDictionaryOn": "Every word laid is looked up. If one is missing: take it back or allow it anyway – whoever plays next decides.",
   "wordtilesOptionDictionaryOff": "Without a dictionary you judge yourselves: a word can be challenged.",

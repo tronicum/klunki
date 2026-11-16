@@ -650,6 +650,7 @@
   "wordtilesPremiumDoubleWord": "ك×2",
   "wordtilesPremiumTripleWord": "ك×3",
   "wordtilesOptionTiles": "الحروف",
+  "wordtilesOptionRtl": "تُقرأ الكلمات الأفقية من اليمين إلى اليسار.",
   "wordtilesOptionDictionary": "التحقق من القاموس",
   "wordtilesOptionDictionaryOn": "يُبحث عن كل كلمة توضع. إن لم تكن في القاموس: سحبها أو قبولها رغم ذلك، والقرار لمن عليه الدور التالي.",
   "wordtilesOptionDictionaryOff": "بدون قاموس تحكمون بأنفسكم: يمكن الاعتراض على كلمة.",

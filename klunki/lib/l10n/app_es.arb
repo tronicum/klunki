@@ -650,6 +650,7 @@
   "wordtilesPremiumDoubleWord": "2P",
   "wordtilesPremiumTripleWord": "3P",
   "wordtilesOptionTiles": "Letras",
+  "wordtilesOptionRtl": "Las palabras horizontales se leen de derecha a izquierda.",
   "wordtilesOptionDictionary": "Comprobar en el diccionario",
   "wordtilesOptionDictionaryOn": "Cada palabra colocada se busca. Si falta alguna: retirarla o permitirla igualmente; decide quien juega después.",
   "wordtilesOptionDictionaryOff": "Sin diccionario juzgáis vosotros: se puede dudar de una palabra.",

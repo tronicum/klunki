@@ -4007,6 +4007,12 @@ abstract class AppLocalizations {
   /// **'Buchstaben'**
   String get wordtilesOptionTiles;
 
+  /// Word tiles start options: shown below the tile languages when Arabic or Persian is chosen: on the board, a word across is read from right to left (KLD-132).
+  ///
+  /// In de, this message translates to:
+  /// **'Waagrechte Wörter liest man von rechts nach links.'**
+  String get wordtilesOptionRtl;
+
   /// Word tiles start options: switch to check every laid word against the bundled word list.
   ///
   /// In de, this message translates to:

@@ -2424,6 +2424,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get wordtilesOptionTiles => 'حروف';
 
   @override
+  String get wordtilesOptionRtl =>
+      'کلمه‌های افقی از راست به چپ خوانده می‌شوند.';
+
+  @override
   String get wordtilesOptionDictionary => 'بررسی با واژه‌نامه';
 
   @override

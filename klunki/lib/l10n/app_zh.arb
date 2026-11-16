@@ -650,6 +650,7 @@
   "wordtilesPremiumDoubleWord": "组×2",
   "wordtilesPremiumTripleWord": "组×3",
   "wordtilesOptionTiles": "字母",
+  "wordtilesOptionRtl": "横向的词从右向左读。",
   "wordtilesOptionDictionary": "查字典",
   "wordtilesOptionDictionaryOn": "每组字出牌后查字典。字典里没有时：取回，或者仍然接受——由下一位玩家决定。",
   "wordtilesOptionDictionaryOff": "没有字典时以你们为准：可以否认一组字。",

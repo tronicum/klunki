@@ -3592,6 +3592,10 @@
   "@wordtilesOptionTiles": {
     "description": "Word tiles start options: label of the tile language choice (Deutsch / English)."
   },
+  "wordtilesOptionRtl": "Waagrechte Wörter liest man von rechts nach links.",
+  "@wordtilesOptionRtl": {
+    "description": "Word tiles start options: shown below the tile languages when Arabic or Persian is chosen: on the board, a word across is read from right to left (KLD-132)."
+  },
   "wordtilesOptionDictionary": "Wörterbuch prüfen",
   "@wordtilesOptionDictionary": {
     "description": "Word tiles start options: switch to check every laid word against the bundled word list."

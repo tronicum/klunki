@@ -98,7 +98,7 @@ class _WordTilesOptionsDialogState extends State<_WordTilesOptionsDialog> {
 /// "Joker tauschen" (KLD-094 step 9, off by default) with its explanation:
 /// in the start dialog and, for a network game, on "Raum starten" (KLD-094
 /// step 6). Keys: `<keyPrefix>tiles-<id>`, `<keyPrefix>dict`,
-/// `<keyPrefix>dict-explain`, `<keyPrefix>joker`, `<keyPrefix>joker-explain`,
+/// `<keyPrefix>dict-explain`, `<keyPrefix>tiles-rtl` (ar, fa), `<keyPrefix>joker`, `<keyPrefix>joker-explain`,
 /// `<keyPrefix>rest`, `<keyPrefix>rest-explain`
 /// (prefix `wordtiles-` in the dialog).
 class WordTilesOptionsPicker extends StatelessWidget {
@@ -149,6 +149,11 @@ class WordTilesOptionsPicker extends StatelessWidget {
               ),
           ],
         ),
+        // KLD-132: Arabic and Persian read a word across from the right.
+        if (TileSet.byId(value.tiles)?.rtl ?? false) ...[
+          const SizedBox(height: 4),
+          Text(l10n.wordtilesOptionRtl, key: Key('${keyPrefix}tiles-rtl'), style: theme.textTheme.bodySmall),
+        ],
         const SizedBox(height: 16),
         SwitchListTile(
           key: Key('${keyPrefix}dict'),

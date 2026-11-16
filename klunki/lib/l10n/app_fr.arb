@@ -650,6 +650,7 @@
   "wordtilesPremiumDoubleWord": "2M",
   "wordtilesPremiumTripleWord": "3M",
   "wordtilesOptionTiles": "Lettres",
+  "wordtilesOptionRtl": "Les mots horizontaux se lisent de droite à gauche.",
   "wordtilesOptionDictionary": "Vérifier dans le dictionnaire",
   "wordtilesOptionDictionaryOn": "Chaque mot posé est vérifié. S’il n’y est pas : le reprendre ou l’accepter quand même – c’est la personne qui joue ensuite qui décide.",
   "wordtilesOptionDictionaryOff": "Sans dictionnaire, vous jugez vous-mêmes : un mot peut être contesté.",
