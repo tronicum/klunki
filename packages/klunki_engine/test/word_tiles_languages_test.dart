@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:klunki_engine/klunki_engine.dart';
 import 'package:test/test.dart';
@@ -43,7 +44,7 @@ void main() {
           expect(t.normalize(l), l, reason: '${t.id} $l');
         }
       }
-      expect(TileSet.all.map((t) => t.id), ['de', 'en', 'fr', 'es', 'ar', 'fa'].take(TileSet.all.length));
+      expect(TileSet.all.map((t) => t.id), ['de', 'en', 'fr', 'es', 'ar', 'fa']);
     });
 
     test('French: accents and ligatures fold onto A–Z', () {
@@ -64,11 +65,60 @@ void main() {
       expect(TileSet.spanish.canSpell('chorro'), isTrue, reason: 'CH and RR are two tiles each');
     });
 
+    test('Arabic: marks dropped, alef and hamza seats folded, ة and ء stay, read right to left', () {
+      final ar = TileSet.arabic;
+      expect(ar.normalize('كِتَابٌ'), 'كتاب');
+      expect(ar.normalize('أُمّ'), 'ام');
+      expect(ar.normalize('إسلام'), 'اسلام');
+      expect(ar.normalize('قُرْآن'), 'قران');
+      expect(ar.normalize('مسؤول'), 'مسوول');
+      expect(ar.normalize('رئيس'), 'رييس');
+      expect(ar.normalize('مستشفى'), 'مستشفي');
+      expect(ar.normalize('مدرسة'), 'مدرسة');
+      expect(ar.normalize('سماء'), 'سماء');
+      expect(ar.normalize('عـــربي'), 'عربي');
+      expect(ar.rtl, isTrue);
+      expect(ar.cased, isFalse);
+      expect(ar.letters.first, 'ا');
+      expect(ar.letters.sublist(ar.letters.length - 2), ['ة', 'ء']);
+    });
+
+    test('Persian: آ stays, ZWNJ and marks dropped, Arabic code points folded, read right to left', () {
+      final fa = TileSet.persian;
+      expect(fa.normalize('آب'), 'آب');
+      expect(fa.normalize('کتاب\u200Cها'), 'کتابها');
+      expect(fa.normalize('كتاب'), 'کتاب', reason: 'Arabic kaf');
+      expect(fa.normalize('علي'), 'علی', reason: 'Arabic yeh');
+      expect(fa.normalize('هفتهٔ'), 'هفته');
+      expect(fa.normalize('ۀ'), 'ه');
+      expect(fa.canSpell('ژاله'), isTrue);
+      expect(fa.canSpell('جزء'), isFalse, reason: 'no hamza tile in Persian');
+      expect(fa.rtl, isTrue);
+      expect(fa.letters.take(3), ['ا', 'آ', 'ب']);
+    });
+
     test('fold, alphabet and direction are part of the fingerprint data', () {
       final d = rtlSet.gameplayData();
       expect(d[3], ['أ>ا', 'َ>']);
       expect(d.last, isTrue);
     });
+  });
+
+  test('every set plays random games to the end; views and replays agree', () {
+    for (final t in TileSet.all) {
+      final config = GameConfig('wordtiles', seed: 5, tiles: t.id);
+      final g = createGame(config) as WordTilesGame;
+      final rng = Random(3);
+      while (!g.isOver) {
+        final legal = g.legalMoves;
+        g.applyMove(legal[rng.nextInt(legal.length)]);
+        final v = WordTilesView.fromJson(jsonDecode(jsonEncode(g.viewJson(Player.b))) as Map<String, dynamic>);
+        expect(v.board, g.board, reason: t.id);
+      }
+      final r = replay(config, g.history) as WordTilesGame;
+      expect(r.board, g.board, reason: t.id);
+      expect(r.scores, g.scores, reason: t.id);
+    }
   });
 
   group('right to left', () {
@@ -108,8 +158,8 @@ void main() {
       expect(h.applyMove(WordTilesGame.placeMove([t(7, 6, 'ك'), t(7, 7, 'ت'), t(7, 8, 'ب')])), isNull);
     });
 
-    test('a blank survives the view (letters without case list their squares)', skip: 'KLD-132 stage 3: needs a registered set', () {
-      final g = WordTilesGame(tileSet: rtlSet)
+    test('a blank survives the view (letters without case list their squares)', () {
+      final g = WordTilesGame(tileSet: TileSet.arabic)
         ..debugSetup(racks: [
           ['ك', '?', 'ب', 'ا', 'ل', 'ا', 'ل'],
           ['ك', 'ت', 'ب', 'ا', 'ل', 'ا', 'ب'],

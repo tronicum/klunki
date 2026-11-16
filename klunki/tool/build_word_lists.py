@@ -6,6 +6,8 @@ Usage (from klunki/; standard library only, reproducible: same input -> same byt
     python3 -I tool/build_word_lists.py en <dir with en-wl/wordlist files: scowl-pre.txt, Copyright> [--size 80]
     python3 -I tool/build_word_lists.py fr <lexique-grammalecte-fr-v7.7.txt> <MPL-2.0 licence text> <README_lexique.txt>
     python3 -I tool/build_word_lists.py es <extracted rla-es repository>
+    python3 -I tool/build_word_lists.py ar <dir: ar.aff, ar.dic, COPYING.txt, AUTHORS.txt, gpl-3.0.txt>
+    python3 -I tool/build_word_lists.py fa <dir: fa-IR.aff, fa-IR.dic, lilak-lexicon, lilak-LICENSE, apache-2.0.txt>
     python3 -I tool/build_word_lists.py check     # counts, samples and sizes of the bundled assets
     python3 -I tool/build_word_lists.py tiles <lang>   # letter frequencies of a bundled list and the derived tile set
 (KLD-132 adds fr, es, ar, fa; the Hunspell affixes are expanded by tool/hunspell_expand.py, tested by
@@ -95,16 +97,16 @@ SAMPLES = {
            'FRAICHES', 'EVENEMENT', 'EVENEMENTS', 'DEJA', 'GARCON', 'OU', 'KIWI', 'ZOO'],
     'es': ['CASA', 'CASAS', 'NIÑO', 'NIÑOS', 'AÑO', 'CANTABAMOS', 'FUIMOS', 'DAMELO', 'CUENTAMELO', 'COMERTELO',
            'DIGASELO', 'ARBOL', 'ARBOLES', 'CORAZON', 'PINGUINO', 'ESPAÑOL', 'KILO', 'ZORRO'],
-    'ar': ['كتاب', 'الكتاب', 'كتابه', 'كتب', 'مدرسة', 'المدرسة', 'مدارس', 'قمر', 'شمس', 'سماء', 'يكتب', 'كتبوا',
-           'مسيء', 'سيارة'],
+    'ar': ['كتاب', 'الكتاب', 'كتابان', 'كتب', 'مدرسة', 'المدرسة', 'مدارس', 'قمر', 'شمس', 'سماء', 'يكتب', 'كتبوا',
+           'مسيء', 'سيارة', 'معلمون', 'معلمات', 'شجرة'],
     'fa': ['کتاب', 'کتابها', 'خانه', 'آب', 'آسمان', 'مادر', 'پدر', 'بچه', 'چشم', 'میروم', 'رفتم', 'گل', 'ژاله'],
 }
 # Words that must not be in a list (proper nouns, abbreviations, clitic chains).
 ABSENT = {
     'fr': ['BRUXELLES', 'QUEBEC', 'MARX', 'FRANCE', 'SNCF', 'KM', 'KG', 'ETC', 'QU', 'PEUTON', 'VS', 'PT'],
     'es': ['MADRID', 'ESPAÑA', 'CARLOS', 'KM', 'ONU', 'OTAN', 'UE'],
-    'ar': ['وكتاب', 'بالكتاب', 'فكتب', 'لكتاب', 'ككتاب', 'مصر', 'محمد'],
-    'fa': ['تهران', 'ایران'],
+    'ar': ['وكتاب', 'بالكتاب', 'فكتب', 'لكتاب', 'ككتاب', 'سيكتب', 'كتابه', 'كتبه', 'مدرسته', 'بلقيس', 'الأمازون'],
+    'fa': ['بتمرگ', 'بتمرگید', 'آلیس', 'آقایف'],
 }
 
 
@@ -127,6 +129,20 @@ Changed by Klunki: forms filtered (no proper nouns, symbols, abbreviations), acc
 (klunki/tool/build_word_lists.py). The list is distributed under the Mozilla Public License 2.0; the source form is
 the lexicon at https://www.grammalecte.net/dic/lexique-grammalecte-fr-v7.7.zip. The lexicon's README and the MPL 2.0
 text follow.
+''',
+    'fa': '''Klunki "Wortgewandt" word list (fa), derived from Lilak, Persian Spell Checking Dictionary 3.3,
+Copyright 2015 Mostafa Sedaghat Joo, https://github.com/b00f/lilak (the Hunspell files fa-IR.aff / fa-IR.dic as in
+LibreOffice's dictionaries, and Lilak's lexicon for the words marked offensive or foreign).
+Modified by Klunki: affixes expanded, offensive and foreign words dropped, vowel marks and ZWNJ removed, letters
+folded (klunki/tool/build_word_lists.py). Licensed under the Apache License, Version 2.0; Lilak's notice and the
+licence text follow.
+''',
+    'ar': '''Klunki "Wortgewandt" word list (ar), derived from Ayaspell / hunspell-ar (Mohamed Kebdani, Taha Zerrouki;
+https://github.com/linuxscout/ayaspell), the files ar/ar.aff and ar/ar.dic of LibreOffice's dictionaries. Modified by
+Klunki: affixes expanded without the proclitics (و ف ب ل ك, the question أ, the future س) and the attached pronouns,
+names dropped, vowel marks removed, hamza seats and alef forms folded (klunki/tool/build_word_lists.py). Hunspell-ar
+is offered under GPL 2.0 or later, LGPL 2.1 or later or MPL 1.1 or later; Klunki uses it under the GNU General
+Public License version 3. The project's COPYING and AUTHORS files and the GPL 3 text follow.
 ''',
     'es': '''Klunki "Wortgewandt" word list (es), derived from RLA-ES (Recursos lingüísticos abiertos del español),
 Copyright 2004-2020 Santiago Bosio y otros, https://github.com/sbosio/rla-es (stems of ortografia/palabras/RAE and the
@@ -416,6 +432,134 @@ def build_es(repo):
     write_list('es', words, [read_bytes(os.path.join(repo, 'LICENSE.md')), read_bytes(os.path.join(lic, 'GPLv3.txt'))])
 
 
+# --- Persian: Lilak (Hunspell) + the Lilak lexicon for the offensive and foreign marks ---
+
+def read_dic(d, path):
+    """(stem, flags, morphology) of every entry of a .dic file (the count line skipped)."""
+    with open(path, encoding='utf-8') as f:
+        lines = f.read().split('\n')
+    if lines and lines[0].strip().split('\t')[0].split(' ')[0].isdigit():
+        lines = lines[1:]
+    for line in lines:
+        e = hx.parse_dic_line(d, line)
+        if e:
+            yield e
+
+
+# Lilak's clitic suffixes that are left out (KLD-132, decided by default, native-speaker review pending): the
+# possessive pronouns (کتابم, کتاب‌هایشان: sa sb sc se sh, and in sj everything but the plural ان / انی) and the
+# copula (خوبم, کتاب‌هاست: so sp sq sr sf si). With them the list has 1.2 million words (3.1 MB gzip); the plural,
+# the indefinite / ezafe ی, the comparative and superlative stay.
+FA_DROP_SFX = {'sa', 'sb', 'sc', 'se', 'sh', 'so', 'sp', 'sq', 'sr', 'sf', 'si'}
+FA_KEEP_SJ = {'ان', 'انی'}
+
+
+def build_fa(src):
+    """[src]: fa-IR.aff, fa-IR.dic, lilak-lexicon, lilak-LICENSE, an Apache-2.0 text as apache-2.0.txt."""
+    with open(os.path.join(src, 'fa-IR.aff'), encoding='utf-8') as f:
+        d = hx.parse_aff(f.read())
+    for flag in FA_DROP_SFX:
+        assert flag in d.sfx, flag
+        del d.sfx[flag]
+    d.sfx['sj'] = [a for a in d.sfx['sj'] if a.add in FA_KEEP_SJ]
+    bad = set()
+    with open(os.path.join(src, 'lilak-lexicon'), encoding='utf-8') as f:
+        for line in f:
+            if line.startswith('#') or not line.strip():
+                continue
+            p = line.rstrip('\n').split(',')
+            if (len(p) > 2 and p[2] == '1') or p[1] == 'foreign':
+                bad.add(p[0])
+    words, stems, dropped, forms = set(), 0, 0, 0
+    for stem, flags, _ in read_dic(d, os.path.join(src, 'fa-IR.dic')):
+        stems += 1
+        if stem in bad:
+            dropped += 1
+            continue
+        for form in d.expand(stem, flags):
+            forms += 1
+            w = keep('fa', form)
+            if w:
+                words.add(w)
+    print(f'fa: {stems} stems, {dropped} dropped as offensive/foreign ({len(bad)} marked in the lexicon), {forms} forms')
+    write_list('fa', words, [read_bytes(os.path.join(src, 'lilak-LICENSE')), read_bytes(os.path.join(src, 'apache-2.0.txt'))])
+
+
+# --- Arabic: Ayaspell (hunspell-ar) ---
+
+# Prefix rules kept (KLD-132): only the article ال. Every other prefix rule of ar.aff is a clitic: the conjunctions
+# و ف, the prepositions ب ل ك, the question أ, the future marker س and their chains (وبال، أفلل، فس …); they are
+# dropped, so "و + word" is not a word of its own.
+AR_KEEP_PREFIXES = {'ال'}
+# Attached pronouns are dropped too (KLD-132, decided by default, native-speaker review pending; the proposal kept
+# them but capped the list at 3 MB gzip): the possessives on nouns (كتابه: the classes aa bb cc dd ee ff, and every
+# case rule that leads to them, which forms the noun before a pronoun, e.g. the ه of كتابه or the dual قلما) and
+# the object pronouns on verbs (كتبه: Ha-Hi). With both the list has 5.1 million words (12.5 MB gzip), with the
+# possessives alone 3.3 million (8.0 MB); without them 0.9 million (2.3 MB). Case and number endings, the dual, the
+# sound plurals, the nisba and the tanwin alef stay.
+AR_PRONOUNS = {'aa', 'bb', 'cc', 'dd', 'ee', 'ff'}
+AR_DROP_SFX = AR_PRONOUNS | {'Ha', 'Hb', 'Hc', 'Hd', 'He', 'Hf', 'Hg', 'Hh', 'Hi'}
+# The stopwords and tools sections list function words with their clitics spelled out (وفيها، أفلغيرهما): an entry
+# there that is a proclitic chain plus another entry of the dictionary is dropped, except these function words.
+AR_PROCLITICS = sorted({'و', 'ف', 'ب', 'ل', 'ك', 'أ', 'أو', 'أف', 'أب', 'أل', 'أك', 'وب', 'ول', 'وك', 'فب', 'فل', 'فك',
+                        'لب', 'لل', 'لك', 'ولب', 'ولل', 'ولك', 'أوب', 'أول', 'أوك', 'أفب', 'أفل', 'أفك'},
+                       key=lambda x: -len(x))
+AR_FUNCTION_WORDS = {'لكن', 'لكي', 'لعل', 'ليت', 'ليس', 'لدى', 'لدي', 'لما', 'لولا', 'لوما', 'لئن', 'بل', 'بلى', 'بين',
+                     'بعد', 'بعض', 'كل', 'كلا', 'كلما', 'كيف', 'كي', 'كأن', 'كذا', 'كذلك', 'كم', 'كما', 'فوق', 'في',
+                     'فيما', 'وراء', 'أو', 'أم', 'أن', 'أي', 'أين', 'أما', 'أنا', 'أنت', 'أنتم', 'أيضا', 'أمام',
+                     'أول', 'أكثر', 'أقل', 'أمس', 'لأن', 'بينما', 'ولكن'}
+AR_FUNCTION_SECTIONS = ('# stopwords.dic #', '# tools.dic #')
+AR_NAMES_START, AR_NAMES_END = '# names.dic #', '####الأسماء####'
+
+
+def build_ar(src):
+    """[src]: ar.aff, ar.dic, COPYING.txt, AUTHORS.txt and a GPL-3.0 text as gpl-3.0.txt."""
+    with open(os.path.join(src, 'ar.aff'), encoding='utf-8') as f:
+        d = hx.parse_aff(f.read())
+    for flag, rules in d.pfx.items():
+        d.pfx[flag] = [a for a in rules if not a.strip and normalize(a.add, 'ar') in AR_KEEP_PREFIXES]
+    for flag in AR_DROP_SFX:
+        assert flag in d.sfx, flag
+        del d.sfx[flag]
+    for flag, rules in d.sfx.items():
+        d.sfx[flag] = [a for a in rules if not a.cont & AR_PRONOUNS]
+    with open(os.path.join(src, 'ar.dic'), encoding='utf-8') as f:
+        lines = f.read().split('\n')[1:]
+    entries, section, names, proper = [], None, False, 0
+    for line in lines:
+        if line.startswith('#'):
+            t = line.strip()
+            if t in AR_FUNCTION_SECTIONS or t.endswith('.dic #'):
+                section = t
+            if t == AR_NAMES_START:
+                names = True
+            elif t == AR_NAMES_END:
+                names = False
+            continue
+        e = hx.parse_dic_line(d, line)
+        if not e:
+            continue
+        if names or e[2]:
+            proper += 1  # the names section and every entry with a morphological class (places, people, bodies)
+            continue
+        entries.append((section, e))
+    stems = {e[0] for _, e in entries}
+    words, chains, forms = set(), 0, 0
+    for section, (stem, flags, _) in entries:
+        if section in AR_FUNCTION_SECTIONS and stem not in AR_FUNCTION_WORDS and any(
+                stem.startswith(c) and stem[len(c):] in stems for c in AR_PROCLITICS):
+            chains += 1
+            continue
+        for form in d.expand(stem, flags):
+            forms += 1
+            w = keep('ar', form)
+            if w:
+                words.add(w)
+    print(f'ar: {len(entries) + proper} entries, {proper} names dropped, {chains} clitic chains dropped, {forms} forms')
+    write_list('ar', words, [read_bytes(os.path.join(src, 'COPYING.txt')), read_bytes(os.path.join(src, 'AUTHORS.txt')),
+                             read_bytes(os.path.join(src, 'gpl-3.0.txt'))])
+
+
 # --- tile sets (KLD-094 method, KLD-132: frequencies counted in the list itself) ---
 
 def list_words(lang):
@@ -507,6 +651,10 @@ def main(argv):
         return build_fr(argv[1], argv[2], argv[3])
     if len(argv) >= 2 and argv[0] == 'es':
         return build_es(argv[1])
+    if len(argv) >= 2 and argv[0] == 'fa':
+        return build_fa(argv[1])
+    if len(argv) >= 2 and argv[0] == 'ar':
+        return build_ar(argv[1])
     print(__doc__)
     sys.exit(2)
 

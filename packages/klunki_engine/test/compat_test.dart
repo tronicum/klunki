@@ -32,7 +32,7 @@ void main() {
     // Rules 4 (KLD-126): the clock (`clock` config, `timeout` and pause moves).
     'chess': (4, 1, '5f2d81a850dc003d33424219c180126a'),
     // Rules 7 (KLD-132): more tile sets, per-set folding, right-to-left reading.
-    'wordtiles': (7, 1, '9046ce453f9928b57c0e6ecb0fcd4d23'),
+    'wordtiles': (7, 1, '0afd4aafecd500e40f76cab613a71cac'),
     'maumau': (2, 1, '70ca586971256574b6ae28af6fdb38b4'),
     // Rules 2 (KLD-121 step 2): 2–4 seats and "Unbegrenzte Leben"; rules 3:
     // "Spiel beenden" over the network by agreement.

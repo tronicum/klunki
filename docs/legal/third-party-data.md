@@ -12,6 +12,8 @@ What the app ships that is not our own work, and under which licence. The app's 
 | Word tile game word list, German (KLD-094) | `klunki/assets/wordlists/de/` | CC0-1.0 (enz/german-wordlist) | `LICENSE` (CC0 text) |
 | Word tile game word list, English (KLD-094) | `klunki/assets/wordlists/en/` | MIT-like: "Copyright 2000-2026 by Kevin Atkinson", English Speller Database (formerly SCOWL); the notice must appear in all copies and the documentation | `LICENSE` (the project's `Copyright` file) |
 | Word tile game word list, French (KLD-132) | `klunki/assets/wordlists/fr/` | MPL-2.0: Grammalecte lexicon 7.7, Olivier R. and the Dicollecte contributors; our filtered, folded list stays under the MPL 2.0, its source form is the published lexicon | `LICENSE` (our note, the lexicon's README, MPL 2.0 text) |
+| Word tile game word list, Arabic (KLD-132) | `klunki/assets/wordlists/ar/` | Ayaspell / hunspell-ar (Mohamed Kebdani, Taha Zerrouki), offered under GPL-2.0+ / LGPL-2.1+ / MPL-1.1+; we use the GPL version 3 | `LICENSE` (our note, `COPYING.txt`, `AUTHORS.txt`, GPL 3 text) |
+| Word tile game word list, Persian (KLD-132) | `klunki/assets/wordlists/fa/` | Apache-2.0: Lilak, Copyright 2015 Mostafa Sedaghat Joo; modified (expanded, filtered, folded), as our note says | `LICENSE` (our note, Lilak's notice, Apache 2.0 text) |
 | Word tile game word list, Spanish (KLD-132) | `klunki/assets/wordlists/es/` | RLA-ES, "Santiago Bosio y otros", offered under GPL-3.0+ / LGPL-3.0+ / MPL-1.1+; we use GPL-3.0-or-later (compatible with the app's AGPL-3.0) | `LICENSE` (our note, the project's `LICENSE.md`, GPL 3 text) |
 
 Word list details (source URL, commit, date, hashes, filters, word counts): `klunki/assets/wordlists/*/SOURCE.txt`;

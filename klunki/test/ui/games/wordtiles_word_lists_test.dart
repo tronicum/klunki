@@ -26,7 +26,6 @@ void main() {
 
   for (final id in ['fr', 'es', 'ar', 'fa']) {
     test('$id: every word is normalized, 2–15 letters, spellable', () async {
-      if (!WordListLoader.available.contains(id)) return markTestSkipped('$id: no list yet');
       final set = TileSet.byId(id)!;
       final list = await words(id);
       expect(list.length, greaterThan(50000), reason: id);
@@ -44,10 +43,18 @@ void main() {
         'garçon', 'où', 'zoo'],
     'es': ['casa', 'casas', 'niño', 'niños', 'año', 'cantábamos', 'fuimos', 'dámelo', 'cuéntamelo', 'comértelo',
         'dígaselo', 'árbol', 'árboles', 'corazón', 'pingüino', 'español', 'zorro'],
+    'ar': ['كتاب', 'الكتاب', 'كِتَابَانِ', 'كتب', 'مدرسة', 'المدرسة', 'مدارس', 'قمر', 'شمس', 'سماء', 'يكتب', 'كتبوا',
+        'سيّارة', 'معلمون', 'معلمات', 'شجرة', 'أمّ', 'إسلام'],
+    'fa': ['کتاب', 'کتاب‌ها', 'خانه', 'آب', 'آسمان', 'مادر', 'پدر', 'بچه', 'چشم', 'می‌روم', 'رفتم', 'گل', 'ژاله',
+        'كتاب'],
   };
   const absent = {
     'fr': ['Bruxelles', 'Québec', 'Marx', 'France', 'SNCF', 'km', 'kg', 'etc', 'qu', 'vs'],
     'es': ['Madrid', 'España', 'Carlos', 'km', 'ONU', 'OTAN'],
+    // Clitics (و ب ل ك ف, the future س, attached pronouns), names of the names section.
+    'ar': ['وكتاب', 'بالكتاب', 'فكتب', 'لكتاب', 'ككتاب', 'سيكتب', 'كتابه', 'كتبه', 'مدرسته', 'بلقيس', 'الأمازون'],
+    // Offensive and foreign words, possessive and copula clitics.
+    'fa': ['بتمرگ', 'آلیس', 'کتابم', 'کتاب‌هایشان', 'خوبم'],
   };
   for (final id in present.keys) {
     test('$id: common and inflected words are in, names and abbreviations out', () async {

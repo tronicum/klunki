@@ -124,6 +124,29 @@ void main() {
       expect(TileSet.spanish.points, es.points);
     });
 
+    test('Arabic: letter frequencies of the Ayaspell list', () {
+      final ar = derive('ar', {
+        'ء': 0.164, 'ا': 17.218, 'ب': 2.703, 'ة': 0.957, 'ت': 10.402, 'ث': 0.494, 'ج': 1.569, 'ح': 1.9, //
+        'خ': 1.034, 'د': 2.206, 'ذ': 0.507, 'ر': 4.278, 'ز': 1.095, 'س': 2.338, 'ش': 1.369, 'ص': 1.174, //
+        'ض': 0.836, 'ط': 1.228, 'ظ': 0.238, 'ع': 2.26, 'غ': 0.783, 'ف': 2.339, 'ق': 2.19, 'ك': 1.369, //
+        'ل': 7.362, 'م': 5.434, 'ن': 9.545, 'ه': 1.297, 'و': 4.556, 'ي': 11.157,
+      });
+      expect(TileSet.arabic.counts, ar.counts);
+      expect(TileSet.arabic.points, ar.points);
+    });
+
+    test('Persian: letter frequencies of the Lilak list', () {
+      final fa = derive('fa', {
+        'آ': 0.609, 'ا': 14.825, 'ب': 4.529, 'ت': 4.314, 'ث': 0.132, 'ج': 1.045, 'ح': 0.71, 'خ': 1.196, //
+        'د': 4.72, 'ذ': 0.198, 'ر': 7.316, 'ز': 1.608, 'س': 2.687, 'ش': 2.053, 'ص': 0.482, 'ض': 0.243, //
+        'ط': 0.438, 'ظ': 0.11, 'ع': 0.969, 'غ': 0.406, 'ف': 1.574, 'ق': 1.065, 'ل': 2.867, 'م': 5.053, //
+        'ن': 8.228, 'ه': 6.851, 'و': 4.413, 'پ': 1.101, 'چ': 0.557, 'ژ': 0.171, 'ک': 2.259, 'گ': 1.504, //
+        'ی': 15.766,
+      });
+      expect(TileSet.persian.counts, fa.counts);
+      expect(TileSet.persian.points, fa.points);
+    });
+
     test('100 tiles each; umlauts are tiles, ß is not; normalize', () {
       for (final s in TileSet.all) {
         expect(s.size, 100, reason: s.id);

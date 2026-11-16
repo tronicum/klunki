@@ -40,6 +40,8 @@ const Map<String, String> wordListLicenseAssets = {
   // KLD-132.
   'Wortgewandt word list (fr): Grammalecte lexicon (MPL-2.0)': 'assets/wordlists/fr/LICENSE',
   'Wortgewandt word list (es): RLA-ES (GPL-3.0-or-later)': 'assets/wordlists/es/LICENSE',
+  'Wortgewandt word list (ar): Ayaspell / hunspell-ar (GPL-3.0)': 'assets/wordlists/ar/LICENSE',
+  'Wortgewandt word list (fa): Lilak (Apache-2.0)': 'assets/wordlists/fa/LICENSE',
 };
 
 bool _wordListsRegistered = false;

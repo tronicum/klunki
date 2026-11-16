@@ -223,6 +223,8 @@ class WordLists {
     'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80 sha256:0927f44c2dedac2e82bbade2a262b0e4d245c59ad4c021762bec30d9a8e7091d',
     'fr': 'Grammalecte lexique 7.7 sha256:a3d0d6bca7f697bba37446608b13d5da200c6eccbb1701f8b716a1aaa8e2417f',
     'es': 'sbosio/rla-es@cf67981 RAE sha256:ecdf91d87a4e98f8112e7ca28280b71adce8f6edc7256624f1361b07e42b8dcd',
+    'ar': 'LibreOffice/dictionaries@c0865a8 ar (Ayaspell) sha256:65744616f2059680856b31c0addeebf68691c64b5151c4136f11507bffe4985f',
+    'fa': 'LibreOffice/dictionaries@c0865a8 fa_IR (Lilak 3.3) sha256:2ee8e225d86bd9b8c9a0c00a5b7b2fe0dfa5174bce7721934be3de7fcfa9249a',
   };
 
   static void register(String tileSetId, WordValidator list) => _lists[tileSetId] = list;
@@ -356,7 +358,55 @@ class TileSet {
     'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
   ]);
 
-  static const List<TileSet> all = [german, english, french, spanish];
+  /// Arabic and Persian vowel marks (tanwin, harakat, shadda, sukun, madda
+  /// and hamza above / below, dagger alef) and the tatweel: dropped.
+  static const Map<String, String> _arabicMarks = {
+    'ً': '', 'ٌ': '', 'ٍ': '', 'َ': '', 'ُ': '', 'ِ': '', 'ّ': '', //
+    'ْ': '', 'ٓ': '', 'ٔ': '', 'ٕ': '', 'ٰ': '', 'ـ': '',
+  };
+
+  /// Arabic (KLD-132): the 28 letters plus ة and ء, read right to left.
+  /// Vowel marks dropped; أ إ آ ٱ → ا, ؤ → و, ئ → ي, ى → ي (Persian ک ی →
+  /// ك ي).
+  static const TileSet arabic = TileSet('ar', {
+    'ا': 16, 'ي': 11, 'ت': 10, 'ن': 9, 'ل': 7, 'م': 6, 'و': 5, 'ر': 4, 'ب': 3, 'ف': 2, //
+    'س': 2, 'ع': 2, 'د': 2, 'ق': 2, 'ح': 2, 'ج': 1, 'ش': 1, 'ك': 1, 'ه': 1, 'ط': 1, //
+    'ص': 1, 'ز': 1, 'خ': 1, 'ة': 1, 'ض': 1, 'غ': 1, 'ذ': 1, 'ث': 1, 'ظ': 1, 'ء': 1,
+  }, {
+    'ا': 1, 'ي': 1, 'ت': 1, 'ن': 1, 'ل': 1, 'م': 2, 'و': 2, 'ر': 2, 'ب': 3, 'ف': 3, //
+    'س': 3, 'ع': 3, 'د': 3, 'ق': 3, 'ح': 3, 'ج': 4, 'ش': 4, 'ك': 4, 'ه': 4, 'ط': 4, //
+    'ص': 4, 'ز': 4, 'خ': 4, 'ة': 5, 'ض': 5, 'غ': 5, 'ذ': 6, 'ث': 6, 'ظ': 8, 'ء': 10,
+  }, fold: {
+    ..._arabicMarks,
+    'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ؤ': 'و', 'ئ': 'ي', 'ى': 'ي', 'ک': 'ك', 'ی': 'ي', //
+  }, alphabet: [
+    'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', //
+    'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي', 'ة', 'ء',
+  ], rtl: true);
+
+  /// Persian (KLD-132): the 32 letters plus آ as a tile of its own, read
+  /// right to left. Vowel marks and the ZWNJ dropped (کتاب‌ها → کتابها);
+  /// ك → ک, ي ى ئ → ی, ة ۀ → ه, أ إ ٱ → ا, ؤ → و.
+  static const TileSet persian = TileSet('fa', {
+    'ی': 14, 'ا': 13, 'ن': 8, 'ر': 7, 'ه': 6, 'م': 5, 'د': 4, 'ب': 4, 'و': 4, 'ت': 4, //
+    'ل': 3, 'س': 3, 'ک': 2, 'ش': 2, 'ز': 1, 'ف': 1, 'گ': 1, 'خ': 1, 'پ': 1, 'ق': 1, //
+    'ج': 1, 'ع': 1, 'ح': 1, 'آ': 1, 'چ': 1, 'ص': 1, 'ط': 1, 'غ': 1, 'ض': 1, 'ذ': 1, //
+    'ژ': 1, 'ث': 1, 'ظ': 1,
+  }, {
+    'ی': 1, 'ا': 1, 'ن': 1, 'ر': 1, 'ه': 1, 'م': 2, 'د': 2, 'ب': 2, 'و': 2, 'ت': 2, //
+    'ل': 2, 'س': 3, 'ک': 3, 'ش': 3, 'ز': 3, 'ف': 3, 'گ': 3, 'خ': 4, 'پ': 4, 'ق': 4, //
+    'ج': 4, 'ع': 4, 'ح': 5, 'آ': 5, 'چ': 5, 'ص': 5, 'ط': 5, 'غ': 5, 'ض': 6, 'ذ': 8, //
+    'ژ': 8, 'ث': 8, 'ظ': 10,
+  }, fold: {
+    ..._arabicMarks,
+    '‌': '', 'ك': 'ک', 'ي': 'ی', 'ى': 'ی', 'ة': 'ه', 'ۀ': 'ه', 'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا', //
+    'ؤ': 'و', 'ئ': 'ی',
+  }, alphabet: [
+    'ا', 'آ', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض', 'ط', //
+    'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'گ', 'ل', 'م', 'ن', 'و', 'ه', 'ی',
+  ], rtl: true);
+
+  static const List<TileSet> all = [german, english, french, spanish, arabic, persian];
 
   static TileSet? byId(Object? id) => all.where((t) => t.id == id).firstOrNull;
 

@@ -1,0 +1,38 @@
+Wortgewandt word list, Persian (tile set "fa"), KLD-132
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, folded, sorted by code point)
+Words:     402,334 (2-15 letters)
+Size:      7,542,438 bytes raw, 1,069,724 bytes gzip
+sha256:    2ee8e225d86bd9b8c9a0c00a5b7b2fe0dfa5174bce7721934be3de7fcfa9249a  words.txt.gz
+
+Source:    Lilak, Persian Spell Checking Dictionary 3.3 (2019-11-20), Copyright 2015 Mostafa Sedaghat Joo,
+           https://github.com/b00f/lilak, as shipped in LibreOffice's dictionaries,
+           https://github.com/LibreOffice/dictionaries at commit c0865a85eb67dc377f2cf8e8fe2c4fa9e53f0dcb, folder fa_IR/:
+           https://raw.githubusercontent.com/LibreOffice/dictionaries/c0865a85eb67dc377f2cf8e8fe2c4fa9e53f0dcb/fa_IR/fa-IR.dic
+             (104,024 stems, sha256 314f31e059994f26e8016c834b14dfd10f74834b3f623a6040265b8f2a9dddab)
+           .../fa_IR/fa-IR.aff (sha256 cf7cd88fa8658b9c1bae8196b34ee2ff52456f6ce7a44482c1f5063feb6d8768)
+           .../fa_IR/LICENSE (sha256 7429736f069a84049bcfbee436e5cea3a3fd9b98348d880d9e43ebcf39721989)
+           and Lilak's lexicon (part of speech and an "offensive" mark per word):
+           https://raw.githubusercontent.com/b00f/lilak/4f1f426113e764ea099865232fd5e0fa34563c60/src/data/lexicon
+             (sha256 4eeb621442cf38d6d9aac2923daced2b8ae17c770773a7260a02f3c3957daff6)
+           Lilak's LICENSE at the same commit (sha256 ec278dcf6107f7e09e3ba2248494cb1c4063e78453af1ed28443d48739d9971f)
+Licence:   Apache License 2.0. LICENSE = our note (what we changed), Lilak's notice and the Apache 2.0 text (sha256
+           58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd).
+           Hazm's words.dat (MIT) was fetched too but is not used: it has no proper-noun tag to filter with.
+Fetched:   2026-11-16 with curl by the maintainer session, approved by the maintainer (KLD-132).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py fa <dir with fa-IR.aff, fa-IR.dic, lilak-lexicon, lilak-LICENSE, apache-2.0.txt>
+  * affixes expanded by klunki/tool/hunspell_expand.py (FLAG long, NEEDAFFIX, ONLYINCOMPOUND); compounds are not
+    generated; kept: the plural (ها, ان), the indefinite / ezafe ی, comparative and superlative, the prefix بی;
+  * left out (decided by default, native-speaker review pending): the possessive pronoun clitics (کتابم,
+    کتاب‌هایشان) and the copula clitics (خوبم, کتاب‌هاست) - with them the list has 1.2 million words (3.1 MB gzip);
+  * dropped: the 752 lexicon words marked offensive or with the part of speech "foreign" (768 dictionary stems).
+    Lilak has no proper-noun class, so some names (cities, brands) remain;
+  * normalized like the engine's TileSet.persian: vowel marks, tatweel and ZWNJ (U+200C) removed
+    (کتاب‌ها -> کتابها); ك -> ک, ي ى ئ -> ی, ة ۀ -> ه, أ إ ٱ -> ا, ؤ -> و; آ stays a letter of its own;
+  * kept: words of 2-15 letters of the 32 letters plus آ (words with a lone hamza ء drop out).
+  By length: 2:301, 3:2567, 4:9035, 5:20687, 6:37835, 7:55076, 8:62593, 9:60535, 10:51679, 11:38744, 12:27050,
+  13:17796, 14:11389, 15:7047.
+Tiles:     python3 -I tool/build_word_lists.py tiles fa (pinned in packages/klunki_engine/test/word_tiles_test.dart).
+Check:     python3 -I tool/build_word_lists.py check
