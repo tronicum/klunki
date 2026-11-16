@@ -1,0 +1,44 @@
+Wortgewandt word list, Arabic (tile set "ar"), KLD-132
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, folded, sorted by code point)
+Words:     827,435 (2-15 letters)
+Size:      12,359,027 bytes raw, 2,096,014 bytes gzip
+sha256:    65744616f2059680856b31c0addeebf68691c64b5151c4136f11507bffe4985f  words.txt.gz
+
+Source:    Ayaspell / hunspell-ar (Mohamed Kebdani, Taha Zerrouki), https://github.com/linuxscout/ayaspell
+           as shipped in LibreOffice's dictionaries, https://github.com/LibreOffice/dictionaries
+           at commit c0865a85eb67dc377f2cf8e8fe2c4fa9e53f0dcb, folder ar/:
+           https://raw.githubusercontent.com/LibreOffice/dictionaries/c0865a85eb67dc377f2cf8e8fe2c4fa9e53f0dcb/ar/ar.dic
+             (465,928 entries, sha256 2a3e5367f61c1583734db9d66734f5603e6be5c2d227cf5c5cd7e4ca586e34fe)
+           .../ar/ar.aff (sha256 cec30b8621001e49618feb05aec1984c5fcfbf7d2ec309901d5cbf66585217a3)
+           .../ar/COPYING.txt (sha256 73480d918cd78d655508e80aa88c022cbd53634524a0f714b5f2519f2cf19124)
+           .../ar/AUTHORS.txt (sha256 bade1d2d0d47dff5956c08732cdb9c02432d9b0b8016a56e27f58b8d7e842462)
+Licence:   GPL 2.0 or later / LGPL 2.1 or later / MPL 1.1 or later (COPYING.txt); Klunki uses it under the GNU GPL
+           version 3 (via "or later"); our derived list stays under it. LICENSE = our note, COPYING.txt, AUTHORS.txt
+           and the GPL 3 text (sha256 8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903).
+Fetched:   2026-11-16 with curl by the maintainer session, approved by the maintainer (KLD-132).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py ar <dir with ar.aff, ar.dic, COPYING.txt, AUTHORS.txt, gpl-3.0.txt>
+  * affixes expanded by klunki/tool/hunspell_expand.py (FLAG long, AF and AM aliases, IGNORE of the vowel marks);
+  * prefixes: only the article ال is kept; every other prefix rule is a clitic and dropped: the conjunctions و ف,
+    the prepositions ب ل ك, the question أ, the future marker س and their chains (وبال، أفلل، فس);
+  * attached pronouns dropped (decided by default, native-speaker review pending): the possessives on nouns
+    (كتابه, classes aa bb cc dd ee ff and the case rules leading to them) and the object pronouns on verbs (كتبه,
+    Ha-Hi). Kept: case and number endings, dual, sound plurals, nisba, tanwin alef, the full verb forms of the
+    dictionary. Sizes measured: with all pronouns 5.1 million words (12.5 MB gzip), with the noun possessives
+    3.3 million (8.0 MB), without 0.83 million (2.1 MB);
+  * dropped entries: the names section (names.dic: continents, countries, capitals, first names) and every entry
+    with a morphological class (AM: places, people, bodies; 2,463 entries); in the stopwords and tools sections an
+    entry that is a proclitic chain plus another entry (وفيها، أفلغيرهما; 12,038 entries), except a short list of
+    function words (لكن، بل، كيف …);
+  * normalized like the engine's TileSet.arabic: vowel marks (tanwin, harakat, shadda, sukun, madda, hamza above /
+    below, dagger alef) and tatweel removed; أ إ آ ٱ -> ا, ؤ -> و, ئ -> ي, ى -> ي (decided by default), ک -> ك,
+    ی -> ي; ة and ء stay letters;
+  * kept: words of 2-15 letters of the 28 letters plus ة and ء.
+  By length: 2:502, 3:6865, 4:42966, 5:117008, 6:181056, 7:182612, 8:141300, 9:91570, 10:41191, 11:15357,
+  12:4632, 13:1709, 14:500, 15:167.
+  The two-letter words include short verb forms of the source (imperatives, jussives); a native-speaker review is
+  pending.
+Tiles:     python3 -I tool/build_word_lists.py tiles ar (pinned in packages/klunki_engine/test/word_tiles_test.dart).
+Check:     python3 -I tool/build_word_lists.py check

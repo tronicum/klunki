@@ -50,6 +50,15 @@ class WordTilesView extends WordTilesGame {
           v._board[r * WordTilesGame.size + c] = BoardTile(upper, blank: x != upper);
         }
       }
+      // Blanks of a set without case (KLD-132).
+      for (final sq in (j['blanks'] as List? ?? const [])) {
+        final [r as int, c as int] = sq as List;
+        if (r < 0 || r >= WordTilesGame.size || c < 0 || c >= WordTilesGame.size) {
+          throw const BadViewException('bad blank square');
+        }
+        final t = v._board[r * WordTilesGame.size + c] ?? (throw const BadViewException('blank on an empty square'));
+        v._board[r * WordTilesGame.size + c] = BoardTile(t.letter, blank: true);
+      }
       final racks = (j['racks'] as List).cast<int>();
       final scores = (j['scores'] as List).cast<int>();
       final penalties = (j['penalties'] as List).cast<int>();

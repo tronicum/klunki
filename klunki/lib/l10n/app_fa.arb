@@ -650,6 +650,7 @@
   "wordtilesPremiumDoubleWord": "و×2",
   "wordtilesPremiumTripleWord": "و×3",
   "wordtilesOptionTiles": "حروف",
+  "wordtilesOptionRtl": "کلمه‌های افقی از راست به چپ خوانده می‌شوند.",
   "wordtilesOptionDictionary": "بررسی با واژه‌نامه",
   "wordtilesOptionDictionaryOn": "هر واژه‌ای که گذاشته شود در واژه‌نامه جست‌وجو می‌شود. اگر نبود: پس گرفتن یا پذیرفتن به‌هرحال؛ تصمیم با بازیکن بعدی است.",
   "wordtilesOptionDictionaryOff": "بدون واژه‌نامه خودتان داوری می‌کنید: می‌توان به یک واژه اعتراض کرد.",

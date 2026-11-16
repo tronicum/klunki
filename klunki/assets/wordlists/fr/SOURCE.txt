@@ -1,0 +1,37 @@
+Wortgewandt word list, French (tile set "fr"), KLD-132
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, upper case, accents folded, sorted by code point)
+Words:     406,224 (2-15 letters)
+Size:      4,531,678 bytes raw, 966,084 bytes gzip
+sha256:    a3d0d6bca7f697bba37446608b13d5da200c6eccbb1701f8b716a1aaa8e2417f  words.txt.gz
+
+Source:    Grammalecte, "Lexique français, liste des formes fléchies" version 7.7, Olivier R. and the Dicollecte
+           contributors, https://grammalecte.net/
+           https://www.grammalecte.net/dic/lexique-grammalecte-fr-v7.7.zip
+           (12,325,782 bytes, sha256 bdccf2065e252010253171000a38de84581407896b6bc60aca7d4d69dab7e4d2; files dated
+           2025-12-15: lexique-grammalecte-fr-v7.7.txt, 515,709 lines, sha256
+           dc1fa3740e6353bccdcb435ea8f1c8a65287726026abd53dd232d5d494548eff, and README_lexique.txt)
+           Cross-checked against https://www.grammalecte.net/dic/hunspell-french-dictionaries-v7.7.zip (sha256
+           44314d992f94b4658c31a86ef2351724a43067531b0af3643f91bf0220eee616; README_dict_fr.txt, same licence).
+Licence:   Mozilla Public License 2.0 (README_lexique.txt: "Licence : MPL : Mozilla Public License version 2.0").
+           Our derived list stays under the MPL 2.0. LICENSE = our note, the lexicon's README and the MPL 2.0 text.
+Fetched:   2026-11-16 with curl by the maintainer session, approved by the maintainer (KLD-132).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py fr <lexique-grammalecte-fr-v7.7.txt> <MPL-2.0 text> <README_lexique.txt>
+  * the lexicon lists every inflected form (column "Flexion") with its tags; all spelling variants are kept
+    (classic and 1990 reform, sub-dictionaries *, M, R, C, A); dropped rows:
+    - sub-dictionary X (doubtful forms such as "dessication", "peuton");
+    - forms with a capital letter (proper nouns, acronyms, units such as TV, ADN, pH);
+    - tags npr, prn, patr (names), titr (M, Dr), nbro (Roman numerals), ponc, sign, pfx, sfx, div, err (qu, jusqu),
+      loc.* (parts of fixed phrases: priori, statu, quo) and 1isg (eussé, only before -je);
+    - notes symb (km, kg), abty (etc, cf, ibid), sig (acronyms), péj (pejorative senses); abr without a vowel (vs, pt);
+    a word stays if any of its rows stays (e.g. "allumé" as a past participle);
+  * normalized like the engine's TileSet.french: À Â Ä -> A, Ç -> C, É È Ê Ë -> E, Î Ï -> I, Ô Ö -> O,
+    Ù Û Ü -> U, Ÿ -> Y, Œ -> OE, Æ -> AE, upper case;
+  * kept: words of 2-15 letters A-Z; apostrophe and hyphen forms (aujourd'hui, porte-monnaie) drop out.
+  By length: 2:74, 3:514, 4:2202, 5:7078, 6:16515, 7:30428, 8:46371, 9:58770, 10:63510, 11:59627, 12:48760,
+  13:35527, 14:23106, 15:13742.
+Tiles:     python3 -I tool/build_word_lists.py tiles fr (letter shares of the words of 2-8 letters; the derived set
+           is pinned in packages/klunki_engine/test/word_tiles_test.dart).
+Check:     python3 -I tool/build_word_lists.py check

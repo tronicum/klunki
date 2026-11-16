@@ -354,8 +354,11 @@ final List<GameSpec> gameSpecs = [
   // Rules 5 (step 10): "Restpunkte abziehen" can be turned off
   // (GameConfig.rackPenalty, JSON `rest: false`; the view's `rackPenalty`).
   // Rules 6 (KLD-072): the engine PRNG, another tile bag from the same seed.
+  // Rules 7 (KLD-132): tile sets and word lists for fr, es, ar, fa; per-set
+  // normalisation, words across read right to left in ar/fa, the view's
+  // `blanks` for letters without case.
   GameSpec('wordtiles', 'Wortgewandt', _createWordTiles,
-      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 6, maxPlayers: 4),
+      hiddenInformation: true, redaction: const WordTilesRedaction(), rulesVersion: 7, maxPlayers: 4),
   // KLD-118: Mau-Mau, 2 players, hot-seat in the app (step 2), over the
   // network since step 3; house rules in GameConfig.mauMau (JSON `maumau`).
   // Rules 2 (KLD-072): the engine PRNG, another deal from the same seed.

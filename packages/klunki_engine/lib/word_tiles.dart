@@ -221,6 +221,10 @@ class WordLists {
   static const Map<String, String> revisions = {
     'de': 'enz/german-wordlist@1071d87 sha256:fa8ab81c96e5eb075fb3f3fe1e639a7f81196c8d9e4458abae8d2eb4c070c0b8',
     'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80 sha256:0927f44c2dedac2e82bbade2a262b0e4d245c59ad4c021762bec30d9a8e7091d',
+    'fr': 'Grammalecte lexique 7.7 sha256:a3d0d6bca7f697bba37446608b13d5da200c6eccbb1701f8b716a1aaa8e2417f',
+    'es': 'sbosio/rla-es@cf67981 RAE sha256:ecdf91d87a4e98f8112e7ca28280b71adce8f6edc7256624f1361b07e42b8dcd',
+    'ar': 'LibreOffice/dictionaries@c0865a8 ar (Ayaspell) sha256:65744616f2059680856b31c0addeebf68691c64b5151c4136f11507bffe4985f',
+    'fa': 'LibreOffice/dictionaries@c0865a8 fa_IR (Lilak 3.3) sha256:2ee8e225d86bd9b8c9a0c00a5b7b2fe0dfa5174bce7721934be3de7fcfa9249a',
   };
 
   static void register(String tileSetId, WordValidator list) => _lists[tileSetId] = list;
@@ -251,10 +255,15 @@ class WordLists {
 /// häufigkeiten im Deutschen und Englischen" (2005), as tabled on
 /// de.wikipedia.org/wiki/Buchstabenhäufigkeit (with Ä Ö Ü; ß folded into S
 /// twice, since ß is written SS); English, the "Dictionaries" column of
-/// en.wikipedia.org/wiki/Letter_frequency. Both should be recalibrated
-/// against the approved word list (step 4).
+/// en.wikipedia.org/wiki/Letter_frequency. Both could be recalibrated
+/// against their word lists (a later rules change).
+///
+/// French, Spanish, Arabic and Persian (KLD-132): counted in the bundled
+/// word list itself (`build_word_lists.py tiles <id>`): the share of each
+/// letter in the list's words of 2–8 letters (the lengths actually laid),
+/// every word once.
 class TileSet {
-  /// Stable id (`de`, `en`), part of the game's view.
+  /// Stable id (`de`, `en`, `fr`, `es`, `ar`, `fa`), part of the game's view.
   final String id;
 
   /// Tiles per letter.
@@ -266,10 +275,30 @@ class TileSet {
   /// Number of blanks.
   final int blanks;
 
-  const TileSet(this.id, this.counts, this.points, {this.blanks = 2});
+  /// How [normalize] folds a word before it is upper-cased (KLD-132): a
+  /// character (either case) → its replacement; an empty replacement drops
+  /// the character (Arabic vowel marks, the Persian ZWNJ). Characters
+  /// without an entry stay. `klunki/tool/build_word_lists.py` folds the
+  /// word lists with the same tables.
+  final Map<String, String> fold;
+
+  /// The letters in alphabet order (blank picker, bag); null: by code point
+  /// (de, en: A–Z, then Ä Ö Ü).
+  final List<String>? alphabet;
+
+  /// Words across are read from right to left (Arabic, Persian; KLD-132):
+  /// the square furthest right holds the first letter. Down stays top to
+  /// bottom, and the board is the same grid in every language.
+  final bool rtl;
+
+  const TileSet(this.id, this.counts, this.points,
+      {this.blanks = 2, this.fold = const {}, this.alphabet, this.rtl = false});
 
   /// The tile that stands for a blank.
   static const String blank = '?';
+
+  /// `ß` is written `SS` (upper-case German, word games).
+  static const Map<String, String> _sharpS = {'ß': 'SS', 'ẞ': 'SS'};
 
   /// German: A–Z plus Ä Ö Ü as tiles of their own; no ß tile (ß is written
   /// SS, as in upper-case German and in word games).
@@ -281,7 +310,7 @@ class TileSet {
     'E': 1, 'N': 1, 'S': 1, 'I': 1, 'R': 1, 'A': 1, 'T': 1, 'D': 1, 'H': 1, 'U': 1, //
     'L': 2, 'C': 2, 'G': 2, 'M': 2, 'O': 2, 'B': 2, 'W': 2, 'F': 2, 'K': 3, 'Z': 3, //
     'P': 3, 'V': 3, 'Ü': 4, 'Ä': 4, 'Ö': 4, 'J': 5, 'Y': 8, 'X': 8, 'Q': 10,
-  });
+  }, fold: _sharpS);
 
   /// English: A–Z.
   static const TileSet english = TileSet('en', {
@@ -292,22 +321,120 @@ class TileSet {
     'E': 1, 'S': 1, 'I': 1, 'A': 1, 'R': 1, 'N': 1, 'T': 1, 'O': 1, 'L': 1, 'C': 2, //
     'D': 2, 'U': 2, 'G': 2, 'P': 3, 'M': 3, 'H': 3, 'B': 3, 'Y': 4, 'F': 4, 'V': 4, //
     'K': 4, 'W': 5, 'Z': 6, 'X': 8, 'J': 8, 'Q': 10,
+  }, fold: _sharpS);
+
+  /// French (KLD-132): A–Z; accents folded (É → E, Ç → C, Œ → OE …).
+  static const TileSet french = TileSet('fr', {
+    'E': 14, 'A': 11, 'S': 8, 'I': 8, 'R': 8, 'T': 6, 'N': 5, 'O': 5, 'U': 4, 'L': 4, //
+    'C': 4, 'M': 3, 'P': 2, 'D': 2, 'G': 2, 'B': 2, 'F': 1, 'H': 1, 'V': 1, 'Z': 1, //
+    'Y': 1, 'Q': 1, 'X': 1, 'J': 1, 'K': 1, 'W': 1,
+  }, {
+    'E': 1, 'A': 1, 'S': 1, 'I': 1, 'R': 1, 'T': 1, 'N': 1, 'O': 1, 'U': 2, 'L': 2, //
+    'C': 2, 'M': 2, 'P': 2, 'D': 2, 'G': 3, 'B': 3, 'F': 3, 'H': 3, 'V': 3, 'Z': 3, //
+    'Y': 5, 'Q': 5, 'X': 5, 'J': 5, 'K': 6, 'W': 10,
+  }, fold: {
+    'À': 'A', 'à': 'A', 'Â': 'A', 'â': 'A', 'Ä': 'A', 'ä': 'A', 'Ç': 'C', 'ç': 'C', //
+    'É': 'E', 'é': 'E', 'È': 'E', 'è': 'E', 'Ê': 'E', 'ê': 'E', 'Ë': 'E', 'ë': 'E', //
+    'Î': 'I', 'î': 'I', 'Ï': 'I', 'ï': 'I', 'Ô': 'O', 'ô': 'O', 'Ö': 'O', 'ö': 'O', //
+    'Ù': 'U', 'ù': 'U', 'Û': 'U', 'û': 'U', 'Ü': 'U', 'ü': 'U', 'Ÿ': 'Y', 'ÿ': 'Y', //
+    'Œ': 'OE', 'œ': 'OE', 'Æ': 'AE', 'æ': 'AE',
   });
 
-  static const List<TileSet> all = [german, english];
+  /// Spanish (KLD-132): A–Z plus Ñ (a tile of its own, after N); accents
+  /// and Ü folded; no digraph tiles (CH, LL, RR are two tiles).
+  static const TileSet spanish = TileSet('es', {
+    'A': 15, 'E': 11, 'R': 8, 'S': 8, 'O': 7, 'I': 6, 'N': 5, 'L': 4, 'D': 4, 'C': 4, //
+    'T': 4, 'U': 3, 'M': 3, 'P': 2, 'B': 2, 'G': 1, 'V': 1, 'H': 1, 'F': 1, 'J': 1, //
+    'Z': 1, 'Ñ': 1, 'Q': 1, 'Y': 1, 'X': 1, 'K': 1, 'W': 1,
+  }, {
+    'A': 1, 'E': 1, 'R': 1, 'S': 1, 'O': 1, 'I': 1, 'N': 1, 'L': 1, 'D': 1, 'C': 1, //
+    'T': 1, 'U': 1, 'M': 2, 'P': 2, 'B': 2, 'G': 2, 'V': 2, 'H': 2, 'F': 3, 'J': 3, //
+    'Z': 3, 'Ñ': 3, 'Q': 4, 'Y': 4, 'X': 4, 'K': 6, 'W': 8,
+  }, fold: {
+    'Á': 'A', 'á': 'A', 'É': 'E', 'é': 'E', 'Í': 'I', 'í': 'I', 'Ó': 'O', 'ó': 'O', //
+    'Ú': 'U', 'ú': 'U', 'Ü': 'U', 'ü': 'U',
+  }, alphabet: [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', //
+    'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+  ]);
+
+  /// Arabic and Persian vowel marks (tanwin, harakat, shadda, sukun, madda
+  /// and hamza above / below, dagger alef) and the tatweel: dropped.
+  static const Map<String, String> _arabicMarks = {
+    'ً': '', 'ٌ': '', 'ٍ': '', 'َ': '', 'ُ': '', 'ِ': '', 'ّ': '', //
+    'ْ': '', 'ٓ': '', 'ٔ': '', 'ٕ': '', 'ٰ': '', 'ـ': '',
+  };
+
+  /// Arabic (KLD-132): the 28 letters plus ة and ء, read right to left.
+  /// Vowel marks dropped; أ إ آ ٱ → ا, ؤ → و, ئ → ي, ى → ي (Persian ک ی →
+  /// ك ي).
+  static const TileSet arabic = TileSet('ar', {
+    'ا': 16, 'ي': 11, 'ت': 10, 'ن': 9, 'ل': 7, 'م': 6, 'و': 5, 'ر': 4, 'ب': 3, 'ف': 2, //
+    'س': 2, 'ع': 2, 'د': 2, 'ق': 2, 'ح': 2, 'ج': 1, 'ش': 1, 'ك': 1, 'ه': 1, 'ط': 1, //
+    'ص': 1, 'ز': 1, 'خ': 1, 'ة': 1, 'ض': 1, 'غ': 1, 'ذ': 1, 'ث': 1, 'ظ': 1, 'ء': 1,
+  }, {
+    'ا': 1, 'ي': 1, 'ت': 1, 'ن': 1, 'ل': 1, 'م': 2, 'و': 2, 'ر': 2, 'ب': 3, 'ف': 3, //
+    'س': 3, 'ع': 3, 'د': 3, 'ق': 3, 'ح': 3, 'ج': 4, 'ش': 4, 'ك': 4, 'ه': 4, 'ط': 4, //
+    'ص': 4, 'ز': 4, 'خ': 4, 'ة': 5, 'ض': 5, 'غ': 5, 'ذ': 6, 'ث': 6, 'ظ': 8, 'ء': 10,
+  }, fold: {
+    ..._arabicMarks,
+    'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ؤ': 'و', 'ئ': 'ي', 'ى': 'ي', 'ک': 'ك', 'ی': 'ي', //
+  }, alphabet: [
+    'ا', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', //
+    'ق', 'ك', 'ل', 'م', 'ن', 'ه', 'و', 'ي', 'ة', 'ء',
+  ], rtl: true);
+
+  /// Persian (KLD-132): the 32 letters plus آ as a tile of its own, read
+  /// right to left. Vowel marks and the ZWNJ dropped (کتاب‌ها → کتابها);
+  /// ك → ک, ي ى ئ → ی, ة ۀ → ه, أ إ ٱ → ا, ؤ → و.
+  static const TileSet persian = TileSet('fa', {
+    'ی': 14, 'ا': 13, 'ن': 8, 'ر': 7, 'ه': 6, 'م': 5, 'د': 4, 'ب': 4, 'و': 4, 'ت': 4, //
+    'ل': 3, 'س': 3, 'ک': 2, 'ش': 2, 'ز': 1, 'ف': 1, 'گ': 1, 'خ': 1, 'پ': 1, 'ق': 1, //
+    'ج': 1, 'ع': 1, 'ح': 1, 'آ': 1, 'چ': 1, 'ص': 1, 'ط': 1, 'غ': 1, 'ض': 1, 'ذ': 1, //
+    'ژ': 1, 'ث': 1, 'ظ': 1,
+  }, {
+    'ی': 1, 'ا': 1, 'ن': 1, 'ر': 1, 'ه': 1, 'م': 2, 'د': 2, 'ب': 2, 'و': 2, 'ت': 2, //
+    'ل': 2, 'س': 3, 'ک': 3, 'ش': 3, 'ز': 3, 'ف': 3, 'گ': 3, 'خ': 4, 'پ': 4, 'ق': 4, //
+    'ج': 4, 'ع': 4, 'ح': 5, 'آ': 5, 'چ': 5, 'ص': 5, 'ط': 5, 'غ': 5, 'ض': 6, 'ذ': 8, //
+    'ژ': 8, 'ث': 8, 'ظ': 10,
+  }, fold: {
+    ..._arabicMarks,
+    '‌': '', 'ك': 'ک', 'ي': 'ی', 'ى': 'ی', 'ة': 'ه', 'ۀ': 'ه', 'أ': 'ا', 'إ': 'ا', 'ٱ': 'ا', //
+    'ؤ': 'و', 'ئ': 'ی',
+  }, alphabet: [
+    'ا', 'آ', 'ب', 'پ', 'ت', 'ث', 'ج', 'چ', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 'ژ', 'س', 'ش', 'ص', 'ض', 'ط', //
+    'ظ', 'ع', 'غ', 'ف', 'ق', 'ک', 'گ', 'ل', 'م', 'ن', 'و', 'ه', 'ی',
+  ], rtl: true);
+
+  static const List<TileSet> all = [german, english, french, spanish, arabic, persian];
 
   static TileSet? byId(Object? id) => all.where((t) => t.id == id).firstOrNull;
 
-  /// The letters, in a fixed order (alphabetical, umlauts last).
-  List<String> get letters => counts.keys.toList()..sort();
+  /// The letters, in a fixed order: [alphabet], else by code point
+  /// (alphabetical, umlauts last).
+  List<String> get letters => alphabet ?? (counts.keys.toList()..sort());
+
+  /// Whether the letters have a lower case (Latin). A view marks a blank on
+  /// the board by its lower-case letter; a set without case (Arabic,
+  /// Persian) lists the blanks' squares instead (`blanks` in the view).
+  bool get cased => counts.keys.every((l) => l.toLowerCase() != l);
 
   int get size => counts.values.fold(blanks, (a, b) => a + b);
 
   /// Points of [tile] (0 for a blank or an unknown tile).
   int pointsOf(String tile) => points[tile] ?? 0;
 
-  /// [word] as it would lie on the board: upper case, `ß` → `SS`.
-  String normalize(String word) => word.replaceAll('ß', 'SS').replaceAll('ẞ', 'SS').toUpperCase();
+  /// [word] as it would lie on the board: folded by [fold] (`ß` → `SS`,
+  /// `É` → `E`, Arabic vowel marks dropped …), then upper case.
+  String normalize(String word) {
+    if (fold.isEmpty) return word.toUpperCase();
+    final b = StringBuffer();
+    for (final r in word.runes) {
+      final c = String.fromCharCode(r);
+      b.write(fold[c] ?? c);
+    }
+    return b.toString().toUpperCase();
+  }
 
   /// Whether every letter of [word] (normalized) has a tile.
   bool canSpell(String word) => normalize(word).split('').every(counts.containsKey);
@@ -316,6 +443,16 @@ class TileSet {
   List<String> bag() => [
         for (final l in letters) ...List.filled(counts[l]!, l),
         ...List.filled(blanks, blank),
+      ];
+
+  /// The rules data of this set for the compat fingerprint (KLD-085):
+  /// letters with counts and points, blanks, the fold table and [rtl].
+  List<Object> gameplayData() => [
+        id,
+        [for (final l in letters) [l, counts[l], points[l]]],
+        blanks,
+        [for (final k in fold.keys.toList()..sort()) '$k>${fold[k]}'],
+        rtl,
       ];
 }
 
@@ -566,7 +703,7 @@ class WordTilesGame extends Game implements SeatGame {
   /// The rules data two builds must agree on (KLD-085 fingerprint): every
   /// tile set (letters, counts, points, blanks) and the premium layout.
   static List<Object> gameplayData() => [
-        for (final t in TileSet.all) [t.id, [for (final l in t.letters) [l, t.counts[l], t.points[l]]], t.blanks],
+        for (final t in TileSet.all) t.gameplayData(),
         [for (final p in _premiums) p.index].join(),
         rackSize,
         bingoBonus,
@@ -990,7 +1127,9 @@ class WordTilesGame extends Game implements SeatGame {
     // Words: the main word, then a cross word through every new tile.
     final words = <FormedWord>[];
     FormedWord? wordThrough(int r, int c, bool acr) {
-      final dr = acr ? 0 : 1, dc = acr ? 1 : 0;
+      // Across reads right to left in an rtl set (KLD-132): the word starts
+      // on its square furthest right.
+      final dr = acr ? 0 : 1, dc = acr ? (tileSet.rtl ? -1 : 1) : 0;
       var sr = r, sc = c;
       while (at(sr - dr, sc - dc) != null) {
         sr -= dr;
@@ -1580,6 +1719,12 @@ class WordTilesGame extends Game implements SeatGame {
       'board': [
         for (var r = 0; r < size; r++) [for (var c = 0; c < size; c++) _board[r * size + c]?.toString() ?? '.'].join(),
       ],
+      // A letter without case cannot show a blank in lower case (KLD-132).
+      if (!tileSet.cased && _board.any((t) => t?.blank ?? false))
+        'blanks': [
+          for (var i = 0; i < size * size; i++)
+            if (_board[i]?.blank ?? false) [i ~/ size, i % size],
+        ],
       'rack': List.of(_racks[v]),
       'racks': [for (final r in _racks) r.length],
       'bag': _bag.length,

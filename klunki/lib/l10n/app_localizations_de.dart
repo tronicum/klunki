@@ -2468,6 +2468,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get wordtilesOptionTiles => 'Buchstaben';
 
   @override
+  String get wordtilesOptionRtl =>
+      'Waagrechte Wörter liest man von rechts nach links.';
+
+  @override
   String get wordtilesOptionDictionary => 'Wörterbuch prüfen';
 
   @override

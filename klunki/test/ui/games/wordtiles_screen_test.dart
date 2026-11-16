@@ -41,10 +41,12 @@ Future<GameController> _start(WidgetTester tester,
     {List<String> a = const ['H', 'A', 'U', 'S', 'E', 'N', '?'],
     List<String> b = const ['T', 'O', 'R', 'E', 'N', 'D', 'I'],
     int bag = 40,
-    Locale locale = testLocale}) async {
-  final c = GameController.hotSeat(const GameConfig('wordtiles', seed: 1));
+    Locale locale = testLocale,
+    String? tiles,
+    String bagTile = 'E'}) async {
+  final c = GameController.hotSeat(GameConfig('wordtiles', seed: 1, tiles: tiles));
   addTearDown(c.dispose);
-  _game(c).debugSetup(racks: [a, b], bag: List.filled(bag, 'E'));
+  _game(c).debugSetup(racks: [a, b], bag: List.filled(bag, bagTile));
   await tester.pumpWidget(localizedApp(buildGameScreen(c), locale: locale));
   await _pump(tester);
   return c;
@@ -294,6 +296,31 @@ void main() {
     expect(tester.getCenter(_sq(7, 0)).dx, lessThan(tester.getCenter(_sq(7, 14)).dx));
     expect(tester.takeException(), isNull);
   });
+
+  // KLD-132: Arabic and Persian tiles. The rack runs right to left (its
+  // first tile on the right), a word across is read from the right: the
+  // first letter lies in the rightmost square.
+  for (final (id, word) in [('ar', ['ك', 'ت', 'ا', 'ب']), ('fa', ['ک', 'ت', 'ا', 'ب'])]) {
+    testWidgets('$id tiles: the rack runs right to left, a word across reads from the right', (tester) async {
+      _tablet(tester);
+      final c = await _start(tester,
+          tiles: id,
+          a: [...word, 'ن', 'م', 'ر'],
+          b: ['ن', 'م', 'ر', 'د', 'ل', 'س', 'ه'],
+          bagTile: 'ن',
+          locale: Locale(id));
+      expect(tester.getCenter(_rack(0)).dx, greaterThan(tester.getCenter(_rack(1)).dx), reason: 'rack right to left');
+      expect(tester.getCenter(_sq(7, 0)).dx, lessThan(tester.getCenter(_sq(7, 14)).dx), reason: 'board left to right');
+      // The first letter right of the centre, then leftwards.
+      await _lay(tester, [(0, 7, 8), (1, 7, 7), (2, 7, 6), (3, 7, 5)]);
+      expect(_text(tester, const Key('wordtiles-preview')), contains(word.join()));
+      await _tap(tester, find.byKey(_play));
+      final g = _game(c);
+      expect(g.tileAt(7, 8)?.letter, word.first);
+      expect(g.scoreOf(0), greaterThan(0));
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('menu: the Wortgewandt tile opens the word tile game (KLD-094 step 7: released)', (tester) async {
     await tester.pumpWidget(klunkiApp());

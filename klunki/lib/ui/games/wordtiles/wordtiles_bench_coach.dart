@@ -38,7 +38,14 @@ class _BenchCoachState extends State<BenchCoach> {
   late int _step = widget.initialStep;
 
   /// A sample word on sample tiles (the tile set's language).
-  String get _word => widget.tileSet.id == 'de' ? 'WORT' : 'WORD';
+  String get _word => switch (widget.tileSet.id) {
+        'de' => 'WORT',
+        'fr' => 'MOTS',
+        'es' => 'LETRA',
+        'ar' => 'كلمة',
+        'fa' => 'کلمه',
+        _ => 'WORD',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,7 @@ class _BenchCoachState extends State<BenchCoach> {
     // The picture: a little bench row with the sample word; step 2 adds its
     // score, step 3 the "all back" button.
     final tiles = Directionality(
-      textDirection: TextDirection.ltr,
+      textDirection: widget.tileSet.rtl ? TextDirection.rtl : TextDirection.ltr,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

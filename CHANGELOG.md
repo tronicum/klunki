@@ -19,6 +19,14 @@ short German summary ("Kurz") for the store notes and the testers.
   from the manufacturers' data sheets, press and databases, as of 2025/2026; five top speeds are estimates (no
   maker publishes one for fire engines, ambulances or heavy-haul tractors). Photos from Wikimedia Commons on 25
   cards; the others show a drawn fire engine.
+- **Wortgewandt in French, Spanish, Arabic and Persian** (KLD-132): four new tile languages, each with its
+  own tile set (counted from the letter frequencies of its word list) and a word list for "Wörterbuch
+  prüfen", from free spell-checking dictionaries (Grammalecte, RLA-ES, Ayaspell, Lilak; licences in
+  "Lizenzen"). The tile language follows the app language (Chinese: English tiles) and can be changed per
+  game. Accents and vowel marks are left out (É is an E, كِتَاب is كتاب); Spanish has its own Ñ, Persian its
+  own آ. In Arabic and Persian a word across is read from right to left and the rack runs right to left; the
+  start options say so. New rules version: older builds do not play Wortgewandt with this one over the
+  network.
 
 ## [1.1.1] – 2026-11-15 (TestFlight)
 

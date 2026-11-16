@@ -2460,6 +2460,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wordtilesOptionTiles => 'Letters';
 
   @override
+  String get wordtilesOptionRtl => 'Words across are read from right to left.';
+
+  @override
   String get wordtilesOptionDictionary => 'Check the dictionary';
 
   @override

@@ -16,7 +16,7 @@ class WordListLoader {
   WordListLoader._();
 
   /// Tile set ids with a bundled list.
-  static const Set<String> available = {'de', 'en'};
+  static const Set<String> available = {'de', 'en', 'fr', 'es', 'ar', 'fa'};
 
   static String assetOf(String tileSetId) => 'assets/wordlists/$tileSetId/words.txt.gz';
 

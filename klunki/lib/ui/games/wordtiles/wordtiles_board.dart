@@ -93,8 +93,10 @@ import 'wordtiles_tiles.dart';
 ///   placement; with no tile laid there is nothing to send, and "Alle
 ///   zurück", swapping or passing drop the staged swaps.
 ///
-/// The board itself is always left-to-right ([LtrBoard]): the letters are
-/// Latin and the columns are the engine's.
+/// The board itself is always left-to-right ([LtrBoard]): the columns are
+/// the engine's in every language. With a right-to-left tile set (Arabic,
+/// Persian; KLD-132) a word across is read from right to left on that same
+/// grid, and the rack and the bench run right to left, like the words.
 ///
 /// Keys for tests: `wordtiles-sq-<row>-<col>`, `wordtiles-rack`,
 /// `wordtiles-rack-<rack index>`, `wordtiles-play`, `wordtiles-recall`,
@@ -1873,6 +1875,11 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
         (min(width, 420.0) - 18 - gap * (WordTilesGame.rackSize - 1)) / WordTilesGame.rackSize);
   }
 
+  /// The direction of the rack and the bench: the tile set's reading
+  /// direction (KLD-132; right to left for Arabic and Persian), whatever
+  /// the app language.
+  TextDirection get _tilesDirection => game.tileSet.rtl ? TextDirection.rtl : TextDirection.ltr;
+
   /// [benchShown]: the bench is open; its tiles leave a gap in the rack
   /// (`wordtiles-rack-gap-<rack index>`, a tap brings the tile back). A
   /// closed bench hides nothing: its tiles are in the rack (KLD-094 step 8:
@@ -1907,7 +1914,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           border: Border.all(color: c.tileEdge.withValues(alpha: 0.5)),
         ),
         child: Directionality(
-          textDirection: TextDirection.ltr,
+          textDirection: _tilesDirection,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -2220,7 +2227,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
     }
 
     return Directionality(
-      textDirection: TextDirection.ltr,
+      textDirection: _tilesDirection,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -2228,7 +2235,7 @@ class _WordTilesBoardState extends State<WordTilesBoard> with SingleTickerProvid
           if (!hasTiles)
             IgnorePointer(
               child: Padding(
-                padding: EdgeInsets.only(right: scoreWidth),
+                padding: EdgeInsetsDirectional.only(end: scoreWidth),
                 child: Text(
                   l10n.wordtilesBenchHint,
                   textAlign: TextAlign.center,

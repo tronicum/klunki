@@ -99,6 +99,54 @@ void main() {
       expect(TileSet.english.points, en.points);
     });
 
+    // KLD-132: frequencies counted in the bundled word lists
+    // (`python3 -I tool/build_word_lists.py tiles <id>`, per cent of the
+    // letters in the words of 2–8 letters).
+    test('French: letter frequencies of the Grammalecte list', () {
+      final fr = derive('fr', {
+        'A': 11.048, 'B': 1.969, 'C': 3.567, 'D': 2.413, 'E': 15.133, 'F': 1.555, 'G': 2.063, 'H': 1.297, //
+        'I': 8.161, 'J': 0.311, 'K': 0.242, 'L': 4.321, 'M': 2.608, 'N': 5.575, 'O': 5.572, 'P': 2.565, //
+        'Q': 0.456, 'R': 7.981, 'S': 8.556, 'T': 6.559, 'U': 4.521, 'V': 1.279, 'W': 0.06, 'X': 0.413, //
+        'Y': 0.515, 'Z': 1.26,
+      });
+      expect(TileSet.french.counts, fr.counts);
+      expect(TileSet.french.points, fr.points);
+    });
+
+    test('Spanish: letter frequencies of the RLA-ES list', () {
+      final es = derive('es', {
+        'A': 17.446, 'B': 2.29, 'C': 3.935, 'D': 3.936, 'E': 11.712, 'F': 0.974, 'G': 1.663, 'H': 1.018, //
+        'I': 6.455, 'J': 0.898, 'K': 0.017, 'L': 4.396, 'M': 2.847, 'N': 5.651, 'O': 7.328, 'P': 2.323, //
+        'Q': 0.274, 'R': 8.76, 'S': 8.397, 'T': 3.83, 'U': 3.165, 'V': 1.102, 'W': 0.003, 'X': 0.178, //
+        'Y': 0.226, 'Z': 0.821, 'Ñ': 0.355,
+      });
+      expect(TileSet.spanish.counts, es.counts);
+      expect(TileSet.spanish.points, es.points);
+    });
+
+    test('Arabic: letter frequencies of the Ayaspell list', () {
+      final ar = derive('ar', {
+        'ء': 0.164, 'ا': 17.218, 'ب': 2.703, 'ة': 0.957, 'ت': 10.402, 'ث': 0.494, 'ج': 1.569, 'ح': 1.9, //
+        'خ': 1.034, 'د': 2.206, 'ذ': 0.507, 'ر': 4.278, 'ز': 1.095, 'س': 2.338, 'ش': 1.369, 'ص': 1.174, //
+        'ض': 0.836, 'ط': 1.228, 'ظ': 0.238, 'ع': 2.26, 'غ': 0.783, 'ف': 2.339, 'ق': 2.19, 'ك': 1.369, //
+        'ل': 7.362, 'م': 5.434, 'ن': 9.545, 'ه': 1.297, 'و': 4.556, 'ي': 11.157,
+      });
+      expect(TileSet.arabic.counts, ar.counts);
+      expect(TileSet.arabic.points, ar.points);
+    });
+
+    test('Persian: letter frequencies of the Lilak list', () {
+      final fa = derive('fa', {
+        'آ': 0.609, 'ا': 14.825, 'ب': 4.529, 'ت': 4.314, 'ث': 0.132, 'ج': 1.045, 'ح': 0.71, 'خ': 1.196, //
+        'د': 4.72, 'ذ': 0.198, 'ر': 7.316, 'ز': 1.608, 'س': 2.687, 'ش': 2.053, 'ص': 0.482, 'ض': 0.243, //
+        'ط': 0.438, 'ظ': 0.11, 'ع': 0.969, 'غ': 0.406, 'ف': 1.574, 'ق': 1.065, 'ل': 2.867, 'م': 5.053, //
+        'ن': 8.228, 'ه': 6.851, 'و': 4.413, 'پ': 1.101, 'چ': 0.557, 'ژ': 0.171, 'ک': 2.259, 'گ': 1.504, //
+        'ی': 15.766,
+      });
+      expect(TileSet.persian.counts, fa.counts);
+      expect(TileSet.persian.points, fa.points);
+    });
+
     test('100 tiles each; umlauts are tiles, ß is not; normalize', () {
       for (final s in TileSet.all) {
         expect(s.size, 100, reason: s.id);

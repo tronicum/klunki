@@ -2453,6 +2453,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get wordtilesOptionTiles => 'الحروف';
 
   @override
+  String get wordtilesOptionRtl =>
+      'تُقرأ الكلمات الأفقية من اليمين إلى اليسار.';
+
+  @override
   String get wordtilesOptionDictionary => 'التحقق من القاموس';
 
   @override

@@ -10,9 +10,12 @@ import 'word_list_loader.dart';
 /// "Restpunkte abziehen" (step 10, on by default).
 typedef WordTilesOptions = ({String tiles, bool dictionary, bool joker, bool rest});
 
-/// The tile language that follows the app language: German tiles for a
-/// German UI, English tiles for every other language (for now).
-String defaultWordTilesTiles(Locale locale) => locale.languageCode == 'de' ? TileSet.german.id : TileSet.english.id;
+/// The tile language that follows the app language (KLD-132): the app
+/// language's own tiles where there is a set for it (de, en, fr, es, ar,
+/// fa), English tiles otherwise (zh: a letter tile game does not fit
+/// Chinese characters).
+String defaultWordTilesTiles(Locale locale) =>
+    TileSet.byId(locale.languageCode) != null ? locale.languageCode : TileSet.english.id;
 
 /// The default options for [locale]: its tile language, the word list on
 /// when one exists for it.
@@ -22,7 +25,14 @@ WordTilesOptions defaultWordTilesOptions(Locale locale) {
 }
 
 /// The tile languages, named by their endonyms (like the language picker).
-const Map<String, String> wordTilesTileNames = {'de': 'Deutsch', 'en': 'English'};
+const Map<String, String> wordTilesTileNames = {
+  'de': 'Deutsch',
+  'en': 'English',
+  'fr': 'Français',
+  'es': 'Español',
+  'ar': 'العربية',
+  'fa': 'فارسی',
+};
 
 /// The options of a game as one line ("English · Wörterbuch prüfen" /
 /// "Deutsch · ohne Wörterbuch", plus "· Joker tauschen" when on and "· ohne
@@ -82,12 +92,13 @@ class _WordTilesOptionsDialogState extends State<_WordTilesOptionsDialog> {
   }
 }
 
-/// The tile language (segmented, endonyms) and the "Wörterbuch prüfen"
+/// The tile language (a chip per language, endonyms; KLD-132: six of them
+/// no longer fit a segmented button) and the "Wörterbuch prüfen"
 /// switch with a line that explains the chosen mode, then the house rule
 /// "Joker tauschen" (KLD-094 step 9, off by default) with its explanation:
 /// in the start dialog and, for a network game, on "Raum starten" (KLD-094
 /// step 6). Keys: `<keyPrefix>tiles-<id>`, `<keyPrefix>dict`,
-/// `<keyPrefix>dict-explain`, `<keyPrefix>joker`, `<keyPrefix>joker-explain`,
+/// `<keyPrefix>dict-explain`, `<keyPrefix>tiles-rtl` (ar, fa), `<keyPrefix>joker`, `<keyPrefix>joker-explain`,
 /// `<keyPrefix>rest`, `<keyPrefix>rest-explain`
 /// (prefix `wordtiles-` in the dialog).
 class WordTilesOptionsPicker extends StatelessWidget {
@@ -116,23 +127,33 @@ class WordTilesOptionsPicker extends StatelessWidget {
       children: [
         Text(l10n.wordtilesOptionTiles, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
-        SegmentedButton<String>(
-          segments: [
-            for (final e in wordTilesTileNames.entries)
-              ButtonSegment(value: e.key, label: Text(e.value, key: Key('${keyPrefix}tiles-${e.key}'))),
+        Wrap(
+          key: Key('${keyPrefix}tiles'),
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            for (final t in TileSet.all)
+              ChoiceChip(
+                label: Text(wordTilesTileNames[t.id] ?? t.id, key: Key('${keyPrefix}tiles-${t.id}')),
+                selected: value.tiles == t.id,
+                showCheckmark: false,
+                onSelected: enabled
+                    ? (_) => onChanged(
+                        (
+                          tiles: t.id,
+                          dictionary: WordListLoader.available.contains(t.id),
+                          joker: value.joker,
+                          rest: value.rest,
+                        ))
+                    : null,
+              ),
           ],
-          selected: {value.tiles},
-          showSelectedIcon: false,
-          onSelectionChanged: enabled
-              ? (s) => onChanged(
-                  (
-                    tiles: s.single,
-                    dictionary: WordListLoader.available.contains(s.single),
-                    joker: value.joker,
-                    rest: value.rest,
-                  ))
-              : null,
         ),
+        // KLD-132: Arabic and Persian read a word across from the right.
+        if (TileSet.byId(value.tiles)?.rtl ?? false) ...[
+          const SizedBox(height: 4),
+          Text(l10n.wordtilesOptionRtl, key: Key('${keyPrefix}tiles-rtl'), style: theme.textTheme.bodySmall),
+        ],
         const SizedBox(height: 16),
         SwitchListTile(
           key: Key('${keyPrefix}dict'),
