@@ -1301,5 +1301,17 @@
   "ludoRuleStart": "让出起点",
   "rulesLudoStart": "只要家里还有棋子在等，起点上的棋子必须先走开。如果它要走到的格子上是自己的棋子，就先走那颗棋子。",
   "ludoRuleSix": "6 = 再掷一次",
-  "rulesLudoSix": "掷出 6 后可以再掷一次。"
+  "rulesLudoSix": "掷出 6 后可以再掷一次。",
+  "quartettDeckSpecial": "特种车辆",
+  "quartettSetSpecialA": "消防",
+  "quartettSetSpecialB": "工地",
+  "quartettSetSpecialC": "起重机",
+  "quartettSetSpecialD": "农业",
+  "quartettSetSpecialE": "救援",
+  "quartettSetSpecialF": "机场",
+  "quartettSetSpecialG": "环卫",
+  "quartettSetSpecialH": "重型运输",
+  "quartettSpecialE1": "救护车 Sprinter",
+  "quartettSpecialE2": "急救医生车 Kodiaq",
+  "quartettSpecialE4": "救生船 Hermann Marwede"
 }

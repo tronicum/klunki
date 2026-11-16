@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// Drawn pictograms of the Quartett decks (KLD-069): a car, a high-speed
-/// train, a rocket, a plane, an elephant (KLD-128) and a motorcycle
-/// (KLD-129), side view. No
+/// train, a rocket, a plane, an elephant (KLD-128), a motorcycle (KLD-129)
+/// and a fire engine with a ladder (KLD-130), side view. No
 /// downloaded images or logos: plain shapes, coloured per set by the caller.
 ///
 /// Drawn in a 100 × 60 box, scaled to fit the canvas and centred. [color]
@@ -82,6 +82,8 @@ class QuartettPictogram extends CustomPainter {
         _elephant(canvas, body, fine);
       case 'motorcycles':
         _motorcycle(canvas, body, fine);
+      case 'special':
+        _fireEngine(canvas, body, fine);
       default:
         _car(canvas, body, fine);
     }
@@ -573,6 +575,51 @@ class QuartettPictogram extends CustomPainter {
             ..moveTo(72, 34.5)
             ..lineTo(96, 33.5),
           _stroke(1.4, detail));
+  }
+
+  /// Special vehicles (KLD-130): a fire engine with a turntable ladder, side
+  /// view, cab to the right: body with two lockers, cab with window and
+  /// light bar, the ladder lying on the roof, three wheels.
+  void _fireEngine(Canvas c, Paint body, Paint fine) {
+    // Body and cab.
+    c.drawRRect(RRect.fromLTRBR(6, 22, 71, 46, const Radius.circular(2)), body);
+    final cab = Path()
+      ..moveTo(70, 46)
+      ..lineTo(70, 20)
+      ..quadraticBezierTo(70, 17, 74, 17)
+      ..lineTo(87, 17)
+      ..lineTo(94, 31)
+      ..lineTo(94, 46)
+      ..close();
+    c
+      ..drawPath(cab, body)
+      ..drawPath(
+          Path()
+            ..moveTo(75, 21)
+            ..lineTo(85, 21)
+            ..lineTo(89.5, 30)
+            ..lineTo(75, 30)
+            ..close(),
+          fine)
+      // Light bar on the cab roof.
+      ..drawRRect(RRect.fromLTRBR(75, 13, 86, 17, const Radius.circular(1.5)), body);
+    // Lockers on the side.
+    for (final x in [11.0, 32.0, 53.0]) {
+      c.drawRRect(RRect.fromLTRBR(x, 27, x + 15, 40, const Radius.circular(1.5)), fine);
+    }
+    // The ladder on the roof (two rails, rungs as gaps), on its turntable.
+    c
+      ..drawRRect(RRect.fromLTRBR(2, 11, 70, 18, const Radius.circular(1)), body)
+      ..drawRect(const Rect.fromLTRB(54, 17, 66, 22), body);
+    for (var x = 5.0; x < 66; x += 7) {
+      c.drawRect(Rect.fromLTRB(x, 13, x + 5, 16), fine);
+    }
+    // Wheels: two at the back, one under the cab.
+    for (final x in [18.0, 36.0, 82.0]) {
+      c
+        ..drawCircle(Offset(x, 47), 8, body)
+        ..drawCircle(Offset(x, 47), 3.5, fine);
+    }
   }
 
   @override

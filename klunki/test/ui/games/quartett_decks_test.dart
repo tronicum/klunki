@@ -56,7 +56,7 @@ void main() {
       expect(find.text('Kartendeck wählen'), findsOneWidget);
       for (final (id, name) in [
         ('cars', 'Autos'), ('trains', 'Züge'), ('rockets', 'Raketen'), ('planes', 'Flugzeuge'), ('animals', 'Tiere'),
-        ('motorcycles', 'Motorräder'),
+        ('motorcycles', 'Motorräder'), ('special', 'Sonderfahrzeuge'),
       ]) {
         final tile = find.byKey(Key('quartett-deck-$id'));
         expect(tile, findsOneWidget);
@@ -318,6 +318,58 @@ void main() {
       });
     });
 
+    group('special vehicles (KLD-130)', () {
+      final deck = QuartettDeck.specialVehicles;
+      const typeWord = {'E1', 'E2', 'E4'};
+
+      test('model names stay untranslated, three rescue cards get a translated type word', () {
+        for (final c in ['de', 'en', 'fr', 'es', 'zh', 'ar', 'fa']) {
+          final l10n = lookupAppLocalizations(Locale(c));
+          final names = {for (final card in deck.cards) localizedCardName(l10n, card)};
+          expect(names, hasLength(32), reason: c);
+          for (final card in deck.cards) {
+            final name = localizedCardName(l10n, card);
+            expect(name.contains(softHyphen), isFalse);
+            if (typeWord.contains(card.id)) {
+              // The model or ship name stays in Latin letters.
+              expect(name, contains(card.name.split(' ').last), reason: '$c ${card.id}');
+            } else {
+              expect(name, card.name, reason: '$c ${card.id}');
+            }
+          }
+          for (final s in deck.stats) {
+            expect(localizedStatLabel(l10n, s.id), isNot(s.id), reason: '$c ${s.id}');
+          }
+          expect(localizedDeckName(l10n, deck.id), isNot(deck.id), reason: c);
+          final sets = {for (final set in deck.setNames.keys) localizedSetName(l10n, set, deck.id)};
+          expect(sets, hasLength(8), reason: c);
+        }
+        // German = the engine name (the fingerprint hashes the engine's names).
+        for (final card in deck.cards) {
+          expect(localizedCardName(deL10n, card), card.name, reason: card.id);
+        }
+        expect(localizedCardNameHyphenated(deL10n, deck.cardById('E2')!), 'Not${softHyphen}arzt${softHyphen}wagen Kodiaq');
+        expect(localizedCardName(enL10n, deck.cardById('E4')!), 'Lifeboat Hermann Marwede');
+        expect(localizedDeckName(enL10n, 'special'), 'Special vehicles');
+        expect(localizedSetName(deL10n, 'H', deck.id), 'Schwertransport');
+        expect(localizedStatLabel(deL10n, 'massT'), localizedStatLabel(deL10n, 'kg'));
+      });
+
+      test('values: one decimal for weight and length, two for height, trailing zeros dropped', () {
+        expect(formatQuartettValue(deck.statById('heightM')!, 3.92, locale: 'de', unit: 'm'), '3,92 m');
+        expect(formatQuartettValue(deck.statById('heightM')!, 4, locale: 'de', unit: 'm'), '4 m');
+        expect(formatQuartettValue(deck.statById('heightM')!, 0.32, locale: 'en', unit: 'm'), '0.32 m');
+        expect(formatQuartettValue(deck.statById('massT')!, 623.7, locale: 'de', unit: 't'), '623,7 t');
+        expect(formatQuartettValue(deck.statById('ps')!, 9250, locale: 'de', unit: 'PS'), '9.250 PS');
+        expect(formatQuartettValue(deck.statById('ps')!, 9250, locale: 'es', unit: 'CV'), '9250 CV');
+      });
+
+      test('display names never reach the game: the fingerprint uses the engine data', () {
+        expect(deckGameplayData(deck).toString(), contains('Seenotretter Hermann Marwede'));
+        expect(deckGameplayData(deck).toString(), isNot(contains('Lifeboat')));
+      });
+    });
+
     test('launch counts have no unit; values use Western digits', () {
       final flights = QuartettDeck.rockets.statById('flights')!;
       expect(formatQuartettValue(flights, 786, locale: 'fa', unit: ''), '786');
@@ -394,10 +446,16 @@ void main() {
       expect(find.text('Quartett-Karten'), findsOneWidget);
       for (final deck in QuartettDeck.all) {
         final tile = find.byKey(Key('gallery-deck-${deck.id}'));
+        // Seven decks (KLD-130): the lazy list builds the last ones when scrolled to.
+        await tester.scrollUntilVisible(tile, 200, scrollable: find.byType(Scrollable).first);
         expect(tile, findsOneWidget);
         expect(find.descendant(of: tile, matching: find.text(localizedDeckName(deL10n, deck.id))), findsOneWidget);
         expect(find.descendant(of: tile, matching: find.text('32 Karten · 8 Sets à 4 Karten')), findsOneWidget);
       }
+      await tester.scrollUntilVisible(find.byKey(const Key('gallery-deck-trains')), -200,
+          scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(find.byKey(const Key('gallery-deck-trains')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('gallery-deck-trains')));
       await tester.pumpAndSettle();
 
@@ -496,6 +554,9 @@ void main() {
       // KLD-129: long model names ("Harley-Davidson Pan America 1250 Special"), six stats.
       ('en', const Size(320, 640), Brightness.light, 'motorcycles'),
       ('ar', const Size(360, 640), Brightness.light, 'motorcycles'),
+      // KLD-130: the seventh deck, below the others in the list.
+      ('fr', const Size(320, 640), Brightness.light, 'special'),
+      ('fa', const Size(360, 640), Brightness.dark, 'special'),
     ]) {
       testWidgets('$code ${size.width.toInt()} $deckId: gallery, sets and full card render without overflow',
           (tester) async {
@@ -519,6 +580,21 @@ void main() {
       });
     }
   });
+
+  // KLD-130: the longest card names (a translated type word plus the model
+  // or ship name) and two-decimal heights on a narrow phone.
+  for (final (code, id) in [('fr', 'E4'), ('en', 'E2'), ('es', 'E4'), ('ar', 'E1'), ('de', 'C1')]) {
+    testWidgets('$code 320 special $id: the full card renders without overflow', (tester) async {
+      await _phone(tester, const Size(320, 640));
+      final deck = QuartettDeck.specialVehicles;
+      final index = deck.cards.indexWhere((c) => c.id == id);
+      await tester.pumpWidget(
+          localizedApp(QuartettCardPagerScreen(deck: deck, initialIndex: index), locale: Locale(code)));
+      await tester.pumpAndSettle();
+      expect(find.byKey(Key('gallery-full-$id')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   group('network host', () {
     testWidgets('relay host: the deck choice shows for Quartett only and goes into the config', (tester) async {

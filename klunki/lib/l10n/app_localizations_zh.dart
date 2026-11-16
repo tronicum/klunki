@@ -4889,4 +4889,40 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get rulesLudoSix => '掷出 6 后可以再掷一次。';
+
+  @override
+  String get quartettDeckSpecial => '特种车辆';
+
+  @override
+  String get quartettSetSpecialA => '消防';
+
+  @override
+  String get quartettSetSpecialB => '工地';
+
+  @override
+  String get quartettSetSpecialC => '起重机';
+
+  @override
+  String get quartettSetSpecialD => '农业';
+
+  @override
+  String get quartettSetSpecialE => '救援';
+
+  @override
+  String get quartettSetSpecialF => '机场';
+
+  @override
+  String get quartettSetSpecialG => '环卫';
+
+  @override
+  String get quartettSetSpecialH => '重型运输';
+
+  @override
+  String get quartettSpecialE1 => '救护车 Sprinter';
+
+  @override
+  String get quartettSpecialE2 => '急救医生车 Kodiaq';
+
+  @override
+  String get quartettSpecialE4 => '救生船 Hermann Marwede';
 }

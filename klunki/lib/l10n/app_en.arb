@@ -1300,5 +1300,17 @@
   "ludoRuleStart": "Clear the start field",
   "rulesLudoStart": "While pawns are still waiting in the house, a pawn on your start field must move on first. If one of your own pawns is in its way, that pawn must move first.",
   "ludoRuleSix": "6 = roll again",
-  "rulesLudoSix": "After a 6 you may roll again."
+  "rulesLudoSix": "After a 6 you may roll again.",
+  "quartettDeckSpecial": "Special vehicles",
+  "quartettSetSpecialA": "Fire brigade",
+  "quartettSetSpecialB": "Construction",
+  "quartettSetSpecialC": "Cranes",
+  "quartettSetSpecialD": "Farming",
+  "quartettSetSpecialE": "Rescue",
+  "quartettSetSpecialF": "Airport",
+  "quartettSetSpecialG": "Street cleaning",
+  "quartettSetSpecialH": "Heavy haulage",
+  "quartettSpecialE1": "Ambulance Sprinter",
+  "quartettSpecialE2": "Emergency doctor car Kodiaq",
+  "quartettSpecialE4": "Lifeboat Hermann Marwede"
 }

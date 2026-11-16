@@ -7513,5 +7513,53 @@
   "rulesLudoSix": "Nach einer 6 darfst du nochmal würfeln.",
   "@rulesLudoSix": {
     "description": "KLD-131: rules text of the house rule \"a 6 rolls again\"."
+  },
+  "quartettDeckSpecial": "Sonderfahrzeuge",
+  "@quartettDeckSpecial": {
+    "description": "KLD-130 Quartett deck name: special-purpose vehicles (fire engines, construction machines, cranes, farm machines, rescue vehicles, airport vehicles, street cleaning, heavy haulage)."
+  },
+  "quartettSetSpecialA": "Feuerwehr",
+  "@quartettSetSpecialA": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set A: Fire brigade (fire engines)."
+  },
+  "quartettSetSpecialB": "Baustelle",
+  "@quartettSetSpecialB": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set B: Construction site (construction machines)."
+  },
+  "quartettSetSpecialC": "Kräne",
+  "@quartettSetSpecialC": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set C: Cranes (mobile cranes)."
+  },
+  "quartettSetSpecialD": "Landwirtschaft",
+  "@quartettSetSpecialD": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set D: Farming (tractors and a combine harvester)."
+  },
+  "quartettSetSpecialE": "Rettung",
+  "@quartettSetSpecialE": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set E: Rescue (ambulance, emergency doctor car, rescue helicopter, sea rescue cruiser)."
+  },
+  "quartettSetSpecialF": "Flughafen",
+  "@quartettSetSpecialF": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set F: Airport (airport vehicles)."
+  },
+  "quartettSetSpecialG": "Stadtreinigung",
+  "@quartettSetSpecialG": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set G: Street cleaning (refuse truck, street sweeper, municipal vehicles)."
+  },
+  "quartettSetSpecialH": "Schwertransport",
+  "@quartettSetSpecialH": {
+    "description": "KLD-130 Quartett set name, special vehicle deck, set H: Heavy haulage (heavy-haul tractor, giant dump trucks, modular transporter)."
+  },
+  "quartettSpecialE1": "Rettungs\u00ADwagen Sprinter",
+  "@quartettSpecialE1": {
+    "description": "KLD-130 Quartett card name, special vehicle deck, card E1: an ambulance (box body) on a Sprinter van. A type word plus the model name \"Sprinter\", which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word."
+  },
+  "quartettSpecialE2": "Not\u00ADarzt\u00ADwagen Kodiaq",
+  "@quartettSpecialE2": {
+    "description": "KLD-130 Quartett card name, special vehicle deck, card E2: an emergency doctor car (a fast car that brings the emergency doctor) on a Kodiaq SUV. A type word plus the model name \"Kodiaq\", which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word."
+  },
+  "quartettSpecialE4": "Seenot\u00ADretter Hermann Marwede",
+  "@quartettSpecialE4": {
+    "description": "KLD-130 Quartett card name, special vehicle deck, card E4: the German sea rescue cruiser (lifeboat) \"Hermann Marwede\". A type word plus the ship's name, which stays in Latin letters. Soft hyphens (U+00AD) mark where a narrow card may break a long word."
   }
 }

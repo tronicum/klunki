@@ -1,0 +1,532 @@
+{
+  "deck": "special",
+  "generatedBy": "klunki/tool/fetch_card_media.py",
+  "cards": {
+    "A1": {
+      "name": "Magirus M32L-AS",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Magirus",
+        "en": "https://en.wikipedia.org/wiki/Magirus"
+      },
+      "image": null
+    },
+    "A2": {
+      "name": "Magirus M64L",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Magirus",
+        "en": "https://en.wikipedia.org/wiki/Magirus"
+      },
+      "image": null
+    },
+    "A3": {
+      "name": "Rosenbauer RT",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Rosenbauer_RT%2FRTX",
+        "en": "https://en.wikipedia.org/wiki/Rosenbauer"
+      },
+      "image": {
+        "commonsTitle": "File:Rosenbauer RT Wien.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Rosenbauer_RT_Wien.jpg",
+        "author": "Zeikonaut",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Ein Rosenbauer RT der Berufsfeuerwehr Wien, im Einsatz beim Franz-Josefs-Bahnhof.",
+        "file": "A3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36234
+      }
+    },
+    "A4": {
+      "name": "Magirus Wolf R1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Magirus",
+        "en": "https://en.wikipedia.org/wiki/Magirus"
+      },
+      "image": null
+    },
+    "B1": {
+      "name": "Caterpillar 320",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Caterpillar",
+        "en": "https://en.wikipedia.org/wiki/Caterpillar_Inc."
+      },
+      "image": {
+        "commonsTitle": "File:Caterpillar 320.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Caterpillar_320.jpg",
+        "author": "Bene Riobó",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Excavadora Caterpillar 320 en Roma, Gotland.",
+        "file": "B1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34793
+      }
+    },
+    "B2": {
+      "name": "JCB 3CX",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Baggerlader",
+        "en": "https://en.wikipedia.org/wiki/Backhoe_loader"
+      },
+      "image": {
+        "commonsTitle": "File:JCB 3CX.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:JCB_3CX.jpg",
+        "author": "Bene Riobó",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Retrocargadora JCB 3CX en Silleda.",
+        "file": "B2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 33664
+      }
+    },
+    "B3": {
+      "name": "Caterpillar D11",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Caterpillar_D11"
+      },
+      "image": {
+        "commonsTitle": "File:CatD11T.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:CatD11T.jpg",
+        "author": "Shaun Greiner from Creve Coeur, United States of America",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "The big",
+        "file": "B3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34671
+      }
+    },
+    "B4": {
+      "name": "Volvo A60H",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Volvo_A60H"
+      },
+      "image": {
+        "commonsTitle": "File:Bauma 2016 (26636795952).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bauma_2016_(26636795952).jpg",
+        "author": "Neuwieser from Germany",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "bauma 2016",
+        "file": "B4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40190
+      }
+    },
+    "C1": {
+      "name": "Liebherr LTM 11200-9.1",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Liebherr_LTM_11200",
+        "en": "https://en.wikipedia.org/wiki/Liebherr"
+      },
+      "image": null
+    },
+    "C2": {
+      "name": "Liebherr LTM 1090-4.2",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Liebherr",
+        "en": "https://en.wikipedia.org/wiki/Liebherr"
+      },
+      "image": {
+        "commonsTitle": "File:Liebherr LTM 1090-4.2 (54489846075).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Liebherr_LTM_1090-4.2_(54489846075).jpg",
+        "author": "Alexandre Prevot from Nancy, France",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Construction d'un magasin d'alimentation à Seichamps. Pays : France 🇫🇷 Région : Grand Est (Lorraine) Département : Meurthe-et-Moselle (54) Ville : Seichamps (54280) Adresse : rue des Grands Prés Fonction : Commerces Construction : 2021 → 2023 Hauteur : 11,00 m Surface de plancher : 2 936 m² Superfic",
+        "file": "C2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38514
+      }
+    },
+    "C3": {
+      "name": "Tadano GR-1000XL-4",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Tadano",
+        "en": "https://en.wikipedia.org/wiki/Tadano"
+      },
+      "image": null
+    },
+    "C4": {
+      "name": "Liebherr MK 140",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Liebherr",
+        "en": "https://en.wikipedia.org/wiki/Liebherr"
+      },
+      "image": {
+        "commonsTitle": "File:Liebherr MK 140 (51976836756).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Liebherr_MK_140_(51976836756).jpg",
+        "author": "Alexandre Prevot from Nancy, France",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+        "shareAlike": true,
+        "description": "Liebherr MK 140",
+        "file": "C4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37560
+      }
+    },
+    "D1": {
+      "name": "Fendt 1052 Vario",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Fendt_1000_Vario",
+        "en": "https://en.wikipedia.org/wiki/Fendt"
+      },
+      "image": {
+        "commonsTitle": "File:Fendt 1052 Vario Gen4 Profi+ Agritechnica 2025 (DSC05937).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Fendt_1052_Vario_Gen4_Profi%2B_Agritechnica_2025_(DSC05937).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Schrägansicht der Front eines Fendt 1052 Vario Gen4 Profi+, ausgestellt auf der Agritechnica 2025.",
+        "file": "D1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35394
+      }
+    },
+    "D2": {
+      "name": "John Deere 9RX 830",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/John_Deere",
+        "en": "https://en.wikipedia.org/wiki/John_Deere"
+      },
+      "image": {
+        "commonsTitle": "File:John Deere 9RX 830 Agritechnica 2025 (DSC09735).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:John_Deere_9RX_830_Agritechnica_2025_(DSC09735).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Schrägansicht der Front eines John Deere 9RX 830, ausgestellt auf der Agritechnica 2025.",
+        "file": "D2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 34142
+      }
+    },
+    "D3": {
+      "name": "Claas Lexion 8900",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Claas_Lexion",
+        "en": "https://en.wikipedia.org/wiki/Claas_Lexion"
+      },
+      "image": {
+        "commonsTitle": "File:Claas Lexion 8900 Terra Trac Agritechnica 2023 (DSC07014).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Claas_Lexion_8900_Terra_Trac_Agritechnica_2023_(DSC07014).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Schrägansicht der Front eines Claas Lexion 8900 Terra Trac Cemos Automatic, ausgestellt auf der Agritechnica 2023. Angebaut ist ein Schneidwerk des Typs Claas Convio 1380.",
+        "file": "D3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35285
+      }
+    },
+    "D4": {
+      "name": "Fendt 211 Vario",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Fendt_200_Vario",
+        "en": "https://en.wikipedia.org/wiki/Fendt"
+      },
+      "image": {
+        "commonsTitle": "File:Fendt 211 Vario Agritechnica 2025 (DSC04422).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Fendt_211_Vario_Agritechnica_2025_(DSC04422).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Schrägansicht der Front eines Fendt 211 Vario, ausgestellt auf der Agritechnica 2025.",
+        "file": "D4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36066
+      }
+    },
+    "E1": {
+      "name": "Rettungswagen Sprinter",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Rettungswagen",
+        "en": "https://en.wikipedia.org/wiki/Ambulance"
+      },
+      "image": {
+        "commonsTitle": "File:RTW JUH WAS.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:RTW_JUH_WAS.jpg",
+        "author": "Jack7011",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Rettungswagen der Johanniter auf Mercedes Sprinter Basis mit Kofferaufbau der Firma WAS",
+        "file": "E1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39622
+      }
+    },
+    "E2": {
+      "name": "Notarztwagen Kodiaq",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Notarzteinsatzfahrzeug",
+        "en": "https://en.wikipedia.org/wiki/%C5%A0koda_Kodiaq"
+      },
+      "image": null
+    },
+    "E3": {
+      "name": "Airbus H135",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Airbus_Helicopters_H135",
+        "en": "https://en.wikipedia.org/wiki/Eurocopter_EC135"
+      },
+      "image": {
+        "commonsTitle": "File:ADAC Airbus H135 D-HXCC Christoph 46 landing Seelingstädt.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:ADAC_Airbus_H135_D-HXCC_Christoph_46_landing_Seelingst%C3%A4dt.jpg",
+        "author": "Steffen Mokosch",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Airbus Helicopters H135 rescue helicopter of ADAC Luftrettung with the registration D-HXCC and callsign “Christoph 46” during an emergency medical mission on a field in Seelingstädt, Thuringia, Germany. The helicopter is normally based at the Heinrich-Braun-Klinikum in Zwickau, Saxony.",
+        "file": "E3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 39737
+      }
+    },
+    "E4": {
+      "name": "Seenotretter Hermann Marwede",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Hermann_Marwede_(Schiff)",
+        "en": "https://en.wikipedia.org/wiki/Hermann_Marwede"
+      },
+      "image": {
+        "commonsTitle": "File:Hermann Marwede 2021.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Hermann_Marwede_2021.jpg",
+        "author": "Michael Brandtner",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+        "shareAlike": false,
+        "description": "Seenotrettungskreuzer Hermann Marwede im August 2021 in Helgoland.",
+        "file": "E4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37427
+      }
+    },
+    "F1": {
+      "name": "Rosenbauer Panther 8×8",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Rosenbauer_Panther",
+        "en": "https://en.wikipedia.org/wiki/Rosenbauer_Panther"
+      },
+      "image": {
+        "commonsTitle": "File:Rosenbauer Panther 8x8, Flughafenfeuerwehr Bremen (1).JPG",
+        "source": "https://commons.wikimedia.org/wiki/File:Rosenbauer_Panther_8x8,_Flughafenfeuerwehr_Bremen_(1).JPG",
+        "author": "Geogast",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Flugfeldlöschfahrzeug Rosenbauer Panther 8x8, Flughafenfeuerwehr Bremen",
+        "file": "F1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36084
+      }
+    },
+    "F2": {
+      "name": "Goldhofer AST-1X",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Goldhofer"
+      },
+      "image": null
+    },
+    "F3": {
+      "name": "e.COBUS 3000",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Vorfeldbus",
+        "en": "https://en.wikipedia.org/wiki/Airport_bus"
+      },
+      "image": {
+        "commonsTitle": "File:MM e.Cobus 3000 01e Milan Malpensa 2024 (01).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:MM_e.Cobus_3000_01e_Milan_Malpensa_2024_(01).jpg",
+        "author": "Bahnfrend",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Milan Malpensa e.Cobus 3000 electric airside transfer bus no. 01e, Milan Malpensa Airport (MXP/LIMC), Italy",
+        "file": "F3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40028
+      }
+    },
+    "F4": {
+      "name": "Mototok Twin 7500",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Flugzeugschlepper",
+        "en": "https://en.wikipedia.org/wiki/Pushback_(aviation)"
+      },
+      "image": {
+        "commonsTitle": "File:Mototok-Twin-7500Flat.jpeg",
+        "source": "https://commons.wikimedia.org/wiki/File:Mototok-Twin-7500Flat.jpeg",
+        "author": "LS4flieger",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Mototok Twin 7500 Flat. Towbarless full electric and remote controlled Pushback Truck pushes a Boeing 737",
+        "file": "F4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35263
+      }
+    },
+    "G1": {
+      "name": "Mercedes-Benz eEconic",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Mercedes-Benz_Econic",
+        "en": "https://en.wikipedia.org/wiki/Mercedes-Benz_Econic"
+      },
+      "image": {
+        "commonsTitle": "File:Mercedes-Benz eEconic IAA Transportation 2026 (DSC7299).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Mercedes-Benz_eEconic_IAA_Transportation_2026_(DSC7299).jpg",
+        "author": "MarcelX42",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Ein Mercedes-Benz eEconic 300 L ENA 6x2/4 mit Müllfahrzeugaufbau des Typs Faun Variopress, ausgestellt auf der IAA Transportation 2026.",
+        "file": "G1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37456
+      }
+    },
+    "G2": {
+      "name": "Bucher CityCat 5006",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Bucher_Municipal"
+      },
+      "image": {
+        "commonsTitle": "File:Bucher CityCat 5006.Street sweeper in Modiin 2024.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Bucher_CityCat_5006.Street_sweeper_in_Modiin_2024.jpg",
+        "author": "McKaby",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "רכב-מטאטא כביש של עיריית מודיעין, דגם Bucher CityCat 5006",
+        "file": "G2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40924
+      }
+    },
+    "G3": {
+      "name": "Mercedes-Benz Unimog U 530",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Unimog_405",
+        "en": "https://en.wikipedia.org/wiki/Unimog_405"
+      },
+      "image": {
+        "commonsTitle": "File:Berchtesgaden, Schneefräse beim Verbreitern, 1.jpeg",
+        "source": "https://commons.wikimedia.org/wiki/File:Berchtesgaden,_Schneefr%C3%A4se_beim_Verbreitern,_1.jpeg",
+        "author": "Renardo la vulpo",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "Berchtesgaden, eine Schneefräse fräst die Schneemauer an einer Straße ab, um die Fahrbahn zu verbreitern.",
+        "file": "G3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37456
+      }
+    },
+    "G4": {
+      "name": "Goupil G4",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Kommunalfahrzeug",
+        "en": "https://en.wikipedia.org/wiki/Polaris_Inc."
+      },
+      "image": {
+        "commonsTitle": "File:Elektrofahrzeug Goupil-G4 in Winterthur.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Elektrofahrzeug_Goupil-G4_in_Winterthur.jpg",
+        "author": "JoachimKohler-HB",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Elektrofahrzeug Goupil-G4 in Winterthur",
+        "file": "G4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 40215
+      }
+    },
+    "H1": {
+      "name": "Volvo FH16 780",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Volvo_FH",
+        "en": "https://en.wikipedia.org/wiki/Volvo_FH"
+      },
+      "image": {
+        "commonsTitle": "File:Schwerlast-Sattelzugmaschine Volvo FH16 Aero 780 Popp (2025).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Schwerlast-Sattelzugmaschine_Volvo_FH16_Aero_780_Popp_(2025).jpg",
+        "author": "JoachimKohler-HB",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+        "shareAlike": true,
+        "description": "Schwerlast-Sattelzugmaschine Volvo FH16 Aero 780 mit Popp Schwerlastturm",
+        "file": "H1.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 35632
+      }
+    },
+    "H2": {
+      "name": "Caterpillar 797F",
+      "wikipedia": {
+        "en": "https://en.wikipedia.org/wiki/Caterpillar_797"
+      },
+      "image": {
+        "commonsTitle": "File:Caterpillar 797 Mining Truck (14745198060).jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:Caterpillar_797_Mining_Truck_(14745198060).jpg",
+        "author": "Wilson Hui from Calgary, Canada",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+        "shareAlike": false,
+        "description": "Got a chance this Summer to visit Fort McMurray. Very interesting place with lots to see. These machines were amazing, it's the size of a house!",
+        "file": "H2.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 37382
+      }
+    },
+    "H3": {
+      "name": "BelAZ 75710",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/BelAZ-75710",
+        "en": "https://en.wikipedia.org/wiki/BelAZ_75710"
+      },
+      "image": {
+        "commonsTitle": "File:BelAZ-75710 - UMMC Museum Complex.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:BelAZ-75710_-_UMMC_Museum_Complex.jpg",
+        "author": "Лапоть",
+        "license": "CC0",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "shareAlike": false,
+        "description": "BelAZ-75710. \"Museum complex\", Verkhnyaya Pyshma.",
+        "file": "H3.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 38580
+      }
+    },
+    "H4": {
+      "name": "Scheuerle SPMT",
+      "wikipedia": {
+        "de": "https://de.wikipedia.org/wiki/Self-Propelled_Modular_Transporter",
+        "en": "https://en.wikipedia.org/wiki/Self-propelled_modular_transporter"
+      },
+      "image": {
+        "commonsTitle": "File:SCHEUERLE SPMTs moving a ship section.jpg",
+        "source": "https://commons.wikimedia.org/wiki/File:SCHEUERLE_SPMTs_moving_a_ship_section.jpg",
+        "author": "IMessmer",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+        "shareAlike": true,
+        "description": "SCHEUERLE SPMTs moving a ship section",
+        "file": "H4.jpg",
+        "modified": "resized (480 px, JPEG)",
+        "bytes": 36901
+      }
+    }
+  }
+}

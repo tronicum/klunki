@@ -13,6 +13,12 @@ short German summary ("Kurz") for the store notes and the testers.
   someone else's pawn sends it back to its house. The table rules are on: three tries for a 6 while nothing
   can move, "Schlagzwang" (a capture must be made), "Startfeld räumen". Board drawn in code, rules page,
   7 languages. Not over the network yet.
+- **Quartett: new deck "Sonderfahrzeuge"** (KLD-130): 32 special vehicles from the firefighting robot to the
+  largest dump truck in 8 sets (Feuerwehr, Baustelle, Kräne, Landwirtschaft, Rettung, Flughafen, Stadtreinigung,
+  Schwertransport), compared by Leistung, Höchstgeschwindigkeit, Gewicht (lighter wins), Länge and Höhe. Values
+  from the manufacturers' data sheets, press and databases, as of 2025/2026; five top speeds are estimates (no
+  maker publishes one for fire engines, ambulances or heavy-haul tractors). Photos from Wikimedia Commons on 25
+  cards; the others show a drawn fire engine.
 
 ## [1.1.1] – 2026-11-15 (TestFlight)
 

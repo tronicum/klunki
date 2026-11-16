@@ -41,6 +41,10 @@ const _maxBytesOf = {'motorcycles': 54 * 1024};
 /// photos (KLD-129).
 const _budgetOf = {'motorcycles': 1300 * 1024};
 
+/// The first card with a photo credit: A1 except where A1 has no photo (KLD-130: the special
+/// vehicles' A1 photo showed a person, not the ladder truck).
+String _firstCredited(String deckId) => deckId == 'special' ? 'A3' : 'A1';
+
 /// Cards without a Wikipedia article (KLD-129: no article for these models,
 /// and D2's "Indian Chief" resolved to the wrong article, so it has none).
 const _noArticle = {
@@ -65,9 +69,10 @@ List<Uri> _fakeOpener({bool ok = true}) {
 }
 
 /// Decks whose photos and links have been collected (KLD-082 rockets,
-/// KLD-084 the vehicle decks, KLD-128 the animals, KLD-129 the motorcycles); every other deck
-/// keeps its pictograms. A card without a free photo keeps the pictogram too.
-const _mediaDecks = ['rockets', 'planes', 'trains', 'cars', 'animals', 'motorcycles'];
+/// KLD-084 the vehicle decks, KLD-128 the animals, KLD-129 the motorcycles, KLD-130 the special
+/// vehicles); every other deck keeps its pictograms. A card without a free photo keeps the
+/// pictogram too.
+const _mediaDecks = ['rockets', 'planes', 'trains', 'cars', 'animals', 'motorcycles', 'special'];
 
 void main() {
   for (final deckId in _mediaDecks) {
@@ -408,16 +413,24 @@ void _widgetTests() {
       expect(find.byKey(const Key('quartett-photo-credit')), findsOneWidget);
     });
 
-    testWidgets('every deck gallery has a Bildnachweise button that lists only that deck', (tester) async {
+    testWidgets('every deck gallery with photos has a Bildnachweise button that lists only that deck',
+        (tester) async {
       await _phone(tester);
       for (final deck in QuartettDeck.all) {
         await tester.pumpWidget(localizedApp(QuartettDeckGalleryScreen(deck: deck)));
+        if (!_mediaDecks.contains(deck.id)) {
+          // A deck without photos has no credits.
+          expect(find.byKey(const Key('gallery-image-credits')), findsNothing, reason: deck.id);
+          continue;
+        }
         expect(find.byKey(const Key('gallery-image-credits')), findsOneWidget, reason: deck.id);
         await tester.tap(find.byKey(const Key('gallery-image-credits')));
         await tester.pumpAndSettle();
-        expect(find.byKey(Key('quartett-credit-${deck.id}-A1')), findsOneWidget, reason: deck.id);
+        expect(find.byKey(Key('quartett-credit-${deck.id}-${_firstCredited(deck.id)}')), findsOneWidget,
+            reason: deck.id);
         for (final other in QuartettDeck.all.where((d) => d != deck)) {
-          expect(find.byKey(Key('quartett-credit-${other.id}-A1')), findsNothing, reason: '${deck.id}/${other.id}');
+          expect(find.byKey(Key('quartett-credit-${other.id}-${_firstCredited(other.id)}')), findsNothing,
+              reason: '${deck.id}/${other.id}');
         }
         tester.state<NavigatorState>(find.byType(Navigator).first).pop();
         await tester.pumpAndSettle();

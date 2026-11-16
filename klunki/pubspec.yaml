@@ -131,6 +131,7 @@ flutter:
     - assets/quartett/cars/
     - assets/quartett/animals/
     - assets/quartett/motorcycles/
+    - assets/quartett/special/
     # Wortgewandt word lists (KLD-094 step 4): gzip, loaded on demand when a
     # game with "Wörterbuch prüfen" starts (lib/ui/games/wordtiles/word_list_loader.dart);
     # SOURCE.txt = source, commit, licence, filters; LICENSE for LicenseRegistry.

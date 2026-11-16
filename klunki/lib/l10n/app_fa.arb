@@ -1301,5 +1301,17 @@
   "ludoRuleStart": "خالی کردن خانهٔ شروع",
   "rulesLudoStart": "تا وقتی مهره‌هایی در خانه منتظرند، مهره‌ای که روی خانهٔ شروع است باید اول حرکت کند. اگر یکی از مهره‌های خودت جلویش را گرفته باشد، اول همان مهره باید حرکت کند.",
   "ludoRuleSix": "6 = دوباره بینداز",
-  "rulesLudoSix": "بعد از 6 دوباره تاس می‌اندازی."
+  "rulesLudoSix": "بعد از 6 دوباره تاس می‌اندازی.",
+  "quartettDeckSpecial": "خودروهای ویژه",
+  "quartettSetSpecialA": "آتش‌نشانی",
+  "quartettSetSpecialB": "ساختمانی",
+  "quartettSetSpecialC": "جرثقیل‌ها",
+  "quartettSetSpecialD": "کشاورزی",
+  "quartettSetSpecialE": "امداد",
+  "quartettSetSpecialF": "فرودگاه",
+  "quartettSetSpecialG": "پاکبانی",
+  "quartettSetSpecialH": "حمل سنگین",
+  "quartettSpecialE1": "آمبولانس Sprinter",
+  "quartettSpecialE2": "خودروی پزشک Kodiaq",
+  "quartettSpecialE4": "قایق نجات Hermann Marwede"
 }

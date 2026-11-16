@@ -1301,5 +1301,17 @@
   "ludoRuleStart": "Dejar libre la salida",
   "rulesLudoStart": "Mientras haya fichas esperando en casa, una ficha en tu casilla de salida tiene que avanzar primero. Si una ficha tuya le cierra el paso, esa ficha tiene que moverse primero.",
   "ludoRuleSix": "6 = vuelves a tirar",
-  "rulesLudoSix": "Después de un 6 vuelves a tirar."
+  "rulesLudoSix": "Después de un 6 vuelves a tirar.",
+  "quartettDeckSpecial": "Vehículos especiales",
+  "quartettSetSpecialA": "Bomberos",
+  "quartettSetSpecialB": "Obras",
+  "quartettSetSpecialC": "Grúas",
+  "quartettSetSpecialD": "Agricultura",
+  "quartettSetSpecialE": "Rescate",
+  "quartettSetSpecialF": "Aeropuerto",
+  "quartettSetSpecialG": "Limpieza urbana",
+  "quartettSetSpecialH": "Transporte pesado",
+  "quartettSpecialE1": "Ambulancia Sprinter",
+  "quartettSpecialE2": "Vehículo médico Kodiaq",
+  "quartettSpecialE4": "Bote salvavidas Hermann Marwede"
 }
