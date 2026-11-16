@@ -33,6 +33,37 @@ void main() {
       expect(rtlSet.cased, isFalse);
     });
 
+    test('every set: 100 tiles, an alphabet that names each letter once, a fold onto its letters', () {
+      for (final t in TileSet.all) {
+        expect(t.size, 100, reason: t.id);
+        expect(t.letters.toSet(), t.counts.keys.toSet(), reason: t.id);
+        expect(t.letters, hasLength(t.counts.length), reason: t.id);
+        expect(t.points.keys.toSet(), t.counts.keys.toSet(), reason: t.id);
+        for (final l in t.letters) {
+          expect(t.normalize(l), l, reason: '${t.id} $l');
+        }
+      }
+      expect(TileSet.all.map((t) => t.id), ['de', 'en', 'fr', 'es', 'ar', 'fa'].take(TileSet.all.length));
+    });
+
+    test('French: accents and ligatures fold onto A–Z', () {
+      expect(TileSet.french.normalize('Noël'), 'NOEL');
+      expect(TileSet.french.normalize('cœur'), 'COEUR');
+      expect(TileSet.french.normalize('garçon'), 'GARCON');
+      expect(TileSet.french.normalize('ÉTÉ'), 'ETE');
+      expect(TileSet.french.normalize('naïf'), 'NAIF');
+      expect(TileSet.french.canSpell('aujourd’hui'), isFalse);
+      expect(TileSet.french.canSpell('porte-monnaie'), isFalse);
+    });
+
+    test('Spanish: Ñ stays a letter (after N), accents and Ü fold', () {
+      expect(TileSet.spanish.normalize('niño'), 'NIÑO');
+      expect(TileSet.spanish.normalize('corazón'), 'CORAZON');
+      expect(TileSet.spanish.normalize('pingüino'), 'PINGUINO');
+      expect(TileSet.spanish.letters.indexOf('Ñ'), TileSet.spanish.letters.indexOf('N') + 1);
+      expect(TileSet.spanish.canSpell('chorro'), isTrue, reason: 'CH and RR are two tiles each');
+    });
+
     test('fold, alphabet and direction are part of the fingerprint data', () {
       final d = rtlSet.gameplayData();
       expect(d[3], ['أ>ا', 'َ>']);

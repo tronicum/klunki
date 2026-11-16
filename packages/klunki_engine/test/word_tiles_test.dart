@@ -99,6 +99,31 @@ void main() {
       expect(TileSet.english.points, en.points);
     });
 
+    // KLD-132: frequencies counted in the bundled word lists
+    // (`python3 -I tool/build_word_lists.py tiles <id>`, per cent of the
+    // letters in the words of 2–8 letters).
+    test('French: letter frequencies of the Grammalecte list', () {
+      final fr = derive('fr', {
+        'A': 11.048, 'B': 1.969, 'C': 3.567, 'D': 2.413, 'E': 15.133, 'F': 1.555, 'G': 2.063, 'H': 1.297, //
+        'I': 8.161, 'J': 0.311, 'K': 0.242, 'L': 4.321, 'M': 2.608, 'N': 5.575, 'O': 5.572, 'P': 2.565, //
+        'Q': 0.456, 'R': 7.981, 'S': 8.556, 'T': 6.559, 'U': 4.521, 'V': 1.279, 'W': 0.06, 'X': 0.413, //
+        'Y': 0.515, 'Z': 1.26,
+      });
+      expect(TileSet.french.counts, fr.counts);
+      expect(TileSet.french.points, fr.points);
+    });
+
+    test('Spanish: letter frequencies of the RLA-ES list', () {
+      final es = derive('es', {
+        'A': 17.446, 'B': 2.29, 'C': 3.935, 'D': 3.936, 'E': 11.712, 'F': 0.974, 'G': 1.663, 'H': 1.018, //
+        'I': 6.455, 'J': 0.898, 'K': 0.017, 'L': 4.396, 'M': 2.847, 'N': 5.651, 'O': 7.328, 'P': 2.323, //
+        'Q': 0.274, 'R': 8.76, 'S': 8.397, 'T': 3.83, 'U': 3.165, 'V': 1.102, 'W': 0.003, 'X': 0.178, //
+        'Y': 0.226, 'Z': 0.821, 'Ñ': 0.355,
+      });
+      expect(TileSet.spanish.counts, es.counts);
+      expect(TileSet.spanish.points, es.points);
+    });
+
     test('100 tiles each; umlauts are tiles, ß is not; normalize', () {
       for (final s in TileSet.all) {
         expect(s.size, 100, reason: s.id);

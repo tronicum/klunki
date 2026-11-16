@@ -1,0 +1,33 @@
+Wortgewandt word list, Spanish (tile set "es"), KLD-132
+
+File:      words.txt.gz  (gzip; UTF-8, one word per line, upper case, accents folded, Ñ kept, sorted by code point)
+Words:     563,033 (2-15 letters)
+Size:      6,303,667 bytes raw, 1,303,983 bytes gzip
+sha256:    ecdf91d87a4e98f8112e7ca28280b71adce8f6edc7256624f1361b07e42b8dcd  words.txt.gz
+
+Source:    RLA-ES, Recursos lingüísticos abiertos del español, Santiago Bosio y otros, https://github.com/sbosio/rla-es
+           at commit cf67981ae1b2b9c4dfdb20affbf6d3d6bbae0b1d (2026-10-11)
+           https://github.com/sbosio/rla-es/archive/cf67981ae1b2b9c4dfdb20affbf6d3d6bbae0b1d.tar.gz
+           (3,056,346 bytes, sha256 cb5149454814b497b3ee9fc12e8c672ec52de46c2bc636634c5d27fb58d90632)
+           used: ortografia/palabras/RAE/*.txt (stems with affix flags, words of the RAE dictionary; not the .old
+           files, not l10n/, noRAE/ or toponimos/) and ortografia/afijos/afijos.txt (sha256
+           327a5cf49cabfc9183d3a0dcc1170eaa758836fb86fba09f0c37e5fb29525db4)
+Licence:   the project offers GPL-3.0-or-later, LGPL-3.0-or-later or MPL-1.1-or-later (LICENSE.md); the stem files'
+           headers name the GPL 3 or later. Klunki uses it under the GNU GPL version 3 or later; our derived list
+           stays under it. LICENSE = our note, the project's LICENSE.md and LICENSE/GPLv3.txt (sha256
+           8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903).
+Fetched:   2026-11-16 with curl by the maintainer session, approved by the maintainer (KLD-132).
+
+Processing (klunki/tool/build_word_lists.py, standard library only, reproducible):
+  python3 -I tool/build_word_lists.py es <extracted repository>
+  * every stem of the 27 RAE/*.txt files except Locuciones.txt (parts of fixed phrases: acerca, cápita) expanded
+    with the affix rules by klunki/tool/hunspell_expand.py (our own expander, tested by
+    tool/hunspell_expand_test.py): conjugations, plurals, feminine forms, enclitic pronouns, also two of them
+    (dámelo, cuéntamelo, comértelo; decided by default, native-speaker review pending); 56,432 stems, 690,638 forms;
+  * the RAE folder has no names, places or abbreviations (those are in noRAE/ and toponimos/, not used);
+  * normalized like the engine's TileSet.spanish: Á É Í Ó Ú -> vowel, Ü -> U, Ñ stays a letter, upper case;
+  * kept: words of 2-15 letters A-Z plus Ñ.
+  By length: 2:82, 3:393, 4:2329, 5:8495, 6:19903, 7:39965, 8:63160, 9:83024, 10:94044, 11:87825, 12:70231,
+  13:49398, 14:29136, 15:15048.
+Tiles:     python3 -I tool/build_word_lists.py tiles es (pinned in packages/klunki_engine/test/word_tiles_test.dart).
+Check:     python3 -I tool/build_word_lists.py check

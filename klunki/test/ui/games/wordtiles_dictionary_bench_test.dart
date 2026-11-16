@@ -369,7 +369,7 @@ void main() {
     // KLD-094 step 6: the list's identity is part of the network fingerprint
     // (WordLists.revisions); a new list must come with a new revision.
     test('the bundled files match the sha256 in WordLists.revisions', () async {
-      for (final id in ['de', 'en']) {
+      for (final id in WordListLoader.available) {
         final data = await rootBundle.load(WordListLoader.assetOf(id));
         final hash = [
           for (final b in sha256(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes)))

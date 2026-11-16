@@ -221,6 +221,8 @@ class WordLists {
   static const Map<String, String> revisions = {
     'de': 'enz/german-wordlist@1071d87 sha256:fa8ab81c96e5eb075fb3f3fe1e639a7f81196c8d9e4458abae8d2eb4c070c0b8',
     'en': 'en-wl/wordlist ESDB@1e5b7d3 size 80 sha256:0927f44c2dedac2e82bbade2a262b0e4d245c59ad4c021762bec30d9a8e7091d',
+    'fr': 'Grammalecte lexique 7.7 sha256:a3d0d6bca7f697bba37446608b13d5da200c6eccbb1701f8b716a1aaa8e2417f',
+    'es': 'sbosio/rla-es@cf67981 RAE sha256:ecdf91d87a4e98f8112e7ca28280b71adce8f6edc7256624f1361b07e42b8dcd',
   };
 
   static void register(String tileSetId, WordValidator list) => _lists[tileSetId] = list;
@@ -251,8 +253,13 @@ class WordLists {
 /// häufigkeiten im Deutschen und Englischen" (2005), as tabled on
 /// de.wikipedia.org/wiki/Buchstabenhäufigkeit (with Ä Ö Ü; ß folded into S
 /// twice, since ß is written SS); English, the "Dictionaries" column of
-/// en.wikipedia.org/wiki/Letter_frequency. Both should be recalibrated
-/// against the approved word list (step 4).
+/// en.wikipedia.org/wiki/Letter_frequency. Both could be recalibrated
+/// against their word lists (a later rules change).
+///
+/// French, Spanish, Arabic and Persian (KLD-132): counted in the bundled
+/// word list itself (`build_word_lists.py tiles <id>`): the share of each
+/// letter in the list's words of 2–8 letters (the lengths actually laid),
+/// every word once.
 class TileSet {
   /// Stable id (`de`, `en`, `fr`, `es`, `ar`, `fa`), part of the game's view.
   final String id;
@@ -314,7 +321,42 @@ class TileSet {
     'K': 4, 'W': 5, 'Z': 6, 'X': 8, 'J': 8, 'Q': 10,
   }, fold: _sharpS);
 
-  static const List<TileSet> all = [german, english];
+  /// French (KLD-132): A–Z; accents folded (É → E, Ç → C, Œ → OE …).
+  static const TileSet french = TileSet('fr', {
+    'E': 14, 'A': 11, 'S': 8, 'I': 8, 'R': 8, 'T': 6, 'N': 5, 'O': 5, 'U': 4, 'L': 4, //
+    'C': 4, 'M': 3, 'P': 2, 'D': 2, 'G': 2, 'B': 2, 'F': 1, 'H': 1, 'V': 1, 'Z': 1, //
+    'Y': 1, 'Q': 1, 'X': 1, 'J': 1, 'K': 1, 'W': 1,
+  }, {
+    'E': 1, 'A': 1, 'S': 1, 'I': 1, 'R': 1, 'T': 1, 'N': 1, 'O': 1, 'U': 2, 'L': 2, //
+    'C': 2, 'M': 2, 'P': 2, 'D': 2, 'G': 3, 'B': 3, 'F': 3, 'H': 3, 'V': 3, 'Z': 3, //
+    'Y': 5, 'Q': 5, 'X': 5, 'J': 5, 'K': 6, 'W': 10,
+  }, fold: {
+    'À': 'A', 'à': 'A', 'Â': 'A', 'â': 'A', 'Ä': 'A', 'ä': 'A', 'Ç': 'C', 'ç': 'C', //
+    'É': 'E', 'é': 'E', 'È': 'E', 'è': 'E', 'Ê': 'E', 'ê': 'E', 'Ë': 'E', 'ë': 'E', //
+    'Î': 'I', 'î': 'I', 'Ï': 'I', 'ï': 'I', 'Ô': 'O', 'ô': 'O', 'Ö': 'O', 'ö': 'O', //
+    'Ù': 'U', 'ù': 'U', 'Û': 'U', 'û': 'U', 'Ü': 'U', 'ü': 'U', 'Ÿ': 'Y', 'ÿ': 'Y', //
+    'Œ': 'OE', 'œ': 'OE', 'Æ': 'AE', 'æ': 'AE',
+  });
+
+  /// Spanish (KLD-132): A–Z plus Ñ (a tile of its own, after N); accents
+  /// and Ü folded; no digraph tiles (CH, LL, RR are two tiles).
+  static const TileSet spanish = TileSet('es', {
+    'A': 15, 'E': 11, 'R': 8, 'S': 8, 'O': 7, 'I': 6, 'N': 5, 'L': 4, 'D': 4, 'C': 4, //
+    'T': 4, 'U': 3, 'M': 3, 'P': 2, 'B': 2, 'G': 1, 'V': 1, 'H': 1, 'F': 1, 'J': 1, //
+    'Z': 1, 'Ñ': 1, 'Q': 1, 'Y': 1, 'X': 1, 'K': 1, 'W': 1,
+  }, {
+    'A': 1, 'E': 1, 'R': 1, 'S': 1, 'O': 1, 'I': 1, 'N': 1, 'L': 1, 'D': 1, 'C': 1, //
+    'T': 1, 'U': 1, 'M': 2, 'P': 2, 'B': 2, 'G': 2, 'V': 2, 'H': 2, 'F': 3, 'J': 3, //
+    'Z': 3, 'Ñ': 3, 'Q': 4, 'Y': 4, 'X': 4, 'K': 6, 'W': 8,
+  }, fold: {
+    'Á': 'A', 'á': 'A', 'É': 'E', 'é': 'E', 'Í': 'I', 'í': 'I', 'Ó': 'O', 'ó': 'O', //
+    'Ú': 'U', 'ú': 'U', 'Ü': 'U', 'ü': 'U',
+  }, alphabet: [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'S', //
+    'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+  ]);
+
+  static const List<TileSet> all = [german, english, french, spanish];
 
   static TileSet? byId(Object? id) => all.where((t) => t.id == id).firstOrNull;
 

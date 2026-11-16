@@ -137,6 +137,8 @@ flutter:
     # Built by tool/build_word_lists.py. Not precached by the PWA (pwa_finalize.py).
     - assets/wordlists/de/
     - assets/wordlists/en/
+    - assets/wordlists/fr/
+    - assets/wordlists/es/
   fonts:
     - family: Roboto
       fonts:
